@@ -24,7 +24,7 @@ internal sealed class ConfirmWindow : Window
         UseLayoutRounding = true;
         TextOptions.SetTextFormattingMode(this, TextFormattingMode.Display);
         Background = Theme.P.Solid;
-        Icon = Shots.AppIcon();
+        Shots.TrackIcon(this);
         result = choices[^1].value;
 
         var stack = new StackPanel { Margin = new Thickness(28, 22, 28, 20) };

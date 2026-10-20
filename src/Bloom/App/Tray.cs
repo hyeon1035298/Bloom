@@ -39,6 +39,17 @@ internal sealed class Tray : IDisposable
             szInfoTitle = "",
         };
         Add();
+        Ui.Theme.Changed += Repaint;
+    }
+
+    /// The mark wears the accent: a new icon when it changes.
+    private void Repaint()
+    {
+        IntPtr fresh = MakeIcon(), old = icon;
+        icon = fresh;
+        data.hIcon = fresh;
+        Win32.Shell_NotifyIcon(Win32.NIM_MODIFY, ref data);
+        if (old != IntPtr.Zero) Win32.DestroyIcon(old);
     }
 
     [DllImport("user32.dll", CharSet = CharSet.Unicode)] private static extern uint RegisterWindowMessage(string name);
@@ -111,6 +122,7 @@ internal sealed class Tray : IDisposable
 
     public void Dispose()
     {
+        Ui.Theme.Changed -= Repaint;
         Win32.Shell_NotifyIcon(Win32.NIM_DELETE, ref data);
         if (icon != IntPtr.Zero) Win32.DestroyIcon(icon);
         icon = IntPtr.Zero;

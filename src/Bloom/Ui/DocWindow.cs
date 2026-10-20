@@ -63,7 +63,7 @@ internal sealed class DocWindow : Window
         FilePath = path;
         string name = Path.GetFileName(path);
         Title = name + " - Bloom";
-        Icon = Shots.AppIcon();
+        Shots.TrackIcon(this);
         int[] size = Settings.Current.DocSize is { Length: 2 } kept ? kept : new Settings().DocSize; // Settings owns the default
         Width = Math.Clamp(size[0], 360, 4000);
         Height = Math.Clamp(size[1], 240, 4000);

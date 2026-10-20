@@ -22,7 +22,7 @@ internal sealed class WhatsNewWindow : Window
         UseLayoutRounding = true;
         TextOptions.SetTextFormattingMode(this, TextFormattingMode.Display);
         Background = Theme.P.Solid;
-        Icon = Shots.AppIcon();
+        Shots.TrackIcon(this);
 
         var stack = new StackPanel { Margin = new Thickness(32, 26, 32, 20) };
         stack.Children.Add(Theme.T(Tr($"Bloom {version} 업데이트 완료", $"Bloom {version} update complete"), 20, Theme.P.Text, Theme.Semi));

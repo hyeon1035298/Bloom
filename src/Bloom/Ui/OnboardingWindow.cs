@@ -59,7 +59,7 @@ internal sealed class OnboardingWindow : Window
         UseLayoutRounding = true;
         TextOptions.SetTextFormattingMode(this, TextFormattingMode.Display);
         Background = Theme.P.Solid;
-        Icon = Shots.AppIcon();
+        Shots.TrackIcon(this);
         steps = new() { Welcome, Opening, BrowserPick, Looks, HomeTools, Helpers };
         if (FoundAis().Count > 0) steps.Add(PickAi); // which AI does what, when there is one to pick
         if (FoundAis().Contains("chatgpt")) steps.Add(PickUsage); // how ChatGPT's usage is asked, when Codex is there

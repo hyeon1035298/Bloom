@@ -26,7 +26,7 @@ internal sealed class ApiKeyWindow : Window
         UseLayoutRounding = true;
         TextOptions.SetTextFormattingMode(this, TextFormattingMode.Display);
         Background = Theme.P.Solid;
-        Icon = Shots.AppIcon();
+        Shots.TrackIcon(this);
 
         var stack = new StackPanel { Margin = new Thickness(28, 22, 28, 20) };
         stack.Children.Add(Theme.T(Title, 17, Theme.P.Text, Theme.Semi));

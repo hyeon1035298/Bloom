@@ -49,7 +49,7 @@ internal sealed partial class ChatWindow : Window, IChatHost
         UseLayoutRounding = true;
         TextOptions.SetTextFormattingMode(this, TextFormattingMode.Display);
         Background = Theme.P.Solid;
-        Icon = Shots.AppIcon();
+        Shots.TrackIcon(this);
 
         root.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(264) });
         root.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1) });

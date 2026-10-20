@@ -121,7 +121,7 @@ internal static partial class Captures
                 await sw.Dispatcher.InvokeAsync(() => sw.Capture(Path.Combine(dir, theme + "-11-settings.png")), System.Windows.Threading.DispatcherPriority.ApplicationIdle);
                 if (theme == "light")
                 {
-                    foreach (var (word, name) in new[] { ("모델", "-11c-settings-models"), ("생각 수준", "-11d-settings-levels") })
+                    foreach (var (word, name) in new[] { ("모델", "-11c-settings-models"), ("생각 수준", "-11d-settings-levels"), ("색", "-11e-settings-colour") })
                     {
                         sw.Filter(word);
                         await Task.Delay(250);

@@ -12,7 +12,8 @@ internal sealed class Settings
     public string Language { get; set; } = "auto"; // auto (Windows' display language) | ko | en | ja | zh — read once per run (Core\Lang.cs)
     public bool? Onboarded { get; set; } // the first-run screens were seen (null: a settings file from before they existed)
     public string IconStyle { get; set; } = "tile"; // favorites' picture icons: soft (rose tint) | tile (Bloom's neutral tile) | card (raised card) | black
-    public string Accent { get; set; } = "rose"; // Ui.Accents key: rose | lavender | sky | mint | tangerine | lemon | gray
+    public string Accent { get; set; } = "rose"; // Ui.Accents key: rose | lavender | sky | mint | tangerine | lemon | gray | custom
+    public string? AccentCustom { get; set; } // "#RRGGBB" for Accent = "custom"
     public bool WinKey { get; set; } = true;
     public bool WinKeyAdmin { get; set; } // the Win key over apps run as administrator: the elevated helper (App\ElevatedWinKey.cs)
     public bool AltSpace { get; set; } = true;

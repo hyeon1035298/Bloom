@@ -68,15 +68,27 @@ internal static class Shots
     }
 
     private static BitmapSource? icon;
+    private static string? iconFor;
 
-    /// The Bloom mark as a window icon (drawn once).
+    /// The Bloom mark as a window icon (drawn once per accent).
     public static BitmapSource AppIcon()
     {
-        if (icon is not null) return icon;
+        string accent = Core.Settings.Current.Accent + "|" + Core.Settings.Current.AccentCustom;
+        if (icon is not null && iconFor == accent) return icon;
         var rtb = new RenderTargetBitmap(64, 64, 96, 96, PixelFormats.Pbgra32);
         rtb.Render(Theme.MarkVisual(64));
         rtb.Freeze();
+        iconFor = accent;
         return icon = rtb;
+    }
+
+    /// The window's icon is the mark in the current accent, and follows it when the accent changes.
+    public static void TrackIcon(Window w)
+    {
+        w.Icon = AppIcon();
+        void Paint() => w.Icon = AppIcon();
+        Theme.Changed += Paint;
+        w.Closed += (_, _) => Theme.Changed -= Paint;
     }
 
     /// A normal window's title bar: light or dark, filled with the window's solid colour.

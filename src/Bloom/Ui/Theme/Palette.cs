@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Windows.Media;
 
 namespace Bloom.Ui;
@@ -18,10 +19,10 @@ internal sealed class Palette
     private static Color C(uint argb) => Color.FromArgb((byte)(argb >> 24), (byte)(argb >> 16), (byte)(argb >> 8), (byte)argb);
 
     /// `glassTransparency`: 설정 > 성능 > 유리 투명도, the share (%) of the screen behind that shows through the glass.
-    public void Apply(bool dark, string accent, int glassTransparency)
+    public void Apply(bool dark, AccentPreset? accent, int glassTransparency)
     {
         Base(dark);
-        if (Accents.Find(accent) is { Key: not "rose" } a) Recolor(dark, a);
+        if (accent is { Key: not "rose" } a) Recolor(dark, a);
         Glass(glassTransparency);
     }
 
@@ -143,6 +144,45 @@ internal static class Accents
     };
 
     public static AccentPreset? Find(string? key) => Array.Find(All, a => a.Key == key);
+
+    public const string CustomKey = "custom";
+
+    /// The accent the settings name: a preset, or "custom" (a #RRGGBB the user typed); null when there is none (Rose).
+    public static AccentPreset? Current => Resolve(Core.Settings.Current.Accent, Core.Settings.Current.AccentCustom);
+
+    public static AccentPreset? Resolve(string? key, string? custom) =>
+        key == CustomKey ? (TryParse(custom, out var c, out _) ? Custom(c) : null) : Find(key);
+
+    /// "#3A7BD5" (the # may be left out) → its colour; otherwise why not, in the UI's language.
+    public static bool TryParse(string? text, out Color color, out string error)
+    {
+        color = default;
+        string t = (text ?? "").Trim();
+        if (t.StartsWith('#')) t = t[1..];
+        if (t.Length == 0)
+        {
+            error = Tr("색 코드를 적어 주세요 (예: #3A7BD5)", "Type a colour code (like #3A7BD5)");
+            return false;
+        }
+        if (t.Length != 6 || !t.All(Uri.IsHexDigit))
+        {
+            error = Tr("#과 16진수 6자리(0-9, A-F)로 적어 주세요 (예: #3A7BD5)", "Use # and 6 hex digits (0-9, A-F), like #3A7BD5");
+            return false;
+        }
+        uint v = Convert.ToUInt32(t, 16);
+        color = Color.FromRgb((byte)(v >> 16), (byte)(v >> 8), (byte)v);
+        error = "";
+        return true;
+    }
+
+    /// The typed colour is the light theme's accent; the dark one is the same hue, lifted (the presets' pairs are 0.15-0.22 apart in lightness).
+    public static AccentPreset Custom(Color c)
+    {
+        var (h, s, l) = Hsl.From(c);
+        var dark = Hsl.To(0xFF, h, s, Math.Max(l, Math.Min(0.86, l + 0.18)));
+        uint U(Color x) => 0xFF000000u | (uint)x.R << 16 | (uint)x.G << 8 | x.B;
+        return new AccentPreset(CustomKey, Tr("직접", "Custom"), U(dark), U(c), s < 0.06);
+    }
 
     public static Color Swatch(AccentPreset a, bool dark)
     {

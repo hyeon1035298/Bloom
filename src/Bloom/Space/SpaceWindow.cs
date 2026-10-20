@@ -46,7 +46,7 @@ internal sealed class SpaceWindow : Window
         UseLayoutRounding = true;
         TextOptions.SetTextFormattingMode(this, TextFormattingMode.Display);
         Background = Theme.P.Solid;
-        Icon = Shots.AppIcon();
+        Shots.TrackIcon(this);
 
         root = new Grid { Background = Theme.P.Solid };
         root.RowDefinitions.Add(new RowDefinition { Height = new GridLength(52) });

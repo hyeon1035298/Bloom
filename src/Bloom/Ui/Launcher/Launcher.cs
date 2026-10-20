@@ -371,10 +371,22 @@ internal sealed partial class Launcher : Window, IChatHost
     public static Image MarkImage(int size)
     {
         int px = size * 3;
-        var rtb = new RenderTargetBitmap(px, px, 96, 96, PixelFormats.Pbgra32);
-        rtb.Render(Theme.MarkVisual(px));
-        rtb.Freeze();
-        var img = new Image { Source = rtb, Width = size, Height = size, VerticalAlignment = VerticalAlignment.Center };
+        var img = new Image { Width = size, Height = size, VerticalAlignment = VerticalAlignment.Center };
+        void Paint()
+        {
+            var rtb = new RenderTargetBitmap(px, px, 96, 96, PixelFormats.Pbgra32);
+            rtb.Render(Theme.MarkVisual(px));
+            rtb.Freeze();
+            img.Source = rtb;
+        }
+        Paint();
+        // the mark wears the accent: repaint when it changes (while the picture is on screen)
+        img.Loaded += (_, _) =>
+        {
+            Theme.Changed += Paint;
+            Paint();
+        };
+        img.Unloaded += (_, _) => Theme.Changed -= Paint;
         RenderOptions.SetBitmapScalingMode(img, BitmapScalingMode.HighQuality);
         return img;
     }

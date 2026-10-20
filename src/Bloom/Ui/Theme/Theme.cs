@@ -112,7 +112,7 @@ internal static class Theme
     {
         bool dark = setting switch { "dark" => true, "light" => false, _ => SystemDark() };
         Acrylic = Core.Settings.Current.Transparency != "off" && SystemTransparency() && Environment.OSVersion.Version.Build >= 22621;
-        P.Apply(dark, Core.Settings.Current.Accent, Core.Settings.Current.GlassTransparency);
+        P.Apply(dark, Accents.Current, Core.Settings.Current.GlassTransparency);
         // a ResourceDictionary freezes what it holds, so the scroll thumb gets a fresh copy each time
         if (Application.Current is { } app) app.Resources["AL.Thumb"] = P.Thumb.CloneCurrentValue();
         Changed?.Invoke();
@@ -172,13 +172,22 @@ internal static class Theme
         var v = new DrawingVisual();
         using var dc = v.RenderOpen();
         double s = size;
+        // the settings' accent (the dark theme's tone, as the tile is dark): Rose is the mark as drawn; another colour
+        // turns the tile and the petals to its hue (gray drops it, like the neutrals of the UI) and the centre to the accent
+        var a = Accents.Current is { Key: not "rose" } x ? x : null;
+        Color Tint(Color c)
+        {
+            if (a is null) return c;
+            var (_, sat, l) = Hsl.From(c);
+            return Hsl.To(c.A, a.Hue, a.Gray ? 0 : sat, l);
+        }
         if (tile)
         {
-            var bg = new LinearGradientBrush(Color.FromRgb(0x2E, 0x25, 0x29), Color.FromRgb(0x12, 0x0E, 0x10), 90);
+            var bg = new LinearGradientBrush(Tint(Color.FromRgb(0x2E, 0x25, 0x29)), Tint(Color.FromRgb(0x12, 0x0E, 0x10)), 90);
             dc.DrawRoundedRectangle(bg, null, new Rect(0, 0, s, s), s * 0.23, s * 0.23);
         }
-        var white = new SolidColorBrush(Color.FromRgb(0xF1, 0xEC, 0xEE));
-        var rose = new SolidColorBrush(Color.FromRgb(0xFF, 0x7A, 0x9E));
+        var white = new SolidColorBrush(Tint(Color.FromRgb(0xF1, 0xEC, 0xEE)));
+        var rose = new SolidColorBrush(a is null ? Color.FromRgb(0xFF, 0x7A, 0x9E) : Accents.Swatch(a, true));
         double cx = s / 2, cy = s * 0.515; // the flower's box (one petal up) centred on the tile
         double hw = Math.Max(1.1, s * 0.085), len = s * 0.28, gap = s * 0.06;
         double yb = cy - gap, yt = cy - gap - len;

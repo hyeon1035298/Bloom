@@ -51,20 +51,47 @@ internal sealed partial class SettingsView
                 s.Theme = v;
                 Theme.Apply(v);
             }, filter);
-        var accent = Accents.Find(s.Accent) ?? Accents.All[0];
-        var sw = new Swatches(Accents.All.Select(a => (a.Key, a.Name, Accents.Swatch(a, Theme.P.Dark))), accent.Key);
+        var accent = Accents.Current ?? Accents.All[0];
+        bool customOk = Accents.TryParse(s.AccentCustom, out var customColour, out _);
+        var field = new ColourField(s.AccentCustom) { Done = () => FocusFilter?.Invoke() };
+        var dots = Accents.All.Select(a => (a.Key, a.Name, Accents.Swatch(a, Theme.P.Dark)))
+            .Append((Accents.CustomKey, Tr("직접", "Custom"), customOk ? customColour : System.Windows.Media.Color.FromRgb(0x8C, 0x8C, 0x90)));
+        var sw = new Swatches(dots, s.Accent == Accents.CustomKey && !customOk ? Accents.All[0].Key : accent.Key);
         void PickAccent(string v)
         {
+            if (v == Accents.CustomKey && !customOk) // nothing typed yet: the code goes in first
+            {
+                sw.Set(accent.Key);
+                field.FocusBox();
+                return;
+            }
             s.Accent = v;
             Settings.Save();
             Theme.Apply(s.Theme); // every window repaints; this list is rebuilt by its window
         }
         sw.Picked += PickAccent;
-        Add(Tr("색", "Colour"), Tr($"{accent.Name} · 강조색과 전체 톤이 함께 바뀝니다", $"{accent.Name} · the accent and the overall tone change together"), sw, G.Palette, () => PickAccent(sw.Cycle()), d =>
+        Add(Tr("색", "Colour"), Tr($"{accent.Name} · 강조색과 전체 톤이 함께 바뀝니다", $"{accent.Name} · the accent and the overall tone change together"), sw, G.Palette, () =>
+        {
+            string next = sw.Cycle();
+            if (next == Accents.CustomKey && !customOk) // nothing typed in: round to the first
+            {
+                next = Accents.All[0].Key;
+                sw.Set(next);
+            }
+            PickAccent(next);
+        }, d =>
         {
             PickAccent(sw.Step(d));
             return true;
         }, filter);
+        field.Applied += code =>
+        {
+            s.AccentCustom = code;
+            s.Accent = Accents.CustomKey;
+            Settings.Save();
+            Theme.Apply(s.Theme);
+        };
+        Add(Tr("직접 고른 색", "Custom colour"), Tr("#RRGGBB 로 적습니다 (예: #3A7BD5) · 라이트는 그 색, 다크는 같은 색을 밝게", "Type #RRGGBB (like #3A7BD5) · the light theme uses it, the dark one a lighter take"), field, G.Palette, field.FocusBox, null, filter);
 
         var inv = System.Globalization.CultureInfo.InvariantCulture;
         Choice(Tr("크기", "Size"), Tr("런처 · 도구 창 · AI 채팅 · 설정 창을 함께 · 런처에서 Ctrl+= / Ctrl+- / Ctrl+0", "The launcher, tool windows, chat and settings together · Ctrl+= / Ctrl+- / Ctrl+0 in the launcher"), G.Screen,
