@@ -527,6 +527,9 @@ Folder	文件夹
 File	文件
 See this folder's size (Space Cleaner)	查看此文件夹大小 (Space Cleaner)
 View in Bloom	在 Bloom 中查看
+Add to the queue	添加到播放队列
+Asked to add ‘{0}’ to the queue · {1}	已请求将“{0}”添加到播放队列 · {1}
+Play in mini player	用迷你播放器播放
 Add to custom commands…	添加到自定义命令…
 Just now	刚刚
 {0} min ago	{0} 分钟前
@@ -630,6 +633,17 @@ Close its windows (it may ask to save)	关闭窗口来结束 (可能会询问是
 Restart Explorer	重启资源管理器
 Sort by CPU	按 CPU 排序
 Sort by memory	按内存排序
+{0} — enter words	{0} — 输入搜索词
+At least {0} characters	至少 {0} 个字符
+Looking for ‘{0}’…	正在查找“{0}”…
+No results	无结果
+{0} · {1}	{0} 项 · {1}
++ space + words	＋ 空格 ＋ 搜索词
+Enter words	输入搜索词
+Not opened	无法打开
+Only http and https addresses open	只能打开 http 和 https 地址
+Copied	已复制
+Could not run	无法运行
 No selected or copied text	无已选中或复制的文本
 Select text in any app and press {0}, or copy it and come back	在任意应用中选中文字后按 {0}，或复制后再回来
 ‘{0}’ in progress…	正在“{0}”…
@@ -641,7 +655,6 @@ Length	长度
 Replace the selection	替换选中的文字
 Paste into the window	粘贴到窗口
 Pastes back into the app (Ctrl+V)	粘贴回原应用（Ctrl+V）
-Copied	已复制
 Continue in a chat	在对话中继续
 Try again	请重试
 Pick another action	选择其他操作
@@ -813,7 +826,6 @@ winget is not installed	未安装 winget
 It comes with ‘App Installer’ from the Microsoft Store · Enter opens it	它包含在 Microsoft Store 的“应用安装程序”中 · 按 Enter 打开
 Type the name of an app to install	输入要安装的应用名称
 Searched in winget and the Microsoft Store · Enter installs	在 winget 和 Microsoft Store 中搜索 · 按 Enter 安装
-Looking for ‘{0}’…	正在查找“{0}”…
 winget is reading its catalogue · a few seconds	winget 正在读取目录 · 需要几秒钟
 No response from winget. Search again shortly.	winget 无响应。请稍后重新搜索。
 Try again in a moment	请稍后再试
@@ -930,6 +942,7 @@ Move yesterday's quote PDF to Documents	把昨天的报价单 PDF 移到“文�
 \n\nMoved to Documents.	\n\n已移到“文档”文件夹。
 Groceries\n- milk\n- eggs\n- bread	购物\n- 牛奶\n- 鸡蛋\n- 面包
 Add payment module tests	添加支付模块测试
+Mini player	迷你播放器
 ntpd	ntpd
 chrom	chrom
 Friday meeting\nresend the quote · fix the date	周五会议\n重新发送报价单 · 确定日期
@@ -1087,6 +1100,7 @@ Search a site by keyword, like ‘yt cats’	用关键词搜索网站，如 “y
 Your own scripts, snippets and chains	自己写的脚本、片段和组合
 Notes & tool windows	便笺和工具窗口
 Notes, timers, calculator and clipboard in windows beside the launcher · notes in the search line	便笺、计时器、计算器、剪贴板以窗口形式放在启动器旁 · 在搜索栏查找便笺
+Play audio files yourself or through JRiver, foobar2000 or MusicBee · a small window beside the launcher · a queue · ‘Play in mini player’ on file results	直接播放音频文件，或通过 JRiver · foobar2000 · MusicBee 播放 · 启动器旁的小窗口 · 播放队列 · 文件搜索结果中的“用迷你播放器播放”
 Markdown documents (.md)	Markdown 文档 (.md)
 Bloom in Explorer's ‘Open with’ · ‘View in Bloom’ on .md files you find	资源管理器“打开方式”中的 Bloom · 搜索到的 .md 文件上的“在 Bloom 中查看”
 Switch windows	切换窗口
@@ -1118,6 +1132,25 @@ Reminder	提醒
 0 s	0 秒
 today	今天
 tomorrow	明天
+Not an audio file	不是音频文件
+Bloom cannot play {0} files itself — pick another player in Settings > Mini player	Bloom 无法直接播放 {0} 文件 — 请在 设置 > 迷你播放器 中选择其他播放器
+The file is gone	文件已不存在
+The file cannot be opened	无法打开该文件
+{0} songs	{0} 首
+Skipped	已跳过
+Not played	未播放
+{0} is not running — picking a song starts it	{0} 未运行 — 选择歌曲时会一并启动
+Could not find {0} — set its program path in Settings > Mini player	找不到 {0} — 请在 设置 > 迷你播放器 中设置程序路径
+Could not start {0} · {1}	无法启动 {0} · {1}
+{0} does not tell which song is on	{0} 不提供当前播放的歌曲
+{0} is not running	{0} 未运行
+The JRiver address is not valid — Settings > Mini player	JRiver 地址无效 — 设置 > 迷你播放器
+JRiver did not accept the user name or password — Settings > Mini player	JRiver 不接受该用户名或密码 — 设置 > 迷你播放器
+JRiver refused the request (HTTP {0})	JRiver 拒绝了请求 (HTTP {0})
+Cannot reach JRiver — is it running with its web service (Media Network) on?	无法连接 JRiver — JRiver 是否正在运行并已开启网络服务 (Media Network)？
+JRiver did not accept this request	JRiver 不接受此请求
+Could not read JRiver's answer	无法读取 JRiver 的响应
+Direct	直接播放
 Click where to pick · arrow keys move one pixel · Esc cancels	点击要取色的位置 · 方向键移动 1 像素 · Esc 取消
 Pen P · highlighter H · eraser E · Enter copies · Esc cancels	笔 P · 荧光笔 H · 橡皮擦 E · Enter 复制 · Esc 取消
 Pen	笔
@@ -1179,6 +1212,15 @@ ddd, MMM d, yyyy	yyyy年M月d日 (ddd)
 Location	位置
 {0} file	{0} 文件
 Modified	修改日期
+The output is empty	输出为空
+The output is not a JSON object	输出不是 JSON 对象
+items is not an array	items 不是数组
+The output has no items	输出中没有 items
+The output is not valid JSON	输出不是有效的 JSON
+The words hold a character this command cannot take	搜索词中含有无法传给此命令的字符
+Could not create a job for the command	无法为命令创建作业对象
+Could not start the command: {0}	无法启动命令：{0}
+Timed out	超时
 Google search	Google 搜索
 Naver search	Naver 搜索
 YouTube search	YouTube 搜索
@@ -1208,6 +1250,7 @@ Keep an area of the screen on top as a picture (Bloom Lens)	把屏幕区域作�
 Or type "10 min timer", "remind me at 3:30pm meeting"	或输入 "10 min timer"、"remind me at 3:30pm meeting"
 Pick colours from the screen · HEX · RGB · gradient ideas	从屏幕取色 · HEX · RGB · 渐变推荐
 Notes kept as you type · use them beside the launcher	边写边保存的便笺 · 放在启动器旁使用
+The song, play, next and the queue in a small window beside the launcher (JRiver, foobar2000 and MusicBee too)	在启动器旁的小窗口中显示当前歌曲 · 播放 · 下一首 · 播放队列（也支持 JRiver、foobar2000 和 MusicBee）
 Attach tools	附加工具
 Notes, timers, calculator, clipboard as windows beside the launcher (Ctrl+J)	便笺、计时器、计算器、剪贴板以窗口形式放在启动器旁 (Ctrl+J)
 Find an open window and bring it to the front	查找打开的窗口并切换到最前面
@@ -1589,6 +1632,7 @@ Model (Ctrl+M)	模型 (Ctrl+M)
 Thinking level (Ctrl+E)	思考级别 (Ctrl+E)
 End session	结束会话
 Frees chat memory and opens a new chat. History stays.	释放聊天内存并打开新聊天。保留聊天记录。
+Apply	应用
 min	分钟
 h	小时
 d	天
@@ -1603,7 +1647,6 @@ Result · Enter copies	结果 · 按 Enter 复制
 Expand	展开
 Collapse	折叠
 Refresh	刷新
-Apply	应用
 Remove from favorites	从收藏中移除
 Add to favorites	添加到收藏
 Add to a favorites folder…	添加到收藏夹…
@@ -1724,6 +1767,19 @@ Keep on top (Ctrl+P) — stays above other windows when you click elsewhere · d
 Tools	工具
 Close {0}	关闭 {0}
 Attach {0}	附加 {0}
+Previous (from the start after 3 s)	上一首（播放超过 3 秒则从头开始）
+Play · pause (Space)	播放 · 暂停 (Space)
+Next song	下一首
+Clear the queue (the song on stays)	清空播放队列（保留当前歌曲）
+Volume {0}	音量 {0}
+Nothing is playing	没有正在播放的歌曲
+Play a song in {0}, or Ctrl+K on a file you searched	在 {0} 中播放歌曲，或在搜索到的文件上按 Ctrl+K
+Ctrl+K on an audio file in the search results › Play in mini player	在搜索结果的音频文件上按 Ctrl+K › 用迷你播放器播放
+Queue	播放队列
+Playing in {0} — see the queue there	正在 {0} 中播放 — 请在 {0} 中查看播放队列
+Queue · {0}	播放队列 · {0} 首
+Empty — Ctrl+K on an audio file › Add to the queue	空 — 在音频文件上按 Ctrl+K › 添加到播放队列
+Take out of the queue	从播放队列中移除
 {0} API key	{0} API 密钥
 The key is stored encrypted on this PC only and used only for requests to {0}. Usage is billed to your {1} account.	密钥仅加密保存在这台电脑上，只用于发往 {0} 的请求。使用费用计入你的 {1} 账户。
 Open the key page	打开密钥页面
@@ -1838,7 +1894,10 @@ Not registered	未注册
 Look	外观
 Glass on (Windows transparency effects)	玻璃效果已开启 (Windows 透明效果)
 Windows transparency effects are off, so it is solid	Windows 透明效果已关闭，因此显示为纯色
+Custom	自定义
 {0} · the accent and the overall tone change together	{0} · 强调色和整体色调会一起改变
+Custom colour	自定义颜色
+Type #RRGGBB (like #3A7BD5) · the light theme uses it, the dark one a lighter take	输入 #RRGGBB（例如 #3A7BD5）· 浅色主题使用该颜色，深色主题使用其较亮的版本
 The launcher, tool windows, chat and settings together · Ctrl+= / Ctrl+- / Ctrl+0 in the launcher	启动器、工具窗口、对话和设置一起调整 · 在启动器中按 Ctrl+= / Ctrl+- / Ctrl+0
 Reset to default	恢复默认大小
 Launcher window size	启动器窗口大小
@@ -2128,6 +2187,31 @@ Looks for a new version on GitHub Releases	在 GitHub Releases 上查找新版�
 Check for updates	检查更新
 Check when Bloom starts	启动 Bloom 时检查
 Checks once after launch · downloads new versions for the next start	启动后检查一次 · 下载新版本并在下次启动时应用
+Ctrl+K on an audio file in the search results › ‘Play in mini player’ · a small window beside the launcher shows the song and the queue — music files are only read	在搜索结果的音频文件上按 Ctrl+K ›“用迷你播放器播放” · 启动器旁的小窗口显示当前歌曲和播放队列 — 只读取音乐文件
+How it plays	播放方式
+Playing	播放方式
+JRiver — plays and controls through JRiver Media Center's web service (MCWS) · the queue is JRiver's	JRiver — 通过 JRiver Media Center 的���络服务 (MCWS) 播放和控制 · 播放队列由 JRiver 管理
+foobar2000 — plays through its command line, the song and the buttons through Windows' media session · playing a song follows foobar2000's own way of opening files (it may replace the active playlist)	foobar2000 — 通过命令行播放，通过 Windows 媒体会话读取当前歌曲并控制按钮 · 播放歌曲时遵循 foobar2000 自身打开文件的方式（可能替换当前活动播放列表）
+MusicBee — plays and controls through its command line · the song is read from its window title (it does not say whether it plays, so Bloom goes by the commands it sent)	MusicBee — 通过命令行播放和控制 · 从窗口标题读取当前歌曲（它不提供播放状态，因此 Bloom 根据自己发送的命令推断）
+Direct — Bloom opens the file read-only (flac, mp3, wav, m4a, aac, wma) · the queue is Bloom's own · the next song follows · missing files are skipped · ogg and opus cannot be played	直接 — Bloom 以只读方式打开文件播放（flac、mp3、wav、m4a、aac、wma）· 播放队列由 Bloom 自己管理 · 自动播放下一首 · 跳过找不到的文件 · 无法播放 ogg 和 opus
+JRiver address	JRiver 地址
+{0} · JRiver's Media Network (the web service) must be on · click to change	{0} · 需要开启 JRiver 的 Media Network（网络服务）· 点击更改
+JRiver user	JRiver 用户
+None — only needed when JRiver was given a user name and password · click to enter	无 — 仅在 JRiver 设置了用户名和密码时需要 · 点击输入
+{0} · click to change	{0} · 点击更改
+Saved · encrypted on this PC only · used only for requests to JRiver · click to change	已保存 · 仅加密保存在这台电脑上 · 只用于发往 JRiver 的请求 · 点击更改
+None · click to enter	无 · 点击输入
+JRiver password	JRiver 密码
+Found by itself: {0} · click if it is somewhere else	已自动找到：{0} · 如果在其他位置请点击
+Not found — click to enter the .exe path	未找到 — 点击输入 .exe 路径
+{0} program	{0} 程序
+{0} program path	{0} 程序路径
+The full path of {0}.exe. Left empty, Bloom looks at the running one and the usual install folders.	{0}.exe 的完整路径。留空时，Bloom 会从正在运行的程序和常见安装文件夹中查找。
+Use the full path of an .exe file that exists	请输入一个存在的 .exe 文件的完整路径
+The address of the PC where JRiver runs (default {0}). Turn on JRiver's Media Network to open its web service (MCWS).	运行 JRiver 的电脑地址（默认 {0}）。开启 JRiver 的 Media Network 后才会打开网络服务 (MCWS)。
+Write it as http://address:port	请按 http://地址:端口 的格式填写
+Only when JRiver was given a user name and password. Leave it empty if not.	仅在 JRiver 设置了用户名和密码时填写。没有则留空。
+Stored encrypted on this PC only and used only for requests to JRiver. It is not shown while typed.	仅加密保存在这台电脑上，只用于发往 JRiver 的请求。输入时不显示。
 Another app already uses it — press another combination	已被其他应用占用 — 请按其他组合
 Off — click to set a shortcut	已关闭 — 点击设置快捷键
 Bloom already uses it	Bloom 已在使用此键
@@ -2137,12 +2221,15 @@ Launcher	启动器
 Find a setting	查找设置
 Section	分类
 Change	更改
+Clear	清除
 Rose	玫瑰
 Lavender	薰衣草
 Sky	天空
 Tangerine	橘子
 Lemon	柠檬
 Gray	灰色
+Type a colour code (like #3A7BD5)	请输入颜色代码（例如 #3A7BD5）
+Use # and 6 hex digits (0-9, A-F), like #3A7BD5	请使用 # 加 6 位十六进制数字（0-9、A-F），例如 #3A7BD5
 12*3 · 5km to mi · 100 usd	12*3 · 5km to mi · 100 usd
 History cleared	已清除记录
 Keep typing the sum	请继续输入算式

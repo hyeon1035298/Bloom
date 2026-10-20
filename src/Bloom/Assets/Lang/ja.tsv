@@ -527,6 +527,9 @@ Folder	フォルダー
 File	ファイル
 See this folder's size (Space Cleaner)	このフォルダーのサイズを見る (Space Cleaner)
 View in Bloom	Bloom で表示
+Add to the queue	キューに追加
+Asked to add ‘{0}’ to the queue · {1}	「{0}」をキューに追加するよう依頼しました · {1}
+Play in mini player	ミニプレーヤーで再生
 Add to custom commands…	カスタムコマンドに追加…
 Just now	たった今
 {0} min ago	{0}分前
@@ -630,6 +633,17 @@ Close its windows (it may ask to save)	ウィンドウを閉じて終了 (保存
 Restart Explorer	エクスプローラーを再起動
 Sort by CPU	CPU 順に並べる
 Sort by memory	メモリ順に並べる
+{0} — enter words	{0} — 検索語を入力
+At least {0} characters	{0} 文字以上
+Looking for ‘{0}’…	「{0}」を探しています…
+No results	結果なし
+{0} · {1}	{0} 件 · {1}
++ space + words	＋ スペース ＋ 検索語
+Enter words	検索語を入力
+Not opened	開けませんでした
+Only http and https addresses open	http・https のアドレスのみ開けます
+Copied	コピー完了
+Could not run	実行できませんでした
 No selected or copied text	選択・コピーした文章なし
 Select text in any app and press {0}, or copy it and come back	どのアプリでもテキストを選択して {0} を押すか、コピーしてから戻ってきてください
 ‘{0}’ in progress…	「{0}」を実行中…
@@ -641,7 +655,6 @@ Length	長さ
 Replace the selection	選択範囲を置き換える
 Paste into the window	ウィンドウに貼り付け
 Pastes back into the app (Ctrl+V)	元のアプリに貼り付け (Ctrl+V)
-Copied	コピー完了
 Continue in a chat	チャットで続ける
 Try again	再試行してください
 Pick another action	別の操作を選ぶ
@@ -813,7 +826,6 @@ winget is not installed	winget がインストールされていません
 It comes with ‘App Installer’ from the Microsoft Store · Enter opens it	Microsoft Store の「アプリ インストーラー」に含まれています · Enter で開く
 Type the name of an app to install	インストールするアプリの名前を入力してください
 Searched in winget and the Microsoft Store · Enter installs	winget と Microsoft Store で検索 · Enter でインストール
-Looking for ‘{0}’…	「{0}」を探しています…
 winget is reading its catalogue · a few seconds	winget がカタログを読み込んでいます · 数秒かかります
 No response from winget. Search again shortly.	winget の応答なし。少し待って再検索してください。
 Try again in a moment	少ししてからもう一度試してください
@@ -930,6 +942,7 @@ Move yesterday's quote PDF to Documents	昨日の見積書 PDF をドキュメ�
 \n\nMoved to Documents.	\n\nドキュメント フォルダーに移動しました。
 Groceries\n- milk\n- eggs\n- bread	買い物\n- 牛乳\n- 卵\n- パン
 Add payment module tests	決済モジュールのテストを追加
+Mini player	ミニプレーヤー
 ntpd	ntpd
 chrom	chrom
 Friday meeting\nresend the quote · fix the date	金曜の会議\n見積書を再送 · 日程を確定
@@ -1087,6 +1100,7 @@ Search a site by keyword, like ‘yt cats’	「yt cats」のようにキーワ�
 Your own scripts, snippets and chains	自作のスクリプト、スニペット、チェーン
 Notes & tool windows	メモとツール ウィンドウ
 Notes, timers, calculator and clipboard in windows beside the launcher · notes in the search line	メモ、タイマー、電卓、クリップボードをランチャーの横のウィンドウに · 検索欄でメモを探す
+Play audio files yourself or through JRiver, foobar2000 or MusicBee · a small window beside the launcher · a queue · ‘Play in mini player’ on file results	オーディオファ���ルを直接、または JRiver · foobar2000 · MusicBee で再生 · ランチャーの横の小さなウィンドウ · キュー · ファイル検索結果の「ミニプレーヤーで再生」
 Markdown documents (.md)	Markdown 文書 (.md)
 Bloom in Explorer's ‘Open with’ · ‘View in Bloom’ on .md files you find	エクスプローラーの「プログラムから開く」に Bloom · 検索した .md ファイルの「Bloom で表示」
 Switch windows	ウィンドウの切り替え
@@ -1118,6 +1132,25 @@ Reminder	リマインダー
 0 s	0 秒
 today	今日
 tomorrow	明日
+Not an audio file	オーディオファイルではありません
+Bloom cannot play {0} files itself — pick another player in Settings > Mini player	{0} ファイルは Bloom で直接再生できません — 設定 > ミニプレーヤーで別のプレーヤーを選んでください
+The file is gone	ファイルが見つかりません
+The file cannot be opened	ファイルを開けません
+{0} songs	{0} 曲
+Skipped	スキップしました
+Not played	再生しませんでした
+{0} is not running — picking a song starts it	{0} は起動していません — 曲を選ぶと一緒に起動します
+Could not find {0} — set its program path in Settings > Mini player	{0} が見つかりません — 設定 > ミニプレーヤーでプログラムのパスを指定してください
+Could not start {0} · {1}	{0} を起動できませんでした · {1}
+{0} does not tell which song is on	{0} は再生中の曲を知らせません
+{0} is not running	{0} は起動していません
+The JRiver address is not valid — Settings > Mini player	JRiver のアドレスが正しくありません — 設定 > ミニプレーヤー
+JRiver did not accept the user name or password — Settings > Mini player	JRiver がユーザー名またはパスワードを受け付けませんでした — 設定 > ミニプレーヤー
+JRiver refused the request (HTTP {0})	JRiver がリクエストを拒否しました (HTTP {0})
+Cannot reach JRiver — is it running with its web service (Media Network) on?	JRiver に接続できません — JRiver が起動していて、Web サービス (Media Network) がオンになっていますか?
+JRiver did not accept this request	JRiver がこのリクエストを受け付けませんでした
+Could not read JRiver's answer	JRiver の応答を読み取れませんでした
+Direct	直接再生
 Click where to pick · arrow keys move one pixel · Esc cancels	色を取る場所をクリック · 矢印キーで 1 ピクセル移動 · Esc でキャンセル
 Pen P · highlighter H · eraser E · Enter copies · Esc cancels	ペン P · 蛍光ペン H · 消しゴム E · Enter でコピー · Esc でキャンセル
 Pen	ペン
@@ -1179,6 +1212,15 @@ ddd, MMM d, yyyy	yyyy年M月d日 (ddd)
 Location	場所
 {0} file	{0} ファイル
 Modified	更新日時
+The output is empty	出力なし
+The output is not a JSON object	出力が JSON オブジェクトではありません
+items is not an array	items が配列ではありません
+The output has no items	items がありません
+The output is not valid JSON	出力が正しい JSON ではありません
+The words hold a character this command cannot take	検索語に、このコマンドに渡せない文字が含まれています
+Could not create a job for the command	コマンドのジョブ オブジェクトを作成できませんでした
+Could not start the command: {0}	コマンドを起動できませんでした: {0}
+Timed out	タイムアウト
 Google search	Google 検索
 Naver search	Naver 検索
 YouTube search	YouTube 検索
@@ -1208,6 +1250,7 @@ Keep an area of the screen on top as a picture (Bloom Lens)	画面の範囲を�
 Or type "10 min timer", "remind me at 3:30pm meeting"	または "10 min timer"、"remind me at 3:30pm meeting" のように入力
 Pick colours from the screen · HEX · RGB · gradient ideas	画面から色を取る · HEX · RGB · グラデーションの提案
 Notes kept as you type · use them beside the launcher	入力するそばから保存されるメモ · ランチャーの横で使う
+The song, play, next and the queue in a small window beside the launcher (JRiver, foobar2000 and MusicBee too)	再生中の曲 · 再生 · 次へ · キューをランチャーの横の小さなウィンドウに (JRiver · foobar2000 · MusicBee にも対応)
 Attach tools	ツールを並べる
 Notes, timers, calculator, clipboard as windows beside the launcher (Ctrl+J)	メモ、タイマー、電卓、クリップボードをランチャーの横のウィンドウに (Ctrl+J)
 Find an open window and bring it to the front	開いているウィンドウを探して手前に出す
@@ -1589,6 +1632,7 @@ Model (Ctrl+M)	モデル (Ctrl+M)
 Thinking level (Ctrl+E)	思考レベル (Ctrl+E)
 End session	セッションを終了
 Frees chat memory and opens a new chat. History stays.	チャットのメモリを解放して新しいチャットを開きます。履歴は残ります。
+Apply	適用
 min	分
 h	時間
 d	日
@@ -1603,7 +1647,6 @@ Result · Enter copies	結果 · Enter でコピー
 Expand	展開
 Collapse	折りたたみ
 Refresh	更新
-Apply	適用
 Remove from favorites	お気に入りから外す
 Add to favorites	お気に入りに追加
 Add to a favorites folder…	お気に入りフォルダーに追加…
@@ -1724,6 +1767,19 @@ Keep on top (Ctrl+P) — stays above other windows when you click elsewhere · d
 Tools	ツール
 Close {0}	{0} を閉じる
 Attach {0}	{0} を並べる
+Previous (from the start after 3 s)	前の曲 (3 秒以上聴いたら最初から)
+Play · pause (Space)	再生 · 一時停止 (Space)
+Next song	次の曲
+Clear the queue (the song on stays)	キューをクリア (再生中の曲は残ります)
+Volume {0}	音量 {0}
+Nothing is playing	再生中の曲はありません
+Play a song in {0}, or Ctrl+K on a file you searched	{0} で曲を再生するか、検索したファイルで Ctrl+K
+Ctrl+K on an audio file in the search results › Play in mini player	検索結果のオーディオファイルで Ctrl+K › ミニプレーヤーで再生
+Queue	キュー
+Playing in {0} — see the queue there	{0} で再生中 — キューは {0} で確認してください
+Queue · {0}	キュー · {0} 曲
+Empty — Ctrl+K on an audio file › Add to the queue	空です — オーディオファイルで Ctrl+K › キューに追加
+Take out of the queue	キューから外す
 {0} API key	{0} API キー
 The key is stored encrypted on this PC only and used only for requests to {0}. Usage is billed to your {1} account.	キーはこの PC にのみ暗号化して保存し、{0} へのリクエストにだけ使います。利用料金は {1} アカウントに請求されます。
 Open the key page	キー発行ページを開く
@@ -1838,7 +1894,10 @@ Not registered	未登録
 Look	見た目
 Glass on (Windows transparency effects)	ガラス効果オン (Windows の透明効果)
 Windows transparency effects are off, so it is solid	Windows の透明効果がオフのため、単色になります
+Custom	カスタム
 {0} · the accent and the overall tone change together	{0} · アクセントと全体のトーンが一緒に変わります
+Custom colour	カスタムカラー
+Type #RRGGBB (like #3A7BD5) · the light theme uses it, the dark one a lighter take	#RRGGBB で入力 (例: #3A7BD5) · ライトテーマはその色、ダークテーマは明るくした色を使います
 The launcher, tool windows, chat and settings together · Ctrl+= / Ctrl+- / Ctrl+0 in the launcher	ランチャー、ツール ウィンドウ、チャット、設定をまとめて · ランチャーで Ctrl+= / Ctrl+- / Ctrl+0
 Reset to default	既定のサイズに戻す
 Launcher window size	ランチャー ウィンドウのサイズ
@@ -2128,6 +2187,31 @@ Looks for a new version on GitHub Releases	GitHub Releases で新しいバージ
 Check for updates	アップデートを確認
 Check when Bloom starts	Bloom の起動時に確認
 Checks once after launch · downloads new versions for the next start	起動後に 1 回確認 · 新バージョンをダウンロードし次回起動時に適用
+Ctrl+K on an audio file in the search results › ‘Play in mini player’ · a small window beside the launcher shows the song and the queue — music files are only read	検索結果のオーディオファイルで Ctrl+K › 「ミニプレーヤーで再生」 · ランチャーの横の小さなウィンドウに再生中の曲とキューを表示 — 音楽ファイルは読み取るだけです
+How it plays	再生方法
+Playing	再生方法
+JRiver — plays and controls through JRiver Media Center's web service (MCWS) · the queue is JRiver's	JRiver — JRiver Media Center の Web サービス (MCWS) で再生・操作 · キューは JRiver 側
+foobar2000 — plays through its command line, the song and the buttons through Windows' media session · playing a song follows foobar2000's own way of opening files (it may replace the active playlist)	foobar2000 — コマンドラインで再生し、再生中の曲とボタンは Windows のメディア セッションで操作 · 曲の再生は foobar2000 のファイルの開き方に従います (アクティブなプレイリストが置き換わることがあります)
+MusicBee — plays and controls through its command line · the song is read from its window title (it does not say whether it plays, so Bloom goes by the commands it sent)	MusicBee — コマンドラインで再生・操作 · 再生中の曲はウィンドウ タイトルから読み取ります (再生中かどうかは知らせないため、Bloom が送ったコマンドから推測します)
+Direct — Bloom opens the file read-only (flac, mp3, wav, m4a, aac, wma) · the queue is Bloom's own · the next song follows · missing files are skipped · ogg and opus cannot be played	直接 — Bloom がファイルを読み取り専用で開いて再生 (flac、mp3、wav、m4a、aac、wma) · キューは Bloom 内 · 次の曲を自動再生 · 見つからないファイルはスキップ · ogg と opus は再生できません
+JRiver address	JRiver のアドレス
+{0} · JRiver's Media Network (the web service) must be on · click to change	{0} · JRiver の Media Network (Web サービス) をオンにする必要があります · クリックで変更
+JRiver user	JRiver のユーザー
+None — only needed when JRiver was given a user name and password · click to enter	なし — JRiver にユーザー名とパスワードを設定した場合のみ必要 · クリックで入力
+{0} · click to change	{0} · クリックで変更
+Saved · encrypted on this PC only · used only for requests to JRiver · click to change	保存済み · この PC にのみ暗号化 · JRiver へのリクエストにだけ使用 · クリックで変更
+None · click to enter	なし · クリックで入力
+JRiver password	JRiver のパスワード
+Found by itself: {0} · click if it is somewhere else	自動で見つかりました: {0} · 別の場所にある場合はクリック
+Not found — click to enter the .exe path	見つかりません — クリックして .exe のパスを入力
+{0} program	{0} のプログラム
+{0} program path	{0} のプログラムのパス
+The full path of {0}.exe. Left empty, Bloom looks at the running one and the usual install folders.	{0}.exe のフルパスです。空のままにすると、Bloom は起動中のものと通常のインストール先から探します。
+Use the full path of an .exe file that exists	存在する .exe ファイルのフルパスを指定してください
+The address of the PC where JRiver runs (default {0}). Turn on JRiver's Media Network to open its web service (MCWS).	JRiver が動いている PC のアドレスです (既定 {0})。JRiver の Media Network をオンにすると Web サービス (MCWS) が開きます。
+Write it as http://address:port	http://アドレス:ポート の形式で入力してください
+Only when JRiver was given a user name and password. Leave it empty if not.	JRiver にユーザー名とパスワードを設定した場合のみ入力します。なければ空のままにしてください。
+Stored encrypted on this PC only and used only for requests to JRiver. It is not shown while typed.	この PC にのみ暗号化して保存し、JRiver へのリクエストにだけ使用します。入力中は表示されません。
 Another app already uses it — press another combination	別のアプリがすでに使っています — 別の組み合わせを押してください
 Off — click to set a shortcut	オフ — クリックでショートカットを設定
 Bloom already uses it	Bloom がすでに使っています
@@ -2137,12 +2221,15 @@ Launcher	ランチャー
 Find a setting	設定を探す
 Section	セクション
 Change	変更
+Clear	クリア
 Rose	ローズ
 Lavender	ラベンダー
 Sky	スカイ
 Tangerine	タンジェリン
 Lemon	レモン
 Gray	グレー
+Type a colour code (like #3A7BD5)	カラーコードを入力してください (例: #3A7BD5)
+Use # and 6 hex digits (0-9, A-F), like #3A7BD5	# と 16 進数 6 桁 (0-9、A-F) で入力してください (例: #3A7BD5)
 12*3 · 5km to mi · 100 usd	12*3 · 5km to mi · 100 usd
 History cleared	履歴の削除完了
 Keep typing the sum	式を入力し続けてください
