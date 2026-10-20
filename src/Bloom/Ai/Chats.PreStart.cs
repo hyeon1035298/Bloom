@@ -8,8 +8,9 @@ using Bloom.Core;
 
 namespace Bloom.Ai;
 
-/// Pre-start. A Claude chat is one `claude -p` process and a ChatGPT one one `codex app-server` (CodexAppSession), each
-/// only launched with the first message (~0.9 s of CLI start before the API call). When a conversation is likely to send —
+/// Pre-start. A Claude chat is one `claude -p` process, a ChatGPT one one `codex app-server` (CodexAppSession) and an omp one
+/// one `omp --mode rpc` (OmpSession), each only launched with the first message (~0.9 s of CLI start before the API call;
+/// omp ~1.8 s). When a conversation is likely to send —
 /// it is shown, or its box is typed in — the process starts ahead, with nothing sent, under the model, level, account,
 /// tools and resumed session the real send would use (app-server: initialized and its thread started or resumed, no
 /// turn); the first message finds it running. Only the provider the next send would use is pre-started (Prewarm), and at
@@ -80,10 +81,11 @@ internal sealed partial class Chats
 
     /// The one place that decides which provider is pre-started for the model the next send would use: Claude (a
     /// long-lived `claude -p`) and ChatGPT (a long-lived `codex app-server`, unless the chats are on `codex exec`, which
-    /// starts a process per turn). API models return null.
+    /// starts a process per turn), omp (a long-lived `omp --mode rpc`, ~1.8 s to start, measured). API models return null.
     private string? Prewarm(string model) => AiModels.Provider(model) switch
     {
         "claude" => "claude",
+        "omp" => "omp",
         "chatgpt" when CodexAppServer => "chatgpt",
         _ => null,
     };
@@ -117,14 +119,16 @@ internal sealed partial class Chats
         var account = AiAccounts.Chat(provider);
         var s = Settings.Current;
         static string Sorted(IEnumerable<string> items) => string.Join(',', items.Order(StringComparer.Ordinal));
-        return string.Join('\n', t.Model, EffortOf(t), account.Id, account.Home, ResumeFor(t, provider, account.Id), provider == "chatgpt" ? s.CodexPath : s.ClaudePath,
-            s.AiTools, s.AiTitles, App.Mcp.BloomTools.OfferedTo(provider), Sorted(s.AiToolsOff), Sorted(s.McpOn), Sorted(s.McpFiles),
+        return string.Join('\n', t.Model, EffortOf(t), account.Id, account.Home, ResumeFor(t, provider, account.Id), provider switch { "chatgpt" => s.CodexPath, "omp" => s.OmpPath, _ => s.ClaudePath },
+            s.AiTools, s.AiToolsOmp, s.OmpSearch, s.AiTitles, App.Mcp.BloomTools.OfferedTo(provider), Sorted(s.AiToolsOff), Sorted(s.McpOn), Sorted(s.McpFiles),
             Sorted(s.Permissions.OrderBy(p => p.Key, StringComparer.Ordinal).Select(p => p.Key + "=" + p.Value)));
     }
 
-    /// The session a conversation resumes under this account (an API chat and another account's start fresh).
+    /// The session a conversation resumes under this account (an API chat and another account's start fresh). omp has no
+    /// accounts of Bloom's: its session is Bloom's own folder's, resumed while that file is there.
     private static string? ResumeFor(ChatThread t, string provider, string accountId) =>
-        provider != "api" && (t.SessionProvider ?? "claude") == provider && (t.SessionAccount ?? provider) == accountId ? t.SessionId : null;
+        provider == "omp" ? t.SessionProvider == "omp" && t.SessionId is { } ompId && OmpCli.HasSession(ompId) ? ompId : null
+        : provider != "api" && (t.SessionProvider ?? "claude") == provider && (t.SessionAccount ?? provider) == accountId ? t.SessionId : null;
 
     private void BeginPreStart()
     {

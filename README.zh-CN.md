@@ -13,13 +13,13 @@
 <p align="center"><sub>WPF · .NET 10 · 无 WebView · 全部关闭时约 80 MB · 한국어 / English / 日本語 / 简体中文 · MIT</sub></p>
 
 - **搜索**：在搜索栏输入几个字母，即可使用应用、文件、计算、提醒、表情符号和网页搜索。
-- **AI**：使用本机已登录的 Claude Code 或 Codex，或你自己的 API 密钥（OpenAI、Anthropic、Gemini、OpenRouter、DeepSeek、xAI、OpenCode Go）提问、操作文件、记笔记、设计时器和日历日程。
+- **AI**：使用本机已登录的 Claude Code、Codex 或 omp，或你自己的 API 密钥（OpenAI、Anthropic、Gemini、OpenRouter、DeepSeek、xAI、OpenCode Go）提问、操作文件、记笔记、设计时器和日历日程。
 - **功能**：不使用 WebView 的原生应用。关闭某项功能后，其菜单和快捷键随之移除，内存占用也会减少。
 
 ## 运行环境
 
 需要 Windows 10/11（64 位）。如果没有 .NET 10 桌面运行时，安装程序会自动安装。
-AI 功能需要已安装并登录的 Claude Code CLI 或 Codex CLI，或受支持服务的 API 密钥。全盘文件搜索需要 Everything。
+AI 功能需要已安装并登录的 Claude Code CLI、Codex CLI 或 omp CLI，或受支持服务的 API 密钥。全盘文件搜索需要 Everything。
 无论界面语言是什么，搜索词、时间表达和单位都需用韩语或英语输入。
 
 ## 下载
@@ -95,10 +95,15 @@ irm https://raw.githubusercontent.com/hyeon1035298/Bloom/main/install.ps1 | iex
 - **快速 AI**：在搜索栏输入后按 **Tab**，就地打开 AI 聊天；Shift+Tab 开始新对话。可以选择模型和思考程度。
   - 按 Esc 回到主页，回答仍会继续，搜索栏会显示进度，按 Tab 返回。■ 停止（或 Ctrl+.）可停止回答。
   - 与其他界面一样，点击外部会关闭启动器；按 Win 键会重新打开同一个对话。如需一直显示，请打开 📌。
-- **提前启动**：打开聊天或开始输入时，Bloom 会先启动该聊天所用模型（Claude 或 ChatGPT，只启动其中一个）的 AI，这样第一条消息不必等它启动。几分钟不用或关闭聊天后会结束。
+- **提前启动**：打开聊天或开始输入时，Bloom 会先启动该聊天所用模型（Claude、ChatGPT 或 omp，只启动其中一个）的 AI，这样第一条消息不必等它启动。几分钟不用或关闭聊天后会结束。
 - **ChatGPT 边写边显示**：ChatGPT 聊天（聊天窗口和启动器的快速聊天）会在回答写出时随即显示，而不是最后一次性出现；每个聊天持续使用一个 Codex 进程，而不是每条消息启动一个。
   - Bloom 的 Codex 使用 Bloom 自己的设置运行，因此你自己的 Codex `config.toml` 不会影响 Bloom 的聊天；Codex 登录和之前的聊天会保留。
   - 更新后的第一次 ChatGPT 聊天，因为 Codex 要整理一次历史记录，启动可能会慢一些。
+- **omp 聊天**（可选）：如果已安装并登录 [omp](https://github.com/can1357/oh-my-pi)（`omp login`），可选的 AI 就多了一个（设置 › AI 聊天 › omp，Ctrl+Shift+M）；你不选就不会有任何变化。
+  - 每个聊天使用一个 `omp --mode rpc` 进程，以及 Bloom 文件夹里独立的 omp 会话。使用 Bloom 的指令代替 omp 自带的提示词，不会加载你自己 omp 的技能、规则和扩展。omp 自带的文件和命令工具是关闭的，网页搜索默认开启。
+  - 聊天顶部显示模型记住的对话量（`14.2k / 200k`）和让 omp 总结前半部分的 **整理** 按钮。对话变长时 omp 也会自行整理，并在回答下面用一行说明。
+  - `/session`、`/context`、`/usage` 等只读的 omp 命令可在聊天中使用；会更改你 omp 设置的命令不会执行，只给出提示。
+  - 在 设置 › AI 聊天 › omp › 我的模型 中选择模型（从 `omp models` 里选，或按 `提供方/模型` 输入）；不选时使用 omp 自己的默认模型。
 - **AI 聊天窗口**（Ctrl+Alt+C）
   - 继续以前的对话，并用分组（文件夹）整理。
   - 附加文件和图片（拖放 · Ctrl+O · Ctrl+V）。
@@ -253,6 +258,7 @@ AI 功能使用本机已安装并登录的官方 CLI。登录凭据保存在这�
 
 - Claude：[Claude Code](https://docs.anthropic.com/en/docs/claude-code) CLI（`claude`）
 - ChatGPT：[Codex CLI](https://github.com/openai/codex)（`codex`）
+- omp（可选）：[oh-my-pi](https://github.com/can1357/oh-my-pi) CLI（`omp`）
 
 用量和条款以你自己的账户为准。没有这些 CLI 时只有 AI 功能不可用，其他功能照常使用。
 
@@ -276,11 +282,13 @@ AI 功能使用本机已安装并登录的官方 CLI。登录凭据保存在这�
   - Codex 在 exec 模式下无法自行询问，因此由 Bloom 的 MCP 服务器在执行前显示同样的卡片并等待回答。
   - 服务器只通过每次对话运行时的 `-c mcp_servers.bloom…` 连接。
   - Codex 只在需要时加载 MCP 工具说明，因此每次请求都附上一行工具名称和操作（约 +250 token，按同样方法估算）。
+- omp 对话使用同一个工具。
+  - omp 同样以 `--no-ui` 运行、无法自行询问，因此由 Bloom 的 MCP 服务器在执行前显示同样的卡片。Bloom 的工具和已开启的其他服务器只写入 `%LOCALAPPDATA%\Bloom\ai\omp-work` 下每个对话各自文件夹里的 `.omp/mcp.json`，不会改动 omp 自身的设置。
 
 AI 用量来自 `claude -p /usage`（不调用模型）和 `codex app-server` 的额度查询，按账户依次获取（添加的账户使用 `%LOCALAPPDATA%\Bloom\accounts` 下的文件夹作为 `CLAUDE_CONFIG_DIR` / `CODEX_HOME`）。选择 ChatGPT 轻量方式时，会用该账户的 Codex 登录向 Codex 状态页读取的地址发送一次 HTTPS 请求。这不是官方 API；Bloom 只在自己创建的文件夹中刷新令牌，不会在 `~/.codex` 中刷新。Bloom 不读取 Claude 登录信息。工作通知读取本机的 Claude Code 和 Codex 日志（`~/.claude/sessions`、`~/.codex/sessions`），日志不会离开本机。
 检查更新时通过 GitHub API（`api.github.com`）查询本仓库的最新版本，并从 GitHub 下载新版本。请求中只包含仓库信息；设置、文件和对话都留在本机。可在 设置 › 关于 中关闭检查。
 发送给 AI 的只有你自己发送的内容（问题、附件、用 Bloom Lens 选中的屏幕区域、要翻译的文字），以及电脑工具返回的结果。
-Claude 只能读写该对话的文件夹（`%LOCALAPPDATA%\Bloom\ai\files\<chat>`）。ChatGPT（Codex）不直接处理文件，因此文本附件会放进消息中，生成的文件会从回答中取出并保存。
+Claude 只能读写该对话的文件夹（`%LOCALAPPDATA%\Bloom\ai\files\<chat>`）。ChatGPT（Codex）和 omp 不直接处理文件，因此文本附件会放进消息中，生成的文件会从回答中取出并保存。
 
 Bloom 是非官方的个人项目，与 Anthropic、OpenAI、voidtools 和 Raycast 无关。
 
@@ -315,7 +323,7 @@ powershell -File tools\install.ps1   # → %LOCALAPPDATA%\Programs\Bloom，开�
 | `App/Qa/` | 屏幕外截图 QA（`--capture <文件夹> --qa-set v15 --data <文件夹> --lang en`） |
 | `Core/` | 保存的数据（设置 · 收藏 · 使用记录 · 按输入的学习 · 计时器 · 笔记 · 颜色）和 JSON 存储、韩语搜索、匹配、界面语言（`Lang` — `Tr("한국어", "English")`） |
 | `Search/` | 应用列表、计算器（计算 · 单位 · 货币）、Everything、已打开的窗口、最近的文件、表情符号 · 符号（`Assets/symbols.tsv`）、系统项目、自定义命令（`UserCommands`）、结果模型 |
-| `Ai/` | Claude Code / Codex CLI 会话与对话 · 分组（`Chats`）、一次性提问（`OneShot`）、翻译、AI 操作、AI 图标、用量（`AiUsage`）、读取工作日志（`ClaudeWatch` · `CodexWatch`） |
+| `Ai/` | Claude Code / Codex / omp CLI 会话与对话 · 分组（`Chats`）、一次性提问（`OneShot`）、翻译、AI 操作、AI 图标、用量（`AiUsage`）、读取工作日志（`ClaudeWatch` · `CodexWatch`） |
 | `Ocr/` | 选择屏幕区域、Windows OCR、翻译窗口、取色 |
 | `Clip/`、`Space/`、`Browser/` | 剪贴板记录、磁盘空间地图、交给浏览器 |
 | `Native/` | Win32 调用（仅 System32 的 DLL）、WinRT 调用（`WinRt`）、系统开关（`SystemControl` — 声音 · 无线 · 深色模式等）、与资源管理器相同的文件操作（`ShellFiles`） |
@@ -345,7 +353,7 @@ dotnet format whitespace tests\Bloom.Tests\Bloom.Tests.csproj --verify-no-change
 安装以下程序后，相关的功能、区块和设置即可使用。
 
 - **Everything**：查找文件。
-- **Claude Code CLI · Codex CLI**：AI 聊天 · Lens · 翻译 · 快捷操作 · 用量 · 工作通知。
+- **Claude Code CLI · Codex CLI · omp**：AI 聊天 · Lens · 翻译 · 快捷操作 · 用量 · 工作通知。
 
 ## 许可证
 

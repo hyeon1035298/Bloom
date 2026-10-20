@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Text.Json;
 using System.Threading;
@@ -11,7 +12,7 @@ using Bloom.Core;
 namespace Bloom.Ai;
 
 /// One question, one answer, no conversation kept: a fresh CLI call with its own system prompt and no tools
-/// (translation, AI 빠른 동작, icon drawing). Claude Code (`claude -p`) or Codex (`codex exec`), each with the
+/// (translation, AI 빠른 동작, icon drawing). Claude Code (`claude -p`), Codex (`codex exec`) or omp (`omp -p`), each with the
 /// user's own login, or an API model with the user's key (ApiClient). Every call counts against the user's plan.
 internal static class OneShot
 {
@@ -23,6 +24,7 @@ internal static class OneShot
         if (Demo.On) return await DemoAnswers.Ask(name, text, ct); // recording mode: nothing is asked
         if (text.Length > 12000) text = text[..12000];
         if (provider == "api") return await ApiClient.AskAsync(model, effort, system, text, ct);
+        if (provider == "omp") return await Omp(system, text, model, effort, ct);
         string? accountHome = AiAccounts.ChatHome(provider);
         return provider == "chatgpt" ? await Codex(system, text, model, effort, name, accountHome, ct) : await Claude(system, text, model, effort, accountHome, ct);
     }
@@ -49,6 +51,29 @@ internal static class OneShot
         if (ct.IsCancellationRequested) return (null, null);
         if (code != 0 || output.Trim().Length == 0) return (null, Tail(error, output, Tr("Claude 답변이 없습니다. 다시 시도하세요.", "No answer from Claude. Try again.")));
         return (output.Trim(), null);
+    }
+
+    /// `omp -p`: no tools, nothing saved, an empty folder, Bloom's system prompt instead of omp's (OmpCli.OneShotArgs); the
+    /// question goes in on stdin. `model` is Bloom's id ("omp:provider/model"); `effort` null = thinking off.
+    private static async Task<(string? text, string? error)> Omp(string system, string text, string model, string? effort, CancellationToken ct)
+    {
+        string? exe = OmpCli.FindCli();
+        if (exe is null) return (null, AiErrors.OmpMissing);
+        var psi = OmpCli.Psi(exe);
+        foreach (string a in OmpCli.OneShotArgs(AiModels.OmpSlug(model) ?? model, effort, system)) psi.ArgumentList.Add(a);
+        var (code, output, error) = await RunCli(psi, text, ct);
+        if (ct.IsCancellationRequested) return (null, null);
+        if (code != 0 || output.Trim().Length == 0) return (null, OmpTail(error, output));
+        return (output.Trim(), null);
+    }
+
+    /// omp's stderr has a "Working..." progress line before the real message.
+    public static string OmpProgressless(string error) => string.Join('\n', error.Split('\n').Where(l => l.Trim().Length > 0 && !l.Trim().StartsWith("Working", StringComparison.Ordinal)));
+
+    private static string OmpTail(string error, string output)
+    {
+        string e = OmpProgressless(error);
+        return e.Length > 0 ? AiErrors.Omp(e) : output.Trim().Length > 0 ? AiErrors.Omp(output.Trim()) : AiErrors.OmpNoAnswer;
     }
 
     private static async Task<(string? text, string? error)> Codex(string system, string text, string model, string? effort, string name, string? accountHome, CancellationToken ct)

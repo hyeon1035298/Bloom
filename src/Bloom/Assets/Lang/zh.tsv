@@ -1,6 +1,11 @@
+The running Bloom didn't answer	正在运行的 Bloom 没有响应
+Bloom wasn't ready within 30 seconds	Bloom 未能在 30 秒内准备就绪
 Answer stopped	回答已停止
 Claude Code not found. Install it and sign in.	未找到 Claude Code。请安装并登录。
 Codex not found. Install it and sign in.	未找到 Codex。请安装并登录。
+omp not found. Put omp on the PATH or set its path in the settings.	未找到 omp。请把 omp 放到 PATH 中，或在设置里指定它的路径。
+Could not start omp. Check its installation and send again.	无法启动 omp。请检查安装情况后重新发送。
+omp ended without an answer. Send again.	omp 没有给出回答就结束了。请重新发送。
 Could not start Claude Code. Check its installation and send again.	无法启动 Claude Code。请检查安装并重新发送。
 Could not start AI. Check its installation and try again.	无法启动 AI。请检查安装并重试。
 No answer from Claude. Send again.	Claude 未返回回答。请重新发送。
@@ -25,6 +30,7 @@ Stopped after more than {0} tool calls. Send again to go on.	工具调用超过 
 {0} server error. Send again shortly.	{0} 服务器出错。请稍后重新发送。
 {0} request failed. Send again.	{0} 请求失败。请重新发送。
 Details: {0}	错误详情：{0}
+omp needs you to sign in. Run omp login once in a terminal.	omp 需要登录。请在终端中运行一次 omp login。
 Sign in to ChatGPT. Run codex login in a terminal.	请登录 ChatGPT。在终端中运行 codex login。
 Sign in to Claude. Run claude in a terminal and sign in.	请登录 Claude。在终端中运行 claude 并登录。
 AI usage limit reached. Send again after the limit resets.	AI 用量已达上限。请在额度重置后重新发送。
@@ -52,6 +58,8 @@ Working…	正在处理…
 New chat	新对话
 Session ended · answer stopped	会话已结束 · 回答已停止
 Thinking…	思考中…
+Each Bloom conversation has its own omp session — pick an earlier one in the **list on the left** (or `Ctrl+F`) and it carries on in that session. Sessions from omp in a terminal open with `/resume` there.	在 Bloom 中，每个对话都有自己独立的 omp 会话。从 **左侧列表**（或 `Ctrl+F`）选择以前的对话，就会在那个会话里继续。终端里的 omp 会话请在 omp 中用 `/resume` 打开。
+`/{0}` isn't used in a Bloom chat — omp's settings are shared with your other omp sessions, so commands that change them belong in an omp terminal. Here you can use: 	Bloom 聊天中不使用 `/{0}` 命令。omp 的设置与你其他的 omp 会话共用，更改设置的命令请在 omp 终端中执行。这里可以使用的命令：
 \n\n<attachment name="{0}">(This format can't be opened here — tell the user its contents didn't come through)</attachment>	\n\n<attachment name="{0}">(此格式无法在这里打开 — 请告诉用户内容没有传过来)</attachment>
 Could not send the message. Send it again.	无法发送消息。请重新发送。
 **{0}** — file saved	**{0}** — 已保存文件
@@ -86,6 +94,19 @@ Older fast model	旧款快速模型
 Icon creation unavailable in recording mode	录制模式下无法生成图标
 No answer from Claude. Try again.	Claude 未返回回答。请重试。
 Could not read the icon. Draw it again.	无法读取图标。请重新生成。
+Default model	默认模型
+The chat got long — trimming long tool results…	对话变长了，正在精简过长的工具结果…
+The chat got long — summarising the earlier part…	对话变长了，正在总结前面的部分…
+The chat isn't long enough to tidy yet	对话还不够长，暂时无需整理
+Already tidied — nothing more to cut	已经整理过了，没有可再精简的内容
+Couldn't tidy: 	无法整理：
+Tidying stopped	已停止整理
+Nothing worth cutting, left as it was	可精简的内容不多，保持原样
+Couldn't tidy the earlier part	无法整理前面的部分
+Trimmed long tool results	已精简过长的工具结果
+Summarised the earlier part	已总结前面的部分
+ in use…	 使用中…
+The command ran.	命令已执行。
 No answer from ChatGPT. Try again.	ChatGPT 未返回回答。请重试。
 Codex answer failed. Try again.	Codex 回答失败。请重试。
 Summarize	总结
@@ -147,6 +168,10 @@ Claude Code · Approval request	Claude Code · 批准请求
 Allow	允许
 Decline	拒绝
 Answer in terminal	在终端中回答
+Bloom couldn't open the file	Bloom 无法打开文件
+The file isn't there, or it can't be opened	文件不存在，或无法打开
+Markdown document	Markdown 文档
+Bloom's document window to read and edit Markdown (.md) files	用于查看和编辑 Markdown (.md) 文件的 Bloom 文档窗口
 Shortcut · Error	快捷键 · 错误
 Item not found. Check its location or reassign the shortcut.	未找到项目。请检查位置或重新分配快捷键。
 Reading the app list again…	正在重新读取应用列表…
@@ -230,9 +255,17 @@ Saved data	已保存的数据
 Deleting data permanently removes AI chats, settings, favorites, notes and clipboard history. Kept data is used again after reinstalling.	删除数据将永久移除 AI 聊天、设置、收藏、笔记和剪贴板历史。保留的数据在重新安装后可继续使用。
 Keep data	保留数据
 Delete data	删除数据
+Without admin approval the Win-key helper stays installed. After Bloom is removed, remove ‘Bloom Win-key helper’ in Windows Settings › Apps.	未获管理员批准，Win 键助手未被删除。删除 Bloom 后，请在 Windows 设置 › 应用中删除“Bloom Win-key helper”。
 Uninstall failed	卸载失败
 Update	更新
 No release notes for this version	此版本无更新说明
+Update the Win-key helper	更新 Win 键助手
+This version of Bloom needs the Win-key helper installed again. Until then, Win does not open Bloom over admin apps.	此版本的 Bloom 需要重新安装 Win 键助手。在此之前，管理员应用在前台时按 Win 键不会打开 Bloom。
+Reinstall	重新安装
+Without admin approval the helper stays installed. It does nothing while off. Remove ‘Bloom Win-key helper’ in Windows Settings › Apps.	未获管理员批准，助手仍保持安装。关闭期间不会运行。可在 Windows 设置 › 应用中删除“Bloom Win-key helper”。
+Win-key helper still installed	Win 键助手仍已安装
+Win-key helper install failed	Win 键助手安装失败
+Could not install the helper. Try again.	无法安装助手。请重试。
 Could not end ‘{0}’. If it runs as administrator, close it in Task Manager.	无法结束“{0}”。如以管理员身份运行，请在任务管理器中结束。
 {0} ended · {1} could not be ended	已结束 {0} 个 · {1} 个无法结束
 Force-quit ‘{0}’	已强制结束“{0}”
@@ -260,10 +293,11 @@ Limit used up	额度已用完
 Limit near	即将达到上限
 {0} limit · {1}% left	{0}额度 · 剩余 {1}%
 Resets in {0}	{0}后重置
+Restart to update	重启以更新
+Update settings	更新设置
 Bloom · Update	Bloom · 更新
 Version {0} downloaded	已下载版本 {0}
 Applies at next start	下次启动时应用
-Update settings	更新设置
 Bloom AI · Approval pending	Bloom AI · 等待批准
 Choose Allow or Decline	选择允许或拒绝
 Open AI chat	打开 AI 聊天
@@ -492,6 +526,7 @@ Tool	工具
 Folder	文件夹
 File	文件
 See this folder's size (Space Cleaner)	查看此文件夹大小 (Space Cleaner)
+View in Bloom	在 Bloom 中查看
 Add to custom commands…	添加到自定义命令…
 Just now	刚刚
 {0} min ago	{0} 分钟前
@@ -997,6 +1032,14 @@ Grape	葡萄
 Sand dune	沙丘
 Charcoal and ash	木炭与灰烬
 Aurora	极光
+Couldn't open the file	无法打开文件
+Has characters this file can't hold	包含此文件无法保存的字符
+No permission to change this file	没有修改此文件的权限
+The file is read-only	该文件为只读
+Not UTF-8, so it can't be edited	不是 UTF-8，因此无法编辑
+Has unreadable characters, so it can't be edited	包含无法读取的字符，因此无法编辑
+Over 10 MB · only its start, as plain text	超过 10 MB · 仅以纯文本显示开头部分
+Bloom recovery	Bloom 恢复
 Maths · units · currency	计算 · 单位 · 汇率
 Calculates a sum as you type	输入算式即可计算
 Converts between units	换算单位
@@ -1044,6 +1087,8 @@ Search a site by keyword, like ‘yt cats’	用关键词搜索网站，如 “y
 Your own scripts, snippets and chains	自己写的脚本、片段和组合
 Notes & tool windows	便笺和工具窗口
 Notes, timers, calculator and clipboard in windows beside the launcher · notes in the search line	便笺、计时器、计算器、剪贴板以窗口形式放在启动器旁 · 在搜索栏查找便笺
+Markdown documents (.md)	Markdown 文档 (.md)
+Bloom in Explorer's ‘Open with’ · ‘View in Bloom’ on .md files you find	资源管理器“打开方式”中的 Bloom · 搜索到的 .md 文件上的“在 Bloom 中查看”
 Switch windows	切换窗口
 The open windows list, windows under the results, and its shortcut	打开的窗口列表、搜索结果下方的窗口及其快捷键
 Move the window in front: ‘left half’, ‘maximize’, ‘next screen’	移动最前面的窗口：“left half”“maximize”“next screen”
@@ -1340,8 +1385,7 @@ Send	发送
 Attach files or pictures	附加文件或图片
 Chats	对话
 Choose model and thinking level	选择模型和思考级别
-Switch to Claude	切换到 Claude
-Switch to ChatGPT	切换到 ChatGPT
+Switch to {0}	切换到 {0}
 Change thinking level	更改思考级别
 Copy the last answer	复制最后的回答
 Answer copied	已复制回答
@@ -1351,6 +1395,18 @@ Allow: {0}	允许：{0}
 End session · open a new chat	结束会话 · 打开新聊天
 Delete this chat	删除此对话
 OK	确定
+Reload	重新读取
+Save mine	保存我的版本
+Not saved · another program is using the file, trying again	未保存 · 其他程序正在使用该文件，稍后重试
+Not saved	未保存
+The file was deleted or moved · the text is still here	文件已被删除或移动 · 文本仍保留在这里
+Another program changed this file	其他程序更改了此文件
+View only	仅查看
+Saved as you type · {0}	边写边保存 · {0}
+Unsaved changes	未保存的更改
+What you changed isn't in the file yet. Saving yours puts this text in the file.	你更改的内容尚未保存到文件。保存你的版本后，文件将变为此文本。
+Don't save	不保存
+‘{0}’ isn't there	找不到“{0}”
 Checking AI usage…	正在查询 AI 用量…
 Could not get usage. Check the Claude Code or Codex sign-in, then press ↻.	无法获取用量。请检查 Claude Code 或 Codex 的登录状态，再按 ↻。
 Move earlier	前移
@@ -1385,6 +1441,10 @@ Usage · speed	用量 · 速度
 Cloud	云
 Shopping	购物
 Lock	锁
+Too long to view as Markdown · editor only	内容过长，仅在编辑界面显示
+Text size {0}	字号 {0}
+Edit	编辑
+View (Markdown)	查看 (Markdown)
 MMMM yyyy	yyyy年M月
 Last month (PgUp)	上个月 (PgUp)
 To today (Home)	回到今天 (Home)
@@ -1436,14 +1496,17 @@ Bloom works without them; each one turns its feature on. Install them from their
 Find any file on the PC by name	按名称即时查找电脑上的任意文件
 AI chat · Bloom Lens · translation (with your own login)	AI 对话 · Bloom Lens · 翻译 (使用你自己的账号登录)
 Chat and translate with ChatGPT (with your own login)	用 ChatGPT 对话和翻译 (使用你自己的账号登录)
+AI chat · Bloom Lens · translation — pick among the models you signed in to (omp login)	AI 聊天 · Bloom Lens · 翻译 — 在已登录的多个模型中选择 (omp login)
 Choose AI by feature	各功能使用的 AI
 Choose from AI found on this PC.	可选择本机已找到的 AI。
 Release idle chat memory after	闲置聊天内存释放时间
 Releases idle chat memory · 0 = keep it	释放闲置聊天内存 · 0 表示保留
 Answers through Codex and runs approved PC actions.	通过 Codex 回答并执行已批准的电脑操作。
+Answers through omp: pick among the models you signed in to; runs approved PC actions.	通过 omp 回答。可在已登录的多个模型中选择，并执行你批准的电脑操作。
 Answers through Claude Code and runs approved PC actions.	通过 Claude Code 回答并执行已批准的电脑操作。
 Bloom Lens · translation	Bloom Lens · 翻译
 Reads and translates screen text with ChatGPT.	使用 ChatGPT 读取并翻译屏幕文字。
+Reads and translates screen text with omp's quick-job model, set in Settings.	使用 omp 的快速任务模型读取并翻译屏幕文字，模型在设置中选择。
 Reads and translates screen text with Claude Haiku.	使用 Claude Haiku 读取并翻译屏幕文字。
 ChatGPT usage checks	ChatGPT 用量查询
 How the home gets ChatGPT's usage. Add accounts and pick the AI chat account in Settings > AI accounts.	主页获取 ChatGPT 用量的方式。在 设置 > AI 账户 中添加账户并选择 AI 聊天账户。
@@ -1473,6 +1536,12 @@ Bloom {0} · What's new	Bloom {0} · 新功能
 Bloom {0} update complete	Bloom {0} 更新完成
 Changes in this version	此版本的更改
 See it on GitHub	在 GitHub 上查看
+{0:0.#}% of what the model remembers · omp summarises by itself when it gets long	模型记住的对话的 {0:0.#}% · 对话变长时 omp 会自行总结
+How much the model remembers — shown after the next answer · omp summarises by itself when it gets long	模型记住的对话量 — 下一次回答结束后显示 · 对话变长时 omp 会自行总结
+Tidying…	整理中…
+Tidy	整理
+Can't tidy right now	现在无法整理
+Summarises the earlier part so the model remembers less — the chat on screen stays as it is (not while it answers)	总结对话的前半部分，减少模型记住的量。屏幕上的对话记录保持不变（回答过程中不可用）
 Groups	分组
 New chat in this group	在此分组中新建对话
 Group menu	分组菜单
@@ -1534,6 +1603,7 @@ Result · Enter copies	结果 · 按 Enter 复制
 Expand	展开
 Collapse	折叠
 Refresh	刷新
+Apply	应用
 Remove from favorites	从收藏中移除
 Add to favorites	添加到收藏
 Add to a favorites folder…	添加到收藏夹…
@@ -1574,7 +1644,7 @@ Ask about the attached files	就附件提问
 Ask a follow-up…	继续追问…
 Ask anything…	想问什么都可以…
 Stops the answer (Ctrl+.) · Esc returns home while the answer continues.	停止回答（Ctrl+.）· Esc 返回主页，回答继续。
-Model and thinking level (Ctrl+M · Ctrl+E · Ctrl+Shift+M Claude ↔ ChatGPT)	模型和思考级别 (Ctrl+M · Ctrl+E · Ctrl+Shift+M Claude ↔ ChatGPT)
+Model and thinking level (Ctrl+M · Ctrl+E · Ctrl+Shift+M switches AI)	模型和思考级别 (Ctrl+M · Ctrl+E · Ctrl+Shift+M 切换 AI)
 Session closed, a new chat is open — the last one stays in the list	已关闭会话并打开新对话 — 上一个对话会留在列表中
 Home	主页
 More	更多
@@ -1675,16 +1745,16 @@ Lightweight: one HTTPS request with the Codex sign-in · no CLI · not an offici
 Official CLI: runs Codex per account · ~110 MB for 1 s	官方 CLI：每个账户运行 Codex · 约 110 MB 1 秒
 How often	查询间隔
 Default accounts as set on the home page · added ones every {0} min · the home's ↻ checks all	默认账户按主页设置的间隔 · 添加的账户每 {0} 分钟 · 主页的 ↻ 查询全部账户
+Sign out	退出登录
 The sign-in terminal is open. Finish signing in or close it.	登录终端已打开。请完成登录或关闭终端。
+Signs this account out and takes it off the list. Add it again to use it.	退出此账户的登录并将其从列表中移除。如需再次使用，请重新添加该账户。
+AI chat goes back to the default account.	AI 聊天将改回使用默认账户。
 Use for AI chat	用于 AI 聊天
 Show on the home	在主页显示
 Hide on the home	在主页隐藏
 Sign in again	重新登录
 Default account	默认账户
 This account's renewed sign-in isn't saved yet. Try again in a moment.	尚未能保存此账户更新后的登录信息。请稍后再试。
-Sign out	退出登录
-Signs this account out and takes it off the list. Add it again to use it.	退出此账户的登录并将其从列表中移除。如需再次使用，请重新添加该账户。
-AI chat goes back to the default account.	AI 聊天将改回使用默认账户。
 API keys	API 密钥
 No key · click to add one	无密钥 · 点击添加密钥
 Loading the model list…	正在加载模型列表…
@@ -1695,12 +1765,71 @@ Change key	更换密钥
 Remove key	删除密钥
 Deletes the {0} API key and model list from this PC.	从这台电脑删除 {0} 的 API 密钥和模型列表。
 Connected. {0} models loaded.	已连接。已加载 {0} 个模型。
+ Install it and sign in with omp login.	 请安装后用 omp login 登录。
+ · answers with the models you signed in to	 · 使用你已登录的模型回答
+Installation guide	安装指南
+omp path	omp 路径
+Empty = looked up on the PATH	留空则在 PATH 中查找
+No such file	没有这个文件
+Chat model	聊天模型
+For new chats · empty = omp's own default · Ctrl+M during a chat	新聊天的默认值 · 留空则用 omp 自己的默认模型 · 聊天中按 Ctrl+M
+Type a chat model	直接输入聊天模型
+A model not in My models: provider/model · empty = omp's own default	不在“我的模型”中的模型：提供方/模型 · 留空则用 omp 自己的默认模型
+Use provider/model	请按 提供方/模型 的格式输入
+Chat thinking level	聊天思考级别
+The levels depend on the model · Ctrl+E during a chat	级别因模型而异 · 对话中按 Ctrl+E
+Web search in chats	聊天中的网页搜索
+omp's own file access and commands are blocked · Bloom's PC actions and the MCP servers you switched on: Settings › PC actions · MCP	omp 自带的文件访问和命令执行已被禁用 · Bloom 的电脑操作和已开启的 MCP 服务器见 设置 › 电脑操作 · MCP
+Quick jobs	快速任务
+Quick-job model	快速任务模型
+Translation and AI actions · lighter is faster · empty = omp's own default	翻译 · AI 快捷操作 · 越轻越快 · 留空则用 omp 自己的默认模型
+Type a quick-job model	直接输入快速任务模型
+A model not in My models: provider/model	不在“我的模型”中的模型：提供方/模型
+Quick-job thinking level	快速任务思考级别
+Off is fastest and uses least · also a chip in the translation window	关闭最快、用量最少 · 也可在翻译窗口的标签中更改
+In omp chats	在 omp 对话中
+Approval card in AI chat before actions · applies from the next message	操作前在 AI 聊天中显示批准卡片 · 从下一条消息起生效
+Answers with the model omp is set to use	使用 omp 中设置的默认模型回答
+My models	我的模型
+ · not in omp's list now (kept)	 · 已不在 omp 的列表中（保留）
+Default level	默认级别
+The thinking level a chat with this model starts at	用此模型开始新聊天时的思考级别
+Remove from the list	从列表中移除
+Display name	显示名称
+The name in the menus · empty = the usual one ({0})	菜单中显示的名称 · 留空则用常规名称（{0}）
+The list is empty	列表是空的
+Until you add one, the chat's model menu shows only omp's default model	添加模型之前，聊天的模型菜单里只显示 omp 的默认模型
+Close the add screen	关闭添加界面
+Add a model	添加模型
+Pick from the models omp knows, by provider	按提供方查找并选择 omp 已知的模型
+Add by hand	手动添加
+provider/model, then Enter (e.g. anthropic/claude-sonnet-5-5)	按 提供方/模型 的格式输入后按 Enter（例如 anthropic/claude-sonnet-5-5）
+Already in the list	已在列表中
+not read yet	尚未读取
+Refresh omp's model list	刷新 omp 的模型列表
+Reads omp models again now · {0} models · last {1}	立即重新读取 omp models · {0} 个 · 上次 {1}
+ · could not read — check omp	 · 读取失败 — 请检查 omp
+Model to add	要添加的模型
+Matches model and provider names · empty shows the providers	按模型名和提供方名称匹配 · 留空则按提供方显示
+e.g. gemini	例如 gemini
+No model list yet	还没有模型列表
+Press ‘Refresh omp's model list’ above	请点击上面的“刷新 omp 的模型列表”
+Providers	提供方
+{0} models	{0} 个模型
+No model found	没有找到模型
+You can also type provider/model in ‘Add by hand’	也可以在“手动添加”中输入 提供方/模型
+no thinking	无思考级别
+ · in the list	 · 已在列表中
+…and {0} more	…另有 {0} 个
+Narrow it with the search above	请在上面的搜索框中输入文字来缩小范围
 General	常规
 How Bloom opens and looks	Bloom 的打开方式和外观
 Language	语言
 Restarts Bloom to apply · Auto uses the Windows display language	应用时重新启动 Bloom · 自动使用 Windows 显示语言
 Restart Bloom to apply the language.	重新启动 Bloom 以应用语言。
 Tap Win alone to open (combinations like Win+E still work)	只按 Win 键即可打开 (Win+E 等组合键照常可用)
+Win key over admin apps	在管理员应用上也使用 Win 键
+Opens with Win even over apps run as administrator · admin approval to turn on	即使前台是以管理员身份运行的应用，也可用 Win 键打开 · 开启需要管理员批准
 Another app uses it	已被其他应用占用
 Open with Alt + Space	用 Alt + Space 打开
 Autostart unavailable in development runs	开发运行时无法设置自动启动
@@ -1762,7 +1891,7 @@ Names	名称
 App names changed in Bloom	在 Bloom 中更改的应用名称
 On an app: Ctrl+K → Rename (in Bloom only; the original name still finds it)	在应用上按 Ctrl+K → 重命名 (仅在 Bloom 中，原名仍可搜到)
 {0} · Enter puts all the original names back	{0} 个 · 按 Enter 全部恢复原名
-Tab opens AI chat · uses Claude or ChatGPT signed in on this PC, or an API key	Tab 打开 AI 聊天 · 使用这台电脑上登录的 Claude 或 ChatGPT，或 API 密钥回答
+Tab opens AI chat · uses Claude, ChatGPT or omp signed in on this PC, or an API key	按 Tab 打开 AI 聊天 · 使用本机已登录的 Claude · ChatGPT · omp，或 API 密钥回答
 New chats use	新对话使用
 Ctrl+Shift+M switches during a chat · Ctrl+M picks the model	对话中按 Ctrl+Shift+M 切换 · Ctrl+M 选择模型
 AI chat window shortcut	AI 对话窗口快捷键
@@ -1775,13 +1904,11 @@ Claude model	Claude 模型
 For new chats · Ctrl+M during a chat	新对话的默认值 · 对话中按 Ctrl+M
 Claude thinking level	Claude 思考级别
 Fast = thinking off · not for Haiku · Ctrl+E during a chat	快速 = 关闭思考 · Haiku 不支持 · 对话中按 Ctrl+E
-Installation guide	安装指南
 ChatGPT model	ChatGPT 模型
 Codex's default model	Codex 默认模型
  · Ctrl+M during a chat	 · 对话中按 Ctrl+M
 No Codex model list yet — run Codex once to get it	还没有 Codex 的模型列表 — 运行一次 Codex 即可获取
 ChatGPT thinking level	ChatGPT 思考级别
-The levels depend on the model · Ctrl+E during a chat	级别因模型而异 · 对话中按 Ctrl+E
 {0} · uses your ChatGPT login	{0} · 使用已登录的 ChatGPT 账号
 API model	API 模型
 API thinking level	API 思考级别
@@ -1790,7 +1917,6 @@ Add an API key in Settings > AI accounts to pick a model	在 设置 > AI 账户 
 PC actions · MCP	电脑操作 · MCP
 Use AI chat to open apps, find and move files, and set timers on this PC.	可在 AI 聊天中打开本机应用、查找和移动文件、设置计时器。
 In Claude chats	在 Claude 对话中
-Approval card in AI chat before actions · applies from the next message	操作前在 AI 聊天中显示批准卡片 · 从下一条消息起生效
 In ChatGPT chats	在 ChatGPT 对话中
 In API chats	在 API 聊天中
 Permissions	权限
@@ -1836,6 +1962,8 @@ Features	功能
 Switch off what you don't use — it leaves the results, the command list, the home and the favorites row, and lets go of its shortcut. Nothing saved is deleted	关闭不用的功能 — 它会从搜索结果、命令列表、主页和收藏栏中移除，并释放快捷键。已保存的内容不会被删除
 In the search line	在搜索栏中
 Windows · tools	窗口 · 工具
+Make it the default app	设为默认应用
+Pick Bloom for .md files in Windows Settings, and a double-click in Explorer opens them in Bloom's document window	在 Windows 设置中将 Bloom 选为打开 .md 文件的应用后，在资源管理器中双击即可在 Bloom 文档窗口中打开
 Keeps the text, pictures and files you copy, to paste again	保存复制过的文字、图片和文件，以便再次粘贴
 History	历史
 On · {0} · from about +2 MB of memory, more with pictures · copies that password managers hide are never kept	已开启 · {0} 项 · 内存约 +2 MB 起，图片越多越大 · 不会保存密码管理器隐藏的内容
@@ -1871,6 +1999,8 @@ Translation engine	翻译引擎
 AI actions use this engine too · also switchable in the translation window	AI 快捷操作也使用此引擎 · 也可在翻译窗口中切换
 Claude model for translation	翻译用 Claude 模型
 Haiku has no thinking level setting.	Haiku 不支持思考级别设置。
+omp model for translation	翻译用的 omp 模型
+{0} · change it in Settings > AI chat > omp > Quick-job model	{0} · 在 设置 > AI 聊天 > omp 的“快速任务模型”中更改
 API model for translation	翻译用 API 模型
 Lighter models are faster and cost less	越轻的模型越快，费用也越低
 ChatGPT model for translation	翻译用 ChatGPT 模型
@@ -1995,7 +2125,6 @@ Downloading {0}…	正在下载 {0}…
 Version {0} ready · click to restart	版本 {0} 已就绪 · 点击重新启动
 Could not check for updates. Check your connection and retry.	无法检查更新。请检查网络连接后重试。
 Looks for a new version on GitHub Releases	在 GitHub Releases 上查找新版本
-Restart to update	重启以更新
 Check for updates	检查更新
 Check when Bloom starts	启动 Bloom 时检查
 Checks once after launch · downloads new versions for the next start	启动后检查一次 · 下载新版本并在下次启动时应用
@@ -2034,17 +2163,12 @@ No assigned shortcuts. Choose an item in the launcher and press Ctrl+K to assign
 Choose an item in the launcher	在启动器中选择项目
 Another app uses these keys	其他应用正在使用这组按键
 Find a note · Enter for a new one	查找笔记 · 按 Enter 新建笔记
-Saved	已保存
 All notes	全部便笺
 Delete this note (to the Recycle Bin)	删除此便笺 (移到回收站)
 New note	新便笺
-Saved as you type · {0}	边写边保存 · {0}
+Saved	已保存
 No saved notes. Type above and press Enter.	尚无已保存的笔记。请在上方输入并按 Enter。
 No note matches · Enter saves a new note	无匹配笔记 · Enter 保存新笔记
-Too long to view as Markdown · editor only	内容过长，仅在编辑界面显示
-Text size {0}	字号 {0}
-Edit	编辑
-View (Markdown)	查看 (Markdown)
 Delete (to the Recycle Bin)	删除 (移到回收站)
 s	秒
 What for (or ‘3pm meeting’)	内容 (或 ‘3pm meeting’)
@@ -2057,43 +2181,3 @@ just now	刚刚
 Detach from the launcher	从启动器分离
 Always on top	始终置顶
 Attach to the launcher	附到启动器
-Markdown document	Markdown 文档
-Bloom's document window to read and edit Markdown (.md) files	用于查看和编辑 Markdown (.md) 文件的 Bloom 文档窗口
-View in Bloom	在 Bloom 中查看
-Couldn't open the file	无法打开文件
-Has characters this file can't hold	包含此文件无法保存的字符
-No permission to change this file	没有修改此文件的权限
-The file is read-only	该文件为只读
-Not UTF-8, so it can't be edited	不是 UTF-8，因此无法编辑
-Has unreadable characters, so it can't be edited	包含无法读取的字符，因此无法编辑
-Over 10 MB · only its start, as plain text	超过 10 MB · 仅以纯文本显示开头部分
-Markdown documents (.md)	Markdown 文档 (.md)
-Bloom in Explorer's ‘Open with’ · ‘View in Bloom’ on .md files you find	资源管理器“打开方式”中的 Bloom · 搜索到的 .md 文件上的“在 Bloom 中查看”
-Reload	重新读取
-Save mine	保存我的版本
-Not saved · another program is using the file, trying again	未保存 · 其他程序正在使用该文件，稍后重试
-Not saved	未保存
-The file was deleted or moved · the text is still here	文件已被删除或移动 · 文本仍保留在这里
-Another program changed this file	其他程序更改了此文件
-View only	仅查看
-Unsaved changes	未保存的更改
-What you changed isn't in the file yet. Saving yours puts this text in the file.	你更改的内容尚未保存到文件。保存你的版本后，文件将变为此文本。
-Don't save	不保存
-‘{0}’ isn't there	找不到“{0}”
-Make it the default app	设为默认应用
-Pick Bloom for .md files in Windows Settings, and a double-click in Explorer opens them in Bloom's document window	在 Windows 设置中将 Bloom 选为打开 .md 文件的应用后，在资源管理器中双击即可在 Bloom 文档窗口中打开
-Bloom recovery	Bloom 恢复
-Bloom couldn't open the file	Bloom 无法打开文件
-The file isn't there, or it can't be opened	文件不存在，或无法打开
-The running Bloom didn't answer	正在运行的 Bloom 没有响应
-Bloom wasn't ready within 30 seconds	Bloom 未能在 30 秒内准备就绪
-Win key over admin apps	在管理员应用上也使用 Win 键
-Opens with Win even over apps run as administrator · admin approval to turn on	即使前台是以管理员身份运行的应用，也可用 Win 键打开 · 开启需要管理员批准
-Update the Win-key helper	更新 Win 键助手
-This version of Bloom needs the Win-key helper installed again. Until then, Win does not open Bloom over admin apps.	此版本的 Bloom 需要重新安装 Win 键助手。在此之前，管理员应用在前台时按 Win 键不会打开 Bloom。
-Reinstall	重新安装
-Without admin approval the helper stays installed. It does nothing while off. Remove ‘Bloom Win-key helper’ in Windows Settings › Apps.	未获管理员批准，助手仍保持安装。关闭期间不会运行。可在 Windows 设置 › 应用中删除“Bloom Win-key helper”。
-Win-key helper still installed	Win 键助手仍已安装
-Win-key helper install failed	Win 键助手安装失败
-Could not install the helper. Try again.	无法安装助手。请重试。
-Without admin approval the Win-key helper stays installed. After Bloom is removed, remove ‘Bloom Win-key helper’ in Windows Settings › Apps.	未获管理员批准，Win 键助手未被删除。删除 Bloom 后，请在 Windows 设置 › 应用中删除“Bloom Win-key helper”。

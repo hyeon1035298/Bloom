@@ -102,7 +102,7 @@ internal sealed partial class Launcher
 
     private string CurrentModel => Ai.AiModels.Normalize(thread?.Model ?? Ai.AiModels.DefaultModel());
 
-    /// Ctrl+M and the search line's model chip: every model (Claude, ChatGPT, then each API provider's), then this model's
+    /// Ctrl+M and the search line's model chip: every model (Claude, ChatGPT, omp, then each API provider's), then this model's
     /// thinking levels, the current ones ticked, in one menu.
     public void PickModel()
     {
@@ -119,19 +119,8 @@ internal sealed partial class Launcher
         actions.Open(Tr("모델 · 생각 수준", "Model · thinking level"), list, ids.IndexOf(cur));
     }
 
-    /// Ctrl+Shift+M: Claude ↔ ChatGPT, each side with the model last used there.
-    public void SwitchProvider()
-    {
-        bool toGpt = !Ai.AiModels.IsChatGpt(CurrentModel);
-        var s = Settings.Current;
-        string next = s.AiModel;
-        if (toGpt)
-        {
-            s.AiProvider = "chatgpt"; // DefaultModel() now answers for the ChatGPT side
-            next = Ai.AiModels.DefaultModel();
-        }
-        SetModel(next);
-    }
+    /// Ctrl+Shift+M: Claude → ChatGPT → omp (when it is on this PC), each side with the model last used there.
+    public void SwitchProvider() => SetModel(Ai.AiModels.NextSide(CurrentModel));
 
     /// The conversation goes on with this model from the next message; it also becomes the default.
     public void SetModel(string model)

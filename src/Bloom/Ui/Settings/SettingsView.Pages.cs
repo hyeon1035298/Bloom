@@ -228,13 +228,15 @@ internal sealed partial class SettingsView
 
     private void PageAi(Settings s, string filter)
     {
-        Page("ai", Tr("AI 채팅", "AI chat"), G.Chat, Tr("Tab으로 AI 채팅 열기 · 이 PC에서 로그인한 Claude나 ChatGPT 또는 API 키로 답변", "Tab opens AI chat · uses Claude or ChatGPT signed in on this PC, or an API key"), filter);
+        Page("ai", Tr("AI 채팅", "AI chat"), G.Chat, Tr("Tab으로 AI 채팅 열기 · 이 PC에서 로그인한 Claude · ChatGPT · omp 또는 API 키로 답변", "Tab opens AI chat · uses Claude, ChatGPT or omp signed in on this PC, or an API key"), filter);
         Header(Tr("기본", "Default"));
         List<string> apiIds = collected is null ? ApiCatalog.Ids() : []; // collecting reads no keys
         var sides = new List<(string, string)> { ("claude", "Claude"), ("chatgpt", "ChatGPT") };
+        // omp is one to pick when it is on this PC (or already picked: new chats then say it is missing, AiErrors.OmpMissing)
+        if (collected is null && OmpCli.FindCli(s.OmpPath) is not null || s.AiProvider == "omp") sides.Add(("omp", "omp"));
         // the API side stays listed while chosen, also with no model left: new chats then say so (AiModels.ApiDefault)
         if (apiIds.Count > 0 || s.AiProvider == "api") sides.Add(("api", "API"));
-        string side = s.AiProvider is "chatgpt" or "api" ? s.AiProvider : "claude";
+        string side = s.AiProvider is "chatgpt" or "omp" or "api" ? s.AiProvider : "claude";
         Choice(Tr("새 대화는", "New chats use"), Tr("Ctrl+Shift+M으로 AI 변경 · Ctrl+M으로 모델 선택", "Ctrl+Shift+M switches during a chat · Ctrl+M picks the model"), G.Sparkle,
             sides.ToArray(), side, v =>
             {
@@ -280,6 +282,8 @@ internal sealed partial class SettingsView
         if (codex is not null && Demo.On) codex = Tr("설치됨", "Installed");
         Add("Codex", codex is null ? AiErrors.CodexMissing : Tr($"{codex} · ChatGPT 로그인으로 사용", $"{codex} · uses your ChatGPT login"), codex is null ? ToolUi.TextButton(Tr("설치 안내", "Installation guide"), () => Launch.Open("https://github.com/openai/codex")) : null, G.Info, null, null, filter);
 
+        PageOmp(s, filter);
+
         Header("API");
         if (apiIds.Count > 0)
         {
@@ -310,6 +314,7 @@ internal sealed partial class SettingsView
         Add(Tr("Claude 대화에서", "In Claude chats"), Tr("실행 전 AI 채팅에 승인 카드 표시 · 다음 메시지부터 적용", "Approval card in AI chat before actions · applies from the next message"), pcSw, G.Bolt, pcT, null, filter);
         var gptSw = Toggle(s.AiToolsGpt, v => s.AiToolsGpt = v, out var gptT);
         Add(Tr("ChatGPT 대화에서", "In ChatGPT chats"), Tr("실행 전 AI 채팅에 승인 카드 표시 · 다음 메시지부터 적용", "Approval card in AI chat before actions · applies from the next message"), gptSw, G.Bolt, gptT, null, filter);
+        OmpToolsRow(s, filter);
         var apiSw = Toggle(s.AiToolsApi, v => s.AiToolsApi = v, out var apiT);
         Add(Tr("API 대화에서", "In API chats"), Tr("실행 전 AI 채팅에 승인 카드 표시 · 다음 메시지부터 적용", "Approval card in AI chat before actions · applies from the next message"), apiSw, G.Bolt, apiT, null, filter);
         Header(Tr("권한", "Permissions"));
@@ -458,6 +463,8 @@ internal sealed partial class SettingsView
         if (tp == "claude")
             Choice(Tr("번역용 Claude 모델", "Claude model for translation"), Tr("Haiku는 생각 수준을 지원하지 않습니다.", "Haiku has no thinking level setting."), G.Model,
                 AiModels.Claude.Select(m => (m, AiModels.Name(m))).ToArray(), Translator.Model("claude"), v => { s.TranslateClaudeModel = v; Dispatcher.BeginInvoke(() => Build(lastFilter)); }, filter);
+        else if (tp == "omp")
+            Add(Tr("번역용 omp 모델", "omp model for translation"), Tr($"{AiModels.Name(Translator.Model("omp"))} · 설정 > AI 채팅 > omp 의 ‘빠른 작업 모델’에서 바꿉니다", $"{AiModels.Name(Translator.Model("omp"))} · change it in Settings > AI chat > omp > Quick-job model"), null, G.Model, () => Go("ai"), null, filter);
         else if (tp == "api")
             Menu(Tr("번역용 API 모델", "API model for translation"), Tr("가벼운 모델일수록 빠르고 비용이 적습니다", "Lighter models are faster and cost less"), G.Model,
                 ApiCatalog.Ids().Select(id => (id, AiModels.Who(id), (string?)null)).ToArray(), Translator.Model("api"), v => { s.TranslateApiModel = v; Dispatcher.BeginInvoke(() => Build(lastFilter)); }, filter);

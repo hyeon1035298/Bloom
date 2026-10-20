@@ -29,7 +29,13 @@ internal sealed class Settings
     public List<ItemKey> ItemKeys { get; set; } = new(); // shortcuts given to single items (Core\ItemKeys.cs)
     public string WebBrowser { get; set; } = "default"; // default | a Browser.Web.Installed key — where searches and links open
     public string SearchEngine { get; set; } = "google"; // Browser.Web.Engines key
-    public string AiProvider { get; set; } = "claude"; // claude | chatgpt | api: the side new conversations use
+    public string AiProvider { get; set; } = "claude"; // claude | chatgpt | omp | api: the side new conversations use
+    public string OmpChatModel { get; set; } = ""; // omp: "provider/model" for the chat (`omp models`); empty = omp's own default model
+    public string OmpChatEffort { get; set; } = "medium"; // omp: off | minimal | low | medium | high | xhigh | max (fitted to the model's levels)
+    public string OmpFastModel { get; set; } = ""; // omp: translation and AI 빠른 동작; empty = omp's own default model
+    public string OmpFastEffort { get; set; } = "off";
+    public bool OmpSearch { get; set; } = true; // omp chats may search the web (their only tool of omp's own)
+    public List<Ai.OmpModel> OmpModels { get; set; } = new(); // omp: the user's own model list (Ai\OmpModelList.cs); empty = the menus show omp's own default model only
     public string? ApiModel { get; set; } // API: an AiModels.Api id ("api:<provider>:<model>"); null = none picked yet
     public string ApiEffort { get; set; } = "auto"; // API: auto (none sent) or a level the provider takes (ApiProviders)
     public string AiModel { get; set; } = "sonnet"; // Claude: sonnet | opus | haiku
@@ -44,6 +50,7 @@ internal sealed class Settings
     public bool AiTools { get; set; } = true; // Claude chats get Bloom's MCP tools (actions asked in the chat first)
     public bool AiToolsGpt { get; set; } = true; // ChatGPT (Codex) chats get them too (Bloom asks in the chat itself)
     public bool AiToolsApi { get; set; } = true; // API chats get them too, as a function (Bloom asks in the chat itself)
+    public bool AiToolsOmp { get; set; } = true; // omp chats get them too, through .omp/mcp.json (Bloom asks in the chat itself)
     public Dictionary<string, string> Permissions { get; set; } = new(); // 설정 > PC 작업 · MCP > 권한: action → ask | allow | off; missing = ask (Core\ToolPermissions.cs)
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public bool? ApiFileTools { get; set; } // a settings file from before 권한: its switch off reads once as the four file and command actions off
@@ -53,6 +60,7 @@ internal sealed class Settings
     public List<string> FeaturesOff { get; set; } = new(); // Core\Features.cs keys switched off in 설정 > 기능
     public string? ClaudePath { get; set; }
     public string? CodexPath { get; set; }
+    public string? OmpPath { get; set; } // omp.exe; null = the PATH
     public List<HomeWidget>? Home { get; set; } // the empty view's blocks, in order (Core\Home.cs)
     public int UsageMinutes { get; set; } = 10; // the home's AI usage: asked of Claude Code / Codex every 5 or 10 minutes (App\AiUsage.cs)
     public bool UsageLeft { get; set; } // the usage cards count what's left ("68% 남음", the bar shrinking) instead of what's used

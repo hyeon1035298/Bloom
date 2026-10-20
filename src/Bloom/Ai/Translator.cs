@@ -8,39 +8,50 @@ namespace Bloom.Ai;
 
 /// Translation for screen OCR: one short CLI call per text, no conversation kept (each call is a
 /// fresh, small prompt — what realtime translation repeats). Claude = the model picked for translation
-/// (Haiku by default, no thinking); ChatGPT = the Codex model picked for translation. Each side has its
+/// (Haiku by default, no thinking); ChatGPT = the Codex model picked for translation; omp = the model picked for its quick
+/// jobs (omp's own default model unless one is picked, no thinking). Each side has its
 /// own thinking level (lowest by default). Both use the CLIs' own logins, like the chat; API = the API model picked
 /// for translation, with the user's key. Every call counts against the user's plan.
 internal static class Translator
 {
     public static readonly (string value, string label)[] Targets = { ("auto", Tr("자동", "Auto")), ("ko", Tr("한국어", "Korean")), ("en", Tr("영어", "English")), ("ja", Tr("일본어", "Japanese")), ("zh", Tr("중국어", "Chinese")) };
 
-    /// The side translation and AI 빠른 동작 use: the setting's, with API only while an API model can be used (else Claude).
+    /// The side translation and AI 빠른 동작 use: the setting's, with omp only while it is on this PC and API only while an
+    /// API model can be used (else Claude).
     public static string Provider() => Settings.Current.TranslateProvider switch
     {
         "chatgpt" => "chatgpt",
+        "omp" when OmpCli.FindCli() is not null => "omp",
         "api" when Model("api").Length > 0 => "api",
         _ => "claude",
     };
 
-    /// The sides to choose from, in their order: Claude, ChatGPT, and API when an API model can be used.
-    public static string[] Providers() => Model("api").Length > 0 ? new[] { "claude", "chatgpt", "api" } : new[] { "claude", "chatgpt" };
+    /// The sides to choose from, in their order: Claude, ChatGPT, omp when it is on this PC, and API when an API model can be used.
+    public static string[] Providers()
+    {
+        var list = new System.Collections.Generic.List<string> { "claude", "chatgpt" };
+        if (OmpCli.FindCli() is not null) list.Add("omp");
+        if (Model("api").Length > 0) list.Add("api");
+        return list.ToArray();
+    }
 
-    /// A side's short name for chips and choices: Claude, ChatGPT, or the API model's provider.
+    /// A side's short name for chips and choices: Claude, ChatGPT, omp, or the API model's provider.
     public static string Label(string provider) => provider switch
     {
         "chatgpt" => "ChatGPT",
+        "omp" => "omp",
         "api" => AiModels.ApiProviderOf(Model("api"))?.Name ?? "API",
         _ => "Claude",
     };
 
-    /// The model a side translates with: Claude Haiku, the ChatGPT model set for translation
+    /// The model a side translates with: Claude Haiku, omp's quick-job model, the ChatGPT model set for translation
     /// (default: the catalog's lightest, its name containing "Luna" or "mini"), or the API model set for it (default: the
     /// first listed; "" when there is none).
     public static string Model(string provider)
     {
         if (provider == "api")
             return Settings.Current.TranslateApiModel is { } api && AiModels.ApiReady(api) ? api : ApiCatalog.Ids().FirstOrDefault() ?? "";
+        if (provider == "omp") return AiModels.Omp(Settings.Current.OmpFastModel);
         if (provider != "chatgpt") return Array.IndexOf(AiModels.Claude, Settings.Current.TranslateClaudeModel) >= 0 ? Settings.Current.TranslateClaudeModel : "haiku";
         var s = Settings.Current;
         if (s.TranslateGptModel is { Length: > 0 } g && (GptCatalog.All.Count == 0 || GptCatalog.Find(g) is not null)) return AiModels.Gpt(g);
@@ -62,18 +73,19 @@ internal static class Translator
         string m = Model(provider);
         if (!AiModels.HasEffort(m)) return null;
         var s = Settings.Current;
-        return AiModels.Fit(m, provider switch { "chatgpt" => s.TranslateGptEffort, "api" => s.TranslateApiEffort, _ => s.TranslateClaudeEffort });
+        return AiModels.Fit(m, provider switch { "omp" => s.OmpFastEffort, "chatgpt" => s.TranslateGptEffort, "api" => s.TranslateApiEffort, _ => s.TranslateClaudeEffort });
     }
 
     public static void SetEffort(string provider, string e)
     {
-        if (provider == "chatgpt") Settings.Current.TranslateGptEffort = e;
+        if (provider == "omp") Settings.Current.OmpFastEffort = e;
+        else if (provider == "chatgpt") Settings.Current.TranslateGptEffort = e;
         else if (provider == "api") Settings.Current.TranslateApiEffort = e;
         else Settings.Current.TranslateClaudeEffort = e;
         Settings.Save();
     }
 
-    /// "Claude · Haiku" / "ChatGPT · GPT-6-Luna · 최소" / "DeepSeek · deepseek-chat"
+    /// "Claude · Haiku" / "omp · Haiku 5.5 · 끔" / "ChatGPT · GPT-6-Luna · 최소" / "DeepSeek · deepseek-chat"
     public static string Who(string provider)
     {
         string who = AiModels.Who(Model(provider));

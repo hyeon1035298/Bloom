@@ -610,7 +610,7 @@ internal sealed class ChatView : Grid, IComposerHost
             new() { Title = Tr("새 대화", "New chat"), Keys = "Ctrl+N", Glyph = G.Add, StayOpen = true, Run = () => owner.ShowChat(host.Chats.New()) },
             new() { Title = Tr("대화 목록", "Chats"), Keys = "Ctrl+L", Glyph = G.History, StayOpen = true, Run = owner.ShowThreads },
             new() { Title = Tr("모델과 생각 수준 선택", "Choose model and thinking level"), Keys = "Ctrl+M", Glyph = G.Model, StayOpen = true, Run = owner.PickModel },
-            new() { Title = AiModels.IsChatGpt(t?.Model ?? AiModels.DefaultModel()) ? Tr("Claude로 바꾸기", "Switch to Claude") : Tr("ChatGPT로 바꾸기", "Switch to ChatGPT"), Keys = "Ctrl+Shift+M", Glyph = G.Chat, StayOpen = true, Run = owner.SwitchProvider },
+            new() { Title = Tr($"{AiModels.NextSideName(t?.Model ?? AiModels.DefaultModel())}로 바꾸기", $"Switch to {AiModels.NextSideName(t?.Model ?? AiModels.DefaultModel())}"), Keys = "Ctrl+Shift+M", Glyph = G.Chat, StayOpen = true, Run = owner.SwitchProvider },
             new() { Title = Tr("생각 수준 바꾸기", "Change thinking level"), Keys = "Ctrl+E", Glyph = G.Bulb, StayOpen = true, Run = owner.CycleEffort },
         };
         if (t?.Messages.LastOrDefault(x => x.Role == "assistant" && x.Text.Length > 0) is { } last)

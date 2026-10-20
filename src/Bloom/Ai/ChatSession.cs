@@ -10,7 +10,7 @@ namespace Bloom.Ai;
 internal readonly record struct SessionStart(bool Success, string? Error = null);
 
 /// One conversation's link to a model: Claude Code (a long-lived `claude -p` stream), Codex for ChatGPT (a long-lived
-/// `codex app-server`, or one `codex exec` per turn as its fallback), or an API provider (ApiSession, one HTTP stream per turn). All events are raised on a worker
+/// `codex app-server`, or one `codex exec` per turn as its fallback), omp (a long-lived `omp --mode rpc`), or an API provider (ApiSession, one HTTP stream per turn). All events are raised on a worker
 /// thread.
 internal interface IChatSession : IDisposable
 {
@@ -53,9 +53,30 @@ internal interface IChatSession : IDisposable
     Task Closed => Task.CompletedTask;
 }
 
+/// A session that knows how much of the model's memory is in use and can tidy it (omp's get_state and compact). Events
+/// are raised on a worker thread.
+internal interface IContextGauge
+{
+    OmpUsage? Usage { get; }
+    bool Compacting { get; }
+
+    /// The numbers changed, or a tidy-up started or ended.
+    event Action? UsageChanged;
+
+    /// One line about omp's tidying: `running` while it goes on (shown as the status), then the finished line.
+    event Action<string, bool>? CompactNote;
+
+    /// The `compact` rpc (`instructions`: what to keep, may be ""); false when it can't start (busy, already tidying, gone).
+    bool Compact(string instructions);
+
+    /// Asks omp for the numbers again (the answer raises UsageChanged).
+    void RefreshUsage();
+}
+
 /// Models and thinking levels as the launcher names them. A model id is a Claude model ("sonnet",
 /// "opus", "haiku"), a ChatGPT one: "chatgpt:<Codex slug>" ("chatgpt" alone, from older threads,
-/// is Codex's own default model), or an API one: "api:<provider id>:<the provider's model id>".
+/// is Codex's own default model), an omp one: "omp:<provider/model>" ("omp:" alone is omp's own default model),
+/// or an API one: "api:<provider id>:<the provider's model id>".
 internal static class AiModels
 {
     public static readonly string[] Claude = { "sonnet", "opus", "haiku" };
@@ -66,22 +87,30 @@ internal static class AiModels
     /// An API model's level that sends none: the model's own default (the only one for a model that has no levels).
     public const string Auto = "auto";
 
-    private const string GptPrefix = "chatgpt:", ApiPrefix = "api:";
+    private const string GptPrefix = "chatgpt:", ApiPrefix = "api:", OmpPrefix = "omp:";
 
     /// Every level name from lowest to highest, to find the nearest one a model takes.
-    private static readonly string[] Rank = { Auto, "fast", "none", "minimal", "low", "medium", "high", "xhigh", "max", "ultra" };
+    private static readonly string[] Rank = { Auto, "fast", "none", "off", "minimal", "low", "medium", "high", "xhigh", "max", "ultra" };
 
     public static bool IsChatGpt(string model) => model == "chatgpt" || model.StartsWith(GptPrefix, StringComparison.Ordinal);
 
     public static bool IsApi(string model) => model.StartsWith(ApiPrefix, StringComparison.Ordinal);
 
-    /// The side a model is on: "claude", "chatgpt" or "api" (Settings.AiProvider's values).
-    public static string Provider(string model) => IsChatGpt(model) ? "chatgpt" : IsApi(model) ? "api" : "claude";
+    public static bool IsOmp(string model) => model.StartsWith(OmpPrefix, StringComparison.Ordinal);
 
-    /// ChatGPT and the APIs have no file tools: attachments go into the message, files come back as ```file: blocks.
-    public static bool Inline(string model) => IsChatGpt(model) || IsApi(model);
+    /// The side a model is on: "claude", "chatgpt", "omp" or "api" (Settings.AiProvider's values).
+    public static string Provider(string model) => IsChatGpt(model) ? "chatgpt" : IsApi(model) ? "api" : IsOmp(model) ? "omp" : "claude";
+
+    /// ChatGPT, omp (in a chat) and the APIs have no file tools: attachments go into the message, files come back as ```file: blocks.
+    public static bool Inline(string model) => IsChatGpt(model) || IsApi(model) || IsOmp(model);
 
     public static string Gpt(string slug) => GptPrefix + slug;
+
+    /// "omp:" + "provider/model"; an empty slug is omp's own default model.
+    public static string Omp(string slug) => OmpPrefix + slug;
+
+    /// "provider/model" of an omp model id ("" = omp's own default); null for the others.
+    public static string? OmpSlug(string model) => IsOmp(model) ? model[OmpPrefix.Length..] : null;
 
     public static string Api(string provider, string id) => ApiPrefix + provider + ":" + id;
 
@@ -98,8 +127,9 @@ internal static class AiModels
     /// An API model that can be used now: its provider has a key and listed it.
     public static bool ApiReady(string model) => ApiParts(model) is { } p && ApiKeys.Has(p.provider) && ApiCatalog.Find(p.provider, p.id) is not null;
 
-    /// Every model for the pickers: Claude's, ChatGPT's, then each API provider's with a key, in that order.
-    public static List<string> All() => Claude.Concat(GptCatalog.All.Select(m => Gpt(m.Slug))).Concat(ApiCatalog.Ids()).ToList();
+    /// Every model for the pickers: Claude's, ChatGPT's, omp's (when omp is on this PC), then each API provider's with a
+    /// key, in that order.
+    public static List<string> All() => Claude.Concat(GptCatalog.All.Select(m => Gpt(m.Slug))).Concat(OmpModelList.Ids()).Concat(ApiCatalog.Ids()).ToList();
 
     /// The Codex slug of a ChatGPT model id; null = Codex's own default.
     public static string? GptSlug(string model) => model.StartsWith(GptPrefix, StringComparison.Ordinal) ? model[GptPrefix.Length..] : null;
@@ -107,12 +137,13 @@ internal static class AiModels
     /// "chatgpt" (older threads) as the model it stands for, so it compares with the menu's ids.
     public static string Normalize(string model) => model == "chatgpt" && GptCatalog.DefaultSlug() is { } s ? Gpt(s) : model;
 
-    /// Haiku has no effort setting, nor an API model that takes no reasoning level.
-    public static bool HasEffort(string model) => IsApi(model) ? Efforts(model).Length > 1 : model != "haiku";
+    /// Haiku has no effort setting, nor an API or omp model that takes no reasoning level.
+    public static bool HasEffort(string model) => IsApi(model) || IsOmp(model) ? Efforts(model).Length > 1 : model != "haiku";
 
     /// The levels a model takes: Claude's six, the ChatGPT model's own list from Codex, or the API model's (its
     /// provider's rule for it, Auto first; ApiClient sends only these).
-    public static string[] Efforts(string model) => IsChatGpt(model) ? GptCatalog.Levels(GptSlug(model))
+    public static string[] Efforts(string model) => IsOmp(model) ? OmpCatalog.LevelsOf(OmpSlug(model)!)
+        : IsChatGpt(model) ? GptCatalog.Levels(GptSlug(model))
         : IsApi(model) ? ApiParts(model) is { } p && ApiProviders.Find(p.provider) is { } provider ? ApiProviders.EffortsFor(provider, p.id) : new[] { Auto }
         : ClaudeEfforts;
 
@@ -158,26 +189,28 @@ internal static class AiModels
     {
         var s = Settings.Current;
         if (s.AiProvider == "api") return ApiDefault();
+        if (s.AiProvider == "omp") return Omp(s.OmpChatModel);
         if (s.AiProvider != "chatgpt") return Array.IndexOf(Claude, s.AiModel) >= 0 ? s.AiModel : "sonnet";
         string? slug = s.GptModel is { Length: > 0 } g && (GptCatalog.All.Count == 0 || GptCatalog.Find(g) is not null) ? g : GptCatalog.DefaultSlug();
         return slug is null ? "chatgpt" : Gpt(slug);
     }
 
     /// The settings' level for that side, fitted to the model.
-    public static string DefaultEffort(string model) => Fit(model, IsChatGpt(model) ? Settings.Current.GptEffort : IsApi(model) ? Settings.Current.ApiEffort : Settings.Current.AiEffort);
+    public static string DefaultEffort(string model) => Fit(model, IsOmp(model) ? OmpModelList.EffortOf(OmpSlug(model)!) ?? Settings.Current.OmpChatEffort : IsChatGpt(model) ? Settings.Current.GptEffort : IsApi(model) ? Settings.Current.ApiEffort : Settings.Current.AiEffort);
 
-    public static string Name(string m) => IsChatGpt(m) ? GptCatalog.Name(GptSlug(m))
+    public static string Name(string m) => IsOmp(m) ? OmpModelList.NameOf(OmpSlug(m)!)
+        : IsChatGpt(m) ? GptCatalog.Name(GptSlug(m))
         : ApiParts(m) is { } api ? ApiCatalog.Find(api.provider, api.id)?.Name ?? api.id
         : IsApi(m) ? Tr("모델 없음", "No model")
         : m switch { "opus" => "Opus", "haiku" => "Haiku", _ => "Sonnet" };
 
-    /// "Claude · Sonnet" / "ChatGPT · GPT-6-Astra" / "OpenRouter · Kimi K3"
-    public static string Who(string m) => (IsChatGpt(m) ? "ChatGPT" : IsApi(m) ? ApiProviderOf(m)?.Name ?? "API" : "Claude") + " · " + Name(m);
+    /// "Claude · Sonnet" / "ChatGPT · GPT-6-Astra" / "omp · Sonnet 5.5" / "OpenRouter · Kimi K3"
+    public static string Who(string m) => (IsOmp(m) ? "omp" : IsChatGpt(m) ? "ChatGPT" : IsApi(m) ? ApiProviderOf(m)?.Name ?? "API" : "Claude") + " · " + Name(m);
 
     public static string EffortName(string e) => e switch
     {
         Auto => Tr("기본", "Default"),
-        "none" => Tr("끔", "Off"),
+        "none" or "off" => Tr("끔", "Off"),
         "minimal" => Tr("최소", "Minimal"),
         "low" => Tr("낮음", "Low"),
         "medium" => Tr("중간", "Medium"),
@@ -189,4 +222,28 @@ internal static class AiModels
     };
 
     public static string Next(string[] list, string cur) => list[(Array.IndexOf(list, cur) + 1) % list.Length];
+
+    /// The sides Ctrl+Shift+M turns through, in order: Claude, ChatGPT, and omp when it is on this PC.
+    public static List<string> Sides()
+    {
+        var list = new List<string> { "claude", "chatgpt" };
+        if (OmpCli.FindCli() is not null) list.Add("omp");
+        return list;
+    }
+
+    /// The model of the side after `current`'s (the one last used there); the settings' side moves with it. A side that
+    /// isn't turned through (API) goes to ChatGPT.
+    public static string NextSide(string current)
+    {
+        var sides = Sides();
+        Settings.Current.AiProvider = sides[(Math.Max(0, sides.IndexOf(Provider(current))) + 1) % sides.Count];
+        return DefaultModel();
+    }
+
+    /// The name of the side Ctrl+Shift+M goes to from `current`.
+    public static string NextSideName(string current)
+    {
+        var sides = Sides();
+        return sides[(Math.Max(0, sides.IndexOf(Provider(current))) + 1) % sides.Count] switch { "omp" => "omp", "chatgpt" => "ChatGPT", _ => "Claude" };
+    }
 }

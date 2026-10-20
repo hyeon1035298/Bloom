@@ -63,9 +63,9 @@ internal sealed class BloomTools : IPcTools
 
     public static bool GroupOn(string group) => !Settings.Current.AiToolsOff.Contains(group);
 
-    /// A provider's chats (claude | chatgpt | api) get the tool: its switch is on, so is one of the groups at least, and
+    /// A provider's chats (claude | chatgpt | omp | api) get the tool: its switch is on, so is one of the groups at least, and
     /// 권한's PC 조작 is not 사용 안 함.
-    public static bool OfferedTo(string provider) => (provider switch { "chatgpt" => Settings.Current.AiToolsGpt, "api" => Settings.Current.AiToolsApi, _ => Settings.Current.AiTools })
+    public static bool OfferedTo(string provider) => (provider switch { "chatgpt" => Settings.Current.AiToolsGpt, "omp" => Settings.Current.AiToolsOmp, "api" => Settings.Current.AiToolsApi, _ => Settings.Current.AiTools })
         && Groups.Any(GroupOn) && ToolPermissions.Of(ToolPermissions.Pc) != ToolPermissions.Off;
 
     /// Asks the user in a conversation's chat before an action and says whether they allowed it (Host: Chats); for

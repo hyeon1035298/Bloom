@@ -1,6 +1,11 @@
+The running Bloom didn't answer	実行中の Bloom から応答がありませんでした
+Bloom wasn't ready within 30 seconds	Bloom が 30 秒以内に準備できませんでした
 Answer stopped	回答停止
 Claude Code not found. Install it and sign in.	Claude Code が見つかりません。インストールしてサインインしてください。
 Codex not found. Install it and sign in.	Codex が見つかりません。インストールしてサインインしてください。
+omp not found. Put omp on the PATH or set its path in the settings.	omp が見つかりません。PATH に omp を置くか、設定でパスを指定してください。
+Could not start omp. Check its installation and send again.	omp を起動できませんでした。インストールを確認して再送してください。
+omp ended without an answer. Send again.	omp が回答なしで終了しました。再送してください。
 Could not start Claude Code. Check its installation and send again.	Claude Code を起動できませんでした。インストールを確認して再送してください。
 Could not start AI. Check its installation and try again.	AI を起動できませんでした。インストールを確認して再試行してください。
 No answer from Claude. Send again.	Claude の回答がありません。再送してください。
@@ -25,6 +30,7 @@ Stopped after more than {0} tool calls. Send again to go on.	ツールの呼び�
 {0} server error. Send again shortly.	{0} のサーバーエラーです。しばらくしてから送り直してください。
 {0} request failed. Send again.	{0} へのリクエストが失敗しました。送り直してください。
 Details: {0}	エラー内容: {0}
+omp needs you to sign in. Run omp login once in a terminal.	omp のサインインが必要です。ターミナルで omp login を一度実行してください。
 Sign in to ChatGPT. Run codex login in a terminal.	ChatGPT にサインインしてください。ターミナルで codex login を実行してください。
 Sign in to Claude. Run claude in a terminal and sign in.	Claude にサインインしてください。ターミナルで claude を実行してサインインしてください。
 AI usage limit reached. Send again after the limit resets.	AI の利用上限に達しました。リセット後に再送してください。
@@ -52,6 +58,8 @@ Working…	作業中…
 New chat	新しいチャット
 Session ended · answer stopped	セッション終了 · 回答停止
 Thinking…	考え中…
+Each Bloom conversation has its own omp session — pick an earlier one in the **list on the left** (or `Ctrl+F`) and it carries on in that session. Sessions from omp in a terminal open with `/resume` there.	Bloom では会話ごとに別の omp セッションを持ちます。以前の会話は **左の一覧** (または `Ctrl+F`) から選ぶと、そのセッションで続きます。ターミナルの omp のセッションは、omp の `/resume` で開いてください。
+`/{0}` isn't used in a Bloom chat — omp's settings are shared with your other omp sessions, so commands that change them belong in an omp terminal. Here you can use: 	`/{0}` コマンドは Bloom のチャットでは使いません。omp の設定はほかの omp セッションと共有されるため、設定を変えるコマンドは omp のターミナルで実行してください。ここで使えるコマンド: 
 \n\n<attachment name="{0}">(This format can't be opened here — tell the user its contents didn't come through)</attachment>	\n\n<attachment name="{0}">(この形式はここでは開けません — 内容が届かなかったとユーザーに伝えてください)</attachment>
 Could not send the message. Send it again.	メッセージを送信できませんでした。再送してください。
 **{0}** — file saved	**{0}** — ファイルの保存完了
@@ -86,6 +94,19 @@ Older fast model	旧世代の高速モデル
 Icon creation unavailable in recording mode	録画モードではアイコン作成不可
 No answer from Claude. Try again.	Claude の回答がありません。再試行してください。
 Could not read the icon. Draw it again.	アイコンを読み取れませんでした。再作成してください。
+Default model	既定のモデル
+The chat got long — trimming long tool results…	会話が長くなったため、長いツールの結果を削っています…
+The chat got long — summarising the earlier part…	会話が長くなったため、前半を要約しています…
+The chat isn't long enough to tidy yet	整理するほどの長さにまだなっていません
+Already tidied — nothing more to cut	すでに整理済みです。これ以上減らせません
+Couldn't tidy: 	整理できませんでした: 
+Tidying stopped	整理を中止しました
+Nothing worth cutting, left as it was	減らせる量が少ないため、そのままにしました
+Couldn't tidy the earlier part	前半を整理できませんでした
+Trimmed long tool results	長いツールの結果を削りました
+Summarised the earlier part	前半を要約しました
+ in use…	 を使用中…
+The command ran.	コマンドを実行しました。
 No answer from ChatGPT. Try again.	ChatGPT の回答がありません。再試行してください。
 Codex answer failed. Try again.	Codex の回答に失敗しました。再試行してください。
 Summarize	要約する
@@ -147,6 +168,10 @@ Claude Code · Approval request	Claude Code · 承認リクエスト
 Allow	許可
 Decline	拒否
 Answer in terminal	ターミナルで答える
+Bloom couldn't open the file	Bloom でファイルを開けませんでした
+The file isn't there, or it can't be opened	ファイルが見つからないか、開けないファイルです
+Markdown document	Markdown 文書
+Bloom's document window to read and edit Markdown (.md) files	Markdown (.md) ファイルを表示・編集する Bloom のドキュメントウィンドウ
 Shortcut · Error	ショートカット · エラー
 Item not found. Check its location or reassign the shortcut.	項目が見つかりません。場所を確認するかショートカットを再設定してください。
 Reading the app list again…	アプリの一覧を読み直しています…
@@ -230,9 +255,17 @@ Saved data	保存されたデータ
 Deleting data permanently removes AI chats, settings, favorites, notes and clipboard history. Kept data is used again after reinstalling.	データを削除すると、AI チャット、設定、お気に入り、メモ、クリップボード履歴が完全に削除されます。保持すると、再インストール後もそのまま使えます。
 Keep data	データを保持
 Delete data	データを削除
+Without admin approval the Win-key helper stays installed. After Bloom is removed, remove ‘Bloom Win-key helper’ in Windows Settings › Apps.	管理者の承認がないため、Win キー ヘルパーは削除されませんでした。Bloom の削除後、Windows の設定 › アプリで「Bloom Win-key helper」を削除してください。
 Uninstall failed	アンインストール失敗
 Update	更新
 No release notes for this version	このバージョンの変更履歴なし
+Update the Win-key helper	Win キー ヘルパーの更新
+This version of Bloom needs the Win-key helper installed again. Until then, Win does not open Bloom over admin apps.	このバージョンの Bloom に合わせて Win キー ヘルパーを再インストールする必要があります。それまでは管理者アプリの上で Win キーを押しても Bloom は開きません。
+Reinstall	再インストール
+Without admin approval the helper stays installed. It does nothing while off. Remove ‘Bloom Win-key helper’ in Windows Settings › Apps.	管理者の承認がないため、ヘルパーはインストールされたままです。オフの間は動作しません。Windows の設定 › アプリで「Bloom Win-key helper」を削除できます。
+Win-key helper still installed	Win キー ヘルパーが残っています
+Win-key helper install failed	Win キー ヘルパーのインストール失敗
+Could not install the helper. Try again.	ヘルパーをインストールできませんでした。もう一度お試しください。
 Could not end ‘{0}’. If it runs as administrator, close it in Task Manager.	「{0}」を終了できませんでした。管理者として実行中の場合はタスクマネージャーで終了してください。
 {0} ended · {1} could not be ended	{0} 件終了 · {1} 件は終了失敗
 Force-quit ‘{0}’	「{0}」の強制終了完了
@@ -260,10 +293,11 @@ Limit used up	上限に到達
 Limit near	上限が近い
 {0} limit · {1}% left	{0}の上限 · 残り {1}%
 Resets in {0}	{0}後にリセット
+Restart to update	再起動してアップデート
+Update settings	更新設定
 Bloom · Update	Bloom · アップデート
 Version {0} downloaded	バージョン {0} のダウンロード完了
 Applies at next start	次回起動時に適用
-Update settings	更新設定
 Bloom AI · Approval pending	Bloom AI · 承認待ち
 Choose Allow or Decline	許可または拒否を選んでください
 Open AI chat	AI チャットを開く
@@ -492,6 +526,7 @@ Tool	ツール
 Folder	フォルダー
 File	ファイル
 See this folder's size (Space Cleaner)	このフォルダーのサイズを見る (Space Cleaner)
+View in Bloom	Bloom で表示
 Add to custom commands…	カスタムコマンドに追加…
 Just now	たった今
 {0} min ago	{0}分前
@@ -997,6 +1032,14 @@ Grape	ぶどう
 Sand dune	砂丘
 Charcoal and ash	炭と灰
 Aurora	オーロラ
+Couldn't open the file	ファイルを開けませんでした
+Has characters this file can't hold	このファイルに保存できない文字があります
+No permission to change this file	このファイルを変更する権限がありません
+The file is read-only	読み取り専用のファイルです
+Not UTF-8, so it can't be edited	UTF-8 ではないため編集できません
+Has unreadable characters, so it can't be edited	読み取れない文字があるため編集できません
+Over 10 MB · only its start, as plain text	10 MB を超えるため先頭だけをテキストで表示
+Bloom recovery	Bloom 復元
 Maths · units · currency	計算 · 単位 · 為替
 Calculates a sum as you type	式を入力するとすぐに計算します
 Converts between units	単位を換算します
@@ -1044,6 +1087,8 @@ Search a site by keyword, like ‘yt cats’	「yt cats」のようにキーワ�
 Your own scripts, snippets and chains	自作のスクリプト、スニペット、チェーン
 Notes & tool windows	メモとツール ウィンドウ
 Notes, timers, calculator and clipboard in windows beside the launcher · notes in the search line	メモ、タイマー、電卓、クリップボードをランチャーの横のウィンドウに · 検索欄でメモを探す
+Markdown documents (.md)	Markdown 文書 (.md)
+Bloom in Explorer's ‘Open with’ · ‘View in Bloom’ on .md files you find	エクスプローラーの「プログラムから開く」に Bloom · 検索した .md ファイルの「Bloom で表示」
 Switch windows	ウィンドウの切り替え
 The open windows list, windows under the results, and its shortcut	開いているウィンドウの一覧、検索結果の下のウィンドウ、そのショートカット
 Move the window in front: ‘left half’, ‘maximize’, ‘next screen’	手前のウィンドウを移動: 「left half」「maximize」「next screen」
@@ -1340,8 +1385,7 @@ Send	送信
 Attach files or pictures	ファイルや画像を添付
 Chats	チャット
 Choose model and thinking level	モデルと思考レベルを選択
-Switch to Claude	Claude に切り替え
-Switch to ChatGPT	ChatGPT に切り替え
+Switch to {0}	{0} に切り替え
 Change thinking level	思考レベルを変更
 Copy the last answer	最後の回答をコピー
 Answer copied	回答のコピー完了
@@ -1351,6 +1395,18 @@ Allow: {0}	許可: {0}
 End session · open a new chat	セッション終了 · 新しいチャットを開く
 Delete this chat	このチャットを削除
 OK	OK
+Reload	再読み込み
+Save mine	自分の内容を保存
+Not saved · another program is using the file, trying again	未保存 · 別のプログラムがファイルを使用中のため、もう一度保存します
+Not saved	未保存
+The file was deleted or moved · the text is still here	ファイルが削除または移動されました · テキストはここに残っています
+Another program changed this file	別のプログラムがこのファイルを変更しました
+View only	表示のみ
+Saved as you type · {0}	入力すると自動保存 · {0}
+Unsaved changes	保存されていない変更
+What you changed isn't in the file yet. Saving yours puts this text in the file.	変更した内容はまだファイルに保存されていません。自分の内容を保存すると、ファイルがこのテキストになります。
+Don't save	保存しない
+‘{0}’ isn't there	「{0}」が見つかりません
 Checking AI usage…	AI 使用量を確認中…
 Could not get usage. Check the Claude Code or Codex sign-in, then press ↻.	使用量を取得できません。Claude Code または Codex のサインインを確認し、↻ を押してください。
 Move earlier	前へ
@@ -1385,6 +1441,10 @@ Usage · speed	使用量 · 速度
 Cloud	クラウド
 Shopping	ショッピング
 Lock	ロック
+Too long to view as Markdown · editor only	長すぎるため編集画面でのみ表示します
+Text size {0}	文字サイズ {0}
+Edit	編集
+View (Markdown)	表示 (Markdown)
 MMMM yyyy	yyyy年M月
 Last month (PgUp)	前の月 (PgUp)
 To today (Home)	今日へ (Home)
@@ -1436,14 +1496,17 @@ Bloom works without them; each one turns its feature on. Install them from their
 Find any file on the PC by name	PC 内のあらゆるファイルを名前ですぐに探す
 AI chat · Bloom Lens · translation (with your own login)	AI チャット · Bloom Lens · 翻訳 (自分のアカウントでログイン)
 Chat and translate with ChatGPT (with your own login)	ChatGPT でチャットと翻訳 (自分のアカウントでログイン)
+AI chat · Bloom Lens · translation — pick among the models you signed in to (omp login)	AI チャット · Bloom Lens · 翻訳 — サインイン済みの複数のモデルから選択 (omp login)
 Choose AI by feature	機能ごとの AI
 Choose from AI found on this PC.	この PC で見つかった AI を選べます。
 Release idle chat memory after	待機中のチャットのメモリ解放時間
 Releases idle chat memory · 0 = keep it	待機中のチャットのメモリを解放 · 0 は維持
 Answers through Codex and runs approved PC actions.	Codex で回答し、承認済みの PC 操作を実行します。
+Answers through omp: pick among the models you signed in to; runs approved PC actions.	omp で回答します。サインイン済みの複数のモデルから選べて、承認した PC 操作を実行します。
 Answers through Claude Code and runs approved PC actions.	Claude Code で回答し、承認済みの PC 操作を実行します。
 Bloom Lens · translation	Bloom Lens · 翻訳
 Reads and translates screen text with ChatGPT.	ChatGPT で画面の文字を読み取り、翻訳します。
+Reads and translates screen text with omp's quick-job model, set in Settings.	omp のクイック ジョブ用モデルで画面の文字を読み取り、翻訳します。モデルは設定で選びます。
 Reads and translates screen text with Claude Haiku.	Claude Haiku で画面の文字を読み取り、翻訳します。
 ChatGPT usage checks	ChatGPT 使用量の確認
 How the home gets ChatGPT's usage. Add accounts and pick the AI chat account in Settings > AI accounts.	ホームで ChatGPT の使用量を取得する方式です。アカウントの追加と AI チャットのアカウントは 設定 > AI アカウント で選びます。
@@ -1473,6 +1536,12 @@ Bloom {0} · What's new	Bloom {0} · 新機能
 Bloom {0} update complete	Bloom {0} の更新完了
 Changes in this version	このバージョンの変更点
 See it on GitHub	GitHub で見る
+{0:0.#}% of what the model remembers · omp summarises by itself when it gets long	モデルが覚えている会話の {0:0.#}% · 長くなると omp が自分で要約します
+How much the model remembers — shown after the next answer · omp summarises by itself when it gets long	モデルが覚えている会話の量 — 次の回答のあとに表示されます · 長くなると omp が自分で要約します
+Tidying…	整理中…
+Tidy	整理
+Can't tidy right now	今は整理できません
+Summarises the earlier part so the model remembers less — the chat on screen stays as it is (not while it answers)	会話の前半を要約して、モデルが覚える量を減らします。画面の会話履歴はそのままです (回答中は使えません)
 Groups	グループ
 New chat in this group	このグループで新しいチャット
 Group menu	グループのメニュー
@@ -1534,6 +1603,7 @@ Result · Enter copies	結果 · Enter でコピー
 Expand	展開
 Collapse	折りたたみ
 Refresh	更新
+Apply	適用
 Remove from favorites	お気に入りから外す
 Add to favorites	お気に入りに追加
 Add to a favorites folder…	お気に入りフォルダーに追加…
@@ -1574,7 +1644,7 @@ Ask about the attached files	添付したファイルについて聞く
 Ask a follow-up…	続けて質問…
 Ask anything…	何でも聞いてください…
 Stops the answer (Ctrl+.) · Esc returns home while the answer continues.	回答を停止 (Ctrl+.) · Esc はホームに戻り、回答は続行します。
-Model and thinking level (Ctrl+M · Ctrl+E · Ctrl+Shift+M Claude ↔ ChatGPT)	モデルと思考レベル (Ctrl+M · Ctrl+E · Ctrl+Shift+M Claude ↔ ChatGPT)
+Model and thinking level (Ctrl+M · Ctrl+E · Ctrl+Shift+M switches AI)	モデルと思考レベル (Ctrl+M · Ctrl+E · Ctrl+Shift+M で AI を切り替え)
 Session closed, a new chat is open — the last one stays in the list	セッション終了 · 新規チャット表示 · 前のチャットは一覧に保持
 Home	ホーム
 More	その他
@@ -1675,16 +1745,16 @@ Lightweight: one HTTPS request with the Codex sign-in · no CLI · not an offici
 Official CLI: runs Codex per account · ~110 MB for 1 s	公式 CLI: アカウントごとに Codex を実行 · 約 110 MB 1 秒
 How often	確認間隔
 Default accounts as set on the home page · added ones every {0} min · the home's ↻ checks all	既定のアカウントはホーム画面設定の間隔 · 追加したアカウントは {0} 分ごと · ホームの ↻ はすべてのアカウント
+Sign out	サインアウト
 The sign-in terminal is open. Finish signing in or close it.	サインイン用のターミナルが開いています。サインインを完了するか、ターミナルを閉じてください。
+Signs this account out and takes it off the list. Add it again to use it.	このアカウントからサインアウトし、一覧から外します。もう一度使うには、アカウントを追加し直してください。
+AI chat goes back to the default account.	AI チャットは既定のアカウントに戻ります。
 Use for AI chat	AI チャットで使用
 Show on the home	ホームに表示
 Hide on the home	ホームで非表示
 Sign in again	再サインイン
 Default account	既定のアカウント
 This account's renewed sign-in isn't saved yet. Try again in a moment.	このアカウントの更新されたサインイン情報をまだ保存できていません。しばらくしてからもう一度お試しください。
-Sign out	サインアウト
-Signs this account out and takes it off the list. Add it again to use it.	このアカウントからサインアウトし、一覧から外します。もう一度使うには、アカウントを追加し直してください。
-AI chat goes back to the default account.	AI チャットは既定のアカウントに戻ります。
 API keys	API キー
 No key · click to add one	キーなし · クリックしてキーを追加
 Loading the model list…	モデル一覧を読み込み中…
@@ -1695,12 +1765,71 @@ Change key	キーを変更
 Remove key	キーを削除
 Deletes the {0} API key and model list from this PC.	この PC から {0} の API キーとモデル一覧を削除します。
 Connected. {0} models loaded.	接続しました。モデルを {0} 個読み込みました。
+ Install it and sign in with omp login.	 インストールして omp login でサインインしてください。
+ · answers with the models you signed in to	 · サインイン済みのモデルで回答します
+Installation guide	インストールガイド
+omp path	omp のパス
+Empty = looked up on the PATH	空欄なら PATH から探します
+No such file	そのファイルはありません
+Chat model	チャットのモデル
+For new chats · empty = omp's own default · Ctrl+M during a chat	新しいチャットの既定値 · 空欄なら omp の既定のモデル · チャット中は Ctrl+M
+Type a chat model	チャットのモデルを直接入力
+A model not in My models: provider/model · empty = omp's own default	マイモデルにないモデル: プロバイダー/モデル · 空欄なら omp の既定のモデル
+Use provider/model	プロバイダー/モデルの形式で入力してください
+Chat thinking level	チャットの思考レベル
+The levels depend on the model · Ctrl+E during a chat	レベルはモデルによって異なります · チャット中は Ctrl+E
+Web search in chats	チャットでの Web 検索
+omp's own file access and commands are blocked · Bloom's PC actions and the MCP servers you switched on: Settings › PC actions · MCP	omp 自身のファイル操作とコマンド実行はブロックしています · Bloom の PC 操作とオンにした MCP サーバーは 設定 › PC の操作 · MCP
+Quick jobs	クイック ジョブ
+Quick-job model	クイック ジョブのモデル
+Translation and AI actions · lighter is faster · empty = omp's own default	翻訳 · AI クイック操作 · 軽いほど速い · 空欄なら omp の既定のモデル
+Type a quick-job model	クイック ジョブのモデルを直接入力
+A model not in My models: provider/model	マイモデルにないモデル: プロバイダー/モデル
+Quick-job thinking level	クイック ジョブの思考レベル
+Off is fastest and uses least · also a chip in the translation window	オフが最速で使用量も最小 · 翻訳ウィンドウのチップでも変更できます
+In omp chats	omp のチャットで
+Approval card in AI chat before actions · applies from the next message	操作前に AI チャットで承認カードを表示 · 次のメッセージから適用
+Answers with the model omp is set to use	omp に設定されている既定のモデルで回答します
+My models	マイモデル
+ · not in omp's list now (kept)	 · omp の一覧にありません (そのまま残します)
+Default level	既定のレベル
+The thinking level a chat with this model starts at	このモデルで新しいチャットを始めるときの思考レベル
+Remove from the list	一覧から外す
+Display name	表示名
+The name in the menus · empty = the usual one ({0})	メニューに表示される名前 · 空欄なら通常の名前 ({0})
+The list is empty	一覧が空です
+Until you add one, the chat's model menu shows only omp's default model	モデルを追加するまで、チャットのモデル メニューには omp の既定のモデルだけが表示されます
+Close the add screen	追加画面を閉じる
+Add a model	モデルを追加
+Pick from the models omp knows, by provider	omp が知っているモデルをプロバイダー別に探して選びます
+Add by hand	直接追加
+provider/model, then Enter (e.g. anthropic/claude-sonnet-5-5)	プロバイダー/モデルの形で入力して Enter (例: anthropic/claude-sonnet-5-5)
+Already in the list	すでに一覧にあります
+not read yet	未取得
+Refresh omp's model list	omp のモデル一覧を更新
+Reads omp models again now · {0} models · last {1}	omp models を今すぐ読み直します · {0} 件 · 前回 {1}
+ · could not read — check omp	 · 読み取れませんでした — omp を確認してください
+Model to add	追加するモデル
+Matches model and provider names · empty shows the providers	モデル名やプロバイダー名で探します · 空欄ならプロバイダー別に表示します
+e.g. gemini	例: gemini
+No model list yet	モデル一覧がまだありません
+Press ‘Refresh omp's model list’ above	上の「omp のモデル一覧を更新」を押してください
+Providers	プロバイダー
+{0} models	{0} 件のモデル
+No model found	モデルが見つかりません
+You can also type provider/model in ‘Add by hand’	「直接追加」にプロバイダー/モデルを入力しても追加できます
+no thinking	思考レベルなし
+ · in the list	 · 一覧にあります
+…and {0} more	…ほか {0} 件
+Narrow it with the search above	上の検索欄に文字を入れて絞り込んでください
 General	一般
 How Bloom opens and looks	Bloom の開き方と見た目
 Language	言語
 Restarts Bloom to apply · Auto uses the Windows display language	適用時に Bloom を再起動 · 自動は Windows の表示言語
 Restart Bloom to apply the language.	言語を適用するには Bloom を再起動してください。
 Tap Win alone to open (combinations like Win+E still work)	Win だけを押すと開きます (Win+E などの組み合わせはそのまま)
+Win key over admin apps	管理者アプリの上でも Win キーを使用
+Opens with Win even over apps run as administrator · admin approval to turn on	管理者として実行中のアプリが前面にあっても Win キーで開きます · オンにするには管理者の承認が必要
 Another app uses it	別のアプリが使っています
 Open with Alt + Space	Alt + Space で開く
 Autostart unavailable in development runs	開発実行では自動起動設定不可
@@ -1762,7 +1891,7 @@ Names	名前
 App names changed in Bloom	Bloom で変更したアプリ名
 On an app: Ctrl+K → Rename (in Bloom only; the original name still finds it)	アプリで Ctrl+K → 名前を変更 (Bloom 内のみ。元の名前でも見つかります)
 {0} · Enter puts all the original names back	{0} 件 · Enter ですべて元の名前に戻す
-Tab opens AI chat · uses Claude or ChatGPT signed in on this PC, or an API key	Tab で AI チャットを開く · この PC でサインインした Claude や ChatGPT、または API キーで回答
+Tab opens AI chat · uses Claude, ChatGPT or omp signed in on this PC, or an API key	Tab で AI チャットを開く · この PC でサインイン済みの Claude · ChatGPT · omp、または API キーで回答
 New chats use	新しいチャットで使う AI
 Ctrl+Shift+M switches during a chat · Ctrl+M picks the model	チャット中は Ctrl+Shift+M で切り替え · Ctrl+M でモデルを選ぶ
 AI chat window shortcut	AI チャット ウィンドウのショートカット
@@ -1775,13 +1904,11 @@ Claude model	Claude のモデル
 For new chats · Ctrl+M during a chat	新しいチャットの既定 · チャット中は Ctrl+M
 Claude thinking level	Claude の思考レベル
 Fast = thinking off · not for Haiku · Ctrl+E during a chat	高速 = 思考オフ · Haiku にはなし · チャット中は Ctrl+E
-Installation guide	インストールガイド
 ChatGPT model	ChatGPT のモデル
 Codex's default model	Codex の既定のモデル
  · Ctrl+M during a chat	 · チャット中は Ctrl+M
 No Codex model list yet — run Codex once to get it	Codex のモデル一覧がまだありません — Codex を一度実行すると取得できます
 ChatGPT thinking level	ChatGPT の思考レベル
-The levels depend on the model · Ctrl+E during a chat	レベルはモデルによって異なります · チャット中は Ctrl+E
 {0} · uses your ChatGPT login	{0} · ChatGPT のサインインを使用
 API model	API モデル
 API thinking level	API の思考レベル
@@ -1790,7 +1917,6 @@ Add an API key in Settings > AI accounts to pick a model	設定 > AI アカウ�
 PC actions · MCP	PC の操作 · MCP
 Use AI chat to open apps, find and move files, and set timers on this PC.	AI チャットから、この PC のアプリ起動、ファイル検索・移動、タイマー設定を使えます。
 In Claude chats	Claude のチャットで
-Approval card in AI chat before actions · applies from the next message	操作前に AI チャットで承認カードを表示 · 次のメッセージから適用
 In ChatGPT chats	ChatGPT のチャットで
 In API chats	API チャットで
 Permissions	権限
@@ -1836,6 +1962,8 @@ Features	機能
 Switch off what you don't use — it leaves the results, the command list, the home and the favorites row, and lets go of its shortcut. Nothing saved is deleted	使わない機能はオフに — 検索結果、コマンド一覧、ホーム、お気に入りの列から外れ、ショートカットも解放されます。保存したものは削除されません
 In the search line	検索欄で
 Windows · tools	ウィンドウ · ツール
+Make it the default app	既定のアプリにする
+Pick Bloom for .md files in Windows Settings, and a double-click in Explorer opens them in Bloom's document window	Windows の設定で .md ファイルを開くアプリに Bloom を選ぶと、エクスプローラーでダブルクリックしたときに Bloom のドキュメントウィンドウで開きます
 Keeps the text, pictures and files you copy, to paste again	コピーしたテキスト、画像、ファイルを保存して、また貼り付けられます
 History	履歴
 On · {0} · from about +2 MB of memory, more with pictures · copies that password managers hide are never kept	オン · {0} 件 · メモリ約 +2 MB から、画像が多いほど増えます · パスワード マネージャーが隠すコピーは保存しません
@@ -1871,6 +1999,8 @@ Translation engine	翻訳エンジン
 AI actions use this engine too · also switchable in the translation window	AI クイック操作もこのエンジンを使います · 翻訳ウィンドウでも切り替えられます
 Claude model for translation	翻訳に使う Claude のモデル
 Haiku has no thinking level setting.	Haiku には思考レベルの設定がありません。
+omp model for translation	翻訳用の omp モデル
+{0} · change it in Settings > AI chat > omp > Quick-job model	{0} · 設定 > AI チャット > omp の「クイック ジョブのモデル」で変更します
 API model for translation	翻訳用 API モデル
 Lighter models are faster and cost less	軽いモデルほど速く、費用も少なくなります
 ChatGPT model for translation	翻訳に使う ChatGPT のモデル
@@ -1995,7 +2125,6 @@ Downloading {0}…	{0} をダウンロード中…
 Version {0} ready · click to restart	バージョン {0} の準備完了 · クリックで再起動
 Could not check for updates. Check your connection and retry.	更新を確認できませんでした。接続を確認して再試行してください。
 Looks for a new version on GitHub Releases	GitHub Releases で新しいバージョンを探します
-Restart to update	再起動してアップデート
 Check for updates	アップデートを確認
 Check when Bloom starts	Bloom の起動時に確認
 Checks once after launch · downloads new versions for the next start	起動後に 1 回確認 · 新バージョンをダウンロードし次回起動時に適用
@@ -2034,17 +2163,12 @@ No assigned shortcuts. Choose an item in the launcher and press Ctrl+K to assign
 Choose an item in the launcher	ランチャーで項目を選択
 Another app uses these keys	別のアプリがこのキーを使っています
 Find a note · Enter for a new one	メモを検索 · Enter で新規メモ
-Saved	保存済み
 All notes	すべてのメモ
 Delete this note (to the Recycle Bin)	このメモを削除 (ごみ箱へ)
 New note	新しいメモ
-Saved as you type · {0}	入力すると自動保存 · {0}
+Saved	保存済み
 No saved notes. Type above and press Enter.	保存済みメモなし。上に入力して Enter を押してください。
 No note matches · Enter saves a new note	該当するメモなし · Enter で新規保存
-Too long to view as Markdown · editor only	長すぎるため編集画面でのみ表示します
-Text size {0}	文字サイズ {0}
-Edit	編集
-View (Markdown)	表示 (Markdown)
 Delete (to the Recycle Bin)	削除 (ごみ箱へ)
 s	秒
 What for (or ‘3pm meeting’)	内容 (または ‘3pm meeting’)
@@ -2057,43 +2181,3 @@ just now	たった今
 Detach from the launcher	ランチャーから切り離す
 Always on top	常に手前に表示
 Attach to the launcher	ランチャーに付ける
-Markdown document	Markdown 文書
-Bloom's document window to read and edit Markdown (.md) files	Markdown (.md) ファイルを表示・編集する Bloom のドキュメントウィンドウ
-View in Bloom	Bloom で表示
-Couldn't open the file	ファイルを開けませんでした
-Has characters this file can't hold	このファイルに保存できない文字があります
-No permission to change this file	このファイルを変更する権限がありません
-The file is read-only	読み取り専用のファイルです
-Not UTF-8, so it can't be edited	UTF-8 ではないため編集できません
-Has unreadable characters, so it can't be edited	読み取れない文字があるため編集できません
-Over 10 MB · only its start, as plain text	10 MB を超えるため先頭だけをテキストで表示
-Markdown documents (.md)	Markdown 文書 (.md)
-Bloom in Explorer's ‘Open with’ · ‘View in Bloom’ on .md files you find	エクスプローラーの「プログラムから開く」に Bloom · 検索した .md ファイルの「Bloom で表示」
-Reload	再読み込み
-Save mine	自分の内容を保存
-Not saved · another program is using the file, trying again	未保存 · 別のプログラムがファイルを使用中のため、もう一度保存します
-Not saved	未保存
-The file was deleted or moved · the text is still here	ファイルが削除または移動されました · テキストはここに残っています
-Another program changed this file	別のプログラムがこのファイルを変更しました
-View only	表示のみ
-Unsaved changes	保存されていない変更
-What you changed isn't in the file yet. Saving yours puts this text in the file.	変更した内容はまだファイルに保存されていません。自分の内容を保存すると、ファイルがこのテキストになります。
-Don't save	保存しない
-‘{0}’ isn't there	「{0}」が見つかりません
-Make it the default app	既定のアプリにする
-Pick Bloom for .md files in Windows Settings, and a double-click in Explorer opens them in Bloom's document window	Windows の設定で .md ファイルを開くアプリに Bloom を選ぶと、エクスプローラーでダブルクリックしたときに Bloom のドキュメントウィンドウで開きます
-Bloom recovery	Bloom 復元
-Bloom couldn't open the file	Bloom でファイルを開けませんでした
-The file isn't there, or it can't be opened	ファイルが見つからないか、開けないファイルです
-The running Bloom didn't answer	実行中の Bloom から応答がありませんでした
-Bloom wasn't ready within 30 seconds	Bloom が 30 秒以内に準備できませんでした
-Win key over admin apps	管理者アプリの上でも Win キーを使用
-Opens with Win even over apps run as administrator · admin approval to turn on	管理者として実行中のアプリが前面にあっても Win キーで開きます · オンにするには管理者の承認が必要
-Update the Win-key helper	Win キー ヘルパーの更新
-This version of Bloom needs the Win-key helper installed again. Until then, Win does not open Bloom over admin apps.	このバージョンの Bloom に合わせて Win キー ヘルパーを再インストールする必要があります。それまでは管理者アプリの上で Win キーを押しても Bloom は開きません。
-Reinstall	再インストール
-Without admin approval the helper stays installed. It does nothing while off. Remove ‘Bloom Win-key helper’ in Windows Settings › Apps.	管理者の承認がないため、ヘルパーはインストールされたままです。オフの間は動作しません。Windows の設定 › アプリで「Bloom Win-key helper」を削除できます。
-Win-key helper still installed	Win キー ヘルパーが残っています
-Win-key helper install failed	Win キー ヘルパーのインストール失敗
-Could not install the helper. Try again.	ヘルパーをインストールできませんでした。もう一度お試しください。
-Without admin approval the Win-key helper stays installed. After Bloom is removed, remove ‘Bloom Win-key helper’ in Windows Settings › Apps.	管理者の承認がないため、Win キー ヘルパーは削除されませんでした。Bloom の削除後、Windows の設定 › アプリで「Bloom Win-key helper」を削除してください。

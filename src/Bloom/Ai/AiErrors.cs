@@ -12,6 +12,9 @@ internal static class AiErrors
     public static string Stopped => Tr("답변 중지됨", "Answer stopped");
     public static string ClaudeMissing => Tr("Claude Code를 찾지 못했습니다. 설치 후 로그인하세요.", "Claude Code not found. Install it and sign in.");
     public static string CodexMissing => Tr("Codex를 찾지 못했습니다. 설치 후 로그인하세요.", "Codex not found. Install it and sign in.");
+    public static string OmpMissing => Tr("omp를 찾지 못했습니다. PATH에 omp가 있거나 설정에서 경로를 알려 주세요.", "omp not found. Put omp on the PATH or set its path in the settings.");
+    public static string OmpStartFailed => Tr("omp를 시작하지 못했습니다. 설치 상태를 확인하고 다시 보내세요.", "Could not start omp. Check its installation and send again.");
+    public static string OmpNoAnswer => Tr("omp가 답 없이 끝났습니다. 다시 보내세요.", "omp ended without an answer. Send again.");
     public static string Missing(bool chatgpt) => chatgpt ? CodexMissing : ClaudeMissing;
     public static string ClaudeStartFailed => Tr("Claude Code를 시작하지 못했습니다. 설치 상태를 확인하고 다시 보내세요.", "Could not start Claude Code. Check its installation and send again.");
     public static string StartFailed => Tr("AI를 시작하지 못했습니다. 설치 상태를 확인하고 다시 시도하세요.", "Could not start AI. Check its installation and try again.");
@@ -60,7 +63,23 @@ internal static class AiErrors
     private static string Details(string message) => message.Length > 0 ? "\n\n" + Tr($"오류 내용: {message}", $"Details: {message}") : "";
 
     /// Bloom's own texts pass through Friendly unchanged.
-    private static bool Own(string e) => new[] { Stopped, ClaudeMissing, CodexMissing, ClaudeStartFailed, StartFailed, ClaudeNoAnswer, CodexNoAnswer, Failed, TimedOut, SignInChanged }.Contains(e);
+    private static bool Own(string e) => new[] { Stopped, ClaudeMissing, CodexMissing, OmpMissing, OmpStartFailed, OmpNoAnswer, ClaudeStartFailed, StartFailed, ClaudeNoAnswer, CodexNoAnswer, Failed, TimedOut, SignInChanged }.Contains(e);
+
+    /// An omp error in words: it signs in with `omp login`, a usage limit is its provider's; anything else as Friendly.
+    public static string Omp(string e, bool details = false)
+    {
+        if (Own(e)) return e;
+        string l = e.ToLowerInvariant();
+        if (l.Contains("login") || l.Contains("log in") || l.Contains("oauth") || l.Contains("authenticat") || l.Contains("401") || l.Contains("unauthorized"))
+            return Tr("omp 로그인이 필요합니다. 터미널에서 omp login을 한 번 실행하세요.", "omp needs you to sign in. Run omp login once in a terminal.") + (details ? "\n\n" + Last(e) : "");
+        return Friendly(e, false, details);
+    }
+
+    private static string Last(string e)
+    {
+        string last = e.Split('\n').Select(x => x.Trim()).LastOrDefault(x => x.Length > 0) ?? "";
+        return last.Length > 200 ? last[..200] + "…" : last;
+    }
 
     /// `details`: an unknown error keeps its last line under the message (a chat answer; toasts stay one line).
     public static string Friendly(string e, bool chatgpt, bool details = false)

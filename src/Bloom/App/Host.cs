@@ -93,6 +93,15 @@ internal sealed partial class Host
             Mcp.Start();
             return (App.Mcp.McpServer.Command, Mcp.Pipe, tools.Hint);
         };
+        // omp chats: the same server, started per conversation from its .omp/mcp.json (Ai\OmpMcp.cs); Bloom asks in the chat
+        OmpSession.PrepareMcp = McpCatalog.PreparePicked;
+        OmpSession.Relay = CodexSession.Relay;
+        OmpSession.PcTools = () =>
+        {
+            if (!App.Mcp.BloomTools.OfferedTo("omp")) return null;
+            Mcp.Start();
+            return (App.Mcp.McpServer.Command, Mcp.Pipe);
+        };
         tools.Approve = (conversation, tool, input) => ui.InvokeAsync(() => Chats.AskInConversation(conversation, tool, input)).Task.Unwrap();
         Chats.Tools = tools;
         Engine = new Engine(this);
@@ -112,6 +121,7 @@ internal sealed partial class Host
             return; // documents only, as the responsiveness probe
         }
         if (!Demo.On) _ = GptCatalog.RefreshAsync();
+        if (!Demo.On && OmpCli.FindCli() is not null && (Settings.Current.AiProvider == "omp" || Settings.Current.TranslateProvider == "omp" || Settings.Current.OmpModels.Count > 0)) OmpCatalog.Ensure(); // `omp models`, once in 3 days
         _ = CodexAppHome.Sweep(); // a sign-in link a crash left in Bloom's Codex folders
         if (Opt.ChatFile is not null)
         {

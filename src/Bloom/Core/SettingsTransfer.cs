@@ -21,7 +21,7 @@ internal static class SettingsTransfer
     // servers and files switched on (mcpOn, mcpFiles) decide what the AI may do on THIS PC and which programs of it run: a
     // file from elsewhere keeps none of them (a settings file must not be able to turn an approval off or a server on), and
     // an export leaves them out
-    private static readonly string[] Local = { "claudePath", "codexPath", "onboarded", "aiAccounts", "claudeChatAccount", "gptChatAccount", "permissions", "apiFileTools", "mcpOn", "mcpFiles" };
+    private static readonly string[] Local = { "claudePath", "codexPath", "ompPath", "onboarded", "aiAccounts", "claudeChatAccount", "gptChatAccount", "permissions", "apiFileTools", "mcpOn", "mcpFiles" };
 
     private const string Manifest = "bloom-settings.json";
 

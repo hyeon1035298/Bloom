@@ -57,6 +57,8 @@ internal static partial class Captures
         ["guide"] = GuideScreens,
         ["home"] = HomeScreens,
         ["homeinput"] = HomeInputScreens,
+        ["omp"] = OmpScreens,
+        ["omp-missing"] = OmpMissingScreens,
         ["palette"] = PaletteScreens,
         ["palette-perf"] = PalettePerf,
         ["providers"] = ProviderScreens,

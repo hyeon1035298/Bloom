@@ -13,13 +13,13 @@
 <p align="center"><sub>WPF · .NET 10 · WebView 없음 · 모두 끈 상태 약 80 MB · 한국어 / English / 日本語 / 简体中文 · MIT</sub></p>
 
 - **검색**: 검색창에서 앱, 파일, 계산, 알림, 이모지, 웹 검색을 사용할 수 있습니다. 한/영 오타와 초성으로도 검색할 수 있습니다.
-- **AI**: 이 PC에서 로그인한 Claude Code 또는 Codex, 또는 직접 넣은 API 키(OpenAI, Anthropic, Gemini, OpenRouter, DeepSeek, xAI, OpenCode Go)로 질문하고, 파일 정리, 메모, 타이머, 일정 작업을 실행할 수 있습니다.
+- **AI**: 이 PC에서 로그인한 Claude Code · Codex · omp, 또는 직접 넣은 API 키(OpenAI, Anthropic, Gemini, OpenRouter, DeepSeek, xAI, OpenCode Go)로 질문하고, 파일 정리, 메모, 타이머, 일정 작업을 실행할 수 있습니다.
 - **기능 선택**: WebView를 사용하지 않습니다. 기능을 끄면 해당 메뉴와 단축키가 해제되고 메모리 사용이 줄어듭니다.
 
 ## 실행 환경
 
 Windows 10/11 64비트에서 사용할 수 있습니다. .NET 10 Desktop Runtime이 없으면 설치 프로그램이 함께 설치합니다.
-AI 기능을 사용하려면 Claude Code 또는 Codex CLI를 설치하고 로그인하거나, 지원하는 서비스의 API 키가 있어야 합니다. Everything을 설치하면 PC 전체에서 파일을 검색할 수 있습니다.
+AI 기능을 사용하려면 Claude Code · Codex · omp CLI 중 하나를 설치하고 로그인하거나, 지원하는 서비스의 API 키가 있어야 합니다. Everything을 설치하면 PC 전체에서 파일을 검색할 수 있습니다.
 화면 언어와 관계없이 검색어, 시간, 단위는 한국어나 영어로 입력해야 합니다.
 
 ## 다운로드
@@ -94,10 +94,15 @@ irm https://raw.githubusercontent.com/hyeon1035298/Bloom/main/install.ps1 | iex
 - **빠른 AI**: 검색창에 입력한 뒤 **Tab**을 누르면 AI 채팅으로 전환됩니다. Shift+Tab은 새 대화를 엽니다. 모델과 생각 수준을 선택할 수 있습니다.
   - Esc로 홈에 돌아가도 답변은 계속 생성됩니다. 검색창에서 진행 상태를 확인하고 Tab으로 돌아갈 수 있습니다. ■ 중지 또는 Ctrl+.으로 답변을 중지하세요.
   - 다른 화면처럼 바깥을 누르면 런처가 닫힙니다. Win 키를 누르면 보던 대화로 다시 열립니다. 열어 둔 채 작업하려면 📌을 켜세요.
-- **먼저 켜 두기**: 채팅을 열거나 입력을 시작하면 그 대화가 쓰는 모델(Claude 또는 ChatGPT, 둘 중 하나만)을 미리 켜 둡니다. 첫 메시지가 기다리지 않도록 하기 위해서입니다. 몇 분 동안 쓰지 않거나 대화를 닫으면 꺼집니다.
+- **먼저 켜 두기**: 채팅을 열거나 입력을 시작하면 그 대화가 쓰는 모델(Claude · ChatGPT · omp 중 하나만)을 미리 켜 둡니다. 첫 메시지가 기다리지 않도록 하기 위해서입니다. 몇 분 동안 쓰지 않거나 대화를 닫으면 꺼집니다.
 - **ChatGPT 답을 쓰이는 대로 표시**: ChatGPT 채팅(채팅 창, 런처 빠른 채팅)은 답이 다 만들어진 뒤 한꺼번에 뜨지 않고 쓰이는 대로 표시되며, 대화마다 Codex를 하나씩 계속 씁니다.
   - Bloom의 Codex는 Bloom 전용 설정으로 실행되어 내 Codex `config.toml`이 Bloom 채팅에 영향을 주지 않습니다. Codex 로그인과 이전 대화는 그대로 이어집니다.
   - 업데이트 후 첫 ChatGPT 채팅은 Codex가 기록을 한 번 정리하느라 시작이 조금 오래 걸릴 수 있습니다.
+- **omp 채팅**(선택): [omp](https://github.com/can1357/oh-my-pi)가 설치되고 로그인되어 있으면(`omp login`) 고를 수 있는 AI가 하나 더 늘어납니다(설정 › AI 채팅 › omp, Ctrl+Shift+M). 직접 고르기 전에는 아무것도 바뀌지 않습니다.
+  - 대화마다 `omp --mode rpc` 프로세스 하나와 Bloom 폴더의 별도 omp 세션을 씁니다. omp 자체 프롬프트 대신 Bloom의 지침이 적용되고, 내 omp의 스킬 · 규칙 · 확장은 불러오지 않습니다. omp의 파일 · 명령 도구는 꺼져 있고, 웹 검색은 기본으로 켜져 있습니다.
+  - 채팅 상단에 모델이 기억하는 대화의 양(`14.2k / 200k`)과, omp가 앞부분을 요약하게 하는 **정리** 버튼이 표시됩니다. 대화가 길어지면 omp가 스스로 정리하기도 하며, 이때는 답변 아래에 한 줄로 알려 줍니다.
+  - `/session` · `/context` · `/usage` 같은 읽기 전용 omp 명령은 채팅에서 그대로 쓸 수 있고, 내 omp 설정을 바꾸는 명령은 실행하지 않고 안내만 표시합니다.
+  - 모델은 설정 › AI 채팅 › omp › 내 모델에서 고릅니다(`omp models`에서 선택하거나 `제공자/모델`로 입력). 고르지 않으면 omp의 기본 모델로 답합니다.
 - **AI 채팅 창**(Ctrl+Alt+C)
   - 지난 대화를 이어가거나 그룹(폴더)으로 정리할 수 있습니다.
   - 파일과 사진을 첨부합니다(끌어다 놓기 · Ctrl+O · Ctrl+V).
@@ -252,6 +257,7 @@ AI 기능은 이 PC에 설치하고 로그인한 공식 CLI를 사용합니다. 
 
 - Claude: [Claude Code](https://docs.anthropic.com/en/docs/claude-code) CLI (`claude`)
 - ChatGPT: [Codex CLI](https://github.com/openai/codex) (`codex`)
+- omp(선택): [oh-my-pi](https://github.com/can1357/oh-my-pi) CLI (`omp`)
 
 사용량과 이용 약관은 로그인한 계정에 적용되는 기준을 따릅니다. CLI가 없으면 AI 기능만 꺼진 채로 나머지는 그대로 동작합니다.
 
@@ -275,11 +281,13 @@ AI 기능은 이 PC에 설치하고 로그인한 공식 CLI를 사용합니다. 
   - Codex의 실행 모드에는 자체 승인 질문이 없으므로 Bloom의 MCP 서버가 작업 직전에 승인 카드를 표시하고 선택을 기다립니다.
   - 대화마다 실행할 때 `-c mcp_servers.bloom…`으로만 추가합니다.
   - Codex는 필요한 MCP 도구 설명만 불러옵니다. 각 요청에는 도구 이름과 작업을 설명하는 한 줄이 추가됩니다. 입력 토큰은 약 +250 증가하며, 같은 방식의 추정값입니다.
+- omp 대화에서도 같은 도구를 사용합니다.
+  - omp도 `--no-ui`로 실행되어 스스로 묻지 못하므로 Bloom의 MCP 서버가 작업 직전에 같은 카드를 표시합니다. Bloom 도구와 켜 둔 다른 서버는 `%LOCALAPPDATA%\Bloom\ai\omp-work` 아래 대화별 폴더의 `.omp/mcp.json`에만 기록하며, omp 자체 설정은 건드리지 않습니다.
 
 업데이트 확인은 GitHub API(`api.github.com`)에서 이 저장소의 최신 릴리스를 조회하고 새 버전을 GitHub에서 다운로드합니다. 이 요청에는 저장소 정보만 사용하며 설정, 파일, 대화 내용은 이 PC에 유지됩니다. 설정 › 정보에서 업데이트 확인을 끌 수 있습니다.
 AI 사용량은 `claude -p /usage`(모델 호출 없음)와 `codex app-server`의 한도 조회로 계정마다 차례로 확인합니다(추가한 계정은 `%LOCALAPPDATA%\Bloom\accounts`의 폴더를 `CLAUDE_CONFIG_DIR` · `CODEX_HOME`으로 사용). ChatGPT의 가벼운 방식을 고르면 그 계정의 Codex 로그인으로 Codex 상태 화면이 읽는 주소에 HTTPS 요청을 한 번 보냅니다. 공식 API가 아니며, 토큰 갱신은 Bloom이 만든 폴더에서만 하고 `~/.codex`에서는 하지 않습니다. Bloom은 Claude 로그인 정보를 읽지 않습니다. 작업 알림은 이 PC의 Claude Code · Codex 기록(`~/.claude/sessions`, `~/.codex/sessions`)을 읽으며 기록은 이 PC에 유지됩니다.
 AI에게는 사용자가 직접 보낸 내용(질문, 첨부한 파일, Bloom Lens로 고른 화면, 번역할 글자)과 PC 작업 도구가 돌려준 결과만 전달됩니다.
-Claude는 대화별 폴더(`%LOCALAPPDATA%\Bloom\ai\files\<대화>`) 안에서 파일을 읽고 쓸 수 있습니다. ChatGPT(Codex)의 텍스트 첨부는 메시지에 포함되며, 생성한 파일 내용은 답변에서 추출하여 저장합니다.
+Claude는 대화별 폴더(`%LOCALAPPDATA%\Bloom\ai\files\<대화>`) 안에서 파일을 읽고 쓸 수 있습니다. ChatGPT(Codex)와 omp의 텍스트 첨부는 메시지에 포함되며, 생성한 파일 내용은 답변에서 추출하여 저장합니다.
 
 Bloom은 Anthropic · OpenAI · voidtools · Raycast와 관련 없는 비공식 개인 프로젝트입니다.
 
@@ -314,7 +322,7 @@ powershell -File tools\install.ps1   # → %LOCALAPPDATA%\Programs\Bloom, 시작
 | `App/Qa/` | 화면 밖 캡처 QA (`--capture <폴더> --qa-set v15 --data <폴더> --lang en`) |
 | `Core/` | 저장되는 것(설정 · 즐겨찾기 · 사용 기록 · 입력어 학습 · 타이머 · 메모 · 색)과 JSON 저장, 한글 검색, 매칭, 화면 언어(`Lang` — `Tr("한국어", "English")`) |
 | `Search/` | 앱 목록, 계산기(식 · 단위 · 환율), Everything, 열린 창, 최근 파일, 이모지 · 기호(`Assets/symbols.tsv`), 시스템 항목, 사용자 명령(`UserCommands`), 결과 모델 |
-| `Ai/` | Claude Code / Codex CLI 세션과 대화 · 그룹(`Chats`), 한 번 묻기(`OneShot`), 번역, AI 빠른 동작, AI 아이콘, 사용량(`AiUsage`), 작업 기록 읽기(`ClaudeWatch` · `CodexWatch`) |
+| `Ai/` | Claude Code / Codex / omp CLI 세션과 대화 · 그룹(`Chats`), 한 번 묻기(`OneShot`), 번역, AI 빠른 동작, AI 아이콘, 사용량(`AiUsage`), 작업 기록 읽기(`ClaudeWatch` · `CodexWatch`) |
 | `Ocr/` | 화면 영역 고르기, Windows OCR, 번역 창, 색 찍기 |
 | `Clip/`, `Space/`, `Browser/` | 클립보드 기록, 디스크 공간 지도, 브라우저로 넘기기 |
 | `Native/` | Win32 호출(System32의 DLL만), WinRT 호출(`WinRt`), 시스템 토글(`SystemControl` — 소리 · 무선 · 다크 모드 …), 탐색기 방식 파일 작업(`ShellFiles`) |
@@ -344,7 +352,7 @@ dotnet format whitespace tests\Bloom.Tests\Bloom.Tests.csproj --verify-no-change
 다음 프로그램을 설치하면 관련 기능, 블록, 설정을 사용할 수 있습니다.
 
 - **Everything**: 파일 찾기.
-- **Claude Code CLI · Codex CLI**: AI 채팅 · Lens · 번역 · 빠른 동작 · 사용량 · 작업 알림.
+- **Claude Code CLI · Codex CLI · omp**: AI 채팅 · Lens · 번역 · 빠른 동작 · 사용량 · 작업 알림.
 
 ## 라이선스
 

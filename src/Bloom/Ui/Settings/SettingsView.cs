@@ -60,6 +60,7 @@ internal sealed partial class SettingsView : ScrollViewer
             UsageLogin.Changed += OnUpdates;
             GptCatalog.Updated += OnCatalog;
             ApiCatalog.Updated += OnCatalog;
+            OmpCatalog.Updated += OnCatalog;
         };
         Unloaded += (_, _) =>
         {
@@ -67,6 +68,7 @@ internal sealed partial class SettingsView : ScrollViewer
             UsageLogin.Changed -= OnUpdates;
             GptCatalog.Updated -= OnCatalog;
             ApiCatalog.Updated -= OnCatalog;
+            OmpCatalog.Updated -= OnCatalog;
         };
     }
 
@@ -290,6 +292,20 @@ internal sealed partial class SettingsView : ScrollViewer
             Dispatcher.BeginInvoke(() => Build(lastFilter));
         };
         Add(title, sub(value), field, glyph, field.FocusBox, null, filter);
+    }
+
+    /// A line of text on its row (a model name, a program's path): TextField; empty = the default.
+    private void Field(string title, string? sub, char glyph, string? value, string hint, Action<string> set, string filter, Func<string, string?>? check = null)
+    {
+        if (Record(title, sub, filter)) return;
+        var field = new TextField(value, hint) { Done = () => FocusFilter?.Invoke(), Check = check };
+        field.Applied += v =>
+        {
+            set(v);
+            Settings.Save();
+            Dispatcher.BeginInvoke(() => Build(lastFilter));
+        };
+        Add(title, sub, field, glyph, field.FocusBox, null, filter);
     }
 
     /// A choice from a list that opens under the value (many options): click or Enter opens it, ←→ step.

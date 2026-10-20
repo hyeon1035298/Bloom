@@ -41,7 +41,7 @@ internal sealed partial class Launcher
                     string curModel = CurrentModel;
                     string level = Ai.AiModels.HasEffort(curModel) ? " · " + Ai.AiModels.EffortName(thread is null ? Ai.AiModels.DefaultEffort(curModel) : Chats.EffortOf(thread)) : "";
                     var modelChip = HeadChip(Engine.ModelName(curModel) + level + "  ▾", PickModel);
-                    modelChip.ToolTip = Tr("모델 · 생각 수준 (Ctrl+M · Ctrl+E · Ctrl+Shift+M Claude ↔ ChatGPT)", "Model and thinking level (Ctrl+M · Ctrl+E · Ctrl+Shift+M Claude ↔ ChatGPT)");
+                    modelChip.ToolTip = Tr("모델 · 생각 수준 (Ctrl+M · Ctrl+E · Ctrl+Shift+M AI 전환)", "Model and thinking level (Ctrl+M · Ctrl+E · Ctrl+Shift+M switches AI)");
                     hint.Children.Add(modelChip);
                 }
                 if (thread is not null && host.Chats.IsLive(thread))

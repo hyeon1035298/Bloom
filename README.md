@@ -13,13 +13,13 @@
 <p align="center"><sub>WPF · .NET 10 · no WebView · about 80 MB with everything off · English / 한국어 / 日本語 / 简体中文 · MIT</sub></p>
 
 - **Search**: Find apps, files, calculations, reminders, emoji and web searches from a few letters in the search line.
-- **AI**: use Claude Code or Codex signed in on this PC, or your own API key (OpenAI, Anthropic, Gemini, OpenRouter, DeepSeek, xAI, OpenCode Go), for questions, file actions, notes, timers and calendar events.
+- **AI**: use Claude Code, Codex or omp signed in on this PC, or your own API key (OpenAI, Anthropic, Gemini, OpenRouter, DeepSeek, xAI, OpenCode Go), for questions, file actions, notes, timers and calendar events.
 - **Features**: A native app with no WebView. Disabling a feature removes its menu entries and shortcuts and reduces memory use.
 
 ## Requirements
 
 Use Windows 10/11, 64-bit. Setup installs the .NET 10 Desktop Runtime if needed.
-AI features need an installed, signed-in Claude Code or Codex CLI, or an API key from one of the supported providers. Everything enables full-PC file search.
+AI features need an installed, signed-in Claude Code, Codex or omp CLI, or an API key from one of the supported providers. Everything enables full-PC file search.
 Search words, time expressions and units accept Korean or English in every interface language.
 
 ## Download
@@ -95,10 +95,15 @@ Answers come from the Claude Code or Codex CLI you have installed and signed in 
 - **Quick AI**: type in the search line and press **Tab** to open AI chat there; Shift+Tab starts a new chat. Choose the model and thinking level.
   - Esc goes back home and the answer keeps going; the search line shows it and Tab takes you back. ■ Stop (or Ctrl+.) stops it.
   - A click outside closes the launcher, as in the other views; the Win key opens it again at the same chat. 📌 keeps it above other windows instead.
-- **Ready before you ask**: when a chat is open or you start typing, Bloom starts the AI for the model that chat uses (Claude or ChatGPT, never both), so your first message doesn't wait for it. It ends after a few minutes unused or when the chat closes.
+- **Ready before you ask**: when a chat is open or you start typing, Bloom starts the AI for the model that chat uses (Claude, ChatGPT or omp, only one at a time), so your first message doesn't wait for it. It ends after a few minutes unused or when the chat closes.
 - **ChatGPT answers as they're written**: ChatGPT chats (the chat window and the launcher's quick chat) show the answer as it is written, not all at once at the end, and keep one Codex process per chat.
   - Bloom's Codex runs with its own settings, so your own Codex `config.toml` doesn't change Bloom's chats; your Codex sign-in and earlier chats carry over.
   - The first ChatGPT chat after updating can take longer to start while Codex indexes your history once.
+- **omp chats** (optional): when [omp](https://github.com/can1357/oh-my-pi) is installed and signed in (`omp login`), it is one more side to pick (Settings › AI chat › omp, Ctrl+Shift+M); nothing changes until you pick it.
+  - Each chat keeps one `omp --mode rpc` process and its own omp session in Bloom's folder, with Bloom's instructions in place of omp's own prompt and none of your omp skills, rules or extensions. omp's own file and command tools are off; web search is on by default.
+  - The chat's bar shows how much of the model's memory it uses (`14.2k / 200k`) and a **Tidy** button that has omp summarise the earlier part. omp also does it by itself when the chat gets long, and a line under the answer says so.
+  - `/session`, `/context`, `/usage` and a few other read-only omp commands work in the chat; commands that would change your omp settings are answered with a note instead.
+  - Pick the models in Settings › AI chat › omp › My models (from `omp models`, or typed as `provider/model`); with none picked, omp answers with its own default model.
 - **AI chat window** (Ctrl+Alt+C)
   - Continue past chats and keep them in groups (folders).
   - Attach files and pictures (drag and drop · Ctrl+O · Ctrl+V).
@@ -253,10 +258,11 @@ AI features use the official CLIs installed and signed in on this PC. Sign-in cr
 
 - Claude: [Claude Code](https://docs.anthropic.com/en/docs/claude-code) CLI (`claude`)
 - ChatGPT: [Codex CLI](https://github.com/openai/codex) (`codex`)
+- omp (optional): [oh-my-pi](https://github.com/can1357/oh-my-pi) CLI (`omp`)
 
 Usage and terms are those of your own accounts. Without the CLIs only the AI features are off; everything else works as usual.
 
-**AI acting on the PC** (Claude · ChatGPT, Settings › PC actions · MCP)
+**AI acting on the PC** (Claude · ChatGPT · omp, Settings › PC actions · MCP)
 
 - Bloom offers one tool (`pc`) through an MCP server that only opens on this PC (`Bloom.exe --mcp`, a named pipe only this Windows user can open).
 - What it may do comes in five groups, each switched on or off in the settings.
@@ -276,11 +282,13 @@ Usage and terms are those of your own accounts. Without the CLIs only the AI fea
   - Codex can't ask by itself in exec mode, so Bloom's MCP server shows the same card right before acting and waits for the answer.
   - The server is attached per chat run with `-c mcp_servers.bloom…` only.
   - Codex loads MCP tool descriptions only when needed, so a one-line note of the tool's name and actions goes with each request (about +250 tokens, worked out the same way).
+- omp chats use the same tool.
+  - omp can't ask either (it runs with `--no-ui`), so Bloom's MCP server shows the same card right before acting. The tool and the other servers switched on are written to the chat's own `.omp/mcp.json`, in a folder per chat under `%LOCALAPPDATA%\Bloom\ai\omp-work`; nothing is written to omp's own settings.
 
 AI usage comes from `claude -p /usage` (no model call) and the limit lookup of `codex app-server`, one account at a time (`CLAUDE_CONFIG_DIR` / `CODEX_HOME` per added account, folders under `%LOCALAPPDATA%\Bloom\accounts`). The optional lightweight ChatGPT mode instead sends one HTTPS request to the endpoint Codex's own status reads, with that account's Codex sign-in; it is not an official API, and Bloom refreshes tokens only in folders it made, never in `~/.codex`. Bloom never reads Claude sign-ins. Work notifications read local Claude Code and Codex logs (`~/.claude/sessions`, `~/.codex/sessions`); the logs stay on this PC.
 Update checks use GitHub's API (`api.github.com`) to find this repository's latest release and download new versions from GitHub. The request contains repository information only; settings, files and chats stay on this PC. Switch checking off in Settings › About.
 Only what you send yourself reaches the AI — your question, attached files, the screen area picked with Bloom Lens, the text to translate — and what the PC tool returns.
-Claude can read and write files only inside that chat's folder (`%LOCALAPPDATA%\Bloom\ai\files\<chat>`). ChatGPT (Codex) doesn't handle files itself, so text attachments go in the message and files it makes are taken out of the answer and saved.
+Claude can read and write files only inside that chat's folder (`%LOCALAPPDATA%\Bloom\ai\files\<chat>`). ChatGPT (Codex) and omp don't handle files themselves, so text attachments go in the message and files it makes are taken out of the answer and saved.
 
 Bloom is an unofficial personal project, not affiliated with Anthropic, OpenAI, voidtools or Raycast.
 
@@ -315,7 +323,7 @@ Under `src/Bloom`, one folder is one feature. Big classes are split into `partia
 | `App/Qa/` | Off-screen capture QA (`--capture <folder> --qa-set v15 --data <folder> --lang en`) |
 | `Core/` | What is saved (settings · favorites · usage · learning per typed text · timers · notes · colors) and JSON storage, Korean search, matching, the interface language (`Lang` — `Tr("한국어", "English")`) |
 | `Search/` | App list, calculator (sums · units · currencies), Everything, open windows, recent files, emoji · symbols (`Assets/symbols.tsv`), system items, custom commands (`UserCommands`), result models |
-| `Ai/` | Claude Code / Codex CLI sessions with chats · groups (`Chats`), one-shot asks (`OneShot`), translation, AI actions, AI icons, usage (`AiUsage`), reading work logs (`ClaudeWatch` · `CodexWatch`) |
+| `Ai/` | Claude Code / Codex / omp CLI sessions with chats · groups (`Chats`), one-shot asks (`OneShot`), translation, AI actions, AI icons, usage (`AiUsage`), reading work logs (`ClaudeWatch` · `CodexWatch`) |
 | `Ocr/` | Picking a screen area, Windows OCR, the translation window, picking colors |
 | `Clip/`, `Space/`, `Browser/` | Clipboard history, the disk space map, handing off to the browser |
 | `Native/` | Win32 calls (System32 DLLs only), WinRT calls (`WinRt`), system toggles (`SystemControl` — sound · wireless · dark mode …), Explorer-style file operations (`ShellFiles`) |
@@ -352,7 +360,7 @@ completed strokes and export, not live mouse or display latency. See
 Install these programs to enable their related features, blocks and settings.
 
 - **Everything**: finding files.
-- **Claude Code CLI · Codex CLI**: AI chat · Lens · translation · quick actions · usage · work notifications.
+- **Claude Code CLI · Codex CLI · omp**: AI chat · Lens · translation · quick actions · usage · work notifications.
 
 ## License
 

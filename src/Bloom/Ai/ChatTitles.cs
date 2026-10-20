@@ -22,7 +22,7 @@ internal static partial class ChatTitles
 
     /// The model's mark: ◆ Opus, ◇ Sonnet, ∴ Haiku, ❖ Fable; ✦ Astra, ✹ Sol, ◉ Terra, ☾ Luna for ChatGPT (by the family in
     /// the Codex slug, "gpt-6.1-sol"); another model keeps its own name. An API model is marked by its family the same
-    /// way when it is one of these, else named.
+    /// way when it is one of these, else named; an omp one the same when it is a Claude.
     public static string Mark(string model)
     {
         if (AiModels.ApiParts(model) is { } api)
@@ -38,6 +38,13 @@ internal static partial class ChatTitles
             foreach (var (family, mark) in new[] { ("astra", "✦ Astra"), ("sol", "✹ Sol"), ("terra", "◉ Terra"), ("luna", "☾ Luna") })
                 if (parts.Contains(family)) return mark;
             return GptCatalog.Name(AiModels.GptSlug(model));
+        }
+        if (AiModels.OmpSlug(model) is { } ompSlug)
+        {
+            // omp's Claude models are marked as Claude's; its own default is "omp" and another maker's model keeps its own name
+            if (ompSlug.Length == 0) return "omp";
+            if (!ompSlug.Contains("claude", StringComparison.OrdinalIgnoreCase)) return AiModels.Name(model);
+            model = ompSlug;
         }
         string m = model.ToLowerInvariant();
         if (m.Contains("opus", StringComparison.Ordinal)) return "◆ Opus";

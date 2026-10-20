@@ -351,16 +351,18 @@ internal sealed class OnboardingWindow : Window
         sp.Children.Add(Found("Everything", Tr("파일 이름으로 PC 전체를 바로 찾기", "Find any file on the PC by name"), EverythingClient.ExePath() is not null, "https://www.voidtools.com/"));
         sp.Children.Add(Found("Claude Code CLI", Tr("AI 채팅 · Bloom Lens · 번역 (본인 계정으로 로그인)", "AI chat · Bloom Lens · translation (with your own login)"), ClaudeSession.FindCli(Settings.Current.ClaudePath) is not null, "https://docs.anthropic.com/en/docs/claude-code"));
         sp.Children.Add(Found("Codex CLI", Tr("ChatGPT로 대화 · 번역 (본인 계정으로 로그인)", "Chat and translate with ChatGPT (with your own login)"), CodexSession.FindCli(Settings.Current.CodexPath) is not null, "https://github.com/openai/codex"));
+        sp.Children.Add(Found("omp", Tr("AI 채팅 · Bloom Lens · 번역 — 로그인해 둔 여러 모델 중에서 선택 (omp login)", "AI chat · Bloom Lens · translation — pick among the models you signed in to (omp login)"), OmpCli.FindCli(Settings.Current.OmpPath) is not null, "https://github.com/can1357/oh-my-pi"));
         return sp;
     }
 
-    /// The AIs found on this PC (Claude Code, Codex), in the order offered.
+    /// The AIs found on this PC (Claude Code, Codex, omp), in the order offered.
     private static List<string> FoundAis()
     {
         var s = Settings.Current;
         var ais = new List<string>();
         if (ClaudeSession.FindCli(s.ClaudePath) is not null) ais.Add("claude");
         if (CodexSession.FindCli(s.CodexPath) is not null) ais.Add("chatgpt");
+        if (OmpCli.FindCli(s.OmpPath) is not null) ais.Add("omp");
         return ais;
     }
 
@@ -385,12 +387,18 @@ internal sealed class OnboardingWindow : Window
         idleLabel.VerticalAlignment = VerticalAlignment.Center;
         idleLabel.Margin = new Thickness(0, 0, 10, 0);
         var idleRow = new StackPanel { Orientation = Orientation.Horizontal, ToolTip = Tr("사용하지 않은 대화의 메모리 해제 · 0이면 유지", "Releases idle chat memory · 0 = keep it"), Children = { idleLabel, idle } };
-        sp.Children.Add(AiChoice(Tr("AI 채팅", "AI chat"), ais, s.AiProvider, v => s.AiProvider = v, v => v == "chatgpt"
-            ? Tr("Codex로 답변하고 승인한 PC 작업을 실행합니다.", "Answers through Codex and runs approved PC actions.")
-            : Tr("Claude Code로 답변하고 승인한 PC 작업을 실행합니다.", "Answers through Claude Code and runs approved PC actions."), idleRow));
-        var lens = AiChoice(Tr("Bloom Lens · 번역", "Bloom Lens · translation"), ais, s.TranslateProvider, v => s.TranslateProvider = v, v => v == "chatgpt"
-            ? Tr("ChatGPT로 화면 글자를 읽고 번역합니다.", "Reads and translates screen text with ChatGPT.")
-            : Tr("Claude Haiku로 화면 글자를 읽고 번역합니다.", "Reads and translates screen text with Claude Haiku."));
+        sp.Children.Add(AiChoice(Tr("AI 채팅", "AI chat"), ais, s.AiProvider, v => s.AiProvider = v, v => v switch
+        {
+            "chatgpt" => Tr("Codex로 답변하고 승인한 PC 작업을 실행합니다.", "Answers through Codex and runs approved PC actions."),
+            "omp" => Tr("omp로 답변합니다. 로그인해 둔 여러 모델 중에서 고르고, 승인한 PC 작업을 실행합니다.", "Answers through omp: pick among the models you signed in to; runs approved PC actions."),
+            _ => Tr("Claude Code로 답변하고 승인한 PC 작업을 실행합니다.", "Answers through Claude Code and runs approved PC actions."),
+        }, idleRow));
+        var lens = AiChoice(Tr("Bloom Lens · 번역", "Bloom Lens · translation"), ais, s.TranslateProvider, v => s.TranslateProvider = v, v => v switch
+        {
+            "chatgpt" => Tr("ChatGPT로 화면 글자를 읽고 번역합니다.", "Reads and translates screen text with ChatGPT."),
+            "omp" => Tr("omp의 빠른 작업 모델로 화면 글자를 읽고 번역합니다. 모델은 설정에서 고릅니다.", "Reads and translates screen text with omp's quick-job model, set in Settings."),
+            _ => Tr("Claude Haiku로 화면 글자를 읽고 번역합니다.", "Reads and translates screen text with Claude Haiku."),
+        });
         lens.Margin = new Thickness(0, 14, 0, 0);
         sp.Children.Add(lens);
         return sp;
@@ -454,7 +462,7 @@ internal sealed class OnboardingWindow : Window
             g.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
             g.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
             var text = new StackPanel { VerticalAlignment = VerticalAlignment.Center };
-            text.Children.Add(Theme.T(ai == "chatgpt" ? "ChatGPT" : "Claude", 14, Theme.P.Text, Theme.Semi));
+            text.Children.Add(Theme.T(ai == "chatgpt" ? "ChatGPT" : ai == "omp" ? "omp" : "Claude", 14, Theme.P.Text, Theme.Semi));
             var line = Theme.T(about(ai), 12, Theme.P.TextDim);
             line.Margin = new Thickness(0, 3, 12, 0);
             text.Children.Add(line);

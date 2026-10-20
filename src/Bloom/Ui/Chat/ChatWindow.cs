@@ -183,8 +183,10 @@ internal sealed partial class ChatWindow : Window, IChatHost
         host.Chats.Updated += OnUpdated;
         host.Chats.SessionsChanged += OnSessions;
         host.Chats.GroupsChanged += OnSessions;
+        host.Chats.UsageChanged += OnUsage;
         GptCatalog.Updated += OnCatalog;
         ApiCatalog.Updated += OnCatalog;
+        OmpCatalog.Updated += OnCatalog;
         Theme.Changed += OnTheme;
         Closed += (_, _) =>
         {
@@ -192,8 +194,10 @@ internal sealed partial class ChatWindow : Window, IChatHost
             host.Chats.Updated -= OnUpdated;
             host.Chats.SessionsChanged -= OnSessions;
             host.Chats.GroupsChanged -= OnSessions;
+            host.Chats.UsageChanged -= OnUsage;
             GptCatalog.Updated -= OnCatalog;
             ApiCatalog.Updated -= OnCatalog;
+            OmpCatalog.Updated -= OnCatalog;
             Theme.Changed -= OnTheme;
         };
         SourceInitialized += (_, _) => Shots.SolidCaption(this);
@@ -207,6 +211,7 @@ internal sealed partial class ChatWindow : Window, IChatHost
         if (!ReferenceEquals(thread, t)) host.Chats.CancelPreStart(thread);
         thread = t;
         host.Chats.PreStart(t); // likely to send: its process starts now, unsent
+        host.Chats.RefreshUsage(t); // a chat whose omp is running shows its numbers now, not after its next answer
         chat.Show(t);
         Header();
         BuildList();
@@ -274,12 +279,10 @@ internal sealed partial class ChatWindow : Window, IChatHost
         if (tools.Children.OfType<Dropdown>().FirstOrDefault() is { } models) models.Open();
     }
 
-    /// Ctrl+Shift+M: Claude ↔ ChatGPT, each side with the model last used there.
+    /// Ctrl+Shift+M: Claude → ChatGPT → omp (when it is on this PC), each side with the model last used there.
     public void SwitchProvider()
     {
-        string now = AiModels.Normalize(thread.Model);
-        if (!AiModels.IsChatGpt(now)) Settings.Current.AiProvider = "chatgpt";
-        Chats.SetModel(thread, AiModels.IsChatGpt(now) ? Settings.Current.AiModel : AiModels.DefaultModel());
+        Chats.SetModel(thread, AiModels.NextSide(AiModels.Normalize(thread.Model)));
         ShowToast(AiModels.Who(thread.Model));
         host.Chats.PreStart(thread);
         Header();
@@ -358,6 +361,8 @@ internal sealed partial class ChatWindow : Window, IChatHost
             end.Margin = new Thickness(8, 0, 0, 0);
             tools.Children.Add(end);
         }
+        tools.Children.Add(gaugeBox);
+        Gauge();
     }
 
     /// 세션 종료 on a conversation: its CLI closes; when it is the open one, a new chat takes its place (it stays in the
@@ -438,7 +443,11 @@ internal sealed partial class ChatWindow : Window, IChatHost
     // ── what the conversations do ───────────────────────────────────────────────────────────────
     private void OnUpdated(ChatThread t)
     {
-        if (ReferenceEquals(t, thread)) chat.Update(t);
+        if (ReferenceEquals(t, thread))
+        {
+            chat.Update(t);
+            Gauge(); // 정리 is off while it answers
+        }
         if (ListChanged()) BuildList();
         if (ReferenceEquals(t, thread) && shownTitle != (host.Chats.GroupOf(t)?.Name ?? "") + "\n" + NameOf(t)) Header();
     }

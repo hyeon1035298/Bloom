@@ -175,19 +175,22 @@ internal sealed partial class Chats
     public static string EffortOf(ChatThread t) => t.Effort is { } e ? AiModels.Fit(t.Model, e) : AiModels.DefaultEffort(t.Model);
 
     /// The conversation goes on with this model from its next message; it also becomes the default for new ones. The
-    /// other side (Claude ↔ ChatGPT ↔ API) keeps its own level; the same side keeps the thread's, fitted to the model.
+    /// other side (Claude ↔ ChatGPT ↔ omp ↔ API) keeps its own level; the same side keeps the thread's, fitted to the model.
     public static void SetModel(ChatThread? t, string model)
     {
         bool sideChanged = AiModels.Provider(AiModels.Normalize(t?.Model ?? AiModels.DefaultModel())) != AiModels.Provider(model);
         var s = Settings.Current;
         s.AiProvider = AiModels.Provider(model);
-        if (AiModels.GptSlug(model) is { } slug) s.GptModel = slug;
+        if (AiModels.OmpSlug(model) is { } ompSlug) s.OmpChatModel = ompSlug;
+        else if (AiModels.GptSlug(model) is { } slug) s.GptModel = slug;
         else if (AiModels.IsApi(model)) s.ApiModel = model;
         else if (!AiModels.IsChatGpt(model)) s.AiModel = model;
         if (t is not null)
         {
+            // a model on the user's own omp list may carry the level a chat starts at with it
+            bool ownLevel = t.Model != model && AiModels.OmpSlug(model) is { } own && OmpModelList.EffortOf(own) is not null;
             t.Model = model;
-            t.Effort = sideChanged || t.Effort is null ? AiModels.DefaultEffort(model) : AiModels.Fit(model, t.Effort);
+            t.Effort = sideChanged || t.Effort is null || ownLevel ? AiModels.DefaultEffort(model) : AiModels.Fit(model, t.Effort);
         }
         Settings.Save();
     }
@@ -197,7 +200,8 @@ internal sealed partial class Chats
     {
         if (t is not null) t.Effort = level;
         string model = AiModels.Normalize(t?.Model ?? AiModels.DefaultModel());
-        if (AiModels.IsChatGpt(model)) Settings.Current.GptEffort = level;
+        if (AiModels.IsOmp(model)) Settings.Current.OmpChatEffort = level;
+        else if (AiModels.IsChatGpt(model)) Settings.Current.GptEffort = level;
         else if (AiModels.IsApi(model)) Settings.Current.ApiEffort = level;
         else Settings.Current.AiEffort = level;
         Settings.Save();
@@ -209,12 +213,25 @@ internal sealed partial class Chats
         Task deletion = Task.WhenAll(WhenDeleted(t), WhenFinished(t));
         if (!Threads.Contains(t)) Threads.Insert(0, t);
         if (t.Messages.Count == 0) t.Title = TitleOf(text, pageTitle ?? (files is { Count: > 0 } ? Path.GetFileName(files[0]) : null));
-        string prompt = ClaudeSession.LocalTime() + "\n" + (page is null ? text : $"<page title=\"{Esc(pageTitle ?? "")}\">\n{page}\n</page>\n\n{text}");
+        // an omp chat's slash command goes to omp as it is (omp reads one only at the very start of the message) when it is
+        // read-only; one that would change the omp shared with every other session is answered here; any other "/word" is a message
+        string? command = AiModels.Provider(t.Model) == "omp" && page is null && image is null && files is not { Count: > 0 } && OmpCli.IsSlash(text.Trim())
+            ? OmpCli.SlashName(text) : null;
+        bool slash = command is not null && OmpCli.SlashAllowed.Contains(command);
+        string prompt = slash ? text.Trim() : ClaudeSession.LocalTime() + "\n" + (page is null ? text : $"<page title=\"{Esc(pageTitle ?? "")}\">\n{page}\n</page>\n\n{text}");
         // kept with the message so an API session started later sends it again as it went now (ApiSession.Past)
         var user = new ChatMessage { Role = "user", Text = text, At = Now, Page = pageTitle, Image = image, Sent = prompt };
         t.Messages.Add(user);
         var answer = new ChatMessage { Role = "assistant", At = Now, Streaming = true, Status = Tr("생각하는 중…", "Thinking…") };
         t.Messages.Add(answer);
+        if (command is not null && OmpLocalAnswer(command) is { } said)
+        {
+            answer.Text = said;
+            Touch(t);
+            Updated?.Invoke(t);
+            Finish(t, answer, true, null);
+            return;
+        }
         var pending = new Preparing(answer);
         preparing[t.Id] = pending;
         Touch(t);
@@ -223,7 +240,21 @@ internal sealed partial class Chats
         string[] sources = files?.Take(MaxFiles).ToArray() ?? Array.Empty<string>();
         string folder = ThreadFiles(t);
         bool inline = AiModels.Inline(t.Model);
-        _ = PrepareAndSend(t, user, pending, prompt, image, sources, folder, inline, UnavailableNote(), deletion);
+        _ = PrepareAndSend(t, user, pending, prompt, image, sources, folder, inline, UnavailableNote(), deletion, slash);
+    }
+
+    /// What Bloom answers itself to an omp slash command it doesn't send: where earlier chats are (/resume), or that the
+    /// command changes the omp every session of the user shares (SlashRefused); null = it goes to omp.
+    internal static string? OmpLocalAnswer(string command)
+    {
+        if (command == "resume")
+            // each Bloom conversation keeps its own omp session: an older one is picked from the list, not swapped in here
+            return Tr("Bloom에서는 대화마다 omp 세션이 따로 있습니다 — 지난 대화는 **왼쪽 목록**(또는 `Ctrl+F` 대화 찾기)에서 고르면 그 세션으로 이어집니다. 터미널 omp의 세션은 omp에서 `/resume`으로 여세요.",
+                "Each Bloom conversation has its own omp session — pick an earlier one in the **list on the left** (or `Ctrl+F`) and it carries on in that session. Sessions from omp in a terminal open with `/resume` there.");
+        if (!OmpCli.SlashRefused.Contains(command)) return null;
+        return Tr($"`/{command}` 명령은 Bloom 채팅에서 쓰지 않습니다 — omp 설정은 다른 omp 세션과 함께 쓰이므로, 설정을 바꾸는 명령은 omp 터미널에서 실행하세요. 여기서 쓸 수 있는 명령: ",
+            $"`/{command}` isn't used in a Bloom chat — omp's settings are shared with your other omp sessions, so commands that change them belong in an omp terminal. Here you can use: ")
+            + string.Join(" ", OmpCli.SlashAllowed.Select(c => "`/" + c + "`"));
     }
 
     /// What an inlined file that can't be read becomes ("{0}" = its name), for the model to tell the user.
@@ -238,7 +269,7 @@ internal sealed partial class Chats
     internal Task WhenFinished(ChatThread t) => outputWork.TryGetValue(t.Id, out var pending) ? pending : Task.CompletedTask;
 
     private async Task PrepareAndSend(ChatThread t, ChatMessage user, Preparing pending, string prompt,
-        string? image, string[] sources, string folder, bool inline, string unavailable, Task deletion)
+        string? image, string[] sources, string folder, bool inline, string unavailable, Task deletion, bool slash = false)
     {
         PreparedAttachments? attached = null;
         IChatSession? session = null;
@@ -269,9 +300,9 @@ internal sealed partial class Chats
                 session = SessionFor(t, out string? resume, out bool fresh, out bool start);
                 if (!Current()) return Task.FromResult(new SessionStart(false));
                 var preStarted = TakeWarm(t, session);
-                if (fresh) prompt = Earlier(t) + prompt;
+                if (fresh && !slash) prompt = Earlier(t) + prompt; // a slash command is read by omp only at the very start of the message
                 turnStarted[t.Id] = DateTime.UtcNow.AddSeconds(-1);
-                if (Settings.Current.AiTitles) leads[t.Id] = new ChatTitles.Lead();
+                if (Settings.Current.AiTitles && !slash) leads[t.Id] = new ChatTitles.Lead();
                 else leads.Remove(t.Id);
                 return start ? session.StartAsync(resume, token) : preStarted is not null ? preStarted.Start.WaitAsync(token) : Task.FromResult(new SessionStart(true));
             }).ConfigureAwait(false);
@@ -469,6 +500,7 @@ internal sealed partial class Chats
         s = sessionFactory is not null ? sessionFactory(t, effort)
             : Demo.On ? new DemoSession(t.Model, effort)
             : provider == "api" ? new ApiSession(t.Model, effort, t.Id, ApiSession.Past(t.Messages), UnavailableNote(), ThreadFiles(t))
+            : provider == "omp" ? new OmpSession(t.Model, effort, t.Id)
             : provider == "chatgpt" ? ChatGptSession(t, effort, account.Home)
             : new ClaudeSession(t.Model, effort, FilesRel(t), "Bloom · " + (t.Messages.Count > 0 ? (t.Title.Length > 40 ? t.Title[..40] + "…" : t.Title) : Tr("새 대화", "New chat"))) { AccountHome = account.Home };
         // a session lives in its account's folder: under another account it starts fresh, with the chat so far given to it;
@@ -525,6 +557,30 @@ internal sealed partial class Chats
         {
             if (Current() is { } m) Finish(t, m, ok, err);
         });
+        // omp's numbers (how full the model's memory is) and its tidying of it, as a line under the answer, kept with it
+        if (s is IContextGauge gauge)
+        {
+            gauge.UsageChanged += () => events.Post(() =>
+            {
+                if (gauge.Usage is { } u) usages[t.Id] = u;
+                if (gauge.Compacting) compacting.Add(t.Id);
+                else compacting.Remove(t.Id);
+                UsageChanged?.Invoke(t);
+            });
+            gauge.CompactNote += (text, running) => events.Post(() =>
+            {
+                var m = Current() ?? (running ? null : t.Messages.LastOrDefault(x => x.Role == "assistant"));
+                if (m is null) return;
+                if (running) m.Status = text; // the line under the answer being written
+                else
+                {
+                    if (m.Streaming) m.Status = null;
+                    (m.Done ??= new()).Add("ℹ " + text);
+                    Save(t);
+                }
+                Updated?.Invoke(t);
+            });
+        }
         s.ToolAsked += raw => events.Post(() => Asked(t, Current(), s, raw));
         s.ToolAskWithdrawn += id => events.Post(() =>
         {
@@ -715,11 +771,60 @@ internal sealed partial class Chats
         {
             m.Error = true;
             // an API session's errors are already worded (ApiClient) and name their provider
-            string e = error is null ? AiErrors.Failed : AiModels.IsApi(t.Model) ? error : AiErrors.Friendly(error, AiModels.IsChatGpt(t.Model), details: true);
+            string e = error is null ? AiErrors.Failed : AiModels.IsApi(t.Model) ? error : AiModels.IsOmp(t.Model) ? AiErrors.Omp(error, details: true) : AiErrors.Friendly(error, AiModels.IsChatGpt(t.Model), details: true);
             m.Text = m.Text.Length > 0 ? m.Text + "\n\n" + e : e;
         }
         Touch(t);
         Updated?.Invoke(t);
+    }
+
+    // ── how full the model's memory is (omp chats only) ─────────────────────────────────────────
+    private readonly Dictionary<string, OmpUsage> usages = new();
+    private readonly HashSet<string> compacting = new();
+
+    /// UI thread; the numbers of this conversation's omp session changed, or a tidy-up of it started or ended.
+    public event Action<ChatThread>? UsageChanged;
+
+    /// What the model holds in this conversation (read after each turn); null for a chat on another side, or before omp has said.
+    public OmpUsage? UsageOf(ChatThread t) => AiModels.Provider(t.Model) == "omp" && usages.TryGetValue(t.Id, out var u) ? u : null;
+
+    public bool IsCompacting(ChatThread t) => compacting.Contains(t.Id);
+
+    /// Asks a running omp session of this conversation for its numbers (opening a chat shows them at once); starts nothing.
+    public void RefreshUsage(ChatThread t)
+    {
+        if (sessions.TryGetValue(t.Id, out var s) && s.Alive && s is IContextGauge g) g.RefreshUsage();
+    }
+
+    /// 정리: omp summarises the earlier part of the conversation (the messages on screen stay; only what the model remembers shrinks).
+    public bool Compact(ChatThread t)
+    {
+        if (t.Busy || IsCompacting(t) || AiModels.Provider(t.Model) != "omp" || t.Messages.Count == 0) return false;
+        var s = SessionFor(t, out string? resume, out _, out bool start);
+        if (s is not IContextGauge gauge) return false;
+        if (!start) return gauge.Compact("");
+        // no omp process of this conversation is running (it was closed for being idle): start it on its saved session first
+        compacting.Add(t.Id);
+        UsageChanged?.Invoke(t);
+        var starting = s.StartAsync(resume, CancellationToken.None); // the settings are read here, on the UI thread
+        _ = Task.Run(async () =>
+        {
+            var result = await starting.ConfigureAwait(false);
+            await OnUi(() =>
+            {
+                if (result.Success && gauge.Compact("")) return Task.FromResult(true);
+                compacting.Remove(t.Id);
+                if (sessions.TryGetValue(t.Id, out var current) && ReferenceEquals(current, s))
+                {
+                    sessions.Remove(t.Id);
+                    s.Dispose();
+                    SessionsChanged?.Invoke();
+                }
+                UsageChanged?.Invoke(t);
+                return Task.FromResult(true);
+            }).ConfigureAwait(false);
+        });
+        return true;
     }
 
     public void Stop(ChatThread t)
@@ -756,8 +861,20 @@ internal sealed partial class Chats
         CancelPreStart(t);
         bool removed = sessions.Remove(t.Id, out var s);
         Threads.Remove(t);
+        if (t.SessionProvider == "omp" || s is OmpSession)
+        {
+            // its omp session and working folder (.omp/mcp.json) go once the process that holds them has ended
+            string? ompSession = t.SessionProvider == "omp" ? t.SessionId : null;
+            _ = (s?.Closed ?? Task.CompletedTask).ContinueWith(_ =>
+            {
+                if (ompSession is not null) OmpCli.DeleteSession(ompSession);
+                OmpMcp.Forget(t.Id);
+            }, TaskScheduler.Default);
+        }
         leads.Remove(t.Id);
         turnStarted.Remove(t.Id);
+        usages.Remove(t.Id);
+        compacting.Remove(t.Id);
         try { s?.Dispose(); }
         finally { released.TrySetResult(); }
         if (removed) SessionsChanged?.Invoke();
