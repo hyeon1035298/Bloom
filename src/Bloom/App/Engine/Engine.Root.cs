@@ -17,6 +17,12 @@ internal sealed partial class Engine
     {
         var sections = new List<Section>();
         var q = new Query(text);
+        // an external provider's keyword ("ff 보고서") wins over everything, quicklinks like "g" included: it answers alone
+        if (!q.IsEmpty && RootProvider(text) is { } provided)
+        {
+            sections.Add(provided);
+            return sections;
+        }
         // a typed path answers alone: the folder, what is in it, Tab to go in
         if (PathInput.Expand(text) is { } full && full.Contains('\\'))
         {
@@ -89,6 +95,7 @@ internal sealed partial class Engine
             item.Score += Learned(item.Id) + 2;
             scored.Add(new(item, item.Score));
         }
+        foreach (var item in ProviderKeywordItems(q)) scored.Add(new(item, item.Score));
         if (Matcher.Score(q, NewGroupMatch) is > 0 and var gs)
         {
             var item = NewGroupItem();
@@ -163,7 +170,7 @@ internal sealed partial class Engine
     /// The top files for the root list (Everything), re-ranked by how well the name matches.
     public async Task<Section?> RootFiles(string text)
     {
-        if (!Settings.Current.FilesInRoot || text.Trim().Length < 2 || PathInput.Looks(text) || Calculator.Evaluate(text) is not null) return null;
+        if (!Settings.Current.FilesInRoot || text.Trim().Length < 2 || PathInput.Looks(text) || Calculator.Evaluate(text) is not null || Providers.Match(text) is not null) return null;
         var list = await host.Everything.Query(text.Trim() + RootNoise, 60, EverythingClient.SortDateModifiedDesc);
         if (list is null || list.Count == 0) return null;
         var q = new Query(text);
