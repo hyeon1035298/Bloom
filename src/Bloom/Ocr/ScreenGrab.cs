@@ -248,7 +248,27 @@ internal static class ScreenGrab
 
     /// The screen's pixels in this rectangle (BGRA, opaque). Windows marked excluded from capture
     /// (our live-translation panel) are not in it.
-    public static byte[]? Grab(ScreenRect r)
+    public static byte[]? Grab(ScreenRect r) => Capture(r, bits =>
+    {
+        var px = new byte[r.Width * r.Height * 4];
+        Marshal.Copy(bits, px, 0, px.Length);
+        return px;
+    });
+
+    /// The whole desktop for the picker, from the screen's bitmap straight into WIC's own copy: no desktop-sized array
+    /// on the managed heap, whose room the GC kept long after Lens closed (28 MB for two 2560x1440 monitors).
+    internal static BitmapSource? GrabDesktop(ScreenRect r) => Capture(r, bits => FrozenPixels(bits, r.Width, r.Height));
+
+    /// WIC's own frozen copy of the BGRA pixels at `pixels`: that memory may go as soon as this returns.
+    internal static BitmapSource FrozenPixels(IntPtr pixels, int width, int height)
+    {
+        var source = BitmapSource.Create(width, height, 96, 96, PixelFormats.Bgra32, null, pixels, width * height * 4, width * 4);
+        source.Freeze();
+        return source;
+    }
+
+    /// The screen's pixels in `r`, made opaque, handed to `use` in GDI's bitmap, which is gone once `use` returns.
+    private static T? Capture<T>(ScreenRect r, Func<IntPtr, T> use) where T : class
     {
         IntPtr screen = Win32.GetDC(IntPtr.Zero);
         IntPtr mem = CreateCompatibleDC(screen);
@@ -261,10 +281,8 @@ internal static class ScreenGrab
             bool ok = BitBlt(mem, 0, 0, r.Width, r.Height, screen, r.X, r.Y, 0x00CC0020 | 0x40000000 /* SRCCOPY | CAPTUREBLT */);
             SelectObject(mem, old);
             if (!ok) return null;
-            var px = new byte[r.Width * r.Height * 4];
-            Marshal.Copy(bits, px, 0, px.Length);
-            for (int i = 3; i < px.Length; i += 4) px[i] = 255;
-            return px;
+            Opaque(bits, r.Width * r.Height);
+            return use(bits);
         }
         finally
         {
@@ -274,19 +292,11 @@ internal static class ScreenGrab
         }
     }
 
-    // The raw array stays inside this synchronous call. WIC owns a copy of its pixels,
-    // so the picker can await drawing without retaining another full desktop on the managed heap.
-    private static BitmapSource? GrabDesktop(ScreenRect r)
+    /// BitBlt leaves every alpha byte 0: each pixel made opaque where it lies.
+    private static unsafe void Opaque(IntPtr bits, int pixels)
     {
-        var pixels = Grab(r);
-        return pixels is null ? null : FrozenPixels(pixels, r.Width, r.Height);
-    }
-
-    internal static BitmapSource FrozenPixels(byte[] pixels, int width, int height)
-    {
-        var source = BitmapSource.Create(width, height, 96, 96, PixelFormats.Bgra32, null, pixels, width * 4);
-        source.Freeze();
-        return source;
+        uint* p = (uint*)bits;
+        for (int i = 0; i < pixels; i++) p[i] |= 0xFF000000;
     }
 
     internal static byte[] Crop(BitmapSource src, int x, int y, int w, int h)

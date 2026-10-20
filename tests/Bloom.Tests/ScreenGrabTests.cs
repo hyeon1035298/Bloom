@@ -1,6 +1,6 @@
 using System;
 using System.Linq;
-using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Interop;
 using System.Windows.Media;
@@ -14,7 +14,7 @@ internal static class ScreenGrabTests
     public static void CaptureRenderModeIsLocalToItsHiddenWindow()
     {
         var before = RenderOptions.ProcessRenderMode;
-        var desktop = ScreenGrab.FrozenPixels(Pixels(128, 96), 128, 96);
+        var desktop = Frozen(Pixels(128, 96), 128, 96);
         var overlay = ScreenGrab.Overlay(desktop, new ScreenRect(-32000, -32000, 128, 96), -32000, -32000,
             "Synthetic capture", _ => { }, null, () => null, Brushes.White);
         var ordinary = new Window { Width = 100, Height = 80, Left = -32000, Top = -32000, ShowActivated = false };
@@ -40,7 +40,7 @@ internal static class ScreenGrabTests
     {
         const int width = 17, height = 13;
         var pixels = Pixels(width, height);
-        var desktop = ScreenGrab.FrozenPixels(pixels, width, height);
+        var desktop = Frozen(pixels, width, height);
         Check.True(desktop.IsFrozen, "desktop is immutable across overlay dispatchers");
         foreach (var crop in new[]
         {
@@ -78,37 +78,47 @@ internal static class ScreenGrabTests
         }
     }
 
-    public static void FrozenDesktopOwnsPixelsAfterInputArrayChanges()
+    /// The capture's GDI bitmap is deleted right after FrozenPixels: WIC holds its own copy.
+    public static void FrozenDesktopOwnsPixelsAfterTheirMemoryIsGone()
     {
-        var input = Pixels(23, 19);
-        var expected = (byte[])input.Clone();
-        var desktop = ScreenGrab.FrozenPixels(input, 23, 19);
-        Array.Fill(input, (byte)0);
-        Check.True(ScreenGrab.Crop(desktop, 0, 0, 23, 19).SequenceEqual(expected), "WIC storage does not borrow mutable input");
-        GC.KeepAlive(input);
+        var expected = Pixels(23, 19);
+        IntPtr memory = Marshal.AllocHGlobal(expected.Length);
+        Marshal.Copy(expected, 0, memory, expected.Length);
+        var desktop = ScreenGrab.FrozenPixels(memory, 23, 19);
+        Marshal.Copy(new byte[expected.Length], 0, memory, expected.Length);
+        Marshal.FreeHGlobal(memory);
+        Check.True(ScreenGrab.Crop(desktop, 0, 0, 23, 19).SequenceEqual(expected), "WIC storage does not borrow the capture's memory");
     }
 
-    public static void ActiveDesktopDoesNotRetainItsManagedInputBuffer()
+    /// The picker's desktop goes from the screen's bitmap straight into WIC: no desktop-sized array on the managed heap
+    /// (28 MB for two 2560x1440 monitors, whose room the GC kept long after Lens closed), every pixel opaque. Reads the
+    /// real screen; opens no window.
+    public static void DesktopGrabLeavesNoDesktopSizedArray()
     {
-        var captured = CreateWithoutRetainingInput();
-        var expected = ScreenGrab.Crop(Pixels(512, 256), 512, 7, 11, 19, 13);
-        Check.True(ScreenGrab.Crop(captured.desktop, 7, 11, 19, 13).SequenceEqual(expected), "actual buffer supplied to active bitmap before collection");
-        // Test-only collection proves ownership; production capture never forces collection.
-        GC.Collect();
-        GC.WaitForPendingFinalizers();
-        GC.Collect();
-        Check.True(!captured.input.TryGetTarget(out _), "active frozen bitmap does not root raw managed pixels");
-        Check.True(ScreenGrab.Crop(captured.desktop, 7, 11, 19, 13).SequenceEqual(expected), "pixels remain available after input is collected");
-        GC.KeepAlive(captured.desktop);
+        const int width = 640, height = 480;
+        ScreenGrab.GrabDesktop(new ScreenRect(0, 0, 8, 8)); // first use: WPF's own one-time setup is not counted
+        long before = GC.GetAllocatedBytesForCurrentThread();
+        var desktop = ScreenGrab.GrabDesktop(new ScreenRect(0, 0, width, height));
+        long allocated = GC.GetAllocatedBytesForCurrentThread() - before;
+        Check.True(desktop is not null, "the screen can be read");
+        if (desktop is null) return;
+        Check.True(allocated < width * height * 4 / 8, $"{allocated} managed bytes for a {width * height * 4}-byte picture");
+        var px = ScreenGrab.Crop(desktop, 0, 0, width, height);
+        Check.True(Enumerable.Range(0, width * height).All(i => px[i * 4 + 3] == 255), "every pixel opaque");
     }
 
-    [MethodImpl(MethodImplOptions.NoInlining)]
-    private static (BitmapSource desktop, WeakReference<byte[]> input) CreateWithoutRetainingInput()
+    /// FrozenPixels of a managed array, pinned only for the call.
+    private static BitmapSource Frozen(byte[] pixels, int width, int height)
     {
-        var pixels = Pixels(512, 256);
-        var input = new WeakReference<byte[]>(pixels);
-        var desktop = ScreenGrab.FrozenPixels(pixels, 512, 256);
-        return (desktop, input);
+        var pin = GCHandle.Alloc(pixels, GCHandleType.Pinned);
+        try
+        {
+            return ScreenGrab.FrozenPixels(pin.AddrOfPinnedObject(), width, height);
+        }
+        finally
+        {
+            pin.Free();
+        }
     }
 
     private static byte[] Pixels(int width, int height)
