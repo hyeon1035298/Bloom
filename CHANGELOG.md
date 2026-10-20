@@ -2,6 +2,22 @@
 
 Each release on GitHub shows its section from this file (the workflow looks for `## <version>`).
 
+## 0.16.0
+
+- Your own accent colour: Settings › General › Colour has a "Custom" dot. Type a code like `#3A7BD5` and press Enter to use it. The window and tray icons and the launcher's logo now follow the accent colour; rose, the default, looks as before. Thanks to @horseman777777-sketch (#7).
+- Search providers: a `providers.json` in Bloom's data folder ties a keyword to your own script, and the script's results show in the search line as you type (keyword + space + words). How to write one, with an example script: `docs/PROVIDERS.md`. Thanks to @horseman777777-sketch (#8).
+- omp (oh-my-pi) as an AI provider: with omp installed, Bloom can chat with it, send it one-off asks, show how full the conversation is, and list its models in My models. Thanks to @horseman777777-sketch (#9).
+- Mini player: Ctrl+K on an audio file in the search results › "Play in mini player". A small window beside the launcher shows the song and a queue. Bloom plays the file itself (flac, mp3, wav, m4a, aac, wma) or through JRiver, foobar2000 or MusicBee (Settings › Mini player). Thanks to @horseman777777-sketch (#10).
+- Bloom Lens keeps one less copy of the whole screen in memory, so Bloom grows less after you use it.
+
+### 한국어
+
+- 직접 고른 강조색: 설정 › 일반 › 색에 '직접' 점이 생겼습니다. `#3A7BD5` 같은 색 코드를 적고 Enter를 누르면 그 색을 씁니다. 창·트레이 아이콘과 런처 로고도 강조색을 따릅니다. 기본인 장미는 예전 모습 그대로입니다. @horseman777777-sketch 님 감사합니다(#7).
+- 검색 제공자: Bloom 데이터 폴더의 `providers.json`에 키워드와 내 스크립트를 적어 두면, 키워드 + 스페이스 + 검색어를 입력하는 동안 스크립트 결과가 검색줄에 나옵니다. 만드는 법과 예시 스크립트는 `docs/PROVIDERS.md`에 있습니다. @horseman777777-sketch 님 감사합니다(#8).
+- omp(oh-my-pi)를 AI 제공자로 쓸 수 있습니다. omp가 설치돼 있으면 채팅, 한 번 묻기, 대화 분량 게이지, 내 모델 목록에서 씁니다. @horseman777777-sketch 님 감사합니다(#9).
+- 미니 플레이어: 검색 결과의 오디오 파일에서 Ctrl+K › '미니 플레이어로 재생'. 런처 옆 작은 창에 지금 곡과 대기열이 나옵니다. Bloom이 직접 재생하거나(flac·mp3·wav·m4a·aac·wma) JRiver·foobar2000·MusicBee로 재생합니다(설정 › 미니 플레이어). @horseman777777-sketch 님 감사합니다(#10).
+- Bloom Lens가 화면 전체 사본을 하나 덜 들고 있어서, 쓰고 난 뒤 Bloom의 메모리가 덜 늘어납니다.
+
 ## 0.15.2
 
 - Markdown documents and notes no longer stall, even with many tables: Bloom now lays out and draws the text itself, only what is on the screen. On the test PC a 22 KB document with 24 tables opens in 0.05 s instead of 0.7 s, and scrolling, resizing the window and changing the text size no longer pause (the longest pause fell from 4.7 s to 0.05 s). Shift+arrow selection now carries on across paragraphs, and a shortened link copies as its whole address.
