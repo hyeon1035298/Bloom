@@ -2190,7 +2190,7 @@ Checks once after launch · downloads new versions for the next start	启动后�
 Ctrl+K on an audio file in the search results › ‘Play in mini player’ · a small window beside the launcher shows the song and the queue — music files are only read	在搜索结果的音频文件上按 Ctrl+K ›“用迷你播放器播放” · 启动器旁的小窗口显示当前歌曲和播放队列 — 只读取音乐文件
 How it plays	播放方式
 Playing	播放方式
-JRiver — plays and controls through JRiver Media Center's web service (MCWS) · the queue is JRiver's	JRiver — 通过 JRiver Media Center 的���络服务 (MCWS) 播放和控制 · 播放队列由 JRiver 管理
+JRiver — plays and controls through JRiver Media Center's web service (MCWS) · the queue is JRiver's	JRiver — 通过 JRiver Media Center 的网络服务 (MCWS) 播放和控制 · 播放队列由 JRiver 管理
 foobar2000 — plays through its command line, the song and the buttons through Windows' media session · playing a song follows foobar2000's own way of opening files (it may replace the active playlist)	foobar2000 — 通过命令行播放，通过 Windows 媒体会话读取当前歌曲并控制按钮 · 播放歌曲时遵循 foobar2000 自身打开文件的方式（可能替换当前活动播放列表）
 MusicBee — plays and controls through its command line · the song is read from its window title (it does not say whether it plays, so Bloom goes by the commands it sent)	MusicBee — 通过命令行播放和控制 · 从窗口标题读取当前歌曲（它不提供播放状态，因此 Bloom 根据自己发送的命令推断）
 Direct — Bloom opens the file read-only (flac, mp3, wav, m4a, aac, wma) · the queue is Bloom's own · the next song follows · missing files are skipped · ogg and opus cannot be played	直接 — Bloom 以只读方式打开文件播放（flac、mp3、wav、m4a、aac、wma）· 播放队列由 Bloom 自己管理 · 自动播放下一首 · 跳过找不到的文件 · 无法播放 ogg 和 opus
