@@ -45,6 +45,14 @@ internal static partial class Captures
         MusicPlayer.Next();
         await Task.Delay(600);
         log.AppendLine($"direct: next → {MusicPlayer.Title} playing={MusicPlayer.IsPlaying}");
+
+        // Explorer's 연결 프로그램 > Bloom on two selected files, a moment apart: the first plays, the second is queued
+        MusicPlayer.Stop();
+        MusicPlayer.Queue.Clear();
+        bool handedOne = host.OpenHanded(one), handedTwo = host.OpenHanded(two);
+        for (int i = 0; i < 50 && !MusicPlayer.CanSeek; i++) await Task.Delay(100);
+        await Task.Delay(600);
+        log.AppendLine($"handed over: {handedOne}/{handedTwo} → {MusicPlayer.Title} playing={MusicPlayer.IsPlaying} position {MusicPlayer.Position.TotalSeconds:F2}s · queue {string.Join(", ", MusicPlayer.Queue.Items.Select(t => t.Title))} · player window {host.Tools.Find("player") is not null}");
         MusicPlayer.Toggle();
         await Task.Delay(300);
 

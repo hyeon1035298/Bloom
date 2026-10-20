@@ -48,6 +48,27 @@ internal sealed class DocFile : IDisposable
 
     public static bool IsMarkdown(string path) => System.IO.Path.GetExtension(path).Equals(".md", StringComparison.OrdinalIgnoreCase);
 
+    /// How much of a file LooksBinary reads.
+    private const int SniffBytes = 8192;
+
+    /// Not text: a NUL byte in its first 8 KB without a UTF-16 BOM (a song, a picture, a program). Such a file read as
+    /// text is megabytes of garbage that hold the UI thread for minutes. A file that can't be read now: false (the
+    /// document window says why).
+    public static bool LooksBinary(string path)
+    {
+        try
+        {
+            using var fs = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite | FileShare.Delete);
+            var head = new byte[(int)Math.Min(SniffBytes, fs.Length)];
+            fs.ReadExactly(head);
+            return head is not ([0xFF, 0xFE, ..] or [0xFE, 0xFF, ..]) && Array.IndexOf(head, (byte)0) >= 0;
+        }
+        catch (Exception e) when (e is IOException or UnauthorizedAccessException)
+        {
+            return false;
+        }
+    }
+
     /// The file as it is now, taken as the one known here (its hash, encoding and line ending): at the start and for
     /// 다시 읽기. A file that can't be read comes back empty and read-only with the reason.
     public DocText Read()

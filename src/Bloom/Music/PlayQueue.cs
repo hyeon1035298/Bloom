@@ -21,10 +21,14 @@ internal sealed class PlayQueue
     }
 
     /// Right after the song that is on (a "play now" keeps the queue around it).
-    public int InsertNext(Track t)
+    public int InsertNext(Track t) => Insert(Index + 1, t);
+
+    /// At that place (kept within the queue); the song that is on stays the one on.
+    public int Insert(int at, Track t)
     {
-        int at = Math.Min(Items.Count, Index + 1);
+        at = Math.Clamp(at, 0, Items.Count);
         Items.Insert(at, t);
+        if (at <= Index) Index++;
         return at;
     }
 

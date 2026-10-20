@@ -222,10 +222,10 @@ internal sealed partial class Host
             _ = System.Threading.Tasks.Task.Run(() => StallWatch.RemoveOldDumps(System.IO.Path.Combine(Paths.Local, "stalls")));
             Window.Prewarm();
             Tools.Restore(); // floating tool windows come back now, attached ones with the launcher
-            // started by Explorer's 연결 프로그램: the document only — no launcher, and the first-run screens wait for the next start
+            // started by Explorer's 연결 프로그램: the document (or the song) only — no launcher, and the first-run screens wait for the next start
             if (Opt.Open is { } doc)
             {
-                if (!OpenDoc(doc)) ui.BeginInvoke(() => DocHandoff.Tell(doc, DocHandoff.Refused)); // never silently
+                if (!OpenHanded(doc)) ui.BeginInvoke(() => DocHandoff.Tell(doc, DocHandoff.Refused)); // never silently
             }
             else if (Settings.Current.Onboarded != true) ShowOnboarding();
             else if (Opt.Settings) OpenSettings();

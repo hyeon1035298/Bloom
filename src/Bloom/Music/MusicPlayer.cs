@@ -188,6 +188,41 @@ internal static class MusicPlayer
         else Changed?.Invoke();
     }
 
+    /// Explorer starts one Bloom per selected file, a moment apart: a file handed over this soon after the one before
+    /// it goes in after that one instead of cutting it off, so a selection plays in turn.
+    private static readonly TimeSpan HandedRun = TimeSpan.FromSeconds(2);
+
+    private static DateTime handedAt;
+
+    /// Direct: where the next file of the run goes in the queue.
+    private static int handedNext;
+
+    /// A file Explorer handed over (연결 프로그램 > Bloom): plays now, or goes in after the one handed over just before
+    /// it (another player: at the end of its queue).
+    public static void OpenHanded(string path)
+    {
+        var now = DateTime.UtcNow;
+        bool following = now - handedAt < HandedRun;
+        handedAt = now;
+        if (!following || External)
+        {
+            if (following) Enqueue(path);
+            else Play(path);
+            handedNext = Queue.Index + 1;
+            return;
+        }
+        var t = Track.Of(path);
+        if (Reject(t) is { } why)
+        {
+            Skipped(new List<(Track, string)> { (t, why) }, false);
+            return;
+        }
+        int at = Queue.Insert(handedNext, t);
+        handedNext = at + 1;
+        if (!playing && !paused) Start(at); // the first was not played
+        else Changed?.Invoke();
+    }
+
     public static void Toggle()
     {
         if (External)
@@ -318,7 +353,7 @@ internal static class MusicPlayer
         opened = false;
         playing = true;
         paused = false;
-        m.Open(new Uri(AudioFiles.Resolve(t.Path)!));
+        m.Open(AudioFiles.ToUri(AudioFiles.Resolve(t.Path)!));
         m.Volume = Volume / 100.0;
         m.Play();
         Changed?.Invoke();

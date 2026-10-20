@@ -47,6 +47,14 @@ internal static class AudioFiles
         }
     }
 
+    /// The file:// address of a Resolved path, '%' and '#' escaped: `new Uri(path)` reads "%41" in a file name as 'A'
+    /// and opens another file (MediaPlayer: "not found").
+    public static Uri ToUri(string full)
+    {
+        string escaped = full.Replace("%", "%25", StringComparison.Ordinal).Replace("#", "%23", StringComparison.Ordinal);
+        return new Uri((full.StartsWith(@"\\", StringComparison.Ordinal) ? "file:" : "file:///") + escaped);
+    }
+
     /// Why the file cannot be played now (a line for the notice), or null when it can. `direct`: Bloom opens it itself.
     public static string? Reject(string path, bool direct, Func<string, bool> exists)
     {

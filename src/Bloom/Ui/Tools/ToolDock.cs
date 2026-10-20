@@ -83,6 +83,9 @@ internal sealed class ToolDock
         if (Find(key) is { } open)
         {
             if (note is not null && open.Tool is NotesTool notes) notes.Show(note);
+            // an attached tool comes with the launcher: alone it stood where the launcher last was, kept on top, or
+            // off-screen and holding the keyboard when the launcher hadn't shown since the start (Explorer's 연결 프로그램)
+            if (open.Edge is not null && !L.IsVisible) host.Summon();
             Front(open);
             return;
         }

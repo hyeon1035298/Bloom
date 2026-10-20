@@ -28,8 +28,8 @@ internal static class Program
     ///       starts).
     ///       --claude-approve [--data <dir>] (Claude Code's PermissionRequest hook: the request to the running Bloom's
     ///       card, its answer as the hook's JSON; nothing starts).
-    ///       --open <file> (Explorer's 연결 프로그램 for .md: the file in its document window — handed to the running Bloom,
-    ///       else Bloom starts in the tray with it open, without the launcher).
+    ///       --open <file> (Explorer's 연결 프로그램: a .md or other text file in its document window, an audio file in the
+    ///       mini player — handed to the running Bloom, else Bloom starts in the tray with it open, without the launcher).
     [STAThread]
     private static int Main(string[] args)
     {
@@ -262,7 +262,7 @@ internal static class Program
         app.Startup += (_, _) =>
         {
             // first: a start handing a file over waits for this pipe; what it hands over opens once the start is done
-            DocHandoff.Listen(DocHandoff.Pipe, path => app.Dispatcher.InvokeAsync(() => host.OpenDoc(path)).Task);
+            DocHandoff.Listen(DocHandoff.Pipe, path => app.Dispatcher.InvokeAsync(() => host.OpenHanded(path)).Task);
             host.Start();
             Listen(id + ".Show", () => host.Summon());
             Listen(id + ".Settings", host.OpenSettings);

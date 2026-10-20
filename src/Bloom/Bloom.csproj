@@ -15,7 +15,7 @@
     <RootNamespace>Bloom</RootNamespace>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <ApplicationIcon>Assets\icon.ico</ApplicationIcon>
-    <Version>0.16.0</Version>
+    <Version>0.16.1</Version>
     <Product>Bloom</Product>
     <AssemblyTitle>Bloom</AssemblyTitle>
     <Company>Hyeon</Company>

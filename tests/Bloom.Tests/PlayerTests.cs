@@ -49,6 +49,16 @@ internal static class PlayerTests
         Check.Eq(new Track(@"C:\a.mp3", "Dive", "Artist").Line, "Artist — Dive", "the line with an artist");
     }
 
+    public static void FileAddressesKeepTheName()
+    {
+        foreach (string path in new[] { @"C:\Music\a%41b.mp3", @"C:\Music\x#1 100%25.flac", @"C:\Music\日本語の曲名.flac", @"\\server\share\a%41b #2.wav" })
+        {
+            var uri = AudioFiles.ToUri(path);
+            Check.True(uri.IsFile, path + " is a file address");
+            Check.Eq(uri.LocalPath, path, "the same file, not one with %41 read as A");
+        }
+    }
+
     // ── the queue ───────────────────────────────────────────────────────────────────────────────
     private static PlayQueue Q(params string[] names)
     {
@@ -104,6 +114,18 @@ internal static class PlayerTests
         Check.Eq(q.Items[2].Title, "b.flac", "the rest follows");
         Check.Eq(new PlayQueue().InsertNext(T(@"C:\Music\n.flac")), 0, "into an empty queue");
         Check.Eq(q.Add(T(@"C:\Music\z.flac", "z")), 4, "add goes to the end");
+    }
+
+    public static void InsertingKeepsTheSongOn()
+    {
+        var q = Q("a.flac", "b.flac", "c.flac");
+        q.Index = 1;
+        Check.Eq(q.Insert(0, T(@"C:\Music\x.flac", "x")), 0, "before the one on");
+        Check.Eq(q.Current?.Title, "b.flac", "the one on stays on");
+        Check.Eq(q.Insert(3, T(@"C:\Music\y.flac", "y")), 3, "a selection's next song, after the one handed before it");
+        Check.Eq(string.Join(" ", q.Items.Select(t => t.Title)), "x a.flac b.flac y c.flac", "the order");
+        Check.Eq(q.Insert(99, T(@"C:\Music\z.flac", "z")), 5, "past the end: at the end");
+        Check.Eq(q.Insert(-5, T(@"C:\Music\w.flac", "w")), 0, "before the start: first");
     }
 
     public static void RemovingKeepsTheSongOn()

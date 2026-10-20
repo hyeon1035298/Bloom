@@ -128,6 +128,33 @@ internal static class DocFileTests
         }
     }
 
+    public static void SongsAndProgramsAreNotText()
+    {
+        string dir = Folder();
+        try
+        {
+            string F(string name, byte[] bytes)
+            {
+                string p = Path.Combine(dir, name);
+                File.WriteAllBytes(p, bytes);
+                return p;
+            }
+            Check.True(DocFile.LooksBinary(F("a.flac", [0x66, 0x4C, 0x61, 0x43, 0x00, 0x00, 0x00, 0x22, 0x12])), "a song (NULs in its header)");
+            Check.True(!DocFile.LooksBinary(F("a.txt", Encoding.UTF8.GetBytes("# 제목\n본문\n"))), "UTF-8 text");
+            Check.True(!DocFile.LooksBinary(F("u16.txt", [.. Encoding.Unicode.GetPreamble(), .. Encoding.Unicode.GetBytes("abc")])), "UTF-16 with its BOM (NULs between the letters)");
+            Check.True(!DocFile.LooksBinary(F("empty.txt", [])), "an empty file");
+            byte[] late = new byte[9000];
+            Array.Fill(late, (byte)'a');
+            late[8999] = 0;
+            Check.True(!DocFile.LooksBinary(F("late.txt", late)), "only the first 8 KB is looked at");
+            Check.True(!DocFile.LooksBinary(Path.Combine(dir, "gone.bin")), "a file that isn't there: the document window says why");
+        }
+        finally
+        {
+            Done(dir);
+        }
+    }
+
     public static void PicturesNeverReachAnotherComputer()
     {
         string local = @"C:\docs\notes";

@@ -13,7 +13,8 @@ namespace Bloom.App;
 
 /// `Bloom.exe --open <file>` (Explorer's 연결 프로그램, FileAssoc) while a Bloom runs: this start hands the file's full
 /// path to the running Bloom over a pipe only this Windows user can open, lets it take the foreground, waits for its
-/// one-line answer and ends; the running Bloom opens the file in its document window.
+/// one-line answer and ends; the running Bloom opens the file (Host.OpenHanded: its document window, the mini player for
+/// an audio file).
 internal static class DocHandoff
 {
     public const string Arg = "--open";

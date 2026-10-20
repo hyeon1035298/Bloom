@@ -2,6 +2,20 @@
 
 Each release on GitHub shows its section from this file (the workflow looks for `## <version>`).
 
+## 0.16.1
+
+- Fixed: a song opened with Bloom from Explorer (Open with › Bloom) now plays in the mini player. Before, Bloom tried to show the song as a text document, stopped responding for minutes and said "The running Bloom didn't answer". Open several songs at once and the first plays while the rest join the queue.
+- Fixed: other files that aren't text (videos, pictures, programs) opened with Bloom from Explorer no longer freeze it; Bloom says it can't open them.
+- Fixed: a song whose file name has a percent code in it, like "%41", plays instead of being skipped as "The file cannot be opened".
+- Fixed: a mini player or other tool window attached to the launcher, opened while the launcher is hidden, now comes with the launcher. Before, it stood alone and stayed on top, or, right after Bloom started, opened off the screen.
+
+### 한국어
+
+- 수정: 탐색기에서 노래 파일을 Bloom으로 열면(연결 프로그램 › Bloom) 이제 미니 플레이어에서 재생합니다. 전에는 노래를 텍스트 문서로 열려다 몇 분 동안 멈췄고 '실행 중인 Bloom이 응답하지 않았습니다'가 떴습니다. 여러 곡을 한꺼번에 열면 첫 곡을 재생하고 나머지는 대기열에 넣습니다.
+- 수정: 탐색기에서 Bloom으로 연 다른 텍스트가 아닌 파일(동영상, 그림, 프로그램)에 Bloom이 멈추지 않습니다. 열 수 없다고 알립니다.
+- 수정: 파일 이름에 '%41' 같은 퍼센트 코드가 든 노래를 '열 수 없는 파일이에요'로 건너뛰지 않고 재생합니다.
+- 수정: 런처에 붙여 둔 미니 플레이어나 도구 창을 런처가 숨은 상태에서 열면 이제 런처와 함께 나타납니다. 전에는 혼자 떠서 맨 위에 남았고, Bloom을 막 시작했을 때는 화면 밖에 열렸습니다.
+
 ## 0.16.0
 
 - Your own accent colour: Settings › General › Colour has a "Custom" dot. Type a code like `#3A7BD5` and press Enter to use it. The window and tray icons and the launcher's logo now follow the accent colour; rose, the default, looks as before. Thanks to @horseman777777-sketch (#7).
