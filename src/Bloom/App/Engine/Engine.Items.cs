@@ -5,6 +5,7 @@ using System.Linq;
 using Bloom.Ai;
 using Bloom.Browser;
 using Bloom.Core;
+using Bloom.Music;
 using Bloom.Search;
 
 namespace Bloom.App;
@@ -129,7 +130,7 @@ internal sealed partial class Engine
             item.PrimaryLabel = Tr("실행", "Run");
             item.Run = () => host.RunCommand(e.Id);
             item.StayOpen = e.Id is "cmd:ai" or "cmd:layout" or "cmd:winget" or "cmd:threads" or "cmd:files" or "cmd:clipboard" or "cmd:calendar" or "cmd:quicklinks" or "cmd:commands" or "cmd:processes" or "cmd:lens" or "cmd:pin" or "cmd:capture" or "cmd:timer" or "cmd:color" or "cmd:space" or "cmd:settings" or "cmd:welcome" or "cmd:export" or "cmd:import" or "cmd:reindex" or "cmd:restart" or "cmd:shutdown"
-                or "cmd:windows" or "cmd:emoji" or "cmd:recent" or "cmd:system" or "cmd:quick" or "cmd:notes" or "cmd:tools";
+                or "cmd:windows" or "cmd:emoji" or "cmd:recent" or "cmd:system" or "cmd:quick" or "cmd:notes" or "cmd:player" or "cmd:tools";
         }
         else
         {
@@ -195,6 +196,21 @@ internal sealed partial class Engine
             if (item.Side is { } admin) list.Insert(1, admin);
             if (!folder && DocFile.IsMarkdown(path) && Features.On("docs"))
                 list.Insert(0, new ActionItem { Title = Tr("Bloom으로 보기", "View in Bloom"), Glyph = G.Page, Run = () => { Usage.Touch(id); host.OpenDoc(path); } });
+            if (!folder && AudioFiles.IsAudio(path) && Features.On("player"))
+            {
+                list.Insert(0, new ActionItem
+                {
+                    Title = Tr("대기열에 추가", "Add to the queue"),
+                    Glyph = G.Add,
+                    StayOpen = true,
+                    Run = () =>
+                    {
+                        MusicPlayer.Enqueue(path);
+                        host.Window.ShowToast(Tr($"‘{name}’ 대기열에 추가 요청 · {PlayerWays.NameOf(MusicPlayer.Way)}", $"Asked to add ‘{name}’ to the queue · {PlayerWays.NameOf(MusicPlayer.Way)}"));
+                    },
+                });
+                list.Insert(0, new ActionItem { Title = Tr("미니 플레이어로 재생", "Play in mini player"), Glyph = PlayerGlyph.Play, Run = () => { Usage.Touch(id); host.Tools.Open("player"); MusicPlayer.Play(path); } });
+            }
             list.AddRange(FileActions(path, name, folder));
             if (ext is ".ps1" or ".bat" or ".cmd" or ".exe")
                 list.Add(new ActionItem { Title = Tr("사용자 명령에 추가…", "Add to custom commands…"), Glyph = G.Bolt, StayOpen = true, Run = () => host.Window.StartForm(CommandForm("script", null, path.Contains(' ') ? $"\"{path}\"" : path)) });

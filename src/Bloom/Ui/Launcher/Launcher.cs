@@ -567,7 +567,7 @@ internal sealed partial class Launcher : Window, IChatHost
     {
         bool chatMode = Mode == Mode.Chat;
         attachButton.Visibility = chatMode ? Visibility.Visible : Visibility.Collapsed;
-        toolsButton.Visibility = !chatMode && Features.On("notes") ? Visibility.Visible : Visibility.Collapsed;
+        toolsButton.Visibility = !chatMode && (Features.On("notes") || Features.On("player")) ? Visibility.Visible : Visibility.Collapsed;
         settingsButton.Visibility = chatMode ? Visibility.Collapsed : Visibility.Visible;
         pinButton.Visibility = chatMode || Pinned ? Visibility.Visible : Visibility.Collapsed;
     }
@@ -576,13 +576,13 @@ internal sealed partial class Launcher : Window, IChatHost
     /// open, the menu closes.
     public void OpenTools()
     {
-        if (!Features.On("notes")) return; // switched off in 설정 > 기능
+        if (!Features.On("notes") && !Features.On("player")) return; // switched off in 설정 > 기능
         if (actions.IsOpen && actions.Heading == Tr("도구", "Tools"))
         {
             actions.Close();
             return;
         }
-        var items = ToolDock.Kinds.Select(k => new ActionItem
+        var items = ToolDock.Kinds.Where(k => Features.On(k.key == "player" ? "player" : "notes")).Select(k => new ActionItem
         {
             Title = host.Tools.IsOpen(k.key) ? Tr($"{k.name} 닫기", $"Close {k.name}") : Tr($"{k.name} 붙이기", $"Attach {k.name}"),
             Glyph = k.glyph,

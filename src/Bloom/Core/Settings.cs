@@ -120,6 +120,13 @@ internal sealed class Settings
     public const int MdTextMin = 10, MdTextMax = 28, MdTextDefault = 14;
     public int[] DocSize { get; set; } = { 760, 720 }; // the last document window's width and height (Ui\DocWindow.cs): dip at 100 % (Scale multiplies it)
     public List<ToolPlace> Tools { get; set; } = new(); // the open tool windows (Ui\Tools\ToolDock.cs)
+    // 미니 플레이어 (Music\MusicPlayer.cs)
+    public string PlayerMode { get; set; } = "direct"; // direct (Bloom plays the file) | jriver | foobar | musicbee (PlayerWays)
+    public int PlayerVolume { get; set; } = 70; // 0 … 100, direct playing
+    public string JriverAddress { get; set; } = ""; // JRiver's web service (MCWS); empty: http://localhost:52199. Its password is in ApiKeys (MusicPlayer.JriverKey)
+    public string JriverUser { get; set; } = "";
+    public string FoobarPath { get; set; } = ""; // foobar2000.exe; empty: found by itself (PlayerExe)
+    public string MusicBeePath { get; set; } = ""; // MusicBee.exe; empty: found by itself
     public int Width { get; set; } = DefaultWidth; // the launcher as last sized by hand: dip at 100 % (Scale multiplies it)
     public int Height { get; set; } = DefaultHeight;
     public const int DefaultWidth = 760, DefaultHeight = 476; // 설정 > 일반 > 런처 창 크기 puts it back to these

@@ -61,6 +61,9 @@ internal sealed partial class Host
             case "cmd:notes":
                 Tools.Open("notes");
                 break;
+            case "cmd:player":
+                Tools.Open("player");
+                break;
             case "cmd:tools":
                 Window.OpenTools();
                 break;

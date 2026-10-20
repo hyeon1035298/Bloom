@@ -31,6 +31,7 @@ internal sealed class ToolDock
         ("calc", Tr("계산기", "Calculator"), G.Calculator),
         ("clipboard", Tr("클립보드", "Clipboard"), G.Paste),
         ("keys", Tr("단축키", "Shortcuts"), G.Keyboard),
+        ("player", Tr("미니 플레이어", "Mini player"), Music.PlayerGlyph.Music),
     };
 
     public ToolDock(Host host)
@@ -64,6 +65,7 @@ internal sealed class ToolDock
         "timers" => new TimerTool(),
         "calc" => new CalcTool(),
         "keys" => new KeysTool(host),
+        "player" => new PlayerTool(),
         _ => new ClipTool(host),
     };
 
