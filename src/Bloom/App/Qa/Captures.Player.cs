@@ -19,6 +19,48 @@ internal static partial class Captures
 {
     private static string PlayerLine() => (MusicPlayer.Artist.Length > 0 ? MusicPlayer.Artist + " — " : "") + MusicPlayer.Title;
 
+    /// 다른 앱 (the player window open, the direct way, Bloom playing nothing): the sessions as the player reads them —
+    /// the user's own only by app and state, never their titles — and, for BLOOM_QA_OTHER (an app id part of a test page
+    /// of the run's own, never the user's apps), its buttons pressed and the answer after each.
+    private static async Task OtherAppScreens(Host host, Launcher w, string dir, StringBuilder log)
+    {
+        string mine = Environment.GetEnvironmentVariable("BLOOM_QA_OTHER") ?? "";
+        MediaNow? Test() => mine.Length == 0 ? null : OtherApps.Sessions.FirstOrDefault(s => s.App.Contains(mine, StringComparison.OrdinalIgnoreCase));
+        MusicPlayer.Stop();
+        for (int i = 0; i < 40 && OtherApps.Sessions.Count == 0; i++) await Task.Delay(100);
+        await Task.Delay(2500); // the pictures come a poll or two later
+        foreach (var s in OtherApps.Sessions)
+        {
+            bool test = mine.Length > 0 && s.App.Contains(mine, StringComparison.OrdinalIgnoreCase);
+            log.AppendLine($"other app: {OtherApps.NameOf(s.App)} ({s.App}) | {s.Status} | {(test ? $"'{s.Artist} — {s.Title}' album '{s.Album}' | " : "")}buttons {s.CanPrevious}/{s.CanToggle}/{s.CanNext} seek={s.CanSeek} shuffle={s.Shuffle?.ToString() ?? "-"} repeat={s.Repeat?.ToString() ?? "-"} | picture={OtherApps.ArtOf(s) is not null} | position {OtherApps.PositionOf(s, DateTime.UtcNow):mm\\:ss} / {s.Length:mm\\:ss}");
+        }
+        log.AppendLine($"other app on top: {(OtherApps.Current is { } top ? OtherApps.NameOf(top.App) : "none")}");
+        if (Test() is { } t)
+        {
+            async Task Step(string name, Action act)
+            {
+                act();
+                await Task.Delay(1500);
+                var now = Test();
+                log.AppendLine($"other app: {name} → {now?.Status} '{now?.Title}' position {(now is null ? "" : OtherApps.PositionOf(now, DateTime.UtcNow).ToString(@"mm\:ss"))}");
+            }
+            await Step("toggle", () => OtherApps.Press(Test()!, PlayerOp.Toggle));
+            await Step("toggle", () => OtherApps.Press(Test()!, PlayerOp.Toggle));
+            await Step("next", () => OtherApps.Press(Test()!, PlayerOp.Next));
+            await Step("previous", () => OtherApps.Press(Test()!, PlayerOp.Previous));
+            await Step("seek half", () => OtherApps.Seek(Test()!, 0.5));
+        }
+        Theme.Apply("dark");
+        await Group(host, w, dir, "dark-p6-player-other-app");
+        if (host.Tools.Find("player")?.Tool is PlayerTool shown)
+        {
+            shown.ShowTab("apps");
+            await Task.Delay(300);
+            await Group(host, w, dir, "dark-p6b-player-apps");
+            shown.ShowTab("queue");
+        }
+    }
+
     private static async Task PlayerScreens(Host host, Launcher w, string dir)
     {
         var log = new StringBuilder();
@@ -117,10 +159,10 @@ internal static partial class Captures
         if (host.Tools.Find("player")?.Tool is PlayerTool shown)
         {
             Theme.Apply("dark");
-            shown.ShowShelf(true);
+            shown.ShowTab("lists");
             await Task.Delay(300);
             await Group(host, w, dir, "dark-p1b-player-lists");
-            shown.ShowShelf(false);
+            shown.ShowTab("queue");
         }
         if (saved is not null) System.IO.File.Delete(saved);
         (MusicPlayer.Repeat, MusicPlayer.Shuffle) = (repeatWas, shuffleWas);
@@ -165,6 +207,7 @@ internal static partial class Captures
         }
         Settings.Current.PlayerMode = PlayerWays.Direct;
         MusicPlayer.ModeChanged();
+        await OtherAppScreens(host, w, dir, log);
         host.Tools.Close(host.Tools.Find("player")!);
 
         // 설정 > 도구 > 미니 플레이어

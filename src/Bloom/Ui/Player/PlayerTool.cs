@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -9,17 +10,18 @@ using Bloom.Search;
 namespace Bloom.Ui;
 
 /// 미니 플레이어: the song that is on (its cover, title, artist and album), 무작위 · 이전 · 재생/일시정지 · 다음 · 반복, the
-/// progress bar (a drag moves it when Bloom plays the file itself), the volume, and below the queue or Bloom's 재생목록
-/// (direct; another player keeps its own). A view of MusicPlayer: closing it leaves the music on.
+/// progress bar (a drag moves it when Bloom plays the file itself), the volume, and below the queue, Bloom's 재생목록 or
+/// 다른 앱 (direct; another player keeps its own). When Bloom itself plays nothing, the top shows what another app plays
+/// (Spotify, a browser: OtherApps) and its buttons steer that app. A view of MusicPlayer: closing it leaves the music on.
 internal sealed class PlayerTool : ITool
 {
     /// The cover's side in pixels: sharp on the 56-dip square up to 225 % scaling.
     private const int ArtPixels = 128;
 
     private readonly Grid view = new() { Focusable = true };
-    private readonly TextBlock title, artist, note, clock, queueTitle, count;
+    private readonly TextBlock source, title, artist, note, clock, queueTitle, count;
     private readonly SeekBar progress, volume;
-    private readonly SmoothBorder playButton, clearButton, shuffleButton, repeatButton, art;
+    private readonly SmoothBorder playButton, previousButton, nextButton, clearButton, shuffleButton, repeatButton, art;
     private readonly TextBlock playGlyph, shuffleGlyph, repeatGlyph, artGlyph;
     private readonly Grid volumeBox = new();
     private readonly TextBlock volumeGlyph;
@@ -36,8 +38,20 @@ internal sealed class PlayerTool : ITool
     private readonly TextBlock shelfNote;
     private int shelfCount;
 
-    /// The song whose cover is asked for or shown.
+    // ── 다른 앱 ──
+    private readonly StackPanel others = new() { Margin = new Thickness(6, 2, 6, 8) };
+    private string othersKey = "";
+
+    /// Another app's song on top (Bloom plays nothing), or null: Bloom's own.
+    private MediaNow? shown;
+
+    /// The song whose cover is asked for, and its cover once come.
     private string? artFor;
+    private ImageSource? ownArt;
+
+    /// What the cover square shows now (set once per change).
+    private ImageSource? cover;
+    private bool coverSet;
 
     public string Key => "player";
     public string Name => Tr("미니 플레이어", "Mini player");
@@ -47,6 +61,8 @@ internal sealed class PlayerTool : ITool
     public string? State => null;
 
     private bool OnShelf => tabs.Value == "lists";
+
+    private bool OnApps => tabs.Value == "apps";
 
     public PlayerTool()
     {
@@ -65,6 +81,7 @@ internal sealed class PlayerTool : ITool
         art = new SmoothBorder { Width = 56, Height = 56, CornerRadius = new CornerRadius(8), Background = Theme.P.Tile, Margin = new Thickness(0, 0, 12, 0), VerticalAlignment = VerticalAlignment.Top, Child = artGlyph };
         song.Children.Add(art);
         var words = new StackPanel { VerticalAlignment = VerticalAlignment.Center };
+        source = Theme.T("", 11, Theme.P.TextFaint, Theme.Medium);
         title = Theme.T("", 15, Theme.P.Text, Theme.Semi);
         artist = Theme.T("", 12.5, Theme.P.TextDim);
         artist.TextWrapping = TextWrapping.Wrap;
@@ -72,6 +89,7 @@ internal sealed class PlayerTool : ITool
         note = Theme.T("", 11.5, Theme.P.Danger);
         note.TextWrapping = TextWrapping.Wrap;
         note.TextTrimming = TextTrimming.None;
+        words.Children.Add(source);
         words.Children.Add(title);
         words.Children.Add(artist);
         words.Children.Add(note);
@@ -83,7 +101,7 @@ internal sealed class PlayerTool : ITool
         bar.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
         bar.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
         progress = new SeekBar();
-        progress.Chosen += MusicPlayer.Seek;
+        progress.Chosen += SeekTo;
         clock = Theme.T("", 11, Theme.P.TextFaint);
         Grid.SetRow(clock, 1);
         bar.Children.Add(progress);
@@ -95,11 +113,12 @@ internal sealed class PlayerTool : ITool
         controls.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
         controls.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
         var buttons = new StackPanel { Orientation = Orientation.Horizontal };
-        shuffleButton = ToolUi.Button(PlayerGlyph.Shuffle, "", () => MusicPlayer.Shuffle = !MusicPlayer.Shuffle);
+        shuffleButton = ToolUi.Button(PlayerGlyph.Shuffle, "", ToggleShuffle);
         shuffleGlyph = (TextBlock)shuffleButton.Child;
         buttons.Children.Add(shuffleButton);
-        buttons.Children.Add(ToolUi.Button(PlayerGlyph.Previous, Tr("이전 곡 (3초 넘게 들었으면 처음부터)", "Previous (from the start after 3 s)"), MusicPlayer.Previous));
-        playButton = ToolUi.Button(PlayerGlyph.Play, Tr("재생 · 일시정지 (Space)", "Play · pause (Space)"), MusicPlayer.Toggle);
+        previousButton = ToolUi.Button(PlayerGlyph.Previous, Tr("이전 곡 (3초 넘게 들었으면 처음부터)", "Previous (from the start after 3 s)"), Previous);
+        buttons.Children.Add(previousButton);
+        playButton = ToolUi.Button(PlayerGlyph.Play, Tr("재생 · 일시정지 (Space)", "Play · pause (Space)"), TogglePlay);
         playButton.Width = playButton.Height = 34;
         playButton.CornerRadius = new CornerRadius(17);
         playButton.Margin = new Thickness(4, 0, 4, 0);
@@ -110,8 +129,9 @@ internal sealed class PlayerTool : ITool
         playButton.MouseEnter += (_, _) => playButton.Background = Theme.P.Accent;
         playButton.MouseLeave += (_, _) => playButton.Background = Theme.P.AccentSoft;
         buttons.Children.Add(playButton);
-        buttons.Children.Add(ToolUi.Button(PlayerGlyph.Next, Tr("다음 곡", "Next song"), MusicPlayer.Next));
-        repeatButton = ToolUi.Button(PlayerGlyph.RepeatAll, "", MusicPlayer.CycleRepeat);
+        nextButton = ToolUi.Button(PlayerGlyph.Next, Tr("다음 곡", "Next song"), Next);
+        buttons.Children.Add(nextButton);
+        repeatButton = ToolUi.Button(PlayerGlyph.RepeatAll, "", CycleRepeat);
         repeatGlyph = (TextBlock)repeatButton.Child;
         buttons.Children.Add(repeatButton);
         controls.Children.Add(buttons);
@@ -141,7 +161,7 @@ internal sealed class PlayerTool : ITool
         heading.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
         heading.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
         queueTitle = Theme.T("", 11.5, Theme.P.TextFaint, Theme.Medium);
-        tabs = new Segmented(new[] { ("queue", Tr("대기열", "Queue")), ("lists", Tr("재생목록", "Playlists")) }, "queue") { HorizontalAlignment = HorizontalAlignment.Left };
+        tabs = new Segmented(new[] { ("queue", Tr("대기열", "Queue")), ("lists", Tr("재생목록", "Playlists")), ("apps", Tr("다른 앱", "Other apps")) }, "queue") { HorizontalAlignment = HorizontalAlignment.Left };
         tabs.Picked += _ => ShowTab();
         count = Theme.T("", 11.5, Theme.P.TextFaint, null, false);
         count.VerticalAlignment = VerticalAlignment.Center;
@@ -178,7 +198,7 @@ internal sealed class PlayerTool : ITool
         {
             if (e.Key != System.Windows.Input.Key.Space || e.OriginalSource is TextBox) return; // the playlist's name takes its spaces
             e.Handled = true;
-            MusicPlayer.Toggle();
+            TogglePlay();
         };
         view.MouseDown += (_, _) => view.Focus();
         MusicPlayer.Changed += Refresh;
@@ -193,10 +213,32 @@ internal sealed class PlayerTool : ITool
         volume.ToolTip = Tr($"볼륨 {MusicPlayer.Volume}", $"Volume {MusicPlayer.Volume}");
     }
 
-    /// Everything the view shows, from the player.
+    /// Everything the view shows, from the player (or from another app when Bloom plays nothing).
     private void Refresh()
     {
+        bool direct = !MusicPlayer.External;
+        shown = !direct || MusicPlayer.IsPlaying || MusicPlayer.IsPaused ? null : OtherApps.Current;
+        if (shown is { } other) ShowOther(other);
+        else ShowOwn();
+        ShowArt();
+        ShowVolume();
+        volumeBox.Visibility = direct && shown is null ? Visibility.Visible : Visibility.Collapsed;
+        tabs.Visibility = direct ? Visibility.Visible : Visibility.Collapsed;
+        queueTitle.Visibility = direct ? Visibility.Collapsed : Visibility.Visible;
+        if (!direct && tabs.Value != "queue") tabs.Set("queue");
+        clearButton.Visibility = direct && tabs.Value == "queue" ? Visibility.Visible : Visibility.Collapsed;
+        saveField.Visibility = MusicPlayer.Queue.Items.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
+        scroll.Content = OnShelf ? shelf : OnApps ? others : list;
+        count.Text = !direct || OnApps ? "" : OnShelf ? Tr($"{shelfCount}개", $"{shelfCount} playlists") : Tr($"{MusicPlayer.Queue.Items.Count}곡", $"{MusicPlayer.Queue.Items.Count} songs");
+        FillQueue();
+        FillOthers();
+    }
+
+    /// Bloom's own song (or the other player's the settings chose).
+    private void ShowOwn()
+    {
         bool has = MusicPlayer.HasSong;
+        source.Visibility = Visibility.Collapsed;
         title.Text = has ? MusicPlayer.Title : Tr("재생 중인 곡이 없어요", "Nothing is playing");
         title.Foreground = has ? Theme.P.Text : Theme.P.TextDim;
         artist.Text = has ? Join(MusicPlayer.Artist, MusicPlayer.Album) : MusicPlayer.External ? Tr($"{PlayerWays.NameOf(MusicPlayer.Way)}에서 곡을 틀거나, 파일 검색 결과에서 Ctrl+K", $"Play a song in {PlayerWays.NameOf(MusicPlayer.Way)}, or Ctrl+K on a file you searched") : Tr("파일 검색 결과의 오디오 파일에서 Ctrl+K › 미니 플레이어로 재생", "Ctrl+K on an audio file in the search results › Play in mini player");
@@ -204,42 +246,65 @@ internal sealed class PlayerTool : ITool
         note.Text = MusicPlayer.Note ?? "";
         note.Visibility = note.Text.Length > 0 ? Visibility.Visible : Visibility.Collapsed;
         playGlyph.Text = (MusicPlayer.IsPlaying ? PlayerGlyph.Pause : PlayerGlyph.Play).ToString();
-        ShowArt();
+        Usable(previousButton, true);
+        Usable(playButton, true);
+        Usable(nextButton, true);
 
         var len = MusicPlayer.Length;
         var pos = MusicPlayer.Position;
         progress.IsEnabled = MusicPlayer.CanSeek;
         progress.Value = len > TimeSpan.Zero ? pos / len : 0;
         clock.Text = has ? MusicPlayer.Clock(pos) + (len > TimeSpan.Zero ? " / " + MusicPlayer.Clock(len) : "") : "";
-
         bool direct = !MusicPlayer.External;
         volume.IsEnabled = direct;
-        volumeBox.Visibility = direct ? Visibility.Visible : Visibility.Collapsed;
-        ShowModes(direct);
-        ShowVolume();
-        tabs.Visibility = direct ? Visibility.Visible : Visibility.Collapsed;
-        queueTitle.Visibility = direct ? Visibility.Collapsed : Visibility.Visible;
-        if (!direct && OnShelf) tabs.Set("queue");
-        clearButton.Visibility = direct && !OnShelf ? Visibility.Visible : Visibility.Collapsed;
-        saveField.Visibility = MusicPlayer.Queue.Items.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
-        scroll.Content = OnShelf ? shelf : list;
-        count.Text = !direct ? "" : OnShelf ? Tr($"{shelfCount}개", $"{shelfCount} playlists") : Tr($"{MusicPlayer.Queue.Items.Count}곡", $"{MusicPlayer.Queue.Items.Count} songs");
-        FillQueue();
+        ShowModes(direct, MusicPlayer.Shuffle, MusicPlayer.Repeat);
+    }
+
+    /// Another app's song: where it plays, its title, artist and album, its buttons as far as it takes them.
+    private void ShowOther(MediaNow other)
+    {
+        source.Text = Tr($"{OtherApps.NameOf(other.App)}에서 재생", $"Playing in {OtherApps.NameOf(other.App)}");
+        source.Visibility = Visibility.Visible;
+        title.Text = other.Title;
+        title.Foreground = Theme.P.Text;
+        artist.Text = Join(other.Artist, other.Album);
+        artist.Visibility = artist.Text.Length > 0 ? Visibility.Visible : Visibility.Collapsed;
+        note.Visibility = Visibility.Collapsed;
+        playGlyph.Text = (other.Status == MediaStatus.Playing ? PlayerGlyph.Pause : PlayerGlyph.Play).ToString();
+        Usable(previousButton, other.CanPrevious);
+        Usable(playButton, other.CanToggle);
+        Usable(nextButton, other.CanNext);
+
+        var len = other.Length;
+        var pos = OtherApps.PositionOf(other, DateTime.UtcNow);
+        progress.IsEnabled = other.CanSeek && len > TimeSpan.Zero;
+        progress.Value = len > TimeSpan.Zero ? pos / len : 0;
+        clock.Text = len > TimeSpan.Zero ? MusicPlayer.Clock(pos) + " / " + MusicPlayer.Clock(len) : "";
+        ShowModes(true, other.CanShuffle ? other.Shuffle : null, other.CanRepeat ? other.Repeat : null);
+    }
+
+    /// A button that works lit, one the app does not take faded.
+    private static void Usable(UIElement button, bool on)
+    {
+        button.IsEnabled = on;
+        button.Opacity = on ? 1 : 0.35;
     }
 
     private static string Join(string a, string b) => a.Length > 0 && b.Length > 0 ? a + " · " + b : a + b;
 
-    /// 무작위 and 반복: lit (accent) when on, the tooltip says what a click does. Only the direct way has them.
-    private void ShowModes(bool direct)
+    /// 무작위 and 반복: lit (accent) when on, the tooltip says what a click does; hidden where they don't work (another
+    /// player chosen, or an app that does not take them: null).
+    private void ShowModes(bool show, bool? shuffle, Repeat? repeat)
     {
-        shuffleButton.Visibility = repeatButton.Visibility = direct ? Visibility.Visible : Visibility.Collapsed;
-        bool shuffle = MusicPlayer.Shuffle;
-        shuffleGlyph.Foreground = shuffle ? Theme.P.Accent : Theme.P.TextDim;
-        shuffleButton.ToolTip = shuffle ? Tr("무작위 재생 켜짐 · 누르면 끔", "Shuffle on · click to turn off") : Tr("무작위 재생 꺼짐 · 누르면 켬", "Shuffle off · click to turn on");
-        var repeat = MusicPlayer.Repeat;
-        repeatGlyph.Text = (repeat == Repeat.One ? PlayerGlyph.RepeatOne : PlayerGlyph.RepeatAll).ToString();
-        repeatGlyph.Foreground = repeat == Repeat.Off ? Theme.P.TextDim : Theme.P.Accent;
-        repeatButton.ToolTip = repeat switch
+        shuffleButton.Visibility = show && shuffle is not null ? Visibility.Visible : Visibility.Collapsed;
+        repeatButton.Visibility = show && repeat is not null ? Visibility.Visible : Visibility.Collapsed;
+        bool on = shuffle == true;
+        shuffleGlyph.Foreground = on ? Theme.P.Accent : Theme.P.TextDim;
+        shuffleButton.ToolTip = on ? Tr("무작위 재생 켜짐 · 누르면 끔", "Shuffle on · click to turn off") : Tr("무작위 재생 꺼짐 · 누르면 켬", "Shuffle off · click to turn on");
+        var r = repeat ?? Repeat.Off;
+        repeatGlyph.Text = (r == Repeat.One ? PlayerGlyph.RepeatOne : PlayerGlyph.RepeatAll).ToString();
+        repeatGlyph.Foreground = r == Repeat.Off ? Theme.P.TextDim : Theme.P.Accent;
+        repeatButton.ToolTip = r switch
         {
             Repeat.All => Tr("전체 반복 · 누르면 한 곡 반복", "Repeat all · click for repeat one"),
             Repeat.One => Tr("한 곡 반복 · 누르면 반복 끔", "Repeat one · click to turn off"),
@@ -247,24 +312,131 @@ internal sealed class PlayerTool : ITool
         };
     }
 
-    /// The song's cover (direct): asked for when the song changes, a music note on a tile until it comes or without one.
+    // ── the buttons: Bloom's own song, or the app's on top ──────────────────────────────────────
+    private void TogglePlay()
+    {
+        if (shown is { } other) OtherApps.Press(other, PlayerOp.Toggle);
+        else MusicPlayer.Toggle();
+    }
+
+    private void Previous()
+    {
+        if (shown is { } other) OtherApps.Press(other, PlayerOp.Previous);
+        else MusicPlayer.Previous();
+    }
+
+    private void Next()
+    {
+        if (shown is { } other) OtherApps.Press(other, PlayerOp.Next);
+        else MusicPlayer.Next();
+    }
+
+    private void SeekTo(double fraction)
+    {
+        if (shown is { } other) OtherApps.Seek(other, fraction);
+        else MusicPlayer.Seek(fraction);
+    }
+
+    private void ToggleShuffle()
+    {
+        if (shown is { } other) OtherApps.ToggleShuffle(other);
+        else MusicPlayer.Shuffle = !MusicPlayer.Shuffle;
+    }
+
+    private void CycleRepeat()
+    {
+        if (shown is { } other) OtherApps.CycleRepeat(other);
+        else MusicPlayer.CycleRepeat();
+    }
+
+    /// The cover: Bloom's song's (asked for when the song changes), or the app's on top; a music note on a tile until it
+    /// comes or without one.
     private void ShowArt()
     {
-        string? song = MusicPlayer.External ? null : MusicPlayer.Queue.Current?.Path;
-        if (string.Equals(song, artFor, StringComparison.OrdinalIgnoreCase)) return;
-        artFor = song;
-        Cover(null);
-        if (song is null) return;
-        Icons.Art(song, ArtPixels, img =>
+        if (shown is { } other)
         {
-            if (string.Equals(song, artFor, StringComparison.OrdinalIgnoreCase)) Cover(img);
-        });
+            Cover(OtherApps.ArtOf(other));
+            return;
+        }
+        string? song = MusicPlayer.External ? null : MusicPlayer.Queue.Current?.Path;
+        if (!string.Equals(song, artFor, StringComparison.OrdinalIgnoreCase))
+        {
+            artFor = song;
+            ownArt = null;
+            if (song is not null)
+                Icons.Art(song, ArtPixels, img =>
+                {
+                    if (!string.Equals(song, artFor, StringComparison.OrdinalIgnoreCase)) return;
+                    ownArt = img;
+                    if (shown is null) Cover(img);
+                });
+        }
+        Cover(ownArt);
     }
 
     private void Cover(ImageSource? img)
     {
+        if (coverSet && ReferenceEquals(img, cover)) return;
+        cover = img;
+        coverSet = true;
         art.Background = img is null ? Theme.P.Tile : new ImageBrush(img) { Stretch = Stretch.UniformToFill };
         artGlyph.Visibility = img is null ? Visibility.Visible : Visibility.Collapsed;
+    }
+
+    /// 다른 앱: every app that tells Windows a song, with its picture, its name and its buttons. Rebuilt when one changes.
+    private void FillOthers()
+    {
+        var all = OtherApps.Sessions;
+        string key = string.Join("\n", all.Select(s => $"{s.App}|{s.Title}|{s.Artist}|{s.Status}|{s.CanPrevious}{s.CanToggle}{s.CanNext}|{OtherApps.ArtOf(s) is not null}"));
+        if (key == othersKey) return;
+        othersKey = key;
+        others.Children.Clear();
+        if (all.Count == 0)
+        {
+            others.Children.Add(ToolUi.Empty(Tr("재생 중인 다른 앱 없음 · Spotify나 브라우저에서 재생하면 여기에 나옵니다", "No other app is playing · play something in Spotify or a browser and it shows here")));
+            return;
+        }
+        foreach (var s in all)
+        {
+            var row = new Grid();
+            row.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+            row.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+            for (int i = 0; i < 3; i++) row.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+            var img = OtherApps.ArtOf(s);
+            var glyph = Theme.Glyph(PlayerGlyph.Music, 13, Theme.P.TextFaint);
+            glyph.HorizontalAlignment = HorizontalAlignment.Center;
+            glyph.VerticalAlignment = VerticalAlignment.Center;
+            row.Children.Add(new SmoothBorder
+            {
+                Width = 36,
+                Height = 36,
+                CornerRadius = new CornerRadius(6),
+                Margin = new Thickness(0, 0, 10, 0),
+                Background = img is null ? Theme.P.Tile : new ImageBrush(img) { Stretch = Stretch.UniformToFill },
+                Child = img is null ? glyph : null,
+            });
+            var text = new StackPanel { VerticalAlignment = VerticalAlignment.Center };
+            text.Children.Add(Theme.T(s.Title, 13, Theme.P.Text));
+            text.Children.Add(Theme.T(Join(OtherApps.NameOf(s.App), s.Artist), 11, Theme.P.TextFaint));
+            Grid.SetColumn(text, 1);
+            row.Children.Add(text);
+            var buttons = new (char glyph, string tip, PlayerOp op, bool on)[]
+            {
+                (PlayerGlyph.Previous, Tr("이전 곡", "Previous song"), PlayerOp.Previous, s.CanPrevious),
+                (s.Status == MediaStatus.Playing ? PlayerGlyph.Pause : PlayerGlyph.Play, Tr("재생 · 일시정지", "Play · pause"), PlayerOp.Toggle, s.CanToggle),
+                (PlayerGlyph.Next, Tr("다음 곡", "Next song"), PlayerOp.Next, s.CanNext),
+            };
+            for (int i = 0; i < buttons.Length; i++)
+            {
+                var (g, tip, op, on) = buttons[i];
+                var b = ToolUi.Button(g, tip, () => OtherApps.Press(s, op));
+                b.Width = b.Height = 24;
+                Usable(b, on);
+                Grid.SetColumn(b, 2 + i);
+                row.Children.Add(b);
+            }
+            others.Children.Add(ToolUi.Row(row, null));
+        }
     }
 
     private void ShowTab()
@@ -273,10 +445,10 @@ internal sealed class PlayerTool : ITool
         Refresh();
     }
 
-    /// The 재생목록 tab (true) or the queue's, as a click on it would (QA).
-    public void ShowShelf(bool on)
+    /// A tab ("queue", "lists", "apps"), as a click on it would (QA).
+    public void ShowTab(string tab)
     {
-        tabs.Set(on ? "lists" : "queue");
+        tabs.Set(tab);
         ShowTab();
     }
 

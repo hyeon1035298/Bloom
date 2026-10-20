@@ -1774,18 +1774,23 @@ Play · pause (Space)	播放 · 暂停 (Space)
 Next song	下一首
 Queue	播放队列
 Playlists	播放列表
+Other apps	其他应用
 Save the queue as…	保存播放队列的名称
 Clear the queue (the song on stays)	清空播放队列（保留当前歌曲）
 Volume {0}	音量 {0}
+{0} playlists	{0} 个
 Nothing is playing	没有正在播放的歌曲
 Play a song in {0}, or Ctrl+K on a file you searched	在 {0} 中播放歌曲，或在搜索到的文件上按 Ctrl+K
 Ctrl+K on an audio file in the search results › Play in mini player	在搜索结果的音频文件上按 Ctrl+K › 用迷你播放器播放
-{0} playlists	{0} 个
+Playing in {0}	正在 {0} 中播放
 Shuffle on · click to turn off	随机播放已开启 · 点击关闭
 Shuffle off · click to turn on	随机播放已关闭 · 点击开启
 Repeat all · click for repeat one	全部循环 · 点击切换为单曲循环
 Repeat one · click to turn off	单曲循环 · 点击关闭循环
 Repeat off · click for repeat all	循环已关闭 · 点击切换为全部循环
+No other app is playing · play something in Spotify or a browser and it shows here	没有正在播放的其他应用 · 在 Spotify 或浏览器中播放后会显示在这里
+Previous song	上一首
+Play · pause	播放 · 暂停
 Playing in {0} — see the queue there	正在 {0} 中播放 — 请在 {0} 中查看播放队列
 Empty — Ctrl+K on an audio file › Add to the queue	空 — 在音频文件上按 Ctrl+K › 添加到播放队列
 Take out of the queue	从播放队列中移除

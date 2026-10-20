@@ -1774,18 +1774,23 @@ Play · pause (Space)	再生 · 一時停止 (Space)
 Next song	次の曲
 Queue	キュー
 Playlists	プレイリスト
+Other apps	他のアプリ
 Save the queue as…	キューを保存する名前
 Clear the queue (the song on stays)	キューをクリア (再生中の曲は残ります)
 Volume {0}	音量 {0}
+{0} playlists	{0} 件
 Nothing is playing	再生中の曲はありません
 Play a song in {0}, or Ctrl+K on a file you searched	{0} で曲を再生するか、検索したファイルで Ctrl+K
 Ctrl+K on an audio file in the search results › Play in mini player	検索結果のオーディオファイルで Ctrl+K › ミニプレーヤーで再生
-{0} playlists	{0} 件
+Playing in {0}	{0} で再生中
 Shuffle on · click to turn off	シャッフル オン · クリックでオフ
 Shuffle off · click to turn on	シャッフル オフ · クリックでオン
 Repeat all · click for repeat one	全曲リピート · クリックで1曲リピート
 Repeat one · click to turn off	1曲リピート · クリックでリピート オフ
 Repeat off · click for repeat all	リピート オフ · クリックで全曲リピート
+No other app is playing · play something in Spotify or a browser and it shows here	再生中の他のアプリなし · Spotify やブラウザーで再生するとここに表示されます
+Previous song	前の曲
+Play · pause	再生 · 一時停止
 Playing in {0} — see the queue there	{0} で再生中 — キューは {0} で確認してください
 Empty — Ctrl+K on an audio file › Add to the queue	空です — オーディオファイルで Ctrl+K › キューに追加
 Take out of the queue	キューから外す

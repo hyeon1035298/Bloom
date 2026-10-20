@@ -7,12 +7,14 @@ Each release on GitHub shows its section from this file (the workflow looks for 
 - Mini player: the song's cover shows next to its title — the picture inside the file, or the album picture in its folder (cover.jpg, folder.jpg and the like). Songs show their real title, artist and album instead of the file name.
 - Mini player: repeat (off, all, one) and shuffle buttons around play. Shuffle plays every song once before any comes back; with repeat all, each new round is shuffled again. Both are remembered.
 - Mini player: playlists. Type a name under Playlists and press Enter to save the queue; click a playlist to play it, ＋ to add it after the queue. Playlists made by other players (.m3u, .m3u8) open from the search (Ctrl+K) or from Explorer with Bloom. A playlist that names a program or a web address plays only its songs.
+- Mini player: songs playing in other apps — Spotify, or YouTube in a browser — show in the mini player while Bloom itself plays nothing, with their cover and the app's name. Its buttons pause, skip and move the app's song; Bloom doesn't play them itself. The "Other apps" tab lists every app that is playing.
 
 ### 한국어
 
 - 미니 플레이어: 곡 제목 옆에 표지가 나옵니다. 파일에 든 그림, 없으면 같은 폴더의 앨범 그림(cover.jpg, folder.jpg 같은 이름)을 씁니다. 파일 이름 대신 실제 제목·아티스트·앨범이 나옵니다.
 - 미니 플레이어: 재생 버튼 양옆에 반복(끔·전체·한 곡)과 무작위 버튼이 생겼습니다. 무작위는 모든 곡을 한 번씩 튼 다음에 다시 돌고, 전체 반복과 같이 켜면 한 바퀴마다 새로 섞습니다. 두 설정은 다음에 켜도 그대로입니다.
 - 미니 플레이어: 재생목록. 재생목록 탭에 이름을 넣고 Enter를 누르면 지금 대기열을 저장합니다. 목록을 누르면 재생하고, ＋는 대기열 뒤에 붙입니다. 다른 플레이어가 만든 재생목록(.m3u, .m3u8)도 검색(Ctrl+K)이나 탐색기에서 Bloom으로 열 수 있습니다. 재생목록에 프로그램이나 웹 주소가 들어 있으면 노래만 재생합니다.
+- 미니 플레이어: Bloom이 아무것도 재생하지 않을 때 다른 앱에서 재생 중인 곡(Spotify, 브라우저의 YouTube 등)이 표지와 앱 이름과 함께 나옵니다. 버튼으로 그 앱의 곡을 일시정지하고, 넘기고, 원하는 위치로 옮길 수 있습니다. 재생은 그 앱이 하고 Bloom은 조작만 합니다. '다른 앱' 탭에는 재생 중인 앱이 모두 나옵니다.
 
 ## 0.16.1
 

@@ -8,7 +8,21 @@ namespace Bloom.Music;
 /// A song a program tells Windows about (the volume overlay and the media keys show the same).
 internal enum MediaStatus { Closed, Opened, Changing, Stopped, Playing, Paused }
 
-internal sealed record MediaNow(string App, string Title, string Artist, MediaStatus Status, TimeSpan Position, TimeSpan Length, bool CanToggle, bool CanNext, bool CanPrevious, bool CanStop);
+internal sealed record MediaNow(string App, string Title, string Artist, MediaStatus Status, TimeSpan Position, TimeSpan Length, bool CanToggle, bool CanNext, bool CanPrevious, bool CanStop)
+{
+    public string Album { get; init; } = "";
+
+    /// When the app last told its position (it moves on from there while it plays).
+    public DateTime At { get; init; } = DateTime.UtcNow;
+
+    public bool CanSeek { get; init; }
+    public bool CanShuffle { get; init; }
+    public bool CanRepeat { get; init; }
+
+    /// The app's own 무작위 and 반복, when it tells them.
+    public bool? Shuffle { get; init; }
+    public Repeat? Repeat { get; init; }
+}
 
 /// Windows' media sessions (Windows.Media.Control: what the volume flyout lists): the song, the state and the buttons of
 /// a player that tells Windows about itself, and pressing those buttons. The WinRT classes are called through their COM
@@ -37,7 +51,30 @@ internal static class MediaSession
     public static Task<List<MediaNow>> AllAsync() => Task.Run(() => Safe(Sessions) ?? new List<MediaNow>());
 
     /// Presses a button on the player's session; false: no session, the button is off, or Windows refused.
-    public static Task<bool> ControlAsync(string way, PlayerOp op) => Task.Run(() => Safe(() => Press(way, op)));
+    public static Task<bool> ControlAsync(string way, PlayerOp op) => Task.Run(() => Safe(() => Press(id => Matches(way, id), s => Button(s, op))));
+
+    // ── another app's session, by its exact app id (다른 앱: Spotify, a browser …) ─────────────────────────────────
+    public static Task<bool> PressAsync(string app, PlayerOp op) => Task.Run(() => Safe(() => Press(id => id == app, s => Button(s, op))));
+
+    public static Task<bool> SeekAsync(string app, TimeSpan to) =>
+        Task.Run(() => Safe(() => Press(id => id == app, s => (s.TryChangePlaybackPositionAsync(Math.Max(0, to.Ticks), out IntPtr op), op))));
+
+    public static Task<bool> ShuffleAsync(string app, bool on) =>
+        Task.Run(() => Safe(() => Press(id => id == app, s => (s.TryChangeShuffleActiveAsync(on, out IntPtr op), op))));
+
+    public static Task<bool> RepeatAsync(string app, Repeat repeat) =>
+        Task.Run(() => Safe(() => Press(id => id == app, s => (s.TryChangeAutoRepeatModeAsync(ModeOf(repeat), out IntPtr op), op))));
+
+    /// The picture the app gives for its song (a cover, a video's thumbnail): the file's bytes, or null.
+    public static Task<byte[]?> ThumbnailAsync(string app) => Task.Run(() => Safe(() => Thumbnail(app)));
+
+    /// MediaPlaybackAutoRepeatMode (None 0, Track 1, List 2) ↔ 반복.
+    public static Repeat RepeatOfMode(int mode) => mode switch { 1 => Repeat.One, 2 => Repeat.All, _ => Repeat.Off };
+
+    public static int ModeOf(Repeat repeat) => repeat switch { Repeat.One => 1, Repeat.All => 2, _ => 0 };
+
+    /// A thumbnail larger than this is not read.
+    private const int MaxThumbnail = 4 * 1024 * 1024;
 
     private static T? Safe<T>(Func<T> f)
     {
@@ -95,6 +132,10 @@ internal static class MediaSession
         [PreserveSig] int TryChangeChannelUpAsync(out IntPtr operation);
         [PreserveSig] int TryChangeChannelDownAsync(out IntPtr operation);
         [PreserveSig] int TryTogglePlayPauseAsync(out IntPtr operation);
+        [PreserveSig] int TryChangeAutoRepeatModeAsync(int mode, out IntPtr operation);
+        [PreserveSig] int TryChangePlaybackRateAsync(double rate, out IntPtr operation);
+        [PreserveSig] int TryChangeShuffleActiveAsync([MarshalAs(UnmanagedType.U1)] bool on, out IntPtr operation);
+        [PreserveSig] int TryChangePlaybackPositionAsync(long ticks, out IntPtr operation);
     }
 
     [ComImport, Guid("68856cf6-adb4-54b2-ac16-05837907acb6"), InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
@@ -107,6 +148,12 @@ internal static class MediaSession
         [PreserveSig] int get_Subtitle(out IntPtr subtitle);
         [PreserveSig] int get_AlbumArtist(out IntPtr albumArtist);
         [PreserveSig] int get_Artist(out IntPtr artist);
+        [PreserveSig] int get_AlbumTitle(out IntPtr album);
+        [PreserveSig] int get_TrackNumber(out int number);
+        [PreserveSig] int get_Genres(out IntPtr genres);
+        [PreserveSig] int get_AlbumTrackCount(out int count);
+        [PreserveSig] int get_PlaybackType(out IntPtr type);
+        [PreserveSig] int get_Thumbnail(out IntPtr reference); // IRandomAccessStreamReference
     }
 
     [ComImport, Guid("94b4b6cf-e8ba-51ad-87a7-c10ade106127"), InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
@@ -117,6 +164,10 @@ internal static class MediaSession
         [PreserveSig] int GetTrustLevel(out int level);
         [PreserveSig] int get_Controls(out IntPtr controls);
         [PreserveSig] int get_PlaybackStatus(out int status);
+        [PreserveSig] int get_PlaybackType(out IntPtr type);
+        [PreserveSig] int get_AutoRepeatMode(out IntPtr mode); // IReference<MediaPlaybackAutoRepeatMode>
+        [PreserveSig] int get_PlaybackRate(out IntPtr rate);
+        [PreserveSig] int get_IsShuffleActive(out IntPtr on); // IReference<bool>
     }
 
     [ComImport, Guid("6501a3e6-bc7a-503a-bb1b-68f158f3fb03"), InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
@@ -136,6 +187,10 @@ internal static class MediaSession
         [PreserveSig] int get_IsChannelUpEnabled([MarshalAs(UnmanagedType.U1)] out bool on);
         [PreserveSig] int get_IsChannelDownEnabled([MarshalAs(UnmanagedType.U1)] out bool on);
         [PreserveSig] int get_IsPlayPauseToggleEnabled([MarshalAs(UnmanagedType.U1)] out bool on);
+        [PreserveSig] int get_IsShuffleEnabled([MarshalAs(UnmanagedType.U1)] out bool on);
+        [PreserveSig] int get_IsRepeatEnabled([MarshalAs(UnmanagedType.U1)] out bool on);
+        [PreserveSig] int get_IsPlaybackRateEnabled([MarshalAs(UnmanagedType.U1)] out bool on);
+        [PreserveSig] int get_IsPlaybackPositionEnabled([MarshalAs(UnmanagedType.U1)] out bool on);
     }
 
     [ComImport, Guid("ede34136-6f25-588d-8ecf-ea5b6735aaa5"), InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
@@ -149,6 +204,7 @@ internal static class MediaSession
         [PreserveSig] int get_MinSeekTime(out long ticks);
         [PreserveSig] int get_MaxSeekTime(out long ticks);
         [PreserveSig] int get_Position(out long ticks);
+        [PreserveSig] int get_LastUpdatedTime(out long universalTime); // DateTime: 100 ns since 1601, UTC
     }
 
     [DllImport("combase.dll")] private static extern int RoGetActivationFactory(IntPtr classId, ref Guid iid, out IntPtr factory);
@@ -156,6 +212,7 @@ internal static class MediaSession
     [DllImport("combase.dll")] private static extern int WindowsDeleteString(IntPtr hstring);
     [DllImport("combase.dll")] private static extern IntPtr WindowsGetStringRawBuffer(IntPtr hstring, out uint length);
     [DllImport("ole32.dll")] private static extern int CoIncrementMTAUsage(out IntPtr cookie);
+    [DllImport("shcore.dll")] private static extern int CreateStreamOverRandomAccessStream(IntPtr randomAccessStream, ref Guid iid, out IntPtr stream);
 
     private static readonly object Gate = new();
     private static IManager? manager;
@@ -337,15 +394,20 @@ internal static class MediaSession
     private static MediaNow Describe(ISession s)
     {
         s.get_SourceAppUserModelId(out IntPtr id);
-        string app = Text(id), title = "", artist = "";
+        string app = Text(id), title = "", artist = "", album = "";
         var status = MediaStatus.Closed;
-        bool toggle = false, next = false, previous = false, stop = false;
+        bool toggle = false, next = false, previous = false, stop = false, seek = false, canShuffle = false, canRepeat = false;
+        bool? shuffle = null;
+        Repeat? repeat = null;
         TimeSpan position = TimeSpan.Zero, length = TimeSpan.Zero;
+        var at = DateTime.UtcNow;
         if (s.GetPlaybackInfo(out IntPtr infoPtr) == 0 && As<IPlaybackInfo>(infoPtr) is { } info)
         {
             try
             {
                 if (info.get_PlaybackStatus(out int st) == 0) status = (MediaStatus)Math.Clamp(st, 0, 5);
+                if (info.get_AutoRepeatMode(out IntPtr modePtr) == 0 && Int(modePtr) is { } mode) repeat = RepeatOfMode(mode);
+                if (info.get_IsShuffleActive(out IntPtr shufflePtr) == 0) shuffle = Bool(shufflePtr);
                 if (info.get_Controls(out IntPtr controlsPtr) == 0 && As<IControls>(controlsPtr) is { } c)
                 {
                     try
@@ -354,6 +416,9 @@ internal static class MediaSession
                         c.get_IsNextEnabled(out next);
                         c.get_IsPreviousEnabled(out previous);
                         c.get_IsStopEnabled(out stop);
+                        c.get_IsShuffleEnabled(out canShuffle);
+                        c.get_IsRepeatEnabled(out canRepeat);
+                        c.get_IsPlaybackPositionEnabled(out seek);
                     }
                     finally
                     {
@@ -372,6 +437,7 @@ internal static class MediaSession
             {
                 if (t.get_Position(out long p) == 0) position = TimeSpan.FromTicks(Math.Max(0, p));
                 if (t.get_EndTime(out long e) == 0 && t.get_StartTime(out long b) == 0) length = TimeSpan.FromTicks(Math.Max(0, e - b));
+                if (t.get_LastUpdatedTime(out long told) == 0 && told > 0 && told < DateTime.MaxValue.ToFileTimeUtc()) at = DateTime.FromFileTimeUtc(told);
             }
             finally
             {
@@ -387,49 +453,165 @@ internal static class MediaSession
                 title = Text(titlePtr);
                 props.get_Artist(out IntPtr artistPtr);
                 artist = Text(artistPtr);
+                props.get_AlbumTitle(out IntPtr albumPtr);
+                album = Text(albumPtr);
             }
             finally
             {
                 Marshal.ReleaseComObject(props);
             }
         }
-        return new MediaNow(app, title, artist, status, position, length, toggle, next, previous, stop);
+        return new MediaNow(app, title, artist, status, position, length, toggle, next, previous, stop)
+        {
+            Album = album,
+            At = at,
+            CanSeek = seek,
+            CanShuffle = canShuffle,
+            CanRepeat = canRepeat,
+            Shuffle = shuffle,
+            Repeat = repeat,
+        };
     }
 
-    private static bool Press(string way, PlayerOp op)
+    /// An IReference<int> (a WinRT value that may be missing): its value, or null. Releases it.
+    private static int? Int(IntPtr reference)
     {
-        foreach (var session in Open())
+        if (reference == IntPtr.Zero) return null;
+        try
         {
-            try
+            return Call(reference, 6, out int v) == 0 ? v : null; // get_Value
+        }
+        finally
+        {
+            Marshal.Release(reference);
+        }
+    }
+
+    /// An IReference<bool>: its value, or null. Releases it.
+    private static bool? Bool(IntPtr reference)
+    {
+        if (reference == IntPtr.Zero) return null;
+        try
+        {
+            return Call(reference, 6, out byte v) == 0 ? v != 0 : null;
+        }
+        finally
+        {
+            Marshal.Release(reference);
+        }
+    }
+
+    /// Presses something on the first session `whose` app id it is; false: none, or the app said no.
+    private static bool Press(Func<string, bool> whose, Func<ISession, (int hr, IntPtr op)> act)
+    {
+        var sessions = Open();
+        try
+        {
+            foreach (var session in sessions)
             {
                 session.get_SourceAppUserModelId(out IntPtr id);
-                if (!Matches(way, Text(id))) continue;
-                IntPtr call;
-                int hr;
-                switch (op)
-                {
-                    case PlayerOp.Toggle:
-                        hr = session.TryTogglePlayPauseAsync(out call);
-                        break;
-                    case PlayerOp.Next:
-                        hr = session.TrySkipNextAsync(out call);
-                        break;
-                    case PlayerOp.Previous:
-                        hr = session.TrySkipPreviousAsync(out call);
-                        break;
-                    case PlayerOp.Stop:
-                        hr = session.TryStopAsync(out call);
-                        break;
-                    default:
-                        return false;
-                }
-                return Accepted(hr, call);
+                if (!whose(Text(id))) continue;
+                var (hr, op) = act(session);
+                return Accepted(hr, op);
             }
-            finally
-            {
-                Marshal.ReleaseComObject(session);
-            }
+            return false;
         }
-        return false;
+        finally
+        {
+            foreach (var session in sessions) Marshal.ReleaseComObject(session);
+        }
+    }
+
+    private static (int hr, IntPtr op) Button(ISession session, PlayerOp op)
+    {
+        IntPtr call;
+        int hr = op switch
+        {
+            PlayerOp.Toggle => session.TryTogglePlayPauseAsync(out call),
+            PlayerOp.Next => session.TrySkipNextAsync(out call),
+            PlayerOp.Previous => session.TrySkipPreviousAsync(out call),
+            PlayerOp.Stop => session.TryStopAsync(out call),
+            _ => Nothing(out call),
+        };
+        return (hr, call);
+    }
+
+    private static int Nothing(out IntPtr call)
+    {
+        call = IntPtr.Zero;
+        return -1;
+    }
+
+    private static byte[]? Thumbnail(string app)
+    {
+        var sessions = Open();
+        try
+        {
+            foreach (var session in sessions)
+            {
+                session.get_SourceAppUserModelId(out IntPtr id);
+                if (Text(id) != app) continue;
+                int hr = session.TryGetMediaPropertiesAsync(out IntPtr op);
+                if (As<IMediaProperties>(Result(hr, op)) is not { } props) return null;
+                try
+                {
+                    if (props.get_Thumbnail(out IntPtr reference) != 0 || reference == IntPtr.Zero) return null;
+                    IntPtr stream;
+                    try
+                    {
+                        stream = Call(reference, 6, out IntPtr read) == 0 ? Result(0, read) : IntPtr.Zero; // OpenReadAsync
+                    }
+                    finally
+                    {
+                        Marshal.Release(reference);
+                    }
+                    if (stream == IntPtr.Zero) return null;
+                    try
+                    {
+                        return Bytes(stream);
+                    }
+                    finally
+                    {
+                        Marshal.Release(stream);
+                    }
+                }
+                finally
+                {
+                    Marshal.ReleaseComObject(props);
+                }
+            }
+            return null;
+        }
+        finally
+        {
+            foreach (var session in sessions) Marshal.ReleaseComObject(session);
+        }
+    }
+
+    /// An IRandomAccessStream's bytes (at most MaxThumbnail), read through the IStream Windows wraps around it.
+    private static unsafe byte[]? Bytes(IntPtr randomAccess)
+    {
+        var iid = new Guid("0000000c-0000-0000-C000-000000000046"); // IStream
+        if (CreateStreamOverRandomAccessStream(randomAccess, ref iid, out IntPtr pointer) != 0 || pointer == IntPtr.Zero) return null;
+        var stream = (System.Runtime.InteropServices.ComTypes.IStream)Marshal.GetObjectForIUnknown(pointer);
+        Marshal.Release(pointer);
+        try
+        {
+            using var all = new System.IO.MemoryStream();
+            var buffer = new byte[64 * 1024];
+            int read = 0;
+            do
+            {
+                stream.Read(buffer, buffer.Length, (IntPtr)(&read));
+                all.Write(buffer, 0, read);
+                if (all.Length > MaxThumbnail) return null;
+            }
+            while (read > 0);
+            return all.Length > 0 ? all.ToArray() : null;
+        }
+        finally
+        {
+            Marshal.ReleaseComObject(stream);
+        }
     }
 }

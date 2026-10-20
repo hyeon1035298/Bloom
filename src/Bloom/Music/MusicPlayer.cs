@@ -65,6 +65,9 @@ internal static class MusicPlayer
 
     public static bool IsPlaying => External ? exHas && exPlaying : playing;
 
+    /// Direct: a song is open and paused (it goes on from there).
+    public static bool IsPaused => !External && paused;
+
     public static string Title => External ? exTitle : Queue.Current?.Title ?? "";
 
     public static string Artist => External ? exArtist : Queue.Current?.Artist ?? "";
@@ -135,26 +138,36 @@ internal static class MusicPlayer
     private static DispatcherTimer? timer;
     private static int watchers, ticks;
 
-    /// A view starts or stops watching: while one does, Changed comes every half second (and another player is asked every second).
+    /// A view starts or stops watching: while one does, Changed comes every half second, and every second another player
+    /// (or, the direct way, the other apps: OtherApps) is asked how it stands.
     public static void Watch(bool on)
     {
         watchers = Math.Max(0, watchers + (on ? 1 : -1));
         if (watchers == 0)
         {
             timer?.Stop();
+            OtherApps.Forget();
             return;
         }
         timer ??= new DispatcherTimer(DispatcherPriority.Background) { Interval = TimeSpan.FromMilliseconds(500) };
         timer.Tick -= OnTick;
         timer.Tick += OnTick;
         timer.Start();
-        if (External) _ = Poll();
+        Ask();
     }
+
+    public static bool Watched => watchers > 0;
 
     private static void OnTick(object? sender, EventArgs e)
     {
-        if (External && ++ticks % 2 == 0) _ = Poll();
+        if (++ticks % 2 == 0) Ask();
         Changed?.Invoke();
+    }
+
+    private static void Ask()
+    {
+        if (External) _ = Poll();
+        else _ = OtherApps.Poll();
     }
 
     /// The settings' way of playing changed (or the JRiver address, user or password): what the other way was playing
@@ -167,7 +180,9 @@ internal static class MusicPlayer
         exTitle = exArtist = "";
         exPosition = exLength = TimeSpan.Zero;
         jrAuthRead = false;
+        OtherApps.Forget();
         if (External) _ = Poll();
+        else if (Watched) _ = OtherApps.Poll();
         Changed?.Invoke();
     }
 
