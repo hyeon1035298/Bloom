@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -19,6 +18,7 @@ namespace Bloom.Music;
 internal static class PlayerGlyph
 {
     public const char Music = '\uE8D6', Play = '\uE768', Pause = '\uE769', Next = '\uE893', Previous = '\uE892', Volume = '\uE767', Mute = '\uE74F';
+    public const char Shuffle = '\uE8B1', RepeatAll = '\uE8EE', RepeatOne = '\uE8ED', List = '\uE8FD';
 }
 
 /// 미니 플레이어's player, one for the whole app (the window is only a view of it; closing it leaves the music on) and
@@ -28,7 +28,7 @@ internal static class PlayerGlyph
 /// or the window's title (MusicBee). A music file is only ever read, by Bloom or by the player. UI thread only.
 internal static class MusicPlayer
 {
-    public static readonly PlayQueue Queue = new();
+    public static readonly PlayQueue Queue = new() { Repeat = RepeatOf(Settings.Current.PlayerRepeat), Shuffle = Settings.Current.PlayerShuffle };
 
     /// The song, the state or the position changed (also every half second while a view is watching).
     public static event Action? Changed;
@@ -41,6 +41,9 @@ internal static class MusicPlayer
     private static MediaPlayer? media;
     private static bool playing, paused, opened;
     private static TimeSpan length;
+
+    /// Songs in a row that would not open: a queue where none opens stops instead of going round and round (반복).
+    private static int failedRun;
 
     // ── another player: what it last said ───────────────────────────────────────────────────────
     private static HttpClient? http;
@@ -65,6 +68,8 @@ internal static class MusicPlayer
     public static string Title => External ? exTitle : Queue.Current?.Title ?? "";
 
     public static string Artist => External ? exArtist : Queue.Current?.Artist ?? "";
+
+    public static string Album => External ? "" : Queue.Current?.Album ?? "";
 
     public static TimeSpan Length => External ? exLength : length;
 
@@ -92,6 +97,37 @@ internal static class MusicPlayer
         {
             Settings.Current.PlayerVolume = Math.Clamp(value, 0, 100);
             if (media is not null) media.Volume = Volume / 100.0;
+        }
+    }
+
+    /// 반복 (direct; the other players have their own): off, the whole queue, the song on. Kept in the settings.
+    public static Repeat Repeat
+    {
+        get => Queue.Repeat;
+        set
+        {
+            Queue.Repeat = value;
+            Settings.Current.PlayerRepeat = value.ToString().ToLowerInvariant();
+            Settings.Save();
+            Changed?.Invoke();
+        }
+    }
+
+    /// Off → the whole queue → the song on → off.
+    public static void CycleRepeat() => Repeat = Repeat switch { Repeat.Off => Repeat.All, Repeat.All => Repeat.One, _ => Repeat.Off };
+
+    public static Repeat RepeatOf(string? setting) => Enum.TryParse(setting, true, out Repeat r) && Enum.IsDefined(r) ? r : Repeat.Off;
+
+    /// 무작위 (direct): the songs after the one on play in a shuffled order. Kept in the settings.
+    public static bool Shuffle
+    {
+        get => Queue.Shuffle;
+        set
+        {
+            Queue.Shuffle = value;
+            Settings.Current.PlayerShuffle = value;
+            Settings.Save();
+            Changed?.Invoke();
         }
     }
 
@@ -165,6 +201,7 @@ internal static class MusicPlayer
             return;
         }
         Start(Queue.InsertNext(t));
+        _ = Tag(new[] { t });
     }
 
     /// At the end of the queue; when nothing is on (direct) it begins. Another player: its own "add to the queue".
@@ -184,8 +221,51 @@ internal static class MusicPlayer
             return;
         }
         Queue.Add(t);
+        _ = Tag(new[] { t });
         if (!playing && !paused) Advance(1);
         else Changed?.Invoke();
+    }
+
+    /// A playlist's songs in place of the queue: the first (무작위: any) plays. Direct only.
+    public static void PlayAll(IReadOnlyList<Track> tracks)
+    {
+        if (External) return;
+        StopDirect();
+        Queue.Clear();
+        Note = null;
+        foreach (var t in tracks) Queue.Add(t);
+        _ = Tag(tracks);
+        Advance(1);
+    }
+
+    /// A playlist's songs at the end of the queue; when nothing is on they begin. Direct only.
+    public static void EnqueueAll(IReadOnlyList<Track> tracks)
+    {
+        if (External) return;
+        Note = null;
+        foreach (var t in tracks) Queue.Add(t);
+        _ = Tag(tracks);
+        if (!playing && !paused) Advance(1);
+        else Changed?.Invoke();
+    }
+
+    /// A playlist file (.m3u, .m3u8; Explorer's or the search's): its songs in place of the queue, or after it (`add`).
+    /// False: the direct way is not on, or the file names no song that is there.
+    public static bool OpenPlaylist(string path, bool add = false)
+    {
+        string why;
+        if (External) why = Tr("재생목록은 직접 재생에서만 열 수 있음 — 설정 > 미니 플레이어", "Playlists open only with direct playing — Settings > Mini player");
+        else if (Playlists.Read(path) is not { Count: > 0 } tracks) why = Tr("재생할 곡이 없는 재생목록", "A playlist with no song to play");
+        else
+        {
+            if (add) EnqueueAll(tracks);
+            else PlayAll(tracks);
+            return true;
+        }
+        Note = why;
+        Notices.Result(false, Tr("미니 플레이어", "Mini player"), Path.GetFileName(path), why);
+        Changed?.Invoke();
+        return false;
     }
 
     /// Explorer starts one Bloom per selected file, a moment apart: a file handed over this soon after the one before
@@ -217,8 +297,9 @@ internal static class MusicPlayer
             Skipped(new List<(Track, string)> { (t, why) }, false);
             return;
         }
-        int at = Queue.Insert(handedNext, t);
+        int at = Queue.Insert(handedNext, t, true);
         handedNext = at + 1;
+        _ = Tag(new[] { t });
         if (!playing && !paused) Start(at); // the first was not played
         else Changed?.Invoke();
     }
@@ -261,12 +342,12 @@ internal static class MusicPlayer
             _ = Run(PlayerOp.Previous, null);
             return;
         }
-        if (Position > TimeSpan.FromSeconds(3) || Queue.Index <= 0)
+        if (Position > TimeSpan.FromSeconds(3))
         {
             Seek(0);
             return;
         }
-        Advance(-1);
+        Advance(-1); // none before: this one from its start
     }
 
     /// Stops playing (direct: Bloom's own; another player: its stop button).
@@ -329,16 +410,18 @@ internal static class MusicPlayer
         media.MediaOpened += (_, _) =>
         {
             opened = true;
+            failedRun = 0;
             if (media!.NaturalDuration.HasTimeSpan) length = media.NaturalDuration.TimeSpan;
             Changed?.Invoke();
         };
-        media.MediaEnded += (_, _) => Advance(1);
+        media.MediaEnded += (_, _) => Ended();
         media.MediaFailed += (_, e) =>
         {
             var t = Queue.Current;
             playing = paused = false;
             if (t is not null) Skipped(new List<(Track, string)> { (t, Tr("열 수 없는 파일이에요", "The file cannot be opened") + (e.ErrorException is { } ex ? " · " + ex.Message : "")) }, true);
-            Advance(1);
+            if (++failedRun < Queue.Items.Count) Advance(1);
+            else Changed?.Invoke(); // none of them opens
         };
         return media;
     }
@@ -359,20 +442,52 @@ internal static class MusicPlayer
         Changed?.Invoke();
     }
 
+    /// A song played to its end: 한 곡 반복 plays it again, else the next.
+    private static void Ended()
+    {
+        if (Queue.Repeat == Repeat.One && Queue.Current is { } t && Reject(t) is null) Start(Queue.Index);
+        else Advance(1);
+    }
+
     /// The next (1) or previous (-1) song that can be played; what was passed over is told once. None: stops at the end.
+    /// Going round the end (반복) starts a new round of 무작위.
     private static void Advance(int step)
     {
         var skipped = new List<(Track, string)>();
-        int i = Queue.Find(step, Reject, skipped);
+        int i = Queue.Find(step, Reject, skipped, out bool wrapped);
         Skipped(skipped, true);
-        if (i >= 0) Start(i);
+        if (i >= 0)
+        {
+            if (wrapped && step > 0) Queue.Reshuffle(i);
+            Start(i);
+        }
         else if (step > 0)
         {
             StopDirect();
-            if (Queue.Items.Count > 0) Queue.Index = Queue.Items.Count - 1;
+            if (Queue.Items.Count > 0) Queue.Index = Queue.Last;
             Changed?.Invoke();
         }
         else Seek(0);
+    }
+
+    /// Reads the songs' tags off the UI thread, a few at a time, each put in its place in the queue as it comes (the
+    /// file's name shows meanwhile).
+    private static async Task Tag(IReadOnlyList<Track> tracks)
+    {
+        for (int from = 0; from < tracks.Count; from += 16)
+        {
+            int start = from;
+            var read = await Task.Run(() =>
+            {
+                var done = new List<(Track old, Track now)>();
+                for (int i = start; i < Math.Min(start + 16, tracks.Count); i++) done.Add((tracks[i], AudioTags.Read(tracks[i])));
+                return done;
+            });
+            bool any = false;
+            foreach (var (old, now) in read)
+                if (!ReferenceEquals(old, now) && Queue.Replace(old, now)) any = true;
+            if (any) Changed?.Invoke();
+        }
     }
 
     private static void StopDirect()

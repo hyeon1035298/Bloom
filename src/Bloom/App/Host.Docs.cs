@@ -7,7 +7,7 @@ using Bloom.Ui;
 namespace Bloom.App;
 
 /// Markdown files in Bloom's document window (Ui\DocWindow.cs): from Explorer (`--open`, DocHandoff), from the search.
-/// Audio files Explorer hands over go to the mini player.
+/// Audio files and playlists (.m3u, .m3u8) Explorer hands over go to the mini player.
 internal sealed partial class Host
 {
     /// The file's document window, made or brought forward; false for anything but a full path to a file that is there.
@@ -32,6 +32,14 @@ internal sealed partial class Host
     public bool OpenHanded(string path)
     {
         if (!DocHandoff.Acceptable(path)) return false;
+        if (Playlists.IsPlaylist(path))
+        {
+            if (!Features.On("player")) return false;
+            Tools.Open("player");
+            MusicPlayer.OpenPlaylist(path); // one it can't play says why in the player and a notice
+            Log.Write("open: playlist " + path);
+            return true;
+        }
         if (AudioFiles.IsAudio(path))
         {
             if (!Features.On("player")) return false;

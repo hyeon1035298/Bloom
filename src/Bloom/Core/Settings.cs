@@ -123,6 +123,8 @@ internal sealed class Settings
     // 미니 플레이어 (Music\MusicPlayer.cs)
     public string PlayerMode { get; set; } = "direct"; // direct (Bloom plays the file) | jriver | foobar | musicbee (PlayerWays)
     public int PlayerVolume { get; set; } = 70; // 0 … 100, direct playing
+    public string PlayerRepeat { get; set; } = "off"; // off | all | one (Music\PlayQueue.cs Repeat), direct playing
+    public bool PlayerShuffle { get; set; } // 무작위, direct playing
     public string JriverAddress { get; set; } = ""; // JRiver's web service (MCWS); empty: http://localhost:52199. Its password is in ApiKeys (MusicPlayer.JriverKey)
     public string JriverUser { get; set; } = "";
     public string FoobarPath { get; set; } = ""; // foobar2000.exe; empty: found by itself (PlayerExe)

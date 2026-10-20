@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.IO;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Windows;
@@ -100,17 +101,23 @@ internal static class Icons
                     continue;
                 }
                 bool thumb = job.Key.StartsWith(ThumbPrefix, StringComparison.Ordinal);
-                bool large = job.Key.StartsWith(LargePrefix, StringComparison.Ordinal);
+                bool art = job.Key.StartsWith(ArtPrefix, StringComparison.Ordinal);
+                bool large = art || job.Key.StartsWith(LargePrefix, StringComparison.Ordinal);
                 int tone;
-                img = large ? Extract(job.Path, int.Parse(job.Key.AsSpan(LargePrefix.Length, 3)), job.Key[LargePrefix.Length + 4] == 'i' ? false : null, out tone) : Extract(job.Path, Pixels, thumb, out tone);
+                if (art)
+                {
+                    int px = int.Parse(job.Key.AsSpan(ArtPrefix.Length, 3));
+                    img = Extract(job.Path, px, true, out tone) ?? (Music.AlbumArt.FolderImage(job.Path, File.Exists) is { } cover ? Extract(cover, px, true, out tone) : null);
+                }
+                else img = large ? Extract(job.Path, int.Parse(job.Key.AsSpan(LargePrefix.Length, 3)), job.Key[LargePrefix.Length + 4] == 'i' ? false : null, out tone) : Extract(job.Path, Pixels, thumb, out tone);
                 if (!large && tone != 0 && !thumb) Tones[job.Key] = tone;
             }
             catch (Exception e)
             {
                 Log.Error("icon " + job.Path, e);
             }
-            // previews are big and seen once: only the small row icons stay in memory
-            if (!job.Key.StartsWith(LargePrefix, StringComparison.Ordinal)) Cache[job.Key] = img;
+            // previews and covers are big and seen once: only the small row icons stay in memory
+            if (!job.Key.StartsWith(LargePrefix, StringComparison.Ordinal) && !job.Key.StartsWith(ArtPrefix, StringComparison.Ordinal)) Cache[job.Key] = img;
             var callbacks = job.Done;
             ui?.BeginInvoke(DispatcherPriority.Background, () =>
             {
@@ -139,7 +146,7 @@ internal static class Icons
     /// Cache keys starting with this ask for the picture's thumbnail instead of its icon.
     public const string ThumbPrefix = "thumb:";
 
-    private const string LargePrefix = "large:", EmojiPrefix = "emoji:";
+    private const string LargePrefix = "large:", EmojiPrefix = "emoji:", ArtPrefix = "art:";
 
     /// A colour emoji drawn on the worker (the lists build at once and the emoji come in as they are drawn).
     public static void RequestEmoji(string text, int px, bool dark, Action<ImageSource?> done) =>
@@ -149,6 +156,11 @@ internal static class Icons
     /// `iconOnly`: folders (their thumbnail is the icon on a white square).
     public static void Large(string path, int px, bool iconOnly, Action<ImageSource?> done) =>
         Work.Add($"{LargePrefix}{Math.Clamp(px, 100, 999)}:{(iconOnly ? 'i' : 't')}:{path.ToLowerInvariant()}", path, done);
+
+    /// 미니 플레이어's cover: the picture in the song's file (the shell's thumbnail, cropped square), else the folder's
+    /// cover image (Music\AlbumArt), else null. Not cached: the player holds the one of the song on.
+    public static void Art(string path, int px, Action<ImageSource?> done) =>
+        Work.Add($"{ArtPrefix}{Math.Clamp(px, 100, 999)}:{path.ToLowerInvariant()}", path, done);
 
     /// thumb: true = thumbnail only (cropped square), false = icon only, null = thumbnail if any, else the icon.
     private static ImageSource? Extract(string path, int px, bool? thumb, out int tone)

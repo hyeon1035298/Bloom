@@ -3,8 +3,8 @@ using System.IO;
 
 namespace Bloom.Music;
 
-/// One song: the file, and what to show for it (the file name without its extension when nothing better is known).
-internal sealed record Track(string Path, string Title, string Artist = "", double Duration = 0)
+/// One song: the file, and what to show for it (the file name without its extension until its tags are read, AudioTags).
+internal sealed record Track(string Path, string Title, string Artist = "", double Duration = 0, string Album = "")
 {
     /// "Artist — Title", or just the title.
     public string Line => Artist.Length > 0 ? Artist + " — " + Title : Title;

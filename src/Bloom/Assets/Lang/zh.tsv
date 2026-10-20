@@ -1135,6 +1135,8 @@ tomorrow	明天
 Not an audio file	不是音频文件
 Bloom cannot play {0} files itself — pick another player in Settings > Mini player	Bloom 无法直接播放 {0} 文件 — 请在 设置 > 迷你播放器 中选择其他播放器
 The file is gone	文件已不存在
+Playlists open only with direct playing — Settings > Mini player	播放列表仅在直接播放时可以打开 — 设置 > 迷你播放器
+A playlist with no song to play	没有可播放歌曲的播放列表
 The file cannot be opened	无法打开该文件
 {0} songs	{0} 首
 Skipped	已跳过
@@ -1770,16 +1772,32 @@ Attach {0}	附加 {0}
 Previous (from the start after 3 s)	上一首（播放超过 3 秒则从头开始）
 Play · pause (Space)	播放 · 暂停 (Space)
 Next song	下一首
+Queue	播放队列
+Playlists	播放列表
+Save the queue as…	保存播放队列的名称
 Clear the queue (the song on stays)	清空播放队列（保留当前歌曲）
 Volume {0}	音量 {0}
 Nothing is playing	没有正在播放的歌曲
 Play a song in {0}, or Ctrl+K on a file you searched	在 {0} 中播放歌曲，或在搜索到的文件上按 Ctrl+K
 Ctrl+K on an audio file in the search results › Play in mini player	在搜索结果的音频文件上按 Ctrl+K › 用迷你播放器播放
-Queue	播放队列
+{0} playlists	{0} 个
+Shuffle on · click to turn off	随机播放已开启 · 点击关闭
+Shuffle off · click to turn on	随机播放已关闭 · 点击开启
+Repeat all · click for repeat one	全部循环 · 点击切换为单曲循环
+Repeat one · click to turn off	单曲循环 · 点击关闭循环
+Repeat off · click for repeat all	循环已关闭 · 点击切换为全部循环
 Playing in {0} — see the queue there	正在 {0} 中播放 — 请在 {0} 中查看播放队列
-Queue · {0}	播放队列 · {0} 首
 Empty — Ctrl+K on an audio file › Add to the queue	空 — 在音频文件上按 Ctrl+K › 添加到播放队列
 Take out of the queue	从播放队列中移除
+No saved playlists · fill the queue and save it under a name	没有已保存的播放列表 · 向播放队列添加歌曲后命名保存
+Delete (to the Recycle Bin)	删除 (移到回收站)
+A name is needed	需要名称
+Not saved · the playlists folder can't be written	未保存 · 无法写入播放列表文件夹
+Replaced ‘{0}’ · {1} songs	已覆盖保存“{0}” · {1} 首
+Saved ‘{0}’ · {1} songs	已保存“{0}” · {1} 首
+Added ‘{0}’ · {1} songs to the queue	已将“{0}”的 {1} 首加入播放队列
+‘{0}’ moved to the Recycle Bin	已将“{0}”移到回收站
+Not deleted	未删除
 {0} API key	{0} API 密钥
 The key is stored encrypted on this PC only and used only for requests to {0}. Usage is billed to your {1} account.	密钥仅加密保存在这台电脑上，只用于发往 {0} 的请求。使用费用计入你的 {1} 账户。
 Open the key page	打开密钥页面
@@ -2256,7 +2274,6 @@ New note	新便笺
 Saved	已保存
 No saved notes. Type above and press Enter.	尚无已保存的笔记。请在上方输入并按 Enter。
 No note matches · Enter saves a new note	无匹配笔记 · Enter 保存新笔记
-Delete (to the Recycle Bin)	删除 (移到回收站)
 s	秒
 What for (or ‘3pm meeting’)	内容 (或 ‘3pm meeting’)
 Started · ends {0}	已启动 · {0} 结束

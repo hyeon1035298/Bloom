@@ -211,6 +211,11 @@ internal sealed partial class Engine
                 });
                 list.Insert(0, new ActionItem { Title = Tr("미니 플레이어로 재생", "Play in mini player"), Glyph = PlayerGlyph.Play, Run = () => { Usage.Touch(id); host.Tools.Open("player"); MusicPlayer.Play(path); } });
             }
+            if (!folder && Playlists.IsPlaylist(path) && Features.On("player") && !MusicPlayer.External)
+            {
+                list.Insert(0, new ActionItem { Title = Tr("대기열에 추가", "Add to the queue"), Glyph = G.Add, Run = () => { host.Tools.Open("player"); MusicPlayer.OpenPlaylist(path, true); } });
+                list.Insert(0, new ActionItem { Title = Tr("미니 플레이어로 재생", "Play in mini player"), Glyph = PlayerGlyph.Play, Run = () => { Usage.Touch(id); host.Tools.Open("player"); MusicPlayer.OpenPlaylist(path); } });
+            }
             list.AddRange(FileActions(path, name, folder));
             if (ext is ".ps1" or ".bat" or ".cmd" or ".exe")
                 list.Add(new ActionItem { Title = Tr("사용자 명령에 추가…", "Add to custom commands…"), Glyph = G.Bolt, StayOpen = true, Run = () => host.Window.StartForm(CommandForm("script", null, path.Contains(' ') ? $"\"{path}\"" : path)) });

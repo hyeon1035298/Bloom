@@ -1135,6 +1135,8 @@ tomorrow	明日
 Not an audio file	オーディオファイルではありません
 Bloom cannot play {0} files itself — pick another player in Settings > Mini player	{0} ファイルは Bloom で直接再生できません — 設定 > ミニプレーヤーで別のプレーヤーを選んでください
 The file is gone	ファイルが見つかりません
+Playlists open only with direct playing — Settings > Mini player	プレイリストは直接再生でのみ開けます — 設定 > ミニプレーヤー
+A playlist with no song to play	再生できる曲がないプレイリスト
 The file cannot be opened	ファイルを開けません
 {0} songs	{0} 曲
 Skipped	スキップしました
@@ -1770,16 +1772,32 @@ Attach {0}	{0} を並べる
 Previous (from the start after 3 s)	前の曲 (3 秒以上聴いたら最初から)
 Play · pause (Space)	再生 · 一時停止 (Space)
 Next song	次の曲
+Queue	キュー
+Playlists	プレイリスト
+Save the queue as…	キューを保存する名前
 Clear the queue (the song on stays)	キューをクリア (再生中の曲は残ります)
 Volume {0}	音量 {0}
 Nothing is playing	再生中の曲はありません
 Play a song in {0}, or Ctrl+K on a file you searched	{0} で曲を再生するか、検索したファイルで Ctrl+K
 Ctrl+K on an audio file in the search results › Play in mini player	検索結果のオーディオファイルで Ctrl+K › ミニプレーヤーで再生
-Queue	キュー
+{0} playlists	{0} 件
+Shuffle on · click to turn off	シャッフル オン · クリックでオフ
+Shuffle off · click to turn on	シャッフル オフ · クリックでオン
+Repeat all · click for repeat one	全曲リピート · クリックで1曲リピート
+Repeat one · click to turn off	1曲リピート · クリックでリピート オフ
+Repeat off · click for repeat all	リピート オフ · クリックで全曲リピート
 Playing in {0} — see the queue there	{0} で再生中 — キューは {0} で確認してください
-Queue · {0}	キュー · {0} 曲
 Empty — Ctrl+K on an audio file › Add to the queue	空です — オーディオファイルで Ctrl+K › キューに追加
 Take out of the queue	キューから外す
+No saved playlists · fill the queue and save it under a name	保存したプレイリストなし · キューに曲を入れて名前を付けて保存
+Delete (to the Recycle Bin)	削除 (ごみ箱へ)
+A name is needed	名前が必要
+Not saved · the playlists folder can't be written	未保存 · プレイリストのフォルダーに書き込めません
+Replaced ‘{0}’ · {1} songs	「{0}」を上書き保存 · {1} 曲
+Saved ‘{0}’ · {1} songs	「{0}」を保存 · {1} 曲
+Added ‘{0}’ · {1} songs to the queue	「{0}」の {1} 曲をキューに追加
+‘{0}’ moved to the Recycle Bin	「{0}」をごみ箱に移動
+Not deleted	削除できませんでした
 {0} API key	{0} API キー
 The key is stored encrypted on this PC only and used only for requests to {0}. Usage is billed to your {1} account.	キーはこの PC にのみ暗号化して保存し、{0} へのリクエストにだけ使います。利用料金は {1} アカウントに請求されます。
 Open the key page	キー発行ページを開く
@@ -2256,7 +2274,6 @@ New note	新しいメモ
 Saved	保存済み
 No saved notes. Type above and press Enter.	保存済みメモなし。上に入力して Enter を押してください。
 No note matches · Enter saves a new note	該当するメモなし · Enter で新規保存
-Delete (to the Recycle Bin)	削除 (ごみ箱へ)
 s	秒
 What for (or ‘3pm meeting’)	内容 (または ‘3pm meeting’)
 Started · ends {0}	タイマー開始 · {0} に終了

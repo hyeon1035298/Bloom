@@ -56,6 +56,55 @@ internal static partial class Captures
         MusicPlayer.Toggle();
         await Task.Delay(300);
 
+        // 반복 · 무작위: the settings keep them; repeat all goes round, a song that ends under 한 곡 반복 plays again
+        var (repeatWas, shuffleWas) = (MusicPlayer.Repeat, MusicPlayer.Shuffle);
+        MusicPlayer.Repeat = Repeat.All;
+        MusicPlayer.Shuffle = true;
+        log.AppendLine($"modes: repeat={MusicPlayer.Repeat} ({Settings.Current.PlayerRepeat}) shuffle={MusicPlayer.Shuffle} ({Settings.Current.PlayerShuffle})");
+        MusicPlayer.Queue.Index = MusicPlayer.Queue.Last;
+        MusicPlayer.Next();
+        await Task.Delay(600);
+        log.AppendLine($"modes: next after the last → {MusicPlayer.Title} playing={MusicPlayer.IsPlaying}");
+        MusicPlayer.Repeat = Repeat.One;
+        string one1 = MusicPlayer.Title;
+        for (int i = 0; i < 60 && MusicPlayer.Position < MusicPlayer.Length - TimeSpan.FromMilliseconds(300); i++) await Task.Delay(100);
+        await Task.Delay(1200);
+        log.AppendLine($"modes: repeat one at the end '{one1}' → '{MusicPlayer.Title}' position {MusicPlayer.Position.TotalSeconds:F2}s playing={MusicPlayer.IsPlaying}");
+
+        // 재생목록: the queue saved, played back in place of it, added after it
+        string listName = "QA 재생목록";
+        string? saved = Playlists.Save(listName, MusicPlayer.Queue.Items);
+        var read = saved is null ? null : Playlists.Read(saved);
+        log.AppendLine($"playlist: saved={saved is not null} → {read?.Count} songs · listed {Playlists.All().Count(p => p.Name == listName)}");
+        if (saved is not null)
+        {
+            MusicPlayer.OpenPlaylist(saved);
+            await Task.Delay(400);
+            log.AppendLine($"playlist: played → queue {MusicPlayer.Queue.Items.Count} · on '{MusicPlayer.Title}'");
+            MusicPlayer.OpenPlaylist(saved, true);
+            log.AppendLine($"playlist: added → queue {MusicPlayer.Queue.Items.Count}");
+        }
+        await Task.Delay(1500); // the tags
+        log.AppendLine("tags: " + string.Join(" | ", MusicPlayer.Queue.Items.Take(2).Select(t => $"{t.Title} / {t.Artist} / {t.Album} / {t.Duration:F1}s")));
+
+        // a song with tags and a cover in the file (tagged\tagged.mp3), one with the folder's (folderart\plain.wav + folder.jpg)
+        string tagged = Path.Combine(audio, "tagged", "tagged.mp3"), plain = Path.Combine(audio, "folderart", "plain.wav");
+        if (File.Exists(tagged))
+        {
+            var t = await Task.Run(() => AudioTags.Read(Track.Of(tagged)));
+            log.AppendLine($"tags (file): {t.Title} / {t.Artist} / {t.Album} / {t.Duration:F1}s");
+            foreach (string song in new[] { tagged, plain, one })
+            {
+                var got = new TaskCompletionSource<System.Windows.Media.ImageSource?>();
+                Icons.Art(song, 128, img => got.TrySetResult(img));
+                var img = await got.Task;
+                log.AppendLine($"art: {Path.GetFileName(song)} → {(img is null ? "none" : $"{img.Width:F0}×{img.Height:F0}")}");
+            }
+            MusicPlayer.Play(tagged);
+            await Task.Delay(1000);
+            log.AppendLine($"tagged on: {PlayerLine()} · album {MusicPlayer.Album}");
+        }
+
         host.Tools.Open("player");
         w.SetPinned(true);
         foreach (string theme in new[] { "dark", "light" })
@@ -65,6 +114,16 @@ internal static partial class Captures
             await Task.Delay(300);
             await Group(host, w, dir, $"{theme}-p1-player-direct");
         }
+        if (host.Tools.Find("player")?.Tool is PlayerTool shown)
+        {
+            Theme.Apply("dark");
+            shown.ShowShelf(true);
+            await Task.Delay(300);
+            await Group(host, w, dir, "dark-p1b-player-lists");
+            shown.ShowShelf(false);
+        }
+        if (saved is not null) System.IO.File.Delete(saved);
+        (MusicPlayer.Repeat, MusicPlayer.Shuffle) = (repeatWas, shuffleWas);
         Theme.Apply("dark");
         // Ctrl+K on an audio file result
         w.Go(Mode.Root, "");

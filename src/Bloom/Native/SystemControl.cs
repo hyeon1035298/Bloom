@@ -167,7 +167,7 @@ internal static unsafe class SystemControl
     private static string? FriendlyName(IMMDevice dev)
     {
         if (dev.OpenPropertyStore(0 /* STGM_READ */, out var store) != 0 || store is null) return null;
-        var key = new PropertyKey { Fmtid = new Guid("a45c254e-df1c-4efd-8020-67d146a850e0"), Pid = 14 }; // PKEY_Device_FriendlyName
+        var key = new PropertyKey("a45c254e-df1c-4efd-8020-67d146a850e0", 14); // PKEY_Device_FriendlyName
         if (store.GetValue(ref key, out var pv) != 0) return null;
         try
         {
@@ -175,7 +175,7 @@ internal static unsafe class SystemControl
         }
         finally
         {
-            _ = PropVariantClear(ref pv);
+            _ = PropertyStore.PropVariantClear(ref pv);
         }
     }
 
@@ -282,14 +282,6 @@ internal static unsafe class SystemControl
         [PreserveSig] int GetId([MarshalAs(UnmanagedType.LPWStr)] out string id);
     }
 
-    [ComImport, Guid("886d8eeb-8cf2-4446-8d02-cdba1dbdcf99"), InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
-    private interface IPropertyStore
-    {
-        [PreserveSig] int GetCount(out uint count);
-        [PreserveSig] int GetAt(uint index, out PropertyKey key);
-        [PreserveSig] int GetValue(ref PropertyKey key, out PropVariant value);
-    }
-
     [ComImport, Guid("5CDF2C82-841E-4546-9722-0CF74078229A"), InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
     private interface IAudioEndpointVolume
     {
@@ -325,23 +317,6 @@ internal static unsafe class SystemControl
         [PreserveSig] int SetDefaultEndpoint([MarshalAs(UnmanagedType.LPWStr)] string id, int role);
     }
 
-    [StructLayout(LayoutKind.Sequential)]
-    private struct PropertyKey
-    {
-        public Guid Fmtid;
-        public int Pid;
-    }
-
-    [StructLayout(LayoutKind.Sequential)]
-    private struct PropVariant
-    {
-        public ushort Vt;
-        public ushort Reserved1, Reserved2, Reserved3;
-        public IntPtr Pointer;
-        public IntPtr Pointer2;
-    }
-
-    [DllImport("ole32.dll")] private static extern int PropVariantClear(ref PropVariant pv);
     [DllImport("powrprof.dll")] private static extern bool SetSuspendState(bool hibernate, bool force, bool wakeupEventsDisabled);
     [DllImport("shell32.dll", CharSet = CharSet.Unicode)] private static extern int SHEmptyRecycleBin(IntPtr hwnd, string? root, uint flags);
     [DllImport("user32.dll", CharSet = CharSet.Unicode)]
