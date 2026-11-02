@@ -13,8 +13,9 @@ using Bloom.Core;
 namespace Bloom.Ui;
 
 /// The token blocks of the home (Ai\TokenStats): the sums as tiles and a ratio bar, a bar chart over the period, the
-/// models that used the most and at what effort, the sessions that used the most. Each lays out a TokenView it is given and reads nothing else, so the kept home's key
-/// changes only with the numbers; every size is a star column or row, so a block fits two columns (~360) and one (~700).
+/// models that used the most and at what effort, the sessions that used the most. Each lays out a TokenView it is given
+/// and reads nothing else, so the kept home's key changes only with the numbers; every size is a star column or row, so
+/// a block fits two columns (~360) and one (~700).
 internal static class TokenViews
 {
     /// 토큰 사용량: four tiles (cost, tokens, calls, cache hits), the prompt and output split as one bar with its legend,
@@ -169,10 +170,11 @@ internal static class TokenViews
     /// How many of the sessions past the rows the rest's tooltip names (a month can hold more than a thousand).
     public const int RestTipMost = 10;
 
-    /// A session's name as its row shows it: a Bloom chat's title (`chat`; none: a chat since deleted), else the title
-    /// its CLI gave it, else its folder, else "세션" and the head of its id.
+    /// A session's name as its row shows it: a Bloom chat's title (`chat`; none: no kept chat holds that session now,
+    /// as one deleted or one that went on in another session), else the title its CLI gave it, else its folder, else
+    /// "세션" and the head of its id.
     public static string SessionName(TokenSession s, string? chat) =>
-        s.Bloom ? chat ?? Tr("Bloom AI 채팅 (지운 대화)", "Bloom AI chat (deleted)")
+        s.Bloom ? chat ?? Tr("Bloom AI 채팅 (찾을 수 없음)", "Bloom AI chat (not found)")
         : s.Title ?? s.Folder ?? Tr($"세션 {IdHead(s.Id)}", $"Session {IdHead(s.Id)}");
 
     private static string IdHead(string id) => id.Length > 8 ? id[..8] : id;
@@ -196,34 +198,14 @@ internal static class TokenViews
         return line;
     }
 
-    /// A session's row, as a model's: its name with where it ran (Codex or Claude Code, its folder when the name is
-    /// its title, "Bloom" for a Bloom chat) and its most-used effort, tokens, share, cost and the bar; the rest in the
-    /// tooltip. `open`: a Bloom chat still kept, opened on a click.
+    /// A session's row, as a model's: its name with SessionTail, tokens, share, cost and the bar; the rest in the
+    /// tooltip (SessionTip). `open`: a Bloom chat still kept, opened on a click.
     private static Border SessionRow(TokenSession s, string name, Action? open, bool first)
     {
-        string tail = Source(s.Provider);
-        if (s.Bloom) tail += " · Bloom";
-        else if (s.Title is not null && s.Folder is not null) tail += " · " + s.Folder;
-        var top = TopEffort(s.Efforts);
-        if (top is { } e) tail += " · " + EffortName(e);
         var stack = new StackPanel();
-        stack.Children.Add(Head(name, tail, s.Counts.Total, s.Share, s.Cost));
+        stack.Children.Add(Head(name, SessionTail(s), s.Counts.Total, s.Share, s.Cost));
         stack.Children.Add(HomeViews.Bar(s.Share * 100, false));
-        var k = s.Counts;
-        var tip = new List<string>
-        {
-            $"{name} · {Source(s.Provider)}",
-            string.Join(" · ", new[] { s.Bloom ? "Bloom" : s.Folder, IdHead(s.Id) }.Where(x => x is not null)),
-            Span(s.First, s.Last.AddHours(1)),
-        };
-        long sum = Math.Max(1, s.Models.Sum(m => m.Tokens));
-        tip.Add(string.Join(" · ", s.Models.Take(3).Select(m => $"{Pretty(m.Model)} {Percent((double)m.Tokens / sum)}")));
-        if (EffortMix(s.Efforts, false) is { } mix) tip.Add("effort " + mix);
-        tip.AddRange(Numbers(k));
-        tip.Add(s.Cost is { } cost ? Tr($"환산액 {Money(cost, false)}", $"Cost {Money(cost, false)}") : Tr("가격 없음 · 환산액에 들어가지 않음", "No price · not in the cost"));
-        if (s.Cost is not null && s.UnpricedTokens > 0)
-            tip.Add(Tr($"가격 없는 토큰 {Whole(s.UnpricedTokens)} · 환산액에 없음", $"{Whole(s.UnpricedTokens)} tokens with no price · not in the cost"));
-        var row = new Border { Child = stack, Background = Brushes.Transparent, Margin = new Thickness(0, first ? 0 : 5, 0, 0), ToolTip = string.Join("\n", tip.Where(t => t.Length > 0)) };
+        var row = new Border { Child = stack, Background = Brushes.Transparent, Margin = new Thickness(0, first ? 0 : 5, 0, 0), ToolTip = SessionTip(s, name) };
         if (open is not null)
         {
             row.Cursor = Cursors.Hand;
@@ -235,6 +217,37 @@ internal static class TokenViews
             };
         }
         return row;
+    }
+
+    /// What a session's row says after its name: where it ran (Codex or Claude Code), then "Bloom" for a Bloom chat or
+    /// its folder when the name is its title, then its most-used effort.
+    public static string SessionTail(TokenSession s)
+    {
+        string tail = Source(s.Provider);
+        if (s.Bloom) tail += " · Bloom";
+        else if (s.Title is not null && s.Folder is not null) tail += " · " + s.Folder;
+        if (TopEffort(s.Efforts) is { } e) tail += " · " + EffortName(e);
+        return tail;
+    }
+
+    /// A session row's tooltip: its name and side; "Bloom" or its folder with the head of its id; its span; its top
+    /// three models; its effort mix; its numbers and cost.
+    public static string SessionTip(TokenSession s, string name)
+    {
+        var tip = new List<string>
+        {
+            $"{name} · {Source(s.Provider)}",
+            string.Join(" · ", new[] { s.Bloom ? "Bloom" : s.Folder, IdHead(s.Id) }.Where(x => x is not null)),
+            Span(s.First, s.Last.AddHours(1)),
+        };
+        long sum = Math.Max(1, s.Models.Sum(m => m.Tokens));
+        tip.Add(string.Join(" · ", s.Models.Take(3).Select(m => $"{Pretty(m.Model)} {Percent((double)m.Tokens / sum)}")));
+        if (EffortMix(s.Efforts, false) is { } mix) tip.Add("effort " + mix);
+        tip.AddRange(Numbers(s.Counts));
+        tip.Add(s.Cost is { } cost ? Tr($"환산액 {Money(cost, false)}", $"Cost {Money(cost, false)}") : Tr("가격 없음 · 환산액에 들어가지 않음", "No price · not in the cost"));
+        if (s.Cost is not null && s.UnpricedTokens > 0)
+            tip.Add(Tr($"가격 없는 토큰 {Whole(s.UnpricedTokens)} · 환산액에 없음", $"{Whole(s.UnpricedTokens)} tokens with no price · not in the cost"));
+        return string.Join("\n", tip.Where(t => t.Length > 0));
     }
 
     /// "11-03 09:00 – 14:00"; across days, each end with its day.

@@ -37,8 +37,9 @@ internal sealed partial class Engine
     }
 
     /// 세션별 사용량: the sessions it can show (its rows and the rest's tooltip) named here, on the UI thread, from the
-    /// chats in memory: a Bloom chat by its session id and provider (the tokens' "codex" is the chat's "chatgpt"), a
-    /// click opening it while it is kept.
+    /// chats in memory: a Bloom chat by its session id and provider (ChatSide), a click opening that chat however long
+    /// ago it was used (not Host.OpenChat, which starts a new chat past 30 minutes); a made-up Bloom session
+    /// (TokenDemo) by its made-up chat name.
     private Func<System.Windows.FrameworkElement> SessionsWidget(TokenView view, bool none, bool counting, int rows, Action<TokenPeriod> pick)
     {
         int many = Math.Min(view.Sessions.Count, Math.Max(rows, 1) + Ui.TokenViews.RestTipMost);
@@ -47,13 +48,28 @@ internal sealed partial class Engine
         {
             var s = view.Sessions[i];
             var chat = s.Bloom ? ChatOf(s) : null;
-            named.Add((Ui.TokenViews.SessionName(s, chat?.Title), chat is null ? null : () => host.OpenChat(chat)));
+            named.Add((Ui.TokenViews.SessionName(s, chat?.Title ?? (s.Bloom ? TokenDemo.ChatName(s.Id) : null)), chat is null ? null : () => OpenSessionChat(chat)));
         }
         return () => Ui.TokenViews.Sessions(view, named, none, counting, rows, pick);
     }
 
+    /// A session row's chat, still kept when clicked (deleted since the home was drawn: nothing).
+    private void OpenSessionChat(ChatThread chat)
+    {
+        if (host.Chats?.Threads.Contains(chat) == true) host.Window.ShowChat(chat);
+    }
+
     private ChatThread? ChatOf(TokenSession s) =>
-        host.Chats?.Threads.FirstOrDefault(t => t.SessionId == s.Id && ((t.SessionProvider ?? "claude") == "chatgpt" ? "codex" : t.SessionProvider ?? "claude") == s.Provider);
+        host.Chats?.Threads.FirstOrDefault(t => t.SessionId == s.Id && ChatSide(t.SessionProvider) == s.Provider);
+
+    /// The token side ("claude", "codex") of a chat's session provider: none is Claude, ChatGPT is Codex, any other
+    /// as it is.
+    internal static string ChatSide(string? sessionProvider) => sessionProvider switch
+    {
+        null => "claude",
+        "chatgpt" => "codex",
+        _ => sessionProvider,
+    };
 
     /// A block's kept span (HomeWidget.Period) by its name; anything else (none yet, a number, an older name) is the
     /// last 24 hours.

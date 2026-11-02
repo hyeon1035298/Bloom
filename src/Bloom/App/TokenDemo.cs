@@ -38,6 +38,14 @@ internal static class TokenDemo
 
     private static readonly string[] Folders = ["launcher", "docs-site", "photo-tools", "web-shop", "notes", "scripts"];
 
+    /// Made-up Bloom chat titles, and the one each made-up Bloom session was given (by id): the home names it as it would
+    /// a kept chat, since no chat of this PC has its id.
+    private static readonly string[] ChatTitles = ["Trip plan for the long weekend", "Recipe ideas with leftovers", "Explain this error message", "Gift ideas under $50"];
+    private static readonly Dictionary<string, string> ChatNames = [];
+
+    /// The made-up chat name of a made-up Bloom session; null for any other id.
+    public static string? ChatName(string id) => ChatNames.GetValueOrDefault(id);
+
     /// How long the made-up counting has gone on: past 60 days, so 전체 shows months.
     private const int CountedDays = 75;
 
@@ -152,7 +160,7 @@ internal static class TokenDemo
     }
 
     /// The session of a lane in the six-hour slot `hour` falls in, made the first time it is met: an id, and a title, a
-    /// folder or both from the slot's own seed; a Bloom chat now and then in lane 1 (no title: the chat names it).
+    /// folder or both from the slot's own seed; a Bloom chat now and then in lane 1 (no title: its made-up chat name).
     private static Sum SessionOf(Kind kind, DateTime hour, int lane, Dictionary<string, Sum> sessions)
     {
         var slot = hour.Date.AddHours(hour.Hour / 6 * 6);
@@ -166,6 +174,7 @@ internal static class TokenDemo
         string? title = bloom || rng.NextDouble() >= titled ? null : Titles[rng.Next(Titles.Length)];
         string? folder = bloom ? "ai" : rng.NextDouble() < 0.9 ? Folders[rng.Next(Folders.Length)] : null;
         s = new Sum(kind.Provider, new Guid(id).ToString(), title, folder, bloom);
+        if (bloom) ChatNames[s.Id] = ChatTitles[rng.Next(ChatTitles.Length)];
         sessions[key] = s;
         return s;
     }
