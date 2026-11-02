@@ -20,7 +20,12 @@ internal static class FakeOmp
 
     public static int Run(string[] args)
     {
-        if (Environment.GetEnvironmentVariable("FAKE_OMP_ARGS") is { Length: > 0 } file) File.WriteAllLines(file, args);
+        // written beside it and renamed in, so a test reading it as it appears never meets it half written (or still open)
+        if (Environment.GetEnvironmentVariable("FAKE_OMP_ARGS") is { Length: > 0 } file)
+        {
+            File.WriteAllLines(file + ".part", args);
+            File.Move(file + ".part", file, true);
+        }
         Say(new JsonObject { ["type"] = "ready", ["protocolVersion"] = 1 });
         int turns = 0;
         bool slow = false, known = false;

@@ -340,17 +340,19 @@ internal static class TokenViews
         var stack = new StackPanel();
         stack.Children.Add(Head(Pretty(m.Model), Source(m.Provider), m.Counts.Total, m.Share, m.Cost));
         stack.Children.Add(HomeViews.Bar(m.Share * 100, false));
-        if (EffortMix(m.Efforts, false) is { } mix)
-        {
-            var line = Theme.T(mix, 11, Theme.P.TextFaint);
-            line.Margin = new Thickness(0, 0, 0, 1);
-            stack.Children.Add(line);
-        }
+        // the effort line sits with its own bar, not the next row's name; a model with no effort known keeps its room
+        // (hidden), so every row is as tall and the rows keep one rhythm however many there are
+        string? mix = EffortMix(m.Efforts, false);
+        var line = Theme.T(mix ?? " ", 11, Theme.P.TextFaint);
+        line.Margin = new Thickness(0, -1, 0, 0);
+        if (mix is null) line.Visibility = Visibility.Hidden;
+        stack.Children.Add(line);
         var tip = new List<string> { $"{Pretty(m.Model)} · {Source(m.Provider)}" };
         if (EffortMix(m.Efforts, true) is { } all) tip.Add("effort " + all);
         tip.AddRange(Numbers(m.Counts));
         tip.Add(m.Cost is { } cost ? Tr($"환산액 {Money(cost, false)}", $"Cost {Money(cost, false)}") : Tr("가격 없음 · 환산액에 들어가지 않음", "No price · not in the cost"));
-        return new Border { Child = stack, Background = Brushes.Transparent, Margin = new Thickness(0, first ? 0 : 5, 0, 0), ToolTip = string.Join("\n", tip) };
+        // a row of three lines: more room between rows than between its own lines, whether it has the effort line or not
+        return new Border { Child = stack, Background = Brushes.Transparent, Margin = new Thickness(0, first ? 0 : 10, 0, 0), ToolTip = string.Join("\n", tip) };
     }
 
     /// The input, cache writes, cache reads and output of a sum as one bar, each part its colour, the legend under it.
