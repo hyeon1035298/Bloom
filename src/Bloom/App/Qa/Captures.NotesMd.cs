@@ -1,4 +1,5 @@
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using Bloom.Core;
 using Bloom.Ui;
@@ -14,7 +15,7 @@ internal static partial class Captures
     /// `--qa-set notesmd`: 메모 as Markdown beside the launcher, dark and light: the list (a "# 장보기" note titled
     /// 장보기), the note being written, its 보기 (headings, lists, a checklist with one box ticked; scrolled down: a quote,
     /// a table, code), 보기 at text size 18 with its "글자 크기 18", the editor at 18, and a chat answer with a table of
-    /// long code (m6-chat; notesmd.txt: the title and sizes).
+    /// long code (m6-chat), then the home's 메모 block (NotesBlockScreens; notesmd.txt: the title and sizes).
     private static async Task NotesMdScreens(Host host, Launcher w, string dir)
     {
         var log = new System.Text.StringBuilder();
@@ -50,6 +51,50 @@ internal static partial class Captures
             await Snap(w, dir, $"{theme}-m6-chat");
         }
         w.SetPinned(false);
+        await NotesBlockScreens(w, dir, log);
         File.WriteAllText(Path.Combine(dir, "notesmd.txt"), log.ToString());
+    }
+
+    /// The home's 메모 block beside 이번 주, with made-up notes (one pinned) and the 장보기 note: two columns (1000) and
+    /// one (760) dark, two light, no notes at all (only 새 메모, one column light), 홈 편집 (its − n +), and folded.
+    private static async Task NotesBlockScreens(Launcher w, string dir, System.Text.StringBuilder log)
+    {
+        Settings.Current.Home = null;
+        foreach (var k in Home.Kinds) Home.Set(k.key, k.key is "notes" or "week");
+        foreach (string text in new[] { "회의 준비\n견적서 다시 보내기", "주말에 읽을 책", "택배 반품 접수 번호" })
+            Notes.New(text);
+        Notes.SetPinned(Notes.New("# 이번 달 목표\n- 매일 30분 걷기"), true);
+        double width = w.Width, height = w.Height;
+        w.Height = 720;
+        async Task Take(string name, double across)
+        {
+            w.Width = across;
+            w.Refresh(true);
+            await Task.Delay(500);
+            w.ScrollForQa(0);
+            await Snap(w, dir, name);
+        }
+
+        w.Go(Mode.Root, "");
+        Theme.Apply("dark");
+        await Take("dark-h1-two", 1000);
+        await Take("dark-h2-one", 760);
+        Theme.Apply("light");
+        await Take("light-h1-two", 1000);
+        var kept = Notes.Current.Items.ToList();
+        Notes.Current.Items.Clear();
+        await Take("light-h3-one-empty", 760);
+        Notes.Current.Items.AddRange(kept);
+        Theme.Apply("dark");
+        w.ToggleHomeEdit();
+        await Take("dark-h4-two-edit", 1000);
+        w.ToggleHomeEdit();
+        w.Go(Mode.Root, "");
+        Home.SetCollapsed("notes", true);
+        await Take("dark-h5-two-folded", 1000);
+        log.AppendLine($"home notes block: {kept.Count} notes, {Home.Count(Home.Of("notes")!)} rows");
+        w.Width = width;
+        w.Height = height;
+        Settings.Current.Home = null;
     }
 }
