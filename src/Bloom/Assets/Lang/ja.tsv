@@ -1120,7 +1120,9 @@ API-priced cost, tokens, calls, cache hits · the first time on, all logs are re
 Token chart	トークングラフ
 Tokens by hour or day as bars · the first time on, all logs are read once in the background · compressed Codex logs left out	時間 · 日付ごとのトークン棒グラフ · 初めてオンにするとすべての記録をバックグラウンドで一度読み込み · 圧縮された Codex の記録は対象外
 Usage by model	モデル別使用量
-The models that used the most tokens, and their share · the first time on, all logs are read once in the background · compressed Codex logs left out	トークンを多く使ったモデルとその割合 · 初めてオンにするとすべての記録をバックグラウンドで一度読み込み · 圧縮された Codex の記録は対象外
+The models that used the most tokens, and their share · effort mix · the first time on, all logs are read once in the background · compressed Codex logs left out	トークンを多く使ったモデルとその割合 · effort の割合 · 初めてオンにするとすべての記録をバックグラウンドで一度読み込み · 圧縮された Codex の記録は対象外
+Usage by session	セッション別使用量
+The sessions that used the most tokens · title, folder, effort · the first time on, all logs are read once in the background · compressed Codex logs left out	トークンを多く使ったセッション · タイトル、フォルダー、effort · 初めてオンにするとすべての記録をバックグラウンドで一度読み込み · 圧縮された Codex の記録は対象外
 Running timers and reminders (only while there are some)	実行中のタイマーとリマインダー (あるときだけ)
 Reminders for the next 7 days — click a day for the calendar	今後 7 日間のリマインダー — 日付をクリックするとカレンダー
 A row of icons · Ctrl+1…9	アイコンの列 · Ctrl+1…9
@@ -1128,6 +1130,9 @@ The apps and files you opened last	最近開いたアプリとファイル
 Files Windows remembers you opened	Windows が覚えている最近開いたファイル
 The latest clipboard entries	クリップボード履歴の最新の項目
 Chats to pick up again	続きから再開できるチャット
+Your latest notes · click one to open it in Notes · a new note	最近のメモ · クリックするとメモ ウィンドウで開く · 新しいメモ
+Player	プレーヤー
+The song playing now with previous, play and next · another app's song while Bloom plays none	再生中の曲と前の曲 · 再生 · 次の曲 · Bloom が再生していないときはほかのアプリの曲
 Commands	コマンド
 Bloom's features	Bloom の機能
 Empty note	空のメモ

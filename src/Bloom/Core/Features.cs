@@ -57,8 +57,8 @@ internal static class Features
         _ when id.StartsWith("sys:", System.StringComparison.Ordinal) => "system", // a switch pinned as a favorite
         "cmd:quicklinks" => "quicklinks",
         "cmd:commands" => "mine",
-        "cmd:notes" or "cmd:tools" => "notes",
-        "cmd:player" => "player",
+        "cmd:notes" or "cmd:tools" or "notes" => "notes",
+        "cmd:player" or "player" => "player",
         "cmd:windows" => "windows",
         "cmd:layout" => "layout",
         "cmd:winget" => "winget",

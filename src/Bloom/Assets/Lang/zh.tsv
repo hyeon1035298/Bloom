@@ -1120,7 +1120,9 @@ API-priced cost, tokens, calls, cache hits · the first time on, all logs are re
 Token chart	Token 图表
 Tokens by hour or day as bars · the first time on, all logs are read once in the background · compressed Codex logs left out	按小时 · 日期显示的 Token 柱状图 · 首次开启时在后台读取全部记录一次 · 不计入压缩的 Codex 记录
 Usage by model	按模型用量
-The models that used the most tokens, and their share · the first time on, all logs are read once in the background · compressed Codex logs left out	Token 用量最多的模型及其占比 · 首次开启时在后台读取全部记录一次 · 不计入压缩的 Codex 记录
+The models that used the most tokens, and their share · effort mix · the first time on, all logs are read once in the background · compressed Codex logs left out	Token 用量最多的模型及其占比 · effort 占比 · 首次开启时在后台读取全部记录一次 · 不计入压缩的 Codex 记录
+Usage by session	按会话用量
+The sessions that used the most tokens · title, folder, effort · the first time on, all logs are read once in the background · compressed Codex logs left out	Token 用量最多的会话 · 标题、文件夹、effort · 首次开启时在后台读取全部记录一次 · 不计入压缩的 Codex 记录
 Running timers and reminders (only while there are some)	进行中的计时器和提醒 (仅在有时显示)
 Reminders for the next 7 days — click a day for the calendar	未来 7 天的提醒 — 点击日期打开日历
 A row of icons · Ctrl+1…9	图标栏 · Ctrl+1…9
@@ -1128,6 +1130,9 @@ The apps and files you opened last	最近打开的应用和文件
 Files Windows remembers you opened	Windows 记录的最近打开的文件
 The latest clipboard entries	最近的剪贴板记录
 Chats to pick up again	可以继续的对话
+Your latest notes · click one to open it in Notes · a new note	最近的便笺 · 点击即在便笺窗口中打开 · 新便笺
+Player	播放器
+The song playing now with previous, play and next · another app's song while Bloom plays none	正在播放的歌曲及上一首 · 播放 · 下一首 · Bloom 未播放时显示其他应用的歌曲
 Commands	命令
 Bloom's features	Bloom 的功能
 Empty note	空便笺

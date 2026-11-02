@@ -177,6 +177,7 @@ internal sealed partial class Host
         Timers.Changed += SyncAlarm;
         AiUsage.Updated += Later;
         TokenStats.Updated += Later;
+        Notes.Changed += _ => { if (Home.IsOn("notes")) Later(); }; // the 메모 block: a note written, pinned or gone
         // bursts of change events become one refresh, 300 ms after the first; the timer sleeps in between
         dataTick = new DispatcherTimer(DispatcherPriority.Background, ui) { Interval = TimeSpan.FromMilliseconds(300) };
         dataTick.Tick += (_, _) =>
@@ -223,6 +224,7 @@ internal sealed partial class Host
             ui.BeginInvoke(DispatcherPriority.ApplicationIdle, () => stalls = new StallWatch(ui, Log.Write));
             _ = System.Threading.Tasks.Task.Run(() => StallWatch.RemoveOldDumps(System.IO.Path.Combine(Paths.Local, "stalls")));
             Window.Prewarm();
+            HomePlayer.Start(Window, Later, Opt.Demo); // after Prewarm: its moment shown off-screen is nothing to watch for
             Tools.Restore(); // floating tool windows come back now, attached ones with the launcher
             // started by Explorer's 연결 프로그램: the document (or the song) only — no launcher, and the first-run screens wait for the next start
             if (Opt.Open is { } doc)

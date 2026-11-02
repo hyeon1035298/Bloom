@@ -51,7 +51,7 @@ internal sealed partial class Engine
                     (Action Moved, Action<string> Rename)? edit = host.Window.HomeEditing ? (() => host.Window.Refresh(true), RenameAccount) : null;
                     sections.Add(new Section(Tr("AI 사용량", "AI usage"), asked) { Widget = () => Ui.HomeViews.Usage(accounts, edit), Reload = () => _ = AiUsage.Refresh() });
                     break;
-                case "tokens" or "tokenchart" or "tokenmodels":
+                case "tokens" or "tokenchart" or "tokenmodels" or "tokensessions":
                     sections.Add(TokenBlock(w));
                     break;
                 case "timers":
@@ -97,6 +97,12 @@ internal sealed partial class Engine
                     var threads = new Section(Tr("최근 AI 채팅", "Recent AI chats"));
                     foreach (var t in Threads("").SelectMany(x => x.Items).Where(i => i.Id != "thread:new").Take(Home.Count(w))) threads.Items.Add(t);
                     if (threads.Items.Count > 0) sections.Add(threads);
+                    break;
+                case "notes":
+                    sections.Add(NotesBlock(w));
+                    break;
+                case "player":
+                    sections.Add(PlayerBlock(w));
                     break;
                 case "commands":
                     var cmds = new Section(Tr("명령", "Command"));

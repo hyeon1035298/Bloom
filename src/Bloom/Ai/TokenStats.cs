@@ -19,7 +19,7 @@ namespace Bloom.Ai;
 internal static class TokenStats
 {
     /// The home blocks that show these numbers (Core\Home.Kinds); a pass runs only while one is on and not folded.
-    public static readonly string[] Blocks = ["tokens", "tokenchart", "tokenmodels"];
+    public static readonly string[] Blocks = ["tokens", "tokenchart", "tokenmodels", "tokensessions"];
 
     /// A home drawn this soon after a pass ended starts none, unless that pass stopped only because no block wanted
     /// the numbers: it goes on at once. A pass that broke off waits too (no pass after pass on the same fault); a file
