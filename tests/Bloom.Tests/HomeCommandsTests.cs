@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text.Json;
+using Bloom.App;
 using Bloom.Core;
 using Bloom.Search;
 using Bloom.Ui;
@@ -83,11 +85,15 @@ internal static class HomeCommandsTests
         From("""{"homeCommands":{"cmd:nope":false,"cmd:ai":false,"cmd:files":true,"cmd:lock":false}}""", () =>
         {
             Check.True(!HomeCommands.Shown().Exists(e => e.Id == "cmd:ai"), "a kept pick holds");
+            Check.True(HomeCommands.Shown().Exists(e => e.Id == "cmd:files") && HomeCommands.Missing().Exists(e => e.Id == "cmd:lock"), "picks that are defaults read as defaults");
+            Check.Eq(Settings.Current.HomeCommands!.Count, 4, "reading changes nothing");
+            HomeCommands.Clean();
             Check.Eq(string.Join(" ", Settings.Current.HomeCommands!.Keys), "cmd:ai", "a command Bloom lacks and picks that are defaults go");
         });
         From("""{"homeCommands":{"cmd:nope":true}}""", () =>
         {
             Check.Eq(HomeCommands.Shown().Count, SystemItems.Commands.Count - HomeCommands.Off.Count, "the default list");
+            HomeCommands.Clean();
             Check.True(Settings.Current.HomeCommands is null, "nothing left: as if never edited");
         });
     }
@@ -104,6 +110,42 @@ internal static class HomeCommandsTests
             Check.True(HomeCommands.Missing().Exists(e => e.Id == "cmd:color"), "its feature on again: offered as picked");
         });
     }
+
+    /// The block as the engine builds it (App\Engine\Engine.CommandsBlock.cs): out of 홈 편집 plain rows, no ✕, no tile;
+    /// in it every row has a ✕ and “+ 명령 추가” ends it, its cards open on a press and closed by Esc's path first.
+    public static void BlockRowsInAndOutOfEditing() => LauncherPreviewTests.WithLauncher(window => From("{}", () =>
+    {
+        var engine = (Engine)typeof(Launcher).GetProperty("Engine", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(window)!;
+        Section Block() => Check.NotNull(engine.Root("").Find(s => s.HomeKey == "commands"), "the block is on the home");
+        string Rows(Section s) => string.Join(" ", s.Items.Select(i => i.Id));
+        string shown = Ids(HomeCommands.Shown());
+        Settings.Current.Home = null;
+        foreach (var k in Home.Kinds) Home.Set(k.key, k.key == "commands");
+        try
+        {
+            var plain = Block();
+            Check.Eq(Rows(plain), shown, "out of 홈 편집: the commands picked, nothing more");
+            Check.True(plain.Items.All(i => i.Remove is null), "no ✕");
+            window.ToggleHomeEdit();
+            var editing = Block();
+            Check.Eq(Rows(editing), shown + " home:cmd:add", "in 홈 편집: “+ 명령 추가” last");
+            Check.True(editing.Items.SkipLast(1).All(i => i.Remove is not null), "a ✕ on every command");
+            Check.True(editing.Items[0].MoreActions!().Exists(a => a.Title == "명령 블록에서 빼기"), "and in its Ctrl+K menu");
+            Check.True(!engine.CloseCommandCards(), "no cards open: Esc is 홈 편집's");
+            editing.Items[^1].Run!();
+            var open = Block();
+            Check.Eq(Rows(open), shown + " home:cmd:add " + string.Join(" ", HomeCommands.Missing().Select(e => "home:cmd:card:" + e.Id)), "the cards of the commands left off");
+            Check.True(engine.CloseCommandCards(), "Esc closes the cards first");
+            Check.Eq(Rows(Block()), shown + " home:cmd:add", "closed");
+            window.ToggleHomeEdit();
+            Check.Eq(Rows(Block()), shown, "홈 편집 over: as before");
+        }
+        finally
+        {
+            if (window.HomeEditing) window.ToggleHomeEdit();
+            Settings.Current.Home = null;
+        }
+    }));
 
     public static void KeptKeyFollowsTheList()
     {

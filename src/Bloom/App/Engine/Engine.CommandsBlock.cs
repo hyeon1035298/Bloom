@@ -73,6 +73,15 @@ internal sealed partial class Engine
         return cmds;
     }
 
+    /// Esc in 홈 편집 (Ui\Launcher\Launcher.Keys.cs): “+ 명령 추가”'s cards close first, like “+ 블록 추가”'s; false: none open.
+    public bool CloseCommandCards()
+    {
+        if (!commandCards) return false;
+        commandCards = false;
+        host.Window.RefreshTo(CommandTileId);
+        return true;
+    }
+
     /// 홈 편집: a command row's ✕, and the same in its Ctrl+K menu.
     private void Removable(ResultItem item)
     {

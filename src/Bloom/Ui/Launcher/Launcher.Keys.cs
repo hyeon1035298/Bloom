@@ -71,6 +71,11 @@ internal sealed partial class Launcher
             e.Handled = true;
             return;
         }
+        if (key == Key.Escape && HomeEditing && Mode == Mode.Root && Engine.CloseCommandCards()) // “+ 명령 추가”'s cards too
+        {
+            e.Handled = true;
+            return;
+        }
         if (key == Key.Escape && HomeEditing && Mode == Mode.Root && addOpen is { } col) // the open cards close first
         {
             e.Handled = true;

@@ -1,8 +1,10 @@
 using System;
 using System.Linq;
+using System.Reflection;
 using System.Text.Json;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using Bloom.Core;
 using Bloom.Ui;
 
@@ -24,7 +26,7 @@ internal static class HomeSplitTests
         Check.Eq(HomeColumns.LeftWidth(1300, 0.4), 520.0, "room enough: the share as it is");
         Check.Eq(HomeColumns.LeftWidth(700, 0.3), 350.0, "too narrow for two at their least: halves");
         // where the handle is put: the share it gives, clamped alike
-        Check.Eq(HomeColumns.SplitAt(400, 1000), 0.4, "at 400 of 1000");
+        Check.Eq(HomeColumns.SplitAt(450, 1000), 0.45, "at 450 of 1000");
         Check.Eq(HomeColumns.SplitAt(-50, 1000), HomeColumns.ColumnMin / 1000, "dragged past the left edge");
         Check.Eq(HomeColumns.SplitAt(5000, 1000), (1000 - HomeColumns.ColumnMin) / 1000, "… past the right one");
         Check.Eq(HomeColumns.SplitAt(double.NaN, 1000), HomeColumns.DefaultSplit, "nowhere: the default");
@@ -81,7 +83,7 @@ internal static class HomeSplitTests
 
         grid.Split = 0.1;
         Lay(1100);
-        Check.Eq(Box(a) + " / " + Box(c), "0,0 360 / 360,0 740", "kept at the least");
+        Check.Eq(Box(a) + " / " + Box(c), "0,0 420 / 420,0 680", "kept at the least");
         grid.Split = double.NaN;
         Check.Eq(grid.Split, HomeColumns.DefaultSplit, "nonsense: the default");
 
@@ -112,5 +114,46 @@ internal static class HomeSplitTests
         grid.ResetSplit();
         Check.True(grid.Split == HomeColumns.DefaultSplit && set == HomeColumns.DefaultSplit, "double-clicked: half, kept");
         Check.True(!grid.Splitting && !grid.Children.OfType<HomeSplitter>().Any(), "not being dragged; never among the blocks");
+    }
+
+    /// A press on the handle let go where it was (a bare click, a double click's first) keeps nothing; one dragged past
+    /// the drag distance tells the share once. A raised event reads the mouse where the press read it, so the press is put
+    /// at the panel's left edge to stand for a drag.
+    public static void OnlyADragIsKept()
+    {
+        var grid = new HomeColumns();
+        foreach (bool right in new[] { false, true })
+        {
+            var block = new Border { Height = 100 };
+            HomeColumns.SetRight(block, right);
+            grid.Children.Add(block);
+        }
+        var w = MdViewTests.Hosted(grid, 1100, 200);
+        try
+        {
+            MdViewTests.Pump(() => grid.Two, "two columns");
+            int sets = 0;
+            grid.SplitSet += _ => sets++;
+            var handle = grid.SplitterForQa;
+            void Raise(RoutedEvent ev)
+            {
+                var e = ev == UIElement.MouseMoveEvent ? new MouseEventArgs(Mouse.PrimaryDevice, 0) : new MouseButtonEventArgs(Mouse.PrimaryDevice, 0, MouseButton.Left);
+                e.RoutedEvent = ev;
+                handle.RaiseEvent(e);
+            }
+            Raise(UIElement.MouseLeftButtonDownEvent);
+            Check.True(grid.Splitting, "pressed: being dragged");
+            Raise(UIElement.MouseLeftButtonUpEvent);
+            Check.True(!grid.Splitting && sets == 0 && grid.Split == HomeColumns.DefaultSplit, "let go unmoved: nothing kept");
+            Raise(UIElement.MouseLeftButtonDownEvent);
+            typeof(HomeSplitter).GetField("pressed", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(handle, new Point(0, 0));
+            Raise(UIElement.MouseMoveEvent);
+            Raise(UIElement.MouseLeftButtonUpEvent);
+            Check.Eq(sets, 1, "dragged: the share told once");
+        }
+        finally
+        {
+            w.Close();
+        }
     }
 }

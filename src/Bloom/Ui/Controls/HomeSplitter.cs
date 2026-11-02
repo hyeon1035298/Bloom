@@ -8,7 +8,8 @@ namespace Bloom.Ui;
 
 /// The thin handle between the home's two columns (HomeColumns lays it over the gap): pointed at, a ↔ cursor and a
 /// short line; dragged, it tells where it is (Moved, in its panel's coordinates) and when it is let go (Done); a double
-/// click puts the columns back as they were (Reset). The search line keeps the focus: a press here goes no further.
+/// click puts the columns back as they were (Reset). A press that does not move past the drag distance (a bare click, the
+/// first click of a double click) tells neither. The search line keeps the focus: a press here goes no further.
 internal sealed class HomeSplitter : FrameworkElement
 {
     /// How wide it is: within the blocks' own side margins (a row's 8 on each side), so it takes no row's room.
@@ -22,6 +23,8 @@ internal sealed class HomeSplitter : FrameworkElement
 
     private bool dragging;
     private double grab; // where in it the press was
+    private Point pressed; // … in its panel
+    private bool moved; // the drag went past the system's drag distance
     private bool lit; // QA: drawn as pointed at
 
     public HomeSplitter()
@@ -78,6 +81,8 @@ internal sealed class HomeSplitter : FrameworkElement
         }
         if (!CaptureMouse()) return;
         grab = e.GetPosition(this).X - ActualWidth / 2;
+        pressed = VisualTreeHelper.GetParent(this) is UIElement panel ? e.GetPosition(panel) : default;
+        moved = false;
         dragging = true;
         InvalidateVisual();
     }
@@ -86,7 +91,10 @@ internal sealed class HomeSplitter : FrameworkElement
     {
         base.OnMouseMove(e);
         if (!dragging || VisualTreeHelper.GetParent(this) is not UIElement panel) return;
-        Moved?.Invoke(e.GetPosition(panel).X - grab);
+        var at = e.GetPosition(panel);
+        if (!moved && Math.Abs(at.X - pressed.X) < SystemParameters.MinimumHorizontalDragDistance) return;
+        moved = true;
+        Moved?.Invoke(at.X - grab);
     }
 
     protected override void OnMouseLeftButtonUp(MouseButtonEventArgs e)
@@ -103,6 +111,6 @@ internal sealed class HomeSplitter : FrameworkElement
         if (!dragging) return;
         dragging = false;
         InvalidateVisual();
-        Done?.Invoke();
+        if (moved) Done?.Invoke();
     }
 }
