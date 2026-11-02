@@ -28,8 +28,8 @@ namespace Bloom.Ai;
 /// the first count, or an account added later with older logs; 설정's 토큰 집계 지우기 counts them all again).
 internal sealed class TokenIndex
 {
-    /// The file's layout; another one is not read (the count starts again).
-    public const int Version = 2;
+    /// The file's layout; another one is not read (the count starts again). 3: a session's folder from its own log.
+    public const int Version = 3;
 
     /// Hourly sums older than this become one sum per UTC day, put at its noon so that a local day or month takes the
     /// day it shares the most hours with (the 90-day blocks stay hourly). The All period's month bars may so take up
@@ -79,22 +79,23 @@ internal sealed class TokenIndex
     /// What a key has added so far, field by field, and the sum it went to.
     private readonly record struct Applied(Cell Cell, TokenCounts Most);
 
-    /// Counts a call → whether the sums changed (see the class). EndFile follows each file's lines.
+    /// Counts a call → whether the sums or a session's folder changed (see the class). EndFile follows each file's lines.
     public bool Add(TokenCall call)
     {
+        bool folder = call.Own && OwnFolder(call);
         if (inFile.TryGetValue(call.Key, out var applied) || open.TryGetValue(call.Key, out applied))
         {
             var most = Most(applied.Most, call.Counts);
-            if (most == applied.Most) return false;
+            if (most == applied.Most) return folder;
             Put(applied.Cell, Less(most, applied.Most));
             applied = applied with { Most = most };
             inFile[call.Key] = applied;
             if (open.ContainsKey(call.Key)) open[call.Key] = applied;
             return true;
         }
-        if (seen.ContainsKey(call.Key) || (Complete && Hours(call.Time) < Forgotten)) return false;
+        if (seen.ContainsKey(call.Key) || (Complete && Hours(call.Time) < Forgotten)) return folder;
         var counts = call.Counts with { Calls = 1 };
-        int session = string.IsNullOrEmpty(call.Session) ? -1 : SessionOf(call.Provider, call.Session, call.Folder, Hours(call.Time));
+        int session = string.IsNullOrEmpty(call.Session) ? -1 : SessionOf(call.Provider, call.Session, call.Folder, call.Own, Hours(call.Time));
         var cell = new Cell(Floor(call.Time).Ticks, ModelId(call.Provider, call.Model), call.Variant, session);
         Put(cell, counts);
         seen[call.Key] = Hours(call.Time);
@@ -177,23 +178,38 @@ internal sealed class TokenIndex
         return at;
     }
 
-    /// A call's session (made when new): the hour it was last seen moves on; the folder is the first one met, and a
-    /// session in Bloom's AI folder is Bloom's (no title kept).
-    private int SessionOf(string provider, string id, string? cwd, int hour)
+    /// A call's session (made when new): the hour it was last seen moves on, and its folder is set (WithFolder).
+    private int SessionOf(string provider, string id, string? cwd, bool own, int hour)
     {
         if (sessionIds.TryGetValue((provider, id), out int i))
         {
             var had = sessions[i];
-            if (hour > had.Seen || (had.Folder is null && cwd is not null)) sessions[i] = WithFolder(had with { Seen = Math.Max(had.Seen, hour) }, cwd);
+            var now = WithFolder(had with { Seen = Math.Max(had.Seen, hour) }, cwd, own);
+            if (now != had) sessions[i] = now;
             return i;
         }
-        return AddSession(WithFolder(new TokenSessionInfo(provider, id, null, null, TokenSessionInfo.Named.None, null, false, hour), cwd));
+        return AddSession(WithFolder(new TokenSessionInfo(provider, id, null, null, TokenSessionInfo.Named.None, null, false, hour), cwd, own));
     }
 
-    private static TokenSessionInfo WithFolder(TokenSessionInfo s, string? cwd)
+    /// The folder of a call from its session's own log, even one counted before from a copy → whether it changed.
+    private bool OwnFolder(TokenCall call)
     {
-        if (s.Folder is not null || TokenSessionInfo.Leaf(cwd) is not { } leaf) return s;
-        return TokenSessionInfo.IsBloom(cwd) ? s with { Folder = leaf, Bloom = true, Title = null, Kind = TokenSessionInfo.Named.None } : s with { Folder = leaf };
+        if (call.Folder is null || string.IsNullOrEmpty(call.Session) || !sessionIds.TryGetValue((call.Provider, call.Session), out int i)) return false;
+        var had = sessions[i];
+        var now = WithFolder(had, call.Folder, own: true);
+        if (now == had) return false;
+        sessions[i] = now;
+        return true;
+    }
+
+    /// A session's folder whichever file is read first: the first one its own log names (a file is read in order), else
+    /// the first one met in another file (a subagent's log, a resumed copy) until the own log names one. A session in
+    /// Bloom's AI folder is Bloom's (no title kept); the own log's folder judges that again (a title dropped stays so).
+    private static TokenSessionInfo WithFolder(TokenSessionInfo s, string? cwd, bool own)
+    {
+        if ((s.Folder is not null && (s.FolderOwn || !own)) || TokenSessionInfo.Leaf(cwd) is not { } leaf) return s;
+        if (TokenSessionInfo.IsBloom(cwd)) return s with { Folder = leaf, FolderOwn = own, Bloom = true, Title = null, Kind = TokenSessionInfo.Named.None };
+        return s with { Folder = leaf, FolderOwn = own, Bloom = s.Bloom && s.Folder is null };
     }
 
     private int AddSession(TokenSessionInfo s)
@@ -410,7 +426,7 @@ internal sealed class TokenIndex
     }
 
     [Flags]
-    private enum Has : byte { None = 0, Parent = 1, Title = 2, Folder = 4, Bloom = 8 }
+    private enum Has : byte { None = 0, Parent = 1, Title = 2, Folder = 4, Bloom = 8, FolderOwn = 16 }
 
     private static TokenSessionInfo ReadSession(BinaryReader r)
     {
@@ -422,14 +438,15 @@ internal sealed class TokenIndex
         string? folder = has.HasFlag(Has.Folder) ? r.ReadString() : null;
         int seen = r.ReadInt32();
         if (kind > TokenSessionInfo.Named.Custom || (title is null) != (kind == TokenSessionInfo.Named.None)) throw new FormatException("a session's title");
-        return new TokenSessionInfo(provider, id, parent, title, kind, folder, has.HasFlag(Has.Bloom), seen);
+        return new TokenSessionInfo(provider, id, parent, title, kind, folder, has.HasFlag(Has.Bloom), seen) { FolderOwn = folder is not null && has.HasFlag(Has.FolderOwn) };
     }
 
     private static void WriteSession(BinaryWriter w, TokenSessionInfo s)
     {
         w.Write(s.Provider);
         w.Write(s.Id);
-        w.Write((byte)((s.Parent is null ? Has.None : Has.Parent) | (s.Title is null ? Has.None : Has.Title) | (s.Folder is null ? Has.None : Has.Folder) | (s.Bloom ? Has.Bloom : Has.None)));
+        w.Write((byte)((s.Parent is null ? Has.None : Has.Parent) | (s.Title is null ? Has.None : Has.Title) | (s.Folder is null ? Has.None : Has.Folder) | (s.Bloom ? Has.Bloom : Has.None)
+            | (s.FolderOwn ? Has.FolderOwn : Has.None)));
         w.Write((byte)s.Kind);
         if (s.Parent is not null) w.Write(s.Parent);
         if (s.Title is not null) w.Write(s.Title);

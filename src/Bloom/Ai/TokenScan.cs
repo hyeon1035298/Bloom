@@ -184,7 +184,7 @@ internal sealed class TokenScan
             }
         }
         BytesRead = lines.Bytes;
-        if (!Stopped) ReadNames();
+        if (!Stopped || codexRead) ReadNames(); // a pass stopped after a rollout too: the next one may not read it
         if (!Stopped && !index.Complete)
         {
             index.Complete = true;
@@ -195,8 +195,10 @@ internal sealed class TokenScan
 
     /// Reads one file from its offset into the index; a file that can't be read now is tried again next pass (what was
     /// counted of it stays counted once: its keys are known). A Claude Code call whose line names no session goes to
-    /// the session the file is named after (<uuid>.jsonl), else to none; a title line names its session. A rollout's
-    /// session_meta describes its thread once the file is read.
+    /// the session the file is named after (<uuid>.jsonl), else to none; a call of that session is in its own log
+    /// (TokenCall.Own). A title line names its session; in a file named after another session it is a resumed or forked
+    /// copy of an older title and is passed over (it would undo a newer one). A rollout's session_meta describes its
+    /// thread once the file is read.
     private void Read(string id, TokenFile state, Found f, LogLines lines)
     {
         var written = new DateTime(f.Mtime, DateTimeKind.Utc);
@@ -213,11 +215,11 @@ internal sealed class TokenScan
                     call = read;
                 }
                 else if (ClaudeLog.Parse(line, strings) is { } read)
-                    call = read.Session is null && named is not null ? read with { Session = named } : read;
+                    call = named is not null && (read.Session is null || read.Session == named) ? read with { Session = named, Own = true } : read;
                 else
                 {
                     if (line.Length <= TitleLineMost && line.IndexOf("-title\""u8) >= 0 && ClaudeLog.Title(line) is { } t && (t.Session ?? named) is { } session
-                        && index.Title("claude", session, t.Title, t.Custom, written)) Changed = true;
+                        && (named is null || session == named) && index.Title("claude", session, t.Title, t.Custom, written)) Changed = true;
                     return;
                 }
                 if (TokenPrices.IsLong(call.Model, call.Counts)) call = call with { Variant = call.Variant | TokenVariant.Long };
@@ -251,7 +253,8 @@ internal sealed class TokenScan
     public const int NamesMost = 1 << 20;
 
     /// The session_index.jsonl files read, as they were (size, UTC ticks): read again when they change or a pass read
-    /// a rollout (a thread new to the index may have been named since). The counting thread's only.
+    /// a rollout, stopped or not (a thread new to the index may have been named since); one not read is forgotten. The
+    /// counting thread's only.
     private static readonly Dictionary<string, (long Size, long Mtime)> namesRead = new(StringComparer.OrdinalIgnoreCase);
 
     private bool codexRead;
@@ -293,7 +296,8 @@ internal sealed class TokenScan
             }
             catch (Exception e) when (e is IOException or UnauthorizedAccessException)
             {
-                Log.Error("token count: " + path, e); // the next pass
+                namesRead.Remove(path); // read by the next pass, whatever it reads
+                Log.Error("token count: " + path, e);
             }
         }
     }
