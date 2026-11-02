@@ -947,6 +947,7 @@ Mini player	迷你播放器
 ntpd	ntpd
 chrom	chrom
 AI tokens	AI Token
+usage	用量
 Friday meeting\nresend the quote · fix the date	周五会议\n重新发送报价单 · 确定日期
 Trip ideas\nJeju 3 nights · rent a car	旅行想法\n济州岛 3 晚 · 租车
 note buy milk	note buy milk
@@ -1598,7 +1599,9 @@ Add a price in Settings > Home > Edit prices	可在 设置 > 主页 > 编辑价�
 Now	现在
 1 model	1 个模型
 {0} models	{0} 个模型
+{0} more · {1} tokens · no price	其他 {0} 个 · Token {1} · 无价格
 {0} more · {1} tokens · {2}	其他 {0} 个 · Token {1} · {2}
+{0} more · {1} tokens · {2} · {3} with no price	其他 {0} 个 · Token {1} · {2} · {3} 个无价格
 Calls {0}	调用 {0}
 Input {0}	输入 {0}
 Output {0}	输出 {0}
@@ -1612,6 +1615,7 @@ Cache write	缓存写入
 Cache read	缓存读取
 Output	输出
 No Claude Code or Codex logs	没有 Claude Code · Codex 记录
+Counting…	统计中…
 Nothing in this period	此期间无记录
 24h	24小时
 7d	7天
@@ -1630,8 +1634,8 @@ h tt	H时
 MMM yyyy	yyyy年M月
 Week of {0}	自 {0} 起的一周
  · nothing	 · 无记录
-1 model with no price · its {0} tokens are not in the cost	1 个模型无价格 · 其 Token {0} 不计入折算费用
-{0} models with no price · their {1} tokens are not in the cost	{0} 个模型无价格 · 其 Token {1} 不计入折算费用
+1 model with no price · {0} tokens not in the cost	1 个模型无价格 · 未计入折算费用的 Token {0}
+{0} models with no price · {1} tokens not in the cost	{0} 个模型无价格 · 未计入折算费用的 Token {1}
 Bloom {0} · What's new	Bloom {0} · 新功能
 Bloom {0} update complete	Bloom {0} 更新完成
 Changes in this version	此版本的更改
@@ -2009,6 +2013,9 @@ Edit prices	编辑价格表
 Overrides the built-in token prices (as of {0}) · prices.json	覆盖内置的 Token 价格（截至 {0}）· prices.json
 Clear the token counts	清除 Token 统计
 Clears only what Bloom counted and counts again · logs Claude Code removed after 30 days do not come back	仅清除 Bloom 统计的数字并重新统计 · Claude Code 删除的 30 天前的记录无法恢复
+Clears the token counts Bloom made and counts again from the logs that are left. Logs Claude Code already removed after 30 days do not come back.	清除 Bloom 统计的 Token 数，并从剩下的记录重新统计。Claude Code 已删除的 30 天前的记录无法恢复。
+Clear	清除
+Token counts cleared	已清除 Token 统计
 What else to search besides apps as you type	输入时除了应用还要一起搜索什么
 Also search	同时搜索
 Files too	也搜索文件
@@ -2302,7 +2309,6 @@ Launcher	启动器
 Find a setting	查找设置
 Section	分类
 Change	更改
-Clear	清除
 Rose	玫瑰
 Lavender	薰衣草
 Sky	天空

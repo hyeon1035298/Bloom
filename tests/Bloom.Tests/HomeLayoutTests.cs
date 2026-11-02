@@ -7,6 +7,7 @@ using System.Text.Json;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using Bloom.App;
 using Bloom.Core;
 using Bloom.Search;
 using Bloom.Ui;
@@ -340,6 +341,14 @@ internal static class HomeLayoutTests
         Check.Eq(TokenViews.Money(1109.92, false) + " " + TokenViews.Money(1109.92, true) + " " + TokenViews.Money(49.26, true) + " " + TokenViews.Money(123_456, true), "$1,109.92 $1,110 $49.26 $123K", "costs");
         Check.Eq(TokenViews.Percent(0.9612) + " " + TokenViews.Percent(0.004) + " " + TokenViews.Percent(1), "96.1% 0.4% 100%", "shares");
         Check.Eq(string.Join(" | ", new[] { "claude-opus-5-5", "claude-haiku-4-5", "claude-opus-4", "gpt-6.1-sol", "claude-x-y" }.Select(TokenViews.Pretty)), "Opus 5.5 | Haiku 4.5 | Opus 4 | gpt-6.1-sol | claude-x-y", "model names");
+        // the models block: the chips, never more rows than its count, the rest (one model too) as a line
+        var all = TokenDemo.View(Bloom.Ai.TokenPeriod.All);
+        int Lines(int rows) => ((Panel)TokenViews.Models(all, false, false, rows, _ => { })).Children.Count;
+        Check.Eq(all.Models.Count, 4, "the made-up models");
+        Check.Eq($"{Lines(1)} {Lines(3)} {Lines(4)} {Lines(5)}", "3 5 5 5", "rows and the rest's line");
+        // nothing summed yet: the first count's line, not the empty period's
+        static string Words(bool counting) => ((TextBlock)((Panel)TokenViews.Summary(Bloom.Ai.TokenView.Empty(Bloom.Ai.TokenPeriod.Day), false, counting, _ => { })).Children[^1]).Text;
+        Check.True(Words(true) != Words(false), "counting reads apart from nothing in the period");
     }
 
     /// The kept home draws a block anew when its column, fold or count changes (its key): its tools are drawn from them.
@@ -360,6 +369,21 @@ internal static class HomeLayoutTests
             return s;
         }
         Check.True(Launcher.SectionKey(Short(4), out _) != Launcher.SectionKey(Short(3), out _), "another count, one item either way");
+        // a token block's span: the same title, note and count, another picked chip and numbers
+        static Section Tokens(Bloom.Ai.TokenPeriod p) => new("토큰 사용량", "방금")
+        {
+            HomeKey = "tokens",
+            Widget = () => TokenViews.Summary(TokenDemo.View(p), false, false, _ => { }),
+        };
+        string day = Launcher.SectionKey(Tokens(Bloom.Ai.TokenPeriod.Day), out _);
+        Check.Eq(Launcher.SectionKey(Tokens(Bloom.Ai.TokenPeriod.Day), out _), day, "the same span");
+        Check.True(Launcher.SectionKey(Tokens(Bloom.Ai.TokenPeriod.Week), out _) != day, "another span");
+    }
+
+    /// A token block's kept span by its name; none, a number or a name that is not a span is the last 24 hours.
+    public static void TokenPeriodOf()
+    {
+        Check.Eq(string.Join(" ", new[] { null, "7", "4", "Year", "month", "Month", "All" }.Select(s => Engine.PeriodOf(s).ToString())), "Day Day Day Day Day Month All", "kept spans");
     }
 
     /// ↑ ↓ through the home (Launcher.NextStop): the favorites strip is a stop in its block's place among the rows —

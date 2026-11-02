@@ -18,13 +18,14 @@ namespace Bloom.Ui;
 internal static class TokenViews
 {
     /// 토큰 사용량: four tiles (cost, tokens, calls, cache hits), the prompt and output split as one bar with its legend,
-    /// and a line for the models with no price.
-    public static FrameworkElement Summary(TokenView v, bool noLogs, Action<TokenPeriod> pick)
+    /// and a line for the models with no price. `noLogs`: no log folder at all; `counting`: the first count is not done,
+    /// so an empty period reads "세는 중…", not "기록 없음" (the other blocks take the two the same way).
+    public static FrameworkElement Summary(TokenView v, bool noLogs, bool counting, Action<TokenPeriod> pick)
     {
         var stack = Body();
-        if (noLogs) return Empty(stack, true);
+        if (noLogs) return Empty(stack, NoLogsWords);
         stack.Children.Add(Periods(v.Period, pick, v.Sum.Calls > 0 ? Range(v) : null));
-        if (v.Sum.Calls == 0) return Empty(stack, false);
+        if (v.Sum.Calls == 0) return Empty(stack, Nothing(counting));
         var tiles = new Grid { Margin = new Thickness(-3, 0, -3, 0) };
         var s = v.Sum;
         var cost = Tile(Tr("환산액", "Cost"), Money(v.Cost, true),
@@ -54,14 +55,14 @@ internal static class TokenViews
 
     /// 토큰 그래프: the period's bars, each as tall as its tokens against the tallest (a grid of star rows, so new numbers
     /// draw it anew), the first and last bars' times under it.
-    public static FrameworkElement Chart(TokenView v, bool noLogs, Action<TokenPeriod> pick)
+    public static FrameworkElement Chart(TokenView v, bool noLogs, bool counting, Action<TokenPeriod> pick)
     {
         var stack = Body();
-        if (noLogs) return Empty(stack, true);
+        if (noLogs) return Empty(stack, NoLogsWords);
         long peak = v.Bars.Count == 0 ? 0 : v.Bars.Max(b => b.Counts.Total);
         string? caption = v.Sum.Calls > 0 ? Tr($"토큰 {Count(v.Sum.Total)} · {Money(v.Cost, true)}", $"{Count(v.Sum.Total)} tokens · {Money(v.Cost, true)}") : null;
         stack.Children.Add(Periods(v.Period, pick, caption));
-        if (v.Sum.Calls == 0 || v.Bars.Count == 0) return Empty(stack, false);
+        if (v.Sum.Calls == 0 || v.Bars.Count == 0) return Empty(stack, Nothing(counting));
         var chart = new Grid { Height = 72 };
         // the floor under the bars
         var floor = new Border { Height = 1, Background = Theme.P.Line, VerticalAlignment = VerticalAlignment.Bottom };
@@ -102,29 +103,39 @@ internal static class TokenViews
     }
 
     /// 모델별 사용량: the models with the most tokens, `rows` of them (name, where it was used, tokens, share and cost,
-    /// a bar of the share), the rest as one line.
-    public static FrameworkElement Models(TokenView v, bool noLogs, int rows, Action<TokenPeriod> pick)
+    /// a bar of the share), never more; the rest as one line, a single leftover model too.
+    public static FrameworkElement Models(TokenView v, bool noLogs, bool counting, int rows, Action<TokenPeriod> pick)
     {
         var stack = Body();
-        if (noLogs) return Empty(stack, true);
+        if (noLogs) return Empty(stack, NoLogsWords);
         int n = v.Models.Count;
         string? caption = n == 0 ? null : n == 1 ? Tr("모델 1개", "1 model") : Tr($"모델 {n}개", $"{n} models");
         stack.Children.Add(Periods(v.Period, pick, caption));
-        if (v.Sum.Calls == 0 || v.Models.Count == 0) return Empty(stack, false);
-        int shown = v.Models.Count > rows + 1 ? rows : v.Models.Count; // "그 밖 1개" would take the row the model could
+        if (v.Sum.Calls == 0 || v.Models.Count == 0) return Empty(stack, Nothing(counting));
+        int shown = Math.Min(Math.Max(rows, 1), v.Models.Count); // the count 홈 편집's − n + shows, as the list blocks
         Grid.SetIsSharedSizeScope(stack, true); // the rows' numbers line up as columns
         for (int i = 0; i < shown; i++) stack.Children.Add(ModelRow(v.Models[i], i == 0));
         if (shown < v.Models.Count)
         {
             var rest = v.Models.Skip(shown).ToList();
-            long restTokens = rest.Sum(m => m.Counts.Total);
-            double restCost = rest.Sum(m => m.Cost ?? 0);
-            var line = Theme.T(Tr($"그 밖 {rest.Count}개 · 토큰 {Count(restTokens)} · {Money(restCost, true)}", $"{rest.Count} more · {Count(restTokens)} tokens · {Money(restCost, true)}"), 11, Theme.P.TextFaint);
+            var line = Theme.T(RestWords(rest), 11, Theme.P.TextFaint);
             line.Margin = new Thickness(0, 7, 0, 0);
-            line.ToolTip = string.Join("\n", rest.Select(m => $"{Pretty(m.Model)}  {Count(m.Counts.Total)}"));
+            line.ToolTip = string.Join("\n", rest.Select(m => $"{Pretty(m.Model)}  {Count(m.Counts.Total)}  {(m.Cost is { } c ? Money(c, true) : "—")}"));
             stack.Children.Add(line);
         }
         return stack;
+    }
+
+    /// The models past the rows as one line: how many, their tokens, their cost when any is priced (an unpriced model
+    /// is not $0), and how many of them have no price.
+    private static string RestWords(List<TokenModel> rest)
+    {
+        int n = rest.Count, unpriced = rest.Count(m => m.Cost is null);
+        string tokens = Count(rest.Sum(m => m.Counts.Total));
+        if (unpriced == n) return Tr($"그 밖 {n}개 · 토큰 {tokens} · 가격 없음", $"{n} more · {tokens} tokens · no price");
+        string cost = Money(rest.Sum(m => m.Cost ?? 0), true);
+        return unpriced == 0 ? Tr($"그 밖 {n}개 · 토큰 {tokens} · {cost}", $"{n} more · {tokens} tokens · {cost}")
+            : Tr($"그 밖 {n}개 · 토큰 {tokens} · {cost} · 가격 없음 {unpriced}개", $"{n} more · {tokens} tokens · {cost} · {unpriced} with no price");
     }
 
     private static Border ModelRow(TokenModel m, bool first)
@@ -233,14 +244,18 @@ internal static class TokenViews
         return stack;
     }
 
-    /// Nothing in the period: one line under the chips; no log folder at all: the line alone.
-    private static StackPanel Empty(StackPanel stack, bool noLogs)
+    /// No log folder at all: the line alone; nothing in the period, or nothing counted yet: one line under the chips.
+    private static StackPanel Empty(StackPanel stack, string words)
     {
-        var line = Theme.T(noLogs ? Tr("Claude Code · Codex 기록 없음", "No Claude Code or Codex logs") : Tr("이 기간의 기록 없음", "Nothing in this period"), 12, Theme.P.TextFaint);
+        var line = Theme.T(words, 12, Theme.P.TextFaint);
         line.Margin = new Thickness(0, 2, 0, 2);
         stack.Children.Add(line);
         return stack;
     }
+
+    private static string NoLogsWords => Tr("Claude Code · Codex 기록 없음", "No Claude Code or Codex logs");
+
+    private static string Nothing(bool counting) => counting ? Tr("세는 중…", "Counting…") : Tr("이 기간의 기록 없음", "Nothing in this period");
 
     private static readonly TokenPeriod[] AllPeriods = [TokenPeriod.Day, TokenPeriod.Week, TokenPeriod.Month, TokenPeriod.Quarter, TokenPeriod.All];
 
@@ -352,8 +367,9 @@ internal static class TokenViews
     private static string UnpricedWords(TokenView v)
     {
         string tokens = Count(v.UnpricedTokens);
-        return v.Unpriced == 1 ? Tr($"가격 없는 모델 1개 · 토큰 {tokens}은 환산액에서 빠짐", $"1 model with no price · its {tokens} tokens are not in the cost")
-            : Tr($"가격 없는 모델 {v.Unpriced}개 · 토큰 {tokens}은 환산액에서 빠짐", $"{v.Unpriced} models with no price · their {tokens} tokens are not in the cost");
+        // no particle after the number (12.3K은, 2.71B은 read wrong)
+        return v.Unpriced == 1 ? Tr($"가격 없는 모델 1개 · 환산액에 안 들어간 토큰 {tokens}", $"1 model with no price · {tokens} tokens not in the cost")
+            : Tr($"가격 없는 모델 {v.Unpriced}개 · 환산액에 안 들어간 토큰 {tokens}", $"{v.Unpriced} models with no price · {tokens} tokens not in the cost");
     }
 
     /// "Claude Code" or "Codex" for a model's provider.

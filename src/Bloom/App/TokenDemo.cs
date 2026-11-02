@@ -24,15 +24,22 @@ internal static class TokenDemo
     /// How long the made-up counting has gone on: past 60 days, so 전체 shows months.
     private const int CountedDays = 75;
 
-    private static readonly Dictionary<(TokenPeriod, DateTime), TokenView> Made = [];
+    /// This hour's views, one per period; a new hour starts them over.
+    private static readonly Dictionary<TokenPeriod, TokenView> Made = [];
+    private static DateTime madeHour;
 
     /// The view of a period as of this hour (the same object within the hour, as TokenStats.Query gives).
     public static TokenView View(TokenPeriod period)
     {
         var hour = Hour(DateTime.Now);
-        if (Made.TryGetValue((period, hour), out var made)) return made;
+        if (hour != madeHour)
+        {
+            Made.Clear();
+            madeHour = hour;
+        }
+        if (Made.TryGetValue(period, out var made)) return made;
         made = Make(period, hour);
-        Made[(period, hour)] = made;
+        Made[period] = made;
         return made;
     }
 
