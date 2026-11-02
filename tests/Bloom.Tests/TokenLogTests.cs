@@ -75,6 +75,76 @@ internal static class TokenLogTests
         Check.True(ClaudeLog.Parse(B(Claude(Usage, id: "msg_1x")))!.Value.Key != a, "another message");
     }
 
+    public static void ClaudeEffortAndSessionAreTheLinesOwn()
+    {
+        const string message = """{"model":"claude-opus-5-5","id":"m","usage":{"input_tokens":1,"output_tokens":1,"speed":"fast"},"content":[{"type":"text","text":"\"effort\":\"max\""},{"type":"tool_use","input":{"effort":"max","sessionId":"x","cwd":"C:\\no"}}]}""";
+        string Line(string tail) => """{"parentUuid":"p","message":@M,"requestId":"r","type":"assistant","uuid":"u","timestamp":"2026-11-02T10:00:00Z"@T}""".Replace("@M", message, StringComparison.Ordinal).Replace("@T", tail, StringComparison.Ordinal);
+        var call = ClaudeLog.Parse(B(Line(""","effort":"xhigh","perTurnEffort":"low","sessionId":"0b1c","cwd":"D:\\Work\\Repo","version":"2.1.300" """)))!.Value;
+        Check.Eq(call.Variant.Effort(), TokenEffort.XHigh, "the top-level effort, after the message");
+        Check.True(call.Variant.HasFlag(TokenVariant.Fast), "beside fast mode");
+        Check.Eq((call.Session, call.Folder), ("0b1c", @"D:\Work\Repo"), "sessionId and cwd");
+        var bare = ClaudeLog.Parse(B(Line("")))!.Value;
+        Check.Eq(bare.Variant.Effort(), TokenEffort.Unknown, "none named: not the text's or a tool input's");
+        Check.True(bare.Session is null && bare.Folder is null, "nor their sessionId and cwd");
+        Check.Eq(ClaudeLog.Parse(B(Line(""","effort":"HIGH" """)))!.Value.Variant.Effort(), TokenEffort.High, "in any case");
+        Check.Eq(ClaudeLog.Parse(B(Line(""","effort":"turbo" """)))!.Value.Variant.Effort(), TokenEffort.Unknown, "a word not known");
+        Check.Eq(ClaudeLog.Parse(B(Line(""","effort":3""")))!.Value.Variant.Effort(), TokenEffort.Unknown, "not a string");
+
+        var strings = new ClaudeLog.Strings();
+        var a = ClaudeLog.Parse(B(Line(""","sessionId":"s-1","cwd":"C:\\a" """)), strings)!.Value;
+        var b = ClaudeLog.Parse(B(Line(""","sessionId":"s-1","cwd":"C:\\a" """)), strings)!.Value;
+        Check.True(ReferenceEquals(a.Session, b.Session) && ReferenceEquals(a.Folder, b.Folder), "the file's strings made once while they repeat");
+        Check.Eq(ClaudeLog.Parse(B(Line(""","sessionId":"s-2" """)), strings)!.Value.Session, "s-2", "and again when they change");
+    }
+
+    public static void ClaudeTitlesAreTheirLinesOnly()
+    {
+        Check.Eq(ClaudeLog.Title(B("""{"type":"custom-title","customTitle":"Home blocks","sessionId":"s1"}""")), ("s1", "Home blocks", true), "custom-title");
+        Check.Eq(ClaudeLog.Title(B("""{"type":"ai-title","sessionId":"s1","aiTitle":"Fix the build"}""")), ("s1", "Fix the build", false), "ai-title");
+        Check.Eq(ClaudeLog.Title(B("""{"type":"custom-title","customTitle":"x"}"""))!.Value.Session, null, "no sessionId: the file's (TokenScan)");
+        Check.True(ClaudeLog.Title(B("""{"type":"last-prompt","lastPrompt":"a secret prompt","sessionId":"s1"}""")) is null, "a last-prompt line");
+        Check.True(ClaudeLog.Title(B("""{"type":"user","message":{"content":"{\"type\":\"custom-title\",\"customTitle\":\"no\"}"},"customTitle":"no","sessionId":"s1"}""")) is null, "a title in a message's text, or on another line");
+        Check.True(ClaudeLog.Title(B("""{"type":"custom-title","customTitle":"  \n ","sessionId":"s1"}""")) is null, "a blank title");
+        string longTitle = new('가', 70);
+        Check.Eq(ClaudeLog.Title(B($$"""{"type":"custom-title","customTitle":"{{longTitle}}","sessionId":"s1"}"""))!.Value.Title, longTitle[..TokenSessionInfo.TitleMost], "cut at 64");
+        Check.Eq(ClaudeLog.Title(B("""{"type":"custom-title","customTitle":" one\ntwo\t","sessionId":"s1"}"""))!.Value.Title, "one two", "one line, trimmed");
+        Check.True(ClaudeLog.Title(B("""{"type":"custom-title","customTitle":"cut""")) is null, "a line cut off");
+    }
+
+    public static void CodexEffortAndSessionFollowTheFile()
+    {
+        var file = new TokenFile { Thread = "01a195f8-1b89-7e01-bc47-41dae7935ad7" };
+        CodexLog.Parse(B("""{"timestamp":"2026-11-01T07:17:10.000Z","type":"turn_context","payload":{"model":"gpt-6.1-sol","effort":"high","collaboration_mode":{"mode":"default","settings":{"model":"gpt-x","reasoning_effort":"low"}}}}"""), file);
+        Check.Eq((file.Model, file.Effort), ("gpt-6.1-sol", TokenEffort.High), "turn_context's own model and effort first");
+        var call = CodexLog.Parse(B(Record("resp_1", 10, 0, 0, 1)), file)!.Value;
+        Check.Eq(call.Variant.Effort(), TokenEffort.High, "the call made at it");
+        Check.Eq(call.Session, file.Thread, "in the rollout's thread");
+        CodexLog.Parse(B(Context("gpt-6-astra")), file);
+        Check.Eq(CodexLog.Parse(B(Record("resp_2", 10, 0, 0, 1)), file)!.Value.Variant.Effort(), TokenEffort.High, "a turn naming no effort keeps the last one");
+        CodexLog.Parse(B("""{"timestamp":"2026-11-01T07:17:10.000Z","type":"turn_context","payload":{"collaboration_mode":{"settings":{"reasoning_effort":"ultra"}}}}"""), file);
+        Check.Eq((file.Model, file.Effort), ("gpt-6-astra", TokenEffort.Ultra), "else collaboration_mode.settings.reasoning_effort");
+        CodexLog.Parse(B("""{"timestamp":"2026-11-01T07:17:10.000Z","type":"turn_context","payload":{"effort":"warp"}}"""), file);
+        Check.Eq(file.Effort, TokenEffort.Unknown, "a word not known");
+        file.Effort = TokenEffort.Max;
+        file.Restart();
+        Check.Eq(file.Effort, TokenEffort.Unknown, "a file read again from the start forgets it");
+
+        const string meta = """{"timestamp":"2026-11-01T07:17:08.000Z","type":"session_meta","payload":{"id":"01a195f8","base_instructions":{"text":"\"originator\":\"bloom\" \"cwd\":\"C:\\x\""},"cwd":"D:\\Work\\Repo\\","originator":"codex_exec","parent_thread_id":"01a19000","forked_from_id":"01a18000","source":{"subagent":"review"}}}""";
+        var sub = new TokenFile { Thread = "01a195f8" };
+        Check.True(CodexLog.Parse(B(meta), sub) is null && sub.Met, "session_meta is no call, but tells the thread");
+        Check.Eq((sub.Parent, sub.Folder, sub.Bloom), ("01a19000", "Repo", false), "its parent and its folder's last name, not the base instructions'");
+        var bloom = new TokenFile { Thread = "t" };
+        CodexLog.Parse(B(meta.Replace("codex_exec", "bloom", StringComparison.Ordinal).Replace("D:\\\\Work\\\\Repo\\\\", "D:\\\\", StringComparison.Ordinal)), bloom);
+        Check.Eq((bloom.Bloom, bloom.Folder), (true, "D:"), "Bloom's own (originator bloom); a drive's root");
+        var later = new TokenFile { Thread = "t" };
+        CodexLog.Parse(B(meta), later, at: 500);
+        Check.True(!later.Met, "only the first line's session_meta (a fork's copy of its parent's is not)");
+
+        Check.Eq(CodexLog.Name(B("""{"id":"01a1","thread_name":"Fix the tests","updated_at":"2026-10-20T08:00:00Z"}""")), ("01a1", (string?)"Fix the tests"), "a session_index.jsonl line");
+        Check.Eq(CodexLog.Name(B("""{"id":"01a1","updated_at":"x"}"""))!.Value.Name, null, "no name");
+        Check.True(CodexLog.Name(B("""{"thread_name":"x"}""")) is null && CodexLog.Name(B("not json")) is null, "no id, or no JSON");
+    }
+
     private static string Context(string model) => """{"timestamp":"2026-11-01T07:17:10.000Z","ordinal":3,"type":"turn_context","payload":{"cwd":"x","model":"@MODEL"}}""".Replace("@MODEL", model, StringComparison.Ordinal);
 
     private static string Record(string id, int input, int cached, int written, int output, int ordinal = 11) =>

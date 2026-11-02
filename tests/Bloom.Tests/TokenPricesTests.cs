@@ -4,8 +4,8 @@ using Bloom.Ai;
 namespace Bloom.Tests;
 
 /// The token blocks' prices (Ai\TokenPrices, Ai\TokenPrice): names as the logs write them, built-in rows by exact name
-/// only, the user's rows and prefixes over them, the long-prompt, fast and US prices, and a check against a dashboard's
-/// sums.
+/// only, the user's rows and prefixes over them, the long-prompt, fast and US prices (the effort bits beside them change
+/// none), and a check against a dashboard's sums.
 internal static class TokenPricesTests
 {
     private const long M = 1_000_000;
@@ -81,6 +81,23 @@ internal static class TokenPricesTests
         Check.Near(TokenPrices.Of("claude-sonnet-5-5")!.Cost(new TokenCounts(1, M, 0, 0, 0, 0), TokenVariant.Us), 2.2, 1e-9, "1.1× in the US");
         Check.Near(TokenPrices.Of("claude-haiku-4-5")!.Cost(new TokenCounts(1, M, 0, 0, 0, 0), TokenVariant.Us), 1.0, 1e-9, "not before 4.6");
         Check.Near(TokenPrices.Of("claude-sonnet-5-5")!.Cost(new TokenCounts(1, M, 0, 0, 0, 0), TokenVariant.Fast), 2.0, 1e-9, "no fast price: the standard one");
+    }
+
+    public static void EffortLeavesThePriceAsItIs()
+    {
+        var counts = new TokenCounts(1, M, M, M, M, M);
+        var opus = TokenPrices.Of("claude-opus-5-5")!;
+        var haiku = TokenPrices.Of("claude-haiku-5-5")!;
+        foreach (var effort in Enum.GetValues<TokenEffort>())
+            foreach (var v in new[] { TokenVariant.None, TokenVariant.Fast, TokenVariant.Us, TokenVariant.Long, TokenVariant.Fast | TokenVariant.Us | TokenVariant.Long })
+            {
+                var with = v.WithEffort(effort);
+                Check.Eq(with.Effort(), effort, $"{effort} kept beside {v}");
+                Check.Eq(with.WithEffort(TokenEffort.Unknown), v, $"and taken off again ({v})");
+                Check.Near(opus.Cost(counts, with), opus.Cost(counts, v), 1e-9, $"Opus at {effort}, {v}");
+                Check.Near(haiku.Cost(counts, with), haiku.Cost(counts, v), 1e-9, $"Haiku at {effort}, {v}");
+            }
+        Check.Eq(TokenVariant.Fast.WithEffort(TokenEffort.Max).WithEffort(TokenEffort.Low).Effort(), TokenEffort.Low, "a new effort takes the old one's place");
     }
 
     public static void ADashboardsSumsAgree()

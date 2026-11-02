@@ -6,8 +6,8 @@ using Bloom.Ai;
 namespace Bloom.Tests;
 
 /// A period's numbers from the index's sums (Ai\TokenQuery): the bars of each period and their bounds in local time
-/// (midnight, Monday, a day of 25 hours), sums that add up across bars and models, the models with no price, and
-/// TokenStats.Query handing out the same view until the numbers or the hour change.
+/// (midnight, Monday, a day of 25 hours), sums that add up across bars, models and sessions, the efforts, the models
+/// with no price, and TokenStats.Query handing out the same view until the numbers or the hour change.
 internal static class TokenQueryTests
 {
     private static readonly TimeZoneInfo Seoul = TimeZoneInfo.FindSystemTimeZoneById("Korea Standard Time");
@@ -103,6 +103,47 @@ internal static class TokenQueryTests
         Check.Eq(view.UnpricedTokens, 50 + 110 + 70 + 110L, "their tokens");
         Check.True(view.Models.Single(m => m.Model == "codex-auto-review").Cost is null, "no cost, not $0");
         Check.Eq(view.Models.Single(m => m.Model == "gpt-6.1-sol").Provider, "codex", "the provider kept");
+    }
+
+    public static void SessionsAndEffortsAddUp()
+    {
+        var now = new DateTime(2026, 11, 3, 5, 40, 0, DateTimeKind.Utc); // 14:40 in Seoul
+        static TokenSessionInfo S(string provider, string id, string? title = null, bool bloom = false) =>
+            new(provider, id, null, title, title is null ? TokenSessionInfo.Named.None : TokenSessionInfo.Named.Custom, "Repo", bloom, 0);
+        var (a, b, c, d, e) = (S("claude", "s-a", "Home blocks"), S("codex", "s-b"), S("claude", "s-c"), S("claude", "s-d", bloom: true), S("claude", "s-e"));
+        static TokenVariant E(TokenEffort effort) => TokenVariant.None.WithEffort(effort);
+        var sums = new List<TokenBucket>
+        {
+            At(now, "claude-opus-5-5", 1000, variant: E(TokenEffort.High)) with { Session = a },
+            At(now.AddHours(-3), "claude-opus-5-5-20261101", 500, variant: TokenVariant.Fast.WithEffort(TokenEffort.Max)) with { Session = a },
+            At(now.AddHours(-1), "claude-sonnet-5-5", 300, variant: E(TokenEffort.High)) with { Session = a },
+            At(now.AddHours(-2), "gpt-6.1-sol", 200, "codex", E(TokenEffort.Medium)) with { Session = b },
+            At(now.AddHours(-2), "codex-auto-review", 50, "codex", E(TokenEffort.Medium)) with { Session = b },
+            At(now.AddHours(-4), "claude-opus-5-7", 70) with { Session = c },
+            At(now.AddHours(-1), "claude-opus-5-5", 20) with { Session = e },
+            At(now.AddHours(-1), "claude-opus-5-5", 20) with { Session = d },
+            At(now, "claude-opus-5-5", 9), // no session
+            At(now.AddDays(-3), "claude-opus-5-5", 9999) with { Session = a }, // before the period
+        };
+        var view = Make(sums, TokenPeriod.Day, now, Seoul);
+        Check.Eq(view.Sessions.Aggregate(view.NoSession, (s, x) => s + x.Counts), view.Sum, "the sessions and what no session holds add up to the sum");
+        Check.Eq(view.NoSession.Calls, 1L, "a call with no session");
+        Check.Eq(string.Join(" ", view.Sessions.Select(s => s.Id)), "s-a s-b s-c s-d s-e", "most tokens first, the same tokens by id");
+        Check.Near(view.Sessions.Sum(s => s.Share) + (double)view.NoSession.Total / view.Sum.Total, 1, 1e-9, "the shares add up to 1");
+        foreach (var s in view.Sessions) Check.Eq(s.Efforts.Sum(x => x.Tokens), s.Counts.Total, $"{s.Id}'s efforts add up to its tokens");
+        foreach (var m in view.Models) Check.Eq(m.Efforts.Sum(x => x.Tokens), m.Counts.Total, $"{m.Model}'s efforts add up to its tokens");
+        var sa = view.Sessions[0];
+        Check.Eq(string.Join(" ", sa.Efforts.Select(x => $"{x.Effort}:{x.Tokens}")), "Max:610 High:1520", "the highest effort first");
+        Check.Eq(string.Join(" ", view.Models.Single(m => m.Model == "claude-opus-5-5").Efforts.Select(x => $"{x.Effort}:{x.Tokens}")), "Max:610 High:1110 Unknown:379", "Unknown last");
+        Check.Eq(string.Join(" ", sa.Models.Select(x => $"{x.Model}:{x.Tokens}")), "claude-opus-5-5:1720 claude-sonnet-5-5:410", "its models, date tail off, most tokens first");
+        Check.Eq((sa.First, sa.Last), (new DateTime(2026, 11, 3, 11, 0, 0), new DateTime(2026, 11, 3, 14, 0, 0)), "its first and last hour, local");
+        Check.True(sa is { Provider: "claude", Title: "Home blocks", Folder: "Repo", Bloom: false, UnpricedTokens: 0 } && sa.Cost is > 0, "its name and folder, priced");
+        var opusPrice = TokenPrices.Of("claude-opus-5-5")!;
+        Check.Near(sa.Cost!.Value, opusPrice.Cost(sums[0].Counts, sums[0].Variant) + opusPrice.Cost(sums[1].Counts, TokenVariant.Fast) + TokenPrices.Of("claude-sonnet-5-5")!.Cost(sums[2].Counts, TokenVariant.None), 1e-12, "each call at its own price");
+        Check.True(view.Sessions[1] is { Provider: "codex", UnpricedTokens: 160 } && view.Sessions[1].Cost is > 0, "a model with no price beside one with: its tokens told apart");
+        Check.True(view.Sessions[2] is { Cost: null, UnpricedTokens: 180 }, "no model with a price: no cost, not $0");
+        Check.True(view.Sessions[3] is { Bloom: true, Title: null }, "Bloom's own");
+        Check.True(TokenQuery.Make([], TokenPrices.Of, TokenPeriod.Day, now, Seoul) is { Sessions.Count: 0, NoSession.Calls: 0 }, "nothing counted: no sessions");
     }
 
     public static void QueryHandsOutTheSameView()
