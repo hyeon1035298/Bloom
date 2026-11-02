@@ -39,7 +39,7 @@ internal static partial class Captures
             limits.Add(new UsageLimit(Tr("주간", "Weekly"), week, DateTime.Now.AddDays(4)));
             return new(name, plan, limits, DateTime.Now);
         }
-        AiUsage.SetForQa(Plan("Claude", "Max 20x", 32, 47), Plan("ChatGPT", "Pro 20x", null, 21));
+        AiUsage.SetForQa(Plan("Claude", "Ultra", 32, 47), Plan("ChatGPT", "Pro 20x", null, 21));
 
         // the launcher: home, then an app found from a name typed with the keyboard left in Korean (in English runs, from
         // its initials), then a sum key by key

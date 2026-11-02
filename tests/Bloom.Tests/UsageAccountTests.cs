@@ -60,7 +60,7 @@ internal static class UsageAccountTests
 
             var cards = new List<Ai.UsageAccount>
             {
-                new("Claude", "Max 20x", new(), DateTime.Now) { Id = "claude-1", Who = "a@example.com" },
+                new("Claude", "Ultra", new(), DateTime.Now) { Id = "claude-1", Who = "a@example.com" },
                 new("Claude", "Pro", new(), DateTime.Now) { Id = "claude", Who = "c@example.com" },
                 new("ChatGPT", "Plus", new(), DateTime.Now) { Id = "chatgpt-1", Who = "b@example.com" },
             };
@@ -75,6 +75,19 @@ internal static class UsageAccountTests
         {
             list.Clear();
         }
+    }
+
+    public static void ClaudePlanNames()
+    {
+        string? Plan(string account)
+        {
+            using var doc = System.Text.Json.JsonDocument.Parse(account);
+            return Ai.ClaudeUsage.Plan(doc.RootElement);
+        }
+        Check.Eq(Plan("""{"organizationRateLimitTier":"default_claude_max_5x"}"""), (string?)"Max", "the old Max 5x is Max");
+        Check.Eq(Plan("""{"organizationRateLimitTier":"default_claude_max_20x"}"""), (string?)"Ultra", "the old Max 20x is Ultra");
+        Check.Eq(Plan("""{"userRateLimitTier":"default_claude_max_10x"}"""), (string?)"Max 10x", "another multiple keeps its number");
+        Check.Eq(Plan("""{"organizationType":"claude_pro"}"""), (string?)"Pro", "no tier: the organisation's type");
     }
 
     public static void LightAnswer()

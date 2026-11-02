@@ -104,7 +104,7 @@ internal static partial class ClaudeUsage
         return t < now.AddDays(-3) ? t.AddYears(1) : t; // "Jan 2" seen in late December
     }
 
-    /// "Max 20x", "Pro" … and the e-mail, from the account details Claude Code keeps beside its sign-in (not the login
+    /// "Max", "Ultra", "Pro" … and the e-mail, from the account details Claude Code keeps beside its sign-in (not the login
     /// itself): ~/.claude.json for the default folder, <folder>\.claude.json for an added one.
     private static (string? plan, string? email) Account(string? home)
     {
@@ -122,15 +122,19 @@ internal static partial class ClaudeUsage
         }
     }
 
-    private static string? Plan(JsonElement oa)
+    internal static string? Plan(JsonElement oa)
     {
         string tier = Str(oa, "userRateLimitTier") is { Length: > 0 } u ? u : Str(oa, "organizationRateLimitTier") ?? "";
-        if (MaxTier().Match(tier) is { Success: true } x) return $"Max {x.Groups[1].Value}x";
+        if (MaxTier().Match(tier) is { Success: true } x) return MaxName(x.Groups[1].Value);
         string type = Str(oa, "organizationType") ?? "";
         foreach (string plan in new[] { "Max", "Pro", "Team", "Enterprise" })
             if (type.Contains(plan, StringComparison.OrdinalIgnoreCase)) return plan;
         return null;
     }
+
+    /// Claude's names since the Max plans were renamed: the old Max 5x is "Max", the old Max 20x "Ultra"; the sign-in
+    /// still says max_5x / max_20x. Another multiple keeps its number.
+    private static string MaxName(string times) => times switch { "5" => "Max", "20" => "Ultra", _ => $"Max {times}x" };
 
     private static string? Str(JsonElement e, string name) => e.TryGetProperty(name, out var v) && v.ValueKind == JsonValueKind.String ? v.GetString() : null;
 }

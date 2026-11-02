@@ -42,7 +42,7 @@ internal sealed partial class Host
             limits.Add(new UsageLimit(Tr("주간", "Weekly"), week, DateTime.Now.AddDays(4)));
             return new(name, plan, limits, DateTime.Now);
         }
-        AiUsage.SetForQa(Plan("Claude", "Max 20x", 32, 47), Plan("ChatGPT", "Pro 20x", null, 21)); // ChatGPT Pro has a weekly limit only
+        AiUsage.SetForQa(Plan("Claude", "Ultra", 32, 47), Plan("ChatGPT", "Pro 20x", null, 21)); // ChatGPT Pro has a weekly limit only
         if (Opt.CaptureDir is null) // QA pictures are taken off-screen: no backdrop over the user's screen
         {
             backdrop = new DemoBackdrop(Opt.Display);

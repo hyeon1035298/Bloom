@@ -161,7 +161,7 @@ internal static partial class Captures
             if (fiveHour is { } h) limits.Add(new UsageLimit(Tr("5시간", "5h"), h, DateTime.Now.AddHours(3).AddMinutes(12), UsageLimit.SessionMins));
             limits.Add(new UsageLimit(Tr("주간", "Weekly"), week, DateTime.Now.AddDays(4), UsageLimit.WeekMins)); return new UsageAccount(name, plan, limits, DateTime.Now) { Who = who };
         }
-        var four = new[] { Plan("Claude", "Max 20x", "work@example.com", 32, 47), Plan("Claude", "Pro", "side@example.com", 81, 64), Plan("ChatGPT", "Pro 200", "work@example.com", null, 21), Plan("ChatGPT", "Plus", "home@example.com", 12, 5) };
+        var four = new[] { Plan("Claude", "Ultra", "work@example.com", 32, 47), Plan("Claude", "Pro", "side@example.com", 81, 64), Plan("ChatGPT", "Pro 200", "work@example.com", null, 21), Plan("ChatGPT", "Plus", "home@example.com", 12, 5) };
         foreach (int n in new[] { 3, 4 })
         {
             AiUsage.SetForQa(four[..n]);
@@ -202,7 +202,7 @@ internal static partial class Captures
             new Notice("start", Tr("Claude Code · 진행 중", "Claude Code · Working"), Tr("로그인 화면 리팩터링과 세션 만료 처리, 오류 문구까지 한 번에 정리", "Refactor the sign-in screen, session expiry and the error wording in one go"), Tr("“세션이 끊기면 다시 로그인하는 흐름도 같이 고쳐 줘, 테스트도 추가하고”", "“Also fix signing in again after the session drops, and add tests”")),
             SampleDone("Codex", Tr("결제 모듈 테스트 추가", "Add payment module tests"), 12),
             SampleWaiting("Claude Code", Tr("빌드 스크립트 정리", "Tidy the build script"), "qa"),
-            SampleLimit("Claude Max 20x", Tr("주간", "Weekly"), 18, new TimeSpan(2, 4, 0, 0)),
+            SampleLimit("Claude Ultra", Tr("주간", "Weekly"), 18, new TimeSpan(2, 4, 0, 0)),
             SampleRecover("ChatGPT Plus", Tr("5시간", "5h")),
         };
         var nw = new NoticeWindow { Offscreen = true };
@@ -283,7 +283,7 @@ internal static partial class Captures
             limits.Add(new UsageLimit(Tr("주간", "Weekly"), week, DateTime.Now.AddDays(4)));
             return new(name, plan, limits, DateTime.Now);
         }
-        AiUsage.SetForQa(Plan("Claude", "Max 20x", 32, 47), Plan("ChatGPT", "Pro 20x", null, 21)); // Pro has a weekly limit only
+        AiUsage.SetForQa(Plan("Claude", "Ultra", 32, 47), Plan("ChatGPT", "Pro 20x", null, 21)); // Pro has a weekly limit only
         foreach (string theme in new[] { "dark", "light" })
         {
             Theme.Apply(theme);

@@ -213,7 +213,7 @@ internal static class Notices
     /// "40분 뒤 초기화" for a limit whose reset is ahead.
     private static string? ResetsIn(UsageLimit l) => l.Resets is { } at && at > DateTime.Now ? Tr($"{Span(at - DateTime.Now)} 뒤 초기화", $"Resets in {Span(at - DateTime.Now)}") : null;
 
-    /// The account as the cards name it: "Claude Max 20x", and whose when one kind has several.
+    /// The account as the cards name it: "Claude Ultra", and whose when one kind has several.
     private static string Who(UsageAccount a, List<UsageAccount> all) => (a.Plan is { Length: > 0 } plan ? $"{a.Name} {plan}" : a.Name) + (AiUsage.Who(a, all) is { } whose ? $" · {whose}" : "");
 
     /// The end of something the user started in Bloom (a hidden 내 명령 script, a chain with skipped lines, a file moved
