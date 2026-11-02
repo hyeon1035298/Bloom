@@ -8,9 +8,16 @@ using Bloom.Core;
 namespace Bloom.Ai;
 
 /// What the token count keeps between passes, in one file (%LOCALAPPDATA%\Bloom\tokens\index.bin) so that the sums, the
-/// files' offsets and the keys counted are always of the same moment: hourly sums per model and variant (TokenBucket),
-/// each log file's TokenFile, the keys counted (seen) with their hour, and the recent keys' counted values (open). No
-/// message text, folder or project name is kept: only the logs' paths on this PC, model names, key hashes and numbers.
+/// files' offsets and the keys counted are always of the same moment: hourly sums per model, variant (its effort too)
+/// and session (TokenBucket), the sessions met (TokenSessionInfo), each log file's TokenFile, the keys counted (seen)
+/// with their hour, and the recent keys' counted values (open). No message text and no whole folder path is kept: the
+/// logs' paths on this PC, model names, the sessions' ids, titles (none for Bloom's own chats) and last folder names,
+/// key hashes and numbers.
+///
+/// A call goes to the session its line names (TokenCall.Session; a resumed copy names the session it came from, so it
+/// goes there however the files are read); a Codex subagent's or guardian's thread shows under its top thread
+/// (Snapshot). Sums older than HourDays fold into days with no session, and a session not seen for HourDays leaves the
+/// table (Roll), so the table and the sums keep about HourDays of sessions.
 ///
 /// A call is counted once however often its key comes (Add): the lines of one response in the file being read add only
 /// what they hold above the most counted so far, field by field, to the hour first counted; so do the keys of the last
@@ -22,7 +29,7 @@ namespace Bloom.Ai;
 internal sealed class TokenIndex
 {
     /// The file's layout; another one is not read (the count starts again).
-    public const int Version = 1;
+    public const int Version = 2;
 
     /// Hourly sums older than this become one sum per UTC day, put at its noon so that a local day or month takes the
     /// day it shares the most hours with (the 90-day blocks stay hourly). The All period's month bars may so take up
@@ -37,10 +44,15 @@ internal sealed class TokenIndex
     /// A key this recent may still be growing in a file being written (open).
     public const int OpenHours = 6;
 
+    /// How many parents up a Codex thread is followed to its top one (a loop stops sooner).
+    public const int ParentsMost = 8;
+
     private static ReadOnlySpan<byte> Magic => "BTKI"u8;
 
     private readonly List<(string Provider, string Model)> models = [];
     private readonly Dictionary<(string Provider, string Model), int> modelIds = new();
+    private readonly List<TokenSessionInfo> sessions = [];
+    private readonly Dictionary<(string Provider, string Id), int> sessionIds = new();
     private readonly Dictionary<Cell, TokenCounts> cells = new();
     private readonly Dictionary<ulong, int> seen = new(); // key → its hour (since 0001-01-01)
     private readonly Dictionary<ulong, Applied> open = new();
@@ -58,8 +70,11 @@ internal sealed class TokenIndex
     public int SeenCount => seen.Count;
     public int OpenCount => open.Count;
 
-    /// One sum: its hour (UTC ticks), model (index into models) and variant.
-    private readonly record struct Cell(long Hour, int Model, TokenVariant Variant);
+    /// The sessions met, as the table holds them now (the counting thread; the tests).
+    public IReadOnlyList<TokenSessionInfo> Sessions => sessions;
+
+    /// One sum: its hour (UTC ticks), model (index into models), variant and session (index into sessions, -1: none).
+    private readonly record struct Cell(long Hour, int Model, TokenVariant Variant, int Session);
 
     /// What a key has added so far, field by field, and the sum it went to.
     private readonly record struct Applied(Cell Cell, TokenCounts Most);
@@ -79,7 +94,8 @@ internal sealed class TokenIndex
         }
         if (seen.ContainsKey(call.Key) || (Complete && Hours(call.Time) < Forgotten)) return false;
         var counts = call.Counts with { Calls = 1 };
-        var cell = new Cell(Floor(call.Time).Ticks, ModelId(call.Provider, call.Model), call.Variant);
+        int session = string.IsNullOrEmpty(call.Session) ? -1 : SessionOf(call.Provider, call.Session, call.Folder, Hours(call.Time));
+        var cell = new Cell(Floor(call.Time).Ticks, ModelId(call.Provider, call.Model), call.Variant, session);
         Put(cell, counts);
         seen[call.Key] = Hours(call.Time);
         applied = new Applied(cell, counts);
@@ -92,16 +108,17 @@ internal sealed class TokenIndex
     public void EndFile() => inFile.Clear();
 
     /// Tidies by Now: hourly sums older than HourDays fold into UTC days (at noon; a day folded at its midnight before
-    /// moves there too), keys older than SeenDays are forgotten once the first count is over, keys older than OpenHours
-    /// are no longer open.
+    /// moves there too) with no session, sessions not seen for HourDays leave the table (the others numbered again),
+    /// keys older than SeenDays are forgotten once the first count is over, keys older than OpenHours are no longer open.
     public void Roll()
     {
         long fold = Now.AddDays(-HourDays).Ticks, noon = TimeSpan.TicksPerDay / 2;
-        foreach (var (cell, counts) in cells.Where(c => c.Key.Hour < fold && c.Key.Hour % TimeSpan.TicksPerDay != noon).ToList())
+        foreach (var (cell, counts) in cells.Where(c => c.Key.Hour < fold && (c.Key.Hour % TimeSpan.TicksPerDay != noon || c.Key.Session >= 0)).ToList())
         {
             cells.Remove(cell);
-            Put(cell with { Hour = cell.Hour - cell.Hour % TimeSpan.TicksPerDay + noon }, counts);
+            Put(cell with { Hour = cell.Hour - cell.Hour % TimeSpan.TicksPerDay + noon, Session = -1 }, counts);
         }
+        DropSessions(Hours(Now.AddDays(-HourDays)));
         if (Complete)
         {
             int old = Forgotten;
@@ -111,9 +128,125 @@ internal sealed class TokenIndex
         foreach (var key in open.Where(o => o.Value.Cell.Hour < recent).Select(o => o.Key).ToList()) open.Remove(key);
     }
 
-    /// The sums, for the blocks (a copy: the index may go on changing on the counting thread).
-    public TokenBucket[] Snapshot() =>
-        cells.Select(c => new TokenBucket(new DateTime(c.Key.Hour, DateTimeKind.Utc), models[c.Key.Model].Provider, models[c.Key.Model].Model, c.Key.Variant, c.Value)).ToArray();
+    /// The sessions last seen before `hour` leave the table; the rest are numbered again, in the sums and the open keys
+    /// too (a sum of a session gone, which Roll's fold leaves none of, goes to no session).
+    private void DropSessions(int hour)
+    {
+        if (!sessions.Exists(s => s.Seen < hour)) return;
+        var map = new int[sessions.Count];
+        var kept = new List<TokenSessionInfo>(sessions.Count);
+        for (int i = 0; i < sessions.Count; i++)
+        {
+            map[i] = sessions[i].Seen < hour ? -1 : kept.Count;
+            if (map[i] >= 0) kept.Add(sessions[i]);
+        }
+        sessions.Clear();
+        sessions.AddRange(kept);
+        sessionIds.Clear();
+        for (int i = 0; i < sessions.Count; i++) sessionIds[(sessions[i].Provider, sessions[i].Id)] = i;
+        Cell Moved(Cell c) => c.Session < 0 ? c : c with { Session = map[c.Session] };
+        var all = cells.ToList();
+        cells.Clear();
+        foreach (var (cell, counts) in all) Put(Moved(cell), counts);
+        foreach (var (key, applied) in open.ToList()) open[key] = applied with { Cell = Moved(applied.Cell) };
+        foreach (var (key, applied) in inFile.ToList()) inFile[key] = applied with { Cell = Moved(applied.Cell) };
+    }
+
+    /// The sums, for the blocks (a copy: the index may go on changing on the counting thread). Each sum's session is
+    /// its top one; the sessions' entries are shared, never changed.
+    public TokenBucket[] Snapshot()
+    {
+        var tops = new TokenSessionInfo?[sessions.Count];
+        for (int i = 0; i < tops.Length; i++) tops[i] = Top(i);
+        return cells.Select(c => new TokenBucket(new DateTime(c.Key.Hour, DateTimeKind.Utc), models[c.Key.Model].Provider, models[c.Key.Model].Model, c.Key.Variant, c.Value,
+            c.Key.Session < 0 ? null : tops[c.Key.Session])).ToArray();
+    }
+
+    /// The session a thread shows under: its parent's, up to ParentsMost up, stopping at a parent not in the table or
+    /// one met before on the way (a loop).
+    private TokenSessionInfo Top(int i)
+    {
+        var at = sessions[i];
+        Span<int> way = stackalloc int[ParentsMost + 1];
+        way[0] = i;
+        for (int n = 1; n <= ParentsMost && at.Parent is { } parent && sessionIds.TryGetValue((at.Provider, parent), out int up) && !way[..n].Contains(up); n++)
+        {
+            way[n] = up;
+            at = sessions[up];
+        }
+        return at;
+    }
+
+    /// A call's session (made when new): the hour it was last seen moves on; the folder is the first one met, and a
+    /// session in Bloom's AI folder is Bloom's (no title kept).
+    private int SessionOf(string provider, string id, string? cwd, int hour)
+    {
+        if (sessionIds.TryGetValue((provider, id), out int i))
+        {
+            var had = sessions[i];
+            if (hour > had.Seen || (had.Folder is null && cwd is not null)) sessions[i] = WithFolder(had with { Seen = Math.Max(had.Seen, hour) }, cwd);
+            return i;
+        }
+        return AddSession(WithFolder(new TokenSessionInfo(provider, id, null, null, TokenSessionInfo.Named.None, null, false, hour), cwd));
+    }
+
+    private static TokenSessionInfo WithFolder(TokenSessionInfo s, string? cwd)
+    {
+        if (s.Folder is not null || TokenSessionInfo.Leaf(cwd) is not { } leaf) return s;
+        return TokenSessionInfo.IsBloom(cwd) ? s with { Folder = leaf, Bloom = true, Title = null, Kind = TokenSessionInfo.Named.None } : s with { Folder = leaf };
+    }
+
+    private int AddSession(TokenSessionInfo s)
+    {
+        sessions.Add(s);
+        return sessionIds[(s.Provider, s.Id)] = sessions.Count - 1;
+    }
+
+    /// A session's title (Claude Code's custom-title or ai-title line, a Codex thread_name) → whether it changed. The
+    /// last one met wins, but an ai title never replaces a custom one; Bloom's own sessions keep none (a Claude Code
+    /// session Bloom named, TokenSessionInfo.BloomTitle, is Bloom's). A session not in the table is made (`seen`: when
+    /// its log was written) unless `onlyKnown`.
+    public bool Title(string provider, string id, string? title, bool custom, DateTime seen, bool onlyKnown = false)
+    {
+        if (TokenSessionInfo.Clean(title) is not { } clean) return false;
+        var kind = custom ? TokenSessionInfo.Named.Custom : TokenSessionInfo.Named.Ai;
+        bool bloom = custom && provider == "claude" && clean.StartsWith(TokenSessionInfo.BloomTitle, StringComparison.Ordinal);
+        if (!sessionIds.TryGetValue((provider, id), out int i))
+        {
+            if (onlyKnown) return false;
+            AddSession(bloom ? new TokenSessionInfo(provider, id, null, null, TokenSessionInfo.Named.None, null, true, Hours(seen))
+                : new TokenSessionInfo(provider, id, null, clean, kind, null, false, Hours(seen)));
+            return true;
+        }
+        var had = sessions[i];
+        if (bloom && !had.Bloom)
+        {
+            sessions[i] = had with { Bloom = true, Title = null, Kind = TokenSessionInfo.Named.None };
+            return true;
+        }
+        if (had.Bloom || (had.Kind == TokenSessionInfo.Named.Custom && !custom) || (had.Title == clean && had.Kind == kind)) return false;
+        sessions[i] = had with { Title = clean, Kind = kind };
+        return true;
+    }
+
+    /// What a Codex rollout's session_meta told of its thread (TokenFile.Met) → whether anything changed: the parent it
+    /// shows under, its folder (the first one met), Bloom's own (its title goes). Made when not in the table yet
+    /// (`seen`: when its log was written).
+    public bool Describe(string provider, string id, string? parent, string? folder, bool bloom, DateTime seen)
+    {
+        if (!sessionIds.TryGetValue((provider, id), out int i)) i = AddSession(new TokenSessionInfo(provider, id, null, null, TokenSessionInfo.Named.None, null, false, Hours(seen)));
+        var had = sessions[i];
+        var now = had with
+        {
+            Parent = parent ?? had.Parent,
+            Folder = had.Folder ?? folder,
+            Bloom = had.Bloom || bloom,
+        };
+        if (now.Bloom) now = now with { Title = null, Kind = TokenSessionInfo.Named.None };
+        if (now == had) return false;
+        sessions[i] = now;
+        return true;
+    }
 
     private void Put(Cell cell, TokenCounts counts) => cells[cell] = cells.TryGetValue(cell, out var had) ? had + counts : counts;
 
@@ -158,6 +291,14 @@ internal sealed class TokenIndex
             }
             var index = new TokenIndex { Complete = r.ReadBoolean() };
             for (int i = r.ReadInt32(); i > 0; i--) index.ModelId(r.ReadString(), r.ReadString());
+            int count = r.ReadInt32();
+            if (count < 0 || count > stream.Length - stream.Position) throw new FormatException("more sessions than the file holds");
+            for (int i = 0; i < count; i++)
+            {
+                var s = ReadSession(r);
+                if (index.sessionIds.ContainsKey((s.Provider, s.Id))) throw new FormatException("a session twice");
+                index.AddSession(s);
+            }
             for (int i = r.ReadInt32(); i > 0; i--)
             {
                 var cell = index.ReadCell(r);
@@ -171,6 +312,8 @@ internal sealed class TokenIndex
                 {
                     f.Thread = r.ReadString();
                     f.Model = r.ReadBoolean() ? string.Intern(r.ReadString()) : null;
+                    byte effort = r.ReadByte();
+                    f.Effort = effort <= (byte)TokenEffort.Max ? (TokenEffort)effort : TokenEffort.Unknown;
                     f.Records = r.ReadBoolean();
                     f.LastTotal = r.ReadUInt64();
                 }
@@ -207,6 +350,8 @@ internal sealed class TokenIndex
             w.Write(provider);
             w.Write(model);
         }
+        w.Write(sessions.Count);
+        foreach (var s in sessions) WriteSession(w, s);
         w.Write(cells.Count);
         foreach (var (cell, counts) in cells)
         {
@@ -226,6 +371,7 @@ internal sealed class TokenIndex
             w.Write(f.Thread!);
             w.Write(f.Model is not null);
             if (f.Model is not null) w.Write(f.Model);
+            w.Write((byte)f.Effort);
             w.Write(f.Records);
             w.Write(f.LastTotal);
         }
@@ -249,8 +395,10 @@ internal sealed class TokenIndex
         long hour = r.ReadInt64();
         int model = r.ReadInt32();
         var variant = (TokenVariant)r.ReadByte();
+        int session = r.ReadInt32();
         if (model < 0 || model >= models.Count) throw new FormatException("a sum of no model");
-        return new Cell(hour, model, variant);
+        if (session < -1 || session >= sessions.Count) throw new FormatException("a sum of no session");
+        return new Cell(hour, model, variant, session);
     }
 
     private static void WriteCell(BinaryWriter w, Cell cell)
@@ -258,6 +406,35 @@ internal sealed class TokenIndex
         w.Write(cell.Hour);
         w.Write(cell.Model);
         w.Write((byte)cell.Variant);
+        w.Write(cell.Session);
+    }
+
+    [Flags]
+    private enum Has : byte { None = 0, Parent = 1, Title = 2, Folder = 4, Bloom = 8 }
+
+    private static TokenSessionInfo ReadSession(BinaryReader r)
+    {
+        string provider = string.Intern(r.ReadString()), id = r.ReadString();
+        var has = (Has)r.ReadByte();
+        var kind = (TokenSessionInfo.Named)r.ReadByte();
+        string? parent = has.HasFlag(Has.Parent) ? r.ReadString() : null;
+        string? title = has.HasFlag(Has.Title) ? r.ReadString() : null;
+        string? folder = has.HasFlag(Has.Folder) ? r.ReadString() : null;
+        int seen = r.ReadInt32();
+        if (kind > TokenSessionInfo.Named.Custom || (title is null) != (kind == TokenSessionInfo.Named.None)) throw new FormatException("a session's title");
+        return new TokenSessionInfo(provider, id, parent, title, kind, folder, has.HasFlag(Has.Bloom), seen);
+    }
+
+    private static void WriteSession(BinaryWriter w, TokenSessionInfo s)
+    {
+        w.Write(s.Provider);
+        w.Write(s.Id);
+        w.Write((byte)((s.Parent is null ? Has.None : Has.Parent) | (s.Title is null ? Has.None : Has.Title) | (s.Folder is null ? Has.None : Has.Folder) | (s.Bloom ? Has.Bloom : Has.None)));
+        w.Write((byte)s.Kind);
+        if (s.Parent is not null) w.Write(s.Parent);
+        if (s.Title is not null) w.Write(s.Title);
+        if (s.Folder is not null) w.Write(s.Folder);
+        w.Write(s.Seen);
     }
 
     private static TokenCounts ReadCounts(BinaryReader r) => new(r.ReadInt64(), r.ReadInt64(), r.ReadInt64(), r.ReadInt64(), r.ReadInt64(), r.ReadInt64());

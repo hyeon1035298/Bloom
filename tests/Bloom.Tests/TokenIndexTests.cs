@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Bloom.Ai;
@@ -6,7 +7,8 @@ using Bloom.Ai;
 namespace Bloom.Tests;
 
 /// The token count's index (Ai\TokenIndex) and its passes (Ai\TokenScan): a call counted once however often its key
-/// comes, the file kept and read back, tidied by age, and the logs read in parts as they grow, shrink, vanish or move.
+/// comes, the file kept and read back, tidied by age, and the logs read in parts as they grow, shrink, vanish or move;
+/// each call in the session its line names, the sessions' titles, folders and top threads, kept and tidied too.
 internal static class TokenIndexTests
 {
     private static readonly DateTime Now = new(2026, 11, 2, 12, 30, 0, DateTimeKind.Utc);
@@ -84,7 +86,7 @@ internal static class TokenIndexTests
             File.WriteAllBytes(path, whole[..(whole.Length - 9)]);
             var cut = TokenIndex.Load(path);
             Check.True(cut is { Complete: false, SeenCount: 0, Files.Count: 0 } && cut.Snapshot().Length == 0, "a file cut short: an empty index, counted again");
-            File.WriteAllBytes(path, [.. "BTKI"u8, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0xF0, 0xFF, 0xFF, 0x7F]);
+            File.WriteAllBytes(path, [.. "BTKI"u8, 2, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0xF0, 0xFF, 0xFF, 0x7F]);
             Check.Eq(TokenIndex.Load(path).Complete, false, "more keys than the file holds: counted again, no table made for them");
 
             File.WriteAllBytes(path, [.. "BTKI"u8, 99, 0, 0, 0, 1]);
@@ -170,6 +172,116 @@ internal static class TokenIndexTests
         }
     }
 
+    private static string Sums(TokenIndex index) => string.Join(";", index.Snapshot()
+        .Select(b => $"{b.Hour:O} {b.Provider} {b.Model} {(byte)b.Variant} {b.Counts} {b.Session?.Id}/{b.Session?.Title}/{b.Session?.Folder}/{b.Session?.Bloom}")
+        .Order(StringComparer.Ordinal));
+
+    private static string Table(TokenIndex index) => string.Join(";", index.Sessions.Select(s => s.ToString()).Order(StringComparer.Ordinal));
+
+    public static void SessionsAreKeptAndReadBack()
+    {
+        string dir = Temp();
+        try
+        {
+            string path = Path.Combine(dir, "index.bin");
+            var index = new TokenIndex { Now = Now, Complete = true };
+            index.Add(Call(1, 10) with { Session = "s-a", Folder = @"D:\Work\Repo", Variant = TokenVariant.Fast.WithEffort(TokenEffort.Max) });
+            index.Add(Call(2, 20, Now.AddDays(-2)) with { Session = "s-a", Variant = TokenVariant.None.WithEffort(TokenEffort.High) });
+            index.Add(Call(3, 5) with { Session = "s-b" });
+            index.Add(Call(4, 5)); // no session
+            index.Add(new TokenCall(5, Now.AddHours(-2), "codex", "gpt-6.1-sol", TokenVariant.None.WithEffort(TokenEffort.Medium), new TokenCounts(1, 5, 6, 7, 8, 0), "t-child"));
+            index.EndFile();
+            index.Title("claude", "s-a", "Home blocks", custom: true, Now);
+            index.Describe("codex", "t-child", "t-top", "Repo", false, Now);
+            index.Describe("codex", "t-top", null, "Repo", false, Now);
+            index.Title("codex", "t-top", "The top thread", custom: true, Now);
+            index.Files["x|u"] = new TokenFile { Path = "C:\\r.jsonl", Size = 10, Mtime = 6, Offset = 10, Thread = "u", Model = "gpt-6.1-sol", Effort = TokenEffort.XHigh, Records = true, LastTotal = 42 };
+            index.Save(path);
+            var back = TokenIndex.Load(path);
+            back.Now = Now;
+            Check.Eq(Sums(back), Sums(index), "the sums, their sessions and efforts");
+            Check.Eq(Table(back), Table(index), "the sessions' table");
+            Check.Eq(back.Sessions.Count, 4, "s-a, s-b, t-child, t-top");
+            Check.Eq(back.Files["x|u"].Effort, TokenEffort.XHigh, "a Codex file's effort");
+            Check.Eq(back.Snapshot().Single(b => b.Provider == "codex").Session?.Title, "The top thread", "a child thread's calls under its top thread");
+            Check.True(back.Add(Call(1, 15)), "an open key grows on");
+            Check.Eq(back.Snapshot().Where(b => b.Session?.Id == "s-a").Sum(b => b.Counts.Output), 35L, "in its session");
+
+            using (var w = new BinaryWriter(File.Create(path)))
+            {
+                w.Write("BTKI"u8);
+                w.Write(2);
+                w.Write(true);
+                w.Write(1);
+                w.Write("claude");
+                w.Write("claude-opus-5-5");
+                w.Write(0); // no session
+                w.Write(1); // one sum, of session 3
+                w.Write(Now.Ticks);
+                w.Write(0);
+                w.Write((byte)0);
+                w.Write(3);
+                for (int i = 0; i < 6; i++) w.Write(1L);
+            }
+            Check.True(TokenIndex.Load(path) is { Complete: false, Sessions.Count: 0 }, "a sum of a session not in the table: counted again");
+            File.WriteAllBytes(path, [.. "BTKI"u8, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
+            Check.Eq(TokenIndex.Load(path).Complete, false, "an index of version 1: counted again");
+        }
+        finally
+        {
+            Directory.Delete(dir, true);
+        }
+    }
+
+    public static void OldSessionsGoAndTheSumsStay()
+    {
+        var index = new TokenIndex { Now = Now, Complete = true };
+        var old = Now.AddDays(-TokenIndex.HourDays - 5);
+        index.Add(Call(1, 1, old) with { Session = "s-old", Variant = TokenVariant.None.WithEffort(TokenEffort.Max) });
+        index.Add(Call(2, 2, Now.AddDays(-50)) with { Session = "s-mid" });
+        index.Add(Call(3, 4, Now.AddHours(-1)) with { Session = "s-new" });
+        index.Add(Call(6, 8, old.AddHours(2)) with { Session = "s-new", Variant = TokenVariant.None.WithEffort(TokenEffort.Max) }); // an old call of a session still going
+        index.EndFile();
+        index.Title("claude", "s-gone", "Only a title", custom: true, old); // a log written long ago
+        int[] before = [index.Sessions.Count, index.Snapshot().Length];
+        var sum = Sum(index);
+        index.Roll();
+        Check.Eq(Sum(index), sum, "the sums as they were");
+        Check.Eq(string.Join(" ", index.Sessions.Select(s => s.Id)), "s-mid s-new", "the sessions not seen for 100 days leave the table");
+        Check.True(before[0] == 4 && before[1] == 4, "four sessions and sums before");
+        var sums = index.Snapshot();
+        var folded = sums.Where(b => b.Hour < Now.AddDays(-TokenIndex.HourDays)).ToList();
+        Check.True(folded.Count == 1 && folded[0].Session is null, "the old hours folded into one day with no session");
+        Check.Eq(folded[0].Variant.Effort(), TokenEffort.Max, "keeping the effort");
+        Check.Eq(sums.Single(b => b.Counts.Output == 2).Session?.Id, "s-mid", "the others keep theirs, numbered again");
+        Check.Eq(sums.Single(b => b.Counts.Output == 4).Session?.Id, "s-new", "the others keep theirs, numbered again");
+        Check.True(index.Add(Call(3, 9)), "an open key grows on after the numbers moved");
+        Check.Eq(index.Snapshot().Single(b => b.Session?.Id == "s-new").Counts.Output, 9L, "in its own session still");
+    }
+
+    public static void ThreadsShowUnderTheirTop()
+    {
+        var index = new TokenIndex { Now = Now };
+        static TokenCall Codex(ulong key, string thread) => new(key, Now.AddMinutes(-10), "codex", "gpt-6.1-sol", TokenVariant.None, new TokenCounts(1, 1, 1, 0, 0, 0), thread);
+        foreach (var (key, thread) in new[] { (1UL, "top"), (2UL, "child"), (3UL, "grandchild"), (4UL, "loop-a"), (5UL, "loop-b"), (6UL, "orphan") })
+            index.Add(Codex(key, thread));
+        index.EndFile();
+        index.Describe("codex", "child", "top", "Repo", false, Now);
+        index.Describe("codex", "grandchild", "child", null, false, Now);
+        index.Describe("codex", "loop-a", "loop-b", null, false, Now);
+        index.Describe("codex", "loop-b", "loop-a", null, false, Now);
+        index.Describe("codex", "orphan", "not-read", null, false, Now);
+        var by = index.Snapshot().GroupBy(b => b.Session?.Id).ToDictionary(g => g.Key ?? "", g => g.Sum(b => b.Counts.Calls));
+        Check.Eq(by["top"], 3L, "a subagent's and its own subagent's calls under the top thread");
+        Check.True(by.ContainsKey("orphan"), "a parent never read: the thread is its own top");
+        Check.Eq(by.GetValueOrDefault("loop-a") + by.GetValueOrDefault("loop-b"), 2L, "a loop stops");
+        Check.True(!by.ContainsKey(""), "every sum has its session");
+        Check.True(index.Describe("codex", "top", null, null, true, Now), "originator bloom");
+        Check.True(index.Sessions.Single(s => s.Id == "top") is { Bloom: true, Title: null }, "Bloom's own");
+        Check.True(!index.Title("codex", "top", "a chat's name", custom: true, Now), "keeps no title");
+        Check.True(!index.Title("codex", "unknown", "x", custom: true, Now, onlyKnown: true) && index.Sessions.All(s => s.Id != "unknown"), "a name of a thread not met is left");
+    }
+
     private static int HourDaysLess() => TokenIndex.HourDays - 1;
 
     private static string Temp()
@@ -229,6 +341,118 @@ internal static class TokenIndexTests
         finally
         {
             Directory.Delete(root, true);
+        }
+    }
+
+    private const string Sa = "aaaaaaaa-0000-4000-8000-000000000001", Sb = "bbbbbbbb-0000-4000-8000-000000000002", Sc = "cccccccc-0000-4000-8000-000000000003", Sd = "dddddddd-0000-4000-8000-000000000004";
+
+    private static string Session(string id, string? session, string cwd = "", int minute = 0) =>
+        ("""{"type":"assistant","message":{"model":"claude-opus-5-5","id":"@ID","usage":{"input_tokens":1,"output_tokens":1}},"requestId":"r","uuid":"u","timestamp":"2026-11-02T10:@MM:00Z","effort":"high"@SID@CWD}""")
+        .Replace("@ID", id, StringComparison.Ordinal).Replace("@MM", minute.ToString("00", System.Globalization.CultureInfo.InvariantCulture), StringComparison.Ordinal)
+        .Replace("@SID", session is null ? "" : $",\"sessionId\":\"{session}\"", StringComparison.Ordinal)
+        .Replace("@CWD", cwd.Length == 0 ? "" : $",\"cwd\":\"{cwd.Replace("\\", "\\\\", StringComparison.Ordinal)}\"", StringComparison.Ordinal) + "\n";
+
+    private static string TitleLine(string kind, string session, string title) =>
+        $$"""{"type":"{{kind}}-title","{{kind}}Title":"{{title}}","sessionId":"{{session}}"}""" + "\n";
+
+    public static void ClaudeCallsGoToTheSessionTheirLinesName()
+    {
+        string bloomAi = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Bloom", "ai");
+        var results = new List<string>();
+        foreach (bool copyFirst in new[] { false, true })
+        {
+            string root = Temp();
+            try
+            {
+                string proj = Path.Combine(root, "proj");
+                Directory.CreateDirectory(Path.Combine(proj, Sa, "subagents"));
+                string a = Path.Combine(proj, Sa + ".jsonl"), b = Path.Combine(proj, Sb + ".jsonl");
+                File.WriteAllText(a, TitleLine("ai", Sa, "auto") + Session("m1", Sa, @"D:\Work\Repo\") + TitleLine("custom", Sa, "first") + Session("m2", Sa, minute: 1)
+                    + TitleLine("custom", Sa, "second") + TitleLine("ai", Sa, "later ai"));
+                File.WriteAllText(b, Session("m1", Sa, @"D:\Work\Repo\") + Session("m3", Sb, @"D:\", minute: 2)); // resumed: its parent's line copied first
+                File.WriteAllText(Path.Combine(proj, Sa, "subagents", "agent-1.jsonl"), Session("m4", Sa, minute: 3));
+                File.WriteAllText(Path.Combine(proj, Sc + ".jsonl"), Session("m5", null, minute: 4));
+                File.WriteAllText(Path.Combine(proj, "notes.jsonl"), Session("m6", null, minute: 5));
+                File.WriteAllText(Path.Combine(proj, Sd + ".jsonl"), TitleLine("custom", Sd, "a chat") + Session("m7", Sd, bloomAi + @"\files", minute: 6));
+                File.WriteAllText(Path.Combine(proj, "dev.jsonl"), Session("m8", "s-dev", @"C:\Temp\bq-x\local\ai", minute: 7) + TitleLine("custom", "s-dev", "a dev chat")
+                    + TitleLine("custom", "s-named", "Bloom · a chat") + TitleLine("custom", "s-local", "x") + Session("m9", "s-local", @"D:\local\aix", minute: 8));
+                File.SetLastWriteTimeUtc(a, Now.AddHours(copyFirst ? -2 : -1)); // newest first: the copy before or after its original
+                File.SetLastWriteTimeUtc(b, Now.AddHours(copyFirst ? -1 : -2));
+                var index = new TokenIndex();
+                Pass(index, root);
+                var calls = index.Snapshot().GroupBy(x => x.Session?.Id ?? "none").ToDictionary(g => g.Key, g => g.Sum(x => x.Counts.Calls));
+                Check.Eq(calls[Sa], 3L, "a session's calls, its copy in another file once and its subagent's");
+                Check.Eq((calls[Sb], calls[Sc], calls["none"], calls[Sd]), (1L, 1L, 1L, 1L), "the resumed one's own; by the file's name; none; Bloom's");
+                Check.True(index.Snapshot().All(x => x.Variant.Effort() == TokenEffort.High), "each at its effort");
+                var sa = index.Sessions.Single(s => s.Id == Sa);
+                Check.True(sa is { Title: "second", Kind: TokenSessionInfo.Named.Custom, Folder: "Repo", Bloom: false }, "the last custom title, an ai one after it not; the folder's last name");
+                Check.Eq(index.Sessions.Single(s => s.Id == Sb).Folder, "D:", "a drive's root");
+                Check.True(index.Sessions.Single(s => s.Id == Sd) is { Bloom: true, Title: null, Folder: "files" }, "Bloom's AI folder: Bloom's own, its title not kept");
+                Check.True(index.Sessions.Single(s => s.Id == "s-dev") is { Bloom: true, Title: null, Folder: "ai" }, "a dev copy's (<data>\\local\\ai) too");
+                Check.True(index.Sessions.Single(s => s.Id == "s-named") is { Bloom: true, Title: null }, "a session Bloom named");
+                Check.True(index.Sessions.Single(s => s.Id == "s-local") is { Bloom: false, Title: "x" }, "a folder only like it");
+                File.AppendAllText(a, TitleLine("custom", Sa, "third"));
+                Pass(index, root);
+                Check.Eq(index.Sessions.Single(s => s.Id == Sa).Title, "third", "a title added later");
+                results.Add(Sums(index) + "|" + Table(index));
+            }
+            finally
+            {
+                Directory.Delete(root, true);
+            }
+        }
+        Check.Eq(results[1], results[0], "the same whichever file is read first");
+    }
+
+    public static void CodexThreadsAreDescribedAndNamed()
+    {
+        string home = Temp();
+        try
+        {
+            const string t1 = "01a10000-0000-7000-8000-000000000001", t2 = "01a10000-0000-7000-8000-000000000002", t3 = "01a10000-0000-7000-8000-000000000003";
+            string day = Path.Combine(home, "sessions", "2026", "11", "01");
+            Directory.CreateDirectory(day);
+            static string Meta(string id, string extra) => """{"timestamp":"2026-11-01T07:00:00Z","type":"session_meta","payload":{"id":"@ID","cwd":"D:\\Work\\Repo","originator":"codex_exec"@X}}""".Replace("@ID", id, StringComparison.Ordinal).Replace("@X", extra, StringComparison.Ordinal) + "\n";
+            static string Turn(string effort) => """{"timestamp":"2026-11-01T07:00:01Z","type":"turn_context","payload":{"model":"gpt-6.1-sol","effort":"@E"}}""".Replace("@E", effort, StringComparison.Ordinal) + "\n";
+            static string Rec(string id, int hour) => """{"timestamp":"2026-11-01T@H:00:00Z","type":"token_usage_record","payload":{"response_id":"@ID","usage":{"input_tokens":10,"output_tokens":1}}}""".Replace("@ID", id, StringComparison.Ordinal).Replace("@H", hour.ToString("00", System.Globalization.CultureInfo.InvariantCulture), StringComparison.Ordinal) + "\n";
+            string r1 = Path.Combine(day, $"rollout-2026-11-01T16-00-00-{t1}.jsonl");
+            File.WriteAllText(r1, Meta(t1, "") + Turn("high") + Rec("resp_1", 7));
+            File.WriteAllText(Path.Combine(day, $"rollout-2026-11-01T16-00-01-{t2}.jsonl"), Meta(t2, $",\"parent_thread_id\":\"{t1}\"") + Turn("low") + Rec("resp_2", 7));
+            File.WriteAllText(Path.Combine(day, $"rollout-2026-11-01T16-00-02-{t3}.jsonl"), Meta(t3, "").Replace("codex_exec", "bloom", StringComparison.Ordinal) + Turn("medium") + Rec("resp_3", 7));
+            string names = Path.Combine(home, "session_index.jsonl");
+            File.WriteAllText(names, $$"""
+                {"id":"{{t1}}","thread_name":"first","updated_at":"x"}
+                {"id":"{{t3}}","thread_name":"a Bloom chat","updated_at":"x"}
+                {"id":"01a19999-0000-7000-8000-000000000009","thread_name":"never read","updated_at":"x"}
+                {"id":"{{t1}}","thread_name":"renamed","updated_at":"x"}
+
+                """);
+            string sessions = Path.Combine(home, "sessions"), path = Path.Combine(home, "index.bin");
+            var index = new TokenIndex();
+            Pass(index, sessions, codex: true);
+            Check.True(index.Sessions.Single(s => s.Id == t1) is { Title: "renamed", Folder: "Repo", Bloom: false }, "the last name of the thread, its folder");
+            Check.True(index.Sessions.Single(s => s.Id == t3) is { Bloom: true, Title: null }, "originator bloom: no name kept");
+            Check.Eq(index.Sessions.Count, 3, "a name of a thread not read is left");
+            var sums = index.Snapshot();
+            Check.True(sums.All(b => b.Session?.Id is { } id && id != t2), "a subagent's thread under its parent");
+            Check.Eq(string.Join(" ", sums.Where(b => b.Session?.Id == t1).Select(b => b.Variant.Effort()).Order()), "Low High", "each call at its turn's effort");
+
+            index.Save(path);
+            index = TokenIndex.Load(path);
+            File.AppendAllText(r1, Rec("resp_4", 9));
+            Check.Eq(Pass(index, sessions, codex: true).FilesRead, 1, "read on from the offset");
+            Check.Eq(index.Snapshot().Single(b => b.Hour.Hour == 9).Variant.Effort(), TokenEffort.High, "with the effort kept in the index");
+
+            index.Save(path);
+            index = TokenIndex.Load(path);
+            File.WriteAllText(names, $$"""{"id":"{{t1}}","thread_name":"named again later","updated_at":"x"}""" + "\n");
+            var scan = Pass(index, sessions, codex: true);
+            Check.True(scan.FilesRead == 0 && scan.Changed, "no rollout read, the names file changed");
+            Check.Eq(index.Sessions.Single(s => s.Id == t1).Title, "named again later", "read again");
+        }
+        finally
+        {
+            Directory.Delete(home, true);
         }
     }
 

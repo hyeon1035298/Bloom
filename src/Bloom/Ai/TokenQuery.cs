@@ -7,8 +7,8 @@ namespace Bloom.Ai;
 /// A period's numbers made from the index's sums (TokenStats.Query; nothing else is read). The bars' bounds are in
 /// local time: Day → the 24 hours up to now (the last one the hour now runs in), Week / Month → the last 7 / 30 days
 /// counting today, Quarter → the last 90 days in weeks from Monday (the first week only from the 90 days' start), All →
-/// from the first day counted, by day up to 60 days and by month after. The sums, the bars and the models' lines all
-/// cover the same span, so they add up to each other.
+/// from the first day counted, by day up to 60 days and by month after. The sums, the bars, the models' lines and the
+/// sessions' (with what no session holds) all cover the same span, so they add up to each other.
 internal static class TokenQuery
 {
     /// The All period goes by day up to this many days, by month after.
@@ -65,8 +65,10 @@ internal static class TokenQuery
         var bars = new TokenCounts[starts.Count];
         var barCost = new double[starts.Count];
         var prices = new Dictionary<string, TokenPrice?>(StringComparer.Ordinal);
-        var models = new Dictionary<(string Provider, string Model), (TokenCounts Counts, double Cost, bool Priced)>();
-        TokenCounts sum = default;
+        var names = new Dictionary<string, string>(StringComparer.Ordinal); // a model's name without its date tail
+        var models = new Dictionary<(string Provider, string Model), ModelSum>();
+        var sessions = new Dictionary<TokenSessionInfo, SessionSum>(ReferenceEqualityComparer.Instance);
+        TokenCounts sum = default, none = default;
         double cost = 0;
         foreach (var b in buckets)
         {
@@ -75,14 +77,35 @@ internal static class TokenQuery
             if (i < 0) i = ~i - 1;
             if (i < 0) i = 0; // the first week starts before `from`; nothing before `from` gets here
             if (!prices.TryGetValue(b.Model, out var p)) prices[b.Model] = p = price(b.Model);
+            if (!names.TryGetValue(b.Model, out string? name)) names[b.Model] = name = TokenPrices.WithoutDate(b.Model);
             double c = p?.Cost(b.Counts, b.Variant) ?? 0;
+            int effort = (int)b.Variant.Effort();
             bars[i] += b.Counts;
             barCost[i] += c;
             sum += b.Counts;
             cost += c;
-            var key = (b.Provider, TokenPrices.WithoutDate(b.Model));
-            var had = models.TryGetValue(key, out var m) ? m : (Counts: default(TokenCounts), Cost: 0.0, Priced: true);
-            models[key] = (had.Counts + b.Counts, had.Cost + c, had.Priced && p is not null);
+            if (!models.TryGetValue((b.Provider, name), out var m)) models[(b.Provider, name)] = m = new ModelSum();
+            m.Counts += b.Counts;
+            m.Cost += c;
+            m.Priced &= p is not null;
+            m.Efforts[effort] += b.Counts.Total;
+            if (b.Session is not { } info)
+            {
+                none += b.Counts;
+                continue;
+            }
+            if (!sessions.TryGetValue(info, out var s)) sessions[info] = s = new SessionSum { First = b.Hour, Last = b.Hour };
+            s.Counts += b.Counts;
+            if (p is null) s.Unpriced += b.Counts.Total;
+            else
+            {
+                s.Cost += c;
+                s.Priced = true;
+            }
+            if (b.Hour < s.First) s.First = b.Hour;
+            if (b.Hour > s.Last) s.Last = b.Hour;
+            s.Models[name] = s.Models.GetValueOrDefault(name) + b.Counts.Total;
+            s.Efforts[effort] += b.Counts.Total;
         }
 
         int unpriced = 0;
@@ -95,13 +118,60 @@ internal static class TokenQuery
                 unpriced++;
                 unpricedTokens += m.Counts.Total;
             }
-            lines.Add(new TokenModel(provider, model, m.Counts, m.Priced ? m.Cost : null, sum.Total == 0 ? 0 : (double)m.Counts.Total / sum.Total));
+            lines.Add(new TokenModel(provider, model, m.Counts, m.Priced ? m.Cost : null, Share(m.Counts, sum)) { Efforts = Efforts(m.Efforts) });
         }
         lines.Sort((a, b) => b.Counts.Total != a.Counts.Total ? b.Counts.Total.CompareTo(a.Counts.Total) : string.CompareOrdinal(a.Model, b.Model));
+        var list = new List<TokenSession>(sessions.Count);
+        foreach (var (info, s) in sessions)
+        {
+            var used = s.Models.OrderByDescending(u => u.Value).ThenBy(u => u.Key, StringComparer.Ordinal).Select(u => (Model: u.Key, Tokens: u.Value)).ToArray();
+            list.Add(new TokenSession(info.Provider, info.Id, info.Bloom ? null : info.Title, info.Folder, info.Bloom, s.Counts, s.Priced ? s.Cost : null, s.Unpriced,
+                Share(s.Counts, sum), TimeZoneInfo.ConvertTimeFromUtc(s.First, zone), TimeZoneInfo.ConvertTimeFromUtc(s.Last, zone), used, Efforts(s.Efforts)));
+        }
+        list.Sort((a, b) => b.Counts.Total != a.Counts.Total ? b.Counts.Total.CompareTo(a.Counts.Total) : string.CompareOrdinal(a.Id, b.Id));
         var barList = new TokenBar[starts.Count];
         for (int i = 0; i < starts.Count; i++)
             barList[i] = new TokenBar(TimeZoneInfo.ConvertTimeFromUtc(starts[i], zone), bars[i], barCost[i]);
-        return new TokenView(period, TimeZoneInfo.ConvertTimeFromUtc(from, zone), local, sum, cost, unpriced, unpricedTokens, lines, unit, barList);
+        return new TokenView(period, TimeZoneInfo.ConvertTimeFromUtc(from, zone), local, sum, cost, unpriced, unpricedTokens, lines, unit, barList)
+        {
+            Sessions = list,
+            NoSession = none,
+        };
+    }
+
+    private static double Share(TokenCounts part, TokenCounts sum) => sum.Total == 0 ? 0 : (double)part.Total / sum.Total;
+
+    /// Tokens by effort (indexed by TokenEffort) as a list: the highest effort first, Unknown last, none of 0 tokens.
+    private static (TokenEffort Effort, long Tokens)[] Efforts(long[] tokens)
+    {
+        var list = new List<(TokenEffort, long)>();
+        for (int e = tokens.Length - 1; e >= 0; e--)
+            if (tokens[e] > 0) list.Add(((TokenEffort)e, tokens[e]));
+        return [.. list];
+    }
+
+    /// The effort slots of a sum: one per value TokenVariants can carry.
+    private const int EffortSlots = 16;
+
+    /// One model's line as it is summed.
+    private sealed class ModelSum
+    {
+        public TokenCounts Counts;
+        public double Cost;
+        public bool Priced = true;
+        public readonly long[] Efforts = new long[EffortSlots];
+    }
+
+    /// One session's line as it is summed (First, Last: UTC hours; Priced: a model of it has a price).
+    private sealed class SessionSum
+    {
+        public TokenCounts Counts;
+        public double Cost;
+        public bool Priced;
+        public long Unpriced;
+        public DateTime First, Last;
+        public readonly Dictionary<string, long> Models = new(StringComparer.Ordinal);
+        public readonly long[] Efforts = new long[EffortSlots];
     }
 
     /// The UTC moment of a local day's or month's start; a start that a clock change skips is taken an hour on.

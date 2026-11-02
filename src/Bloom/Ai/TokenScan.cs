@@ -184,6 +184,7 @@ internal sealed class TokenScan
             }
         }
         BytesRead = lines.Bytes;
+        if (!Stopped) ReadNames();
         if (!Stopped && !index.Complete)
         {
             index.Complete = true;
@@ -193,21 +194,45 @@ internal sealed class TokenScan
     }
 
     /// Reads one file from its offset into the index; a file that can't be read now is tried again next pass (what was
-    /// counted of it stays counted once: its keys are known).
+    /// counted of it stays counted once: its keys are known). A Claude Code call whose line names no session goes to
+    /// the session the file is named after (<uuid>.jsonl), else to none; a title line names its session. A rollout's
+    /// session_meta describes its thread once the file is read.
     private void Read(string id, TokenFile state, Found f, LogLines lines)
     {
+        var written = new DateTime(f.Mtime, DateTimeKind.Utc);
+        string? named = f.Codex ? null : UuidName(f.Path);
+        var strings = f.Codex ? null : new ClaudeLog.Strings();
         try
         {
             long offset = lines.Read(f.Path, state.Offset, (line, at) =>
             {
-                if ((f.Codex ? CodexLog.Parse(line, state, at) : ClaudeLog.Parse(line)) is not { } call) return;
+                TokenCall call;
+                if (f.Codex)
+                {
+                    if (CodexLog.Parse(line, state, at) is not { } read) return;
+                    call = read;
+                }
+                else if (ClaudeLog.Parse(line, strings) is { } read)
+                    call = read.Session is null && named is not null ? read with { Session = named } : read;
+                else
+                {
+                    if (line.Length <= TitleLineMost && line.IndexOf("-title\""u8) >= 0 && ClaudeLog.Title(line) is { } t && (t.Session ?? named) is { } session
+                        && index.Title("claude", session, t.Title, t.Custom, written)) Changed = true;
+                    return;
+                }
                 if (TokenPrices.IsLong(call.Model, call.Counts)) call = call with { Variant = call.Variant | TokenVariant.Long };
                 if (index.Add(call)) Changed = true;
             });
             (state.Offset, state.Size, state.Mtime) = (offset, f.Size, f.Mtime);
+            if (state.Met)
+            {
+                if (index.Describe("codex", state.Thread!, state.Parent, state.Folder, state.Bloom, written)) Changed = true;
+                (state.Met, state.Parent, state.Folder, state.Bloom) = (false, null, null, false);
+            }
             index.Files[id] = state;
             Dirty = true;
             FilesRead++;
+            if (f.Codex) codexRead = true;
         }
         catch (Exception e) when (e is IOException or UnauthorizedAccessException)
         {
@@ -217,6 +242,67 @@ internal sealed class TokenScan
         {
             index.EndFile();
         }
+    }
+
+    /// The longest line looked at for a session title (Claude Code writes them short, its type first).
+    private const int TitleLineMost = 4096;
+
+    /// The most read of a session_index.jsonl: its last part, where the newest names are.
+    public const int NamesMost = 1 << 20;
+
+    /// The session_index.jsonl files read, as they were (size, UTC ticks): read again when they change or a pass read
+    /// a rollout (a thread new to the index may have been named since). The counting thread's only.
+    private static readonly Dictionary<string, (long Size, long Mtime)> namesRead = new(StringComparer.OrdinalIgnoreCase);
+
+    private bool codexRead;
+
+    /// The Codex thread names next to the sessions folders (<home>\session_index.jsonl, the last line of an id wins)
+    /// given to the threads the index has; a name of a thread it has not met is left (the pass that reads its rollout
+    /// reads the names again).
+    private void ReadNames()
+    {
+        foreach (string home in roots.Where(r => r.Codex).Select(r => Path.GetDirectoryName(r.Folder)).OfType<string>().Distinct(StringComparer.OrdinalIgnoreCase))
+        {
+            string path = Path.Combine(home, "session_index.jsonl");
+            try
+            {
+                var info = new FileInfo(path);
+                if (!info.Exists) continue;
+                var now = (info.Length, info.LastWriteTimeUtc.Ticks);
+                if (!codexRead && namesRead.TryGetValue(path, out var had) && had == now) continue;
+                var names = new Dictionary<string, string>(StringComparer.Ordinal);
+                using (var file = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite | FileShare.Delete))
+                {
+                    long from = Math.Max(0, file.Length - NamesMost);
+                    file.Position = from;
+                    var bytes = new byte[file.Length - from];
+                    file.ReadExactly(bytes);
+                    var rest = bytes.AsSpan();
+                    if (from > 0) rest = rest[(rest.IndexOf((byte)'\n') + 1)..]; // a line cut by the start: none
+                    while (rest.Length > 0)
+                    {
+                        int end = rest.IndexOf((byte)'\n');
+                        var line = end < 0 ? rest : rest[..end];
+                        rest = end < 0 ? [] : rest[(end + 1)..];
+                        if (CodexLog.Name(line) is { Name: { } name } n) names[n.Id] = name;
+                    }
+                }
+                foreach (var (id, name) in names)
+                    if (index.Title("codex", id, name, custom: true, info.LastWriteTimeUtc, onlyKnown: true)) Changed = Dirty = true;
+                namesRead[path] = now;
+            }
+            catch (Exception e) when (e is IOException or UnauthorizedAccessException)
+            {
+                Log.Error("token count: " + path, e); // the next pass
+            }
+        }
+    }
+
+    /// A Claude Code log named after its session (<uuid>.jsonl): the uuid; null for any other name.
+    private static string? UuidName(string path)
+    {
+        string name = Path.GetFileNameWithoutExtension(path);
+        return Guid.TryParseExact(name, "D", out _) ? name : null;
     }
 
     private static bool SamePath(string a, string b) => string.Equals(a, b, StringComparison.OrdinalIgnoreCase);
