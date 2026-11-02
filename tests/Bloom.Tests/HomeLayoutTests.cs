@@ -339,7 +339,7 @@ internal static class HomeLayoutTests
             Check.Eq($"{Home.Of("tokens")!.Period} {Home.Of("tokenchart")!.Period} {Home.Of("tokenmodels")!.Period ?? "-"}", "Month All -", "each block's span after a restart");
         });
         Check.Eq(string.Join(" ", new long[] { 980, 9_870, 12_345, 999_600, 19_700_000, 2_710_000_000 }.Select(TokenViews.Count)), "980 9,870 12.3K 1M 19.7M 2.71B", "counts in a few figures");
-        Check.Eq(TokenViews.Money(1109.92, false) + " " + TokenViews.Money(1109.92, true) + " " + TokenViews.Money(49.26, true) + " " + TokenViews.Money(123_456, true), "$1,109.92 $1,110 $49.26 $123K", "costs");
+        Check.Eq(TokenViews.Money(1234.56, false) + " " + TokenViews.Money(1234.56, true) + " " + TokenViews.Money(12.34, true) + " " + TokenViews.Money(123_456, true), "$1,234.56 $1,235 $12.34 $123K", "costs");
         Check.Eq(TokenViews.Percent(0.9612) + " " + TokenViews.Percent(0.004) + " " + TokenViews.Percent(1), "96.1% 0.4% 100%", "shares");
         Check.Eq(string.Join(" | ", new[] { "claude-opus-5-5", "claude-haiku-4-5", "claude-opus-4", "gpt-6.1-sol", "claude-x-y" }.Select(TokenViews.Pretty)), "Opus 5.5 | Haiku 4.5 | Opus 4 | gpt-6.1-sol | claude-x-y", "model names");
         // the models block: the chips, never more rows than its count, the rest (one model too) as a line

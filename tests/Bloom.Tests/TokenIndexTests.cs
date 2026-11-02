@@ -191,7 +191,7 @@ internal static class TokenIndexTests
             index.Add(Call(4, 5)); // no session
             index.Add(new TokenCall(5, Now.AddHours(-2), "codex", "gpt-6.1-sol", TokenVariant.None.WithEffort(TokenEffort.Medium), new TokenCounts(1, 5, 6, 7, 8, 0), "t-child"));
             index.EndFile();
-            index.Title("claude", "s-a", "Home blocks", custom: true, Now);
+            index.Title("claude", "s-a", "Tidy the notes page", custom: true, Now);
             index.Describe("codex", "t-child", "t-top", "Repo", false, Now);
             index.Describe("codex", "t-top", null, "Repo", false, Now);
             index.Title("codex", "t-top", "The top thread", custom: true, Now);
@@ -535,7 +535,7 @@ internal static class TokenIndexTests
         string root = Temp();
         try
         {
-            const string thread = "01a195f8-1b89-7e01-bc47-41dae7935ad7";
+            const string thread = "01a19500-0000-7000-8000-000000000042";
             string day = Path.Combine(root, "sessions", "2026", "11", "01");
             Directory.CreateDirectory(day);
             string plain = Path.Combine(day, $"rollout-2026-11-01T16-17-08-{thread}.jsonl");
@@ -588,7 +588,7 @@ internal static class TokenIndexTests
             Directory.CreateDirectory(Path.Combine(home, "sessions"));
             var roots = TokenScan.Roots([("claude", home), ("claude", home + "\\"), ("chatgpt", home), ("claude", Path.Combine(home, "none"))]);
             Check.Eq(string.Join(" ", roots.Select(r => (r.Codex ? "x:" : "c:") + Path.GetFileName(r.Folder))), "c:projects x:sessions", "each folder there, once");
-            Check.Eq(TokenScan.Id(true, @"C:\s\rollout-2026-11-01T16-17-08-01a195f8-1b89-7e01-bc47-41dae7935ad7.jsonl.zst"), "x|01a195f8-1b89-7e01-bc47-41dae7935ad7", "a rollout by its uuid");
+            Check.Eq(TokenScan.Id(true, @"C:\s\rollout-2026-11-01T16-17-08-01a19500-0000-7000-8000-000000000042.jsonl.zst"), "x|01a19500-0000-7000-8000-000000000042", "a rollout by its uuid");
             Check.Eq(TokenScan.Id(false, @"C:\p\a.jsonl"), @"C:\p\a.jsonl", "a Claude log by its path");
         }
         finally

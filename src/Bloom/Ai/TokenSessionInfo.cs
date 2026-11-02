@@ -36,7 +36,7 @@ internal sealed record TokenSessionInfo(string Provider, string Id, string? Pare
         return one.Length == 0 ? null : one;
     }
 
-    /// The last name of `path` ("D:\Claude\Bloom\" → "Bloom", "D:\" → "D:"); null for none.
+    /// The last name of `path` ("C:\Projects\Bloom\" → "Bloom", "D:\" → "D:"); null for none.
     public static string? Leaf(string? path)
     {
         if (string.IsNullOrWhiteSpace(path)) return null;
