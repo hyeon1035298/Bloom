@@ -78,6 +78,37 @@ internal static class NotesBlockTests
         });
     }
 
+    public static void BlankNotesLeftOut()
+    {
+        OnlyNotes(() =>
+        {
+            var engine = new Engine(new Host(new Options()));
+            Notes.New("하나");
+            Notes.New("둘");
+            Notes.New("셋");
+            Notes.New(""); // 새 메모's, still open in 메모
+            Notes.New("  \n ");
+            var s = Check.NotNull(Block(engine), "the block is on the home");
+            Check.True(!s.Items.Exists(i => i.Title == "빈 메모"), "a blank note is no row");
+            Check.Eq(s.Items.Count, 4, "the three notes and 새 메모");
+            Check.Eq(s.Note, null, "nor is it counted");
+            Notes.New("넷");
+            Check.Eq(Block(engine)!.Note, "4개", "four with words");
+        });
+    }
+
+    public static void LatestKeepsTheOrder()
+    {
+        static Note N(string text, long updated, bool pinned = false) => new() { Id = text, Text = text, Updated = updated, Pinned = pinned };
+        var notes = new System.Collections.Generic.List<Note> { N("a", 5), N("b", 9), N("p", 1, true), N("c", 7), N("d", 9), N(" ", 99), N("q", 3, true) };
+        var top = Engine.Latest(notes, 4, out int count);
+        Check.Eq(count, 6, "every note with words");
+        Check.Eq(string.Join(",", top.Select(n => n.Id)), "q,p,b,d", "pinned first, then the newest, a tie in the list's order");
+        var ordered = notes.Where(n => n.Text.Trim().Length > 0).OrderByDescending(n => n.Pinned).ThenByDescending(n => n.Updated).Take(4);
+        Check.Eq(string.Join(",", top.Select(n => n.Id)), string.Join(",", ordered.Select(n => n.Id)), "Notes.Ordered's order");
+        Check.Eq(Engine.Latest(notes, 10, out _).Count, 6, "fewer than the rows: all of them");
+    }
+
     public static void NoNotesOnlyNewNote()
     {
         OnlyNotes(() =>
