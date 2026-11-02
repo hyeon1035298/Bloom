@@ -2360,3 +2360,12 @@ just now	たった今
 Detach from the launcher	ランチャーから切り離す
 Always on top	常に手前に表示
 Attach to the launcher	ランチャーに付ける
+1 session	セッション 1 個
+{0} sessions	{0} 件のセッション
+… {0} more	… ほか {0} 個
+No session · {0} tokens	セッション区分なし · トークン {0}
+Logs older than 100 days, and calls that named no session	100 日より前の記録と、セッションを記録していない呼び出し
+Bloom AI chat (deleted)	Bloom AI チャット（削除した会話）
+Session {0}	セッション {0}
+{0} tokens with no price · not in the cost	価格のないトークン {0} · 換算額に含まれない
+unknown	不明

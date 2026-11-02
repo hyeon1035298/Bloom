@@ -1,12 +1,14 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using Bloom.Ai;
 using Bloom.Core;
 using Bloom.Search;
 
 namespace Bloom.App;
 
-/// The token blocks of the home (토큰 사용량, 토큰 그래프, 모델별 사용량): one snapshot each from TokenStats, for the span
-/// the block keeps (HomeWidget.Period).
+/// The token blocks of the home (토큰 사용량, 토큰 그래프, 모델별 사용량, 세션별 사용량): one snapshot each from
+/// TokenStats, for the span the block keeps (HomeWidget.Period).
 internal sealed partial class Engine
 {
     private Section TokenBlock(HomeWidget w)
@@ -28,10 +30,30 @@ internal sealed partial class Engine
         {
             "tokenchart" => () => Ui.TokenViews.Chart(view, none, counting, Pick),
             "tokenmodels" => () => Ui.TokenViews.Models(view, none, counting, rows, Pick),
+            "tokensessions" => SessionsWidget(view, none, counting, rows, Pick),
             _ => () => Ui.TokenViews.Summary(view, none, counting, Pick),
         };
         return new Section(Home.Name(key), note) { Widget = widget, Reload = TokenStats.Refresh };
     }
+
+    /// 세션별 사용량: the sessions it can show (its rows and the rest's tooltip) named here, on the UI thread, from the
+    /// chats in memory: a Bloom chat by its session id and provider (the tokens' "codex" is the chat's "chatgpt"), a
+    /// click opening it while it is kept.
+    private Func<System.Windows.FrameworkElement> SessionsWidget(TokenView view, bool none, bool counting, int rows, Action<TokenPeriod> pick)
+    {
+        int many = Math.Min(view.Sessions.Count, Math.Max(rows, 1) + Ui.TokenViews.RestTipMost);
+        var named = new List<(string Name, Action? Open)>(many);
+        for (int i = 0; i < many; i++)
+        {
+            var s = view.Sessions[i];
+            var chat = s.Bloom ? ChatOf(s) : null;
+            named.Add((Ui.TokenViews.SessionName(s, chat?.Title), chat is null ? null : () => host.OpenChat(chat)));
+        }
+        return () => Ui.TokenViews.Sessions(view, named, none, counting, rows, pick);
+    }
+
+    private ChatThread? ChatOf(TokenSession s) =>
+        host.Chats?.Threads.FirstOrDefault(t => t.SessionId == s.Id && ((t.SessionProvider ?? "claude") == "chatgpt" ? "codex" : t.SessionProvider ?? "claude") == s.Provider);
 
     /// A block's kept span (HomeWidget.Period) by its name; anything else (none yet, a number, an older name) is the
     /// last 24 hours.
