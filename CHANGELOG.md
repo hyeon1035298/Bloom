@@ -2,7 +2,7 @@
 
 Each release on GitHub shows its section from this file (the workflow looks for `## <version>`).
 
-## 0.17.0
+## 0.17.1
 
 - Mini player: the song's cover shows next to its title — the picture inside the file, or the album picture in its folder (cover.jpg, folder.jpg and the like). Songs show their real title, artist and album instead of the file name.
 - Mini player: repeat (off, all, one) and shuffle buttons around play. Shuffle plays every song once before any comes back; with repeat all, each new round is shuffled again. Both are remembered.
@@ -13,6 +13,7 @@ Each release on GitHub shows its section from this file (the workflow looks for 
 - Home: the Commands block can be trimmed. While editing the home, ✕ takes a command out and "+ Add a command" puts it back, or adds one that is off at first (restart, shut down and the like).
 - Home: in two columns, drag the gap between them to make one column wider; double-click it to go back to halves.
 - AI usage: Claude's renamed plans. The cards say Max for the old Max 5x and Ultra for the old Max 20x.
+- Usage by model: every row is the same height, so the list stays even when some models have no effort level.
 
 ### 한국어
 
@@ -25,6 +26,7 @@ Each release on GitHub shows its section from this file (the workflow looks for 
 - 홈: '명령' 블록을 손볼 수 있습니다. 홈 편집 중에 ✕로 명령을 빼고, '+ 명령 추가'로 다시 넣거나 처음에 꺼져 있던 명령(다시 시작, 시스템 종료 등)을 넣습니다.
 - 홈: 두 열일 때 가운데 틈을 끌면 한쪽 열을 넓힐 수 있고, 두 번 누르면 반반으로 돌아갑니다.
 - AI 사용량: 바뀐 Claude 요금제 이름을 씁니다. 예전 Max 5x는 Max, 예전 Max 20x는 Ultra로 나옵니다.
+- 모델별 사용량: effort가 없는 모델도 다른 행과 높이가 같아서, 모델이 많아도 줄이 고르게 맞습니다.
 
 ## 0.16.1
 
