@@ -947,6 +947,7 @@ Mini player	ミニプレーヤー
 ntpd	ntpd
 chrom	chrom
 AI tokens	AI トークン
+usage	使用量
 Friday meeting\nresend the quote · fix the date	金曜の会議\n見積書を再送 · 日程を確定
 Trip ideas\nJeju 3 nights · rent a car	旅行のアイデア\n済州 3 泊 · レンタカー
 note buy milk	note buy milk
@@ -1598,7 +1599,9 @@ Add a price in Settings > Home > Edit prices	設定 > ホーム > 価格表を�
 Now	今
 1 model	モデル 1 個
 {0} models	{0} 件のモデル
+{0} more · {1} tokens · no price	ほか {0} 個 · トークン {1} · 価格なし
 {0} more · {1} tokens · {2}	ほか {0} 個 · トークン {1} · {2}
+{0} more · {1} tokens · {2} · {3} with no price	ほか {0} 個 · トークン {1} · {2} · 価格なし {3} 個
 Calls {0}	呼び出し {0}
 Input {0}	入力 {0}
 Output {0}	出力 {0}
@@ -1612,6 +1615,7 @@ Cache write	キャッシュ書き込み
 Cache read	キャッシュ読み込み
 Output	出力
 No Claude Code or Codex logs	Claude Code · Codex の記録なし
+Counting…	集計中…
 Nothing in this period	この期間の記録なし
 24h	24時間
 7d	7日
@@ -1630,8 +1634,8 @@ h tt	H時
 MMM yyyy	yyyy年M月
 Week of {0}	{0} からの 1 週間
  · nothing	 · 記録なし
-1 model with no price · its {0} tokens are not in the cost	価格のないモデル 1 個 · トークン {0} は換算額に含まれない
-{0} models with no price · their {1} tokens are not in the cost	価格のないモデル {0} 個 · トークン {1} は換算額に含まれない
+1 model with no price · {0} tokens not in the cost	価格のないモデル 1 個 · 換算額に含まれないトークン {0}
+{0} models with no price · {1} tokens not in the cost	価格のないモデル {0} 個 · 換算額に含まれないトークン {1}
 Bloom {0} · What's new	Bloom {0} · 新機能
 Bloom {0} update complete	Bloom {0} の更新完了
 Changes in this version	このバージョンの変更点
@@ -2009,6 +2013,9 @@ Edit prices	価格表を編集
 Overrides the built-in token prices (as of {0}) · prices.json	内蔵のトークン価格（{0} 時点）を上書き · prices.json
 Clear the token counts	トークン集計を消去
 Clears only what Bloom counted and counts again · logs Claude Code removed after 30 days do not come back	Bloom が集計した数値だけを消去して再集計 · Claude Code が削除した 30 日より前の記録は戻らない
+Clears the token counts Bloom made and counts again from the logs that are left. Logs Claude Code already removed after 30 days do not come back.	Bloom が集計したトークン数を消去し、残っている記録から集計し直します。Claude Code がすでに削除した 30 日より前の記録は戻りません。
+Clear	クリア
+Token counts cleared	トークン集計を消去しました
 What else to search besides apps as you type	入力したとき、アプリ以外に何を一緒に探すか
 Also search	一緒に探す
 Files too	ファイルも
@@ -2302,7 +2309,6 @@ Launcher	ランチャー
 Find a setting	設定を探す
 Section	セクション
 Change	変更
-Clear	クリア
 Rose	ローズ
 Lavender	ラベンダー
 Sky	スカイ

@@ -9,7 +9,8 @@ namespace Bloom.App;
 
 /// `--qa-set tokens`: the three token blocks alone on the home with made-up numbers (TokenDemo): two columns (1000)
 /// and one (760), dark and light, every period, a span of its own per block, the models cut to two rows, a block
-/// folded, 홈 편집, the first count at 42%, no logs at all, and 설정's two rows.
+/// folded, 홈 편집, the first count at 42% and with nothing summed yet, no logs at all, a leftover model with no price,
+/// and 설정's rows.
 internal static partial class Captures
 {
     private static async Task TokenScreens(Host host, Launcher w, string dir)
@@ -63,14 +64,26 @@ internal static partial class Captures
         Theme.Apply("dark");
         TokenStats.SetForQa(TokenDemo.View, 0.42);
         await Take("dark-t07-two-counting", 1000);
+        // the first count with nothing summed yet: "세는 중…", not "기록 없음"
+        TokenStats.SetForQa(TokenView.Empty, 0.03);
+        await Take("dark-t07b-two-counting-empty", 1000);
         TokenStats.SetForQa(TokenView.Empty, null, true);
         await Take("dark-t08-two-nologs", 1000);
-        // 설정 > 홈 화면's token rows
+        // the models cut to three: the one left over has no price
+        TokenStats.SetForQa(TokenDemo.View);
+        Home.SetCount("tokenmodels", 3);
+        Theme.Apply("light");
+        await Take("light-t10-one-rest-unpriced", 760);
+        Theme.Apply("dark");
+        // 설정's token rows: AI 토큰's two, then 홈 화면's three blocks (their about in two lines)
         var sw = new SettingsWindow(host) { WindowStartupLocation = WindowStartupLocation.Manual, Left = -32000, Top = -32000, ShowActivated = false };
         sw.Show();
-        sw.Filter(Tr("AI 토큰", "AI tokens"));
-        await Task.Delay(350);
-        await sw.Dispatcher.InvokeAsync(() => sw.Capture(Path.Combine(dir, $"{l}-dark-t09-settings.png")), System.Windows.Threading.DispatcherPriority.ApplicationIdle);
+        foreach (var (filter, name) in new[] { (Tr("AI 토큰", "AI tokens"), "t09-settings"), (Tr("사용량", "usage"), "t11-settings-home") })
+        {
+            sw.Filter(filter);
+            await Task.Delay(350);
+            await sw.Dispatcher.InvokeAsync(() => sw.Capture(Path.Combine(dir, $"{l}-dark-{name}.png")), System.Windows.Threading.DispatcherPriority.ApplicationIdle);
+        }
         sw.Close();
         w.Width = width;
         w.Height = height;

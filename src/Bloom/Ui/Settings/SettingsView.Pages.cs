@@ -193,11 +193,20 @@ internal sealed partial class SettingsView
             TokenPrices.EnsureOverride();
             Launch.Open(TokenPrices.OverridePath);
         }, null, filter);
-        Add(Tr("토큰 집계 지우기", "Clear the token counts"), Tr("Bloom이 센 숫자만 지우고 다시 셈 · Claude Code가 지운 30일 넘은 기록은 돌아오지 않음", "Clears only what Bloom counted and counts again · logs Claude Code removed after 30 days do not come back"), null, G.Delete, () =>
-        {
-            TokenStats.Reset();
-            host.Window.Refresh(true);
-        }, null, filter);
+        Add(Tr("토큰 집계 지우기", "Clear the token counts"), Tr("Bloom이 센 숫자만 지우고 다시 셈 · Claude Code가 지운 30일 넘은 기록은 돌아오지 않음", "Clears only what Bloom counted and counts again · logs Claude Code removed after 30 days do not come back"), null, G.Delete, ClearTokens, null, filter);
+    }
+
+    /// 토큰 집계 지우기: asked first (what Claude Code already removed does not come back), then said done; the recording
+    /// mode's numbers are made up, so there it does nothing.
+    private void ClearTokens()
+    {
+        if (host.Opt.Demo) return;
+        if (ConfirmWindow.Ask(Window.GetWindow(this), Tr("토큰 집계 지우기", "Clear the token counts"),
+                Tr("Bloom이 센 토큰 숫자를 지우고 남은 기록에서 다시 셉니다. Claude Code가 이미 지운 30일 넘은 기록은 돌아오지 않습니다.", "Clears the token counts Bloom made and counts again from the logs that are left. Logs Claude Code already removed after 30 days do not come back."),
+                (Tr("지우기", "Clear"), MessageBoxResult.Yes), (Tr("취소", "Cancel"), MessageBoxResult.No)) != MessageBoxResult.Yes) return;
+        TokenStats.Reset();
+        host.Window.Refresh(true);
+        Notices.Result(true, Tr("AI 토큰", "AI tokens"), Tr("토큰 집계 지우기 완료", "Token counts cleared"), null);
     }
 
     private void PageSearch(Settings s, string filter)
