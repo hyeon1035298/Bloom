@@ -7,10 +7,11 @@ using Bloom.Ui;
 
 namespace Bloom.App;
 
-/// `--qa-set tokens`: the three token blocks alone on the home with made-up numbers (TokenDemo): two columns (1000)
-/// and one (760), dark and light, every period, a span of its own per block, the models cut to two rows, a block
-/// folded, 홈 편집, the first count at 42% and with nothing summed yet, no logs at all, a leftover model with no price,
-/// and 설정's rows.
+/// `--qa-set tokens`: the token blocks alone on the home with made-up numbers (TokenDemo): two columns (1000) and one
+/// (760), dark and light, every period, a span of its own per block, the models cut to two rows, a block folded, 홈
+/// 편집, the first count at 42% and with nothing summed yet, no logs at all, a leftover model with no price, the models'
+/// effort lines and 세션별 사용량 by themselves (five rows, the rest and the no-session lines; two rows of a day), and
+/// 설정's rows.
 internal static partial class Captures
 {
     private static async Task TokenScreens(Host host, Launcher w, string dir)
@@ -74,7 +75,26 @@ internal static partial class Captures
         Home.SetCount("tokenmodels", 3);
         Theme.Apply("light");
         await Take("light-t10-one-rest-unpriced", 760);
+        // the models' effort lines and the sessions by themselves: 30 days, five rows each
+        Home.Set("tokens", false);
+        Home.Set("tokenchart", false);
+        foreach (string key in new[] { "tokenmodels", "tokensessions" })
+        {
+            Home.SetCount(key, 5);
+            Home.SetPeriod(key, nameof(TokenPeriod.Month));
+        }
+        foreach (string theme in new[] { "dark", "light" })
+        {
+            Theme.Apply(theme);
+            await Take($"{theme}-t12-two-sessions", 1000);
+            await Take($"{theme}-t13-one-sessions", 760);
+        }
         Theme.Apply("dark");
+        Home.SetCount("tokensessions", 2);
+        Home.SetPeriod("tokensessions", nameof(TokenPeriod.Day));
+        await Take("dark-t14-two-sessions-day", 1000);
+        Home.Set("tokens", true);
+        Home.Set("tokenchart", true);
         // 설정's token rows: AI 토큰's two, then 홈 화면's three blocks (their about in two lines)
         var sw = new SettingsWindow(host) { WindowStartupLocation = WindowStartupLocation.Manual, Left = -32000, Top = -32000, ShowActivated = false };
         sw.Show();

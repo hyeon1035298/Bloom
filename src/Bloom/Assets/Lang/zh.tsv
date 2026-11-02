@@ -2360,3 +2360,12 @@ just now	刚刚
 Detach from the launcher	从启动器分离
 Always on top	始终置顶
 Attach to the launcher	附到启动器
+1 session	1 个会话
+{0} sessions	{0} 个会话
+… {0} more	… 其他 {0} 个
+No session · {0} tokens	未分会话 · Token {0}
+Logs older than 100 days, and calls that named no session	超过 100 天的记录，以及未记录会话的调用
+Bloom AI chat (deleted)	Bloom AI 聊天（已删除的对话）
+Session {0}	会话 {0}
+{0} tokens with no price · not in the cost	无价格的 Token {0} · 未计入折算费用
+unknown	未知

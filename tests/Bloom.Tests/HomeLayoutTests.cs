@@ -97,6 +97,7 @@ internal static class HomeLayoutTests
             Check.Eq(Home.Count(Home.Of("clipboard")!), Home.CountMax, "a count kept too high");
             Check.Eq(Home.Count(Home.Of("threads")!), Home.CountMin, "a count kept too low");
             Check.Eq(Home.Count(Home.Of("tokenmodels")!), 5, "models by use: 5 by default");
+            Check.Eq(Home.Count(Home.Of("tokensessions")!), 5, "sessions by use: 5 by default");
             foreach (string key in new[] { "usage", "tokens", "tokenchart", "week", "favorites", "commands" })
                 Check.Eq(Home.Count(Home.Of(key)!), 0, key + " has no rows to count");
             Home.SetCount("recent", 8);
@@ -349,6 +350,33 @@ internal static class HomeLayoutTests
         // nothing summed yet: the first count's line, not the empty period's
         static string Words(bool counting) => ((TextBlock)((Panel)TokenViews.Summary(Bloom.Ai.TokenView.Empty(Bloom.Ai.TokenPeriod.Day), false, counting, _ => { })).Children[^1]).Text;
         Check.True(Words(true) != Words(false), "counting reads apart from nothing in the period");
+        // the made-up sessions and efforts add up as the real ones do
+        foreach (var p in new[] { Bloom.Ai.TokenPeriod.Day, Bloom.Ai.TokenPeriod.Month, Bloom.Ai.TokenPeriod.All })
+        {
+            var v = TokenDemo.View(p);
+            var held = v.NoSession;
+            foreach (var s in v.Sessions) held += s.Counts;
+            Check.Eq(held, v.Sum, p + ": the sessions and what no session holds make the sum");
+            Check.True(v.Models.All(m => m.Efforts.Sum(e => e.Tokens) == m.Counts.Total), p + ": each model's efforts make its tokens");
+            Check.True(v.Sessions.All(s => s.Efforts.Sum(e => e.Tokens) == s.Counts.Total && s.Models.Sum(m => m.Tokens) == s.Counts.Total), p + ": each session's efforts and models make its tokens");
+        }
+        // the sessions block: the chips, never more rows than its count, the rest as a line, then what no session holds
+        Check.True(all.Sessions.Count > 6 && all.NoSession.Calls > 0, "made-up sessions, some calls with none");
+        int SessionLines(int rows) => ((Panel)TokenViews.Sessions(all, [], false, false, rows, _ => { })).Children.Count;
+        Check.Eq($"{SessionLines(1)} {SessionLines(5)} {SessionLines(all.Sessions.Count)}", $"4 8 {all.Sessions.Count + 2}", "rows, the rest's line, the no-session line");
+        // its names: a Bloom chat's (or a deleted one), the title, the folder, the id's head
+        static Bloom.Ai.TokenSession Session(string? title, string? folder, bool bloom) =>
+            new("claude", "0123456789abcdef", title, folder, bloom, default, null, 0, 0, DateTime.Now, DateTime.Now, [], []);
+        Check.Eq(string.Join(" | ", TokenViews.SessionName(Session("A title", "src", false), null), TokenViews.SessionName(Session(null, "src", false), null),
+            TokenViews.SessionName(Session(null, null, false), null), TokenViews.SessionName(Session(null, "ai", true), "My chat"), TokenViews.SessionName(Session(null, "ai", true), null)),
+            "A title | src | 세션 01234567 | My chat | Bloom AI 채팅 (지운 대화)", "session names");
+        // the effort mix: the order given, a share that rounds to 0% left out of the line but not the tooltip, none known: no line
+        var mix = new (Bloom.Ai.TokenEffort, long)[] { (Bloom.Ai.TokenEffort.Max, 100), (Bloom.Ai.TokenEffort.XHigh, 350), (Bloom.Ai.TokenEffort.High, 379_549), (Bloom.Ai.TokenEffort.Unknown, 1) };
+        Check.Eq(TokenViews.EffortMix(mix, false), "xhigh 0.1% · high 99.9%", "the effort line");
+        Check.Eq(TokenViews.EffortMix(mix, true), "max 0% 100 · xhigh 0.1% 350 · high 99.9% 380K · 모름 0% 1", "the effort tooltip");
+        Check.True(TokenViews.EffortMix([(Bloom.Ai.TokenEffort.Unknown, 5)], false) is null && TokenViews.EffortMix([], true) is null, "no effort known: no line");
+        Check.Eq($"{TokenViews.TopEffort(mix)} {TokenViews.TopEffort([(Bloom.Ai.TokenEffort.High, 5), (Bloom.Ai.TokenEffort.XHigh, 5)])} {TokenViews.TopEffort([(Bloom.Ai.TokenEffort.Unknown, 9)])?.ToString() ?? "-"}",
+            "High XHigh -", "the most-used effort: the higher of two the same, never unknown");
     }
 
     /// The kept home draws a block anew when its column, fold or count changes (its key): its tools are drawn from them.
