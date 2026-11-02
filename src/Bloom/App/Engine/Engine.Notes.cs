@@ -36,20 +36,25 @@ internal sealed partial class Engine
             });
         }
         foreach (var (n, _) in Notes.Ordered.Select(n => (n, sc: Matcher.Score(q, n.Match))).Where(x => x.sc > 0).OrderByDescending(x => x.sc).Take(3))
-        {
-            string id = n.Id;
-            s.Items.Add(new ResultItem
-            {
-                Id = "note:" + id,
-                Kind = ItemKind.Command,
-                Title = n.Title,
-                Subtitle = Tr($"메모 · {Ui.ToolUi.Ago(n.UpdatedAt)}", $"Note · {Ui.ToolUi.Ago(n.UpdatedAt)}"),
-                Icon = IconSpec.Of(G.Document, true),
-                PrimaryLabel = Tr("열기", "Open"),
-                StayOpen = true,
-                Run = () => host.Tools.Open("notes", id),
-            });
-        }
+            s.Items.Add(NoteItem(n, Tr($"메모 · {Ui.ToolUi.Ago(n.UpdatedAt)}", $"Note · {Ui.ToolUi.Ago(n.UpdatedAt)}")));
         return s.Items.Count > 0 ? s : null;
+    }
+
+    /// A note as a row (the search line's and the home's 메모 block): its title over `subtitle`; Enter or a click opens it
+    /// in 메모 beside the launcher, which stays open.
+    private ResultItem NoteItem(Note n, string subtitle)
+    {
+        string id = n.Id;
+        return new ResultItem
+        {
+            Id = "note:" + id,
+            Kind = ItemKind.Command,
+            Title = n.Title,
+            Subtitle = subtitle,
+            Icon = IconSpec.Of(G.Document, true),
+            PrimaryLabel = Tr("열기", "Open"),
+            StayOpen = true,
+            Run = () => host.Tools.Open("notes", id),
+        };
     }
 }
