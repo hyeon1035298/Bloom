@@ -15,9 +15,6 @@ namespace Bloom.Ui;
 /// (Spotify, a browser: OtherApps) and its buttons steer that app. A view of MusicPlayer: closing it leaves the music on.
 internal sealed class PlayerTool : ITool
 {
-    /// The cover's side in pixels: sharp on the 56-dip square up to 225 % scaling.
-    private const int ArtPixels = 128;
-
     private readonly Grid view = new() { Focusable = true };
     private readonly TextBlock source, title, artist, note, clock, queueTitle, count;
     private readonly SeekBar progress, volume;
@@ -42,12 +39,8 @@ internal sealed class PlayerTool : ITool
     private readonly StackPanel others = new() { Margin = new Thickness(6, 2, 6, 8) };
     private string othersKey = "";
 
-    /// Another app's song on top (Bloom plays nothing), or null: Bloom's own.
+    /// Another app's song on top (Bloom plays nothing: NowPlaying.Shown), or null: Bloom's own.
     private MediaNow? shown;
-
-    /// The song whose cover is asked for, and its cover once come.
-    private string? artFor;
-    private ImageSource? ownArt;
 
     /// What the cover square shows now (set once per change).
     private ImageSource? cover;
@@ -202,6 +195,7 @@ internal sealed class PlayerTool : ITool
         };
         view.MouseDown += (_, _) => view.Focus();
         MusicPlayer.Changed += Refresh;
+        NowPlaying.ArtCame += OwnArtCame;
         MusicPlayer.Watch(true);
         Refresh();
     }
@@ -217,7 +211,7 @@ internal sealed class PlayerTool : ITool
     private void Refresh()
     {
         bool direct = !MusicPlayer.External;
-        shown = !direct || MusicPlayer.IsPlaying || MusicPlayer.IsPaused ? null : OtherApps.Current;
+        shown = NowPlaying.Shown;
         if (shown is { } other) ShowOther(other);
         else ShowOwn();
         ShowArt();
@@ -313,23 +307,11 @@ internal sealed class PlayerTool : ITool
     }
 
     // ── the buttons: Bloom's own song, or the app's on top ──────────────────────────────────────
-    private void TogglePlay()
-    {
-        if (shown is { } other) OtherApps.Press(other, PlayerOp.Toggle);
-        else MusicPlayer.Toggle();
-    }
+    private void TogglePlay() => NowPlaying.Press(shown, PlayerOp.Toggle);
 
-    private void Previous()
-    {
-        if (shown is { } other) OtherApps.Press(other, PlayerOp.Previous);
-        else MusicPlayer.Previous();
-    }
+    private void Previous() => NowPlaying.Press(shown, PlayerOp.Previous);
 
-    private void Next()
-    {
-        if (shown is { } other) OtherApps.Press(other, PlayerOp.Next);
-        else MusicPlayer.Next();
-    }
+    private void Next() => NowPlaying.Press(shown, PlayerOp.Next);
 
     private void SeekTo(double fraction)
     {
@@ -349,29 +331,13 @@ internal sealed class PlayerTool : ITool
         else MusicPlayer.CycleRepeat();
     }
 
-    /// The cover: Bloom's song's (asked for when the song changes), or the app's on top; a music note on a tile until it
-    /// comes or without one.
-    private void ShowArt()
+    /// The cover: Bloom's song's (asked for when the song changes: NowPlaying), or the app's on top; a music note on a
+    /// tile until it comes or without one.
+    private void ShowArt() => Cover(NowPlaying.ArtOf(shown));
+
+    private void OwnArtCame()
     {
-        if (shown is { } other)
-        {
-            Cover(OtherApps.ArtOf(other));
-            return;
-        }
-        string? song = MusicPlayer.External ? null : MusicPlayer.Queue.Current?.Path;
-        if (!string.Equals(song, artFor, StringComparison.OrdinalIgnoreCase))
-        {
-            artFor = song;
-            ownArt = null;
-            if (song is not null)
-                Icons.Art(song, ArtPixels, img =>
-                {
-                    if (!string.Equals(song, artFor, StringComparison.OrdinalIgnoreCase)) return;
-                    ownArt = img;
-                    if (shown is null) Cover(img);
-                });
-        }
-        Cover(ownArt);
+        if (shown is null) Cover(NowPlaying.ArtOf(null));
     }
 
     private void Cover(ImageSource? img)
@@ -593,6 +559,7 @@ internal sealed class PlayerTool : ITool
     public void Closed()
     {
         MusicPlayer.Changed -= Refresh;
+        NowPlaying.ArtCame -= OwnArtCame;
         MusicPlayer.Watch(false);
     }
 }

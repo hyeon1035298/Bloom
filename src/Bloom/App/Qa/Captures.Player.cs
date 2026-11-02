@@ -224,6 +224,77 @@ internal static partial class Captures
         Theme.Apply("dark");
         host.Tools.Open("player");
         host.Tools.Close(host.Tools.Find("player")!);
+        await HomePlayerScreens(w, dir, audio, one, log);
         File.WriteAllText(Path.Combine(dir, "player.txt"), log.ToString());
+    }
+
+    /// The home's 플레이어 block beside 이번 주: Bloom's song with the folder's cover (folderart\plain.wav + folder.png) and
+    /// without one, a made-up other app's song, nothing playing; two columns (1000) and one (760), dark and light, 홈 편집;
+    /// then the launcher hidden: the player no longer watched (the mini player is closed by now).
+    private static async Task HomePlayerScreens(Launcher w, string dir, string audio, string plainSong, StringBuilder log)
+    {
+        HomePlayer.Start(w, w.DataChanged, false);
+        Settings.Current.Home = null;
+        foreach (var k in Home.Kinds) Home.Set(k.key, k.key is "player" or "week");
+        double width = w.Width, height = w.Height;
+        w.Height = 560;
+        async Task Take(string name, double across)
+        {
+            w.Width = across;
+            w.Go(Mode.Root, "");
+            w.Refresh(true);
+            await Task.Delay(700);
+            w.ScrollForQa(0);
+            await Snap(w, dir, name);
+        }
+
+        Settings.Current.PlayerMode = PlayerWays.Direct;
+        MusicPlayer.ModeChanged();
+        string covered = Path.Combine(audio, "folderart", "plain.wav");
+        MusicPlayer.Play(File.Exists(covered) ? covered : plainSong);
+        for (int i = 0; i < 30 && HomePlayer.Now().Cover is null; i++) await Task.Delay(100);
+        log.AppendLine($"home block: '{HomePlayer.Now().Title}' playing={HomePlayer.Now().Playing} cover={HomePlayer.Now().Cover is not null} watched while shown={HomePlayer.Watching}/{MusicPlayer.Watched}");
+        foreach (string theme in new[] { "dark", "light" })
+        {
+            Theme.Apply(theme);
+            await Take($"{theme}-h1-home-player-cover-two", 1000);
+            await Take($"{theme}-h2-home-player-cover-one", 760);
+        }
+        Theme.Apply("dark");
+        w.ToggleHomeEdit();
+        await Take("dark-h3-home-player-edit", 1000);
+        w.ToggleHomeEdit();
+
+        MusicPlayer.Play(plainSong);
+        await Task.Delay(800);
+        log.AppendLine($"home block: '{HomePlayer.Now().Title}' cover={HomePlayer.Now().Cover is not null}");
+        await Take("dark-h4-home-player-nocover-two", 1000);
+        MusicPlayer.Stop();
+
+        // another app's song, made up (the user's own sessions are never pictured here): its name, its buttons as it takes them
+        var made = new MediaNow("QA.Radio", Tr("새벽 산책", "Dawn Walk"), "Bloom QA", MediaStatus.Playing, TimeSpan.FromSeconds(40), TimeSpan.FromSeconds(180), true, true, false, true);
+        HomePlayer.SetForQa(NowPlaying.Of(made, null));
+        foreach (string theme in new[] { "dark", "light" })
+        {
+            Theme.Apply(theme);
+            await Take($"{theme}-h5-home-player-other-two", 1000);
+        }
+        Theme.Apply("dark");
+        await Take("dark-h6-home-player-other-one", 760);
+        HomePlayer.SetForQa(new NowPlaying.Song(null, "", "", "", false, false, true, true, true, null));
+        await Take("dark-h7-home-player-nothing-one", 760);
+        HomePlayer.SetForQa(null);
+
+        // hidden: the block lets go of the watch, and the other apps are forgotten
+        bool before = MusicPlayer.Watched;
+        w.Hide();
+        await Task.Delay(1500);
+        log.AppendLine($"home block: watched while shown={before} · hidden → block watching={HomePlayer.Watching} player watched={MusicPlayer.Watched} other apps held={OtherApps.Sessions.Count}");
+        w.Show();
+        await Task.Delay(300);
+        log.AppendLine($"home block: shown again → watched={MusicPlayer.Watched}");
+        w.Width = width;
+        w.Height = height;
+        Settings.Current.Home = null;
     }
 }
