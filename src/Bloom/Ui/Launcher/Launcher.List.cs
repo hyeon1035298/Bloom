@@ -150,6 +150,7 @@ internal sealed partial class Launcher
         if (Mode == Mode.Root && box.Text.Length == 0 && shown.Count > 0 && shown.All(s => s.HomeKey is not null))
         {
             look = HomeLook();
+            if (!homeGrid.Splitting) homeGrid.Split = Settings.Current.HomeSplit; // as kept, or as a settings file brought in has it
             keys = [];
             foreach (var s in shown)
             {

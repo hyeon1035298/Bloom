@@ -50,8 +50,14 @@ internal sealed partial class Launcher
     /// A home whose columns come or go while it is edited gets its tools anew, looked at as that comes (a drag on by
     /// then, begun after the flip too: once it is let go, its drop taken against the columns as they are then).
     /// The release of a hold that lost the mouse (EndHold) goes to nothing, wherever it comes; a new press ends that.
+    /// The columns' share is kept once the handle between them is let go or double-clicked (read as the home is drawn).
     private void WireHomeGrid()
     {
+        homeGrid.SplitSet += share =>
+        {
+            Settings.Current.HomeSplit = share;
+            Settings.Save();
+        };
         homeGrid.Flipped += () => Dispatcher.BeginInvoke(() =>
         {
             if (!HomeEditing || Mode != Mode.Root || box.Text.Length > 0) return;
