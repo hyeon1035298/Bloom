@@ -55,6 +55,7 @@ internal sealed partial class Launcher
     {
         homeGrid.SplitSet += share =>
         {
+            if (share == HomeColumns.Share(Settings.Current.HomeSplit)) return; // as kept: nothing to save
             Settings.Current.HomeSplit = share;
             Settings.Save();
         };

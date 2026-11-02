@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Bloom.Ai;
 using Bloom.Core;
 using Bloom.Ui;
 
@@ -11,8 +12,9 @@ namespace Bloom.App;
 /// `--qa-set home`: the home at the launcher's size (settings.json's width and height): as it comes, in 홈 편집, a
 /// block held over another place (lifted, the gap open) and let go, "+ 블록 추가" opened and a hidden block's card held
 /// over the columns and let go, rows · folds · columns changed, the keyboard's way through it, then sized across the
-/// two columns' width while edited, then about 1000 and 1300 wide with the columns' split dragged; the arrangement after
-/// each change, the rows the keys went to and the columns' widths in home.txt.
+/// two columns' width while edited, then about 1000 and 1300 wide with the columns' split dragged, then every block on
+/// with each column in turn at its least; the arrangement after each change, the rows the keys went to and the columns'
+/// widths in home.txt.
 internal static partial class Captures
 {
     private static async Task HomeScreens(Host host, Launcher w, string dir)
@@ -100,8 +102,32 @@ internal static partial class Captures
             log.AppendLine($"split {share} at {width}: left column {w.HomeForQa.ColumnWidthForQa(false):0}, right {w.HomeForQa.ColumnWidthForQa(true):0} of {w.HomeForQa.ActualWidth:0}");
         }
         splitter.LitForQa = false;
+        // every block on (the token ones with made-up numbers), the split at its least each way: each block once in a
+        // column ColumnMin wide (BLOOM_DESIGN_CHECK reports a text cut there)
+        double tall = w.Height;
+        foreach (var k in Home.Kinds)
+        {
+            Home.Set(k.key, true);
+            Home.SetCollapsed(k.key, false);
+        }
+        TokenStats.SetForQa(TokenDemo.View);
+        w.Width = 1000;
+        w.Height = 1500;
+        foreach (var (share, name) in new[] { (0.2, "dark-h13-least-left"), (0.8, "dark-h14-least-right") })
+        {
+            Settings.Current.HomeSplit = share;
+            w.Refresh(true);
+            await Task.Delay(700);
+            w.ScrollForQa(0);
+            await Snap(w, dir, name);
+            w.ScrollForQa(5000);
+            await Snap(w, dir, name + "-end");
+            log.AppendLine($"every block, split {share}: left column {w.HomeForQa.ColumnWidthForQa(false):0}, right {w.HomeForQa.ColumnWidthForQa(true):0}; {Home.Arrangement()}");
+        }
+        w.Height = tall;
         Settings.Current.HomeSplit = HomeColumns.DefaultSplit;
         w.Width = was;
+        w.Refresh(true);
         File.WriteAllText(Path.Combine(dir, "home.txt"), log.ToString());
         Settings.Current.Home = null;
     }

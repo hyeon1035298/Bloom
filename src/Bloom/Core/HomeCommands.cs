@@ -20,14 +20,26 @@ internal static class HomeCommands
     /// A card under “+ 명령 추가” (Ui\Controls\Row.Card): the command it puts on.
     public sealed record Card(string Id);
 
-    /// Whether the block lists command `id`, its feature aside: as picked, else its default.
-    public static bool Picked(string id) => Picks() is { } p && p.TryGetValue(id, out bool on) ? on : !Off.Contains(id);
+    /// Whether the block lists command `id`, its feature aside: as picked, else its default. Reading changes nothing: a
+    /// pick of a command Bloom lacks is never asked for, and one that is its default reads as the default anyway.
+    public static bool Picked(string id) => Picked(id, Settings.Current.HomeCommands);
+
+    private static bool Picked(string id, Dictionary<string, bool>? picks) =>
+        picks is not null && picks.TryGetValue(id, out bool on) ? on : !Off.Contains(id);
 
     /// The commands the block lists, in Bloom's order.
-    public static List<SysEntry> Shown() => SystemItems.Commands.Where(e => Picked(e.Id) && Features.Shows(e.Id)).ToList();
+    public static List<SysEntry> Shown()
+    {
+        var picks = Settings.Current.HomeCommands;
+        return SystemItems.Commands.Where(e => Picked(e.Id, picks) && Features.Shows(e.Id)).ToList();
+    }
 
     /// What “+ 명령 추가” offers, in Bloom's order: the commands left off whose feature is on.
-    public static List<SysEntry> Missing() => SystemItems.Commands.Where(e => !Picked(e.Id) && Features.Shows(e.Id)).ToList();
+    public static List<SysEntry> Missing()
+    {
+        var picks = Settings.Current.HomeCommands;
+        return SystemItems.Commands.Where(e => !Picked(e.Id, picks) && Features.Shows(e.Id)).ToList();
+    }
 
     /// Command `id` on the block (`on`) or off it; a pick that is its default is not kept.
     public static void Set(string id, bool on)
@@ -36,19 +48,18 @@ internal static class HomeCommands
         var picks = Settings.Current.HomeCommands ??= [];
         if (on == !Off.Contains(id)) picks.Remove(id);
         else picks[id] = on;
-        Picks();
+        Clean();
         Settings.Save();
     }
 
-    /// The picks kept, those of commands Bloom no longer has and those that are their default dropped (none: null, the
-    /// settings file as if never edited).
-    private static Dictionary<string, bool>? Picks()
+    /// The picks tidied, as on a pick and once the settings file is read: those of commands Bloom no longer has and those
+    /// that are their default dropped (none left: null, the settings file as if never edited).
+    public static void Clean()
     {
         var s = Settings.Current;
-        if (s.HomeCommands is not { } picks) return null;
+        if (s.HomeCommands is not { } picks) return;
         foreach (var (id, on) in picks.ToList())
             if (!SystemItems.Commands.Exists(e => e.Id == id) || on == !Off.Contains(id)) picks.Remove(id);
         if (picks.Count == 0) s.HomeCommands = null;
-        return s.HomeCommands;
     }
 }

@@ -38,8 +38,9 @@ internal sealed class HomeColumns : Panel
     /// The left column's share of the width as it has always been: half.
     public const double DefaultSplit = 0.5;
 
-    /// The narrowest a column gets (dip): a row's icon, title and accessory, a widget's cards, the edit tools' pill.
-    public const double ColumnMin = 360;
+    /// The narrowest a column gets (dip): a row's icon, title and accessory, a widget's cards, the edit tools' pill, and
+    /// 세션별 사용량's rows, whose titles (beside where, the numbers and the cost) shrank to a word at 360.
+    public const double ColumnMin = 420;
 
     /// A kept share as one to lay out by: between 0 and 1 (not at either end), else the default (a settings file from
     /// before the handle has none, or one edited by hand).
@@ -72,7 +73,7 @@ internal sealed class HomeColumns : Panel
     /// The handle being dragged (the share not kept yet).
     public bool Splitting => splitter.Dragging;
 
-    /// The handle let go or double-clicked: the share to keep.
+    /// The handle let go after a drag, or double-clicked: the share to keep (the Launcher saves it only when it changed).
     public event Action<double>? SplitSet;
 
     private readonly HomeSplitter splitter = new();
