@@ -47,7 +47,8 @@ internal sealed partial class Launcher
         {
             b.Append('\u001e').Append(i.Id).Append('\u001f').Append(i.Kind).Append('\u001f').Append(i.Title).Append('\u001f').Append(i.Subtitle)
                 .Append('\u001f').Append(i.Accessory).Append('\u001f').Append(i.Live is null ? "" : "live").Append('\u001f').Append(i.PrimaryLabel)
-                .Append('\u001f').Append(i.StayOpen).Append(i.Pinnable).Append('\u001f').Append(i.Side?.Title).Append(i.Side?.Glyph);
+                .Append('\u001f').Append(i.StayOpen).Append(i.Pinnable).Append('\u001f').Append(i.Side?.Title).Append(i.Side?.Glyph)
+                .Append(i.Remove is null ? "" : "✕");
             IconKey(b, i.Icon);
             // a favorites folder's tile shows its first items' icons
             if (FavStrip.FolderKids(i) is { } kids)
