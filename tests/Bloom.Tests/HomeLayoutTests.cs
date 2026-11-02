@@ -40,37 +40,37 @@ internal static class HomeLayoutTests
     {
         From("{}", () =>
         {
-            Check.Eq(Blocks(false), "usage timers week", "the left column by default");
-            Check.Eq(Blocks(true), "favorites recent recentfiles clipboard threads commands", "the right column by default");
+            Check.Eq(Blocks(false), "usage tokens tokenchart timers week", "the left column by default");
+            Check.Eq(Blocks(true), "tokenmodels favorites recent recentfiles clipboard threads commands", "the right column by default");
             Check.True(Home.Order().TrueForAll(w => !w.Collapsed && w.Count is null), "none folded, every count its kind's");
         });
         // kept before columns (key and on only) in the default order: split as the defaults are
         From("""{"home":[{"key":"usage","on":true},{"key":"timers","on":true},{"key":"week","on":true},{"key":"favorites","on":true},{"key":"recent","on":true},{"key":"recentfiles","on":false},{"key":"clipboard","on":true},{"key":"threads","on":false},{"key":"commands","on":false}]}""", () =>
         {
-            Check.Eq(Blocks(false), "usage timers week", "an old default list: left");
-            Check.Eq(Blocks(true), "favorites recent recentfiles clipboard threads commands", "an old default list: right");
+            Check.Eq(Blocks(false), "usage timers week tokens tokenchart", "an old default list: left, the token blocks after");
+            Check.Eq(Blocks(true), "favorites recent recentfiles clipboard threads commands tokenmodels", "an old default list: right");
             Check.True(!Home.IsOn("commands") && Home.IsOn("clipboard"), "its switches kept");
             Check.Eq(Home.Count(Home.Of("clipboard")!), 3, "a new field gets its default");
         });
         // reordered before columns: its order stays (one column shows it as it was), split where the fewest move
         From("""{"home":[{"key":"favorites","on":true},{"key":"usage","on":true},{"key":"timers","on":true},{"key":"week","on":true},{"key":"recent","on":true},{"key":"recentfiles","on":false},{"key":"clipboard","on":false},{"key":"threads","on":false},{"key":"commands","on":true}]}""", () =>
         {
-            Check.Eq(Blocks(), "favorites usage timers week recent recentfiles clipboard threads commands", "the old order");
-            Check.Eq(Blocks(false), "favorites usage timers week", "the favorites stay above the usage");
+            Check.Eq(Blocks(), "favorites usage timers week tokens tokenchart recent recentfiles clipboard threads commands tokenmodels", "the old order");
+            Check.Eq(Blocks(false), "favorites usage timers week tokens tokenchart", "the favorites stay above the usage");
         });
         // a null in a hand-edited list goes (no throw); alone, the defaults
         From("""{"home":[null]}""", () =>
-            Check.Eq(Blocks(false) + " | " + Blocks(true), "usage timers week | favorites recent recentfiles clipboard threads commands", "only a null: the defaults"));
+            Check.Eq(Blocks(false) + " | " + Blocks(true), "usage tokens tokenchart timers week | tokenmodels favorites recent recentfiles clipboard threads commands", "only a null: the defaults"));
         From("""{"home":[null,{"key":"commands","on":false,"right":false},null]}""", () =>
         {
-            Check.Eq(Blocks(false), "commands usage timers week", "nulls among kept blocks: those kept, new kinds after");
+            Check.Eq(Blocks(false), "commands usage tokens tokenchart timers week", "nulls among kept blocks: those kept, new kinds after");
             Check.True(!Home.IsOn("commands") && Home.Order().TrueForAll(w => w is not null), "… as they were, and no null left");
         });
         // a block kind the list didn't know joins its column with its defaults; an unknown or twice-kept one goes
         From("""{"home":[{"key":"commands","on":true,"right":false},{"key":"gone","on":true},{"key":"recent","on":false,"right":true,"count":7,"collapsed":true},{"key":"recent","on":true}]}""", () =>
         {
-            Check.Eq(Blocks(false), "commands usage timers week", "kept columns, new kinds in theirs");
-            Check.Eq(Blocks(true), "recent favorites recentfiles clipboard threads", "the right column");
+            Check.Eq(Blocks(false), "commands usage tokens tokenchart timers week", "kept columns, new kinds in theirs");
+            Check.Eq(Blocks(true), "recent tokenmodels favorites recentfiles clipboard threads", "the right column");
             var recent = Home.Of("recent")!;
             Check.True(!recent.On && recent.Collapsed && Home.Count(recent) == 7, "the first of a twice-kept block");
         });
@@ -95,7 +95,8 @@ internal static class HomeLayoutTests
             Check.Eq(Home.Count(Home.Of("recentfiles")!), 3, "recent files: 3 by default");
             Check.Eq(Home.Count(Home.Of("clipboard")!), Home.CountMax, "a count kept too high");
             Check.Eq(Home.Count(Home.Of("threads")!), Home.CountMin, "a count kept too low");
-            foreach (string key in new[] { "usage", "week", "favorites", "commands" })
+            Check.Eq(Home.Count(Home.Of("tokenmodels")!), 5, "models by use: 5 by default");
+            foreach (string key in new[] { "usage", "tokens", "tokenchart", "week", "favorites", "commands" })
                 Check.Eq(Home.Count(Home.Of(key)!), 0, key + " has no rows to count");
             Home.SetCount("recent", 8);
             Check.Eq(Home.Count(Home.Of("recent")!), 8, "set");
@@ -113,26 +114,26 @@ internal static class HomeLayoutTests
         // two columns: into the column it was put in, at the gap
         From("{}", () =>
         {
-            Home.Drop("week", null, "favorites", true);
-            Check.Eq(Blocks(false) + " | " + Blocks(true), "usage timers | week favorites recent recentfiles clipboard threads commands", "on top of the right column");
-            Home.Drop("commands", "usage", "timers", false);
-            Check.Eq(Blocks(false), "usage commands timers", "between two of the left column");
-            foreach (string key in new[] { "usage", "commands", "timers" }) Home.Drop(key, null, null, true);
+            Home.Drop("week", null, "tokenmodels", true);
+            Check.Eq(Blocks(false) + " | " + Blocks(true), "usage tokens tokenchart timers | week tokenmodels favorites recent recentfiles clipboard threads commands", "on top of the right column");
+            Home.Drop("commands", "usage", "tokens", false);
+            Check.Eq(Blocks(false), "usage commands tokens tokenchart timers", "between two of the left column");
+            foreach (string key in new[] { "usage", "commands", "tokens", "tokenchart", "timers" }) Home.Drop(key, null, null, true);
             Home.Drop("recent", null, null, false);
             Check.Eq(Blocks(false), "recent", "into an empty left column");
         });
         // one column: a gap inside a column joins it; the gap between the columns keeps the block's own
         From("{}", () =>
         {
-            Home.Drop("commands", "usage", "timers", null);
-            Check.Eq(Blocks(false), "usage commands timers week", "dropped between two left blocks");
+            Home.Drop("commands", "usage", "tokens", null);
+            Check.Eq(Blocks(false), "usage commands tokens tokenchart timers week", "dropped between two left blocks");
             Home.Drop("timers", "recent", "recentfiles", null);
-            Check.Eq(Blocks(true), "favorites recent timers recentfiles clipboard threads", "dropped between two right blocks");
-            Home.Drop("recent", "week", "favorites", null);
-            Check.Eq(Blocks(false) + " | " + Blocks(true), "usage commands week | recent favorites timers recentfiles clipboard threads", "between the columns: a right block stays right");
+            Check.Eq(Blocks(true), "tokenmodels favorites recent timers recentfiles clipboard threads", "dropped between two right blocks");
+            Home.Drop("recent", "week", "tokenmodels", null);
+            Check.Eq(Blocks(false) + " | " + Blocks(true), "usage commands tokens tokenchart week | recent tokenmodels favorites timers recentfiles clipboard threads", "between the columns: a right block stays right");
             Home.Drop("usage", "week", "recent", null);
-            Check.Eq(Blocks(false), "commands week usage", "between the columns: a left block stays left");
-            Check.Eq(Blocks(), "commands week usage recent favorites timers recentfiles clipboard threads", "one column: the left column's first");
+            Check.Eq(Blocks(false), "commands tokens tokenchart week usage", "between the columns: a left block stays left");
+            Check.Eq(Blocks(), "commands tokens tokenchart week usage recent tokenmodels favorites timers recentfiles clipboard threads", "one column: the left column's first");
         });
         // ▲ ▼ as laid out: in one column through both columns, in two within one; past the blocks shown only
         From("{}", () =>
@@ -141,33 +142,33 @@ internal static class HomeLayoutTests
             Check.True(Home.CanStep("week", 1, false, Shown) && !Home.CanStep("week", 1, true, Shown), "the left column's end: on in one column, off in two");
             Check.True(!Home.CanStep("favorites", -1, true, Shown), "the right column's top");
             Home.Step("favorites", -1, false, Shown);
-            Check.Eq(Blocks(), "usage timers favorites week recent recentfiles clipboard threads commands", "up past the left column's last");
+            Check.Eq(Blocks(), "usage tokens tokenchart timers favorites week tokenmodels recent recentfiles clipboard threads commands", "up past the left column's last");
             Check.True(Home.Of("favorites")!.Right is false, "… into it");
             Home.Step("week", 1, false, Shown);
-            Check.Eq(Blocks(false) + " | " + Blocks(true), "usage timers favorites | recent recentfiles clipboard threads week commands", "down past the left column's end (before the next block shown)");
+            Check.Eq(Blocks(false) + " | " + Blocks(true), "usage tokens tokenchart timers favorites | tokenmodels recent recentfiles clipboard threads week commands", "down past the left column's end (before the next block shown)");
             Home.Step("timers", 1, true, Shown);
-            Check.Eq(Blocks(false), "usage favorites timers", "two columns: within its own");
+            Check.Eq(Blocks(false), "usage tokens tokenchart favorites timers", "two columns: within its own");
             Home.Step("timers", -1, false, Shown.Where(k => k != "favorites").ToHashSet());
-            Check.Eq(Blocks(false), "timers usage favorites", "a block not shown is passed over");
+            Check.Eq(Blocks(false), "timers usage tokens tokenchart favorites", "a block not shown is passed over");
         });
         // ‹ ›: across, at the same place among the blocks shown
         From("{}", () =>
         {
             Home.MoveAcross("timers", Shown);
-            Check.Eq(Blocks(false) + " | " + Blocks(true), "usage week | favorites timers recent recentfiles clipboard threads commands", "to the right column, second");
+            Check.Eq(Blocks(false) + " | " + Blocks(true), "usage tokens tokenchart week | tokenmodels favorites timers recent recentfiles clipboard threads commands", "to the right column, second");
             Home.MoveAcross("commands", Shown);
-            Check.Eq(Blocks(false), "usage week commands", "to the left column's end");
+            Check.Eq(Blocks(false), "usage tokens tokenchart week commands", "to the left column's end");
         });
         // 설정's list: ▲ ▼ and a drag through the whole list, hidden blocks too
         From("{}", () =>
         {
             Home.Move("week", 1);
-            Check.Eq(Blocks(), "usage timers favorites week recent recentfiles clipboard threads commands", "down a place");
+            Check.Eq(Blocks(), "usage tokens tokenchart timers tokenmodels week favorites recent recentfiles clipboard threads commands", "down a place");
             Check.True(Home.Of("week")!.Right is true, "into the right column");
             Home.MoveTo("commands", 0);
-            Check.Eq(Blocks(false), "commands usage timers", "dragged to the top");
-            Home.MoveTo("usage", 9);
-            Check.Eq(Blocks(), "commands timers favorites week recent recentfiles clipboard threads usage", "dragged to the end");
+            Check.Eq(Blocks(false), "commands usage tokens tokenchart timers", "dragged to the top");
+            Home.MoveTo("usage", Home.Kinds.Length);
+            Check.Eq(Blocks(), "commands tokens tokenchart timers tokenmodels week favorites recent recentfiles clipboard threads usage", "dragged to the end");
             Check.True(Home.Of("usage")!.Right is true, "… the right column's end");
         });
     }
@@ -270,40 +271,40 @@ internal static class HomeLayoutTests
         // two columns: at the end of the column whose tile was pressed
         From("{}", () =>
         {
-            Check.Eq(Hidden(), "recentfiles clipboard threads", "the blocks off by default, in their order");
+            Check.Eq(Hidden(), "tokens tokenchart tokenmodels recentfiles clipboard threads", "the blocks off by default, in their order");
             Home.Add("clipboard", false);
             Check.True(Home.IsOn("clipboard"), "on");
-            Check.Eq(Blocks(false), "usage timers week clipboard", "the left column's end");
+            Check.Eq(Blocks(false), "usage tokens tokenchart timers week clipboard", "the left column's end");
             Home.Add("threads", true);
-            Check.Eq(Blocks(true), "favorites recent recentfiles commands threads", "the right column's end, past a block still off");
-            Check.Eq(Hidden(), "recentfiles", "one left to offer");
-            Home.Add("recentfiles", false);
+            Check.Eq(Blocks(true), "tokenmodels favorites recent recentfiles commands threads", "the right column's end, past a block still off");
+            Check.Eq(Hidden(), "tokens tokenchart tokenmodels recentfiles", "four left to offer");
+            foreach (string key in new[] { "recentfiles", "tokens", "tokenchart", "tokenmodels" }) Home.Add(key, false);
             Check.True(Home.Hidden().Count == 0, "none left");
         });
         // one column: after the home's last block, in that block's column
         From("{}", () =>
         {
             Home.Add("recentfiles", null);
-            Check.Eq(Blocks(), "usage timers week favorites recent clipboard threads commands recentfiles", "the home's end");
+            Check.Eq(Blocks(), "usage tokens tokenchart timers week tokenmodels favorites recent clipboard threads commands recentfiles", "the home's end");
             Check.True(Home.Of("recentfiles")!.Right is true, "… in the right column, the last block's");
         });
-        From("""{"home":[{"key":"usage","on":true,"right":false},{"key":"timers","on":true,"right":false},{"key":"week","on":true,"right":false},{"key":"favorites","on":true,"right":false},{"key":"recent","on":true,"right":false},{"key":"recentfiles","on":false,"right":true},{"key":"clipboard","on":false,"right":false},{"key":"threads","on":false,"right":false},{"key":"commands","on":true,"right":false}]}""", () =>
+        From("""{"home":[{"key":"usage","on":true,"right":false},{"key":"tokens","on":false,"right":false},{"key":"tokenchart","on":false,"right":false},{"key":"tokenmodels","on":false,"right":false},{"key":"timers","on":true,"right":false},{"key":"week","on":true,"right":false},{"key":"favorites","on":true,"right":false},{"key":"recent","on":true,"right":false},{"key":"recentfiles","on":false,"right":true},{"key":"clipboard","on":false,"right":false},{"key":"threads","on":false,"right":false},{"key":"commands","on":true,"right":false}]}""", () =>
         {
             Home.Add("recentfiles", null);
-            Check.Eq(Blocks(false) + " | " + Blocks(true), "usage timers week favorites recent clipboard threads commands | recentfiles", "every other block left: its own column, still the home's end");
+            Check.Eq(Blocks(false) + " | " + Blocks(true), "usage tokens tokenchart tokenmodels timers week favorites recent clipboard threads commands | recentfiles", "every other block left: its own column, still the home's end");
             Home.Add("threads", null);
-            Check.Eq(Blocks(), "usage timers week favorites recent clipboard commands recentfiles threads", "the next one: after it, in its column");
+            Check.Eq(Blocks(), "usage tokens tokenchart tokenmodels timers week favorites recent clipboard commands recentfiles threads", "the next one: after it, in its column");
         });
         // a card dropped: between the blocks around the gap, in its column
         From("{}", () =>
         {
             Home.AddAt("threads", null, "usage", false);
             Check.True(Home.IsOn("threads"), "on");
-            Check.Eq(Blocks(false), "threads usage timers week", "the left column's top");
+            Check.Eq(Blocks(false), "threads usage tokens tokenchart timers week", "the left column's top");
             Home.AddAt("clipboard", "favorites", "recent", null);
-            Check.Eq(Blocks(true), "favorites clipboard recent recentfiles commands", "one column, between two right blocks: in the right column");
+            Check.Eq(Blocks(true), "tokenmodels favorites clipboard recent recentfiles commands", "one column, between two right blocks: in the right column");
             Home.AddAt("recentfiles", null, null, false);
-            Check.Eq(Blocks(false), "threads usage timers week recentfiles", "no blocks around the gap (an empty column): the column's end");
+            Check.Eq(Blocks(false), "threads usage tokens tokenchart timers week recentfiles", "no blocks around the gap (an empty column): the column's end");
         });
         // a block of a feature switched off (설정 > 기능) is not offered: it would not show
         From("{}", () =>
@@ -311,13 +312,34 @@ internal static class HomeLayoutTests
             Settings.Current.FeaturesOff.Add("chat");
             try
             {
-                Check.Eq(Hidden(), "recentfiles clipboard", "AI chat off: no 최근 AI 채팅");
+                Check.Eq(Hidden(), "tokens tokenchart tokenmodels recentfiles clipboard", "AI chat off: no 최근 AI 채팅");
             }
             finally
             {
                 Settings.Current.FeaturesOff.Remove("chat");
             }
         });
+    }
+
+    /// The token blocks (Ai\TokenStats.Blocks): known kinds, off by default, a span each that is kept as set; the
+    /// numbers as the blocks write them (Ui\TokenViews.cs).
+    public static void TokenBlocks()
+    {
+        From("{}", () =>
+        {
+            foreach (string key in Bloom.Ai.TokenStats.Blocks)
+                Check.True(Home.Kinds.Any(k => k.key == key) && !Home.IsOn(key), key + ": a kind of block, off by default");
+            Check.True(Home.Of("tokens")!.Period is null, "no span kept: the block's default (24 hours)");
+            Home.SetPeriod("tokens", nameof(Bloom.Ai.TokenPeriod.Month));
+            Home.SetPeriod("tokenchart", nameof(Bloom.Ai.TokenPeriod.All));
+            var read = JsonSerializer.Deserialize<Settings>(JsonSerializer.Serialize(Settings.Current, Json.Options), Json.Options)!;
+            Settings.Current.Home = read.Home;
+            Check.Eq($"{Home.Of("tokens")!.Period} {Home.Of("tokenchart")!.Period} {Home.Of("tokenmodels")!.Period ?? "-"}", "Month All -", "each block's span after a restart");
+        });
+        Check.Eq(string.Join(" ", new long[] { 980, 9_870, 12_345, 999_600, 19_700_000, 2_710_000_000 }.Select(TokenViews.Count)), "980 9,870 12.3K 1M 19.7M 2.71B", "counts in a few figures");
+        Check.Eq(TokenViews.Money(1109.92, false) + " " + TokenViews.Money(1109.92, true) + " " + TokenViews.Money(49.26, true) + " " + TokenViews.Money(123_456, true), "$1,109.92 $1,110 $49.26 $123K", "costs");
+        Check.Eq(TokenViews.Percent(0.9612) + " " + TokenViews.Percent(0.004) + " " + TokenViews.Percent(1), "96.1% 0.4% 100%", "shares");
+        Check.Eq(string.Join(" | ", new[] { "claude-opus-5-5", "claude-haiku-4-5", "claude-opus-4", "gpt-6.1-sol", "claude-x-y" }.Select(TokenViews.Pretty)), "Opus 5.5 | Haiku 4.5 | Opus 4 | gpt-6.1-sol | claude-x-y", "model names");
     }
 
     /// The kept home draws a block anew when its column, fold or count changes (its key): its tools are drawn from them.

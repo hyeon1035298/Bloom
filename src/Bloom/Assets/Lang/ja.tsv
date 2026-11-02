@@ -800,6 +800,7 @@ Enter copies CSS	Enter で CSS をコピー
 Matching presets	合うプリセット
 Bloom preset	Bloom プリセット
 Show colour	色を表示
+Counting {0}%	集計中 {0}%
 Uninstall · Store app, for this user	アンインストール · Store アプリ、このユーザーから
 Uninstall · {0}	アンインストール · {0}
 Uninstall…	アンインストール…
@@ -945,6 +946,7 @@ Add payment module tests	決済モジュールのテストを追加
 Mini player	ミニプレーヤー
 ntpd	ntpd
 chrom	chrom
+AI tokens	AI トークン
 Friday meeting\nresend the quote · fix the date	金曜の会議\n見積書を再送 · 日程を確定
 Trip ideas\nJeju 3 nights · rent a car	旅行のアイデア\n済州 3 泊 · レンタカー
 note buy milk	note buy milk
@@ -1112,6 +1114,12 @@ End processes	プロセスの終了
 Find and end a stuck program	固まったプログラムを探して終了
 See the disk as a map and clear big files	ディスクを地図のように見て大きなファイルを片付ける
 5-hour and weekly usage, asked of Claude Code and Codex	Claude Code と Codex に聞いた 5 時間と週間の使用量
+Token usage	トークン使用量
+API-priced cost, tokens, calls, cache hits · the first time on, all logs are read once in the background · compressed Codex logs left out	API 換算額 · トークン · 呼び出し · キャッシュヒット率 · 初めてオンにするとすべての記録をバックグラウンドで一度読み込み · 圧縮された Codex の記録は対象外
+Token chart	トークングラフ
+Tokens by hour or day as bars · the first time on, all logs are read once in the background · compressed Codex logs left out	時間 · 日付ごとのトークン棒グラフ · 初めてオンにするとすべての記録をバックグラウンドで一度読み込み · 圧縮された Codex の記録は対象外
+Usage by model	モデル別使用量
+The models that used the most tokens, and their share · the first time on, all logs are read once in the background · compressed Codex logs left out	トークンを多く使ったモデルとその割合 · 初めてオンにするとすべての記録をバックグラウンドで一度読み込み · 圧縮された Codex の記録は対象外
 Running timers and reminders (only while there are some)	実行中のタイマーとリマインダー (あるときだけ)
 Reminders for the next 7 days — click a day for the calendar	今後 7 日間のリマインダー — 日付をクリックするとカレンダー
 A row of icons · Ctrl+1…9	アイコンの列 · Ctrl+1…9
@@ -1577,6 +1585,53 @@ One colour fewer	1 色減らす
 One colour more	1 色増やす
 Details	詳細
 Muted preview · click to pause	音声なしのプレビュー · クリックで一時停止
+Cost	換算額
+At API prices {0}	API 価格で換算 {0}
+Tokens	トークン
+{0} tokens	トークン {0}
+Calls	呼び出し
+{0} calls	呼び出し {0}
+Cache hits	キャッシュヒット
+{0} of {1} prompt tokens read from the cache	送信した入力 {1} のうちキャッシュから読み込み {0}
+Add a price in Settings > Home > Edit prices	設定 > ホーム > 価格表を編集 で価格を追加できます
+{0} tokens · {1}	トークン {0} · {1}
+Now	今
+1 model	モデル 1 個
+{0} models	{0} 件のモデル
+{0} more · {1} tokens · {2}	ほか {0} 個 · トークン {1} · {2}
+Calls {0}	呼び出し {0}
+Input {0}	入力 {0}
+Output {0}	出力 {0}
+Cache read {0}	キャッシュ読み込み {0}
+Cache write {0}	キャッシュ書き込み {0}
+Cache hits {0}	キャッシュヒット {0}
+Cost {0}	換算額 {0}
+No price · not in the cost	価格なし · 換算額に含まれない
+Input	入力
+Cache write	キャッシュ書き込み
+Cache read	キャッシュ読み込み
+Output	出力
+No Claude Code or Codex logs	Claude Code · Codex の記録なし
+Nothing in this period	この期間の記録なし
+24h	24時間
+7d	7日
+30d	30日
+90d	90日
+The last 24 hours	過去 24 時間
+The last 7 days	今日までの 7 日間
+The last 30 days	今日までの 30 日間
+The last 90 days	今日までの 90 日間
+Everything Bloom has counted	Bloom が集計したすべての記録
+{0} – now	{0} – 現在
+Since {0}	{0} から
+{0} – today	{0} – 今日
+MMM d, h tt	M月d日 H時
+h tt	H時
+MMM yyyy	yyyy年M月
+Week of {0}	{0} からの 1 週間
+ · nothing	 · 記録なし
+1 model with no price · its {0} tokens are not in the cost	価格のないモデル 1 個 · トークン {0} は換算額に含まれない
+{0} models with no price · their {1} tokens are not in the cost	価格のないモデル {0} 個 · トークン {1} は換算額に含まれない
 Bloom {0} · What's new	Bloom {0} · 新機能
 Bloom {0} update complete	Bloom {0} の更新完了
 Changes in this version	このバージョンの変更点
@@ -1894,7 +1949,6 @@ e.g. gemini	例: gemini
 No model list yet	モデル一覧がまだありません
 Press ‘Refresh omp's model list’ above	上の「omp のモデル一覧を更新」を押してください
 Providers	プロバイダー
-{0} models	{0} 件のモデル
 No model found	モデルが見つかりません
 You can also type provider/model in ‘Add by hand’	「直接追加」にプロバイダー/モデルを入力しても追加できます
 no thinking	思考レベルなし
@@ -1951,6 +2005,10 @@ Hidden, only while asked: Claude ~470 MB for 4 s · Codex ~110 MB for 1 s	問い
 10 min	10 分
 What's used (32%) or what's left (68% left) · the bars follow	使った量 (32%) か残りの量 (68% 残り) · バーもそれに合わせます
 Left	残り
+Edit prices	価格表を編集
+Overrides the built-in token prices (as of {0}) · prices.json	内蔵のトークン価格（{0} 時点）を上書き · prices.json
+Clear the token counts	トークン集計を消去
+Clears only what Bloom counted and counts again · logs Claude Code removed after 30 days do not come back	Bloom が集計した数値だけを消去して再集計 · Claude Code が削除した 30 日より前の記録は戻らない
 What else to search besides apps as you type	入力したとき、アプリ以外に何を一緒に探すか
 Also search	一緒に探す
 Files too	ファイルも

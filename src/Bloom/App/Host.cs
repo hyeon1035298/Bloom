@@ -176,6 +176,7 @@ internal sealed partial class Host
         Timers.Changed += Later;
         Timers.Changed += SyncAlarm;
         AiUsage.Updated += Later;
+        TokenStats.Updated += Later;
         // bursts of change events become one refresh, 300 ms after the first; the timer sleeps in between
         dataTick = new DispatcherTimer(DispatcherPriority.Background, ui) { Interval = TimeSpan.FromMilliseconds(300) };
         dataTick.Tick += (_, _) =>
@@ -199,6 +200,7 @@ internal sealed partial class Host
             };
             SyncAlarm();
             AiUsage.Start(ui);
+            if (!Opt.Demo) TokenStats.Start(ui); // recording mode: made-up numbers (BeginDemo), no log read
             Notices.Quiet = Opt.MeasureSeconds is not null || Opt.SummonRounds is not null;
             if (!Opt.Demo) Notices.Start(ui); // recording mode: no cards from the real Claude Code and Codex
             if (!Opt.Demo) ClaudeApprovals.Start(ui);

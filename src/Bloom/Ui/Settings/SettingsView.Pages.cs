@@ -187,6 +187,17 @@ internal sealed partial class SettingsView
                 s.UsageLeft = v == "left";
                 host.Window.Refresh(true);
             }, filter);
+        Header(Tr("AI 토큰", "AI tokens"));
+        Add(Tr("가격표 고치기", "Edit prices"), Tr($"내장 가격({TokenPrices.Checked} 기준) 위에 덮어씀 · prices.json", $"Overrides the built-in token prices (as of {TokenPrices.Checked}) · prices.json"), null, G.Pen, () =>
+        {
+            TokenPrices.EnsureOverride();
+            Launch.Open(TokenPrices.OverridePath);
+        }, null, filter);
+        Add(Tr("토큰 집계 지우기", "Clear the token counts"), Tr("Bloom이 센 숫자만 지우고 다시 셈 · Claude Code가 지운 30일 넘은 기록은 돌아오지 않음", "Clears only what Bloom counted and counts again · logs Claude Code removed after 30 days do not come back"), null, G.Delete, () =>
+        {
+            TokenStats.Reset();
+            host.Window.Refresh(true);
+        }, null, filter);
     }
 
     private void PageSearch(Settings s, string filter)

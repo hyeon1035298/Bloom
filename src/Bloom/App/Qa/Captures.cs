@@ -63,6 +63,7 @@ internal static partial class Captures
         ["palette"] = PaletteScreens,
         ["palette-perf"] = PalettePerf,
         ["providers"] = ProviderScreens,
+        ["tokens"] = TokenScreens,
     };
 
     public static async Task Run(Host host, string dir)

@@ -51,6 +51,9 @@ internal sealed partial class Engine
                     (Action Moved, Action<string> Rename)? edit = host.Window.HomeEditing ? (() => host.Window.Refresh(true), RenameAccount) : null;
                     sections.Add(new Section(Tr("AI 사용량", "AI usage"), asked) { Widget = () => Ui.HomeViews.Usage(accounts, edit), Reload = () => _ = AiUsage.Refresh() });
                     break;
+                case "tokens" or "tokenchart" or "tokenmodels":
+                    sections.Add(TokenBlock(w));
+                    break;
                 case "timers":
                     var timers = new Section(Tr("타이머 · 알림", "Timers · reminders"), Tr("Ctrl+K 5분 더 · 취소", "Ctrl+K 5 more min · cancel"));
                     foreach (var e in Timers.Waiting.Take(Home.Count(w))) timers.Items.Add(FromTimer(e));
