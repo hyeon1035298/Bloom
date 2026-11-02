@@ -369,7 +369,10 @@ internal static class HomeLayoutTests
             new("claude", "0123456789abcdef", title, folder, bloom, default, null, 0, 0, DateTime.Now, DateTime.Now, [], []);
         Check.Eq(string.Join(" | ", TokenViews.SessionName(Session("A title", "src", false), null), TokenViews.SessionName(Session(null, "src", false), null),
             TokenViews.SessionName(Session(null, null, false), null), TokenViews.SessionName(Session(null, "ai", true), "My chat"), TokenViews.SessionName(Session(null, "ai", true), null)),
-            "A title | src | 세션 01234567 | My chat | Bloom AI 채팅 (지운 대화)", "session names");
+            "A title | src | 세션 01234567 | My chat | Bloom AI 채팅 (찾을 수 없음)", "session names");
+        // a made-up Bloom session reads as a made-up chat, never as one not found
+        Check.True(all.Sessions.Any(s => s.Bloom) && all.Sessions.Where(s => s.Bloom).All(s => TokenDemo.ChatName(s.Id) is not null), "made-up Bloom sessions have chat names");
+        Check.True(all.Sessions.Where(s => !s.Bloom).All(s => TokenDemo.ChatName(s.Id) is null), "no chat name for other sessions");
         // the effort mix: the order given, a share that rounds to 0% left out of the line but not the tooltip, none known: no line
         var mix = new (Bloom.Ai.TokenEffort, long)[] { (Bloom.Ai.TokenEffort.Max, 100), (Bloom.Ai.TokenEffort.XHigh, 350), (Bloom.Ai.TokenEffort.High, 379_549), (Bloom.Ai.TokenEffort.Unknown, 1) };
         Check.Eq(TokenViews.EffortMix(mix, false), "xhigh 0.1% · high 99.9%", "the effort line");
@@ -377,6 +380,37 @@ internal static class HomeLayoutTests
         Check.True(TokenViews.EffortMix([(Bloom.Ai.TokenEffort.Unknown, 5)], false) is null && TokenViews.EffortMix([], true) is null, "no effort known: no line");
         Check.Eq($"{TokenViews.TopEffort(mix)} {TokenViews.TopEffort([(Bloom.Ai.TokenEffort.High, 5), (Bloom.Ai.TokenEffort.XHigh, 5)])} {TokenViews.TopEffort([(Bloom.Ai.TokenEffort.Unknown, 9)])?.ToString() ?? "-"}",
             "High XHigh -", "the most-used effort: the higher of two the same, never unknown");
+    }
+
+    /// A session row's first line after its name (SessionTail), its tooltip (SessionTip, the row's own), and which
+    /// chat's session a token session is (Engine.ChatSide).
+    public static void SessionRows()
+    {
+        var day = new DateTime(2026, 11, 3, 9, 0, 0);
+        static (Bloom.Ai.TokenEffort, long)[] Efforts(params (Bloom.Ai.TokenEffort, long)[] e) => e;
+        Bloom.Ai.TokenSession Session(string provider, string? title, string? folder, bool bloom, (Bloom.Ai.TokenEffort, long)[] efforts, double? cost = 1.5, long unpriced = 0) =>
+            new(provider, "0123456789abcdef", title, folder, bloom, new(3, 100, 200, 1_000, 50, 0), cost, unpriced, 0.25, day, day.AddHours(5),
+                [("claude-opus-5-5", 1_000), ("claude-sonnet-5-5", 350)], efforts);
+        var high = Efforts((Bloom.Ai.TokenEffort.High, 900), (Bloom.Ai.TokenEffort.Max, 450));
+        Check.Eq(string.Join(" | ", TokenViews.SessionTail(Session("claude", "A title", "src", false, high)), TokenViews.SessionTail(Session("codex", null, "src", false, [])),
+            TokenViews.SessionTail(Session("claude", null, "ai", true, Efforts((Bloom.Ai.TokenEffort.Unknown, 5))))),
+            "Claude Code · src · high | Codex | Claude Code · Bloom", "the row's tail: the folder only beside a title, Bloom for a Bloom chat, the most-used effort");
+        var tip = TokenViews.SessionTip(Session("claude", "A title", "src", false, high), "A title").Split('\n');
+        Check.Eq(string.Join(" | ", tip.Take(5)), "A title · Claude Code | src · 01234567 | 11-03 09:00 – 15:00 | Opus 5.5 74.1% · Sonnet 5.5 25.9% | effort high 66.7% · max 33.3%",
+            "the tooltip's name, folder and id, span, models and efforts");
+        Check.Eq(tip[^1], "환산액 $1.50", "then the numbers and the cost");
+        var bloomTip = TokenViews.SessionTip(Session("codex", null, "ai", true, [], null), "My chat").Split('\n');
+        Check.Eq($"{bloomTip[0]} | {bloomTip[1]} | {bloomTip[^1]}", "My chat · Codex | Bloom · 01234567 | 가격 없음 · 환산액에 들어가지 않음", "a Bloom chat's tooltip, no price");
+        Check.Eq(TokenViews.SessionTip(Session("claude", null, "ai", true, []), "X").Split('\n')[2], "11-03 09:00 – 15:00", "no effort known: no effort line");
+        Check.True(TokenViews.SessionTip(Session("claude", "T", null, false, [], 2, 40), "T").EndsWith("가격 없는 토큰 40 · 환산액에 없음", StringComparison.Ordinal), "a priced session's unpriced tokens");
+        var across = Session("claude", "T", null, false, []) with { Last = day.AddHours(20) };
+        Check.Eq(TokenViews.SessionTip(across, "T").Split('\n')[2], "11-03 09:00 – 11-04 06:00", "a span across days");
+        // the row's tooltip is SessionTip
+        var view = TokenDemo.View(Bloom.Ai.TokenPeriod.All);
+        var row = (FrameworkElement)((Panel)TokenViews.Sessions(view, [], false, false, 1, _ => { })).Children[1];
+        Check.Eq(row.ToolTip as string, TokenViews.SessionTip(view.Sessions[0], TokenViews.SessionName(view.Sessions[0], null)), "the first row's tooltip");
+        // a chat's session provider on the token side: none is Claude, ChatGPT is Codex
+        Check.Eq(string.Join(" ", new[] { null, "claude", "chatgpt", "omp" }.Select(Engine.ChatSide)), "claude claude codex omp", "chat sides");
     }
 
     /// The kept home draws a block anew when its column, fold or count changes (its key): its tools are drawn from them.
