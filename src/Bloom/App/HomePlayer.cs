@@ -39,16 +39,21 @@ internal static class HomePlayer
         visible && block is { On: true, Collapsed: false } && feature && !demo;
 
     /// The watch held or let go as ShouldWatch says now (the launcher shown or hidden, the block drawn: just turned on in
-    /// 홈 편집, or every change while watched: turned off or folded).
+    /// 홈 편집, or every change while watched: turned off or folded). The block's settings are read only while the
+    /// launcher shows: hidden, the mini player alone still brings a change twice a second.
     public static void Sync()
     {
         if (window is null) return; // QA, or before Start: Prewarm's moment off-screen
-        bool want = ShouldWatch(window.IsVisible, Home.Of("player"), Features.Shows("player"), demo);
+        bool want = window.IsVisible && ShouldWatch(true, Home.Of("player"), Features.Shows("player"), demo);
         if (want == watching) return;
         watching = want;
-        if (want) watchedAt = DateTime.UtcNow;
+        if (want) watchedAt = WatchStart(MusicPlayer.Watched, DateTime.UtcNow);
         MusicPlayer.Watch(want);
     }
+
+    /// When the block's watch counts as begun for StandsIn: now, or long ago when the mini player already watched
+    /// (Windows' sessions are current, nothing to wait for).
+    public static DateTime WatchStart(bool watchedBefore, DateTime now) => watchedBefore ? DateTime.MinValue : now;
 
     /// Every change (twice a second while watched): the home drawn again only when what the block shows changed.
     private static void Changed()
@@ -67,10 +72,24 @@ internal static class HomePlayer
         if (qa is not null) return qa;
         if (demo) return Demo;
         var now = NowPlaying.Now();
-        if (now.Other is not null) lastOther = now;
-        else if (!StandsIn(now.Has, MusicPlayer.External, MusicPlayer.Watched, watching, DateTime.UtcNow - watchedAt)) lastOther = null;
-        else if (lastOther is not null) return lastOther;
-        return now;
+        bool standsIn = now.Other is null && StandsIn(now.Has, MusicPlayer.External, MusicPlayer.Watched, watching, DateTime.UtcNow - watchedAt);
+        (var shown, lastOther) = Follow(now, lastOther, standsIn);
+        return shown;
+    }
+
+    /// What shows and the other app's song kept for next time: an app's song is kept, its cover carried over while the
+    /// same app's same song has none yet (the sessions just came back, its cover still asked for: no flash of the tile);
+    /// with none, the kept one stands in (`standsIn`) or is let go.
+    public static (NowPlaying.Song shown, NowPlaying.Song? last) Follow(NowPlaying.Song now, NowPlaying.Song? last, bool standsIn)
+    {
+        if (now.Other is { } other)
+        {
+            if (now.Cover is null && last is { Other: { } was, Cover: { } cover } && was.App == other.App && was.Title == other.Title)
+                now = now with { Cover = cover };
+            return (now, now);
+        }
+        if (!standsIn) return (now, null);
+        return (last ?? now, last);
     }
 
     /// Whether the other app's song last drawn stands in for "nothing playing": Bloom plays nothing the direct way and

@@ -2,6 +2,8 @@ using System;
 using Bloom.App;
 using Bloom.Core;
 using Bloom.Music;
+using Bloom.Search;
+using Bloom.Ui;
 
 namespace Bloom.Tests;
 
@@ -63,6 +65,56 @@ internal static class HomePlayerTests
         Check.True(!HomePlayer.StandsIn(false, false, true, false, soon), "the mini player watches: they are what they are");
         Check.True(!HomePlayer.StandsIn(true, false, false, false, soon), "Bloom plays a song");
         Check.True(!HomePlayer.StandsIn(false, true, false, false, soon), "another player chosen");
+    }
+
+    public static void TheMiniPlayersWatchNeedsNoSettling()
+    {
+        var now = DateTime.UtcNow;
+        Check.True(!HomePlayer.StandsIn(false, false, true, true, now - HomePlayer.WatchStart(true, now)), "the mini player already watched: current");
+        Check.True(HomePlayer.StandsIn(false, false, true, true, now - HomePlayer.WatchStart(false, now)), "the block's own watch just began");
+    }
+
+    public static void TheLastAppSongIsKeptAndLetGo()
+    {
+        var cover = new System.Windows.Media.DrawingImage();
+        var song = NowPlaying.Of(App(), cover);
+        var nothing = Own(has: false, playing: false, title: "");
+
+        var (shown, last) = HomePlayer.Follow(song, null, false);
+        Check.True(ReferenceEquals(shown, song) && ReferenceEquals(last, song), "an app's song shows and is kept");
+        (shown, last) = HomePlayer.Follow(nothing, song, true);
+        Check.True(ReferenceEquals(shown, song) && ReferenceEquals(last, song), "the sessions not back yet: it stands in");
+        (shown, last) = HomePlayer.Follow(nothing, null, true);
+        Check.True(ReferenceEquals(shown, nothing) && last is null, "nothing kept: nothing playing");
+        (shown, last) = HomePlayer.Follow(nothing, song, false);
+        Check.True(ReferenceEquals(shown, nothing) && last is null, "the sessions answered nothing: let go");
+
+        var back = NowPlaying.Of(App(position: 95), null);
+        (shown, last) = HomePlayer.Follow(back, song, false);
+        Check.True(ReferenceEquals(shown.Cover, cover) && ReferenceEquals(last!.Cover, cover), "back without its cover yet: the kept one carries over");
+        Check.Eq(shown.Key, song.Key, "so the block is not drawn again");
+        Check.True(ReferenceEquals(shown.Other, back.Other), "the buttons steer the session that came back");
+        (shown, _) = HomePlayer.Follow(NowPlaying.Of(App(title: "next"), null), song, false);
+        Check.Eq(shown.Cover, null, "another song: no cover carried over");
+        (shown, _) = HomePlayer.Follow(NowPlaying.Of(App(app: "chrome"), null), song, false);
+        Check.Eq(shown.Cover, null, "another app: no cover carried over");
+        var own = new System.Windows.Media.DrawingImage();
+        (shown, _) = HomePlayer.Follow(NowPlaying.Of(App(), own), song, false);
+        Check.True(ReferenceEquals(shown.Cover, own), "its own cover came: that one");
+    }
+
+    /// The kept home's key (Ui\Launcher.SectionKey) over the block as drawn: the buttons' look changes it, the position not.
+    public static void TheKeptKeyFollowsWhatShows()
+    {
+        static string Key(NowPlaying.Song s) =>
+            Launcher.SectionKey(new Section("플레이어") { HomeKey = "player", Widget = () => PlayerViews.Block(s, () => { }, _ => { }) }, out _);
+        // a faded button differs by its glyph's colour: the palette's brushes are all alike until a theme paints them
+        if (Theme.P.TextDim.Color == Theme.P.TextFaint.Color) Theme.P.Apply(false, null, 0);
+        string key = Key(NowPlaying.Of(App(position: 30), null));
+        Check.Eq(Key(NowPlaying.Of(App(position: 95), null)), key, "only the position moved: kept");
+        Check.True(Key(NowPlaying.Of(App(status: MediaStatus.Paused), null)) != key, "paused: play shows instead of pause");
+        Check.True(Key(NowPlaying.Of(App(next: false), null)) != key, "next no longer taken: its button faded");
+        Check.True(Key(NowPlaying.Of(App(title: "other"), null)) != key, "another song");
     }
 
     public static void TheBlockKeepsTheDefaults()
