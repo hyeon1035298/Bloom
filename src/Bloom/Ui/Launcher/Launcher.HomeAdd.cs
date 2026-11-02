@@ -119,6 +119,17 @@ internal sealed partial class Launcher
         }, DispatcherPriority.ContextIdle);
     }
 
+    /// The home drawn again with row `id` selected, brought into view once laid out (the 명령 block's “+ 명령 추가” and
+    /// its cards, App\Engine\Engine.CommandsBlock.cs).
+    public void RefreshTo(string id)
+    {
+        Refresh(true, id);
+        Dispatcher.BeginInvoke(() =>
+        {
+            if (sel >= 0 && sel < rows.Count && rows[sel].Item?.Id == id) rows[sel].BringIntoView();
+        }, DispatcherPriority.ContextIdle);
+    }
+
     /// QA: the right column's tile pressed (one column: the only one).
     public void ToggleAddForQa() => ToggleAdd(true);
 

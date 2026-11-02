@@ -152,6 +152,17 @@ internal sealed class Row : SmoothBorder
         Add(b, GridLength.Auto);
     }
 
+    /// 홈 편집: the item's ✕ (ResultItem.Remove) at the row's end, always shown; a press takes the row off its block
+    /// and never runs the row.
+    private void AddRemove()
+    {
+        if (Item?.Remove is null) return;
+        var x = HomeViews.EditButton(G.Close, Tr("이 블록에서 빼기", "Remove from this block"), true, () => Item?.Remove?.Invoke());
+        x.Margin = new Thickness(8, 0, 0, 0);
+        x.VerticalAlignment = VerticalAlignment.Center;
+        Add(x, GridLength.Auto);
+    }
+
     /// The standard result line: icon, title, dim subtitle, right accessory.
     public static Row Result(ResultItem item)
     {
@@ -173,6 +184,7 @@ internal sealed class Row : SmoothBorder
             if (item.Live is not null) r.Tick = () => a.Text = r.Item?.Live?.Invoke() ?? a.Text;
         }
         r.AddSide(item);
+        r.AddRemove();
         return r;
     }
 
@@ -192,6 +204,7 @@ internal sealed class Row : SmoothBorder
             if (item.Live is not null) r.Tick = () => a.Text = r.Item?.Live?.Invoke() ?? a.Text;
         }
         r.AddSide(item);
+        r.AddRemove();
         return r;
     }
 
@@ -226,9 +239,12 @@ internal sealed class Row : SmoothBorder
         r.Add(icon, GridLength.Auto);
         var words = new StackPanel { VerticalAlignment = VerticalAlignment.Center };
         words.Children.Add(Theme.T(item.Title, 13.5, Theme.P.Text, Theme.Medium));
-        var about = Theme.T(item.Subtitle ?? "", 12, Theme.P.TextFaint);
-        about.Margin = new Thickness(0, 2, 0, 0);
-        words.Children.Add(about);
+        if (item.Subtitle is { Length: > 0 } subtitle) // a command with no words under its name: the name alone, centred
+        {
+            var about = Theme.T(subtitle, 12, Theme.P.TextFaint);
+            about.Margin = new Thickness(0, 2, 0, 0);
+            words.Children.Add(about);
+        }
         r.Add(words, new GridLength(1, GridUnitType.Star));
         var plus = Theme.Glyph(G.Add, 11, Theme.P.TextDim);
         plus.Margin = new Thickness(10, 0, 0, 0);

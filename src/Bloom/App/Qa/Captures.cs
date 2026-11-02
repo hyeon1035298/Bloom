@@ -57,6 +57,7 @@ internal static partial class Captures
         ["draw"] = DrawScreens,
         ["guide"] = GuideScreens,
         ["home"] = HomeScreens,
+        ["homecmd"] = HomeCommandScreens,
         ["homeinput"] = HomeInputScreens,
         ["omp"] = OmpScreens,
         ["omp-missing"] = OmpMissingScreens,

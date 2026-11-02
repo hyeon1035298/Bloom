@@ -105,12 +105,7 @@ internal sealed partial class Engine
                     sections.Add(PlayerBlock(w));
                     break;
                 case "commands":
-                    var cmds = new Section(Tr("명령", "Command"));
-                    foreach (var e in SystemItems.Commands)
-                    {
-                        if (shown.Contains(e.Id) || !Features.Shows(e.Id) || e.Id is "cmd:reindex" or "cmd:lock" or "cmd:restart" or "cmd:shutdown" or "cmd:quit") continue;
-                        cmds.Items.Add(FromSys(e));
-                    }
+                    var cmds = CommandsBlock(shown);
                     if (cmds.Items.Count > 0) sections.Add(cmds);
                     break;
             }

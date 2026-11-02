@@ -342,7 +342,8 @@ internal sealed partial class Launcher
     /// One result row, wired to select and run; added to `rows` (the keyboard's order).
     private Row AddRow(ResultItem item)
     {
-        Row r = item.Data is HomeAdd add ? FootRow(item, add) : item.Kind == ItemKind.Calc ? Row.Calc(item) : Split || Mode == Mode.Calendar ? Row.Compact(item, Mode is Mode.Clipboard or Mode.Calendar) : Row.Result(item);
+        Row r = item.Data is HomeAdd add ? FootRow(item, add) : item.Data is HomeCommands.Tile tile ? Row.AddTile(item, tile.Open)
+            : item.Data is HomeCommands.Card ? Row.Card(item) : item.Kind == ItemKind.Calc ? Row.Calc(item) : Split || Mode == Mode.Calendar ? Row.Compact(item, Mode is Mode.Clipboard or Mode.Calendar) : Row.Result(item);
         r.Clicked = () =>
         {
             Select(rows.IndexOf(r), false);
