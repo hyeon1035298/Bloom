@@ -1,0 +1,153 @@
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Text;
+using Bloom.Ai;
+
+namespace Bloom.Tests;
+
+/// The log lines the token blocks count (Ai\ClaudeLog, Ai\CodexLog) and the reader under them (Ai\LogLines): which
+/// lines are calls, which fields are read and how the two CLIs' fields fold into TokenCounts, the keys that find a call
+/// again, and whole lines only, as bytes, from an offset.
+internal static class TokenLogTests
+{
+    private static ReadOnlySpan<byte> B(string line) => Encoding.UTF8.GetBytes(line);
+
+    private static string Claude(string usage, string model = "claude-opus-5-5", string id = "msg_1", string? request = "req_1", string type = "assistant", string content = "[]") =>
+        $$"""{"parentUuid":"p","message":{"model":"{{model}}","id":"{{id}}","type":"message","role":"assistant","content":{{content}},"usage":{{usage}}},{{(request is null ? "" : $"\"requestId\":\"{request}\",")}}"type":"{{type}}","uuid":"u-1","timestamp":"2026-11-02T10:20:30.123Z"}""";
+
+    private const string Usage = """{"input_tokens":2,"cache_creation_input_tokens":300,"cache_read_input_tokens":4000,"output_tokens":50,"cache_creation":{"ephemeral_1h_input_tokens":200,"ephemeral_5m_input_tokens":100},"inference_geo":"global","speed":"standard"}""";
+
+    public static void ClaudeUsageIsRead()
+    {
+        var call = ClaudeLog.Parse(B(Claude(Usage))) ?? throw new InvalidOperationException("no call");
+        Check.Eq(call.Counts, new TokenCounts(1, 2, 50, 4000, 100, 200), "input, output, cache read, 5-minute and 1-hour writes");
+        Check.Eq(call.Model, "claude-opus-5-5", "message.model");
+        Check.Eq(call.Provider, "claude", "the provider");
+        Check.Eq(call.Time, new DateTime(2026, 11, 2, 10, 20, 30, 123, DateTimeKind.Utc), "the timestamp in UTC");
+        Check.Eq(call.Time.Kind, DateTimeKind.Utc, "as UTC");
+        Check.Eq(call.Variant, TokenVariant.None, "standard speed, global");
+
+        var old = ClaudeLog.Parse(B(Claude("""{"input_tokens":1,"cache_creation_input_tokens":70,"cache_read_input_tokens":9,"output_tokens":3}""")))!.Value;
+        Check.Eq(old.Counts, new TokenCounts(1, 1, 3, 9, 70, 0), "a line from before the split: its writes as 5-minute ones");
+        var nulls = ClaudeLog.Parse(B(Claude("""{"input_tokens":null,"output_tokens":5}""")))!.Value;
+        Check.Eq(nulls.Counts, new TokenCounts(1, 0, 5, 0, 0, 0), "null and missing fields as 0");
+    }
+
+    public static void ClaudeFastAndUsAreMarked()
+    {
+        var fast = ClaudeLog.Parse(B(Claude("""{"input_tokens":1,"output_tokens":1,"speed":"fast","inference_geo":"us"}""")))!.Value;
+        Check.Eq(fast.Variant, TokenVariant.Fast | TokenVariant.Us, "speed fast and inference_geo us");
+    }
+
+    public static void ClaudeOtherLinesAreNoCalls()
+    {
+        Check.True(ClaudeLog.Parse(B(Claude(Usage, model: "<synthetic>"))) is null, "Claude Code's own <synthetic> reply");
+        Check.True(ClaudeLog.Parse(B(Claude(Usage, type: "user"))) is null, "a line that is not the assistant's");
+        string progress = """{"type":"progress","data":{"message":{"type":"assistant","message":{"model":"claude-opus-5-5","id":"m","usage":{"input_tokens":5,"output_tokens":5}}}},"uuid":"x","timestamp":"2026-11-02T10:00:00Z"}""";
+        Check.True(ClaudeLog.Parse(B(progress)) is null, "an assistant message nested in another line");
+        Check.True(ClaudeLog.Parse(B("""{"type":"assistant","message":{"model":"claude-opus-5-5","id":"m"},"timestamp":"2026-11-02T10:00:00Z","note":"usage"}""")) is null, "no usage");
+        Check.True(ClaudeLog.Parse(B(Claude(Usage)[..120])) is null, "a line cut off");
+        Check.True(ClaudeLog.Parse(B("""{"type":"summary","summary":"x"}""")) is null, "a line dropped by its bytes");
+    }
+
+    public static void ClaudeContentIsNotRead()
+    {
+        // a "model" and a "usage" in the text and in a tool's input, before the message's own model
+        string content = """[{"type":"text","text":"\"model\":\"opus\" \"usage\":{\"input_tokens\":999}"},{"type":"tool_use","name":"Agent","input":{"model":"sonnet","usage":{"input_tokens":777,"output_tokens":777},"nested":[[[{"deep":true}]]]}}]""";
+        string line = $$"""{"message":{"content":{{content}},"id":"msg_9","usage":{"input_tokens":3,"output_tokens":4},"model":"claude-sonnet-5-5"},"requestId":"r","type":"assistant","uuid":"u","timestamp":"2026-11-02T10:00:00Z"}""";
+        var call = ClaudeLog.Parse(B(line))!.Value;
+        Check.Eq(call.Model, "claude-sonnet-5-5", "message.model, after the content");
+        Check.Eq(call.Counts, new TokenCounts(1, 3, 4, 0, 0, 0), "message.usage only");
+    }
+
+    public static void ClaudeKeysFindTheSameCall()
+    {
+        ulong a = ClaudeLog.Parse(B(Claude(Usage)))!.Value.Key;
+        Check.Eq(ClaudeLog.Parse(B(Claude("""{"input_tokens":2,"output_tokens":90}""", content: """[{"type":"text","text":"more"}]""")))!.Value.Key, a, "another line of the same response");
+        Check.True(ClaudeLog.Parse(B(Claude(Usage, request: "req_2")))!.Value.Key != a, "another request");
+        ulong alone = ClaudeLog.Parse(B(Claude(Usage, request: null)))!.Value.Key;
+        Check.True(alone != a, "no requestId: message.id alone");
+        Check.Eq(ClaudeLog.Parse(B(Claude(Usage, request: null)))!.Value.Key, alone, "the same each time");
+        string noId = """{"message":{"model":"claude-opus-5-5","usage":{"input_tokens":1,"output_tokens":1}},"type":"assistant","uuid":"u-7","timestamp":"2026-11-02T10:00:00Z"}""";
+        string noId2 = noId.Replace("u-7", "u-8", StringComparison.Ordinal);
+        Check.True(ClaudeLog.Parse(B(noId))!.Value.Key != ClaudeLog.Parse(B(noId2))!.Value.Key, "no message.id: the line's uuid");
+        Check.True(ClaudeLog.Parse(B(Claude(Usage, id: "msg_1x")))!.Value.Key != a, "another message");
+    }
+
+    private static string Context(string model) => """{"timestamp":"2026-11-01T07:17:10.000Z","ordinal":3,"type":"turn_context","payload":{"cwd":"x","model":"@MODEL"}}""".Replace("@MODEL", model, StringComparison.Ordinal);
+
+    private static string Record(string id, int input, int cached, int written, int output, int ordinal = 11) =>
+        """{"timestamp":"2026-11-01T07:17:15.875Z","ordinal":@ORDINAL,"type":"token_usage_record","payload":{"thread_id":"t","response_id":"@ID","usage":{"input_tokens":@INPUT,"cached_input_tokens":@CACHED,"cache_write_input_tokens":@WRITTEN,"output_tokens":@OUTPUT,"reasoning_output_tokens":7,"total_tokens":1},"turn_token_usage":{"input_tokens":99999,"cached_input_tokens":0,"output_tokens":99999}}}""".Replace("@ORDINAL", ordinal.ToString(System.Globalization.CultureInfo.InvariantCulture), StringComparison.Ordinal).Replace("@ID", id, StringComparison.Ordinal).Replace("@INPUT", input.ToString(System.Globalization.CultureInfo.InvariantCulture), StringComparison.Ordinal).Replace("@CACHED", cached.ToString(System.Globalization.CultureInfo.InvariantCulture), StringComparison.Ordinal).Replace("@WRITTEN", written.ToString(System.Globalization.CultureInfo.InvariantCulture), StringComparison.Ordinal).Replace("@OUTPUT", output.ToString(System.Globalization.CultureInfo.InvariantCulture), StringComparison.Ordinal);
+
+    private static string Count(int total, int input, int cached, int output, int ordinal) =>
+        """{"timestamp":"2026-11-01T07:17:16.000Z","ordinal":@ORDINAL,"type":"event_msg","payload":{"type":"token_count","info":{"total_token_usage":{"input_tokens":@TOTAL,"cached_input_tokens":0,"output_tokens":1,"total_tokens":@TOTAL},"last_token_usage":{"input_tokens":@INPUT,"cached_input_tokens":@CACHED,"cache_write_input_tokens":0,"output_tokens":@OUTPUT,"reasoning_output_tokens":0,"total_tokens":0},"model_context_window":475000},"rate_limits":null}}""".Replace("@ORDINAL", ordinal.ToString(System.Globalization.CultureInfo.InvariantCulture), StringComparison.Ordinal).Replace("@TOTAL", total.ToString(System.Globalization.CultureInfo.InvariantCulture), StringComparison.Ordinal).Replace("@INPUT", input.ToString(System.Globalization.CultureInfo.InvariantCulture), StringComparison.Ordinal).Replace("@CACHED", cached.ToString(System.Globalization.CultureInfo.InvariantCulture), StringComparison.Ordinal).Replace("@OUTPUT", output.ToString(System.Globalization.CultureInfo.InvariantCulture), StringComparison.Ordinal);
+
+    public static void CodexRecordsAreCalls()
+    {
+        var file = new TokenFile { Thread = "01a195f8-1b89-7e01-bc47-41dae7935ad7" };
+        Check.True(CodexLog.Parse(B(Context("gpt-6.1-sol")), file) is null, "turn_context is no call");
+        Check.Eq(file.Model, "gpt-6.1-sol", "it names the model");
+        var call = CodexLog.Parse(B(Record("resp_1", 13139, 12160, 500, 22)), file)!.Value;
+        Check.Eq(call.Counts, new TokenCounts(1, 13139 - 12160 - 500, 22, 12160, 500, 0), "input less cached and written; output with the reasoning");
+        Check.Eq(call.Model, "gpt-6.1-sol", "the turn_context's model");
+        Check.Eq(call.Provider, "codex", "the provider");
+        Check.True(file.Records, "the file has records now");
+        Check.Eq(CodexLog.Parse(B(Record("resp_1", 1, 0, 0, 1, ordinal: 40)), file)!.Value.Key, call.Key, "the key is the response_id (a fork's copy finds it)");
+        Check.True(CodexLog.Parse(B(Count(13139, 13139, 12160, 22, 12)), file) is null, "token_count after a record: not counted twice");
+        CodexLog.Parse(B(Context("gpt-6-astra")), file);
+        Check.Eq(CodexLog.Parse(B(Record("resp_2", 10, 0, 0, 1)), file)!.Value.Model, "gpt-6-astra", "a later turn_context holds from there");
+        Check.True(CodexLog.Parse(B("""{"timestamp":"2026-11-01T07:17:15.875Z","type":"response_item","payload":{"type":"message","content":"token_count"}}"""), file) is null, "another line");
+    }
+
+    public static void CodexTokenCountsAreCallsInOldFiles()
+    {
+        var file = new TokenFile { Thread = "01a17880-284e-78b0-9929-06b89368c332" };
+        CodexLog.Parse(B(Context("gpt-6-astra")), file);
+        var first = CodexLog.Parse(B(Count(100, 100, 40, 5, 4)), file)!.Value;
+        Check.Eq(first.Counts, new TokenCounts(1, 60, 5, 40, 0, 0), "last_token_usage");
+        Check.True(CodexLog.Parse(B(Count(100, 100, 40, 5, 5)), file) is null, "the same total again");
+        Check.True(CodexLog.Parse(B("""{"timestamp":"2026-11-01T07:17:16.000Z","ordinal":6,"type":"event_msg","payload":{"type":"token_count","info":null}}"""), file) is null, "no info");
+        var second = CodexLog.Parse(B(Count(180, 80, 0, 9, 7)), file)!.Value;
+        Check.Eq(second.Counts.Output, 9L, "a new total");
+        Check.True(second.Key != first.Key, "keyed by the thread and the ordinal");
+        var other = new TokenFile { Thread = "01a17880-0000-0000-0000-000000000000", Model = "gpt-6-astra" };
+        Check.True(CodexLog.Parse(B(Count(100, 100, 40, 5, 4)), other)!.Value.Key != first.Key, "another thread");
+        string noOrdinal = Count(300, 1, 0, 1, 0).Replace("\"ordinal\":0,", "", StringComparison.Ordinal);
+        ulong at10 = CodexLog.Parse(B(noOrdinal), new TokenFile { Thread = "t", Model = "m" }, 10)!.Value.Key;
+        Check.True(at10 != CodexLog.Parse(B(noOrdinal), new TokenFile { Thread = "t", Model = "m" }, 20)!.Value.Key, "no ordinal: the line's place in the file");
+    }
+
+    public static void LinesAreReadWholeFromAnOffset()
+    {
+        string dir = Path.Combine(Path.GetTempPath(), "bloom-tokens-" + Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(dir);
+        try
+        {
+            string path = Path.Combine(dir, "a.jsonl");
+            File.WriteAllText(path, "one\r\ntwo\nthr");
+            var reader = new LogLines();
+            var got = new List<string>();
+            long offset = reader.Read(path, 0, (line, at) => got.Add($"{Encoding.UTF8.GetString(line).TrimEnd('\r')}@{at}"));
+            Check.Eq(string.Join(" ", got), "one@0 two@5", "whole lines and where they start");
+            Check.Eq(offset, 9L, "the unfinished line is left");
+            File.AppendAllText(path, "ee\nfour");
+            got.Clear();
+            offset = reader.Read(path, offset, (line, at) => got.Add($"{Encoding.UTF8.GetString(line)}@{at}"));
+            Check.Eq(string.Join(" ", got), "three@9", "read on from the offset");
+            Check.Eq(offset, 15L, "past its '\\n'");
+            Check.Eq(reader.Read(path, offset, (_, _) => throw new InvalidOperationException("no line")), 15L, "nothing whole yet");
+
+            string big = Path.Combine(dir, "b.jsonl");
+            string longLine = new('x', LogLines.First * 3);
+            File.WriteAllText(big, "a\n" + longLine + "\nb\n");
+            got.Clear();
+            Check.Eq(reader.Read(big, 0, (line, _) => got.Add(line.Length.ToString(System.Globalization.CultureInfo.InvariantCulture))), (long)(longLine.Length + 5), "to the end");
+            Check.Eq(string.Join(" ", got), $"1 {longLine.Length} 1", "a line longer than the first buffer");
+        }
+        finally
+        {
+            Directory.Delete(dir, true);
+        }
+    }
+}

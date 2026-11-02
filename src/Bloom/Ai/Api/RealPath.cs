@@ -415,7 +415,7 @@ internal static class RealPath
     private const int MaxPath = 32_768;
 
     /// GetFinalPathNameByHandle on the opened file or folder (links followed), without its \\?\ prefix.
-    private static string? Final(string path)
+    internal static string? Final(string path)
     {
         using var handle = CreateFileW(path, ReadAttributes, ShareAll, IntPtr.Zero, OpenExistingFile, BackupSemantics, IntPtr.Zero);
         return handle.IsInvalid ? null : FinalOf(handle);
