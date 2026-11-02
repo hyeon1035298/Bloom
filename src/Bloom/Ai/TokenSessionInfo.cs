@@ -9,13 +9,18 @@ namespace Bloom.Ai;
 /// one, TokenIndex.Snapshot); Title and its Kind: the name Claude Code (custom-title, else ai-title) or Codex
 /// (session_index.jsonl) gave it, at most TitleMost characters on one line, never for Bloom's own; Folder: the last name
 /// of the folder it ran in (a drive's root as "D:"), never the whole path; Bloom: started by Bloom's AI chat; Seen: the
-/// latest hour (since 0001-01-01, UTC) a call of it was counted or its log written. An entry is never changed: a new one
-/// takes its place, so a snapshot handed to the UI thread stays as it was.
+/// latest hour (since 0001-01-01, UTC) a call of it was counted or its log written; FolderOwn: Folder is from the
+/// session's own log (TokenCall.Own). An entry is never changed: a new one takes its place, so a snapshot handed to the
+/// UI thread stays as it was.
 internal sealed record TokenSessionInfo(string Provider, string Id, string? Parent, string? Title, TokenSessionInfo.Named Kind,
     string? Folder, bool Bloom, int Seen)
 {
     /// Where a title came from; a custom one is not replaced by an ai one.
     public enum Named : byte { None, Ai, Custom }
+
+    /// Folder came from the session's own log: a folder from another file (a subagent's worktree, a resumed copy) is
+    /// kept only until the own log names one.
+    public bool FolderOwn { get; init; }
 
     public const int TitleMost = 64;
 

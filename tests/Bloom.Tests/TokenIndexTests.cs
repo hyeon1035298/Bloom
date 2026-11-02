@@ -185,7 +185,7 @@ internal static class TokenIndexTests
         {
             string path = Path.Combine(dir, "index.bin");
             var index = new TokenIndex { Now = Now, Complete = true };
-            index.Add(Call(1, 10) with { Session = "s-a", Folder = @"D:\Work\Repo", Variant = TokenVariant.Fast.WithEffort(TokenEffort.Max) });
+            index.Add(Call(1, 10) with { Session = "s-a", Folder = @"D:\Work\Repo", Own = true, Variant = TokenVariant.Fast.WithEffort(TokenEffort.Max) });
             index.Add(Call(2, 20, Now.AddDays(-2)) with { Session = "s-a", Variant = TokenVariant.None.WithEffort(TokenEffort.High) });
             index.Add(Call(3, 5) with { Session = "s-b" });
             index.Add(Call(4, 5)); // no session
@@ -202,6 +202,7 @@ internal static class TokenIndexTests
             Check.Eq(Sums(back), Sums(index), "the sums, their sessions and efforts");
             Check.Eq(Table(back), Table(index), "the sessions' table");
             Check.Eq(back.Sessions.Count, 4, "s-a, s-b, t-child, t-top");
+            Check.True(back.Sessions.Single(s => s.Id == "s-a") is { Folder: "Repo", FolderOwn: true }, "a folder from the session's own log");
             Check.Eq(back.Files["x|u"].Effort, TokenEffort.XHigh, "a Codex file's effort");
             Check.Eq(back.Snapshot().Single(b => b.Provider == "codex").Session?.Title, "The top thread", "a child thread's calls under its top thread");
             Check.True(back.Add(Call(1, 15)), "an open key grows on");
@@ -210,7 +211,7 @@ internal static class TokenIndexTests
             using (var w = new BinaryWriter(File.Create(path)))
             {
                 w.Write("BTKI"u8);
-                w.Write(2);
+                w.Write(TokenIndex.Version);
                 w.Write(true);
                 w.Write(1);
                 w.Write("claude");
@@ -226,6 +227,8 @@ internal static class TokenIndexTests
             Check.True(TokenIndex.Load(path) is { Complete: false, Sessions.Count: 0 }, "a sum of a session not in the table: counted again");
             File.WriteAllBytes(path, [.. "BTKI"u8, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
             Check.Eq(TokenIndex.Load(path).Complete, false, "an index of version 1: counted again");
+            File.WriteAllBytes(path, [.. "BTKI"u8, 2, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
+            Check.Eq(TokenIndex.Load(path).Complete, false, "of version 2 (folders as first met): counted again");
         }
         finally
         {
@@ -366,28 +369,37 @@ internal static class TokenIndexTests
             {
                 string proj = Path.Combine(root, "proj");
                 Directory.CreateDirectory(Path.Combine(proj, Sa, "subagents"));
-                string a = Path.Combine(proj, Sa + ".jsonl"), b = Path.Combine(proj, Sb + ".jsonl");
+                Directory.CreateDirectory(Path.Combine(proj, Sd, "subagents"));
+                string a = Path.Combine(proj, Sa + ".jsonl"), b = Path.Combine(proj, Sb + ".jsonl"), d = Path.Combine(proj, Sd + ".jsonl");
+                string subA = Path.Combine(proj, Sa, "subagents", "agent-1.jsonl"), subD = Path.Combine(proj, Sd, "subagents", "agent-2.jsonl");
                 File.WriteAllText(a, TitleLine("ai", Sa, "auto") + Session("m1", Sa, @"D:\Work\Repo\") + TitleLine("custom", Sa, "first") + Session("m2", Sa, minute: 1)
                     + TitleLine("custom", Sa, "second") + TitleLine("ai", Sa, "later ai"));
-                File.WriteAllText(b, Session("m1", Sa, @"D:\Work\Repo\") + Session("m3", Sb, @"D:\", minute: 2)); // resumed: its parent's line copied first
-                File.WriteAllText(Path.Combine(proj, Sa, "subagents", "agent-1.jsonl"), Session("m4", Sa, minute: 3));
+                // resumed: its parent's title and line copied first
+                File.WriteAllText(b, TitleLine("custom", Sa, "first") + Session("m1", Sa, @"D:\Work\Repo\") + Session("m3", Sb, @"D:\", minute: 2));
+                File.WriteAllText(subA, Session("m4", Sa, @"D:\Work\Repo\.claude\worktrees\wf-1", minute: 3)); // a subagent in a worktree
                 File.WriteAllText(Path.Combine(proj, Sc + ".jsonl"), Session("m5", null, minute: 4));
                 File.WriteAllText(Path.Combine(proj, "notes.jsonl"), Session("m6", null, minute: 5));
-                File.WriteAllText(Path.Combine(proj, Sd + ".jsonl"), TitleLine("custom", Sd, "a chat") + Session("m7", Sd, bloomAi + @"\files", minute: 6));
+                File.WriteAllText(d, TitleLine("custom", Sd, "a chat") + Session("m7", Sd, bloomAi + @"\files", minute: 6));
+                File.WriteAllText(subD, Session("m10", Sd, @"D:\Work\Other", minute: 9));
                 File.WriteAllText(Path.Combine(proj, "dev.jsonl"), Session("m8", "s-dev", @"C:\Temp\bq-x\local\ai", minute: 7) + TitleLine("custom", "s-dev", "a dev chat")
                     + TitleLine("custom", "s-named", "Bloom · a chat") + TitleLine("custom", "s-local", "x") + Session("m9", "s-local", @"D:\local\aix", minute: 8));
-                File.SetLastWriteTimeUtc(a, Now.AddHours(copyFirst ? -2 : -1)); // newest first: the copy before or after its original
+                // newest first: the copy and the subagents before or after their session's own log
+                File.SetLastWriteTimeUtc(a, Now.AddHours(copyFirst ? -2 : -1));
                 File.SetLastWriteTimeUtc(b, Now.AddHours(copyFirst ? -1 : -2));
+                File.SetLastWriteTimeUtc(d, Now.AddHours(-2));
+                File.SetLastWriteTimeUtc(subA, Now.AddHours(copyFirst ? -3 : -0.5));
+                File.SetLastWriteTimeUtc(subD, Now.AddHours(copyFirst ? -3 : -0.5));
                 var index = new TokenIndex();
                 Pass(index, root);
                 var calls = index.Snapshot().GroupBy(x => x.Session?.Id ?? "none").ToDictionary(g => g.Key, g => g.Sum(x => x.Counts.Calls));
                 Check.Eq(calls[Sa], 3L, "a session's calls, its copy in another file once and its subagent's");
-                Check.Eq((calls[Sb], calls[Sc], calls["none"], calls[Sd]), (1L, 1L, 1L, 1L), "the resumed one's own; by the file's name; none; Bloom's");
+                Check.Eq((calls[Sb], calls[Sc], calls["none"], calls[Sd]), (1L, 1L, 1L, 2L), "the resumed one's own; by the file's name; none; Bloom's and its subagent's");
                 Check.True(index.Snapshot().All(x => x.Variant.Effort() == TokenEffort.High), "each at its effort");
                 var sa = index.Sessions.Single(s => s.Id == Sa);
-                Check.True(sa is { Title: "second", Kind: TokenSessionInfo.Named.Custom, Folder: "Repo", Bloom: false }, "the last custom title, an ai one after it not; the folder's last name");
+                Check.True(sa is { Title: "second", Kind: TokenSessionInfo.Named.Custom, Folder: "Repo", FolderOwn: true, Bloom: false },
+                    "the last custom title, an ai one after it and a resumed copy's not; its own log's folder, not its subagent's worktree");
                 Check.Eq(index.Sessions.Single(s => s.Id == Sb).Folder, "D:", "a drive's root");
-                Check.True(index.Sessions.Single(s => s.Id == Sd) is { Bloom: true, Title: null, Folder: "files" }, "Bloom's AI folder: Bloom's own, its title not kept");
+                Check.True(index.Sessions.Single(s => s.Id == Sd) is { Bloom: true, Title: null, Folder: "files" }, "Bloom's AI folder: Bloom's own, its title not kept, whatever its subagent's");
                 Check.True(index.Sessions.Single(s => s.Id == "s-dev") is { Bloom: true, Title: null, Folder: "ai" }, "a dev copy's (<data>\\local\\ai) too");
                 Check.True(index.Sessions.Single(s => s.Id == "s-named") is { Bloom: true, Title: null }, "a session Bloom named");
                 Check.True(index.Sessions.Single(s => s.Id == "s-local") is { Bloom: false, Title: "x" }, "a folder only like it");
@@ -449,6 +461,68 @@ internal static class TokenIndexTests
             var scan = Pass(index, sessions, codex: true);
             Check.True(scan.FilesRead == 0 && scan.Changed, "no rollout read, the names file changed");
             Check.Eq(index.Sessions.Single(s => s.Id == t1).Title, "named again later", "read again");
+        }
+        finally
+        {
+            Directory.Delete(home, true);
+        }
+    }
+
+    public static void TheOwnLogNamesTheFolder()
+    {
+        string bloomAi = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Bloom", "ai");
+        var index = new TokenIndex { Now = Now };
+        index.Add(Call(1, 1) with { Session = "s", Folder = @"D:\Work\Repo\.claude\worktrees\wf-1" });
+        index.EndFile();
+        Check.Eq(index.Sessions.Single().Folder, "wf-1", "a subagent's folder until the own log names one");
+        Check.True(index.Add(Call(1, 1) with { Session = "s", Folder = @"D:\Work\Repo", Own = true }), "a call counted before from a copy");
+        Check.True(index.Sessions.Single() is { Folder: "Repo", FolderOwn: true }, "names it all the same");
+        index.Add(Call(2, 1) with { Session = "s", Folder = @"D:\Work\Other", Own = true });
+        index.Add(Call(3, 1) with { Session = "s", Folder = @"D:\Work\Third" });
+        Check.Eq(index.Sessions.Single().Folder, "Repo", "the first one the own log names, another file's not after it");
+        index.Add(Call(4, 1) with { Session = "b", Folder = bloomAi + @"\files" });
+        Check.True(index.Sessions.Single(s => s.Id == "b") is { Bloom: true, Folder: "files" }, "Bloom's AI folder in another file");
+        index.Add(Call(5, 1) with { Session = "b", Folder = @"D:\Work\Repo", Own = true });
+        Check.True(index.Sessions.Single(s => s.Id == "b") is { Bloom: false, Folder: "Repo" }, "Bloom's own judged again by the own log's folder");
+    }
+
+    public static void CodexNamesComeAfterAStoppedPass()
+    {
+        string home = Temp();
+        try
+        {
+            const string t1 = "01a10000-0000-7000-8000-000000000011";
+            string sessions = Path.Combine(home, "sessions"), projects = Path.Combine(home, "projects"), day = Path.Combine(sessions, "2026", "11", "01");
+            Directory.CreateDirectory(day);
+            Directory.CreateDirectory(projects);
+            File.WriteAllText(Path.Combine(home, "session_index.jsonl"), $$"""{"id":"{{t1}}","thread_name":"named","updated_at":"x"}""" + "\n");
+            (bool, string)[] roots = [(false, projects), (true, sessions)];
+            var index = new TokenIndex();
+            new TokenScan(index, roots).Run(); // the names file read with no thread to name yet
+            string rollout = Path.Combine(day, $"rollout-2026-11-01T16-00-00-{t1}.jsonl");
+            File.WriteAllText(rollout, """{"timestamp":"2026-11-01T07:00:00Z","type":"session_meta","payload":{"id":"@ID","cwd":"D:\\Work\\Repo"}}""".Replace("@ID", t1, StringComparison.Ordinal) + "\n"
+                + """{"timestamp":"2026-11-01T07:00:01Z","type":"turn_context","payload":{"model":"gpt-6.1-sol"}}""" + "\n"
+                + """{"timestamp":"2026-11-01T07:00:02Z","type":"token_usage_record","payload":{"response_id":"resp_1","usage":{"input_tokens":10,"output_tokens":1}}}""" + "\n");
+            string log = Path.Combine(projects, Sa + ".jsonl");
+            File.WriteAllText(log, Session("m1", Sa));
+            File.SetLastWriteTimeUtc(rollout, Now.AddHours(-1)); // read first
+            File.SetLastWriteTimeUtc(log, Now.AddHours(-2));
+            int asked = 0;
+            var stopped = new TokenScan(index, roots)
+            {
+                Wanted = () =>
+                {
+                    if (asked++ > 0) return false; // asked again before the Claude log: the pass stops there
+                    System.Threading.Thread.Sleep(TokenScan.AskEvery + TimeSpan.FromMilliseconds(100));
+                    return true;
+                },
+            };
+            stopped.Run();
+            Check.True(stopped is { Stopped: true, FilesRead: 1 }, "a pass stopped after the rollout");
+            var next = new TokenScan(index, roots);
+            next.Run();
+            Check.Eq(next.FilesRead, 1, "the next pass reads only the Claude log");
+            Check.Eq(index.Sessions.Single(s => s.Id == t1).Title, "named", "the thread named all the same");
         }
         finally
         {
