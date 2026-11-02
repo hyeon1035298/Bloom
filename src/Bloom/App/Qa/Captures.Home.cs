@@ -11,7 +11,8 @@ namespace Bloom.App;
 /// `--qa-set home`: the home at the launcher's size (settings.json's width and height): as it comes, in 홈 편집, a
 /// block held over another place (lifted, the gap open) and let go, "+ 블록 추가" opened and a hidden block's card held
 /// over the columns and let go, rows · folds · columns changed, the keyboard's way through it, then sized across the
-/// two columns' width while edited; the arrangement after each change and the rows the keys went to in home.txt.
+/// two columns' width while edited, then about 1000 and 1300 wide with the columns' split dragged; the arrangement after
+/// each change, the rows the keys went to and the columns' widths in home.txt.
 internal static partial class Captures
 {
     private static async Task HomeScreens(Host host, Launcher w, string dir)
@@ -82,8 +83,25 @@ internal static partial class Captures
         await Task.Delay(500);
         w.ScrollForQa(0);
         await Snap(w, dir, "light-h10-edit-resized");
-        w.Width = was;
         w.ToggleHomeEdit();
+        // the columns' split as dragged: about 1000 wide pulled left to its least, about 1300 wide at 60 % with the
+        // handle lit as the mouse shows it
+        Theme.Apply("dark");
+        var splitter = w.HomeForQa.SplitterForQa;
+        foreach (var (width, share, name) in new[] { (1000.0, 0.2, "dark-h11-split-1000"), (1300.0, 0.6, "dark-h12-split-1300") })
+        {
+            w.Width = width;
+            Settings.Current.HomeSplit = share;
+            w.Refresh(true);
+            splitter.LitForQa = share > 0.5;
+            await Task.Delay(500);
+            w.ScrollForQa(0);
+            await Snap(w, dir, name);
+            log.AppendLine($"split {share} at {width}: left column {w.HomeForQa.ColumnWidthForQa(false):0}, right {w.HomeForQa.ColumnWidthForQa(true):0} of {w.HomeForQa.ActualWidth:0}");
+        }
+        splitter.LitForQa = false;
+        Settings.Current.HomeSplit = HomeColumns.DefaultSplit;
+        w.Width = was;
         File.WriteAllText(Path.Combine(dir, "home.txt"), log.ToString());
         Settings.Current.Home = null;
     }

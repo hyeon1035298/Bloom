@@ -134,6 +134,7 @@ internal sealed class Settings
     public int Width { get; set; } = DefaultWidth; // the launcher as last sized by hand: dip at 100 % (Scale multiplies it)
     public int Height { get; set; } = DefaultHeight;
     public const int DefaultWidth = 760, DefaultHeight = 476; // 설정 > 일반 > 런처 창 크기 puts it back to these
+    public double HomeSplit { get; set; } = 0.5; // the home's left column's share when it has two, dragged between them (Ui\Controls\HomeColumns.cs)
 
     [JsonIgnore] private static Saver? saver;
     [JsonIgnore] public static Settings Current { get; private set; } = new();
