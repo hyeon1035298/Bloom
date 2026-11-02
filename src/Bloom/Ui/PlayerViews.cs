@@ -12,14 +12,17 @@ namespace Bloom.Ui;
 /// else, so the kept home's key changes only with what shows (no position: it would draw the block anew every time).
 internal static class PlayerViews
 {
-    /// `open`: the mini player (a click on the song, or on the line when nothing plays); `press`: a button (null: the
-    /// buttons steer nothing, a made-up song).
-    public static FrameworkElement Block(NowPlaying.Song s, Action open, Action<PlayerOp>? press)
+    /// `open`: the mini player (a click on the song, or on the line when nothing plays); `open` and `press` (a button)
+    /// null: a made-up song, nothing opened or steered.
+    public static FrameworkElement Block(NowPlaying.Song s, Action? open, Action<PlayerOp>? press)
     {
         var body = new Grid { Margin = new Thickness(20, 0, 16, 8) };
         if (!s.Has)
         {
-            var line = Theme.T(Tr("재생 중인 곡 없음 · 누르면 미니 플레이어", "Nothing playing · click for the mini player"), 12, Theme.P.TextFaint);
+            string text = open is null
+                ? Tr("재생 중인 곡 없음", "Nothing playing")
+                : Tr("재생 중인 곡 없음 · 누르면 미니 플레이어", "Nothing playing · click for the mini player");
+            var line = Theme.T(text, 12, Theme.P.TextFaint);
             line.Margin = new Thickness(0, 2, 0, 2);
             body.Children.Add(Clickable(line, open));
             return body;
@@ -42,7 +45,7 @@ internal static class PlayerViews
         }
         Grid.SetColumn(words, 1);
         song.Children.Add(words);
-        song.ToolTip = Tr("미니 플레이어 열기", "Open the mini player");
+        if (open is not null) song.ToolTip = Tr("미니 플레이어 열기", "Open the mini player");
         body.Children.Add(Clickable(song, open));
 
         var buttons = new (char glyph, string tip, PlayerOp op, bool on)[]
@@ -84,14 +87,15 @@ internal static class PlayerViews
         return tile;
     }
 
-    /// A part that opens something: pressed it keeps the search box's focus, let go it acts.
-    private static FrameworkElement Clickable(FrameworkElement part, Action act)
+    /// A part that opens something: pressed it keeps the search box's focus, let go it acts (`act` null: it only keeps
+    /// the focus, with no hand).
+    private static FrameworkElement Clickable(FrameworkElement part, Action? act)
     {
-        var holder = new Border { Child = part, Background = Brushes.Transparent, Cursor = Cursors.Hand };
+        var holder = new Border { Child = part, Background = Brushes.Transparent, Cursor = act is null ? null : Cursors.Hand };
         holder.MouseLeftButtonDown += (_, e) => e.Handled = true;
         holder.MouseLeftButtonUp += (_, e) =>
         {
-            act();
+            act?.Invoke();
             e.Handled = true;
         };
         return holder;
