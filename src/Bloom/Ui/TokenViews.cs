@@ -13,7 +13,7 @@ using Bloom.Core;
 namespace Bloom.Ui;
 
 /// The token blocks of the home (Ai\TokenStats): the sums as tiles and a ratio bar, a bar chart over the period, the
-/// models that used the most. Each lays out a TokenView it is given and reads nothing else, so the kept home's key
+/// models that used the most and at what effort, the sessions that used the most. Each lays out a TokenView it is given and reads nothing else, so the kept home's key
 /// changes only with the numbers; every size is a star column or row, so a block fits two columns (~360) and one (~700).
 internal static class TokenViews
 {
@@ -118,42 +118,186 @@ internal static class TokenViews
         if (shown < v.Models.Count)
         {
             var rest = v.Models.Skip(shown).ToList();
-            var line = Theme.T(RestWords(rest), 11, Theme.P.TextFaint);
-            line.Margin = new Thickness(0, 7, 0, 0);
-            line.ToolTip = string.Join("\n", rest.Select(m => $"{Pretty(m.Model)}  {Count(m.Counts.Total)}  {(m.Cost is { } c ? Money(c, true) : "—")}"));
+            stack.Children.Add(RestLine(RestWords(rest.Count, rest.Sum(m => m.Counts.Total), rest.Sum(m => m.Cost ?? 0), rest.Count(m => m.Cost is null)),
+                string.Join("\n", rest.Select(m => $"{Pretty(m.Model)}  {Count(m.Counts.Total)}  {(m.Cost is { } c ? Money(c, true) : "—")}"))));
+        }
+        return stack;
+    }
+
+    /// 세션별 사용량: the sessions with the most tokens, `rows` of them (name, where and at what effort, tokens, share and
+    /// cost, a bar of the share), never more; the rest as one line, a single leftover session too; then what no session
+    /// holds. `named`: each session's name and, for a Bloom chat still kept, how to open it, in v.Sessions' order, for
+    /// the rows and the rest's tooltip at least (Engine names them; a session past it gets no name of a chat).
+    public static FrameworkElement Sessions(TokenView v, IReadOnlyList<(string Name, Action? Open)> named, bool noLogs, bool counting, int rows, Action<TokenPeriod> pick)
+    {
+        var stack = Body();
+        if (noLogs) return Empty(stack, NoLogsWords);
+        int n = v.Sessions.Count;
+        string? caption = n == 0 ? null : n == 1 ? Tr("세션 1개", "1 session") : Tr($"세션 {n}개", $"{n} sessions");
+        stack.Children.Add(Periods(v.Period, pick, caption));
+        if (v.Sum.Calls == 0 || n == 0) return Empty(stack, Nothing(counting));
+        (string Name, Action? Open) Named(int i) => i < named.Count ? named[i] : (SessionName(v.Sessions[i], null), null);
+        int shown = Math.Min(Math.Max(rows, 1), n);
+        Grid.SetIsSharedSizeScope(stack, true);
+        for (int i = 0; i < shown; i++)
+        {
+            var (name, open) = Named(i);
+            stack.Children.Add(SessionRow(v.Sessions[i], name, open, i == 0));
+        }
+        if (shown < n)
+        {
+            var rest = v.Sessions.Skip(shown).ToList();
+            var tip = new List<string>();
+            for (int i = shown; i < Math.Min(n, shown + RestTipMost); i++)
+            {
+                var s = v.Sessions[i];
+                tip.Add($"{Named(i).Name}  {Count(s.Counts.Total)}  {(s.Cost is { } c ? Money(c, true) : "—")}");
+            }
+            if (n - shown > RestTipMost) tip.Add(Tr($"… 외 {n - shown - RestTipMost}개", $"… {n - shown - RestTipMost} more"));
+            stack.Children.Add(RestLine(RestWords(rest.Count, rest.Sum(s => s.Counts.Total), rest.Sum(s => s.Cost ?? 0), rest.Count(s => s.Cost is null)), string.Join("\n", tip)));
+        }
+        if (v.NoSession.Calls > 0)
+        {
+            var line = Theme.T(Tr($"세션 구분 없음 · 토큰 {Count(v.NoSession.Total)}", $"No session · {Count(v.NoSession.Total)} tokens"), 11, Theme.P.TextFaint);
+            line.Margin = new Thickness(0, shown < n ? 2 : 7, 0, 0);
+            line.ToolTip = Tr("100일 지난 기록과 세션을 적지 않은 호출", "Logs older than 100 days, and calls that named no session");
             stack.Children.Add(line);
         }
         return stack;
     }
 
-    /// The models past the rows as one line: how many, their tokens, their cost when any is priced (an unpriced model
-    /// is not $0), and how many of them have no price.
-    private static string RestWords(List<TokenModel> rest)
+    /// How many of the sessions past the rows the rest's tooltip names (a month can hold more than a thousand).
+    public const int RestTipMost = 10;
+
+    /// A session's name as its row shows it: a Bloom chat's title (`chat`; none: a chat since deleted), else the title
+    /// its CLI gave it, else its folder, else "세션" and the head of its id.
+    public static string SessionName(TokenSession s, string? chat) =>
+        s.Bloom ? chat ?? Tr("Bloom AI 채팅 (지운 대화)", "Bloom AI chat (deleted)")
+        : s.Title ?? s.Folder ?? Tr($"세션 {IdHead(s.Id)}", $"Session {IdHead(s.Id)}");
+
+    private static string IdHead(string id) => id.Length > 8 ? id[..8] : id;
+
+    /// The rows past the count as one line: how many, their tokens, their cost when any is priced (an unpriced one is
+    /// not $0), and how many of them have no price.
+    private static string RestWords(int n, long total, double priced, int unpriced)
     {
-        int n = rest.Count, unpriced = rest.Count(m => m.Cost is null);
-        string tokens = Count(rest.Sum(m => m.Counts.Total));
+        string tokens = Count(total);
         if (unpriced == n) return Tr($"그 밖 {n}개 · 토큰 {tokens} · 가격 없음", $"{n} more · {tokens} tokens · no price");
-        string cost = Money(rest.Sum(m => m.Cost ?? 0), true);
+        string cost = Money(priced, true);
         return unpriced == 0 ? Tr($"그 밖 {n}개 · 토큰 {tokens} · {cost}", $"{n} more · {tokens} tokens · {cost}")
             : Tr($"그 밖 {n}개 · 토큰 {tokens} · {cost} · 가격 없음 {unpriced}개", $"{n} more · {tokens} tokens · {cost} · {unpriced} with no price");
     }
 
-    private static Border ModelRow(TokenModel m, bool first)
+    private static TextBlock RestLine(string words, string tip)
     {
+        var line = Theme.T(words, 11, Theme.P.TextFaint);
+        line.Margin = new Thickness(0, 7, 0, 0);
+        line.ToolTip = tip;
+        return line;
+    }
+
+    /// A session's row, as a model's: its name with where it ran (Codex or Claude Code, its folder when the name is
+    /// its title, "Bloom" for a Bloom chat) and its most-used effort, tokens, share, cost and the bar; the rest in the
+    /// tooltip. `open`: a Bloom chat still kept, opened on a click.
+    private static Border SessionRow(TokenSession s, string name, Action? open, bool first)
+    {
+        string tail = Source(s.Provider);
+        if (s.Bloom) tail += " · Bloom";
+        else if (s.Title is not null && s.Folder is not null) tail += " · " + s.Folder;
+        var top = TopEffort(s.Efforts);
+        if (top is { } e) tail += " · " + EffortName(e);
         var stack = new StackPanel();
+        stack.Children.Add(Head(name, tail, s.Counts.Total, s.Share, s.Cost));
+        stack.Children.Add(HomeViews.Bar(s.Share * 100, false));
+        var k = s.Counts;
+        var tip = new List<string>
+        {
+            $"{name} · {Source(s.Provider)}",
+            string.Join(" · ", new[] { s.Bloom ? "Bloom" : s.Folder, IdHead(s.Id) }.Where(x => x is not null)),
+            Span(s.First, s.Last.AddHours(1)),
+        };
+        long sum = Math.Max(1, s.Models.Sum(m => m.Tokens));
+        tip.Add(string.Join(" · ", s.Models.Take(3).Select(m => $"{Pretty(m.Model)} {Percent((double)m.Tokens / sum)}")));
+        if (EffortMix(s.Efforts, false) is { } mix) tip.Add("effort " + mix);
+        tip.AddRange(Numbers(k));
+        tip.Add(s.Cost is { } cost ? Tr($"환산액 {Money(cost, false)}", $"Cost {Money(cost, false)}") : Tr("가격 없음 · 환산액에 들어가지 않음", "No price · not in the cost"));
+        if (s.Cost is not null && s.UnpricedTokens > 0)
+            tip.Add(Tr($"가격 없는 토큰 {Whole(s.UnpricedTokens)} · 환산액에 없음", $"{Whole(s.UnpricedTokens)} tokens with no price · not in the cost"));
+        var row = new Border { Child = stack, Background = Brushes.Transparent, Margin = new Thickness(0, first ? 0 : 5, 0, 0), ToolTip = string.Join("\n", tip.Where(t => t.Length > 0)) };
+        if (open is not null)
+        {
+            row.Cursor = Cursors.Hand;
+            row.MouseLeftButtonDown += (_, e) => e.Handled = true; // no search box focus, no block held
+            row.MouseLeftButtonUp += (_, e) =>
+            {
+                open();
+                e.Handled = true;
+            };
+        }
+        return row;
+    }
+
+    /// "11-03 09:00 – 14:00"; across days, each end with its day.
+    private static string Span(DateTime from, DateTime to)
+    {
+        var c = CultureInfo.InvariantCulture;
+        string start = from.ToString("MM-dd HH:mm", c);
+        return from.Date == to.Date || to == from.Date.AddDays(1) ? $"{start} – {to.ToString("HH:mm", c)}" : $"{start} – {to.ToString("MM-dd HH:mm", c)}";
+    }
+
+    /// The effort used for the most tokens (the higher of two the same); null when none is known.
+    public static TokenEffort? TopEffort(IReadOnlyList<(TokenEffort Effort, long Tokens)> efforts)
+    {
+        TokenEffort? top = null;
+        long most = 0;
+        foreach (var (e, tokens) in efforts)
+            if (e != TokenEffort.Unknown && tokens > 0 && (tokens > most || tokens == most && e > top))
+                (top, most) = (e, tokens);
+        return top;
+    }
+
+    /// An effort as the logs write it ("xhigh", "max"); "모름" for Unknown.
+    public static string EffortName(TokenEffort e) => e == TokenEffort.Unknown ? Tr("모름", "unknown") : e.ToString().ToLowerInvariant();
+
+    /// The effort mix in the order given (the highest first, unknown last): "max 27% · xhigh 35% · high 38%". `full`:
+    /// every effort with its tokens ("max 27% 1.2M"), else those that round to 0% left out. Null when no effort is known.
+    public static string? EffortMix(IReadOnlyList<(TokenEffort Effort, long Tokens)> efforts, bool full)
+    {
+        if (!efforts.Any(x => x.Effort != TokenEffort.Unknown && x.Tokens > 0)) return null;
+        double total = efforts.Sum(x => x.Tokens);
+        var parts = new List<string>();
+        foreach (var (e, tokens) in efforts)
+        {
+            if (tokens <= 0) continue;
+            string share = Percent(tokens / total);
+            if (full) parts.Add($"{EffortName(e)} {share} {Count(tokens)}");
+            else if (share != "0%") parts.Add($"{EffortName(e)} {share}");
+        }
+        return string.Join(" · ", parts);
+    }
+
+    /// The first line of a model's or a session's row: the name (and a faint tail), then tokens, share and cost in
+    /// columns shared with the block's other rows.
+    private static Grid Head(string title, string tail, long tokens, double share, double? cost)
+    {
         var head = new Grid();
         head.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
         foreach (string column in new[] { "Tokens", "Share", "Cost" })
             head.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto, SharedSizeGroup = column });
-        var name = new TextBlock { TextTrimming = TextTrimming.CharacterEllipsis, VerticalAlignment = VerticalAlignment.Center };
-        name.Inlines.Add(new Run(Pretty(m.Model)) { FontFamily = Theme.Sans, FontSize = 12.5, FontWeight = Theme.Medium, Foreground = Theme.P.Text });
-        name.Inlines.Add(new Run("  " + Source(m.Provider)) { FontFamily = Theme.Sans, FontSize = 11, Foreground = Theme.P.TextFaint });
+        // the tail is measured first and kept whole; a long name is cut instead, the tail right after it
+        var name = new DockPanel { HorizontalAlignment = HorizontalAlignment.Left, VerticalAlignment = VerticalAlignment.Center };
+        var after = Theme.T("  " + tail, 11, Theme.P.TextFaint);
+        after.VerticalAlignment = VerticalAlignment.Bottom;
+        after.Margin = new Thickness(0, 0, 0, 1);
+        DockPanel.SetDock(after, Dock.Right);
+        name.Children.Add(after);
+        name.Children.Add(Theme.T(title, 12.5, Theme.P.Text, Theme.Medium));
         head.Children.Add(name);
         var cells = new[]
         {
-            Theme.T(Count(m.Counts.Total), 12, Theme.P.Text, Theme.Medium, false),
-            Theme.T(Percent(m.Share), 11, Theme.P.TextFaint, null, false),
-            Theme.T(m.Cost is { } c ? Money(c, true) : "—", 12, m.Cost is null ? Theme.P.TextFaint : Theme.P.TextDim, null, false),
+            Theme.T(Count(tokens), 12, Theme.P.Text, Theme.Medium, false),
+            Theme.T(Percent(share), 11, Theme.P.TextFaint, null, false),
+            Theme.T(cost is { } c ? Money(c, true) : "—", 12, cost is null ? Theme.P.TextFaint : Theme.P.TextDim, null, false),
         };
         for (int i = 0; i < cells.Length; i++)
         {
@@ -162,19 +306,38 @@ internal static class TokenViews
             Grid.SetColumn(cells[i], i + 1);
             head.Children.Add(cells[i]);
         }
-        stack.Children.Add(head);
+        return head;
+    }
+
+    /// A sum's lines in a tooltip: calls, input, output, cache read and write, cache hits.
+    private static string[] Numbers(TokenCounts k) =>
+    [
+        Tr($"호출 {Whole(k.Calls)}", $"Calls {Whole(k.Calls)}"),
+        Tr($"입력 {Whole(k.Input)}", $"Input {Whole(k.Input)}"),
+        Tr($"출력 {Whole(k.Output)}", $"Output {Whole(k.Output)}"),
+        Tr($"캐시 읽기 {Whole(k.CacheRead)}", $"Cache read {Whole(k.CacheRead)}"),
+        Tr($"캐시 쓰기 {Whole(k.CacheWrite + k.CacheWriteLong)}", $"Cache write {Whole(k.CacheWrite + k.CacheWriteLong)}"),
+        Tr($"캐시 적중 {Percent(k.HitRate)}", $"Cache hits {Percent(k.HitRate)}"),
+    ];
+
+    /// A model's row: its name and where it was used, tokens, share, cost, the bar, and under it the effort mix in one
+    /// faint line (none when no effort is known); every number in the tooltip.
+    private static Border ModelRow(TokenModel m, bool first)
+    {
+        var stack = new StackPanel();
+        stack.Children.Add(Head(Pretty(m.Model), Source(m.Provider), m.Counts.Total, m.Share, m.Cost));
         stack.Children.Add(HomeViews.Bar(m.Share * 100, false));
-        var k = m.Counts;
-        string tip = string.Join("\n",
-            $"{Pretty(m.Model)} · {Source(m.Provider)}",
-            Tr($"호출 {Whole(k.Calls)}", $"Calls {Whole(k.Calls)}"),
-            Tr($"입력 {Whole(k.Input)}", $"Input {Whole(k.Input)}"),
-            Tr($"출력 {Whole(k.Output)}", $"Output {Whole(k.Output)}"),
-            Tr($"캐시 읽기 {Whole(k.CacheRead)}", $"Cache read {Whole(k.CacheRead)}"),
-            Tr($"캐시 쓰기 {Whole(k.CacheWrite + k.CacheWriteLong)}", $"Cache write {Whole(k.CacheWrite + k.CacheWriteLong)}"),
-            Tr($"캐시 적중 {Percent(k.HitRate)}", $"Cache hits {Percent(k.HitRate)}"),
-            m.Cost is { } cost ? Tr($"환산액 {Money(cost, false)}", $"Cost {Money(cost, false)}") : Tr("가격 없음 · 환산액에 들어가지 않음", "No price · not in the cost"));
-        return new Border { Child = stack, Background = Brushes.Transparent, Margin = new Thickness(0, first ? 0 : 5, 0, 0), ToolTip = tip };
+        if (EffortMix(m.Efforts, false) is { } mix)
+        {
+            var line = Theme.T(mix, 11, Theme.P.TextFaint);
+            line.Margin = new Thickness(0, 0, 0, 1);
+            stack.Children.Add(line);
+        }
+        var tip = new List<string> { $"{Pretty(m.Model)} · {Source(m.Provider)}" };
+        if (EffortMix(m.Efforts, true) is { } all) tip.Add("effort " + all);
+        tip.AddRange(Numbers(m.Counts));
+        tip.Add(m.Cost is { } cost ? Tr($"환산액 {Money(cost, false)}", $"Cost {Money(cost, false)}") : Tr("가격 없음 · 환산액에 들어가지 않음", "No price · not in the cost"));
+        return new Border { Child = stack, Background = Brushes.Transparent, Margin = new Thickness(0, first ? 0 : 5, 0, 0), ToolTip = string.Join("\n", tip) };
     }
 
     /// The input, cache writes, cache reads and output of a sum as one bar, each part its colour, the legend under it.
