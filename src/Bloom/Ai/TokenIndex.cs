@@ -16,16 +16,22 @@ namespace Bloom.Ai;
 /// what they hold above the most counted so far, field by field, to the hour first counted; so do the keys of the last
 /// OpenHours (a response cut off between two passes); any other key counted before is a resumed or forked copy and adds
 /// nothing. A copy whose values differ from the first one met (one side all zeros) keeps the first one's: accepted.
+/// Once the first count is over, a call older than SeenDays whose key is not kept is such a copy too (its key was
+/// forgotten): a log first met after that with calls only of then is not counted (one that could not be read during
+/// the first count, say).
 internal sealed class TokenIndex
 {
     /// The file's layout; another one is not read (the count starts again).
     public const int Version = 1;
 
-    /// Hourly sums older than this become one sum per UTC day (the 90-day blocks stay hourly).
+    /// Hourly sums older than this become one sum per UTC day, put at its noon so that a local day or month takes the
+    /// day it shares the most hours with (the 90-day blocks stay hourly). The All period's month bars may so take up
+    /// to 12 hours of a neighbouring day at a month's edge, for the months past HourDays only; the totals stay whole.
     public const int HourDays = 100;
 
-    /// Keys older than this are forgotten (a copy keeps the original's time, so they are kept well past the 30 days
-    /// Claude Code keeps its logs).
+    /// Keys older than this are forgotten once the first count is over (a copy keeps the original's time, so they are
+    /// kept well past the 30 days Claude Code keeps its logs; during the first count none is, as the copy and the
+    /// original may be read far apart).
     public const int SeenDays = 120;
 
     /// A key this recent may still be growing in a file being written (open).
@@ -71,7 +77,7 @@ internal sealed class TokenIndex
             if (open.ContainsKey(call.Key)) open[call.Key] = applied;
             return true;
         }
-        if (seen.ContainsKey(call.Key)) return false;
+        if (seen.ContainsKey(call.Key) || (Complete && Hours(call.Time) < Forgotten)) return false;
         var counts = call.Counts with { Calls = 1 };
         var cell = new Cell(Floor(call.Time).Ticks, ModelId(call.Provider, call.Model), call.Variant);
         Put(cell, counts);
@@ -85,18 +91,22 @@ internal sealed class TokenIndex
     /// The file whose lines were being added is done: its keys are now only seen (or open).
     public void EndFile() => inFile.Clear();
 
-    /// Tidies by Now: hourly sums older than HourDays fold into UTC days, keys older than SeenDays are forgotten, keys
-    /// older than OpenHours are no longer open.
+    /// Tidies by Now: hourly sums older than HourDays fold into UTC days (at noon; a day folded at its midnight before
+    /// moves there too), keys older than SeenDays are forgotten once the first count is over, keys older than OpenHours
+    /// are no longer open.
     public void Roll()
     {
-        long fold = Now.AddDays(-HourDays).Ticks;
-        foreach (var (cell, counts) in cells.Where(c => c.Key.Hour < fold && c.Key.Hour % TimeSpan.TicksPerDay != 0).ToList())
+        long fold = Now.AddDays(-HourDays).Ticks, noon = TimeSpan.TicksPerDay / 2;
+        foreach (var (cell, counts) in cells.Where(c => c.Key.Hour < fold && c.Key.Hour % TimeSpan.TicksPerDay != noon).ToList())
         {
             cells.Remove(cell);
-            Put(cell with { Hour = cell.Hour - cell.Hour % TimeSpan.TicksPerDay }, counts);
+            Put(cell with { Hour = cell.Hour - cell.Hour % TimeSpan.TicksPerDay + noon }, counts);
         }
-        int old = Hours(Now.AddDays(-SeenDays));
-        foreach (var key in seen.Where(s => s.Value < old).Select(s => s.Key).ToList()) seen.Remove(key);
+        if (Complete)
+        {
+            int old = Forgotten;
+            foreach (var key in seen.Where(s => s.Value < old).Select(s => s.Key).ToList()) seen.Remove(key);
+        }
         long recent = Floor(Now.AddHours(-OpenHours)).Ticks;
         foreach (var key in open.Where(o => o.Value.Cell.Hour < recent).Select(o => o.Key).ToList()) open.Remove(key);
     }
@@ -118,6 +128,9 @@ internal sealed class TokenIndex
 
     private static int Hours(DateTime utc) => (int)(utc.Ticks / TimeSpan.TicksPerHour);
 
+    /// The hour before which keys are forgotten (Roll) and, the first count over, calls not counted (Add).
+    private int Forgotten => Hours(Now.AddDays(-SeenDays));
+
     /// Field by field the larger (Calls as in `a`).
     private static TokenCounts Most(TokenCounts a, TokenCounts b) =>
         new(a.Calls, Math.Max(a.Input, b.Input), Math.Max(a.Output, b.Output), Math.Max(a.CacheRead, b.CacheRead), Math.Max(a.CacheWrite, b.CacheWrite), Math.Max(a.CacheWriteLong, b.CacheWriteLong));
@@ -126,7 +139,8 @@ internal sealed class TokenIndex
     private static TokenCounts Less(TokenCounts a, TokenCounts b) =>
         new(0, a.Input - b.Input, a.Output - b.Output, a.CacheRead - b.CacheRead, a.CacheWrite - b.CacheWrite, a.CacheWriteLong - b.CacheWriteLong);
 
-    /// The index kept at `path`; an empty one when there is none, it is of another Version, or it can't be read (logged).
+    /// The index kept at `path`; an empty one when there is none, it is of another Version, or it can't be read, cut
+    /// short or broken (logged).
     public static TokenIndex Load(string path)
     {
         if (!File.Exists(path)) return new TokenIndex();
@@ -163,6 +177,7 @@ internal sealed class TokenIndex
                 index.Files[id] = f;
             }
             int keys = r.ReadInt32();
+            if (keys < 0 || keys > (stream.Length - stream.Position) / 12) throw new FormatException("more keys than the file holds");
             index.seen.EnsureCapacity(keys);
             for (int i = 0; i < keys; i++) index.seen[r.ReadUInt64()] = r.ReadInt32();
             for (int i = r.ReadInt32(); i > 0; i--)
@@ -172,7 +187,7 @@ internal sealed class TokenIndex
             }
             return index;
         }
-        catch (Exception e) when (e is IOException or UnauthorizedAccessException or ArgumentException or FormatException or InvalidOperationException)
+        catch (Exception e) when (e is IOException or UnauthorizedAccessException or ArgumentException or FormatException or InvalidOperationException or OutOfMemoryException)
         {
             Log.Error("token count: index not read, counting again", e);
             return new TokenIndex();
@@ -215,7 +230,7 @@ internal sealed class TokenIndex
             w.Write(f.LastTotal);
         }
         w.Write(seen.Count);
-        foreach (var (key, hour) in seen.OrderBy(s => s.Key))
+        foreach (var (key, hour) in seen) // in no order: Load needs none
         {
             w.Write(key);
             w.Write(hour);

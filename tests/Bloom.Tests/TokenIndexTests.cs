@@ -80,6 +80,13 @@ internal static class TokenIndexTests
             Check.True(!back.Add(Call(2, 99, Now.AddDays(-3))), "a key seen before");
             Check.True(back.Add(Call(1, 15)), "an open key grows on");
 
+            byte[] whole = File.ReadAllBytes(path);
+            File.WriteAllBytes(path, whole[..(whole.Length - 9)]);
+            var cut = TokenIndex.Load(path);
+            Check.True(cut is { Complete: false, SeenCount: 0, Files.Count: 0 } && cut.Snapshot().Length == 0, "a file cut short: an empty index, counted again");
+            File.WriteAllBytes(path, [.. "BTKI"u8, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0xF0, 0xFF, 0xFF, 0x7F]);
+            Check.Eq(TokenIndex.Load(path).Complete, false, "more keys than the file holds: counted again, no table made for them");
+
             File.WriteAllBytes(path, [.. "BTKI"u8, 99, 0, 0, 0, 1]);
             Check.Eq(TokenIndex.Load(path).Snapshot().Length, 0, "another layout: counted again");
             File.WriteAllBytes(path, [1, 2, 3]);
@@ -98,20 +105,69 @@ internal static class TokenIndexTests
         var old = new DateTime(2026, 7, 1, 0, 0, 0, DateTimeKind.Utc); // 124 days before
         index.Add(Call(1, 1, old.AddHours(3)));
         index.Add(Call(2, 2, old.AddHours(17)));
+        index.Add(Call(6, 32, old.AddMinutes(10))); // at the day's midnight, where a day was folded before
         index.Add(Call(3, 4, Now.AddDays(-HourDaysLess())));
         index.Add(Call(4, 8, Now.AddHours(-1)));
         index.Add(Call(5, 16, Now.AddHours(-8)));
         index.EndFile();
         Check.Eq(index.OpenCount, 1, "only the last 6 hours are open");
         index.Roll();
+        Check.Eq(index.SeenCount, 6, "no key forgotten during the first count");
         var sums = index.Snapshot().OrderBy(b => b.Hour).ToList();
-        Check.Eq(sums[0].Hour, old, "the old hours fold into their UTC day");
-        Check.Eq(sums[0].Counts.Output, 3L, "summed");
+        Check.Eq(sums[0].Hour, old.AddHours(12), "the old hours fold into their UTC day, at its noon");
+        Check.Eq(sums[0].Counts.Output, 35L, "summed");
         Check.Eq(sums.Count, 4, "the recent hours stay hours");
-        Check.Eq(index.SeenCount, 3, "keys older than 120 days are forgotten");
+        index.Complete = true;
+        index.Roll();
+        Check.Eq(index.SeenCount, 3, "keys older than 120 days are forgotten once it is over");
+        Check.Eq(index.Snapshot().Length, 4, "a folded day stays as it is");
         index.Now = Now.AddHours(8);
         index.Roll();
         Check.Eq(index.OpenCount, 0, "and open keys close");
+    }
+
+    public static void OldCopiesCountOnceThroughTheFirstCount()
+    {
+        var index = new TokenIndex { Now = Now };
+        var old = Now.AddDays(-150); // kept past Claude Code's 30 days, then resumed: the copy is read first (newest first)
+        Check.True(index.Add(Call(1, 10, old)), "an old call, met first in its copy");
+        index.EndFile();
+        index.Roll(); // a checkpoint of the first count
+        Check.Eq(index.SeenCount, 1, "its key kept while the first count goes on");
+        Check.True(!index.Add(Call(1, 10, old)), "the original, read later, is not counted again");
+        index.EndFile();
+        index.Complete = true;
+        index.Roll();
+        Check.Eq(index.SeenCount, 0, "forgotten once the first count is over");
+        Check.True(!index.Add(Call(1, 10, old)), "a copy met after that is still not counted");
+        Check.True(index.Add(Call(2, 5)), "a new call is");
+        index.EndFile();
+        Check.Eq(Sum(index).Calls, 2L, "the old call once");
+    }
+
+    public static void AFileThatCantBeReadDoesNotHoldTheFirstCount()
+    {
+        string root = Temp();
+        try
+        {
+            string a = Path.Combine(root, "proj", "a.jsonl"), b = Path.Combine(root, "proj", "b.jsonl");
+            Directory.CreateDirectory(Path.GetDirectoryName(a)!);
+            File.WriteAllText(a, ClaudeLine("m1", 10));
+            File.WriteAllText(b, ClaudeLine("m2", 20));
+            var index = new TokenIndex();
+            TokenScan scan;
+            using (new FileStream(b, FileMode.Open, FileAccess.Read, FileShare.None))
+                scan = Pass(index, root);
+            Check.True(index.Complete && !scan.Stopped, "the first count is over");
+            Check.True(index.Files.ContainsKey(a) && !index.Files.ContainsKey(b), "the file held elsewhere is not known yet");
+            Check.Eq(Sum(index).Calls, 1L, "what could be read");
+            Check.Eq(Pass(index, root).FilesRead, 1, "it is read on the next pass");
+            Check.Eq(Sum(index).Calls, 2L, "and counted");
+        }
+        finally
+        {
+            Directory.Delete(root, true);
+        }
     }
 
     private static int HourDaysLess() => TokenIndex.HourDays - 1;

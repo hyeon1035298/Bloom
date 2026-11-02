@@ -16,7 +16,9 @@ namespace Bloom.Ai;
 /// rollout is followed by its thread's uuid: moved to archived_sessions with its time unchanged, or compressed to .zst
 /// (never read: no zstd reader), only its path changes. The files are read newest first, so the last days fill first
 /// in a long first count. Between two files, at most every AskEvery, Wanted is asked (no: the pass stops there) and,
-/// during the first count, Progress is told; Checkpoint saves every SaveEvery or SaveBytes of it.
+/// during the first count, Progress is told; Checkpoint saves every SaveEvery or SaveBytes of it. The first count is
+/// over once every file was tried: one that can't be read now (tried again next pass) or a line too long to keep
+/// (LogLines) does not hold it open.
 internal sealed class TokenScan
 {
     public static readonly TimeSpan AskEvery = TimeSpan.FromSeconds(2), SaveEvery = TimeSpan.FromSeconds(20);

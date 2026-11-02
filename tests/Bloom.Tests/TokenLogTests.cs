@@ -150,4 +150,29 @@ internal static class TokenLogTests
             Directory.Delete(dir, true);
         }
     }
+
+    public static void LinesOverTheMostAreSkipped()
+    {
+        string dir = Path.Combine(Path.GetTempPath(), "bloom-tokens-" + Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(dir);
+        try
+        {
+            string path = Path.Combine(dir, "a.jsonl");
+            File.WriteAllText(path, "a\n" + new string('x', 40) + "\nb\n" + new string('y', 40));
+            var reader = new LogLines(16);
+            var got = new List<string>();
+            long offset = reader.Read(path, 0, (line, at) => got.Add($"{Encoding.UTF8.GetString(line)}@{at}"));
+            Check.Eq(string.Join(" ", got), "a@0 b@43", "the long line passed over, the next one where it starts");
+            Check.Eq(offset, 45L, "a long line not finished yet: read again from its start");
+            File.AppendAllText(path, "\nc\n");
+            got.Clear();
+            offset = reader.Read(path, offset, (line, at) => got.Add($"{Encoding.UTF8.GetString(line)}@{at}"));
+            Check.Eq(string.Join(" ", got), "c@86", "finished, it is passed over too");
+            Check.Eq(offset, 88L, "past the last line");
+        }
+        finally
+        {
+            Directory.Delete(dir, true);
+        }
+    }
 }
