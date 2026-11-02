@@ -575,7 +575,7 @@ internal static class TokenViews
     /// Every figure, with thousands marks: 1,234,567.
     public static string Whole(long n) => n.ToString("N0", CultureInfo.InvariantCulture);
 
-    /// USD: $49.26, $0.03; `compact` past $1,000: $1,110, past $100,000: $123K.
+    /// USD: $12.34, $0.03; `compact` past $1,000: $1,235, past $100,000: $123K.
     public static string Money(double usd, bool compact)
     {
         var c = CultureInfo.InvariantCulture;

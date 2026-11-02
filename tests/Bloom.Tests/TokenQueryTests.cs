@@ -110,7 +110,7 @@ internal static class TokenQueryTests
         var now = new DateTime(2026, 11, 3, 5, 40, 0, DateTimeKind.Utc); // 14:40 in Seoul
         static TokenSessionInfo S(string provider, string id, string? title = null, bool bloom = false) =>
             new(provider, id, null, title, title is null ? TokenSessionInfo.Named.None : TokenSessionInfo.Named.Custom, "Repo", bloom, 0);
-        var (a, b, c, d, e) = (S("claude", "s-a", "Home blocks"), S("codex", "s-b"), S("claude", "s-c"), S("claude", "s-d", bloom: true), S("claude", "s-e"));
+        var (a, b, c, d, e) = (S("claude", "s-a", "Tidy the notes page"), S("codex", "s-b"), S("claude", "s-c"), S("claude", "s-d", bloom: true), S("claude", "s-e"));
         static TokenVariant E(TokenEffort effort) => TokenVariant.None.WithEffort(effort);
         var sums = new List<TokenBucket>
         {
@@ -137,7 +137,7 @@ internal static class TokenQueryTests
         Check.Eq(string.Join(" ", view.Models.Single(m => m.Model == "claude-opus-5-5").Efforts.Select(x => $"{x.Effort}:{x.Tokens}")), "Max:610 High:1110 Unknown:379", "Unknown last");
         Check.Eq(string.Join(" ", sa.Models.Select(x => $"{x.Model}:{x.Tokens}")), "claude-opus-5-5:1720 claude-sonnet-5-5:410", "its models, date tail off, most tokens first");
         Check.Eq((sa.First, sa.Last), (new DateTime(2026, 11, 3, 11, 0, 0), new DateTime(2026, 11, 3, 14, 0, 0)), "its first and last hour, local");
-        Check.True(sa is { Provider: "claude", Title: "Home blocks", Folder: "Repo", Bloom: false, UnpricedTokens: 0 } && sa.Cost is > 0, "its name and folder, priced");
+        Check.True(sa is { Provider: "claude", Title: "Tidy the notes page", Folder: "Repo", Bloom: false, UnpricedTokens: 0 } && sa.Cost is > 0, "its name and folder, priced");
         var opusPrice = TokenPrices.Of("claude-opus-5-5")!;
         Check.Near(sa.Cost!.Value, opusPrice.Cost(sums[0].Counts, sums[0].Variant) + opusPrice.Cost(sums[1].Counts, TokenVariant.Fast) + TokenPrices.Of("claude-sonnet-5-5")!.Cost(sums[2].Counts, TokenVariant.None), 1e-12, "each call at its own price");
         Check.True(view.Sessions[1] is { Provider: "codex", UnpricedTokens: 160 } && view.Sessions[1].Cost is > 0, "a model with no price beside one with: its tokens told apart");

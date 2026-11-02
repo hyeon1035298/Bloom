@@ -5,7 +5,7 @@ namespace Bloom.Tests;
 
 /// The token blocks' prices (Ai\TokenPrices, Ai\TokenPrice): names as the logs write them, built-in rows by exact name
 /// only, the user's rows and prefixes over them, the long-prompt, fast and US prices (the effort bits beside them change
-/// none), and a check against a dashboard's sums.
+/// none), and sums at those prices.
 internal static class TokenPricesTests
 {
     private const long M = 1_000_000;
@@ -100,12 +100,12 @@ internal static class TokenPricesTests
         Check.Eq(TokenVariant.Fast.WithEffort(TokenEffort.Max).WithEffort(TokenEffort.Low).Effort(), TokenEffort.Low, "a new effort takes the old one's place");
     }
 
-    public static void ADashboardsSumsAgree()
+    public static void SumsAtThePrices()
     {
-        // a dashboard's input, output and cache reads (2026-11-02): Opus 5.5 $1,109.92, Sonnet 5.5 $49.26
-        var opus = new TokenCounts(1, 52_569_000, 19_182_000, 2_580_000_000, 0, 0);
-        Check.Near(TokenPrices.Of("claude-opus-5-5")!.Cost(opus, TokenVariant.None), 1109.92, 0.005, "Opus 5.5");
-        var sonnet = new TokenCounts(1, 4_339_000, 1_858_000, 220_000_000, 0, 0);
-        Check.Near(TokenPrices.Of("claude-sonnet-5-5")!.Cost(sonnet, TokenVariant.None), 49.26, 0.005, "Sonnet 5.5");
+        // input, output and cache reads: 10M × $4 + 2M × $20 + 500M × $0.20, and 3M × $2 + 1M × $10 + 200M × $0.10
+        var opus = new TokenCounts(1, 10_000_000, 2_000_000, 500_000_000, 0, 0);
+        Check.Near(TokenPrices.Of("claude-opus-5-5")!.Cost(opus, TokenVariant.None), 180.00, 0.005, "Opus 5.5");
+        var sonnet = new TokenCounts(1, 3_000_000, 1_000_000, 200_000_000, 0, 0);
+        Check.Near(TokenPrices.Of("claude-sonnet-5-5")!.Cost(sonnet, TokenVariant.None), 36.00, 0.005, "Sonnet 5.5");
     }
 }

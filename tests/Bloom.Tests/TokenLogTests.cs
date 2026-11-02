@@ -99,7 +99,7 @@ internal static class TokenLogTests
 
     public static void ClaudeTitlesAreTheirLinesOnly()
     {
-        Check.Eq(ClaudeLog.Title(B("""{"type":"custom-title","customTitle":"Home blocks","sessionId":"s1"}""")), ("s1", "Home blocks", true), "custom-title");
+        Check.Eq(ClaudeLog.Title(B("""{"type":"custom-title","customTitle":"Tidy the notes page","sessionId":"s1"}""")), ("s1", "Tidy the notes page", true), "custom-title");
         Check.Eq(ClaudeLog.Title(B("""{"type":"ai-title","sessionId":"s1","aiTitle":"Fix the build"}""")), ("s1", "Fix the build", false), "ai-title");
         Check.Eq(ClaudeLog.Title(B("""{"type":"custom-title","customTitle":"x"}"""))!.Value.Session, null, "no sessionId: the file's (TokenScan)");
         Check.True(ClaudeLog.Title(B("""{"type":"last-prompt","lastPrompt":"a secret prompt","sessionId":"s1"}""")) is null, "a last-prompt line");
@@ -113,7 +113,7 @@ internal static class TokenLogTests
 
     public static void CodexEffortAndSessionFollowTheFile()
     {
-        var file = new TokenFile { Thread = "01a195f8-1b89-7e01-bc47-41dae7935ad7" };
+        var file = new TokenFile { Thread = "01a19500-0000-7000-8000-000000000042" };
         CodexLog.Parse(B("""{"timestamp":"2026-11-01T07:17:10.000Z","type":"turn_context","payload":{"model":"gpt-6.1-sol","effort":"high","collaboration_mode":{"mode":"default","settings":{"model":"gpt-x","reasoning_effort":"low"}}}}"""), file);
         Check.Eq((file.Model, file.Effort), ("gpt-6.1-sol", TokenEffort.High), "turn_context's own model and effort first");
         var call = CodexLog.Parse(B(Record("resp_1", 10, 0, 0, 1)), file)!.Value;
@@ -129,8 +129,8 @@ internal static class TokenLogTests
         file.Restart();
         Check.Eq(file.Effort, TokenEffort.Unknown, "a file read again from the start forgets it");
 
-        const string meta = """{"timestamp":"2026-11-01T07:17:08.000Z","type":"session_meta","payload":{"id":"01a195f8","base_instructions":{"text":"\"originator\":\"bloom\" \"cwd\":\"C:\\x\""},"cwd":"D:\\Work\\Repo\\","originator":"codex_exec","parent_thread_id":"01a19000","forked_from_id":"01a18000","source":{"subagent":"review"}}}""";
-        var sub = new TokenFile { Thread = "01a195f8" };
+        const string meta = """{"timestamp":"2026-11-01T07:17:08.000Z","type":"session_meta","payload":{"id":"01a19500","base_instructions":{"text":"\"originator\":\"bloom\" \"cwd\":\"C:\\x\""},"cwd":"D:\\Work\\Repo\\","originator":"codex_exec","parent_thread_id":"01a19000","forked_from_id":"01a18000","source":{"subagent":"review"}}}""";
+        var sub = new TokenFile { Thread = "01a19500" };
         Check.True(CodexLog.Parse(B(meta), sub) is null && sub.Met, "session_meta is no call, but tells the thread");
         Check.Eq((sub.Parent, sub.Folder, sub.Bloom), ("01a19000", "Repo", false), "its parent and its folder's last name, not the base instructions'");
         var bloom = new TokenFile { Thread = "t" };
@@ -155,7 +155,7 @@ internal static class TokenLogTests
 
     public static void CodexRecordsAreCalls()
     {
-        var file = new TokenFile { Thread = "01a195f8-1b89-7e01-bc47-41dae7935ad7" };
+        var file = new TokenFile { Thread = "01a19500-0000-7000-8000-000000000042" };
         Check.True(CodexLog.Parse(B(Context("gpt-6.1-sol")), file) is null, "turn_context is no call");
         Check.Eq(file.Model, "gpt-6.1-sol", "it names the model");
         var call = CodexLog.Parse(B(Record("resp_1", 13139, 12160, 500, 22)), file)!.Value;
@@ -172,7 +172,7 @@ internal static class TokenLogTests
 
     public static void CodexTokenCountsAreCallsInOldFiles()
     {
-        var file = new TokenFile { Thread = "01a17880-284e-78b0-9929-06b89368c332" };
+        var file = new TokenFile { Thread = "01a17880-0000-7000-8000-000000000077" };
         CodexLog.Parse(B(Context("gpt-6-astra")), file);
         var first = CodexLog.Parse(B(Count(100, 100, 40, 5, 4)), file)!.Value;
         Check.Eq(first.Counts, new TokenCounts(1, 60, 5, 40, 0, 0), "last_token_usage");
