@@ -62,6 +62,8 @@ internal sealed class Settings
     public string? CodexPath { get; set; }
     public string? OmpPath { get; set; } // omp.exe; null = the PATH
     public List<HomeWidget>? Home { get; set; } // the empty view's blocks, in order (Core\Home.cs)
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public Dictionary<string, bool>? HomeCommands { get; set; } // the 명령 block's picks over its defaults: command id → listed (Core\HomeCommands.cs); null = untouched
     public int UsageMinutes { get; set; } = 10; // the home's AI usage: asked of Claude Code / Codex every 5 or 10 minutes (App\AiUsage.cs)
     public bool UsageLeft { get; set; } // the usage cards count what's left ("68% 남음", the bar shrinking) instead of what's used
     public List<AiAccount> AiAccounts { get; set; } = new(); // whose usage the home shows (Core\AiAccounts.cs); the two defaults are added on read
