@@ -90,11 +90,14 @@ internal static class ProvidersTests
     }
 
     /// A provider whose command is a PowerShell script with this body (a file in the temp folder; -File passes the words on as they are).
-    private static Provider Powershell(string body, int timeoutMs = 20_000)
+    /// Bypass: a PC whose execution policy runs no scripts still runs this one. A minute: Windows PowerShell can take tens of
+    /// seconds to start on a busy build machine.
+    private static Provider Powershell(string body, int timeoutMs = 60_000)
     {
         string file = Path.Combine(Path.GetTempPath(), "bloom-provider-test-" + Guid.NewGuid().ToString("N") + ".ps1");
         File.WriteAllText(file, body);
-        return Providers.ParseConfig(System.Text.Json.JsonSerializer.Serialize(new[] { new { keyword = "t", command = new[] { "powershell", "-NoProfile", "-File", file }, timeoutMs } }))[0];
+        var command = new[] { "powershell", "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", file };
+        return Providers.ParseConfig(System.Text.Json.JsonSerializer.Serialize(new[] { new { keyword = "t", command, timeoutMs } }))[0];
     }
 
     /// Deletes the scripts of the providers it holds.
@@ -102,7 +105,7 @@ internal static class ProvidersTests
     {
         public void Dispose()
         {
-            foreach (var p in providers) File.Delete(p.Command[3]);
+            foreach (var p in providers) File.Delete(p.Command[^1]);
         }
     }
 
