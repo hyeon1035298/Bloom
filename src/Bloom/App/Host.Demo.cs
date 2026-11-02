@@ -15,7 +15,7 @@ internal sealed partial class Host
 
     /// `--demo` (Core.Demo): the recording mode, set up once the services exist. The settings that would show this PC
     /// go off, a first start's favourites and a few sample clipboard entries come in (only while the data folder has
-    /// none), the usage numbers are made up, and the apps are the browsers and the tools Windows comes with.
+    /// none), the usage and token numbers are made up, and the apps are the browsers and the tools Windows comes with.
     private void BeginDemo()
     {
         var s = Settings.Current;
@@ -43,6 +43,7 @@ internal sealed partial class Host
             return new(name, plan, limits, DateTime.Now);
         }
         AiUsage.SetForQa(Plan("Claude", "Ultra", 32, 47), Plan("ChatGPT", "Pro 20x", null, 21)); // ChatGPT Pro has a weekly limit only
+        TokenStats.SetForQa(TokenDemo.View);
         if (Opt.CaptureDir is null) // QA pictures are taken off-screen: no backdrop over the user's screen
         {
             backdrop = new DemoBackdrop(Opt.Display);

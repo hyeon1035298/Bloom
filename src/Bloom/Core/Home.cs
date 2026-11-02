@@ -13,6 +13,7 @@ internal sealed class HomeWidget
     public bool? Right { get; set; } // its column on a wide home: false left, true right; null in a list kept before columns (Home.Order picks)
     public int? Count { get; set; } // a list block's rows (Home.Count); null = its kind's
     public bool Collapsed { get; set; } // only its header shows
+    public string? Period { get; set; } // a token block's span (Ai\TokenPeriod's name); null = the last 24 hours
 }
 
 /// The home (the launcher with an empty search line) as blocks the user turns on and orders
@@ -24,6 +25,9 @@ internal static class Home
     public static readonly (string key, string name, string about, char glyph, bool on, int count, bool right)[] Kinds =
     {
         ("usage", Tr("AI 사용량", "AI usage"), Tr("Claude Code · Codex에 물어본 5시간 · 주간 사용량", "5-hour and weekly usage, asked of Claude Code and Codex"), G.Model, true, 0, false),
+        ("tokens", Tr("토큰 사용량", "Token usage"), Tr("API 환산액 · 토큰 · 호출 · 캐시 적중률 · 처음 켜면 기록 전체를 백그라운드에서 한 번 읽음 · 압축된 Codex 기록 제외", "API-priced cost, tokens, calls, cache hits · the first time on, all logs are read once in the background · compressed Codex logs left out"), G.Speed, false, 0, false),
+        ("tokenchart", Tr("토큰 그래프", "Token chart"), Tr("시간 · 날짜별 토큰 막대그래프 · 처음 켜면 기록 전체를 백그라운드에서 한 번 읽음 · 압축된 Codex 기록 제외", "Tokens by hour or day as bars · the first time on, all logs are read once in the background · compressed Codex logs left out"), G.Clock, false, 0, false),
+        ("tokenmodels", Tr("모델별 사용량", "Usage by model"), Tr("토큰을 많이 쓴 모델과 그 비율 · 처음 켜면 기록 전체를 백그라운드에서 한 번 읽음 · 압축된 Codex 기록 제외", "The models that used the most tokens, and their share · the first time on, all logs are read once in the background · compressed Codex logs left out"), G.Sliders, false, 5, true),
         ("timers", Tr("타이머 · 알림", "Timers · reminders"), Tr("진행 중인 타이머와 알림 (있을 때만 표시)", "Running timers and reminders (only while there are some)"), G.Stopwatch, true, 3, false),
         ("week", Tr("이번 주", "This week"), Tr("오늘부터 7일의 알림 — 날짜를 누르면 캘린더", "Reminders for the next 7 days — click a day for the calendar"), G.Calendar, true, 0, false),
         ("favorites", Tr("즐겨찾기", "Favorites"), Tr("아이콘 줄 · Ctrl+1…9", "A row of icons · Ctrl+1…9"), G.Star, true, 0, true),
@@ -115,6 +119,14 @@ internal static class Home
     {
         if (Of(key) is not { } w) return;
         w.Collapsed = collapsed;
+        Settings.Save();
+    }
+
+    /// A token block's span (Ai\TokenPeriod's name), kept as its chips set it.
+    public static void SetPeriod(string key, string period)
+    {
+        if (Of(key) is not { } w) return;
+        w.Period = period;
         Settings.Save();
     }
 

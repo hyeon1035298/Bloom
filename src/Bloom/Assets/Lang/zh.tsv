@@ -800,6 +800,7 @@ Enter copies CSS	按 Enter 复制 CSS
 Matching presets	相配的预设
 Bloom preset	Bloom 预设
 Show colour	查看颜色
+Counting {0}%	统计中 {0}%
 Uninstall · Store app, for this user	卸载 · Store 应用，仅当前用户
 Uninstall · {0}	卸载 · {0}
 Uninstall…	卸载…
@@ -945,6 +946,7 @@ Add payment module tests	添加支付模块测试
 Mini player	迷你播放器
 ntpd	ntpd
 chrom	chrom
+AI tokens	AI Token
 Friday meeting\nresend the quote · fix the date	周五会议\n重新发送报价单 · 确定日期
 Trip ideas\nJeju 3 nights · rent a car	旅行想法\n济州岛 3 晚 · 租车
 note buy milk	note buy milk
@@ -1112,6 +1114,12 @@ End processes	结束进程
 Find and end a stuck program	查找并结束卡住的程序
 See the disk as a map and clear big files	以地图方式查看磁盘并清理大文件
 5-hour and weekly usage, asked of Claude Code and Codex	向 Claude Code 和 Codex 查询的 5 小时和每周用量
+Token usage	Token 用量
+API-priced cost, tokens, calls, cache hits · the first time on, all logs are read once in the background · compressed Codex logs left out	API 折算费用 · Token · 调用 · 缓存命中率 · 首次开启时在后台读取全部记录一次 · 不计入压缩的 Codex 记录
+Token chart	Token 图表
+Tokens by hour or day as bars · the first time on, all logs are read once in the background · compressed Codex logs left out	按小时 · 日期显示的 Token 柱状图 · 首次开启时在后台读取全部记录一次 · 不计入压缩的 Codex 记录
+Usage by model	按模型用量
+The models that used the most tokens, and their share · the first time on, all logs are read once in the background · compressed Codex logs left out	Token 用量最多的模型及其占比 · 首次开启时在后台读取全部记录一次 · 不计入压缩的 Codex 记录
 Running timers and reminders (only while there are some)	进行中的计时器和提醒 (仅在有时显示)
 Reminders for the next 7 days — click a day for the calendar	未来 7 天的提醒 — 点击日期打开日历
 A row of icons · Ctrl+1…9	图标栏 · Ctrl+1…9
@@ -1577,6 +1585,53 @@ One colour fewer	减少一种颜色
 One colour more	增加一种颜色
 Details	详情
 Muted preview · click to pause	静音预览 · 点击暂停
+Cost	折算费用
+At API prices {0}	按 API 价格折算 {0}
+Tokens	Token
+{0} tokens	Token {0}
+Calls	调用
+{0} calls	调用 {0}
+Cache hits	缓存命中
+{0} of {1} prompt tokens read from the cache	发送的输入 {1} 中从缓存读取 {0}
+Add a price in Settings > Home > Edit prices	可在 设置 > 主页 > 编辑价格表 中添加价格
+{0} tokens · {1}	Token {0} · {1}
+Now	现在
+1 model	1 个模型
+{0} models	{0} 个模型
+{0} more · {1} tokens · {2}	其他 {0} 个 · Token {1} · {2}
+Calls {0}	调用 {0}
+Input {0}	输入 {0}
+Output {0}	输出 {0}
+Cache read {0}	缓存读取 {0}
+Cache write {0}	缓存写入 {0}
+Cache hits {0}	缓存命中 {0}
+Cost {0}	折算费用 {0}
+No price · not in the cost	无价格 · 不计入折算费用
+Input	输入
+Cache write	缓存写入
+Cache read	缓存读取
+Output	输出
+No Claude Code or Codex logs	没有 Claude Code · Codex 记录
+Nothing in this period	此期间无记录
+24h	24小时
+7d	7天
+30d	30天
+90d	90天
+The last 24 hours	过去 24 小时
+The last 7 days	截至今天的 7 天
+The last 30 days	截至今天的 30 天
+The last 90 days	截至今天的 90 天
+Everything Bloom has counted	Bloom 统计的全部记录
+{0} – now	{0} – 现在
+Since {0}	自 {0} 起
+{0} – today	{0} – 今天
+MMM d, h tt	M月d日 H时
+h tt	H时
+MMM yyyy	yyyy年M月
+Week of {0}	自 {0} 起的一周
+ · nothing	 · 无记录
+1 model with no price · its {0} tokens are not in the cost	1 个模型无价格 · 其 Token {0} 不计入折算费用
+{0} models with no price · their {1} tokens are not in the cost	{0} 个模型无价格 · 其 Token {1} 不计入折算费用
 Bloom {0} · What's new	Bloom {0} · 新功能
 Bloom {0} update complete	Bloom {0} 更新完成
 Changes in this version	此版本的更改
@@ -1894,7 +1949,6 @@ e.g. gemini	例如 gemini
 No model list yet	还没有模型列表
 Press ‘Refresh omp's model list’ above	请点击上面的“刷新 omp 的模型列表”
 Providers	提供方
-{0} models	{0} 个模型
 No model found	没有找到模型
 You can also type provider/model in ‘Add by hand’	也可以在“手动添加”中输入 提供方/模型
 no thinking	无思考级别
@@ -1951,6 +2005,10 @@ Hidden, only while asked: Claude ~470 MB for 4 s · Codex ~110 MB for 1 s	仅在
 10 min	10 分钟
 What's used (32%) or what's left (68% left) · the bars follow	已用量 (32%) 或剩余量 (剩 68%) · 进度条也随之变化
 Left	剩余
+Edit prices	编辑价格表
+Overrides the built-in token prices (as of {0}) · prices.json	覆盖内置的 Token 价格（截至 {0}）· prices.json
+Clear the token counts	清除 Token 统计
+Clears only what Bloom counted and counts again · logs Claude Code removed after 30 days do not come back	仅清除 Bloom 统计的数字并重新统计 · Claude Code 删除的 30 天前的记录无法恢复
 What else to search besides apps as you type	输入时除了应用还要一起搜索什么
 Also search	同时搜索
 Files too	也搜索文件

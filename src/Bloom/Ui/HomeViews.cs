@@ -239,7 +239,7 @@ internal static class HomeViews
     private static double Shown(double used, bool left) => left ? Math.Max(0, 100 - Math.Round(used)) : Math.Round(used);
 
     /// A thin bar filled to percent; danger = the limit is nearly used up (≥ 90% used), either way it counts.
-    private static FrameworkElement Bar(double percent, bool danger)
+    internal static FrameworkElement Bar(double percent, bool danger)
     {
         double p = Math.Clamp(percent / 100, 0, 1);
         var g = new Grid { Height = 4, Margin = new Thickness(0, 3, 0, 2) };
