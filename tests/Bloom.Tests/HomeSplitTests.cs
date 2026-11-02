@@ -83,7 +83,7 @@ internal static class HomeSplitTests
 
         grid.Split = 0.1;
         Lay(1100);
-        Check.Eq(Box(a) + " / " + Box(c), "0,0 420 / 420,0 680", "kept at the least");
+        Check.Eq(Box(a) + " / " + Box(c), "0,0 360 / 360,0 740", "kept at the least");
         grid.Split = double.NaN;
         Check.Eq(grid.Split, HomeColumns.DefaultSplit, "nonsense: the default");
 

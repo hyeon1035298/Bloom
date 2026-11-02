@@ -84,7 +84,7 @@ internal static class HomePlayer
     {
         if (now.Other is { } other)
         {
-            if (now.Cover is null && last is { Other: { } was, Cover: { } cover } && was.App == other.App && was.Title == other.Title)
+            if (now.Cover is null && last is { Other: { } was, Cover: { } cover } && was.App == other.App && was.Title == other.Title && was.Artist == other.Artist)
                 now = now with { Cover = cover };
             return (now, now);
         }

@@ -39,8 +39,8 @@ internal sealed class HomeColumns : Panel
     public const double DefaultSplit = 0.5;
 
     /// The narrowest a column gets (dip): a row's icon, title and accessory, a widget's cards, the edit tools' pill, and
-    /// 세션별 사용량's rows, whose titles (beside where, the numbers and the cost) shrank to a word at 360.
-    public const double ColumnMin = 420;
+    /// 세션별 사용량's rows (their tail gives way before the title, NameTail).
+    public const double ColumnMin = 360;
 
     /// A kept share as one to lay out by: between 0 and 1 (not at either end), else the default (a settings file from
     /// before the handle has none, or one edited by hand).

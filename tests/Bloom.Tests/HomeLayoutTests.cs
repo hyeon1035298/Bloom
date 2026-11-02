@@ -382,6 +382,16 @@ internal static class HomeLayoutTests
             "High XHigh -", "the most-used effort: the higher of two the same, never unknown");
     }
 
+    /// A row's name and tail on a short line (NameTail): the tail gives way first, the name keeps its share.
+    public static void NameAndTailShare()
+    {
+        Check.Eq(NameTail.Widths(300, 120, 100), (120.0, 100.0), "room for both: whole");
+        Check.Eq(NameTail.Widths(200, 120, 100), (120.0, 80.0), "a little short: only the tail cut");
+        Check.Eq(NameTail.Widths(200, 180, 100), (120.0, 80.0), "short: the name keeps its share, both cut");
+        Check.Eq(NameTail.Widths(200, 300, 20), (180.0, 20.0), "a short tail stays whole, the name cut");
+        Check.Eq(NameTail.Widths(double.PositiveInfinity, 120, 100), (120.0, 100.0), "no limit: whole");
+    }
+
     /// A session row's first line after its name (SessionTail), its tooltip (SessionTip, the row's own), and which
     /// chat's session a token session is (Engine.ChatSide).
     public static void SessionRows()
