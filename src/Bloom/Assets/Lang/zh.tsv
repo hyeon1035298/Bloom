@@ -172,6 +172,7 @@ Bloom couldn't open the file	Bloom 无法打开文件
 The file isn't there, or it can't be opened	文件不存在，或无法打开
 Markdown document	Markdown 文档
 Bloom's document window to read and edit Markdown (.md) files	用于查看和编辑 Markdown (.md) 文件的 Bloom 文档窗口
+Garden at Noon	正午的花园
 Shortcut · Error	快捷键 · 错误
 Item not found. Check its location or reassign the shortcut.	未找到项目。请检查位置或重新分配快捷键。
 Reading the app list again…	正在重新读取应用列表…
@@ -418,6 +419,17 @@ Enter a keyword without spaces	输入不含空格的关键词
 ‘{0}’ is in use. Enter another keyword.	“{0}”已被使用。请输入其他关键词。
 Added ‘{0}’	已添加“{0}”
 Command saved	已保存命令
+Command	命令
+Add a command	添加命令
+Every command is in this block	所有命令都在此区块中
+Click a card to add it to this block	点击卡片即可添加到此区块
+1 command left out	已移除 1 个命令
+{0} commands left out	已移除 {0} 个命令
+Close list	收起列表
+Open list	展开列表
+Add	添加
+‘{0}’ left out · ‘+ Add a command’ puts it back	已移除‘{0}’ · 用‘+ 添加命令’放回
+Remove from the Commands block	从命令区块移除
 Results	结果
 No emoji or symbol found	未找到表情符号或符号
 Try other words (heart, arrow, smile)	换个词试试 (heart, arrow, smile)
@@ -485,7 +497,6 @@ Search for an app, then Ctrl+K → ‘Add to a favorites folder’	搜索应用�
 Folder name — e.g. Video editing, Design	文件夹名称 — 例如 视频剪辑、设计
 Made the folder ‘{0}’	已创建文件夹“{0}”
 A folder to group apps by task	按任务归类应用的文件夹
-Command	命令
 Put in the search line	填入搜索栏
 AI account name	AI 账户显示名称
 Shown on the card instead of the e-mail — empty: the e-mail ({0})	在卡片上代替邮箱显示的文字 — 留空则显示邮箱 ({0})
@@ -561,6 +572,8 @@ Keep	保存
 Kept as a note	已保存为笔记
 Note · {0}	便笺 · {0}
 Open	打开
+{0} notes	{0} 条
+New note	新便笺
 No area picked	未选择区域
 Enter picks an area	按 Enter 选择区域
 Pick	选择
@@ -792,7 +805,6 @@ You can type a colour code too	也可以输入颜色代码
 Picked colour	取到的颜色
 Typed colour	输入的颜色
 Add to recent colours	添加到最近颜色
-Add	添加
 Recent colours	最近颜色
 Enter copies HEX	按 Enter 复制 HEX
 Suggested gradients	推荐的渐变
@@ -944,6 +956,7 @@ Move yesterday's quote PDF to Documents	把昨天的报价单 PDF 移到“文�
 Groceries\n- milk\n- eggs\n- bread	购物\n- 牛奶\n- 鸡蛋\n- 面包
 Add payment module tests	添加支付模块测试
 Mini player	迷你播放器
+Dawn Walk	黎明散步
 ntpd	ntpd
 chrom	chrom
 AI tokens	AI Token
@@ -1589,6 +1602,12 @@ Colour count	颜色数
 Colours ({0}–{1}) · − + keys	颜色数 ({0}–{1}) · − + 键
 One colour fewer	减少一种颜色
 One colour more	增加一种颜色
+Nothing playing	没有正在播放的歌曲
+Nothing playing · click for the mini player	没有正在播放的歌曲 · 点击打开迷你播放器
+Open the mini player	打开迷你播放器
+Previous song	上一首
+Play · pause	播放 · 暂停
+Next song	下一首
 Details	详情
 Muted preview · click to pause	静音预览 · 点击暂停
 Cost	折算费用
@@ -1604,17 +1623,26 @@ Add a price in Settings > Home > Edit prices	可在 设置 > 主页 > 编辑价�
 Now	现在
 1 model	1 个模型
 {0} models	{0} 个模型
+1 session	1 个会话
+{0} sessions	{0} 个会话
+… {0} more	… 其他 {0} 个
+No session · {0} tokens	未分会话 · Token {0}
+Logs older than 100 days, and calls that named no session	超过 100 天的记录，以及未记录会话的调用
+Bloom AI chat (not found)	Bloom AI 聊天（未找到）
+Session {0}	会话 {0}
 {0} more · {1} tokens · no price	其他 {0} 个 · Token {1} · 无价格
 {0} more · {1} tokens · {2}	其他 {0} 个 · Token {1} · {2}
 {0} more · {1} tokens · {2} · {3} with no price	其他 {0} 个 · Token {1} · {2} · {3} 个无价格
+Cost {0}	折算费用 {0}
+No price · not in the cost	无价格 · 不计入折算费用
+{0} tokens with no price · not in the cost	无价格的 Token {0} · 未计入折算费用
+unknown	未知
 Calls {0}	调用 {0}
 Input {0}	输入 {0}
 Output {0}	输出 {0}
 Cache read {0}	缓存读取 {0}
 Cache write {0}	缓存写入 {0}
 Cache hits {0}	缓存命中 {0}
-Cost {0}	折算费用 {0}
-No price · not in the cost	无价格 · 不计入折算费用
 Input	输入
 Cache write	缓存写入
 Cache read	缓存读取
@@ -1702,12 +1730,14 @@ Apply	应用
 min	分钟
 h	小时
 d	天
+Drag to resize the columns · double-click to reset	拖动调整两栏宽度 · 双击恢复默认
 With Ctrl, Alt, Shift or Win	需配合 Ctrl、Alt、Shift 或 Win
 Press another key combination	请按其他按键组合
 Esc cancels · Backspace turns it off	Esc 取消 · Backspace 关闭
 Click to change	点击更改
 Select all	全选
 Run as admin	以管理员身份运行
+Remove from this block	从此区块移除
 Expression	算式
 Result · Enter copies	结果 · 按 Enter 复制
 Expand	展开
@@ -1766,8 +1796,6 @@ Add a block	添加区块
 Click a card to add it here, or drag it into place	点击卡片添加到此栏末尾，拖动则添加到放下的位置
 1 hidden block	1 个已隐藏的区块
 {0} hidden blocks	{0} 个已隐藏的区块
-Close list	收起列表
-Open list	展开列表
 Click to add at this column's end · drag it into place	点击添加到此栏末尾 · 拖动放到想要的位置
 Type to search	输入以搜索
 Search, or ask AI	搜索，或问 AI
@@ -1835,7 +1863,6 @@ Close {0}	关闭 {0}
 Attach {0}	附加 {0}
 Previous (from the start after 3 s)	上一首（播放超过 3 秒则从头开始）
 Play · pause (Space)	播放 · 暂停 (Space)
-Next song	下一首
 Queue	播放队列
 Playlists	播放列表
 Other apps	其他应用
@@ -1853,8 +1880,6 @@ Repeat all · click for repeat one	全部循环 · 点击切换为单曲循环
 Repeat one · click to turn off	单曲循环 · 点击关闭循环
 Repeat off · click for repeat all	循环已关闭 · 点击切换为全部循环
 No other app is playing · play something in Spotify or a browser and it shows here	没有正在播放的其他应用 · 在 Spotify 或浏览器中播放后会显示在这里
-Previous song	上一首
-Play · pause	播放 · 暂停
 Playing in {0} — see the queue there	正在 {0} 中播放 — 请在 {0} 中查看播放队列
 Empty — Ctrl+K on an audio file › Add to the queue	空 — 在音频文件上按 Ctrl+K › 添加到播放队列
 Take out of the queue	从播放队列中移除
@@ -2345,7 +2370,6 @@ Another app uses these keys	其他应用正在使用这组按键
 Find a note · Enter for a new one	查找笔记 · 按 Enter 新建笔记
 All notes	全部便笺
 Delete this note (to the Recycle Bin)	删除此便笺 (移到回收站)
-New note	新便笺
 Saved	已保存
 No saved notes. Type above and press Enter.	尚无已保存的笔记。请在上方输入并按 Enter。
 No note matches · Enter saves a new note	无匹配笔记 · Enter 保存新笔记
@@ -2360,12 +2384,3 @@ just now	刚刚
 Detach from the launcher	从启动器分离
 Always on top	始终置顶
 Attach to the launcher	附到启动器
-1 session	1 个会话
-{0} sessions	{0} 个会话
-… {0} more	… 其他 {0} 个
-No session · {0} tokens	未分会话 · Token {0}
-Logs older than 100 days, and calls that named no session	超过 100 天的记录，以及未记录会话的调用
-Bloom AI chat (deleted)	Bloom AI 聊天（已删除的对话）
-Session {0}	会话 {0}
-{0} tokens with no price · not in the cost	无价格的 Token {0} · 未计入折算费用
-unknown	未知

@@ -8,7 +8,10 @@ Each release on GitHub shows its section from this file (the workflow looks for 
 - Mini player: repeat (off, all, one) and shuffle buttons around play. Shuffle plays every song once before any comes back; with repeat all, each new round is shuffled again. Both are remembered.
 - Mini player: playlists. Type a name under Playlists and press Enter to save the queue; click a playlist to play it, ＋ to add it after the queue. Playlists made by other players (.m3u, .m3u8) open from the search (Ctrl+K) or from Explorer with Bloom. A playlist that names a program or a web address plays only its songs.
 - Mini player: songs playing in other apps — Spotify, or YouTube in a browser — show in the mini player while Bloom itself plays nothing, with their cover and the app's name. Its buttons pause, skip and move the app's song; Bloom doesn't play them itself. The "Other apps" tab lists every app that is playing.
-- Token usage on the home: three new blocks count the tokens in the Claude Code and Codex logs on this PC. Token usage shows what they would cost at API prices, the tokens, the calls and the cache hits; Token chart shows them by hour or day; Usage by model lists the models you used most. Each block keeps its own span (24 hours, 7, 30 or 90 days, all). They are off at first: add them with Ctrl+E › + Add block. Bloom keeps only hourly sums per model, never the messages, and the prices can be changed in prices.json (Settings › Home › Edit prices).
+- Token usage on the home: four new blocks count the tokens in the Claude Code and Codex logs on this PC. Token usage shows what they would cost at API prices, the tokens, the calls and the cache hits; Token chart shows them by hour or day; Usage by model lists the models you used most, with the effort levels they ran at; Usage by session lists the sessions that used the most, by title or folder, with the effort they used most (a session of Bloom's own AI chat opens on a click). Each block keeps its own span (24 hours, 7, 30 or 90 days, all). They are off at first: add them with Ctrl+E › + Add block. Bloom keeps hourly sums per model, effort and session, each session's title and the name of its last folder, never the messages or full paths. The prices can be changed in prices.json (Settings › Home › Edit prices).
+- Home: Notes and Player blocks. Notes shows your latest notes and starts a new one; Player shows the song playing now with previous, play and next, or another app's song when Bloom plays nothing.
+- Home: the Commands block can be trimmed. While editing the home, ✕ takes a command out and "+ Add a command" puts it back, or adds one that is off at first (restart, shut down and the like).
+- Home: in two columns, drag the gap between them to make one column wider; double-click it to go back to halves.
 - AI usage: Claude's renamed plans. The cards say Max for the old Max 5x and Ultra for the old Max 20x.
 
 ### 한국어
@@ -17,7 +20,10 @@ Each release on GitHub shows its section from this file (the workflow looks for 
 - 미니 플레이어: 재생 버튼 양옆에 반복(끔·전체·한 곡)과 무작위 버튼이 생겼습니다. 무작위는 모든 곡을 한 번씩 튼 다음에 다시 돌고, 전체 반복과 같이 켜면 한 바퀴마다 새로 섞습니다. 두 설정은 다음에 켜도 그대로입니다.
 - 미니 플레이어: 재생목록. 재생목록 탭에 이름을 넣고 Enter를 누르면 지금 대기열을 저장합니다. 목록을 누르면 재생하고, ＋는 대기열 뒤에 붙입니다. 다른 플레이어가 만든 재생목록(.m3u, .m3u8)도 검색(Ctrl+K)이나 탐색기에서 Bloom으로 열 수 있습니다. 재생목록에 프로그램이나 웹 주소가 들어 있으면 노래만 재생합니다.
 - 미니 플레이어: Bloom이 아무것도 재생하지 않을 때 다른 앱에서 재생 중인 곡(Spotify, 브라우저의 YouTube 등)이 표지와 앱 이름과 함께 나옵니다. 버튼으로 그 앱의 곡을 일시정지하고, 넘기고, 원하는 위치로 옮길 수 있습니다. 재생은 그 앱이 하고 Bloom은 조작만 합니다. '다른 앱' 탭에는 재생 중인 앱이 모두 나옵니다.
-- 홈의 토큰 사용량: 이 PC의 Claude Code와 Codex 기록에 남은 토큰을 세는 블록 세 개가 생겼습니다. '토큰 사용량'은 API 가격으로 환산한 금액과 토큰, 호출 수, 캐시 적중률을, '토큰 그래프'는 시간이나 날짜별 막대를, '모델별 사용량'은 많이 쓴 모델을 보여 줍니다. 블록마다 기간을 따로 고릅니다(24시간, 7일, 30일, 90일, 전체). 처음에는 꺼져 있으니 Ctrl+E › + 블록 추가에서 넣으면 됩니다. Bloom은 모델별 시간 합계만 두고 메시지 내용은 저장하지 않습니다. 가격은 prices.json에서 고칠 수 있습니다(설정 › 홈 화면 › 가격표 고치기).
+- 홈의 토큰 사용량: 이 PC의 Claude Code와 Codex 기록에 남은 토큰을 세는 블록 네 개가 생겼습니다. '토큰 사용량'은 API 가격으로 환산한 금액과 토큰, 호출 수, 캐시 적중률을, '토큰 그래프'는 시간이나 날짜별 막대를 보여 줍니다. '모델별 사용량'은 많이 쓴 모델을 어떤 effort로 썼는지와 함께, '세션별 사용량'은 많이 쓴 세션을 제목이나 폴더 이름과 가장 많이 쓴 effort로 보여 줍니다(Bloom AI 채팅의 세션은 누르면 그 채팅이 열림). 블록마다 기간을 따로 고릅니다(24시간, 7일, 30일, 90일, 전체). 처음에는 꺼져 있으니 Ctrl+E › + 블록 추가에서 넣으면 됩니다. Bloom은 모델 · effort · 세션별 시간 합계와 세션 제목, 마지막 폴더 이름만 두고, 메시지 내용과 전체 경로는 저장하지 않습니다. 가격은 prices.json에서 고칠 수 있습니다(설정 › 홈 화면 › 가격표 고치기).
+- 홈: '메모'와 '플레이어' 블록이 생겼습니다. '메모'는 최근 메모를 보여 주고 새 메모를 만들 수 있고, '플레이어'는 지금 재생 중인 곡과 이전 · 재생 · 다음 버튼을 보여 줍니다. Bloom이 재생하지 않을 때는 다른 앱의 곡이 나옵니다.
+- 홈: '명령' 블록을 손볼 수 있습니다. 홈 편집 중에 ✕로 명령을 빼고, '+ 명령 추가'로 다시 넣거나 처음에 꺼져 있던 명령(다시 시작, 시스템 종료 등)을 넣습니다.
+- 홈: 두 열일 때 가운데 틈을 끌면 한쪽 열을 넓힐 수 있고, 두 번 누르면 반반으로 돌아갑니다.
 - AI 사용량: 바뀐 Claude 요금제 이름을 씁니다. 예전 Max 5x는 Max, 예전 Max 20x는 Ultra로 나옵니다.
 
 ## 0.16.1

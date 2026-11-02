@@ -52,8 +52,9 @@ internal static class HomeCommands
         Settings.Save();
     }
 
-    /// The picks tidied, as on a pick and once the settings file is read: those of commands Bloom no longer has and those
-    /// that are their default dropped (none left: null, the settings file as if never edited).
+    /// The picks tidied on a pick: those of commands Bloom no longer has and those that are their default dropped (none
+    /// left: null, the settings file as if never edited). Not on Settings.Load: SystemItems would make its titles before
+    /// the language is set, and an untidy pick reads as its default anyway.
     public static void Clean()
     {
         var s = Settings.Current;

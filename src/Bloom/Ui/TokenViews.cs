@@ -297,15 +297,15 @@ internal static class TokenViews
         head.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
         foreach (string column in new[] { "Tokens", "Share", "Cost" })
             head.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto, SharedSizeGroup = column });
-        // the tail is measured first and kept whole; a long name is cut instead, the tail right after it
-        var name = new DockPanel { HorizontalAlignment = HorizontalAlignment.Left, VerticalAlignment = VerticalAlignment.Center };
+        // the tail right after the name; short of room it gives way before the name does (NameTail)
         var after = Theme.T("  " + tail, 11, Theme.P.TextFaint);
         after.VerticalAlignment = VerticalAlignment.Bottom;
         after.Margin = new Thickness(0, 0, 0, 1);
-        DockPanel.SetDock(after, Dock.Right);
-        name.Children.Add(after);
-        name.Children.Add(Theme.T(title, 12.5, Theme.P.Text, Theme.Medium));
-        head.Children.Add(name);
+        head.Children.Add(new NameTail(Theme.T(title, 12.5, Theme.P.Text, Theme.Medium), after)
+        {
+            HorizontalAlignment = HorizontalAlignment.Left,
+            VerticalAlignment = VerticalAlignment.Center,
+        });
         var cells = new[]
         {
             Theme.T(Count(tokens), 12, Theme.P.Text, Theme.Medium, false),

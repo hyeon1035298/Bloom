@@ -172,6 +172,7 @@ Bloom couldn't open the file	Bloom でファイルを開けませんでした
 The file isn't there, or it can't be opened	ファイルが見つからないか、開けないファイルです
 Markdown document	Markdown 文書
 Bloom's document window to read and edit Markdown (.md) files	Markdown (.md) ファイルを表示・編集する Bloom のドキュメントウィンドウ
+Garden at Noon	真昼の庭
 Shortcut · Error	ショートカット · エラー
 Item not found. Check its location or reassign the shortcut.	項目が見つかりません。場所を確認するかショートカットを再設定してください。
 Reading the app list again…	アプリの一覧を読み直しています…
@@ -418,6 +419,17 @@ Enter a keyword without spaces	空白を含まないキーワードを入力し�
 ‘{0}’ is in use. Enter another keyword.	「{0}」は使用中です。別のキーワードを入力してください。
 Added ‘{0}’	「{0}」追加済み
 Command saved	コマンドの保存完了
+Command	コマンド
+Add a command	コマンドを追加
+Every command is in this block	すべてのコマンドがこのブロックにあります
+Click a card to add it to this block	カードをクリックするとこのブロックに追加
+1 command left out	外したコマンド 1 件
+{0} commands left out	外したコマンド {0} 件
+Close list	一覧を閉じる
+Open list	一覧を開く
+Add	追加
+‘{0}’ left out · ‘+ Add a command’ puts it back	‘{0}’ を外しました · ‘+ コマンドを追加’ で戻せます
+Remove from the Commands block	コマンドブロックから外す
 Results	結果
 No emoji or symbol found	絵文字・記号の検索結果なし
 Try other words (heart, arrow, smile)	別の言葉で試してください (heart, arrow, smile)
@@ -485,7 +497,6 @@ Search for an app, then Ctrl+K → ‘Add to a favorites folder’	アプリを�
 Folder name — e.g. Video editing, Design	フォルダー名 — 例: 動画編集、デザイン
 Made the folder ‘{0}’	フォルダー「{0}」作成済み
 A folder to group apps by task	作業ごとにアプリをまとめるフォルダー
-Command	コマンド
 Put in the search line	検索欄に入れる
 AI account name	AI アカウントの表示名
 Shown on the card instead of the e-mail — empty: the e-mail ({0})	カードにメールの代わりに表示する文言 — 空欄ならメール ({0})
@@ -561,6 +572,8 @@ Keep	保存
 Kept as a note	メモの保存完了
 Note · {0}	メモ · {0}
 Open	開く
+{0} notes	{0} 件
+New note	新しいメモ
 No area picked	選択領域なし
 Enter picks an area	Enter で範囲を選ぶ
 Pick	選ぶ
@@ -792,7 +805,6 @@ You can type a colour code too	カラーコードを入力しても OK
 Picked colour	取った色
 Typed colour	入力した色
 Add to recent colours	最近の色に追加
-Add	追加
 Recent colours	最近の色
 Enter copies HEX	Enter で HEX をコピー
 Suggested gradients	おすすめのグラデーション
@@ -944,6 +956,7 @@ Move yesterday's quote PDF to Documents	昨日の見積書 PDF をドキュメ�
 Groceries\n- milk\n- eggs\n- bread	買い物\n- 牛乳\n- 卵\n- パン
 Add payment module tests	決済モジュールのテストを追加
 Mini player	ミニプレーヤー
+Dawn Walk	夜明けの散歩
 ntpd	ntpd
 chrom	chrom
 AI tokens	AI トークン
@@ -1589,6 +1602,12 @@ Colour count	色の数
 Colours ({0}–{1}) · − + keys	色の数 ({0}–{1}) · − + キー
 One colour fewer	1 色減らす
 One colour more	1 色増やす
+Nothing playing	再生中の曲はありません
+Nothing playing · click for the mini player	再生中の曲はありません · クリックでミニプレーヤー
+Open the mini player	ミニプレーヤーを開く
+Previous song	前の曲
+Play · pause	再生 · 一時停止
+Next song	次の曲
 Details	詳細
 Muted preview · click to pause	音声なしのプレビュー · クリックで一時停止
 Cost	換算額
@@ -1604,17 +1623,26 @@ Add a price in Settings > Home > Edit prices	設定 > ホーム > 価格表を�
 Now	今
 1 model	モデル 1 個
 {0} models	{0} 件のモデル
+1 session	セッション 1 個
+{0} sessions	{0} 件のセッション
+… {0} more	… ほか {0} 個
+No session · {0} tokens	セッション区分なし · トークン {0}
+Logs older than 100 days, and calls that named no session	100 日より前の記録と、セッションを記録していない呼び出し
+Bloom AI chat (not found)	Bloom AI チャット（見つかりません）
+Session {0}	セッション {0}
 {0} more · {1} tokens · no price	ほか {0} 個 · トークン {1} · 価格なし
 {0} more · {1} tokens · {2}	ほか {0} 個 · トークン {1} · {2}
 {0} more · {1} tokens · {2} · {3} with no price	ほか {0} 個 · トークン {1} · {2} · 価格なし {3} 個
+Cost {0}	換算額 {0}
+No price · not in the cost	価格なし · 換算額に含まれない
+{0} tokens with no price · not in the cost	価格のないトークン {0} · 換算額に含まれない
+unknown	不明
 Calls {0}	呼び出し {0}
 Input {0}	入力 {0}
 Output {0}	出力 {0}
 Cache read {0}	キャッシュ読み込み {0}
 Cache write {0}	キャッシュ書き込み {0}
 Cache hits {0}	キャッシュヒット {0}
-Cost {0}	換算額 {0}
-No price · not in the cost	価格なし · 換算額に含まれない
 Input	入力
 Cache write	キャッシュ書き込み
 Cache read	キャッシュ読み込み
@@ -1702,12 +1730,14 @@ Apply	適用
 min	分
 h	時間
 d	日
+Drag to resize the columns · double-click to reset	ドラッグで2列の幅を調整 · ダブルクリックで元に戻す
 With Ctrl, Alt, Shift or Win	Ctrl、Alt、Shift、Win と一緒に
 Press another key combination	別のキーの組み合わせを押してください
 Esc cancels · Backspace turns it off	Esc でキャンセル · Backspace でオフ
 Click to change	クリックで変更
 Select all	すべて選択
 Run as admin	管理者として実行
+Remove from this block	このブロックから外す
 Expression	式
 Result · Enter copies	結果 · Enter でコピー
 Expand	展開
@@ -1766,8 +1796,6 @@ Add a block	ブロックを追加
 Click a card to add it here, or drag it into place	カードをクリックでこの列の末尾に、ドラッグで置いた場所に追加
 1 hidden block	非表示のブロック 1 個
 {0} hidden blocks	非表示のブロック {0} 個
-Close list	一覧を閉じる
-Open list	一覧を開く
 Click to add at this column's end · drag it into place	クリックでこの列の末尾に追加 · ドラッグで好きな場所に配置
 Type to search	入力して検索
 Search, or ask AI	検索、または AI に聞く
@@ -1835,7 +1863,6 @@ Close {0}	{0} を閉じる
 Attach {0}	{0} を並べる
 Previous (from the start after 3 s)	前の曲 (3 秒以上聴いたら最初から)
 Play · pause (Space)	再生 · 一時停止 (Space)
-Next song	次の曲
 Queue	キュー
 Playlists	プレイリスト
 Other apps	他のアプリ
@@ -1853,8 +1880,6 @@ Repeat all · click for repeat one	全曲リピート · クリックで1曲リ�
 Repeat one · click to turn off	1曲リピート · クリックでリピート オフ
 Repeat off · click for repeat all	リピート オフ · クリックで全曲リピート
 No other app is playing · play something in Spotify or a browser and it shows here	再生中の他のアプリなし · Spotify やブラウザーで再生するとここに表示されます
-Previous song	前の曲
-Play · pause	再生 · 一時停止
 Playing in {0} — see the queue there	{0} で再生中 — キューは {0} で確認してください
 Empty — Ctrl+K on an audio file › Add to the queue	空です — オーディオファイルで Ctrl+K › キューに追加
 Take out of the queue	キューから外す
@@ -2345,7 +2370,6 @@ Another app uses these keys	別のアプリがこのキーを使っています
 Find a note · Enter for a new one	メモを検索 · Enter で新規メモ
 All notes	すべてのメモ
 Delete this note (to the Recycle Bin)	このメモを削除 (ごみ箱へ)
-New note	新しいメモ
 Saved	保存済み
 No saved notes. Type above and press Enter.	保存済みメモなし。上に入力して Enter を押してください。
 No note matches · Enter saves a new note	該当するメモなし · Enter で新規保存
@@ -2360,12 +2384,3 @@ just now	たった今
 Detach from the launcher	ランチャーから切り離す
 Always on top	常に手前に表示
 Attach to the launcher	ランチャーに付ける
-1 session	セッション 1 個
-{0} sessions	{0} 件のセッション
-… {0} more	… ほか {0} 個
-No session · {0} tokens	セッション区分なし · トークン {0}
-Logs older than 100 days, and calls that named no session	100 日より前の記録と、セッションを記録していない呼び出し
-Bloom AI chat (deleted)	Bloom AI チャット（削除した会話）
-Session {0}	セッション {0}
-{0} tokens with no price · not in the cost	価格のないトークン {0} · 換算額に含まれない
-unknown	不明
