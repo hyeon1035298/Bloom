@@ -203,7 +203,7 @@ internal sealed partial class SettingsView
         if (host.Opt.Demo) return;
         if (ConfirmWindow.Ask(Window.GetWindow(this), Tr("토큰 집계 지우기", "Clear the token counts"),
                 Tr("Bloom이 센 토큰 숫자를 지우고 남은 기록에서 다시 셉니다. Claude Code가 이미 지운 30일 넘은 기록은 돌아오지 않습니다.", "Clears the token counts Bloom made and counts again from the logs that are left. Logs Claude Code already removed after 30 days do not come back."),
-                (Tr("지우기", "Clear"), MessageBoxResult.Yes), (Tr("취소", "Cancel"), MessageBoxResult.No)) != MessageBoxResult.Yes) return;
+                (Tr("지우기", "Clear counts"), MessageBoxResult.Yes), (Tr("취소", "Cancel"), MessageBoxResult.No)) != MessageBoxResult.Yes) return;
         TokenStats.Reset();
         host.Window.Refresh(true);
         Notices.Result(true, Tr("AI 토큰", "AI tokens"), Tr("토큰 집계 지우기 완료", "Token counts cleared"), null);

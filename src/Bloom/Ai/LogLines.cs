@@ -48,7 +48,7 @@ internal sealed class LogLines
                     if (skipped < 0)
                     {
                         skipped = at;
-                        Log.Write($"token count: a line over {max >> 20} MB skipped in {Path.GetFileName(path)} at {at}");
+                        Log.Write($"token count: a line over {(max >= 1 << 20 ? $"{max >> 20} MB" : $"{max} bytes")} skipped in {Path.GetFileName(path)} at {at}");
                     }
                     at += filled;
                     filled = 0;

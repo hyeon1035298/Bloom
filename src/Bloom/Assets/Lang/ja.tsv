@@ -2014,7 +2014,7 @@ Overrides the built-in token prices (as of {0}) · prices.json	内蔵のトー�
 Clear the token counts	トークン集計を消去
 Clears only what Bloom counted and counts again · logs Claude Code removed after 30 days do not come back	Bloom が集計した数値だけを消去して再集計 · Claude Code が削除した 30 日より前の記録は戻らない
 Clears the token counts Bloom made and counts again from the logs that are left. Logs Claude Code already removed after 30 days do not come back.	Bloom が集計したトークン数を消去し、残っている記録から集計し直します。Claude Code がすでに削除した 30 日より前の記録は戻りません。
-Clear	クリア
+Clear counts	消去
 Token counts cleared	トークン集計を消去しました
 What else to search besides apps as you type	入力したとき、アプリ以外に何を一緒に探すか
 Also search	一緒に探す
@@ -2309,6 +2309,7 @@ Launcher	ランチャー
 Find a setting	設定を探す
 Section	セクション
 Change	変更
+Clear	クリア
 Rose	ローズ
 Lavender	ラベンダー
 Sky	スカイ

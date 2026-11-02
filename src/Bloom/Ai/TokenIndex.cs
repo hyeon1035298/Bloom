@@ -18,7 +18,7 @@ namespace Bloom.Ai;
 /// nothing. A copy whose values differ from the first one met (one side all zeros) keeps the first one's: accepted.
 /// Once the first count is over, a call older than SeenDays whose key is not kept is such a copy too (its key was
 /// forgotten): a log first met after that with calls only of then is not counted (one that could not be read during
-/// the first count, say).
+/// the first count, or an account added later with older logs; 설정's 토큰 집계 지우기 counts them all again).
 internal sealed class TokenIndex
 {
     /// The file's layout; another one is not read (the count starts again).

@@ -2014,7 +2014,7 @@ Overrides the built-in token prices (as of {0}) · prices.json	覆盖内置的 T
 Clear the token counts	清除 Token 统计
 Clears only what Bloom counted and counts again · logs Claude Code removed after 30 days do not come back	仅清除 Bloom 统计的数字并重新统计 · Claude Code 删除的 30 天前的记录无法恢复
 Clears the token counts Bloom made and counts again from the logs that are left. Logs Claude Code already removed after 30 days do not come back.	清除 Bloom 统计的 Token 数，并从剩下的记录重新统计。Claude Code 已删除的 30 天前的记录无法恢复。
-Clear	清除
+Clear counts	清除
 Token counts cleared	已清除 Token 统计
 What else to search besides apps as you type	输入时除了应用还要一起搜索什么
 Also search	同时搜索
@@ -2309,6 +2309,7 @@ Launcher	启动器
 Find a setting	查找设置
 Section	分类
 Change	更改
+Clear	清除
 Rose	玫瑰
 Lavender	薰衣草
 Sky	天空

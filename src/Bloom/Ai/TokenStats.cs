@@ -232,7 +232,7 @@ internal static class TokenStats
         catch (Exception e)
         {
             Log.Error("token count", e);
-            Publish(job, [], null, null, changed: false, done: true);
+            Publish(job, [], null, null, changed: false, done: true, failed: true);
             return false;
         }
     }
@@ -256,12 +256,20 @@ internal static class TokenStats
 
     /// Hands the sums and the progress to the UI thread, where one of an older generation (a Reset since) or one after
     /// SetForQa is dropped; `done`: the pass ended (`noLogs` as it found; `stopped`: before every file was read, as no
-    /// block wanted the numbers). Updated fires when the numbers changed at the end, or when the first count's percent moved.
-    internal static void Publish(Job job, TokenBucket[] sums, double? indexing, bool? noLogs, bool changed, bool done, bool stopped = false)
+    /// block wanted the numbers; `failed`: it broke off, so the numbers and the note stay as they were). Updated fires
+    /// when the numbers changed at the end, at the first end since Bloom started or since Reset, or when the first
+    /// count's percent moved.
+    internal static void Publish(Job job, TokenBucket[] sums, double? indexing, bool? noLogs, bool changed, bool done, bool stopped = false, bool failed = false)
     {
         post?.Invoke(() =>
         {
             if (job.Generation != generation || madeUp is not null) return;
+            if (failed)
+            {
+                ended = DateTime.UtcNow; // Look waits out Fresh before the next try
+                resume = false;
+                return;
+            }
             bool tell = false;
             if (changed) Use(sums);
             int p = indexing is { } i ? (int)(i * 100) : -1;
@@ -273,10 +281,11 @@ internal static class TokenStats
             Indexing = indexing;
             if (done)
             {
+                bool firstEnd = Counted is null; // the blocks said "counting" until now
                 ended = DateTime.UtcNow;
                 Counted = DateTime.Now;
                 resume = stopped;
-                tell |= changed || noLogs != NoLogs;
+                tell |= changed || firstEnd || noLogs != NoLogs;
                 NoLogs = noLogs ?? NoLogs;
             }
             else tell |= changed && p < 0;

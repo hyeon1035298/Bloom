@@ -42,6 +42,35 @@ internal static class TokenStatsTests
         }
     }
 
+    public static void TheFirstEndIsToldEvenWithNothingNew()
+    {
+        int told = 0;
+        void Count() => told++;
+        try
+        {
+            TokenStats.Attach(a => a(), () => true, () => { });
+            TokenStats.Updated += Count;
+            TokenStats.Look();
+            var job = Check.NotNull(TokenStats.Next(), "the job");
+            TokenStats.Publish(job, [], null, null, changed: false, done: true, failed: true);
+            Check.True(told == 0 && TokenStats.Counted is null, "a pass that broke off leaves the blocks counting");
+            TokenStats.Refresh();
+            job = Check.NotNull(TokenStats.Next(), "the ↻ pass");
+            // a count already complete in the index, with nothing new in the logs: no change, yet the blocks said "counting"
+            TokenStats.Publish(job, [], null, false, changed: false, done: true);
+            Check.True(told == 1 && TokenStats.Counted is not null, "the first end is told");
+            TokenStats.Refresh();
+            job = Check.NotNull(TokenStats.Next(), "another pass");
+            TokenStats.Publish(job, [], null, false, changed: false, done: true);
+            Check.Eq(told, 1, "a later end with nothing new is not");
+        }
+        finally
+        {
+            TokenStats.Updated -= Count;
+            TokenStats.Attach(null);
+        }
+    }
+
     public static void WhatAnOlderPassSendsIsDropped()
     {
         var posted = new List<Action>();
