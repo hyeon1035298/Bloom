@@ -53,6 +53,7 @@ internal static class HomeViews
         void Swap(int with)
         {
             Core.AiAccounts.Swap(id, accounts[with].Id);
+            UsageExport.Changed();
             edit.Moved();
         }
         return EditBar(

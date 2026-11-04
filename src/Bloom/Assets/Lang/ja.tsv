@@ -2039,6 +2039,8 @@ Hidden, only while asked: Claude ~470 MB for 4 s · Codex ~110 MB for 1 s	問い
 10 min	10 分
 What's used (32%) or what's left (68% left) · the bars follow	使った量 (32%) か残りの量 (68% 残り) · バーもそれに合わせます
 Left	残り
+Write the usage to a file	使用量をファイルに書き出す
+Writes the percentages and reset times, no e-mail, to %LOCALAPPDATA%\\Bloom\\export\\ai-usage.json for other programs to read · the lookups run even with the home block off: Claude ~470 MB for 4 s every interval	他のプログラムが読めるように、使用率とリセット時刻だけ (メールアドレスなし) を %LOCALAPPDATA%\\Bloom\\export\\ai-usage.json に書きます · ホームのブロックがオフでも照会が動き、間隔ごとに Claude で約 470 MB・4 秒かかります
 Edit prices	価格表を編集
 Overrides the built-in token prices (as of {0}) · prices.json	内蔵のトークン価格（{0} 時点）を上書き · prices.json
 Clear the token counts	トークン集計を消去

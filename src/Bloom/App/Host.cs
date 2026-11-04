@@ -176,6 +176,7 @@ internal sealed partial class Host
         Timers.Changed += Later;
         Timers.Changed += SyncAlarm;
         AiUsage.Updated += Later;
+        AiUsage.Updated += UsageExport.Changed;
         TokenStats.Updated += Later;
         Notes.Changed += _ => { if (Home.IsOn("notes")) Later(); }; // the 메모 block: a note written, pinned or gone
         // bursts of change events become one refresh, 300 ms after the first; the timer sleeps in between
@@ -651,6 +652,7 @@ internal sealed partial class Host
         stalls?.Dispose(); // the saving and shutting down below may hold the UI thread on purpose
         Tools.Save();
         SaveAll();
+        UsageExport.Closed();
         Chats.Shutdown();
         Updates.ApplyAndRestart();
     }
@@ -663,6 +665,7 @@ internal sealed partial class Host
         {
             Tools.Save(); // where the tool windows are, before the settings are written
             SaveAll();
+            UsageExport.Closed();
         }
         DocWindow.RescueAll(); // a document is the user's file, kept even by the reset: what can't be written goes to a copy
         DocWindow.Quitting();

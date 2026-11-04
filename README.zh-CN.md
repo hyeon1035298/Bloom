@@ -289,7 +289,7 @@ AI 功能使用本机已安装并登录的官方 CLI。登录凭据保存在这�
 - omp 对话使用同一个工具。
   - omp 同样以 `--no-ui` 运行、无法自行询问，因此由 Bloom 的 MCP 服务器在执行前显示同样的卡片。Bloom 的工具和已开启的其他服务器只写入 `%LOCALAPPDATA%\Bloom\ai\omp-work` 下每个对话各自文件夹里的 `.omp/mcp.json`，不会改动 omp 自身的设置。
 
-AI 用量来自 `claude -p /usage`（不调用模型）和 `codex app-server` 的额度查询，按账户依次获取（添加的账户使用 `%LOCALAPPDATA%\Bloom\accounts` 下的文件夹作为 `CLAUDE_CONFIG_DIR` / `CODEX_HOME`）。选择 ChatGPT 轻量方式时，会用该账户的 Codex 登录向 Codex 状态页读取的地址发送一次 HTTPS 请求。这不是官方 API；Bloom 只在自己创建的文件夹中刷新令牌，不会在 `~/.codex` 中刷新。Bloom 不读取 Claude 登录信息。工作通知读取本机的 Claude Code 和 Codex 日志（`~/.claude/sessions`、`~/.codex/sessions`），日志不会离开本机。
+AI 用量来自 `claude -p /usage`（不调用模型）和 `codex app-server` 的额度查询，按账户依次获取（添加的账户使用 `%LOCALAPPDATA%\Bloom\accounts` 下的文件夹作为 `CLAUDE_CONFIG_DIR` / `CODEX_HOME`）。选择 ChatGPT 轻量方式时，会用该账户的 Codex 登录向 Codex 状态页读取的地址发送一次 HTTPS 请求。这不是官方 API；Bloom 只在自己创建的文件夹中刷新令牌，不会在 `~/.codex` 中刷新。Bloom 不读取 Claude 登录信息。打开“设置 › 主页 › 将用量写入文件”（默认关闭）后，已用百分比、重置时间和你设置的账户名称会写入 `%LOCALAPPDATA%\Bloom\export\ai-usage.json`，供本机其他程序读取；其中不含邮箱或登录信息。工作通知读取本机的 Claude Code 和 Codex 日志（`~/.claude/sessions`、`~/.codex/sessions`），日志不会离开本机。
 
 Token 区块读取本机所有账户的 Claude Code 和 Codex 日志（每个 Claude 文件夹中的 `projects`，每个 Codex 文件夹中的 `sessions` 和 `archived_sessions`）。Bloom 只在 `%LOCALAPPDATA%\Bloom\tokens` 中保存按模型、effort 和会话的每小时合计，以及每个会话由 Claude Code 或 Codex 起的标题和最后一级文件夹名；不保存消息内容和完整路径，也不在这里保存 Bloom AI 聊天的标题。第一次统计会在后台以低优先级把所有日志读一遍，之后只读取新增的部分。Codex 已经压缩的日志（`.zst`）不会读取。Claude Code 会删除 30 天前的日志，所以超过 30 天的时间范围从 Bloom 开始统计的那天起逐渐填满。折算金额是同样的 token 按各家 API 价格计算的金额（内置价格表，2026-11-02 核对），不是实际支付的费用。在设置 › 主页 › 编辑价格表 中可以打开 `prices.json`，修改价格或添加模型。
 检查更新时通过 GitHub API（`api.github.com`）查询本仓库的最新版本，并从 GitHub 下载新版本。请求中只包含仓库信息；设置、文件和对话都留在本机。可在 设置 › 关于 中关闭检查。

@@ -130,6 +130,7 @@ internal sealed partial class SettingsView
                 a.Hidden = !a.Hidden;
                 Settings.Save();
                 if (!a.Hidden) _ = AiUsage.Refresh(all: false); // its card comes back with today's numbers (a default account is in every look)
+                else UsageExport.Changed();
                 host.Window.Refresh(true);
                 break;
             case MessageBoxResult.Yes:
