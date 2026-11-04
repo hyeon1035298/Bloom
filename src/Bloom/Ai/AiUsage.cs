@@ -32,6 +32,9 @@ internal static class AiUsage
 
     public static bool Busy => busy == 1;
 
+    /// QA pictures and the recording mode: the numbers are made up (SetForQa).
+    public static bool IsMadeUp => madeUp is not null;
+
     public static DateTime? Fetched { get; private set; }
 
     /// Claude Code or Codex is installed, or an API key has a balance card (ApiBalances): the block shows only then. The
@@ -71,13 +74,13 @@ internal static class AiUsage
         timer.Start();
     }
 
-    /// Someone needs the numbers: the home block, or the limit notices (App\Notices).
+    /// Someone needs the numbers: the home block, the limit notices (App\Notices) or the usage file (UsageExport).
     private static bool Wanted
     {
         get
         {
             var s = Settings.Current;
-            return Home.IsOn("usage") || (s.Notices && (s.NoticeLimit || s.NoticeRecover));
+            return Home.IsOn("usage") || (s.Notices && (s.NoticeLimit || s.NoticeRecover)) || UsageExport.On;
         }
     }
 

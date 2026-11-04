@@ -257,6 +257,7 @@ internal static class Program
         app.SessionEnding += (_, _) =>
         {
             host.SaveAll();
+            Ai.UsageExport.Closed();
             Ui.DocWindow.RescueAll(); // no one to ask: what a document couldn't write goes to a copy beside it
         };
         app.Startup += (_, _) =>

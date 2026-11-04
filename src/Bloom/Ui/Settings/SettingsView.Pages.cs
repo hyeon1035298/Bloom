@@ -180,13 +180,17 @@ internal sealed partial class SettingsView
             {
                 s.UsageMinutes = v == "5" ? 5 : 10;
                 AiUsage.Schedule();
+                UsageExport.Changed();
             }, filter);
         Choice(Tr("보여 줄 값", "Show"), Tr("쓴 만큼(32%) 또는 남은 만큼(68% 남음) · 막대도 같이 바뀝니다", "What's used (32%) or what's left (68% left) · the bars follow"), G.Model,
             new[] { ("used", Tr("쓴 만큼", "Used")), ("left", Tr("남은 만큼", "Left")) }, s.UsageLeft ? "left" : "used", v =>
             {
                 s.UsageLeft = v == "left";
+                UsageExport.Changed();
                 host.Window.Refresh(true);
             }, filter);
+        var exportSw = Toggle(s.ExportUsage, UsageExport.Set, out var exportT);
+        Add(Tr("사용량 파일 내보내기", "Write the usage to a file"), Tr("다른 프로그램이 읽을 수 있게 퍼센트와 리셋 시각만 %LOCALAPPDATA%\\Bloom\\export\\ai-usage.json에 씁니다 (이메일 없음) · 홈 블록이 꺼져 있어도 조회가 돌아 Claude 약 470 MB 4초가 간격마다 듭니다", "Writes the percentages and reset times, no e-mail, to %LOCALAPPDATA%\\Bloom\\export\\ai-usage.json for other programs to read · the lookups run even with the home block off: Claude ~470 MB for 4 s every interval"), exportSw, G.Document, exportT, null, filter);
         Header(Tr("AI 토큰", "AI tokens"));
         Add(Tr("가격표 고치기", "Edit prices"), Tr($"내장 가격({TokenPrices.Checked} 기준) 위에 덮어씀 · prices.json", $"Overrides the built-in token prices (as of {TokenPrices.Checked}) · prices.json"), null, G.Pen, () =>
         {

@@ -2039,6 +2039,8 @@ Hidden, only while asked: Claude ~470 MB for 4 s · Codex ~110 MB for 1 s	仅在
 10 min	10 分钟
 What's used (32%) or what's left (68% left) · the bars follow	已用量 (32%) 或剩余量 (剩 68%) · 进度条也随之变化
 Left	剩余
+Write the usage to a file	将用量写入文件
+Writes the percentages and reset times, no e-mail, to %LOCALAPPDATA%\\Bloom\\export\\ai-usage.json for other programs to read · the lookups run even with the home block off: Claude ~470 MB for 4 s every interval	仅将已用百分比和重置时间（不含邮箱）写入 %LOCALAPPDATA%\\Bloom\\export\\ai-usage.json，供其他程序读取 · 即使主页区块关闭，查询也会运行，每个间隔 Claude 约占用 470 MB、耗时 4 秒
 Edit prices	编辑价格表
 Overrides the built-in token prices (as of {0}) · prices.json	覆盖内置的 Token 价格（截至 {0}）· prices.json
 Clear the token counts	清除 Token 统计

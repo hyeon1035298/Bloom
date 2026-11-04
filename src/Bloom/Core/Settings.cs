@@ -66,6 +66,7 @@ internal sealed class Settings
     public Dictionary<string, bool>? HomeCommands { get; set; } // the 명령 block's picks over its defaults: command id → listed (Core\HomeCommands.cs); null = untouched
     public int UsageMinutes { get; set; } = 10; // the home's AI usage: asked of Claude Code / Codex every 5 or 10 minutes (App\AiUsage.cs)
     public bool UsageLeft { get; set; } // the usage cards count what's left ("68% 남음", the bar shrinking) instead of what's used
+    public bool ExportUsage { get; set; } // the usage also goes to a file other programs may read (Ai\UsageExport.cs); the lookups then run even with the home block off
     public List<AiAccount> AiAccounts { get; set; } = new(); // whose usage the home shows (Core\AiAccounts.cs); the two defaults are added on read
     public string ClaudeChatAccount { get; set; } = "claude"; // the AiAccount id AI chat, Bloom Lens and translation use for Claude
     public string GptChatAccount { get; set; } = "chatgpt"; // … and for ChatGPT (Codex)

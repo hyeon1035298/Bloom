@@ -27,6 +27,7 @@ internal sealed partial class Engine
         {
             a.Alias = form[0].Length == 0 ? null : form[0];
             Settings.Save();
+            UsageExport.Changed();
             host.Window.Go(Mode.Root);
         };
         host.Window.StartForm(f);
