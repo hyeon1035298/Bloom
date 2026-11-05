@@ -1521,6 +1521,14 @@ MMMM yyyy	yyyy年M月
 Last month (PgUp)	前の月 (PgUp)
 To today (Home)	今日へ (Home)
 Next month (PgDn)	次の月 (PgDn)
+Notice position	通知の位置
+Bloom · Notice position	Bloom · 通知の位置
+Notices show here	ここに通知が表示されます
+Drag it to move	ドラッグして移動
+Drag the notice card where you want it.	通知カードを好きな場所へドラッグしてください。
+It sticks to the middle and the edges nearby.	中央や端に近づくと吸着します。
+Hold Ctrl while dragging to place it freely.	Ctrl を押しながらドラッグすると吸着しません。
+Island	アイランド
 Click to go to the session window	クリックするとセッションのウィンドウへ移動します
 Search in your browser · site shortcuts (e.g. yt cats)	ブラウザーで検索 · サイトのショートカット (例: yt cats)
 Find files on this PC by name (Everything)	この PC のファイルを名前で探す (Everything)
@@ -2229,14 +2237,17 @@ Shows Claude Code and Codex tasks and AI usage limits in a screen corner. Hidden
 Work notifications	作業の通知
 On · about +1 MB of memory · pick what to tell below	オン · メモリ約 +1 MB · 知らせる内容は下で選びます
 Off — no cards, no sounds · on: about +1 MB	オフ — カードも音もなし · オンでメモリ約 +1 MB
-Position	位置
-A preview card shows there when you pick	選ぶとそこにプレビューのカードが表示されます
 Top left	左上
 Top center	中央上
 Top right	右上
 Bottom left	左下
 Bottom center	中央下
 Bottom right	右下
+Custom position	カスタム位置
+Position	位置
+A preview card shows there when you pick	選ぶとそこにプレビューのカードが表示されます
+Move it yourself	手動で移動
+Drag a notice card on the screen · it sticks to the middle and the edges	画面上で通知カードをドラッグして移動 · 中央と端に吸着します
 Small	小
 Large	大
 X-large	特大

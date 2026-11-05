@@ -103,7 +103,9 @@ internal sealed class Settings
     public double LiveSeconds { get; set; } = 1.5; // realtime translation: how often the area is read
     // 알림: Claude Code / Codex turns and plan limits as cards in a screen corner (App\Notices.cs)
     public bool Notices { get; set; } = true;
-    public string NoticeSpot { get; set; } = "bottom-right"; // top-left | top-center | top-right | bottom-left | bottom-center | bottom-right
+    public string NoticeSpot { get; set; } = "bottom-right"; // top-left | top-center | top-right | bottom-left | bottom-center | bottom-right | free
+    public double NoticeX { get; set; } = 0.5; // free: along the room the work area leaves the cards, 0 left … 1 right (Ui\NoticePlacement)
+    public double NoticeY { get; set; } = 0.5; // free: 0 top … 1 bottom
     public string NoticeSize { get; set; } = "m"; // s | m | l | xl
     public int NoticeSeconds { get; set; } = 6; // how long a card stays (승인 대기 stays while it waits)
     public string NoticeSound { get; set; } = "m"; // off | s | m | l (volume)
