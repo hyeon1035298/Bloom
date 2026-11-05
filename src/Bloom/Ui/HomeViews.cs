@@ -275,8 +275,7 @@ internal static class HomeViews
             var stack = new StackPanel { Margin = new Thickness(7, 5, 6, 6) };
             var top = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(0, 0, 0, 3) };
             top.Children.Add(Theme.T(Weekdays[(int)day.DayOfWeek], 11, day.DayOfWeek == DayOfWeek.Sunday ? Theme.P.AccentText : Theme.P.TextFaint, Theme.Medium, false));
-            var num = Theme.T(day.Day.ToString(), 12, i == 0 ? Theme.P.AccentInk : Theme.P.Text, Theme.Semi, false);
-            num.VerticalAlignment = VerticalAlignment.Center;
+            var num = i == 0 ? Theme.Label(day.Day.ToString(), 12, Theme.P.AccentInk, Theme.Semi) : Theme.T(day.Day.ToString(), 12, Theme.P.Text, Theme.Semi, false);
             if (i == 0)
             {
                 num.HorizontalAlignment = HorizontalAlignment.Center;

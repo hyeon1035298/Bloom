@@ -89,10 +89,14 @@ internal sealed partial class SettingsView : ScrollViewer
         var tile = Icons.Tile(glyph, false, 28);
         tile.Margin = new Thickness(0, 0, 14, 0);
         r.Add(tile, GridLength.Auto);
-        var text = new StackPanel { VerticalAlignment = VerticalAlignment.Center };
-        text.Children.Add(Theme.T(title, 14, Theme.P.Text, Theme.Medium));
-        if (sub is not null)
+        if (sub is null)
         {
+            r.Add(Theme.Label(title, 14, Theme.P.Text, Theme.Medium, true), new GridLength(1, GridUnitType.Star));
+        }
+        else
+        {
+            var text = new StackPanel { VerticalAlignment = VerticalAlignment.Center };
+            text.Children.Add(Theme.T(title, 14, Theme.P.Text, Theme.Medium));
             // up to two lines next to a wide control (a long line was cut at one), Korean words kept whole
             var s = Theme.T(Hangul.KeepAll(sub), 12, Theme.P.TextFaint);
             s.TextWrapping = TextWrapping.Wrap;
@@ -100,8 +104,8 @@ internal sealed partial class SettingsView : ScrollViewer
             s.Margin = new Thickness(0, 3, 0, 0);
             s.ToolTip = sub.Length > 40 ? sub : null;
             text.Children.Add(s);
+            r.Add(text, new GridLength(1, GridUnitType.Star));
         }
-        r.Add(text, new GridLength(1, GridUnitType.Star));
         if (control is not null)
         {
             control.Margin = new Thickness(16, 0, 0, 0);
@@ -411,12 +415,12 @@ internal sealed partial class SettingsView : ScrollViewer
             icon.HorizontalAlignment = HorizontalAlignment.Left;
             icon.VerticalAlignment = VerticalAlignment.Center;
             g.Children.Add(icon);
-            var t = Theme.T(title, 13.5, on ? Theme.P.AccentText : Theme.P.Text, on ? Theme.Semi : Theme.Medium);
+            var t = Theme.Label(title, 13.5, on ? Theme.P.AccentText : Theme.P.Text, on ? Theme.Semi : Theme.Medium, true);
             Grid.SetColumn(t, 1);
             g.Children.Add(t);
             if (filter.Length > 0 && count > 0)
             {
-                var c = Theme.T(count.ToString(), 12, Theme.P.TextFaint, Theme.Medium, false);
+                var c = Theme.Label(count.ToString(), 12, Theme.P.TextFaint, Theme.Medium);
                 Grid.SetColumn(c, 2);
                 g.Children.Add(c);
             }

@@ -119,18 +119,21 @@ internal static class Theme
     }
 
     // ── text helpers ────────────────────────────────────────────────────────────────────────────
-    public static TextBlock T(string text, double size, Brush color, FontWeight? weight = null, bool ellipsis = true)
+    public static TextBlock T(string text, double size, Brush color, FontWeight? weight = null, bool ellipsis = true) =>
+        Set(new TextBlock { VerticalAlignment = VerticalAlignment.Center }, text, size, color, weight, ellipsis);
+
+    /// A one-line control label with its ink in the middle of its container (InkText): the container's padding is even.
+    public static TextBlock Label(string text, double size, Brush color, FontWeight? weight = null, bool ellipsis = false) =>
+        Set(new InkText(), text, size, color, weight, ellipsis);
+
+    private static TextBlock Set(TextBlock t, string text, double size, Brush color, FontWeight? weight, bool ellipsis)
     {
-        var t = new TextBlock
-        {
-            Text = text,
-            FontFamily = Sans,
-            FontSize = size,
-            FontWeight = weight ?? Regular,
-            Foreground = color,
-            VerticalAlignment = VerticalAlignment.Center,
-            TextTrimming = ellipsis ? TextTrimming.CharacterEllipsis : TextTrimming.None,
-        };
+        t.Text = text;
+        t.FontFamily = Sans;
+        t.FontSize = size;
+        t.FontWeight = weight ?? Regular;
+        t.Foreground = color;
+        t.TextTrimming = ellipsis ? TextTrimming.CharacterEllipsis : TextTrimming.None;
         return t;
     }
 
