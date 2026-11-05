@@ -252,13 +252,12 @@ internal static class HomeViews
             g.Children.Add(tools);
             body = g;
         }
+        // a plain fill on the home, no outline (the home's cards and tiles are fills only)
         return new SmoothBorder
         {
             Background = Theme.P.Card,
-            BorderBrush = Theme.P.CardLine,
-            BorderThickness = new Thickness(1),
-            CornerRadius = new CornerRadius(10),
-            Padding = new Thickness(12, 9, 12, 10),
+            CornerRadius = new CornerRadius(12),
+            Padding = new Thickness(14, 12, 14, 12),
             Child = body,
             ToolTip = a.Balance?.Tip ?? string.Join("\n", a.Limits.Take(3).Select(l => Tip(l, left))),
         };
@@ -331,17 +330,10 @@ internal static class HomeViews
             var stack = new StackPanel { Margin = new Thickness(7, 5, 6, 6) };
             var top = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(0, 0, 0, 3) };
             top.Children.Add(Theme.T(Weekdays[(int)day.DayOfWeek], 11, day.DayOfWeek == DayOfWeek.Sunday ? Theme.P.AccentText : Theme.P.TextFaint, Theme.Medium, false));
-            var num = i == 0 ? Theme.Label(day.Day.ToString(), 12, Theme.P.AccentInk, Theme.Semi) : Theme.T(day.Day.ToString(), 12, Theme.P.Text, Theme.Semi, false);
-            if (i == 0)
-            {
-                num.HorizontalAlignment = HorizontalAlignment.Center;
-                top.Children.Add(new SmoothBorder { Width = 18, Height = 18, CornerRadius = new CornerRadius(9), Background = Theme.P.Accent, Child = num, Margin = new Thickness(5, -1, 0, 0) });
-            }
-            else
-            {
-                num.Margin = new Thickness(5, 0, 0, 0);
-                top.Children.Add(num);
-            }
+            // today shows by its cell's fill (below), its date as the others
+            var num = Theme.T(day.Day.ToString(), 12, Theme.P.Text, Theme.Semi, false);
+            num.Margin = new Thickness(5, 0, 0, 0);
+            top.Children.Add(num);
             stack.Children.Add(top);
             var list = marks.TryGetValue(day, out var m) ? m : null;
             int shown = Math.Min(2, list?.Count ?? 0);

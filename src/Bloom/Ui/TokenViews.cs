@@ -403,11 +403,9 @@ internal static class TokenViews
         stack.Children.Add(new Viewbox { Child = number, Stretch = Stretch.Uniform, StretchDirection = StretchDirection.DownOnly, HorizontalAlignment = HorizontalAlignment.Left });
         return new SmoothBorder
         {
-            Background = Theme.P.Card,
-            BorderBrush = Theme.P.CardLine,
-            BorderThickness = new Thickness(1),
+            Background = Theme.P.Card, // a fill only, as the home's other cards
             CornerRadius = new CornerRadius(8),
-            Padding = new Thickness(10, 6, 8, 7),
+            Padding = new Thickness(11, 7, 9, 8),
             Margin = new Thickness(3, 0, 3, 0),
             Child = stack,
             ToolTip = tip,
