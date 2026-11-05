@@ -2302,6 +2302,8 @@ Imports exported settings · backs up current settings in the data folder	設定
 Removes Bloom from this PC · asks once more about your chats and settings	この PC から Bloom を削除します · チャットと設定も消すかもう一度確認します
 Version	バージョン
 Windows launcher	Windows ランチャー
+License	ライセンス
+Bloom is MIT · the taskbar add-on PillTaskbar is a separate GPL-3.0 program	Bloom は MIT です · タスクバーアドオン PillTaskbar は GPL-3.0 の別プログラムです
 What's new in this version	このバージョンの新機能
 Also shown once at the first start after an update · Enter shows it	アップデート後の最初の起動時にも一度表示されます · Enter で表示
 Problem report	問題の報告
