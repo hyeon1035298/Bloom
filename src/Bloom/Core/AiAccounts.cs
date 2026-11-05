@@ -14,6 +14,8 @@ internal sealed class AiAccount
     public string? Email { get; set; } // last seen, for the card and the list (never sent anywhere)
     public string? Alias { get; set; } // the user's own words for it, shown instead of the e-mail (홈 편집 ✎); null = the e-mail
     public bool Hidden { get; set; } // a default account the user took off the home
+    public string? Icon { get; set; } // a logo file the user picked (설정 > AI 계정), Bloom's own copy in Local\usage-icons; null = none
+    public string? Bar { get; set; } // the limit the taskbar shows for it (a key of the usage file's limits); null = the week
 
     public bool IsDefault => Home is null;
 }

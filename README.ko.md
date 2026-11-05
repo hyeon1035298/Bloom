@@ -364,3 +364,4 @@ dotnet format whitespace tests\Bloom.Tests\Bloom.Tests.csproj --verify-no-change
 
 MIT — [LICENSE](LICENSE).
 환율은 [Rates By Exchange Rate API](https://www.exchangerate-api.com).
+작업표시줄 애드온 PillTaskbar는 GPL-3.0인 별도 프로그램입니다([소스](https://github.com/hyeon1035298/PillTaskbar_BloomAddon)). Bloom 자체는 MIT 그대로입니다.

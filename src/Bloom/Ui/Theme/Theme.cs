@@ -168,9 +168,10 @@ internal static class Theme
         HorizontalAlignment = HorizontalAlignment.Center,
     };
 
-    /// Bloom's mark at `size` px — "한 줄이 피어난다": the old mark's one white line opened into five
-    /// petals (round heads, pointed bases; capsules read as an asterisk), the rose caret become their
-    /// centre, on a dark rose-tinted tile. tools\make_icon.ps1 draws the same for Assets\icon.ico.
+    /// Bloom's mark at `size` px: a cherry blossom, five broad petals with notched tips around a rose
+    /// centre, on a dark rose-tinted tile. The petals nearly touch, so at 16 px the flower stays one
+    /// shape (the thin teardrop petals before it read as an asterisk). tools\make_icon.ps1 draws the
+    /// same for Assets\icon.ico.
     public static DrawingVisual MarkVisual(double size, bool tile = true)
     {
         var v = new DrawingVisual();
@@ -192,26 +193,40 @@ internal static class Theme
         }
         var white = new SolidColorBrush(Tint(Color.FromRgb(0xF1, 0xEC, 0xEE)));
         var rose = new SolidColorBrush(a is null ? Color.FromRgb(0xFF, 0x7A, 0x9E) : Accents.Swatch(a, true));
-        double cx = s / 2, cy = s * 0.515; // the flower's box (one petal up) centred on the tile
-        double hw = Math.Max(1.1, s * 0.085), len = s * 0.28, gap = s * 0.06;
-        double yb = cy - gap, yt = cy - gap - len;
-        var petal = new StreamGeometry();
-        using (var g = petal.Open())
-        {
-            g.BeginFigure(new Point(cx, yb), true, true);
-            g.BezierTo(new Point(cx - hw * 0.3, yb - len * 0.3), new Point(cx - hw, yt + hw * 1.6), new Point(cx - hw, yt + hw), true, true);
-            g.ArcTo(new Point(cx + hw, yt + hw), new Size(hw, hw), 0, false, SweepDirection.Clockwise, true, true);
-            g.BezierTo(new Point(cx + hw, yt + hw * 1.6), new Point(cx + hw * 0.3, yb - len * 0.3), new Point(cx, yb), true, true);
-        }
-        petal.Freeze();
+        double cx = s / 2, cy = s * MarkCentreY; // the flower's box (one petal up) centred on the tile
+        var petal = MarkPetal(s, cx, cy);
         for (int i = 0; i < 5; i++)
         {
             dc.PushTransform(new RotateTransform(i * 72, cx, cy));
             dc.DrawGeometry(white, null, petal);
             dc.Pop();
         }
-        double r = Math.Max(1.5, s * 0.062);
+        double r = Math.Max(1.5, s * MarkCentreR);
         dc.DrawEllipse(rose, null, new Point(cx, cy), r, r);
         return v;
+    }
+
+    // The mark's measures in units of its size; tools\make_icon.ps1 uses the same numbers.
+    private const double MarkCentreY = 0.5273, MarkCentreR = 0.0586;
+
+    /// One petal of the mark pointing up from (cx, cy): a narrow base at the centre, broad sides and a
+    /// V notch in the tip, drawn as the right half and its mirror.
+    private static StreamGeometry MarkPetal(double s, double cx, double cy)
+    {
+        Point P(double x, double y) => new(cx + x * s, cy + y * s);
+        const double baseY = -0.0195, side = 0.1328, tip = -0.3828, notchX = 0.0586, notchTopY = -0.379, notchY = -0.3313;
+        var petal = new StreamGeometry();
+        using (var g = petal.Open())
+        {
+            g.BeginFigure(P(0, baseY), true, true);
+            g.BezierTo(P(0.0586, -0.043), P(side, -0.1608), P(side, -0.2527), true, true);
+            g.BezierTo(P(side, -0.3292), P(0.093, tip), P(notchX, notchTopY), true, true);
+            g.LineTo(P(0, notchY), true, false);
+            g.LineTo(P(-notchX, notchTopY), true, false);
+            g.BezierTo(P(-0.093, tip), P(-side, -0.3292), P(-side, -0.2527), true, true);
+            g.BezierTo(P(-side, -0.1608), P(-0.0586, -0.043), P(0, baseY), true, true);
+        }
+        petal.Freeze();
+        return petal;
     }
 }

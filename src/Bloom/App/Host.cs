@@ -53,6 +53,9 @@ internal sealed partial class Host
         Demo.On = Opt.Demo || Opt.ResponsiveRounds is not null; // before anything reads the PC
         if (Opt.Lang is { } lang) Lang.Init(lang); // before the settings, which would fix it otherwise
         Settings.Load();
+        // started at sign-in: the taskbar add-on goes first, before the indexing, the home and the usage lookups, so the
+        // stock taskbar shows as briefly as it can
+        if (Opt.Autostart) Addons.AddonHub.Begin(autostart: true);
         Usage.Load();
         QueryMemory.Load();
         Favorites.Load();
@@ -160,7 +163,7 @@ internal sealed partial class Host
         Chats.Updated += t => Window.ChatChanged(t);
         Chats.SessionsChanged += () => Window.SessionsChanged();
         // a tool call waiting while no Bloom window is in front: a card says so
-        Notices.OpenUpdates = () => OpenSettings("about", Tr("업데이트", "Update"));
+        Notices.OpenUpdates = () => OpenSettings("about"); // its first line is the version and the update
         Notices.UpdateNow = UpdateNow;
         Chats.AskWaiting += (thread, ask) =>
         {
@@ -219,6 +222,8 @@ internal sealed partial class Host
                 tray.Quit += () => QuitForGood();
             }
             if (Settings.Current.Autostart && !Paths.IsDev && !Autostart.IsCurrent()) Autostart.Set(true);
+            if (!Opt.Autostart) Addons.AddonHub.Begin(autostart: false);
+            LogonTask.SyncLater();
             FileAssoc.Repair(); // Explorer's 연결 프로그램 for .md: this exe (an install moved, settings brought in)
             if (!Opt.Demo) Updates.Start(ui);
             // UI-thread stalls go to the log; watched once start-up has settled
@@ -654,6 +659,8 @@ internal sealed partial class Host
         SaveAll();
         UsageExport.Closed();
         Chats.Shutdown();
+        // the add-on hosts run from their run copy under Paths.Local, not from the install folder Velopack swaps: they
+        // are let go like at any quit (Quit), and the restarted Bloom takes them over
         Updates.ApplyAndRestart();
     }
 
@@ -672,6 +679,7 @@ internal sealed partial class Host
         Chats.Shutdown(save);
         winKey?.Dispose();
         winKeyAdmin?.Dispose();
+        Addons.AddonHub.Quit(); // let go, not stopped: the host unloads by itself unless the next Bloom takes it over
         Clipboard.Dispose();
         Shortcuts?.Dispose();
         tray?.Dispose();

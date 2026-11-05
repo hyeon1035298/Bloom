@@ -58,6 +58,8 @@ internal sealed class Settings
     public List<string> McpOn { get; set; } = new(); // other MCP servers the chats may use: "source|name" (Ai\McpCatalog.cs)
     public List<string> McpFiles { get; set; } = new(); // .mcp.json files brought in on 설정 > PC 작업 · MCP
     public List<string> FeaturesOff { get; set; } = new(); // Core\Features.cs keys switched off in 설정 > 기능
+    public List<string> AddonsOn { get; set; } = new(); // add-ons whose host Bloom starts (Addons\Addons.cs); empty after an install = all off
+    public List<string> AddonsConfirmed { get; set; } = new(); // add-ons whose first-switch-on notice (a separate program, its license) was accepted
     public string? ClaudePath { get; set; }
     public string? CodexPath { get; set; }
     public string? OmpPath { get; set; } // omp.exe; null = the PATH
@@ -66,6 +68,8 @@ internal sealed class Settings
     public Dictionary<string, bool>? HomeCommands { get; set; } // the 명령 block's picks over its defaults: command id → listed (Core\HomeCommands.cs); null = untouched
     public int UsageMinutes { get; set; } = 10; // the home's AI usage: asked of Claude Code / Codex every 5 or 10 minutes (App\AiUsage.cs)
     public bool UsageLeft { get; set; } // the usage cards count what's left ("68% 남음", the bar shrinking) instead of what's used
+    public string UsageTag { get; set; } = "none"; // 이름표 beside the taskbar's usage: none | name | plan (the usage file's "tag")
+    public string UsageLogo { get; set; } = "brand"; // 아이콘 색 of the picked logos, home cards and taskbar alike: brand | mono
     public bool ExportUsage { get; set; } // the usage also goes to a file other programs may read (Ai\UsageExport.cs); the lookups then run even with the home block off
     public List<AiAccount> AiAccounts { get; set; } = new(); // whose usage the home shows (Core\AiAccounts.cs); the two defaults are added on read
     public string ClaudeChatAccount { get; set; } = "claude"; // the AiAccount id AI chat, Bloom Lens and translation use for Claude
@@ -191,4 +195,35 @@ internal sealed class Settings
     }
 
     public static void Flush() => saver?.Flush();
+
+    /// 설정 > 데이터 > 설정 기본값으로: default settings that keep what is the user's data rather than a choice (the added
+    /// accounts and the ones the chats use, item shortcuts, omp's model list, whether the Win-key helper is installed)
+    /// and where the first run and the release notes stand.
+    internal Settings Kept() => new()
+    {
+        AiAccounts = AiAccounts,
+        ClaudeChatAccount = ClaudeChatAccount,
+        GptChatAccount = GptChatAccount,
+        ItemKeys = ItemKeys,
+        OmpModels = OmpModels,
+        WinKeyAdmin = WinKeyAdmin,
+        Onboarded = Onboarded,
+        SeenVersion = SeenVersion,
+    };
+
+    /// Kept written over settings.json for the restart that follows, and this run's saving stopped so nothing in memory
+    /// goes back over it.
+    public static void WriteDefaults()
+    {
+        saver?.Dispose();
+        saver = null;
+        Json.Save(Paths.In("settings.json"), Current.Kept());
+    }
+
+    /// The restart after WriteDefaults did not start: what is in memory goes back to the file and saving goes on.
+    public static void KeepCurrent()
+    {
+        Json.Save(Paths.In("settings.json"), Current);
+        saver ??= Saver.ForJson(Paths.In("settings.json"), () => Current);
+    }
 }

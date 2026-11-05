@@ -20,8 +20,9 @@ internal static class SettingsTransfer
     // AI accounts: sign-in folders on this PC. permissions (and the old apiFileTools switch they replaced) and the MCP
     // servers and files switched on (mcpOn, mcpFiles) decide what the AI may do on THIS PC and which programs of it run: a
     // file from elsewhere keeps none of them (a settings file must not be able to turn an approval off or a server on), and
-    // an export leaves them out
-    private static readonly string[] Local = { "claudePath", "codexPath", "ompPath", "onboarded", "aiAccounts", "claudeChatAccount", "gptChatAccount", "permissions", "apiFileTools", "mcpOn", "mcpFiles" };
+    // an export leaves them out. The add-ons switched on (addonsOn) and their accepted notices (addonsConfirmed) likewise:
+    // an add-on runs a separate program that loads code into explorer, and only a switch flipped on this PC starts it
+    internal static readonly string[] Local = { "claudePath", "codexPath", "ompPath", "onboarded", "aiAccounts", "claudeChatAccount", "gptChatAccount", "permissions", "apiFileTools", "mcpOn", "mcpFiles", "addonsOn", "addonsConfirmed" };
 
     private const string Manifest = "bloom-settings.json";
 

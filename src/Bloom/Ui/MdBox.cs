@@ -369,7 +369,7 @@ internal sealed class MdBox
     {
         double half = MdMetrics.BoxStroke / 2, radius = env.M.BoxRadius;
         var square = new Rect(env.Snap(box.X) + half, env.Snap(box.Y) + half, box.Width - MdMetrics.BoxStroke, box.Height - MdMetrics.BoxStroke);
-        dc.DrawRoundedRectangle(fill, new Pen(ring, MdMetrics.BoxStroke), square, radius, radius);
+        dc.DrawGeometry(fill, new Pen(ring, MdMetrics.BoxStroke), SmoothBorder.Shape(square, new CornerRadius(radius)));
     }
 
     /// Fenced code: its tint (round 8), the language top left, 복사 top right, the code below.
@@ -381,7 +381,7 @@ internal sealed class MdBox
         p.Y = MdMetrics.CodeTop + (label is null ? 0 : MdMetrics.LabelGap);
         p.Arrange(env, Math.Max(1, width - MdMetrics.CodeLeft - MdMetrics.CodeRight));
         Height = p.Y + p.Height + MdMetrics.CodeBottom;
-        back.Add(new MdDeco(new Rect(0, 0, width, Height), (dc, r) => dc.DrawRoundedRectangle(Theme.P.Code, null, r, MdMetrics.CodeRadius, MdMetrics.CodeRadius)));
+        back.Add(new MdDeco(new Rect(0, 0, width, Height), (dc, r) => dc.DrawGeometry(Theme.P.Code, null, SmoothBorder.Shape(r, new CornerRadius(MdMetrics.CodeRadius)))));
         if (label is { } l)
         {
             var (_, lh) = env.LineOf(l.LookAt(0), 0);
@@ -395,7 +395,7 @@ internal sealed class MdBox
         front.Add(new MdDeco(button, (dc, r) =>
         {
             var at = new Rect(env.Snap(r.X), env.Snap(r.Y), r.Width, r.Height);
-            dc.DrawRoundedRectangle(Theme.P.Key, null, at, MdMetrics.CopyRadius, MdMetrics.CopyRadius);
+            dc.DrawGeometry(Theme.P.Key, null, SmoothBorder.Shape(at, new CornerRadius(MdMetrics.CopyRadius)));
             shown.DrawLine(dc, env, 0, shown.Text.Length, at.X + MdMetrics.CopyPadX, at.Y + MdMetrics.CopyPadTop, 0, bh);
         }));
         Spots.Add(new MdSpot(button, this, button));

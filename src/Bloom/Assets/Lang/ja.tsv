@@ -73,6 +73,7 @@ Making a file…	ファイルを作成中…
 Using {0}…	{0} を使用中…
 5h	5時間
 Weekly	週間
+{0} weekly	{0} 週間
 Working with files…	ファイルを操作中…
 Working on the PC…	PC で作業中…
 Using a tool…	ツールを使用中…
@@ -129,6 +130,7 @@ Chinese	中国語
 {0}h	{0}時間
 {0} min	{0}分
 Limit	上限
+5 hours	5時間
 Another sign-in is running	別のアカウントのサインイン中
 Sign the default account in from Claude Code or Codex itself	既定のアカウントは Claude Code または Codex で直接サインインしてください
 This account's sign-in terminal is still open. Close it first.	このアカウントのサインイン用ターミナルがまだ開いています。先に閉じてください。
@@ -182,6 +184,9 @@ Restart	再起動
 Shut down	シャットダウン
 Restart failed. Save your work and restart from the Windows Start menu.	再起動に失敗しました。作業を保存し、Windows のスタートメニューから再起動してください。
 Shutdown failed. Save your work and shut down from the Windows Start menu.	シャットダウンに失敗しました。作業を保存し、Windows のスタートメニューから終了してください。
+Default settings	既定の設定に戻す
+Could not restart Bloom, so the settings stay as they were. Reopen Bloom and try again.	Bloom を再起動できなかったため、設定は元のままです。Bloom を開き直してもう一度お試しください。
+Signing out of {0} added AI accounts	追加した AI アカウント {0} 件からサインアウトしています
 Meeting notes: next Tuesday at 2 PM, room 3	会議メモ: 来週火曜の午後2時、3階の会議室
 Notepad	メモ帳
 See you at 7 tonight. Text me if you're running late.	今夜7時に会いましょう。遅れそうなら連絡してね。
@@ -239,31 +244,30 @@ Later	後で
 Could not access settings. Check permissions for the file and data folder, then retry.	設定にアクセスできませんでした。ファイルとデータフォルダーのアクセス権を確認し、再試行してください。
 Could not read settings. Choose a file exported from Bloom.	設定を読み取れませんでした。Bloom からエクスポートしたファイルを選んでください。
 Settings import failed	設定のインポート失敗
-Permanently deletes settings, favorites, app names, browser shortcuts, timers and reminders, clipboard history, AI chats and usage history, then starts from the first-run screens.	設定、お気に入り、アプリ名、ブラウザーのショートカット、タイマー・リマインダー、クリップボード履歴、AI チャット、使用履歴を完全に削除し、初回設定画面から始めます。
 Reset Bloom	Bloom をリセット
+Deletes everything Bloom saved and starts again from the first-run screens. This includes settings, favorites, AI chats, notes, clipboard history, the sign-ins of added AI accounts, API keys and add-on settings. Start with Windows turns on again. This can't be undone.	Bloom が保存したすべてのデータを削除し、初回設定画面からやり直します。設定、お気に入り、AI チャット、メモ、クリップボード履歴、追加した AI アカウントのサインイン、API キー、アドオンの設定が含まれます。「Windows と一緒に起動」は再びオンになります。元に戻せません。
+The Bloom program, the default sign-ins and history of Claude Code and Codex, and the other files on this PC stay.	Bloom 本体、Claude Code と Codex の既定のサインインと履歴、この PC のほかのファイルは残ります。
+The admin Win-key helper goes too. Windows asks for admin approval.	管理者用の Win キー ヘルパーも削除します。Windows が管理者の承認を求めます。
+Export settings, then reset	設定をエクスポートしてからリセット
 Reset	リセット
 Cancel	キャンセル
-Back up settings before reset	リセット前に設定をバックアップ
-Export settings and favorites to a file to restore them with ‘Import settings’ on the first-run screens.	設定とお気に入りをファイルに書き出すと、初回設定画面の「設定の読み込み」で復元できます。
-Export settings	設定をエクスポート
-Reset without backup	バックアップせずにリセット
+Without admin approval the helper stays installed. It does nothing while off. Remove ‘Bloom Win-key helper’ in Windows Settings › Apps.	管理者の承認がないため、ヘルパーはインストールされたままです。オフの間は動作しません。Windows の設定 › アプリで「Bloom Win-key helper」を削除できます。
 Reset failed	リセット失敗
+Could not restart Bloom. Apart from signing out of the added AI accounts, no data was deleted. Reopen Bloom and try again.	Bloom を再起動できませんでした。追加した AI アカウントのサインアウトのほかは、データは削除されていません。Bloom を開き直してもう一度お試しください。
 Could not restart Bloom. No data was deleted. Reopen Bloom and try again.	Bloom を再起動できませんでした。データは削除されていません。Bloom を開き直して再試行してください。
 Removes Bloom and its Start menu shortcut from this PC and stops it starting with Windows.	この PC から Bloom とスタートメニューのショートカットを削除し、Windows 起動時の自動起動を解除します。
 This copy was not installed with the setup. Bloom quits and stops starting with Windows. Delete the folder that opens afterwards.	インストーラーでインストールされていない Bloom です。Bloom が終了し、Windows 起動時の自動起動が解除されます。終了後に開くフォルダーを手動で削除してください。
 Uninstall Bloom	Bloom をアンインストール
 Saved data	保存されたデータ
-Deleting data permanently removes AI chats, settings, favorites, notes and clipboard history. Kept data is used again after reinstalling.	データを削除すると、AI チャット、設定、お気に入り、メモ、クリップボード履歴が完全に削除されます。保持すると、再インストール後もそのまま使えます。
+Deleting data permanently removes AI chats, settings, favorites, notes and clipboard history, and signs out of the added AI accounts first. Kept data is used again after reinstalling.	データを削除すると、AI チャット、設定、お気に入り、メモ、クリップボード履歴が完全に削除され、先に追加した AI アカウントからサインアウトします。残したデータは再インストール後にそのまま使えます。
 Keep data	データを保持
 Delete data	データを削除
 Without admin approval the Win-key helper stays installed. After Bloom is removed, remove ‘Bloom Win-key helper’ in Windows Settings › Apps.	管理者の承認がないため、Win キー ヘルパーは削除されませんでした。Bloom の削除後、Windows の設定 › アプリで「Bloom Win-key helper」を削除してください。
 Uninstall failed	アンインストール失敗
-Update	更新
 No release notes for this version	このバージョンの変更履歴なし
 Update the Win-key helper	Win キー ヘルパーの更新
 This version of Bloom needs the Win-key helper installed again. Until then, Win does not open Bloom over admin apps.	このバージョンの Bloom に合わせて Win キー ヘルパーを再インストールする必要があります。それまでは管理者アプリの上で Win キーを押しても Bloom は開きません。
 Reinstall	再インストール
-Without admin approval the helper stays installed. It does nothing while off. Remove ‘Bloom Win-key helper’ in Windows Settings › Apps.	管理者の承認がないため、ヘルパーはインストールされたままです。オフの間は動作しません。Windows の設定 › アプリで「Bloom Win-key helper」を削除できます。
 Win-key helper still installed	Win キー ヘルパーが残っています
 Win-key helper install failed	Win キー ヘルパーのインストール失敗
 Could not install the helper. Try again.	ヘルパーをインストールできませんでした。もう一度お試しください。
@@ -959,6 +963,8 @@ Mini player	ミニプレーヤー
 Dawn Walk	夜明けの散歩
 ntpd	ntpd
 chrom	chrom
+Rename	名前を変更
+File Explorer	エクスプローラー
 AI tokens	AI トークン
 usage	使用量
 Friday meeting\nresend the quote · fix the date	金曜の会議\n見積書を再送 · 日程を確定
@@ -1160,21 +1166,21 @@ Reminder	リマインダー
 today	今日
 tomorrow	明日
 Not an audio file	オーディオファイルではありません
-Bloom cannot play {0} files itself — pick another player in Settings > Mini player	{0} ファイルは Bloom で直接再生できません — 設定 > ミニプレーヤーで別のプレーヤーを選んでください
+Bloom cannot play {0} files itself — pick another player in Settings > Tools > Mini player	{0} ファイルは Bloom で直接再生できません — 設定 > ツール > ミニプレーヤーで別のプレーヤーを選んでください
 The file is gone	ファイルが見つかりません
-Playlists open only with direct playing — Settings > Mini player	プレイリストは直接再生でのみ開けます — 設定 > ミニプレーヤー
+Playlists open only with direct playing — Settings > Tools > Mini player	プレイリストは直接再生でのみ開けます — 設定 > ツール > ミニプレーヤー
 A playlist with no song to play	再生できる曲がないプレイリスト
 The file cannot be opened	ファイルを開けません
 {0} songs	{0} 曲
 Skipped	スキップしました
 Not played	再生しませんでした
 {0} is not running — picking a song starts it	{0} は起動していません — 曲を選ぶと一緒に起動します
-Could not find {0} — set its program path in Settings > Mini player	{0} が見つかりません — 設定 > ミニプレーヤーでプログラムのパスを指定してください
+Could not find {0} — set its program path in Settings > Tools > Mini player	{0} が見つかりません — 設定 > ツール > ミニプレーヤーでプログラムのパスを指定してください
 Could not start {0} · {1}	{0} を起動できませんでした · {1}
 {0} does not tell which song is on	{0} は再生中の曲を知らせません
 {0} is not running	{0} は起動していません
-The JRiver address is not valid — Settings > Mini player	JRiver のアドレスが正しくありません — 設定 > ミニプレーヤー
-JRiver did not accept the user name or password — Settings > Mini player	JRiver がユーザー名またはパスワードを受け付けませんでした — 設定 > ミニプレーヤー
+The JRiver address is not valid — Settings > Tools > Mini player	JRiver のアドレスが正しくありません — 設定 > ツール > ミニプレーヤー
+JRiver did not accept the user name or password — Settings > Tools > Mini player	JRiver がユーザー名またはパスワードを受け付けませんでした — 設定 > ツール > ミニプレーヤー
 JRiver refused the request (HTTP {0})	JRiver がリクエストを拒否しました (HTTP {0})
 Cannot reach JRiver — is it running with its web service (Media Network) on?	JRiver に接続できません — JRiver が起動していて、Web サービス (Media Network) がオンになっていますか?
 JRiver did not accept this request	JRiver がこのリクエストを受け付けませんでした
@@ -1291,6 +1297,7 @@ Dark mode · sound · Bluetooth · Wi-Fi · sleep …	ダークモード · サ�
 Summarize, translate or polish the selected or copied text	選択またはコピーしたテキストを要約・翻訳・推敲
 Bloom tour	Bloom ツアー
 See the first-run setup and the guide again	最初の設定とガイドをもう一度見る
+Export settings	設定をエクスポート
 Settings, favorites, app names and browser shortcuts in one file	設定、お気に入り、アプリ名、ブラウザーのショートカットを 1 つのファイルに
 Import settings	設定をインポート
 From an exported settings file	エクスポートした設定ファイルから
@@ -1483,12 +1490,13 @@ Checking AI usage…	AI 使用量を確認中…
 Could not get usage. Check the Claude Code or Codex sign-in, then press ↻.	使用量を取得できません。Claude Code または Codex のサインインを確認し、↻ を押してください。
 Move earlier	前へ
 Move later	後ろへ
-Rename	名前を変更
 Rows shown ({0}–{1})	表示件数 ({0}–{1})
 Fewer rows	件数を減らす
 {0} ago	{0}前
 Last fetched	最終取得
+Signed out, so usage can't be fetched	サインインが切れたため、使用量を取得できません
  left	 残り
+Sign in again	再サインイン
  · resets {0:M/d HH:mm}	 · {0:M/d HH:mm} にリセット
 now	まもなく
 Su	日
@@ -1626,7 +1634,7 @@ Calls	呼び出し
 {0} calls	呼び出し {0}
 Cache hits	キャッシュヒット
 {0} of {1} prompt tokens read from the cache	送信した入力 {1} のうちキャッシュから読み込み {0}
-Add a price in Settings > Home > Edit prices	設定 > ホーム > 価格表を編集 で価格を追加できます
+Add a price in Settings > AI accounts > Edit prices	設定 > AI アカウント > 価格表を編集 で価格を追加できます
 {0} tokens · {1}	トークン {0} · {1}
 Now	今
 1 model	モデル 1 個
@@ -1734,6 +1742,14 @@ Model (Ctrl+M)	モデル (Ctrl+M)
 Thinking level (Ctrl+E)	思考レベル (Ctrl+E)
 End session	セッションを終了
 Frees chat memory and opens a new chat. History stays.	チャットのメモリを解放して新しいチャットを開きます。履歴は残ります。
+Saturation and brightness	彩度と明度
+Hue	色相
+Pick from screen	画面から取得
+Recent picks	最近取得した色
+A switch that is on gets lost on its background	オンのスイッチが背景に埋もれます
+Make it stand out	見やすく調整
+Contrast {0}	コントラスト {0}
+Hard to see	見えにくい
 Apply	適用
 min	分
 h	時間
@@ -1903,8 +1919,15 @@ Not deleted	削除できませんでした
 {0} API key	{0} API キー
 The key is stored encrypted on this PC only and used only for requests to {0}. Usage is billed to your {1} account.	キーはこの PC にのみ暗号化して保存し、{0} へのリクエストにだけ使います。利用料金は {1} アカウントに請求されます。
 Open the key page	キー発行ページを開く
+Custom colour	カスタムカラー
+{0} · for switches that are on, the chosen line and the text cursor	{0} · オンのスイッチ、選んだ線、文字カーソルに使います
+Type #RRGGBB (like #3A7BD5) · the light theme uses it, the dark one a lighter take	#RRGGBB で入力 (例: #3A7BD5) · ライトテーマはその色、ダークテーマは明るくした色を使います
+Custom	カスタム
+Back to the first colour	最初の色に戻す
+Pick the colour this theme shows; the other theme gets the same colour, lighter or darker	今のテーマで表示する色を選びます。もう一方のテーマには同じ色を明るく、または暗くして使います
 AI accounts	AI アカウント
-Each account signs in on its own. The home shows each one's usage, and AI chat uses the account you pick. Nothing switches accounts when a limit is reached.	アカウントごとに個別にサインインします。ホームでアカウント別の使用量を確認し、AI チャットに使うアカウントを選びます。上限に達してもアカウントは自動で切り替わりません。
+Claude and ChatGPT accounts, API keys and the usage on the home	Claude · ChatGPT のアカウント、API キー、ホームの使用量
+Nothing switches accounts when a limit is reached	上限に達してもアカウントは自動で切り替わりません
 Signing in · finish in the terminal that opened	サインイン中 · 開いたターミナルで完了してください
 Sign-in terminal still open · close it to change the account	サインイン用のターミナルが開いたままです · 閉じるとアカウントを変更できます
 Default account · Codex's own sign-in	既定のアカウント · Codex のサインイン
@@ -1915,12 +1938,21 @@ Used for AI chat	AI チャットで使用中
 Add a {0} account…	{0} アカウントを追加…
 Runs the official sign-in in a new terminal · sign in in the browser	新しいターミナルで公式サインインを実行 · ブラウザでサインイン
 Add a {0} account	{0} アカウントを追加
-Usage checks	使用量の確認
+Usage	使用量
+Hidden, only while asked: Claude ~470 MB for 4 s · Codex ~110 MB for 1 s	問い合わせのときだけ非表示で: Claude 約 470 MB を 4 秒 · Codex 約 110 MB を 1 秒
+Added accounts every {0} min · the home's ↻ checks all	追加したアカウントは {0} 分ごと · ホームの ↻ ですべて確認
+5 min	5 分
+10 min	10 分
+What's used (32%) or what's left (68% left) · the bars follow	使った量 (32%) か残りの量 (68% 残り) · バーもそれに合わせます
+Left	残り
+The picked icon files in their own colours or in one · the home cards and the taskbar share it	選んだアイコンファイルを元の色か単色で · ホームのカードとタスクバーで共通です
 ChatGPT checks	ChatGPT の確認方式
 Lightweight: one HTTPS request with the Codex sign-in · no CLI · not an official API, may change	軽量方式: Codex のサインインで HTTPS リクエスト 1 回 · CLI 実行なし · 公式 API ではないため変わる可能性あり
 Official CLI: runs Codex per account · ~110 MB for 1 s	公式 CLI: アカウントごとに Codex を実行 · 約 110 MB 1 秒
-How often	確認間隔
-Default accounts as set on the home page · added ones every {0} min · the home's ↻ checks all	既定のアカウントはホーム画面設定の間隔 · 追加したアカウントは {0} 分ごと · ホームの ↻ はすべてのアカウント
+Write the usage to a file	使用量をファイルに書き出す
+Writes the percentages and reset times, no e-mail, to %LOCALAPPDATA%\\Bloom\\export\\ai-usage.json for other programs to read · the lookups run even with the home block off: Claude ~470 MB for 4 s every interval	他のプログラムが読めるように、使用率とリセット時刻だけ (メールアドレスなし) を %LOCALAPPDATA%\\Bloom\\export\\ai-usage.json に書きます · ホームのブロックがオフでも照会が動き、間隔ごとに Claude で約 470 MB・4 秒かかります
+Edit prices	価格表を編集
+Overrides the built-in token prices (as of {0}) · prices.json	内蔵のトークン価格（{0} 時点）を上書き · prices.json
 Sign out	サインアウト
 The sign-in terminal is open. Finish signing in or close it.	サインイン用のターミナルが開いています。サインインを完了するか、ターミナルを閉じてください。
 Signs this account out and takes it off the list. Add it again to use it.	このアカウントからサインアウトし、一覧から外します。もう一度使うには、アカウントを追加し直してください。
@@ -1928,45 +1960,188 @@ AI chat goes back to the default account.	AI チャットは既定のアカウ�
 Use for AI chat	AI チャットで使用
 Show on the home	ホームに表示
 Hide on the home	ホームで非表示
-Sign in again	再サインイン
 Default account	既定のアカウント
 This account's renewed sign-in isn't saved yet. Try again in a moment.	このアカウントの更新されたサインイン情報をまだ保存できていません。しばらくしてからもう一度お試しください。
+Downloading PillTaskbar	PillTaskbar をダウンロード中
+Download	ダウンロード
+Couldn't download PillTaskbar	PillTaskbar をダウンロードできませんでした
+PillTaskbar {0} update	PillTaskbar {0} にアップデート
+Now {0} · from PillTaskbar's GitHub release	現在 {0} · PillTaskbar の GitHub リリースから取得します
+Update	更新
+Download PillTaskbar {0}	PillTaskbar {0} をダウンロード
+From PillTaskbar's GitHub release, checked by Bloom before it is installed	PillTaskbar の GitHub リリースから取得し、Bloom が確認してからインストールします
+PillTaskbar {0} downloaded	PillTaskbar {0} をダウンロードしました
+Turn taskbar customization off and on to switch to the new version	タスクバーのカスタマイズをオフにしてからオンにすると新しいバージョンに切り替わります
+Check your connection and try again	接続を確認してもう一度お試しください
+The downloaded file isn't the one Bloom expects, so it wasn't installed	ダウンロードしたファイルが Bloom の想定と異なるため、インストールしませんでした
+What the download holds isn't valid, so it wasn't installed	ダウンロードした内容が正しくないため、インストールしませんでした
+Couldn't save the download · check the free disk space	ダウンロードを保存できませんでした · ディスクの空き容量を確認してください
+Add-ons	アドオン
+Add-ons are separate programs Bloom starts, each turned on and off here. One you put in the user-addons folder in Bloom's local data folder shows after Bloom restarts.	アドオンは Bloom が起動する別のプログラムで、ここで一つずつオン・オフします。Bloom のローカルデータフォルダー内の user-addons に自分で入れたアドオンは、Bloom を再起動すると表示されます。
+All add-ons	アドオン一覧
+Turns the taskbar into a centred pill	タスクバーを中央のピル型に変えます
+Starts taskbar customization again	タスクバーのカスタマイズを再開します
+An add-on you added	自分で入れたアドオン
+Starts this add-on again	このアドオンを再開します
+Turn on again	再びオンにする
+Clears Explorer's crash record and turns it on again	エクスプローラーの停止記録を消去して再びオンにします
+Not turned on in a development copy	開発用コピーではオンになりません
+The add-on's files are not valid, or it needs a newer Bloom	アドオンのファイルが正しくないか、より新しい Bloom が必要です
+Bloom started with Shift held, so it is off this time	Shift を押したまま起動したため、今回はオンになっていません
+Turning on · downloading symbol files {0}%	オンにしています · シンボルファイルをダウンロード中 {0}%
+Turning on	オンにしています
+Paused · Explorer kept crashing, so this add-on was turned off	停止中 · エクスプローラーが続けてクラッシュしたため、このアドオンをオフにしました
+No symbols · this Windows version lacks the symbols it needs	シンボルなし · この Windows のバージョンには必要なシンボルがありません
+On in Windhawk · turn the same mod off in Windhawk. If you don't use Windhawk, set its service to manual start and close or uninstall Windhawk instead	Windhawk でオン · Windhawk で同じ Mod をオフにしてください。Windhawk を使わない場合は、サービスを手動開始にして Windhawk を終了するかアンインストールしてもかまいません
+Blocked by a security feature · Windows Security (Smart App Control) kept it from loading	セキュリティ機能がブロック · Windows セキュリティ (スマート アプリ コントロール) が読み込みを止めました
+Could not download the symbol files · check your connection and try again	シンボルファイルをダウンロードできませんでした · 接続を確認して再試行してください
+Explorer needs a restart · restart Explorer, then try again	エクスプローラーの再起動が必要 · エクスプローラーを再起動してからもう一度お試しください
+Stopped · this add-on stopped	停止 · このアドオンが停止しました
+Turn on {0}	{0} をオンにする
+An add-on you added is a separate program that Bloom neither made nor checked. Turning it on starts that program, and it may load code into Explorer. Only turn on add-ons you trust.	自分で入れたアドオンは、Bloom が作成も確認もしていない別のプログラムです。オンにするとそのプログラムが起動し、エクスプローラーにコードを読み込むことがあります。信頼できるアドオンだけをオンにしてください。
 API keys	API キー
-No key · click to add one	キーなし · クリックしてキーを追加
 Loading the model list…	モデル一覧を読み込み中…
 Key saved · {0} models · encrypted on this PC only	キー保存済み · モデル {0} 個 · この PC にのみ暗号化して保存
+Providers with no key: {0}	キーのないプロバイダー: {0}
+Add an API key…	API キーを追加…
+Pick a provider	プロバイダーを選ぶ
 Stored encrypted on this PC only · used only for requests to {0}	この PC にのみ暗号化して保存したキー · {0} へのリクエストにだけ使用
 Test · refresh models	接続テスト · モデルを再読み込み
 Change key	キーを変更
 Remove key	キーを削除
 Deletes the {0} API key and model list from this PC.	この PC から {0} の API キーとモデル一覧を削除します。
 Connected. {0} models loaded.	接続しました。モデルを {0} 個読み込みました。
- Install it and sign in with omp login.	 インストールして omp login でサインインしてください。
+Data	データ
+What Bloom keeps on this PC, to see and delete. The sizes are measured when this page opens.	Bloom がこの PC に保存しているデータを確認して削除します。サイズはこのページを開いたときに測ります。
+The recording's data folder	録画用のデータ フォルダー
+Bloom data	Bloom のデータ
+Add-on data	アドオンのデータ
+The add-ons' settings, state and run copies	アドオンの設定、状態、実行用コピー
+Chats and history	チャットと履歴
+AI chat history	AI チャットの履歴
+{0} chats and their attachments	チャット {0} 件と添付ファイル
+Chats and their attachments	チャットと添付ファイル
+Deletes {0} AI chats and their attachments. An open AI chat window closes. What Claude Code and Codex saved in their own folders stays. This can't be undone.	AI チャット {0} 件と添付ファイルを削除します。開いている AI チャット ウィンドウは閉じます。Claude Code と Codex が自分のフォルダーに保存した履歴は残ります。元に戻せません。
+Added accounts' CLI history	追加したアカウントの CLI 履歴
+Chats the accounts added in Bloom left in Claude Code and Codex	Bloom で追加したアカウントが Claude Code と Codex に残したチャット
+Deletes the {0} of history that chats with the accounts added in Bloom left in Claude Code and Codex. Those chats can't be continued any more. The default accounts' history stays. This can't be undone.	Bloom で追加したアカウントでのチャットが Claude Code と Codex に残した履歴 {0} を削除します。そのチャットは続けられなくなります。既定のアカウントの履歴は残ります。元に戻せません。
+{0} copies · pinned ones stay	コピーした内容 {0} 件 · 固定したものは残ります
+Copies · pinned ones stay	コピーした内容 · 固定したものは残ります
+Deletes {0} copies. Pinned ones stay. This can't be undone.	コピーした内容 {0} 件を削除します。固定したものは残ります。元に戻せません。
+Sends {0} notes to the Recycle Bin. They can be restored from there.	メモ {0} 件をごみ箱に移動します。ごみ箱から復元できます。
+{0} running	{0} 件実行中
+Running timers and reminders	実行中のタイマーとリマインダー
+Cancels {0} running timers and reminders. This can't be undone.	実行中のタイマーとリマインダー {0} 件を取り消します。元に戻せません。
+Recently used	最近使ったもの
+The recent list and how often each item was opened	最近使った一覧と各項目を開いた回数
+Deletes the recent list and how often each item was opened. The search results go back to their first order. This can't be undone.	最近使った一覧と各項目を開いた回数を削除します。検索結果の順序は最初の状態に戻ります。元に戻せません。
+Search learning	検索の学習
+{0} picked results	選んだ結果の記録 {0} 件
+Picked results	選んだ結果の記録
+Deletes {0} picked results. This can't be undone.	選んだ結果の記録 {0} 件を削除します。元に戻せません。
+Recent colours · palettes	最近の色 · パレット
+{0} recent colours and {1} palettes	最近の色 {0} 件とパレット {1} 件
+Recent colours and palettes	最近の色とパレット
+Deletes {0} recent colours and {1} palettes. This can't be undone.	最近の色 {0} 件とパレット {1} 件を削除します。元に戻せません。
+Bloom Lens captures	Bloom Lens のキャプチャ
+{0} captures	キャプチャ {0} 枚
+Captured pictures	キャプチャした画像
+Deletes {0} captures. Pinned pictures stay; the picture previews in AI chats go. This can't be undone.	キャプチャ {0} 枚を削除します。画面に固定した画像は残り、AI チャットの画像プレビューは消えます。元に戻せません。
+Things you made	自分で作ったもの
+{0} favorites, their folders and picture icons	お気に入り {0} 件とフォルダー、描いたアイコン
+Favorites, their folders and picture icons	お気に入りとフォルダー、描いたアイコン
+Deletes {0} favorites, their folders and picture icons. Item shortcuts stay. This can't be undone.	お気に入り {0} 件とフォルダー、描いたアイコンを削除します。項目のショートカットキーは残ります。元に戻せません。
+{0} shortcuts	ショートカット {0} 件
+Shortcuts you made	自分で作ったショートカット
+Deletes the shortcuts you made and brings back the built-in ones. This can't be undone.	自分で作ったショートカットを削除し、組み込みのショートカットに戻します。元に戻せません。
+{0} scripts, snippets and chains	スクリプト、スニペット、チェーン {0} 件
+Scripts, snippets and chains	スクリプト、スニペット、チェーン
+Deletes {0} scripts, snippets and chains and their shortcuts. This can't be undone.	スクリプト、スニペット、チェーン {0} 件とそのショートカットキーを削除します。元に戻せません。
+Changed app names	変更したアプリ名
+{0} app names	アプリ名 {0} 件
+App names changed in Bloom	Bloom で変更したアプリ名
+Puts {0} app names back to their own.	アプリ名 {0} 件を元の名前に戻します。
+Sends {0} playlists to the Recycle Bin.	プレイリスト {0} 件をごみ箱に移動します。
+Recovered documents	復元したドキュメント
+Document edits that could not be saved	保存できなかったドキュメントの編集内容
+To the Recycle Bin	ごみ箱へ
+Sign-ins	サインイン情報
+Added AI accounts	追加した AI アカウント
+Sign-ins of {0} accounts	アカウント {0} 件のサインイン
+Signs out of the {0} accounts added in Bloom and sends their sign-in folders to the Recycle Bin. The default Claude Code and Codex accounts stay.	Bloom で追加したアカウント {0} 件からサインアウトし、そのサインイン フォルダーをごみ箱に移動します。Claude Code と Codex の既定のアカウントはそのままです。
+{0} keys	キー {0} 件
+The API providers' keys	API プロバイダーのキー
+Deletes {0} saved API keys. API chats and API translation need a key again. This can't be undone.	保存した API キー {0} 件を削除します。API のチャットと API 翻訳を使うには、キーをもう一度入力する必要があります。元に戻せません。
+JRiver password	JRiver のパスワード
+The password the mini player sends to JRiver	ミニプレーヤーが JRiver に送るパスワード
+Deletes the saved JRiver password.	保存した JRiver のパスワードを削除します。
+Settings, favorites, app names, site shortcuts and recent colours in one file	設定、お気に入り、アプリ名、サイトショートカット、最近の色を 1 つのファイルに
+Export	エクスポート
+Brings in an exported settings file. The current settings are backed up in the data folder.	エクスポートした設定ファイルを読み込みます。今の設定はデータフォルダーにバックアップします。
+Import	インポート
+Favorites, chats, accounts and API keys stay	お気に入り、チャット、アカウント、API キーは残ります
+Puts every setting back to its default and restarts Bloom. Start with Windows turns on again. Favorites, chats, added accounts, API keys, item shortcuts and the omp model list stay.	すべての設定を既定値に戻し、Bloom を再起動します。「Windows と一緒に起動」も再びオンになります。お気に入り、チャット、追加したアカウント、API キー、項目のショートカットキー、omp のモデル一覧は残ります。
+Restore defaults	既定値に戻す
+Edited prices	編集した価格表
+Token prices you edited	自分で編集したトークン価格
+Deletes the token prices you edited and goes back to the built-in ones.	自分で編集したトークン価格を削除し、組み込みの価格に戻します。
+Settings backups	設定のバックアップ
+{0} old copies of the settings	以前の設定のコピー {0} 件
+Deletes {0} old copies of the settings made before an import.	インポート前に作った以前の設定のコピー {0} 件を削除します。
+Cache and logs	キャッシュとログ
+Cache	キャッシュ
+Model lists, exchange rates and ChatGPT's connection data	モデル一覧、為替レート、ChatGPT の接続データ
+Deletes files that can be made again: model lists, exchange rates and ChatGPT's connection data. The first answer of the next ChatGPT chat may take tens of seconds while the history is read again.	作り直せるファイルを削除します: モデル一覧、為替レート、ChatGPT の接続データ。次の ChatGPT チャットの最初の回答は、履歴を読み直すため数十秒かかることがあります。
+Clear	クリア
+Clear the cache	キャッシュを消去
+Token counts	トークンの集計
+The token numbers on the usage screen	使用量画面のトークン数
+Clears the token counts Bloom made and counts again from the logs that are left. Logs Claude Code already removed after 30 days do not come back.	Bloom が集計したトークン数を消去し、残っている記録から集計し直します。Claude Code がすでに削除した 30 日より前の記録は戻りません。
+Clear the token counts	トークン集計を消去
+Logs	ログ
+What problem reports are made from	問題レポートの作成に使う記録
+Clears what problem reports are made from.	問題レポートの作成に使う記録を消去します。
+Clear the logs	ログを消去
+Everything	すべて
+Deletes all data and starts again from the first-run screens	すべてのデータを削除し、初回設定画面からやり直します
+Reset…	リセット…
+Removes Bloom from this PC. You choose whether the data stays	この PC から Bloom を削除します。データを残すかどうかを選べます
+Measuring	サイズを計算中
+Delete {0}	{0} を削除
+Bloom · Data	Bloom · データ
+Part of {0} stayed	{0} の一部を削除できませんでした
+Files another program has open stayed. Close that program and try again.	ほかのプログラムが開いているファイルは残りました。そのプログラムを閉じてもう一度お試しください。
+{0} moved to the Recycle Bin	{0} をごみ箱に移動しました
+{0} deleted · {1} freed	{0} を削除 · {1} 解放
+{0} deleted	{0} を削除しました
+Delete recovered documents	復元したドキュメントを削除
+Document edits that could not be saved. This copy may be the only one. Open it and check before sending it away.	保存できなかったドキュメントの編集内容です。このコピーしか残っていない可能性があります。移動する前に開いて確認してください。
+Other	その他
+all	すべて
+Type a model…	モデルを入力…
+A model not in the list, as provider/model	一覧にないモデルを プロバイダー/モデル の形式で入力
+Type a model	モデルを入力
+A model not in the omp model list: provider/model · empty = omp's own default	omp のモデル一覧にないモデル: プロバイダー/モデル · 空欄なら omp の既定モデル
+Use provider/model	プロバイダー/モデルの形式で入力してください
+Model	モデル
+omp chat model	omp チャットのモデル
+For new chats · empty = omp's own default · Ctrl+M during a chat	新しいチャットの既定値 · 空欄なら omp の既定のモデル · チャット中は Ctrl+M
+Thinking level	思考レベル
+omp chat thinking level	omp チャットの思考レベル
+The levels depend on the model · Ctrl+E during a chat	レベルはモデルによって異なります · チャット中は Ctrl+E
+Web search in omp chats	omp チャットでの Web 検索
+omp's own file reading, writing and commands are blocked. Bloom's PC actions and the MCP servers switched on are set in PC actions · MCP.	omp 自身のファイルの読み書きとコマンド実行はブロックしています。Bloom の PC 操作とオンにした MCP サーバーは「PC の操作 · MCP」で設定します。
  · answers with the models you signed in to	 · サインイン済みのモデルで回答します
-Installation guide	インストールガイド
+omp installation guide	omp のインストールガイド
+ Install it and sign in with omp login.	 インストールして omp login でサインインしてください。
 omp path	omp のパス
 Empty = looked up on the PATH	空欄なら PATH から探します
 No such file	そのファイルはありません
-Chat model	チャットのモデル
-For new chats · empty = omp's own default · Ctrl+M during a chat	新しいチャットの既定値 · 空欄なら omp の既定のモデル · チャット中は Ctrl+M
-Type a chat model	チャットのモデルを直接入力
-A model not in My models: provider/model · empty = omp's own default	マイモデルにないモデル: プロバイダー/モデル · 空欄なら omp の既定のモデル
-Use provider/model	プロバイダー/モデルの形式で入力してください
-Chat thinking level	チャットの思考レベル
-The levels depend on the model · Ctrl+E during a chat	レベルはモデルによって異なります · チャット中は Ctrl+E
-Web search in chats	チャットでの Web 検索
-omp's own file access and commands are blocked · Bloom's PC actions and the MCP servers you switched on: Settings › PC actions · MCP	omp 自身のファイル操作とコマンド実行はブロックしています · Bloom の PC 操作とオンにした MCP サーバーは 設定 › PC の操作 · MCP
-Quick jobs	クイック ジョブ
-Quick-job model	クイック ジョブのモデル
-Translation and AI actions · lighter is faster · empty = omp's own default	翻訳 · AI クイック操作 · 軽いほど速い · 空欄なら omp の既定のモデル
-Type a quick-job model	クイック ジョブのモデルを直接入力
-A model not in My models: provider/model	マイモデルにないモデル: プロバイダー/モデル
-Quick-job thinking level	クイック ジョブの思考レベル
-Off is fastest and uses least · also a chip in the translation window	オフが最速で使用量も最小 · 翻訳ウィンドウのチップでも変更できます
-In omp chats	omp のチャットで
-Approval card in AI chat before actions · applies from the next message	操作前に AI チャットで承認カードを表示 · 次のメッセージから適用
+omp model list · {0}	omp のモデル一覧 · {0} 件
+Enter closes it	Enter で閉じる
+The omp models in the model menus · Enter edits them	モデルメニューに表示する omp モデル · Enter で編集
 Answers with the model omp is set to use	omp に設定されている既定のモデルで回答します
-My models	マイモデル
+omp model list	omp のモデル一覧
  · not in omp's list now (kept)	 · omp の一覧にありません (そのまま残します)
 Default level	既定のレベル
 The thinking level a chat with this model starts at	このモデルで新しいチャットを始めるときの思考レベル
@@ -2003,24 +2178,59 @@ Language	言語
 Restarts Bloom to apply · Auto uses the Windows display language	適用時に Bloom を再起動 · 自動は Windows の表示言語
 Restart Bloom to apply the language.	言語を適用するには Bloom を再起動してください。
 Tap Win alone to open (combinations like Win+E still work)	Win だけを押すと開きます (Win+E などの組み合わせはそのまま)
-Win key over admin apps	管理者アプリの上でも Win キーを使用
-Opens with Win even over apps run as administrator · admin approval to turn on	管理者として実行中のアプリが前面にあっても Win キーで開きます · オンにするには管理者の承認が必要
 Another app uses it	別のアプリが使っています
 Open with Alt + Space	Alt + Space で開く
 Autostart unavailable in development runs	開発実行では自動起動設定不可
 Runs in the tray at sign-in	サインイン時にトレイで起動
 Not registered	未登録
+Win key over admin apps	管理者アプリの上でも Win キーを使用
+Opens with Win even over apps run as administrator · admin approval to turn on	管理者として実行中のアプリが前面にあっても Win キーで開きます · オンにするには管理者の承認が必要
 Look	見た目
-Glass on (Windows transparency effects)	ガラス効果オン (Windows の透明効果)
-Windows transparency effects are off, so it is solid	Windows の透明効果がオフのため、単色になります
-Custom	カスタム
-{0} · the accent and the overall tone change together	{0} · アクセントと全体のトーンが一緒に変わります
-Custom colour	カスタムカラー
-Type #RRGGBB (like #3A7BD5) · the light theme uses it, the dark one a lighter take	#RRGGBB で入力 (例: #3A7BD5) · ライトテーマはその色、ダークテーマは明るくした色を使います
+System follows Windows' light or dark setting	「システム」は Windows のライト・ダークの設定に従います
 The launcher, tool windows, chat and settings together · Ctrl+= / Ctrl+- / Ctrl+0 in the launcher	ランチャー、ツール ウィンドウ、チャット、設定をまとめて · ランチャーで Ctrl+= / Ctrl+- / Ctrl+0
+Animation	アニメーション
+Reduced: fades only · Off: nothing moves	減らす: フェードのみ · オフ: 動きなし
+Reduced	減らす
+Glass effect	ガラス効果
+Follows Windows' transparency effects. Off, the background is solid.	Windows の透明効果に従います。オフにすると背景は単色になります。
 Reset to default	既定のサイズに戻す
 Launcher window size	ランチャー ウィンドウのサイズ
 Now {0} × {1} · default {2} × {3} · drag the launcher's edges or corners to change it	現在 {0} × {1} · 既定 {2} × {3} · ランチャーの端や角をドラッグして変更します
+Animation frames per second	アニメーションのフレーム数 (毎秒)
+Lower uses less GPU and CPU	低いほど GPU と CPU の使用が少なくなります
+30	30
+60	60
+Glass transparency	ガラスの透明度
+Higher shows more of the screen behind	高いほど背後の画面が透けて見えます
+Restart Bloom to apply GPU drawing.	GPU 描画を適用するには Bloom を再起動してください。
+GPU drawing (experimental)	GPU 描画 (試験的)
+Draws the screen with the GPU. Some PCs may stutter or freeze for seconds. Off: the CPU draws, with about 30 MB less memory.	GPU で画面を描画します。一部の PC では画面がかくついたり数秒止まったりすることがあります。オフにすると CPU で描画し、メモリが約 30 MB 少なくなります。
+Changes when Bloom restarts	Bloom の再起動後に変わります
+Memory Bloom uses now	Bloom が今使っているメモリ
+{0:0} MB · about 80 MB with everything off; each setting says what it adds	{0:0} MB · すべてオフで約 80 MB。それぞれの設定に増える量が書いてあります
+Launcher	ランチャー
+The home under an empty search line, and the search results	検索欄が空のときのホームと検索結果
+Home blocks	ホームのブロック
+Drag, ▲▼ or Ctrl+↑↓ to order	ドラッグ、▲▼、Ctrl+↑↓ で並べ替え
+Drag to reorder	ドラッグで並べ替え
+Up (Ctrl+↑)	上へ (Ctrl+↑)
+Down (Ctrl+↓)	下へ (Ctrl+↓)
+Reads the logs once when first switched on	初めてオンにしたときに記録を一度読み込みます
+5-hour and weekly usage · about +2 MB of memory when on	5 時間と週間の使用量 · オンでメモリ約 +2 MB
+ — neither Claude Code nor Codex found	 — Claude Code も Codex も見つかりません
+Search results	検索結果
+Start Everything	Everything を起動
+Files too	ファイルも
+Everything running · up to 5 at the top	Everything 実行中 · 上に最大 5 件
+Everything off · recent files searched instead	Everything オフ · 代わりに最近のファイルから検索
+Open windows too	開いているウィンドウも
+Up to 3 windows whose title matches, under the results · Enter switches to it	タイトルが一致するウィンドウを結果の下に最大 3 件 · Enter でそのウィンドウへ
+Prioritize selected results	選択した結果を優先表示
+Typing the same again puts your last pick first (“c” → Chrome) · kept on this PC only	同じ入力をもう一度すると前回選んだものが一番上に (“c” → Chrome) · この PC にだけ保存
+Web search	ウェブ検索
+Browser for links	リンクを開くブラウザー
+From the browsers on this PC · web searches and links open in it	この PC のブラウザーから · ウェブ検索とリンクはこのブラウザーで開きます
+Keyword + space + words (e.g. yt cats) · {0} · Enter manages them in the launcher	キーワード + スペース + 語 (例: yt cats) · {0} 件 · Enter でランチャーで管理
 Favorite icons	お気に入りのアイコン
 Icon style	アイコンのスタイル
 Picture icon background	画像アイコンの背景
@@ -2029,96 +2239,99 @@ Neutral	ニュートラル
 Card	カード
 Make picture icons	絵のアイコンを作る
 Applies matching pictures, black tiles and the accent color to {0} favorites, including folder items.	フォルダー内を含む {0} 件のお気に入りに、名前に合う画像、黒い背景、アクセント色を適用します。
-Draw them all with AI	AI ですべて描く
+Draw icons with AI	AI でアイコンを描く
 Creates AI icons for {0} favorites · {1} uses.	{0} 件のお気に入りの AI アイコンを作成 · 利用 {1} 回。
 Drawing…	描いています…
 Drawing… {0}/{1}	描いています… {0}/{1}
  · {0} failed	 · {0} 件失敗
+Restore the original icons	元のアイコンに戻す
 Restores original app icons for {0} picture icons.	{0} 件の画像アイコンを元のアプリアイコンに戻します。
-The blocks under an empty search line — switch them, drag or ▲▼ / Ctrl+↑↓ to order (also ‘Edit home’ in the launcher)	空の検索欄の下のブロック — オン・オフ、ドラッグや ▲▼ / Ctrl+↑↓ で並べ替え (ランチャーの「ホームを編集」でも)
-Blocks	ブロック
-Drag to reorder	ドラッグで並べ替え
-Up (Ctrl+↑)	上へ (Ctrl+↑)
-Down (Ctrl+↓)	下へ (Ctrl+↓)
-5-hour and weekly usage · about +2 MB of memory when on	5 時間と週間の使用量 · オンでメモリ約 +2 MB
- — neither Claude Code nor Codex found	 — Claude Code も Codex も見つかりません
-Hidden, only while asked: Claude ~470 MB for 4 s · Codex ~110 MB for 1 s	問い合わせのときだけ非表示で: Claude 約 470 MB を 4 秒 · Codex 約 110 MB を 1 秒
-5 min	5 分
-10 min	10 分
-What's used (32%) or what's left (68% left) · the bars follow	使った量 (32%) か残りの量 (68% 残り) · バーもそれに合わせます
-Left	残り
-Write the usage to a file	使用量をファイルに書き出す
-Writes the percentages and reset times, no e-mail, to %LOCALAPPDATA%\\Bloom\\export\\ai-usage.json for other programs to read · the lookups run even with the home block off: Claude ~470 MB for 4 s every interval	他のプログラムが読めるように、使用率とリセット時刻だけ (メールアドレスなし) を %LOCALAPPDATA%\\Bloom\\export\\ai-usage.json に書きます · ホームのブロックがオフでも照会が動き、間隔ごとに Claude で約 470 MB・4 秒かかります
-Edit prices	価格表を編集
-Overrides the built-in token prices (as of {0}) · prices.json	内蔵のトークン価格（{0} 時点）を上書き · prices.json
-Clear the token counts	トークン集計を消去
-Clears only what Bloom counted and counts again · logs Claude Code removed after 30 days do not come back	Bloom が集計した数値だけを消去して再集計 · Claude Code が削除した 30 日より前の記録は戻らない
-Clears the token counts Bloom made and counts again from the logs that are left. Logs Claude Code already removed after 30 days do not come back.	Bloom が集計したトークン数を消去し、残っている記録から集計し直します。Claude Code がすでに削除した 30 日より前の記録は戻りません。
 Clear counts	消去
 Token counts cleared	トークン集計を消去しました
-What else to search besides apps as you type	入力したとき、アプリ以外に何を一緒に探すか
-Also search	一緒に探す
-Files too	ファイルも
-Up to 5 Everything results	Everything の結果を最大 5 件
-Everything is not running — recent files are searched instead	Everything が起動していません — 代わりに最近のファイルから探します
-Running · finds any file on the PC by name	実行中 · PC 内のあらゆるファイルを名前で探します
-Not running — Enter starts it	起動していません — Enter で起動
-Open windows too	開いているウィンドウも
-Up to 3 windows whose title matches, under the results · Enter switches to it	タイトルが一致するウィンドウを結果の下に最大 3 件 · Enter でそのウィンドウへ
-Learning	学習
-Prioritize selected results	選択した結果を優先表示
-Typing the same again puts your last pick first (“c” → Chrome) · kept on this PC only	同じ入力をもう一度すると前回選んだものが一番上に (“c” → Chrome) · この PC にだけ保存
-Clear search learning history	検索の学習履歴を削除
-Nothing yet	履歴なし
-{0} typed lines · Enter clears them	入力 {0} 件 · Enter で消去
-Web search	ウェブ検索
-From the browsers on this PC · web searches and links open in it	この PC のブラウザーから · ウェブ検索とリンクはこのブラウザーで開きます
-Keyword + space + words (e.g. yt cats) · {0} · Enter manages them in the launcher	キーワード + スペース + 語 (例: yt cats) · {0} 件 · Enter でランチャーで管理
-Names	名前
-App names changed in Bloom	Bloom で変更したアプリ名
-On an app: Ctrl+K → Rename (in Bloom only; the original name still finds it)	アプリで Ctrl+K → 名前を変更 (Bloom 内のみ。元の名前でも見つかります)
-{0} · Enter puts all the original names back	{0} 件 · Enter ですべて元の名前に戻す
-Tab opens AI chat · uses Claude, ChatGPT or omp signed in on this PC, or an API key	Tab で AI チャットを開く · この PC でサインイン済みの Claude · ChatGPT · omp、または API キーで回答
+Saved captures deleted: {0}	保存したキャプチャ {0} 枚を削除済み
+Shortcuts	ショートカット
+Shortcuts that work in any app	どのアプリでも使えるショートカット
+Opens the chat window anywhere · down again when it's in front	どこからでもチャット ウィンドウを開きます · 手前にあるときはもう一度で下がります
+Opens the clipboard history right away	クリップボードの履歴をすぐに開きます
+Opens the list of open windows	開いているウィンドウの一覧を開きます
+Emoji & symbols	絵文字 · 記号
+Choose a symbol and press Enter to paste into the active window.	記号を選び Enter を押すと、アクティブなウィンドウに貼り付けます。
+Select text in any app and press it: summarize, translate, polish (1 use per action · engine: AI chat › Translation · AI actions)	どのアプリでも文字を選んで押すと要約 · 翻訳 · 推敲 (操作ごとに使用量 1 回 · エンジンは AI チャット › 翻訳 · AI クイック操作)
+Pick a colour anywhere	どこでも色を取る
+After the area: a menu of what to do	範囲を選んだあと: 操作のメニュー
+Ask AI right away	すぐに AI に聞く
+After the area: a chat with that picture attached (1 use per question)	範囲を選んだあと: その画像を添付したチャット (質問ごとに 1 回使用)
+Copy text right away	すぐにテキストをコピー
+After the area: reads and copies the text (on this PC, no usage)	範囲を選んだあと: 文字を読み取ってコピー (この PC で、使用量なし)
+Translate right away	すぐに翻訳
+After the area: reads and translates it (1 use each)	範囲を選んだあと: 読み取って翻訳 (毎回 1 回使用)
+Live translation right away	すぐにリアルタイム翻訳
+Keeps reading the area and translates when it changes (ongoing usage)	範囲を読み続け、変わったときに翻訳します (継続して使用)
+Capture right away	すぐにキャプチャ
+After the area: a pen and highlighter bar opens — Enter copies, Ctrl+V pastes	範囲を選ぶとペン · 蛍光ペンのバーが開きます — Enter でコピー、Ctrl+V で貼り付け
+Item shortcuts	項目のショートカット
+None yet	設定済み項目なし
+Pick an app, folder, command or layout in the launcher, then Ctrl+K › Set a shortcut	ランチャーでアプリ、フォルダー、コマンド、配置を選び、Ctrl+K › ショートカットを設定
+Click to change · Backspace removes it	クリックで変更 · Backspace で削除
+AI chat on Tab, translation and AI actions	Tab で開く AI チャット、翻訳、AI クイック操作
 New chats use	新しいチャットで使う AI
 Ctrl+Shift+M switches during a chat · Ctrl+M picks the model	チャット中は Ctrl+Shift+M で切り替え · Ctrl+M でモデルを選ぶ
-AI chat window shortcut	AI チャット ウィンドウのショートカット
-Opens the chat window anywhere · down again when it's in front	どこからでもチャット ウィンドウを開きます · 手前にあるときはもう一度で下がります
+Claude Code installation guide	Claude Code のインストールガイド
+Codex installation guide	Codex のインストールガイド
 Tab continues the last chat	Tab で前のチャットを続ける
 Picks up a chat used in the last 30 min · Shift+Tab always starts a new one	30 分以内に使ったチャットを続けます · Shift+Tab は常に新しいチャット
 Generate chat titles with AI	AI でチャットのタイトルを生成
-Model, field and task, like [◆ Opus • Code ] Fix the login · changes only when a new task starts	[◆ Opus • Code ] ログインを修正 のように、モデル・分野・作業 · 新しい作業を始めたときだけ変わります
-Claude model	Claude のモデル
-For new chats · Ctrl+M during a chat	新しいチャットの既定 · チャット中は Ctrl+M
-Claude thinking level	Claude の思考レベル
-Fast = thinking off · not for Haiku · Ctrl+E during a chat	高速 = 思考オフ · Haiku にはなし · チャット中は Ctrl+E
+Titles a chat from what it says. It changes only when a new task starts.	チャットの内容からタイトルを付けます。新しい作業を始めたときだけ変わります。
+Other AIs and advanced	ほかの AI と詳細設定
+ · uses your ChatGPT login	 · ChatGPT のログインを使用
 ChatGPT model	ChatGPT のモデル
 Codex's default model	Codex の既定のモデル
  · Ctrl+M during a chat	 · チャット中は Ctrl+M
 No Codex model list yet — run Codex once to get it	Codex のモデル一覧がまだありません — Codex を一度実行すると取得できます
 ChatGPT thinking level	ChatGPT の思考レベル
-{0} · uses your ChatGPT login	{0} · ChatGPT のサインインを使用
 API model	API モデル
+For new chats · Ctrl+M during a chat	新しいチャットの既定 · チャット中は Ctrl+M
 API thinking level	API の思考レベル
 Default = the model's own · reasoning models only · Ctrl+E during a chat	既定はモデル自身の設定 · 推論モデルのみ · チャット中は Ctrl+E
-Add an API key in Settings > AI accounts to pick a model	設定 > AI アカウントで API キーを追加するとモデルを選択可能
+Add an API key	API キーを追加
+No API key. Add one in AI accounts.	API キーがありません。AI アカウントでキーを追加してください。
+Claude model	Claude のモデル
+Claude thinking level	Claude の思考レベル
+Fast = thinking off · not for Haiku · Ctrl+E during a chat	高速 = 思考オフ · Haiku にはなし · チャット中は Ctrl+E
+Translation · AI actions	翻訳 · AI クイック操作
+Translation engine	翻訳エンジン
+AI actions use this engine too · also switchable in the translation window	AI クイック操作もこのエンジンを使います · 翻訳ウィンドウでも切り替えられます
+Haiku has no thinking level setting.	Haiku には思考レベルの設定がありません。
+Lighter is faster · empty = omp's own default	軽いほど速い · 空欄なら omp の既定モデル
+Lighter models are faster and cost less	軽いモデルほど速く、費用も少なくなります
+Lighter models are faster and use less	軽いモデルほど速く、使用量も少なくなります
+Lower is faster and uses less · also a chip in the translation window	低いほど速く、使用量も少なくなります · 翻訳ウィンドウのチップでも変更できます
+Translate into	翻訳先
+Auto: Korean text to English, other text to Korean	自動: 韓国語は英語に、その他は韓国語に
+Live translation interval	リアルタイム翻訳の間隔
+How often the screen is read again (reading uses nothing · it translates only when the text changed and settled)	画面を読み直す間隔 (読み取りは使用量なし · 文字が変わって落ち着いたときだけ翻訳します)
+1 s	1 秒
+1.5 s	1.5 秒
+3 s	3 秒
+5 s	5 秒
 PC actions · MCP	PC の操作 · MCP
-Use AI chat to open apps, find and move files, and set timers on this PC.	AI チャットから、この PC のアプリ起動、ファイル検索・移動、タイマー設定を使えます。
-In Claude chats	Claude のチャットで
-In ChatGPT chats	ChatGPT のチャットで
-In API chats	API チャットで
+AI chat opens apps, tidies files and sets timers on this PC	AI チャットがこの PC でアプリを開き、ファイルを整理し、タイマーを設定します
+Chats that use it	使うチャット
+An approval card before each action · about +250–500 tokens per request	実行前に承認カード · リクエストごとに約 +250~500 トークン
 Permissions	権限
+All but PC actions apply to API chats only	PC の操作以外は API のチャットにのみ適用
 Ask each time	毎回確認
 Always allow	常に許可
 Read files (outside the chat's folder)	ファイルの読み込み (チャットフォルダーの外)
-API chats · asks only outside the chat's folder · also covers content search	API会話 · 会話フォルダーの外だけ確認します · 内容検索にも適用
+Asks only outside the chat's folder. Content search applies to every chat.	チャットのフォルダーの外だけ確認します。内容の検索はすべてのチャットに適用されます。
 Write files	ファイルの書き込み
-API chats · make a file or replace one	API チャット · 新しいファイルの作成、ファイルの上書き
+Make a file or replace one	ファイルの作成、上書き
 Edit files	ファイルの編集
-API chats · change part of a file	API チャット · ファイルの一部の変更
+Change part of a file	ファイルの一部を変更
 Run commands	コマンドの実行
-API chats · PowerShell in the chat's folder	API チャット · チャットフォルダーで PowerShell を実行
+PowerShell in the chat's folder	チャットのフォルダーで PowerShell を実行
 Other MCP tools	その他の MCP ツール
-API chats · tools of the MCP servers switched on below · Off starts none	API チャット · 下でオンにした MCP サーバーのツール · オフでサーバーを起動しない
+Tools of the MCP servers switched on below · Off starts none	下でオンにした MCP サーバーのツール · オフならサーバーを起動しません
 PC actions (Bloom's tool)	PC の操作 (Bloom の機能)
 Every chat · open, notes, timers, files, clipboard · look-ups never ask	すべてのチャット · 開く · メモ · タイマー · ファイル整理 · クリップボード · 調べる操作は確認しません
 What it may do	できること
@@ -2131,6 +2344,8 @@ Write in Bloom's notes, start its timers, put events on its calendar — asks fi
 Rename, move, copy, recycle — asks first · the Recycle Bin brings things back	名前の変更、移動、コピー、ごみ箱 — 先に確認します · ごみ箱から元に戻せます
 Read and write the clipboard — asks first	クリップボードの読み取りと書き込み — 先に確認します
 Other MCP servers on this PC	この PC のほかの MCP サーバー
+One switched on starts with each chat. The first answer comes a little later, and usage goes up.	オンにするとチャットの開始時に一緒に起動します。最初の回答が少し遅くなり、使用量が増えます。
+Read the list again	一覧を読み直す
 No servers found	登録済みサーバーなし
 MCP servers set up in Claude Code, Claude Desktop, Cursor, VS Code, Windsurf or Codex show here	Claude Code、Claude Desktop、Cursor、VS Code、Windsurf、Codex で設定した MCP サーバーがここに表示されます
  · runs on this PC	 · この PC で実行
@@ -2138,105 +2353,35 @@ MCP servers set up in Claude Code, Claude Desktop, Cursor, VS Code, Windsurf or 
 Bring in an MCP settings file…	MCP の設定ファイルを読み込む…
 A .json with mcpServers (like a project's .mcp.json) — for servers not found above	mcpServers のある .json (プロジェクトの .mcp.json など) — 上で見つからないサーバー用
 MCP settings (*.json)|*.json	MCP の設定 (*.json)|*.json
-Before you switch one on	オンにする前に
-It starts with each chat (a slower first answer) and its tool list adds usage · every tool call asks in the chat	チャットごとに起動し (最初の回答が少し遅くなります)、ツール一覧の分だけ使用量が増えます · ツールを呼ぶたびにチャットで確認します
-Connection	接続
-How it connects	接続のしかた
-Used in Bloom AI chat on this PC	この PC の Bloom AI チャットで使用
-What it costs	コスト
-Per request: Claude about +500, ChatGPT about +250 tokens (less with fewer kinds on) · about 10 MB of memory while in use	リクエストごとに Claude 約 +500、ChatGPT 約 +250 トークン (オンの種類が少ないほど減ります) · 使用中はメモリ約 10 MB
 Features	機能
 Switch off what you don't use — it leaves the results, the command list, the home and the favorites row, and lets go of its shortcut. Nothing saved is deleted	使わない機能はオフに — 検索結果、コマンド一覧、ホーム、お気に入りの列から外れ、ショートカットも解放されます。保存したものは削除されません
 In the search line	検索欄で
 Windows · tools	ウィンドウ · ツール
 Make it the default app	既定のアプリにする
 Pick Bloom for .md files in Windows Settings, and a double-click in Explorer opens them in Bloom's document window	Windows の設定で .md ファイルを開くアプリに Bloom を選ぶと、エクスプローラーでダブルクリックしたときに Bloom のドキュメントウィンドウで開きます
-Keeps the text, pictures and files you copy, to paste again	コピーしたテキスト、画像、ファイルを保存して、また貼り付けられます
-History	履歴
-On · {0} · from about +2 MB of memory, more with pictures · copies that password managers hide are never kept	オン · {0} 件 · メモリ約 +2 MB から、画像が多いほど増えます · パスワード マネージャーが隠すコピーは保存しません
-Off · no history saved · on: from about +2 MB	オフ · 履歴保存なし · オン: メモリ約 +2 MB から
+Clipboard history, Bloom Lens, timers, the colour picker and the mini player	クリップボード履歴、Bloom Lens、タイマー、カラーピッカー、ミニプレーヤー
+From about +2 MB of memory, more with pictures	メモリ約 +2 MB から、画像が多いほど増えます
+On: from about +2 MB of memory	オン: メモリ約 +2 MB から
+On · {0} · copies that password managers hide are never kept	オン · {0} 件 · パスワード マネージャーが隠すコピーは保存しません
+Off · no history saved	オフ · 履歴を保存しません
 Keep for	保存期間
 Kept for good	ずっと保存
 Kept for {0}	{0} 保存
  · 0 = for good · pinned ones always stay · 500 at most	 · 0 = ずっと · 固定したものは常に残ります · 最大 500 件
-Opens the clipboard history right away	クリップボードの履歴をすぐに開きます
-Clean up	片付け
-Clear the history	履歴を消去
-Pinned entries stay	固定したものは残ります
-Pick a screen area, then what to do — ask AI, translate, copy text, live translation, pin, capture (1–6)	画面の範囲を選んでから操作を選ぶ — AI に聞く、翻訳、テキストのコピー、リアルタイム翻訳、固定、キャプチャ (1–6)
-After the area: a menu of what to do	範囲を選んだあと: 操作のメニュー
-Ask AI right away	すぐに AI に聞く
-After the area: a chat with that picture attached (1 use per question)	範囲を選んだあと: その画像を添付したチャット (質問ごとに 1 回使用)
-Copy text right away	すぐにテキストをコピー
-After the area: reads and copies the text (on this PC, no usage)	範囲を選んだあと: 文字を読み取ってコピー (この PC で、使用量なし)
-Translate right away	すぐに翻訳
-After the area: reads and translates it (1 use each)	範囲を選んだあと: 読み取って翻訳 (毎回 1 回使用)
-Live translation right away	すぐにリアルタイム翻訳
-Keeps reading the area and translates when it changes (ongoing usage)	範囲を読み続け、変わったときに翻訳します (継続して使用)
-Capture right away	すぐにキャプチャ
-After the area: a pen and highlighter bar opens — Enter copies, Ctrl+V pastes	範囲を選ぶとペン · 蛍光ペンのバーが開きます — Enter でコピー、Ctrl+V で貼り付け
-Reading text	文字の読み取り
 Copy the text at once	すぐにテキストをコピー
 Off: copy it from the launcher	オフ: ランチャーからコピー
+Open Windows language settings	Windows の言語設定を開く
 No recognition languages installed. Add one in Windows language settings.	認識言語が未インストールです。Windows の言語設定で追加してください。
 Installed: {0}	インストール済み: {0}
-Open Windows language settings	Windows の言語設定を開く
-Translation · AI actions	翻訳 · AI クイック操作
-Translation engine	翻訳エンジン
-AI actions use this engine too · also switchable in the translation window	AI クイック操作もこのエンジンを使います · 翻訳ウィンドウでも切り替えられます
-Claude model for translation	翻訳に使う Claude のモデル
-Haiku has no thinking level setting.	Haiku には思考レベルの設定がありません。
-omp model for translation	翻訳用の omp モデル
-{0} · change it in Settings > AI chat > omp > Quick-job model	{0} · 設定 > AI チャット > omp の「クイック ジョブのモデル」で変更します
-API model for translation	翻訳用 API モデル
-Lighter models are faster and cost less	軽いモデルほど速く、費用も少なくなります
-ChatGPT model for translation	翻訳に使う ChatGPT のモデル
-Lighter models are faster and use less	軽いモデルほど速く、使用量も少なくなります
-Thinking level for translation	翻訳の思考レベル
-Lower is faster and uses less · also a chip in the translation window	低いほど速く、使用量も少なくなります · 翻訳ウィンドウのチップでも変更できます
-Translate into	翻訳先
-Auto: Korean text to English, other text to Korean	自動: 韓国語は英語に、その他は韓国語に
-Live translation interval	リアルタイム翻訳の間隔
-How often the screen is read again (reading uses nothing · it translates only when the text changed and settled)	画面を読み直す間隔 (読み取りは使用量なし · 文字が変わって落ち着いたときだけ翻訳します)
-1 s	1 秒
-1.5 s	1.5 秒
-3 s	3 秒
-5 s	5 秒
-Saved captures	保存したキャプチャ
-Open the saved captures folder	保存したキャプチャのフォルダーを開く
-Pictures: {0} · {1} · on this PC only · the last {2} kept	{0} 枚 · {1} · この PC にのみ保存 · 最新 {2} 枚まで保持
-Delete all saved captures	保存したキャプチャをすべて削除
-Pinned pictures stay · picture previews in AI chats go too	画面に固定した画像は保持 · AI チャットの画像プレビューも削除
-Saved captures deleted: {0}	保存したキャプチャ {0} 枚を削除済み
-Shortcuts and options for switching windows, emoji, AI actions, timers and the colour picker	ウィンドウの切り替え、絵文字、AI クイック操作、タイマー、カラーピッカーのショートカットと設定
-Windows · emoji · AI actions	ウィンドウ · 絵文字 · AI クイック操作
-Switch windows shortcut	ウィンドウ切り替えのショートカット
-Opens the list of open windows	開いているウィンドウの一覧を開きます
-Emoji & symbols shortcut	絵文字と記号のショートカット
-Choose a symbol and press Enter to paste into the active window.	記号を選び Enter を押すと、アクティブなウィンドウに貼り付けます。
-AI actions shortcut	AI クイック操作のショートカット
-Select text in any app and press it: summarize, translate, polish (1 use per action · engine: Bloom Lens > Translation)	どのアプリでもテキストを選択して押すと、要約・翻訳・推敲 (操作ごとに 1 回使用 · エンジン: Bloom Lens > 翻訳)
-Item shortcuts	項目のショートカット
-None yet	設定済み項目なし
-Pick an app, folder, command or layout in the launcher, then Ctrl+K › Set a shortcut	ランチャーでアプリ、フォルダー、コマンド、配置を選び、Ctrl+K › ショートカットを設定
-Click to change · Backspace removes it	クリックで変更 · Backspace で削除
-Tool windows	ツール ウィンドウ
-Sits beside the launcher and comes and goes with it · detached, it stays on its own · Enter opens it	ランチャーの横に付き、一緒に表示・非表示 · 切り離すと単独で表示 · Enter で開く
-Play a sound too	音でも知らせる
+Sound at the end	終了時のサウンド
 With the card at the bottom right, Windows' alarm sound (up to 30 s)	右下のカードと一緒に Windows のアラーム音 (最大 30 秒)
-Open timers and reminders	タイマーとリマインダーを開く
-{0} running	{0} 件実行中
-Nothing running	実行中のものはありません
-Color picker shortcut	カラーピッカーのショートカット
-Pick a colour anywhere	どこでも色を取る
 Copy the colour at once	取った色をすぐにコピー
 Copies it as HEX (#ff5a8a)	HEX (#ff5a8a) でコピーします
-Clear recent colours and palettes	最近の色とパレットを消去
-{0} colours · {1} palettes	色 {0} 件 · パレット {1} 件
-Shows Claude Code and Codex tasks and AI usage limits in a screen corner. Hidden during full-screen games and presentations.	Claude Code と Codex の作業や AI 利用上限を画面の隅に表示します。全画面のゲームやプレゼンテーション中は非表示です。
 Work notifications	作業の通知
-On · about +1 MB of memory · pick what to tell below	オン · メモリ約 +1 MB · 知らせる内容は下で選びます
+AI work starting, done or waiting for approval, as cards in a screen corner	AI 作業の開始、完了、承認待ちを画面の隅にカードで表示
+On · about +1 MB of memory	オン · メモリ約 +1 MB
 Off — no cards, no sounds · on: about +1 MB	オフ — カードも音もなし · オンでメモリ約 +1 MB
+Preview	プレビュー
 Top left	左上
 Top center	中央上
 Top right	右上
@@ -2259,9 +2404,7 @@ Stays while hovered · approval cards stay until work resumes	マウスを重ね
 20 s	20 秒
 A short sound of its own for each kind	種類ごとに専用の短い音
 Loud	大きめ
-Preview	プレビュー
-Preview enabled notifications	有効な通知をプレビュー
-Notification types	通知の種類
+What to tell	通知する内容
 What a turn works on once it runs past 4 s	ターンが 4 秒を超えたときに取り組んでいる内容
 When it ends, with how long it took (past 10 s)	終わったとき、かかった時間と一緒に (10 秒以上)
 Shown when approval or an answer is needed · stays until work resumes	承認や回答が必要なときに表示 · 作業再開まで維持
@@ -2271,38 +2414,14 @@ Bloom · Notifications	Bloom · 通知
 Couldn't change Claude Code's settings	Claude Code の設定を変更できませんでした
 5-hour · weekly limit at 20% left or when used up	5 時間 · 週間の上限の残りが 20% のときと、使い切ったとき
 When a low limit is full again after its reset	少なくなった上限がリセット後にまた満タンになったとき
-Performance	パフォーマンス
-Motion and transparency	動きと透明効果
-Animation	アニメーション
-Reduced: fades only · Off: nothing moves	減らす: フェードのみ · オフ: 動きなし
-Reduced	減らす
-Animation frames per second	アニメーションのフレーム数 (毎秒)
-Lower uses less GPU and CPU	低いほど GPU と CPU の使用が少なくなります
-30	30
-60	60
-Glass effect	ガラス効果
-Off: a solid background, lighter on the GPU	オフ: 単色の背景で GPU が軽くなります
-Glass transparency	ガラスの透明度
-Higher shows more of the screen behind. Applies while the glass effect is on.	大きいほど後ろの画面が透けて見えます。ガラス効果がオンのときに適用されます。
-Restart Bloom to apply GPU drawing.	GPU 描画を適用するには Bloom を再起動してください。
-GPU drawing (experimental)	GPU 描画 (試験的)
-Draws the screen with the GPU. Some PCs may stutter or freeze for seconds. Off: the CPU draws, with about 30 MB less memory.	GPU で画面を描画します。一部の PC では画面がかくついたり数秒止まったりすることがあります。オフにすると CPU で描画し、メモリが約 30 MB 少なくなります。
-Changes when Bloom restarts	Bloom の再起動後に変わります
-Memory	メモリ
-Memory Bloom uses now	Bloom が今使っているメモリ
-{0:0} MB · about 80 MB with everything off; each setting says what it adds	{0:0} MB · すべてオフで約 80 MB。それぞれの設定に増える量が書いてあります
-Data and version	データとバージョン
-Data	データ
-Open the data folder	データ フォルダーを開く
-The recording's data folder	録画用のデータ フォルダー
-Settings, favorites, app names, browser shortcuts and recent colours in one file	設定、お気に入り、アプリ名、ブラウザーのショートカット、最近の色を 1 つのファイルに
-Deletes all settings and history and starts from the first-run screens · asks to export first	すべての設定と履歴を削除して最初の設定画面から始めます · 先にエクスポートするか確認します
-Imports exported settings · backs up current settings in the data folder	設定をインポート · 現在の設定をデータフォルダーにバックアップ
-Removes Bloom from this PC · asks once more about your chats and settings	この PC から Bloom を削除します · チャットと設定も消すかもう一度確認します
+Version, updates and help	バージョン、アップデート、ヘルプ
 Version	バージョン
-Windows launcher	Windows ランチャー
 What's new in this version	このバージョンの新機能
 Also shown once at the first start after an update · Enter shows it	アップデート後の最初の起動時にも一度表示されます · Enter で表示
+License	ライセンス
+Bloom is MIT · the taskbar add-on PillTaskbar is a separate GPL-3.0 program	Bloom は MIT です · タスクバーアドオン PillTaskbar は GPL-3.0 の別プログラムです
+View source	ソースを見る
+Help	ヘルプ
 Problem report	問題の報告
 Copies the version, Windows and recent log (user name and e-mail addresses hidden) and opens a GitHub issue · Bloom sends nothing itself	バージョン · Windows · 最近のログをコピーし、GitHub の Issue 作成ページを開きます (ユーザー名とメールアドレスは伏せます) · Bloom からは何も送信しません
 Report copied	診断情報をコピー済み
@@ -2310,31 +2429,28 @@ Paste it into the page that opened (Ctrl+V)	開いたページに貼り付けて
 Never release · 150–300 MB per chat	解放しない · チャットごとに 150～300 MB
 Frees a chat's memory after {0} unused · history stays · the next first answer starts a few seconds later · 0 = never	{0} 使っていないチャットのメモリを解放 · 履歴は保持 · 次の最初の回答は数秒遅れる · 0 で解放しない
 Automatic updates require a setup installation · open releases	自動更新はセットアップでインストールした Bloom で利用可能 · リリースを開く
-Up to date	最新バージョン
+Up to date · Enter checks for updates	最新バージョン · Enter でアップデートを確認
 Downloading {0}…	{0} をダウンロード中…
 Version {0} ready · click to restart	バージョン {0} の準備完了 · クリックで再起動
 Could not check for updates. Check your connection and retry.	更新を確認できませんでした。接続を確認して再試行してください。
-Looks for a new version on GitHub Releases	GitHub Releases で新しいバージョンを探します
-Check for updates	アップデートを確認
+Enter checks for updates · looks for a new version on GitHub Releases	Enter でアップデートを確認 · GitHub Releases で新しいバージョンを探します
 Check when Bloom starts	Bloom の起動時に確認
 Checks once after launch · downloads new versions for the next start	起動後に 1 回確認 · 新バージョンをダウンロードし次回起動時に適用
-Ctrl+K on an audio file in the search results › ‘Play in mini player’ · a small window beside the launcher shows the song and the queue — music files are only read	検索結果のオーディオファイルで Ctrl+K › 「ミニプレーヤーで再生」 · ランチャーの横の小さなウィンドウに再生中の曲とキューを表示 — 音楽ファイルは読み取るだけです
-How it plays	再生方法
+Ctrl+K on an audio file in the search results › ‘Play in mini player’. Music files are only read.	検索結果のオーディオ ファイルで Ctrl+K ›「ミニプレーヤーで再生」を選びます。音楽ファイルは読み取るだけです。
 Playing	再生方法
-JRiver — plays and controls through JRiver Media Center's web service (MCWS) · the queue is JRiver's	JRiver — JRiver Media Center の Web サービス (MCWS) で再生・操作 · キューは JRiver 側
-foobar2000 — plays through its command line, the song and the buttons through Windows' media session · playing a song follows foobar2000's own way of opening files (it may replace the active playlist)	foobar2000 — コマンドラインで再生し、再生中の曲とボタンは Windows のメディア セッションで操作 · 曲の再生は foobar2000 のファイルの開き方に従います (アクティブなプレイリストが置き換わることがあります)
-MusicBee — plays and controls through its command line · the song is read from its window title (it does not say whether it plays, so Bloom goes by the commands it sent)	MusicBee — コマンドラインで再生・操作 · 再生中の曲はウィンドウ タイトルから読み取ります (再生中かどうかは知らせないため、Bloom が送ったコマンドから推測します)
-Direct — Bloom opens the file read-only (flac, mp3, wav, m4a, aac, wma) · the queue is Bloom's own · the next song follows · missing files are skipped · ogg and opus cannot be played	直接 — Bloom がファイルを読み取り専用で開いて再生 (flac、mp3、wav、m4a、aac、wma) · キューは Bloom 内 · 次の曲を自動再生 · 見つからないファイルはスキップ · ogg と opus は再生できません
+Plays and controls through JRiver Media Center's web service (MCWS). The queue is JRiver's.	JRiver Media Center の Web サービス (MCWS) で再生・操作します。再生キューは JRiver のものを使います。
+Plays through its command line; the song and the buttons go through Windows' media session. Playing a song follows foobar2000's own way of opening files.	コマンドラインで再生し、今の曲と操作は Windows のメディア セッションを通します。曲を再生すると、foobar2000 がファイルを開く方法に従います。
+Plays and controls through its command line. The song is read from its window title.	コマンドラインで再生・操作します。今の曲はウィンドウのタイトルから読み取ります。
+Bloom plays it itself. Opens flac, mp3, wav, m4a, aac and wma files.	Bloom が直接再生します。flac、mp3、wav、m4a、aac、wma ファイルを開きます。
 JRiver address	JRiver のアドレス
 {0} · JRiver's Media Network (the web service) must be on · click to change	{0} · JRiver の Media Network (Web サービス) をオンにする必要があります · クリックで変更
 JRiver user	JRiver のユーザー
-None — only needed when JRiver was given a user name and password · click to enter	なし — JRiver にユーザー名とパスワードを設定した場合のみ必要 · クリックで入力
+None · only needed when JRiver was given a user name and password · click to enter	なし · JRiver にユーザー名とパスワードを設定した場合のみ必要 · クリックして入力
 {0} · click to change	{0} · クリックで変更
 Saved · encrypted on this PC only · used only for requests to JRiver · click to change	保存済み · この PC にのみ暗号化 · JRiver へのリクエストにだけ使用 · クリックで変更
 None · click to enter	なし · クリックで入力
-JRiver password	JRiver のパスワード
 Found by itself: {0} · click if it is somewhere else	自動で見つかりました: {0} · 別の場所にある場合はクリック
-Not found — click to enter the .exe path	見つかりません — クリックして .exe のパスを入力
+Not found · click to enter the .exe path	見つかりません · クリックして .exe のパスを入力
 {0} program	{0} のプログラム
 {0} program path	{0} のプログラムのパス
 The full path of {0}.exe. Left empty, Bloom looks at the running one and the usual install folders.	{0}.exe のフルパスです。空のままにすると、Bloom は起動中のものと通常のインストール先から探します。
@@ -2343,16 +2459,123 @@ The address of the PC where JRiver runs (default {0}). Turn on JRiver's Media Ne
 Write it as http://address:port	http://アドレス:ポート の形式で入力してください
 Only when JRiver was given a user name and password. Leave it empty if not.	JRiver にユーザー名とパスワードを設定した場合のみ入力します。なければ空のままにしてください。
 Stored encrypted on this PC only and used only for requests to JRiver. It is not shown while typed.	この PC にのみ暗号化して保存し、JRiver へのリクエストにだけ使用します。入力中は表示されません。
+About PillTaskbar	PillTaskbar について
+PillTaskbar is a separate GPL-3.0 program · {0}	PillTaskbar は GPL-3.0 の別プログラムです · {0}
+Taskbar folders	タスクバーのフォルダー
+Dragging an app onto another on the taskbar and holding it there briefly makes a folder too	タスクバーでアプリを別のアプリの上にドラッグして少し置いてもフォルダーになります
+Off · when on, pinned apps can be grouped into folders	オフ · オンにするとピン留めしたアプリをフォルダーにまとめられます
+Folders can be edited while taskbar customization runs	タスクバーのカスタマイズが動作している間はフォルダーを編集できます
+The taskbar hasn't sent its folders yet	タスクバーからまだフォルダー情報が届いていません
+The taskbar didn't answer within 5 seconds, so for now this is read only	タスクバーが 5 秒以内に応答しなかったため、今は表示のみです
+Taskbar folders haven't turned on yet	タスクバーのフォルダーはまだオンになっていません
+Edit folders	フォルダーの編集
+Make folders and change their names, icons and apps	フォルダーを作り、名前・アイコン・中のアプリを変えます
+Taskbar look	タスクバーの見た目
+Changes the taskbar's height and icon size together	タスクバーの高さとアイコンのサイズを一緒に変えます
+Blurs what is behind the pill. Lit glass adds light and a sheen at the edges	ピルの後ろをぼかして映します。光を受けるガラスは縁に光と反射が加わります
+The flower button opens and closes Bloom	花のボタンを押すと Bloom を開閉します
+A number changed here makes the size above ‘Custom’	ここで数値を変えると上のサイズは「カスタム」になります
+Taskbar tray	タスクバーのトレイ
+Icons shown	表示するアイコン
+Only the ones on stay in the tray; the ones off leave no gap	オンのものだけがトレイに残り、オフのアイコンは場所も残しません
+Now playing	再生中の曲
+Puts the album art, the title and previous, play and next buttons before the tray	アルバムアート、タイトル、前へ・再生・次へボタンをトレイの前に置きます
+Shows one picked value per account as a bar. The auto-hide island shows the same	アカウントごとに選んだ値を 1 つバーで表示します。自動非表示アイランドにも同じ値が出ます
+Usage file export is off	使用量ファイルの書き出しがオフ
+The taskbar reads the usage file Bloom exports; turn it on to see the usage	タスクバーは Bloom が書き出した使用量ファイルを読みます。オンにすると使用量が表示されます
+The same setting as the home cards	ホームのカードと同じ設定です
+Other icons	その他のアイコン
+Bell only with new notifications	新しい通知があるときだけ通知ベル
+Hides the bell while there are no notifications	通知がないときは通知ベルを隠します
+Auto-hide island	自動非表示アイランド
+Use the auto-hide island	自動非表示アイランドを使う
+The taskbar hides itself, and an island appears at the top centre of the screen	タスクバーが自動的に隠れ、画面上部中央にアイランドが現れます
+With click, pointing at it alone doesn't bring it out	クリックにすると、ポインターを当てるだけでは出てきません
+Shown on the island	アイランドに表示するもの
+With the pointer over it	ポインターを乗せると
+What is below shows through while the pointer is there: 0 not at all, 100 fully	ポインターがある間、下が透けて見えます。0 はそのまま、100 は完全に透けます
+More · {0}	詳細 · {0} 件
+{0} to {1}	{0}～{1}
+Not downloaded yet	まだダウンロードしていません
+The taskbar add-on's files are not valid, or it needs a newer Bloom	タスクバーアドオンのファイルが正しくないか、より新しい Bloom が必要です
+Paused · Explorer kept crashing, so taskbar customization was turned off	停止中 · エクスプローラーが続けて停止したため、タスクバーのカスタマイズをオフにしました
+No symbols · this Windows version lacks the taskbar symbols it needs	シンボルなし · この Windows のバージョンには必要なタスクバーのシンボルがありません
+On in Windhawk · turn the PillTaskbar mod off in Windhawk. If you don't use Windhawk, set its service to manual start and close or uninstall Windhawk instead	Windhawk でオン · Windhawk で PillTaskbar Mod をオフにしてください。Windhawk を使わない場合は、サービスを手動開始にして Windhawk を終了するかアンインストールしてもかまいません
+Stopped · taskbar customization stopped	停止 · タスクバーのカスタマイズが停止しました
+Turn on taskbar customization	タスクバーのカスタマイズをオンにする
+PillTaskbar is a program separate from Bloom. It changes how the taskbar looks by loading code into Explorer, and is licensed under GPL-3.0. The first start downloads the taskbar's symbol files (about 70 MB) from the Microsoft symbol server.	PillTaskbar は Bloom とは別のプログラムで、エクスプローラーにコードを読み込んでタスクバーの見た目を変えます。ライセンスは GPL-3.0 です。初回の起動時に Microsoft シンボル サーバーからタスクバーのシンボルファイル (約 70 MB) をダウンロードします。
+Icon colour	アイコンの色
+Original	元の色
+Single colour	単色
+Label	名札
+Written beside the icon. An account without a name shows its plan; a long one is cut with …. The island shows it too	アイコンの横に表示します。名前のないアカウントはプランを表示し、長いと … で省略します。アイランドにも表示されます
+Plan	プラン
+This plan has only the {0} limit	このプランには {0} の上限しかありません
+Choose a file…	ファイルを選ぶ…
+Clear the icon	アイコンを消す
+The home card and the taskbar use this picture	ホームのカードとタスクバーでこの画像を使います
+None · pick a logo file (SVG, PNG, ICO) for the home card and the taskbar	なし · ロゴファイル (SVG、PNG、ICO) を選ぶと、ホームのカードとタスクバーでその画像を使います
+Icon	アイコン
+Logos (*.svg;*.png;*.ico)|*.svg;*.png;*.ico	ロゴ (*.svg;*.png;*.ico)|*.svg;*.png;*.ico
+That file couldn't be brought in as the icon.	そのファイルをアイコンとして読み込めませんでした。
+{0} changed	変更した項目 {0} 件
+Off · turn it on in Features	オフ · 機能でオンにする
 Another app already uses it — press another combination	別のアプリがすでに使っています — 別の組み合わせを押してください
 Off — click to set a shortcut	オフ — クリックでショートカットを設定
 Bloom already uses it	Bloom がすでに使っています
 No settings found	設定の検索結果なし
 Basics	基本
-Launcher	ランチャー
 Find a setting	設定を探す
+Changes take effect right away	変更はすぐに反映されます
 Section	セクション
 Change	変更
-Clear	クリア
+Sending to the taskbar…	タスクバーに送信中…
+Click a folder to edit it below	フォルダーを押すと下で編集できます
+New folder	新しいフォルダー
+Automatic folder	自動フォルダー
+The folders pinned to the taskbar show here while taskbar customization runs.	タスクバーのカスタマイズが動作すると、ピン留めしたフォルダーがここに表示されます。
+Take out	取り出す
+Folder name	フォルダー名
+Change icon	アイコンを変更
+{0} apps inside	中のアプリ {0} 個
+Add app	アプリを追加
+Ungroups ‘{0}’. Its {1} apps go back to the taskbar.	「{0}」フォルダーを解除します。中のアプリ {1} 個はタスクバーに戻ります。
+Ungroup	解除
+Ungroup folder	フォルダーを解除
+The apps aren't deleted; they go back to the taskbar	アプリは削除されず、タスクバーに戻ります
+Reorder	並べ替え
+Pick the apps to put in it	入れるアプリを選んでください
+{0} picked	{0} 個選択
+One or more	1 つ以上
+Pinned apps and Start menu apps can go in	ピン留めしたアプリとスタートメニューのアプリを入れられます
+Use the running folder	実行中フォルダーを使う
+Gathers the apps you run without pinning that aren't in any folder. A closed app leaves it, and with none left the folder leaves the taskbar.	ピン留めせずに起動したアプリのうち、どのフォルダーにもないアプリをこのフォルダーに集めます。アプリを閉じると外れ、そうしたアプリがなくなるとフォルダーもタスクバーから消えます。
+Apps in it now	今入っているアプリ
+While off, unpinned apps get their own buttons, as in Windows.	オフにすると、ピン留めしていないアプリは Windows と同じように個別のボタンになります。
+No folders yet	まだフォルダーがありません
+Pick a few apps to make a folder. Dragging an app onto another on the taskbar and holding it there briefly makes one too.	いくつかのアプリを選んでフォルダーを作ってください。タスクバーでアプリを別のアプリの上にドラッグして少し置いてもフォルダーになります。
+Start menu apps	スタートメニューのアプリ
+In this folder	このフォルダーにあり
+In {0}	{0} にあり
+No shortcut	ショートカットなし
+Shows the first four apps together. Reordering the apps changes it too.	中のアプリ 4 つをまとめて表示します。アプリの順番を変えるとアイコンも変わります。
+Use the apps	アプリをまとめて表示
+Choose a file	ファイルを選ぶ
+Uses the icon of an .ico, .png, .exe or .dll file.	.ico、.png、.exe、.dll ファイルのアイコンを使います。
+Folder icon	フォルダーのアイコン
+Icons (*.ico;*.png;*.exe;*.dll)|*.ico;*.png;*.exe;*.dll	アイコン (*.ico;*.png;*.exe;*.dll)|*.ico;*.png;*.exe;*.dll
+Taskbar folders are off	タスクバーのフォルダーがオフです
+The folder wasn't found	フォルダーが見つかりませんでした
+A folder with that name already exists	同じ名前のフォルダーがすでにあります
+The name has characters a folder can't have	フォルダー名に使えない文字があります
+The app or item wasn't found	アプリまたは項目が見つかりませんでした
+The taskbar didn't answer within 5 seconds	タスクバーが 5 秒以内に応答しませんでした
+The taskbar couldn't carry it out	タスクバーがコマンドを処理できませんでした
+{0} failed · {1}	{0} に失敗 · {1}
+Fits the content	内容に合わせる
+Windows default	Windows の既定
+Lit glass	光を受けるガラス
+Borderless glass	縁のないガラス
 Rose	ローズ
 Lavender	ラベンダー
 Sky	スカイ
@@ -2362,6 +2585,7 @@ Gray	グレー
 Type a colour code (like #3A7BD5)	カラーコードを入力してください (例: #3A7BD5)
 Use # and 6 hex digits (0-9, A-F), like #3A7BD5	# と 16 進数 6 桁 (0-9、A-F) で入力してください (例: #3A7BD5)
 12*3 · 5km to mi · 100 usd	12*3 · 5km to mi · 100 usd
+Clear the history	履歴を消去
 History cleared	履歴の削除完了
 Keep typing the sum	式を入力し続けてください
 Enter copies the result and saves it in history	Enter で結果をコピーして履歴に保存
@@ -2373,7 +2597,6 @@ Copied · ready to paste	コピー済み · 貼り付け可能
 Copy failed. Try again.	コピーに失敗しました。再試行してください。
 Picture {0}×{1}	画像 {0}×{1}
 Files: {0}	ファイル: {0}
-Shortcuts	ショートカット
 Find by app name or shortcut	アプリ名またはショートカットキーで検索
 Assigned shortcuts · click to run	設定済みショートカット · クリックで実行
 Change or remove shortcuts	ショートカットを変更 · 削除
@@ -2397,4 +2620,3 @@ just now	たった今
 Detach from the launcher	ランチャーから切り離す
 Always on top	常に手前に表示
 Attach to the launcher	ランチャーに付ける
-{0} weekly	{0} 週間

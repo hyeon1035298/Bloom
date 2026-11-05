@@ -55,10 +55,10 @@ internal static partial class Captures
         await Snap(w, dir, d + "g01-root");
         await Shot(w, dir, d + "g02-view", Mode.Winget, "vlc", 9000);
 
-        // settings: 기능 (the new switches) and 도구 (item shortcuts)
+        // settings: 기능 (the new switches) and 단축키 (item shortcuts)
         var sw = new SettingsWindow(host) { WindowStartupLocation = WindowStartupLocation.Manual, Left = -32000, Top = -32000, ShowActivated = false };
         sw.Show();
-        foreach (var (page, name) in new[] { ("features", "s01-features"), ("tools", "s02-tools") })
+        foreach (var (page, name) in new[] { ("features", "s01-features"), ("shortcuts", "s02-shortcuts") })
         {
             sw.Page(page);
             await Task.Delay(400);

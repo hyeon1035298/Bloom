@@ -244,7 +244,7 @@ internal sealed partial class ChatWindow
         var head = new Grid();
         head.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
         head.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
-        head.Children.Add(Theme.T(NameOf(t), 13.5, on ? Theme.P.AccentText : Theme.P.Text, on ? Theme.Semi : Theme.Medium));
+        head.Children.Add(Theme.T(NameOf(t), 13.5, Theme.P.Text, on ? Theme.Semi : Theme.Medium));
         if (live)
         {
             var dot = new Ellipse { Width = 6, Height = 6, Fill = Theme.P.Accent, Margin = new Thickness(8, 1, 0, 0), VerticalAlignment = VerticalAlignment.Center, ToolTip = Tr("세션 실행 중 · 바로 답변 가능", "Session running · ready to answer") };
@@ -297,7 +297,7 @@ internal sealed partial class ChatWindow
             CornerRadius = new CornerRadius(8),
             Margin = new Thickness(group is null ? 10 : 24, 1, 10, 1),
             Padding = new Thickness(12, 0, 6, 0),
-            Background = on ? Theme.P.AccentSoft : Brushes.Transparent,
+            Background = on ? Theme.P.Selected : Brushes.Transparent,
             Cursor = Cursors.Hand,
             Child = content,
             Tag = group,

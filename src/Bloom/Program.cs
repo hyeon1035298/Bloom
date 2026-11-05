@@ -15,7 +15,8 @@ internal static class Program
 {
     /// Args: --data <dir> (dev copy with its own data), --show, --settings, --quit, --no-hook,
     ///       --no-tray, --display=<n> (dev: open on that monitor), --capture <dir> (render the
-    ///       views to PNG files and exit), --autostart (started from the Run key).
+    ///       views to PNG files and exit), --autostart (started at sign-in: the Run key, or the logon task
+    ///       while an add-on is on).
     ///       --export <file> (the settings into a file, the same as 설정 > 정보 > 설정 내보내기; Bloom must not be running).
     ///       --restart-from <pid> / --reset-from <pid> (started by a Bloom that is quitting: wait for it, then start).
     ///       --uninstall-from <pid> [--wipe] (설정 > 정보 > Bloom 삭제: wait for it, delete the data when asked, run the
@@ -51,6 +52,7 @@ internal static class Program
             {
                 // the Run entry, Claude Code's approval hook and Explorer's 연결 프로그램 would point at a removed exe
                 Autostart.Set(false);
+                LogonTask.Remove();
                 Ai.ClaudeHooks.Remove();
                 FileAssoc.Set(false);
             })
@@ -155,6 +157,9 @@ internal static class Program
                 case "--quit":
                     quit = true;
                     break;
+                case "--autostart":
+                    opt.Autostart = true;
+                    break;
                 case "--no-hook":
                     opt.NoHook = true;
                     break;
@@ -214,6 +219,8 @@ internal static class Program
             }
         }
         if (!first && export is not null) return 3; // quit Bloom first: it may hold unsaved settings
+        // at sign-in both the logon task and the Run entry may start Bloom: the later start ends without opening the launcher
+        if (!first && opt.Autostart) return 0;
         if (!first)
         {
             string signal = quit ? ".Quit" : opt.Settings ? ".Settings" : ".Show";
@@ -278,6 +285,8 @@ internal static class Program
     private static void Reset(int oldPid)
     {
         WaitFor(oldPid);
+        StopAddons();
+        LogonTask.Remove(); // the add-ons are off in the fresh settings
         DeleteData();
         Paths.Init(Paths.IsDev ? Paths.Data : null);
         Log.Write("reset: data deleted, starting fresh");
@@ -289,6 +298,7 @@ internal static class Program
     private static int Uninstall(int oldPid, bool wipe)
     {
         WaitFor(oldPid);
+        StopAddons();
         if (wipe) DeleteData();
         if (Updates.Uninstaller() is not { } updater) return 0;
         var psi = new System.Diagnostics.ProcessStartInfo(updater) { UseShellExecute = false };
@@ -298,19 +308,26 @@ internal static class Program
         return 0;
     }
 
-    /// Both data folders (settings, chats, favorites … and the local caches and logs), retried while a file still closes.
+    /// The add-on hosts the quitting Bloom left running (they wait a few seconds for a new Bloom) are stopped and waited
+    /// for: explorer lets go of the run copy in the local data folder and the host of its state files.
+    private static void StopAddons()
+    {
+        try
+        {
+            Bloom.Addons.AddonHub.StopAll();
+        }
+        catch (Exception e) when (e is IOException or UnauthorizedAccessException or System.ComponentModel.Win32Exception)
+        {
+            Log.Error("add-ons", e);
+        }
+    }
+
+    /// Both data folders (settings, chats, favorites … and the local caches and logs), retried while a file still closes;
+    /// the junctions inside (Codex's sessions) are unlinked, never followed.
     private static void DeleteData()
     {
-        foreach (string dir in new[] { Paths.Data, Paths.Local }.Distinct().Where(Paths.Deletable))
-            for (int attempt = 0; attempt < 10 && Directory.Exists(dir); attempt++)
-                try
-                {
-                    Directory.Delete(dir, true);
-                }
-                catch (Exception e) when (e is IOException or UnauthorizedAccessException)
-                {
-                    Thread.Sleep(300); // a file still closing
-                }
+        foreach (string dir in new[] { Paths.Data, Paths.Local }.Distinct().Where(Paths.Deletable).ToList())
+            DataWipe.DeleteRoot(dir);
     }
 
     /// The Bloom that started this one (restart, reset) has to end first: it holds the mutex and the data.
