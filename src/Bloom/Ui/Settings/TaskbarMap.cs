@@ -72,6 +72,7 @@ internal static class TaskbarMap
         new("autohide.hideDelay", Section.IslandMore, Control.Number),
         new("autohide.animation", Section.IslandMore, Control.Number),
         new("autohide.keepHiddenForBloom", Section.IslandMore, Control.Switch),
+        new("autohide.keepHiddenOnFlash", Section.IslandMore, Control.Switch),
         // 폴더
         new("folders.enabled", Section.Folders, Control.Switch), // off: the editor gives way to this switch alone
         new("folders.autoRunning", Section.Folders, Control.Running),
