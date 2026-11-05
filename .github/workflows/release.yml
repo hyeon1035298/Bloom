@@ -29,6 +29,31 @@ jobs:
           if (-not $v) { throw 'no <Version> in Bloom.csproj' }
           "version=$v" >> $env:GITHUB_OUTPUT
 
+      # the add-ons in addons/catalog.json ({"addons": [{id, version, url, sha256, size}]}), which Bloom embeds and
+      # Settings > Add-ons downloads from: a gate only, nothing of them goes into the release. Each release zip is
+      # downloaded, checked against its sha256 (and size when given) and unpacked, and its addon.json must name the
+      # entry's id and version; no release while an entry lacks its hash or fails a check
+      - name: Add-ons
+        shell: pwsh
+        run: |
+          $list = @((Get-Content addons/catalog.json -Raw | ConvertFrom-Json).addons)
+          $empty = @($list | Where-Object { -not $_.sha256 } | ForEach-Object { "$($_.id) $($_.version)" })
+          if ($empty) { throw "addons/catalog.json: fill in the sha256 of the release zip for $($empty -join ', ')" }
+          foreach ($a in $list) {
+              if ($a.id -notmatch '^[a-z0-9-]+$') { throw "addons/catalog.json: '$($a.id)' is not lowercase letters, digits and -" }
+              if ($a.url -notmatch '^https://') { throw "addons/catalog.json: $($a.id) is not an https address" }
+              $zip = Join-Path $env:RUNNER_TEMP "$($a.id).zip"
+              Invoke-WebRequest -Uri $a.url -OutFile $zip
+              $got = (Get-FileHash -LiteralPath $zip -Algorithm SHA256).Hash
+              if ($got -ne $a.sha256) { throw "addons/catalog.json: $($a.id) $($a.version) is $got, not the sha256 the catalog gives" }
+              $length = (Get-Item -LiteralPath $zip).Length
+              if ($a.size -and $length -ne $a.size) { throw "addons/catalog.json: $($a.id) $($a.version) is $length bytes, not the size the catalog gives" }
+              $dir = Join-Path $env:RUNNER_TEMP "addons/$($a.id)"
+              Expand-Archive -LiteralPath $zip -DestinationPath $dir
+              $m = Get-Content -LiteralPath (Join-Path $dir addon.json) -Raw | ConvertFrom-Json
+              if ($m.id -ne $a.id -or $m.version -ne $a.version) { throw "addons/catalog.json: the zip holds $($m.id) $($m.version), not $($a.id) $($a.version)" }
+          }
+
       # the release's text: its "## <version>" section of CHANGELOG.md, or else the commits since the last release
       - name: Notes
         shell: pwsh
@@ -51,12 +76,11 @@ jobs:
       - name: Tests
         run: dotnet run --project tests/Bloom.Tests -c Release
 
+      # Bloom and the elevated Win-key helper (issue #3, NativeAOT: the runner has the C++ build tools), with
+      # package.ps1's checks; no add-ons (package.ps1 -Addon is for local installs only)
       - name: Publish
-        run: dotnet publish src/Bloom/Bloom.csproj -c Release -r win-x64 --self-contained false -p:DebugType=none -o publish
-
-      # the elevated Win-key helper (issue #3): NativeAOT, beside Bloom.exe (the runner has the C++ build tools)
-      - name: Publish the Win-key helper
-        run: dotnet publish src/WinKeyHelper/WinKeyHelper.csproj -c Release -r win-x64 -p:DebugType=none -o publish
+        shell: pwsh
+        run: ./tools/package.ps1 -Out publish
 
       - name: Install vpk
         run: dotnet tool install -g vpk --version 1.2.161

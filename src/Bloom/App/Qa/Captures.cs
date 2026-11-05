@@ -65,6 +65,12 @@ internal static partial class Captures
         ["palette-perf"] = PalettePerf,
         ["providers"] = ProviderScreens,
         ["tokens"] = TokenScreens,
+        ["taskbar"] = TaskbarScreens,
+        ["addons"] = AddonScreens,
+        ["taskbar-folders"] = TaskbarFolderScreens,
+        ["taskbar-usage"] = TaskbarUsageScreens,
+        ["usagecards"] = UsageCardScreens,
+        ["accent"] = AccentScreens,
     };
 
     public static async Task Run(Host host, string dir)

@@ -261,7 +261,7 @@ internal static class Icons
         if (!Tones.TryGetValue(key, out int tone)) return;
         bool need = (tone > 0 && !Theme.P.Dark) || (tone < 0 && Theme.P.Dark);
         if (!need) return;
-        holder.Background = tone > 0 ? new SolidColorBrush(Color.FromRgb(0x2B, 0x24, 0x27)) : new SolidColorBrush(Color.FromRgb(0xEB, 0xE6, 0xE8));
+        holder.Background = tone > 0 ? new SolidColorBrush(Color.FromRgb(0x27, 0x27, 0x2A)) : new SolidColorBrush(Color.FromRgb(0xE4, 0xE4, 0xE7));
         image.Width = image.Height = size * 0.66;
     }
 

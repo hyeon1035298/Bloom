@@ -18,7 +18,7 @@ internal static class HomeViews
     /// each limit as a thin bar, its percent and how long until it resets. A card names its account in the user's own
     /// words, or by e-mail when one kind has two (AiUsage.Who). `edit` (홈 편집): ‹ › swap a card with its neighbour in
     /// 설정's account order, then Moved draws the home again; ✎ asks Rename for the account's words.
-    public static FrameworkElement Usage(List<UsageAccount> accounts, (Action Moved, Action<string> Rename)? edit = null)
+    public static FrameworkElement Usage(List<UsageAccount> accounts, (Action Moved, Action<string> Rename)? edit = null, Action? openAccounts = null)
     {
         if (accounts.Count == 0)
         {
@@ -35,7 +35,7 @@ internal static class HomeViews
         {
             if (i % PerRow == 0) grid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
             var a = accounts[i];
-            var card = Card(a, AiUsage.Who(a, accounts), edit is { } e && a.Balance is null ? CardTools(movable, movable.IndexOf(a), e) : null);
+            var card = Card(a, AiUsage.Who(a, accounts), edit is { } e && a.Balance is null ? CardTools(movable, movable.IndexOf(a), e) : null, openAccounts);
             card.Margin = new Thickness(4, i >= PerRow ? 8 : 0, 4, 0);
             Grid.SetColumn(card, i % PerRow);
             Grid.SetRow(card, i / PerRow);
@@ -98,16 +98,28 @@ internal static class HomeViews
         return Pill(EditButton(G.Minus, fewer, value > min, () => set(value - 1)), n, EditButton(G.Add, more, value < max, () => set(value + 1)));
     }
 
-    /// A dashed rounded outline over the whole of what it is put in (홈 편집's "+ 블록 추가").
-    public static System.Windows.Shapes.Rectangle Dashes(Brush line) => new()
+    /// A dashed rounded outline over the whole of what it is put in (홈 편집's "+ 블록 추가"), with the corners every
+    /// SmoothBorder has.
+    public static FrameworkElement Dashes(Brush line) => new DashedOutline(line) { IsHitTestVisible = false };
+
+    private sealed class DashedOutline(Brush line) : FrameworkElement
     {
-        Stroke = line,
-        StrokeThickness = 1,
-        StrokeDashArray = new DoubleCollection { 4, 3 },
-        RadiusX = 10,
-        RadiusY = 10,
-        IsHitTestVisible = false,
-    };
+        private static readonly DashStyle Dash = MakeDash();
+
+        private static DashStyle MakeDash()
+        {
+            var d = new DashStyle(new double[] { 4, 3 }, 0);
+            d.Freeze();
+            return d;
+        }
+
+        protected override void OnRender(DrawingContext dc)
+        {
+            if (ActualWidth <= 1 || ActualHeight <= 1) return;
+            // the stroke inside the box, as a 1 px Border line is
+            dc.DrawGeometry(null, new Pen(line, 1) { DashStyle = Dash }, SmoothBorder.Shape(new Rect(0.5, 0.5, ActualWidth - 1, ActualHeight - 1), new CornerRadius(10), 0.5));
+        }
+    }
 
     /// "+ 블록 추가" with nothing hidden: says so, takes no clicks (no row: the keys pass it by).
     public static FrameworkElement NoneHidden()
@@ -138,51 +150,73 @@ internal static class HomeViews
         };
     }
 
-    /// `who`: the line under the name that says whose account it is (AiUsage.Who). `tools` (홈 편집): a row of their own
-    /// at the card's foot, over none of its words (on top they hid the plan; the cards were too narrow).
-    private static Border Card(UsageAccount a, string? who, FrameworkElement? tools = null)
+    /// `who`: the line under the name that says whose account it is (AiUsage.Who; with the user's own words for the
+    /// account the card is named by them and has no such line). `tools` (홈 편집): a row of their own at the card's foot,
+    /// over none of its words (on top they hid the plan; the cards were too narrow). `openAccounts`: 설정 > AI 계정.
+    private static Border Card(UsageAccount a, string? who, FrameworkElement? tools = null, Action? openAccounts = null)
     {
+        var account = Core.AiAccounts.Find(a.Id);
+        string? alias = account?.Alias is { Length: > 0 } words ? words : null;
         var stack = new StackPanel();
+        // [mark][name][plan badge] … [age]
         var head = new Grid { Margin = new Thickness(0, 0, 0, 5) };
-        head.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
-        head.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
-        var name = new TextBlock { TextTrimming = TextTrimming.CharacterEllipsis };
-        name.Inlines.Add(new System.Windows.Documents.Run(a.Name) { FontFamily = Theme.Sans, FontSize = 12.5, FontWeight = Theme.Semi, Foreground = Theme.P.Text });
-        if (a.Plan is { Length: > 0 } plan)
-            name.Inlines.Add(new System.Windows.Documents.Run("  " + plan) { FontFamily = Theme.Sans, FontSize = 11.5, Foreground = Theme.P.TextFaint });
+        for (int c = 0; c < 4; c++)
+            head.ColumnDefinitions.Add(new ColumnDefinition { Width = c == 1 ? new GridLength(1, GridUnitType.Star) : GridLength.Auto });
+        var mark = UsageLogo.Mark(account?.Icon, UsageLogo.Letter(a.Name, account?.Kind), 16);
+        mark.Margin = new Thickness(0, 0, 6, 0);
+        mark.VerticalAlignment = VerticalAlignment.Center;
+        head.Children.Add(mark);
+        var name = Theme.T(alias ?? a.Name, 12.5, Theme.P.Text, Theme.Semi);
+        Grid.SetColumn(name, 1);
         head.Children.Add(name);
-        if (DateTime.Now - a.Fetched > TimeSpan.FromMinutes(15)) // this side failed since: its numbers are old
+        if (a.Plan is { Length: > 0 } plan) // not known = no badge
+        {
+            var badge = new SmoothBorder { Height = 16, CornerRadius = new CornerRadius(4), Background = Theme.P.Tile, Padding = new Thickness(5, 0, 5, 0), Margin = new Thickness(6, 0, 0, 0), VerticalAlignment = VerticalAlignment.Center, Child = Theme.Label(plan, 11, Theme.P.TextDim, Theme.Medium, inBorder: true) };
+            Grid.SetColumn(badge, 2);
+            head.Children.Add(badge);
+        }
+        bool stale = DateTime.Now - a.Fetched > TimeSpan.FromMinutes(15); // this side failed since: its numbers are old
+        if (stale)
         {
             var age = Theme.T(Tr($"{Ago(DateTime.Now - a.Fetched)} 전", $"{Ago(DateTime.Now - a.Fetched)} ago"), 11, Theme.P.TextFaint, Theme.Regular, false);
             age.ToolTip = Tr("마지막으로 받은 때", "Last fetched");
-            Grid.SetColumn(age, 1);
+            age.Margin = new Thickness(6, 0, 0, 0);
+            Grid.SetColumn(age, 3);
             head.Children.Add(age);
         }
         stack.Children.Add(head);
-        if (who is { Length: > 0 })
+        if (alias is null && who is { Length: > 0 })
         {
             var mail = Theme.T(who, 11, Theme.P.TextFaint, Theme.Regular, false);
             mail.TextTrimming = TextTrimming.CharacterEllipsis;
             mail.Margin = new Thickness(0, -3, 0, 4);
             stack.Children.Add(mail);
         }
-        if (AiUsage.Failed(a.Id) && Core.AiAccounts.Find(a.Id) is { } account)
-        {
-            var need = Theme.T(Core.AiAccounts.NeedsSignIn(account, false), 11, Theme.P.Danger, Theme.Regular, false);
-            need.TextTrimming = TextTrimming.CharacterEllipsis;
-            need.Margin = new Thickness(0, -2, 0, 3);
-            stack.Children.Add(need);
-        }
         bool left = Core.Settings.Current.UsageLeft;
-        foreach (var l in a.Shown.Take(3))
+        // the session, the week and (Claude) a model's own week: the three lines, each always there
+        var limits = a.Limits.Take(3).ToList();
+        if (account is not null && AiUsage.Failed(a.Id)) // signed out: no old bars, the way back instead
         {
+            var need = Theme.T(Tr("로그인이 풀려 사용량을 받지 못했습니다", "Signed out, so usage can't be fetched"), 11, Theme.P.TextDim, Theme.Regular, false);
+            need.TextWrapping = TextWrapping.Wrap;
+            need.Margin = new Thickness(0, 0, 0, 8);
+            stack.Children.Add(need);
+            stack.Children.Add(SignInAgain(account, openAccounts));
+            limits.Clear();
+        }
+        var rows = new StackPanel { Opacity = stale ? 0.55 : 1 };
+        foreach (var l in limits)
+        {
+            bool hot = l.Percent >= 90;
             var row = new Grid { Margin = new Thickness(0, 2, 0, 0) };
             row.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
             row.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
             var label = Theme.T(l.Title, 11, Theme.P.TextDim);
             row.Children.Add(label);
             var right = new TextBlock { HorizontalAlignment = HorizontalAlignment.Right };
-            right.Inlines.Add(new System.Windows.Documents.Run($"{Shown(l.Percent, left)}%") { FontFamily = Theme.Sans, FontSize = 11.5, FontWeight = Theme.Medium, Foreground = l.Percent >= 90 ? Theme.P.Danger : Theme.P.Text });
+            if (hot) // a mark as well as the colour: red alone is not a warning for everyone
+                right.Inlines.Add(new System.Windows.Documents.Run(G.Warning.ToString() + " ") { FontFamily = Theme.IconFont, FontSize = 10.5, Foreground = Theme.P.Danger });
+            right.Inlines.Add(new System.Windows.Documents.Run($"{Shown(l.Percent, left)}%") { FontFamily = Theme.Sans, FontSize = 11.5, FontWeight = hot ? Theme.Semi : Theme.Medium, Foreground = hot ? Theme.P.Danger : Theme.P.Text });
             if (left)
                 right.Inlines.Add(new System.Windows.Documents.Run(Tr(" 남음", " left")) { FontFamily = Theme.Sans, FontSize = 11, Foreground = Theme.P.TextDim });
             if (l.Resets is { } r)
@@ -190,9 +224,10 @@ internal static class HomeViews
             Typography.SetNumeralAlignment(right, FontNumeralAlignment.Tabular);
             Grid.SetColumn(right, 1);
             row.Children.Add(right);
-            stack.Children.Add(row);
-            stack.Children.Add(Bar(left ? Shown(l.Percent, true) : l.Percent, l.Percent >= 90));
+            rows.Children.Add(row);
+            rows.Children.Add(Bar(left ? Shown(l.Percent, true) : l.Percent, hot));
         }
+        if (rows.Children.Count > 0) stack.Children.Add(rows);
         if (a.Balance is { } balance) // an API key's card: "잔액  $12.34"
         {
             var row = new Grid { Margin = new Thickness(0, 2, 0, 0) };
@@ -225,8 +260,29 @@ internal static class HomeViews
             CornerRadius = new CornerRadius(10),
             Padding = new Thickness(12, 9, 12, 10),
             Child = body,
-            ToolTip = a.Balance?.Tip ?? string.Join("\n", a.Shown.Select(l => Tip(l, left))),
+            ToolTip = a.Balance?.Tip ?? string.Join("\n", a.Limits.Take(3).Select(l => Tip(l, left))),
         };
+    }
+
+    /// 다시 로그인 on a signed-out card: an added account runs its CLI sign-in here (as 설정 > AI 계정 does), a default
+    /// one is signed in from Claude Code or Codex itself, so it opens 설정 > AI 계정.
+    private static FrameworkElement SignInAgain(Core.AiAccount account, Action? openAccounts)
+    {
+        var button = ToolUi.TextButton(Tr("다시 로그인", "Sign in again"), () => { });
+        button.Height = 24;
+        button.Margin = new Thickness(0, 0, 0, 2);
+        button.MouseLeftButtonUp += async (_, _) =>
+        {
+            if (account.IsDefault || UsageLogin.Open(account)) // the default has no sign-in of Bloom's; an open terminal is the user's to finish
+            {
+                openAccounts?.Invoke();
+                return;
+            }
+            var owner = Window.GetWindow(button);
+            string? error = await UsageLogin.Run(account);
+            if (error is not null) ConfirmWindow.Tell(owner, Core.AiAccounts.Label(account), error);
+        };
+        return button;
     }
 
     /// A limit's tooltip line: the percent and the reset.

@@ -70,7 +70,8 @@ internal sealed class TextField : StackPanel
         };
         var apply = ActionButton.Make(Tr("적용", "Apply"), true, Apply);
         apply.Margin = new Thickness(8, 0, 0, 0);
-        apply.Padding = new Thickness(12, 5, 12, 6);
+        apply.Height = 28; // a small button beside the field
+        apply.Padding = new Thickness(12, 0, 12, 0);
         error.Margin = new Thickness(10, 0, 0, 0);
         Children.Add(well);
         Children.Add(apply);
@@ -91,6 +92,9 @@ internal sealed class TextField : StackPanel
             }
         });
     }
+
+    /// What is typed in now, applied or not (a form whose own button reads it: 설정 > 애드온's 새 폴더).
+    public string Text => box.Text.Trim();
 
     public void FocusBox()
     {

@@ -261,5 +261,8 @@ internal static class AiUsage
         Fetched = DateTime.Now;
     }
 
+    /// A QA picture of a signed-out card: the account counts as failed (SetForQa's accounts only).
+    public static void FailForQa(string id) => failed.Add(id);
+
     private static (string? claude, string? codex) Find() => (ClaudeSession.FindCli(Settings.Current.ClaudePath), CodexSession.FindCli(Settings.Current.CodexPath));
 }

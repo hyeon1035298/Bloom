@@ -365,3 +365,4 @@ dotnet format whitespace tests\Bloom.Tests\Bloom.Tests.csproj --verify-no-change
 
 MIT — [LICENSE](LICENSE)。
 為替レート: [Rates By Exchange Rate API](https://www.exchangerate-api.com)。
+タスクバーアドオン PillTaskbar は GPL-3.0 の別プログラムです（[ソース](https://github.com/hyeon1035298/PillTaskbar_BloomAddon)）。Bloom 本体は MIT のままです。

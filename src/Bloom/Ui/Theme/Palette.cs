@@ -5,14 +5,28 @@ using System.Windows.Media;
 namespace Bloom.Ui;
 
 /// Colour tokens. The brushes are shared and mutated in place, so a theme switch repaints every
-/// element that uses them. Bloom's palette (oklch → sRGB): rose-tinted neutrals (hue 350) and one
-/// rose accent — #ff7a9e dark, #e04e78 light.
+/// element that uses them. Neutral zinc grays (the same whatever the accent) and one accent, rose by
+/// default — #ff7a9e dark, #e04e78 light — used only for what is on: a switch, a lit line, the caret.
 internal sealed class Palette
 {
     public readonly SolidColorBrush Tint = new(), Solid = new(), Text = new(), TextDim = new(), TextFaint = new(), Line = new(),
         Hover = new(), Selected = new(), Accent = new(), AccentSoft = new(), AccentText = new(), AccentInk = new(), Card = new(),
         CardLine = new(), Tile = new(), TileFg = new(), Key = new(), KeyFg = new(), Danger = new(), Popup = new(), PopupLine = new(),
         Code = new(), UserBubble = new(), Track = new(), Thumb = new(), Selection = new(), Well = new(), Raised = new();
+
+    /// A button and a key that is on: its fill, the fill under the pointer, and its edges (dark: a light line along the
+    /// top; light: a hairline round it and a darker one along the bottom, as white on a light card needs an edge).
+    public readonly SolidColorBrush Btn = new(), BtnHover = new(), BtnTop = new(), BtnEdge = new(), BtnBottom = new();
+
+    /// The light line on top of a chosen segment, the shade under a key cap, the outlines of what is off (Edge: a key,
+    /// EdgeStrong: a switch's track), the hairlines between a card's rows.
+    public readonly SolidColorBrush Hilite = new(), Shade = new(), Edge = new(), EdgeStrong = new(), Rule = new();
+
+    /// States: working, a warning, and the fill of a button that cannot be undone.
+    public readonly SolidColorBrush Ok = new(), Warn = new(), DangerFill = new();
+
+    /// The words on DangerFill: white in both themes.
+    public readonly SolidColorBrush DangerInk = new(Colors.White);
 
     public bool Dark { get; private set; }
 
@@ -34,16 +48,13 @@ internal sealed class Palette
         Tint.Color = Color.FromArgb((byte)Math.Round(2.55 * (100 - Math.Clamp(glassTransparency, 0, 100))), c.R, c.G, c.B);
     }
 
-    /// Another colour from the settings: the accent and its soft / text / ink / selection shades, and the
-    /// neutrals turned to its hue (same lightness and saturation, so only the tint changes; gray drops it).
+    /// The accent alone, in the theme shown (설정 > 일반 > 직접 고른 색 while it is dragged): the brushes change in place
+    /// and nothing else is told.
+    public void Recolor(AccentPreset a) => Recolor(Dark, a);
+
+    /// Another colour from the settings: the accent and its soft / text / selection shades. The grays stay as they are.
     private void Recolor(bool dark, AccentPreset a)
     {
-        var accentOnes = new[] { Accent, AccentSoft, AccentText, AccentInk, UserBubble, Selection, Danger };
-        foreach (var b in new[] { Solid, Text, TextDim, TextFaint, Line, Hover, Selected, Card, CardLine, Tile, TileFg, Key, KeyFg, Popup, PopupLine, Code, Track, Thumb, Well, Raised })
-        {
-            var (h, s, l) = Hsl.From(b.Color);
-            b.Color = Hsl.To(b.Color.A, a.Gray ? h : a.Hue, a.Gray ? 0 : s, l);
-        }
         var acc = C(dark ? a.Dark : a.Light);
         var (ah, asat, al) = Hsl.From(acc);
         Accent.Color = acc;
@@ -51,7 +62,12 @@ internal sealed class Palette
         UserBubble.Color = Color.FromArgb(0x26, acc.R, acc.G, acc.B);
         Selection.Color = Color.FromArgb((byte)(dark ? 0x59 : 0x4D), acc.R, acc.G, acc.B);
         AccentText.Color = Hsl.To(0xFF, ah, asat, Math.Clamp(al + (dark ? 0.05 : -0.06), 0, 1));
-        AccentInk.Color = dark ? Hsl.To(0xFF, ah, a.Gray ? 0 : 0.6, 0.1) : Colors.White;
+        // the text on the accent (a primary button): the theme's own ink, or the other one when a pale or deep colour
+        // leaves it under 3:1 and the other reads better
+        Color ink = dark ? Color.FromRgb(0x18, 0x18, 0x1B) : Color.FromRgb(0xFA, 0xFA, 0xFA);
+        Color other = dark ? Color.FromRgb(0xFA, 0xFA, 0xFA) : Color.FromRgb(0x18, 0x18, 0x1B);
+        double own = Accents.Contrast(ink, acc);
+        AccentInk.Color = own >= Accents.MinContrast || own >= Accents.Contrast(other, acc) ? ink : other;
     }
 
     private void Base(bool dark)
@@ -59,72 +75,98 @@ internal sealed class Palette
         Dark = dark;
         if (dark)
         {
-            // bg #0E0B0C · bg-2 #090607 · surface-2 #1E191C · surface-3 #292225 · line base #FDEDF4
-            Set(Solid, 0xFF0E0B0C);
-            Set(Text, 0xFFF1ECEE);
-            Set(TextDim, 0xFFC1B8BB);
-            Set(TextFaint, 0xFF8C8186);
-            Set(Line, 0x13FDEDF4);
-            Set(Hover, 0x0DFDEDF4);
-            Set(Selected, 0x17FDEDF4);
+            // window #18181B, raised #3F3F46, text #ECEDEE / #A1A1AA; the rest white over the window by alpha
+            Set(Solid, 0xFF18181B);
+            Set(Text, 0xFFECEDEE);
+            Set(TextDim, 0xFFA1A1AA);
+            Set(TextFaint, 0xFF97989A);
+            Set(Line, 0x14FFFFFF);
+            Set(Hover, 0x14FFFFFF);
+            Set(Selected, 0x1AFFFFFF);
             Set(Accent, 0xFFFF7A9E);
             Set(AccentSoft, 0x1FFF7A9E);
             Set(AccentText, 0xFFFF8EAE);
-            Set(AccentInk, 0xFF2A0914);
-            Set(Card, 0x0FFDEDF4);
-            Set(CardLine, 0x13FDEDF4);
-            Set(Tile, 0x16FDEDF4);
-            Set(TileFg, 0xFFD6CED2);
-            Set(Key, 0x17FDEDF4);
-            Set(KeyFg, 0xFFC1B8BB);
-            Set(Danger, 0xFFFF6F6F);
-            Set(Popup, 0xF51E191C);
-            Set(PopupLine, 0x24FDEDF4);
-            Set(Code, 0x66090607);
+            Set(AccentInk, 0xFF18181B);
+            Set(Card, 0x0DFFFFFF);
+            Set(CardLine, 0x14FFFFFF);
+            Set(Tile, 0x14FFFFFF);
+            Set(TileFg, 0xFFD4D4D8);
+            Set(Key, 0x14FFFFFF);
+            Set(KeyFg, 0xFFA1A1AA);
+            Set(Danger, 0xFFE77578);
+            Set(Popup, 0xF527272A);
+            Set(PopupLine, 0x14FFFFFF);
+            Set(Code, 0x660E0E10);
             Set(UserBubble, 0x26FF7A9E);
-            Set(Track, 0x2BFDEDF4);
-            Set(Thumb, 0x24FDEDF4);
+            Set(Track, 0x1AFFFFFF);
+            Set(Thumb, 0x26FFFFFF);
             Set(Selection, 0x59FF7A9E);
-            Set(Well, 0x99090607);
-            Set(Raised, 0xFF292225);
+            Set(Well, 0x14FFFFFF);
+            Set(Raised, 0xFF3F3F46);
+            Set(Btn, 0xFF3F3F46);
+            Set(BtnHover, 0xFF52525B);
+            Set(BtnTop, 0x14FFFFFF);
+            Set(BtnEdge, 0x00FFFFFF);
+            Set(BtnBottom, 0x00000000);
+            Set(Hilite, 0x14FFFFFF);
+            Set(Shade, 0x73000000);
+            Set(Edge, 0x26FFFFFF);
+            Set(EdgeStrong, 0x40FFFFFF);
+            Set(Rule, 0x0DFFFFFF);
+            Set(Ok, 0xFF17C964);
+            Set(Warn, 0xFFF7B750);
+            Set(DangerFill, 0xFFC62F35);
         }
         else
         {
-            // bg #F7F5F6 · bg-2 #F0EDEE · surface-2 #F5F1F3 · ink #2D1C24
-            Set(Solid, 0xFFF7F5F6);
-            Set(Text, 0xFF201A1C);
-            Set(TextDim, 0xFF534A4E);
-            Set(TextFaint, 0xFF7C7377);
-            Set(Line, 0x162D1C24);
-            Set(Hover, 0x0A2D1C24);
-            Set(Selected, 0x122D1C24);
+            // window #F4F4F5, buttons white with an edge, text #11181C / #3F3F46; the rest #111 over the window by alpha
+            Set(Solid, 0xFFF4F4F5);
+            Set(Text, 0xFF11181C);
+            Set(TextDim, 0xFF3F3F46);
+            Set(TextFaint, 0xFF52525B);
+            Set(Line, 0x14111111);
+            Set(Hover, 0x14111111);
+            Set(Selected, 0x1A111111);
             Set(Accent, 0xFFE04E78);
             Set(AccentSoft, 0x1FE04E78);
             Set(AccentText, 0xFFCC3D68);
-            Set(AccentInk, 0xFFFFFFFF);
-            Set(Card, 0x99FFFFFF);
-            Set(CardLine, 0x162D1C24);
-            Set(Tile, 0x0F2D1C24);
-            Set(TileFg, 0xFF3B3336);
-            Set(Key, 0x102D1C24);
-            Set(KeyFg, 0xFF534A4E);
-            Set(Danger, 0xFFD94444);
-            Set(Popup, 0xFAF5F1F3);
-            Set(PopupLine, 0x262D1C24);
-            Set(Code, 0x0D2D1C24);
+            Set(AccentInk, 0xFFFAFAFA);
+            Set(Card, 0x0D111111);
+            Set(CardLine, 0x14111111);
+            Set(Tile, 0x14111111);
+            Set(TileFg, 0xFF3F3F46);
+            Set(Key, 0x14111111);
+            Set(KeyFg, 0xFF3F3F46);
+            Set(Danger, 0xFFB3363A);
+            Set(Popup, 0xFAFAFAFA);
+            Set(PopupLine, 0x14111111);
+            Set(Code, 0x0D111111);
             Set(UserBubble, 0x26E04E78);
-            Set(Track, 0x262D1C24);
-            Set(Thumb, 0x222D1C24);
+            Set(Track, 0x1A111111);
+            Set(Thumb, 0x26111111);
             Set(Selection, 0x4DE04E78);
-            Set(Well, 0xCCF0EDEE);
+            Set(Well, 0x14111111);
             Set(Raised, 0xFFFFFFFF);
+            Set(Btn, 0xFFFFFFFF);
+            Set(BtnHover, 0xFFF4F4F5);
+            Set(BtnTop, 0x00FFFFFF);
+            Set(BtnEdge, 0x1A111111);
+            Set(BtnBottom, 0x26111111);
+            Set(Hilite, 0x99FAFAFA);
+            Set(Shade, 0x33000000);
+            Set(Edge, 0x26111111);
+            Set(EdgeStrong, 0x40111111);
+            Set(Rule, 0x0D111111);
+            Set(Ok, 0xFF0E793C);
+            Set(Warn, 0xFF62420E);
+            Set(DangerFill, 0xFFDC3E42);
         }
     }
 
     private static void Set(SolidColorBrush b, uint argb) => b.Color = C(argb);
 }
 
-/// A UI colour the user can pick (설정 > 일반 > 색): the accent for dark and light; the neutrals follow its hue.
+/// A UI colour the user can pick (설정 > 일반 > 색): the accent for dark and light.
 internal sealed record AccentPreset(string Key, string Name, uint Dark, uint Light, bool Gray = false)
 {
     public double Hue => Hsl.From(Color.FromArgb(0xFF, (byte)(Dark >> 16), (byte)(Dark >> 8), (byte)Dark)).h;
@@ -184,10 +226,111 @@ internal static class Accents
         return new AccentPreset(CustomKey, Tr("직접", "Custom"), U(dark), U(c), s < 0.06);
     }
 
+    /// The window's ground in each theme (Palette.Solid), which an accent that is on is seen against.
+    public static readonly Color DarkGround = Color.FromRgb(0x18, 0x18, 0x1B), LightGround = Color.FromRgb(0xF4, 0xF4, 0xF5);
+
+    /// The least contrast a lit switch needs against its ground (WCAG's 3:1 for what is not text).
+    public const double MinContrast = 3;
+
+    /// The dark theme's colour for a light one: the same hue, 0.18 lighter, up to 0.86 (Custom's rule).
+    public static Color DarkOf(Color light) => Swatch(Custom(light), true);
+
+    /// The light theme's colour for a dark one: 0.18 darker, down to 0.08; one lighter than 0.86 stays as it is.
+    public static Color LightOf(Color dark)
+    {
+        var (h, s, l) = Hsl.From(dark);
+        return l > 0.86 ? Color.FromRgb(dark.R, dark.G, dark.B) : Hsl.To(0xFF, h, s, Math.Max(0.08, l - 0.18));
+    }
+
+    /// The colour kept (AccentCustom, the light theme's) for one picked while `dark` shows.
+    public static Color Stored(Color shown, bool dark) => dark ? LightOf(shown) : Color.FromRgb(shown.R, shown.G, shown.B);
+
+    /// WCAG relative luminance (0 black - 1 white).
+    public static double Luminance(Color c)
+    {
+        static double Lin(byte v)
+        {
+            double x = v / 255.0;
+            return x <= 0.03928 ? x / 12.92 : Math.Pow((x + 0.055) / 1.055, 2.4);
+        }
+        return 0.2126 * Lin(c.R) + 0.7152 * Lin(c.G) + 0.0722 * Lin(c.B);
+    }
+
+    /// WCAG contrast ratio, 1 to 21.
+    public static double Contrast(Color a, Color b)
+    {
+        double x = Luminance(a), y = Luminance(b);
+        return (Math.Max(x, y) + 0.05) / (Math.Min(x, y) + 0.05);
+    }
+
+    /// The contrast of the pair a light colour makes, each against its theme's ground.
+    public static (double dark, double light) Contrasts(Color light) => (Contrast(DarkOf(light), DarkGround), Contrast(light, LightGround));
+
+    public static bool Visible(Color light)
+    {
+        var (d, l) = Contrasts(light);
+        return d >= MinContrast && l >= MinContrast;
+    }
+
+    /// 보이게 맞추기: the nearest lightness (darker first) at which both colours of the pair stand out from their grounds;
+    /// with none, the one where the weaker of the two is strongest. Hue and saturation stay.
+    public static Color MakeVisible(Color light)
+    {
+        if (Visible(light)) return Color.FromRgb(light.R, light.G, light.B);
+        var (h, s, l0) = Hsl.From(light);
+        Color best = light;
+        double bestWeak = -1;
+        for (int k = 1; k <= 200; k++)
+            foreach (double l in new[] { l0 - k * 0.005, l0 + k * 0.005 })
+            {
+                if (l < 0 || l > 1) continue;
+                var c = Hsl.To(0xFF, h, s, l);
+                var (dc, lc) = Contrasts(c);
+                if (dc >= MinContrast && lc >= MinContrast) return c;
+                if (Math.Min(dc, lc) > bestWeak)
+                {
+                    bestWeak = Math.Min(dc, lc);
+                    best = c;
+                }
+            }
+        return best;
+    }
+
     public static Color Swatch(AccentPreset a, bool dark)
     {
         uint v = dark ? a.Dark : a.Light;
         return Color.FromArgb(0xFF, (byte)(v >> 16), (byte)(v >> 8), (byte)v);
+    }
+}
+
+/// Hue (0-360), saturation and value (0-1): the colour picker's square (s across, v up) and hue strip.
+internal static class Hsv
+{
+    public static (double h, double s, double v) From(Color c)
+    {
+        double r = c.R / 255.0, g = c.G / 255.0, b = c.B / 255.0;
+        double max = Math.Max(r, Math.Max(g, b)), min = Math.Min(r, Math.Min(g, b)), d = max - min;
+        double h = d < 1e-9 ? 0 : max == r ? (g - b) / d + (g < b ? 6 : 0) : max == g ? (b - r) / d + 2 : (r - g) / d + 4;
+        return (h * 60, max < 1e-9 ? 0 : d / max, max);
+    }
+
+    public static Color To(double h, double s, double v)
+    {
+        h = ((h % 360) + 360) % 360 / 60;
+        s = Math.Clamp(s, 0, 1);
+        v = Math.Clamp(v, 0, 1);
+        double c = v * s, x = c * (1 - Math.Abs(h % 2 - 1)), m = v - c;
+        var (r, g, b) = (int)h switch
+        {
+            0 => (c, x, 0.0),
+            1 => (x, c, 0.0),
+            2 => (0.0, c, x),
+            3 => (0.0, x, c),
+            4 => (x, 0.0, c),
+            _ => (c, 0.0, x),
+        };
+        byte B(double t) => (byte)Math.Round(Math.Clamp(t + m, 0, 1) * 255);
+        return Color.FromRgb(B(r), B(g), B(b));
     }
 }
 

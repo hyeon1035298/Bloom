@@ -201,7 +201,7 @@ internal sealed class SpaceWindow : Window
             string target = acc;
             bool last = i == parts.Length - 1;
             var t = Theme.T(i == 0 ? parts[0] : parts[i], 14, last ? Theme.P.Text : Theme.P.TextDim, last ? Theme.Semi : Theme.Medium, false);
-            var b = new Border { Child = t, Padding = new Thickness(6, 3, 6, 4), CornerRadius = new CornerRadius(6), Background = Brushes.Transparent, Cursor = last ? Cursors.Arrow : Cursors.Hand };
+            var b = new SmoothBorder { Child = t, Padding = new Thickness(6, 3, 6, 4), CornerRadius = new CornerRadius(6), Background = Brushes.Transparent, Cursor = last ? Cursors.Arrow : Cursors.Hand };
             if (!last)
             {
                 b.MouseEnter += (_, _) => b.Background = Theme.P.Hover;
@@ -232,13 +232,13 @@ internal sealed class SpaceWindow : Window
         {
             double used = d.TotalSize > 0 ? 1 - (double)d.AvailableFreeSpace / d.TotalSize : 0;
             var bar = new Grid { Width = 46, Height = 4, Margin = new Thickness(0, 3, 0, 0) };
-            bar.Children.Add(new Border { Background = Theme.P.Track, CornerRadius = new CornerRadius(2) });
-            bar.Children.Add(new Border { Background = used > 0.9 ? Theme.P.Danger : Theme.P.Accent, CornerRadius = new CornerRadius(2), HorizontalAlignment = HorizontalAlignment.Left, Width = 46 * used });
+            bar.Children.Add(new SmoothBorder { Background = Theme.P.Track, CornerRadius = new CornerRadius(2) });
+            bar.Children.Add(new SmoothBorder { Background = used > 0.9 ? Theme.P.Danger : Theme.P.Accent, CornerRadius = new CornerRadius(2), HorizontalAlignment = HorizontalAlignment.Left, Width = 46 * used });
             var sp = new StackPanel();
             sp.Children.Add(Theme.T(d.Name.TrimEnd('\\'), 12, Theme.P.Text, Theme.Semi, false));
             sp.Children.Add(bar);
             bool on = scan is not null && string.Equals(Path.GetPathRoot(scan.Root.Path), d.Name, StringComparison.OrdinalIgnoreCase);
-            var chip = new Border
+            var chip = new SmoothBorder
             {
                 Child = sp,
                 Padding = new Thickness(9, 4, 9, 5),
@@ -295,7 +295,7 @@ internal sealed class SpaceWindow : Window
         g.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
         g.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
         g.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
-        var dot = new Border { Width = 8, Height = 8, CornerRadius = new CornerRadius(2), Background = TreemapView.Kind(f.Name), Margin = new Thickness(8, 0, 10, 0), VerticalAlignment = VerticalAlignment.Center };
+        var dot = new SmoothBorder { Width = 8, Height = 8, CornerRadius = new CornerRadius(2), Background = TreemapView.Kind(f.Name), Margin = new Thickness(8, 0, 10, 0), VerticalAlignment = VerticalAlignment.Center };
         g.Children.Add(dot);
         var text = new StackPanel { VerticalAlignment = VerticalAlignment.Center };
         text.Children.Add(Theme.T(f.Name, 12.5, Theme.P.Text, Theme.Medium));
@@ -307,7 +307,7 @@ internal sealed class SpaceWindow : Window
         size.Margin = new Thickness(8, 0, 8, 0);
         Grid.SetColumn(size, 2);
         g.Children.Add(size);
-        var row = new Border { Child = g, CornerRadius = new CornerRadius(8) };
+        var row = new SmoothBorder { Child = g, CornerRadius = new CornerRadius(8) };
         row.MouseEnter += (_, _) => row.Background = Theme.P.Hover;
         row.MouseLeave += (_, _) => row.Background = Brushes.Transparent;
         row.MouseLeftButtonUp += (_, _) =>
@@ -340,7 +340,7 @@ internal sealed class SpaceWindow : Window
             gl.Margin = new Thickness(0, 0, 10, 0);
             sp.Children.Add(gl);
             sp.Children.Add(Theme.T(label, 13, danger ? Theme.P.Danger : Theme.P.Text, Theme.Medium, false));
-            var b = new Border { Child = sp, Padding = new Thickness(10, 7, 14, 7), CornerRadius = new CornerRadius(7), Background = Brushes.Transparent, Cursor = Cursors.Hand };
+            var b = new SmoothBorder { Child = sp, Padding = new Thickness(10, 7, 14, 7), CornerRadius = new CornerRadius(7), Background = Brushes.Transparent, Cursor = Cursors.Hand };
             b.MouseEnter += (_, _) => b.Background = Theme.P.Hover;
             b.MouseLeave += (_, _) => b.Background = Brushes.Transparent;
             b.MouseLeftButtonUp += (_, _) =>
@@ -350,7 +350,7 @@ internal sealed class SpaceWindow : Window
             };
             panel.Children.Add(b);
         }
-        menu.Child = new Border { Child = panel, Background = Theme.P.Popup, BorderBrush = Theme.P.PopupLine, BorderThickness = new Thickness(1), CornerRadius = new CornerRadius(10), MinWidth = 220 };
+        menu.Child = new SmoothBorder { Child = panel, Background = Theme.P.Popup, BorderBrush = Theme.P.PopupLine, BorderThickness = new Thickness(1), CornerRadius = new CornerRadius(10), MinWidth = 220 };
         menu.IsOpen = true;
     }
 
@@ -422,7 +422,7 @@ internal sealed class SpaceWindow : Window
         buttons.Children.Add(no);
         buttons.Children.Add(go);
         card.Children.Add(buttons);
-        dim.Children.Add(new Border { Child = card, Background = Theme.P.Popup, BorderBrush = Theme.P.PopupLine, BorderThickness = new Thickness(1), CornerRadius = new CornerRadius(12), MaxWidth = 460, HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center });
+        dim.Children.Add(new SmoothBorder { Child = card, Background = Theme.P.Popup, BorderBrush = Theme.P.PopupLine, BorderThickness = new Thickness(1), CornerRadius = new CornerRadius(12), MaxWidth = 460, HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center });
         root.Children.Add(dim);
         asking = true;
         PreviewKeyDown += Keys;
@@ -481,37 +481,24 @@ internal sealed class SpaceWindow : Window
 
     private static Border Button(object glyph, string tip, Action click)
     {
-        var b = new Border
+        var b = ButtonLook.Apply(new SmoothBorder
         {
             Width = 30,
             Height = 30,
-            CornerRadius = new CornerRadius(7),
-            Background = Theme.P.Tile,
+            CornerRadius = new CornerRadius(8),
             Cursor = Cursors.Hand,
             ToolTip = tip,
             VerticalAlignment = VerticalAlignment.Center,
             Child = Theme.Glyph(glyph is char c ? c : ((string)glyph)[0], 13, Theme.P.TextDim),
-        };
-        b.MouseEnter += (_, _) => b.Background = Theme.P.Selected;
-        b.MouseLeave += (_, _) => b.Background = Theme.P.Tile;
+        });
         b.MouseLeftButtonUp += (_, _) => click();
         return b;
     }
 
     private static Border TextButton(string label, Action click)
     {
-        var b = new Border
-        {
-            Padding = new Thickness(11, 6, 11, 7),
-            CornerRadius = new CornerRadius(7),
-            Background = Theme.P.Tile,
-            Cursor = Cursors.Hand,
-            VerticalAlignment = VerticalAlignment.Center,
-            Child = Theme.T(label, 12.5, Theme.P.Text, Theme.Medium, false),
-        };
-        b.MouseEnter += (_, _) => b.Background = Theme.P.Selected;
-        b.MouseLeave += (_, _) => b.Background = Theme.P.Tile;
-        b.MouseLeftButtonUp += (_, _) => click();
+        var b = ToolUi.TextButton(label, click);
+        b.VerticalAlignment = VerticalAlignment.Center;
         return b;
     }
 

@@ -1,7 +1,6 @@
-# Bloom's icon (src\Bloom\Assets\icon.ico): five white rounded petals around a rose centre on a
-# dark rose-tinted tile — "한 줄이 피어난다", the old line mark opened into a
-# flower — drawn with WPF at every icon size and packed as PNG entries.
-# Same drawing as Ui\Theme.MarkVisual.   pwsh tools\make_icon.ps1
+# Bloom's icon (src\Bloom\Assets\icon.ico): a cherry blossom, five broad white petals with notched
+# tips around a rose centre, on a dark rose-tinted tile — drawn with WPF at every icon size and
+# packed as PNG entries. Same drawing as Ui\Theme.MarkVisual.   pwsh tools\make_icon.ps1
 $ErrorActionPreference = 'Stop'
 Add-Type -AssemblyName PresentationCore, PresentationFramework, WindowsBase
 $root = Split-Path $PSScriptRoot -Parent
@@ -16,24 +15,21 @@ foreach ($s in $sizes) {
     $white = New-Object System.Windows.Media.SolidColorBrush ([System.Windows.Media.Color]::FromRgb(0xF1, 0xEC, 0xEE))
     $rose = New-Object System.Windows.Media.SolidColorBrush ([System.Windows.Media.Color]::FromRgb(0xFF, 0x7A, 0x9E))
     $cx = $s / 2
-    $cy = $s * 0.515
-    $hw = [Math]::Max(1.1, $s * 0.085)
-    $len = $s * 0.28
-    $gap = $s * 0.06
-    $yb = $cy - $gap
-    $yt = $cy - $gap - $len
-    # a petal: pointed base at the centre, round head outside (invariant numbers for the path syntax)
-    $n = { param($x) ([double]$x).ToString('0.###', [Globalization.CultureInfo]::InvariantCulture) }
-    $path = "M $(& $n $cx),$(& $n $yb) C $(& $n ($cx - $hw * 0.3)),$(& $n ($yb - $len * 0.3)) $(& $n ($cx - $hw)),$(& $n ($yt + $hw * 1.6)) $(& $n ($cx - $hw)),$(& $n ($yt + $hw)) " +
-        "A $(& $n $hw),$(& $n $hw) 0 0 1 $(& $n ($cx + $hw)),$(& $n ($yt + $hw)) " +
-        "C $(& $n ($cx + $hw)),$(& $n ($yt + $hw * 1.6)) $(& $n ($cx + $hw * 0.3)),$(& $n ($yb - $len * 0.3)) $(& $n $cx),$(& $n $yb) Z"
+    $cy = $s * 0.5273
+    # a petal pointing up: narrow base at the centre, broad sides, a V notch in the tip; points in units of the size
+    # (invariant numbers for the path syntax)
+    $p = { param([double]$x, [double]$y) (($cx + $x * $s), ($cy + $y * $s) | ForEach-Object { ([double]$_).ToString('0.###', [Globalization.CultureInfo]::InvariantCulture) }) -join ',' }
+    $path = "M $(& $p 0 -0.0195) C $(& $p 0.0586 -0.043) $(& $p 0.1328 -0.1608) $(& $p 0.1328 -0.2527) " +
+        "C $(& $p 0.1328 -0.3292) $(& $p 0.093 -0.3828) $(& $p 0.0586 -0.379) L $(& $p 0 -0.3313) L $(& $p -0.0586 -0.379) " +
+        "C $(& $p -0.093 -0.3828) $(& $p -0.1328 -0.3292) $(& $p -0.1328 -0.2527) " +
+        "C $(& $p -0.1328 -0.1608) $(& $p -0.0586 -0.043) $(& $p 0 -0.0195) Z"
     $petal = [System.Windows.Media.Geometry]::Parse($path)
     for ($i = 0; $i -lt 5; $i++) {
         $dc.PushTransform((New-Object System.Windows.Media.RotateTransform ($i * 72), $cx, $cy))
         $dc.DrawGeometry($white, $null, $petal)
         $dc.Pop()
     }
-    $r = [Math]::Max(1.5, $s * 0.062)
+    $r = [Math]::Max(1.5, $s * 0.0586)
     $dc.DrawEllipse($rose, $null, (New-Object System.Windows.Point $cx, $cy), $r, $r)
     $dc.Close()
     $rtb = New-Object System.Windows.Media.Imaging.RenderTargetBitmap $s, $s, 96, 96, ([System.Windows.Media.PixelFormats]::Pbgra32)

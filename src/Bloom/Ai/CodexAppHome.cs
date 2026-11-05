@@ -480,7 +480,7 @@ internal static class CodexAppHome
     }
 
     /// A junction (a mount point) at `link` to the folder `target`: unlike a symbolic link, any user may make one.
-    private static void Junction(string link, string target)
+    internal static void Junction(string link, string target)
     {
         byte[] substitute = Encoding.Unicode.GetBytes(@"\??\" + target), print = Encoding.Unicode.GetBytes(target);
         int paths = substitute.Length + 2 + print.Length + 2;

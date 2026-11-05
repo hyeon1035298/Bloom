@@ -50,7 +50,7 @@ internal sealed partial class Engine
                     var accounts = AiUsage.Accounts;
                     string? asked = AiUsage.Busy ? Tr("불러오는 중…", "Loading…") : AiUsage.Fetched is { } fetched ? Ago(fetched) : null;
                     (Action Moved, Action<string> Rename)? edit = host.Window.HomeEditing ? (() => host.Window.Refresh(true), RenameAccount) : null;
-                    sections.Add(new Section(Tr("AI 사용량", "AI usage"), asked) { Widget = () => Ui.HomeViews.Usage(accounts, edit), Reload = () => _ = AiUsage.Refresh() });
+                    sections.Add(new Section(Tr("AI 사용량", "AI usage"), asked) { Widget = () => Ui.HomeViews.Usage(accounts, edit, () => host.OpenSettings("accounts")), Reload = () => _ = AiUsage.Refresh() });
                     break;
                 case "tokens" or "tokenchart" or "tokenmodels" or "tokensessions":
                     sections.Add(TokenBlock(w));

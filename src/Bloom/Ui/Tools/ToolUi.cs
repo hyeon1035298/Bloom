@@ -98,9 +98,7 @@ internal static class ToolUi
     /// A text button for a tool's foot ("켜기", "모두 지우기").
     public static SmoothBorder TextButton(string text, Action click)
     {
-        var b = new SmoothBorder { CornerRadius = new CornerRadius(7), Padding = new Thickness(10, 4, 10, 5), Background = Theme.P.Tile, Cursor = Cursors.Hand, Child = Theme.T(text, 12, Theme.P.Text, Theme.Medium), HorizontalAlignment = HorizontalAlignment.Left };
-        b.MouseEnter += (_, _) => b.Background = Theme.P.Hover;
-        b.MouseLeave += (_, _) => b.Background = Theme.P.Tile;
+        var b = ButtonLook.Apply(new SmoothBorder { CornerRadius = new CornerRadius(8), Height = 28, Padding = new Thickness(10, 0, 10, 0), Cursor = Cursors.Hand, Child = Theme.Label(text, 12, Theme.P.Text, Theme.Medium, inBorder: true), HorizontalAlignment = HorizontalAlignment.Left });
         b.MouseLeftButtonUp += (_, e) =>
         {
             click();
