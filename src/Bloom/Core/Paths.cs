@@ -123,5 +123,26 @@ internal static class Log
         }
     }
 
+    /// 설정 > 데이터 > 로그: log.txt and log.old.txt go under the lock the writes take (the next line starts a new file).
+    /// False when one is held open by another program and stays.
+    public static bool Clear()
+    {
+        if (Paths.Data.Length == 0) return true;
+        lock (Gate)
+        {
+            bool all = true;
+            foreach (string name in new[] { "log.txt", "log.old.txt" })
+                try
+                {
+                    File.Delete(Paths.In(name));
+                }
+                catch (Exception e) when (e is IOException or UnauthorizedAccessException)
+                {
+                    all = false;
+                }
+            return all;
+        }
+    }
+
     public static void Error(string where, Exception e) => Write($"[{where}] {e.GetType().Name}: {e.Message}");
 }

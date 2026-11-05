@@ -201,5 +201,13 @@ internal sealed class Favorites
         Changed?.Invoke();
     }
 
+    /// 설정 > 데이터 > 즐겨찾기: every favorite, folder and picture icon goes. Item shortcuts keep their own copies
+    /// (ItemKeys) and stay.
+    public static void Clear()
+    {
+        Current.Items.Clear();
+        Touch();
+    }
+
     public static void Flush() => saver?.Flush();
 }

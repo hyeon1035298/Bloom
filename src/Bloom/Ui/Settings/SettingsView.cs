@@ -421,6 +421,7 @@ internal sealed partial class SettingsView : ScrollViewer
         PageTools(s, filter);
         PagePlayer(s, filter);
         section = "";
+        PageData(s, filter);
         PageAbout(s, filter);
     }
 

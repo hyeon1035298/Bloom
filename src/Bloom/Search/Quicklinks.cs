@@ -90,6 +90,13 @@ internal sealed class Quicklinks
         if (Current.Items.RemoveAll(x => x.Id == q.Id) > 0) Touch();
     }
 
+    /// 설정 > 데이터 > 사이트 바로 가기: the user's own go and the built-in ones come back.
+    public static void Reset()
+    {
+        Current.Items = Defaults();
+        Touch();
+    }
+
     public static void Flush() => saver?.Flush();
 
     /// "yt 고양이" → (YouTube, "고양이"); the keyword alone with a space waits for the words.

@@ -57,6 +57,16 @@ internal sealed class Timers
         if (Current.Items.RemoveAll(t => t.Id == id) > 0) Touch();
     }
 
+    /// 설정 > 데이터 > 타이머 · 알림: every waiting timer and reminder is cancelled (none rings) → how many went.
+    public static int Clear()
+    {
+        int n = Current.Items.Count;
+        if (n == 0) return 0;
+        Current.Items.Clear();
+        Touch();
+        return n;
+    }
+
     public static void Extend(string id, TimeSpan by)
     {
         if (Current.Items.Find(t => t.Id == id) is not { } e) return;
