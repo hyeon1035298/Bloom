@@ -74,8 +74,9 @@ internal sealed record AddonManifest(string Id, string Version, string License, 
     /// lowercase letters, digits and '-' (a folder and an event name are made of it).
     public static bool IsId(string id) => id.Length is > 0 and <= 64 && id.All(c => c is (>= 'a' and <= 'z') or (>= '0' and <= '9') or '-') && id[0] != '-';
 
-    /// A version names the run copy's folder: letters, digits and . - + only, and never a "." or ".." alone.
-    private static bool IsVersion(string v) => v.Length is > 0 and <= 40 && v.Trim('.').Length > 0
+    /// A version names the run copy's folder (and a downloaded one's): letters, digits and . - + only, and never a "."
+    /// or ".." alone.
+    public static bool IsVersion(string v) => v.Length is > 0 and <= 40 && v.Trim('.').Length > 0
         && v.All(c => char.IsAsciiLetterOrDigit(c) || c is '.' or '-' or '+');
 
     private static bool IsSha256(string s) => s.Length == 64 && s.All(char.IsAsciiHexDigit);

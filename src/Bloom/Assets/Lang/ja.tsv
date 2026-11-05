@@ -2302,6 +2302,8 @@ Imports exported settings · backs up current settings in the data folder	設定
 Removes Bloom from this PC · asks once more about your chats and settings	この PC から Bloom を削除します · チャットと設定も消すかもう一度確認します
 Version	バージョン
 Windows launcher	Windows ランチャー
+License	ライセンス
+Bloom is MIT · the taskbar add-on PillTaskbar is a separate GPL-3.0 program	Bloom は MIT です · タスクバーアドオン PillTaskbar は GPL-3.0 の別プログラムです
 What's new in this version	このバージョンの新機能
 Also shown once at the first start after an update · Enter shows it	アップデート後の最初の起動時にも一度表示されます · Enter で表示
 Problem report	問題の報告
@@ -2406,9 +2408,22 @@ Clears Explorer's crash record and turns it on again	エクスプローラーの
 Starts taskbar customization again	タスクバーのカスタマイズを再開します
 PillTaskbar is a separate GPL-3.0 program · {0}	PillTaskbar は GPL-3.0 の別プログラムです · {0}
 View source	ソースを見る
+Downloading PillTaskbar	PillTaskbar をダウンロード中
+Download	ダウンロード
+Couldn't download PillTaskbar	PillTaskbar をダウンロードできませんでした
+PillTaskbar {0} update	PillTaskbar {0} にアップデート
+Now {0} · from PillTaskbar's GitHub release	現在 {0} · PillTaskbar の GitHub リリースから取得します
+Download PillTaskbar {0}	PillTaskbar {0} をダウンロード
+From PillTaskbar's GitHub release, checked by Bloom before it is installed	PillTaskbar の GitHub リリースから取得し、Bloom が確認してからインストールします
+PillTaskbar {0} downloaded	PillTaskbar {0} をダウンロードしました
+Turn taskbar customization off and on to switch to the new version	タスクバーのカスタマイズをオフにしてからオンにすると新しいバージョンに切り替わります
+Check your connection and try again	接続を確認してもう一度お試しください
+The downloaded file isn't the one Bloom expects, so it wasn't installed	ダウンロードしたファイルが Bloom の想定と異なるため、インストールしませんでした
+What the download holds isn't valid, so it wasn't installed	ダウンロードした内容が正しくないため、インストールしませんでした
+Couldn't save the download · check the free disk space	ダウンロードを保存できませんでした · ディスクの空き容量を確認してください
 Not turned on in a development copy	開発用コピーではオンになりません
-This Bloom has no taskbar add-on	この Bloom にはタスクバーアドオンがありません
-The taskbar add-on's files are not valid · reinstall Bloom	タスクバーアドオンのファイルが正しくありません · Bloom を再インストールしてください
+Not downloaded yet	まだダウンロードしていません
+The taskbar add-on's files are not valid, or it needs a newer Bloom	タスクバーアドオンのファイルが正しくないか、より新しい Bloom が必要です
 Bloom started with Shift held, so it is off this time	Shift を押したまま起動したため、今回はオンになっていません
 Turning on · downloading symbol files {0}%	オンにしています · シンボルファイルをダウンロード中 {0}%
 Turning on	オンにしています

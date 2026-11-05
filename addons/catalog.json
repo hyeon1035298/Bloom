@@ -1,0 +1,12 @@
+{
+  "about": "Add-ons Settings > Add-ons can download. Built into Bloom.dll and never fetched at run time. Each is a separate program from its own repository: Bloom downloads url, installs it only when the zip matches sha256 (hex of the zip) and its addon.json has this id and version, and offers none while sha256 is empty. size is the zip's length in bytes (0 while not known). The release workflow downloads and checks every entry the same way and refuses to release while a sha256 is empty or wrong.",
+  "addons": [
+    {
+      "id": "pill-taskbar",
+      "version": "0.2.2",
+      "url": "https://github.com/hyeon1035298/PillTaskbar_BloomAddon/releases/download/v0.2.2/PillTaskbar_BloomAddon-v0.2.2.zip",
+      "sha256": "",
+      "size": 0
+    }
+  ]
+}

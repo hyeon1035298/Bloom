@@ -373,3 +373,4 @@ Install these programs to enable their related features, blocks and settings.
 
 MIT — [LICENSE](LICENSE).
 Exchange rates: [Rates By Exchange Rate API](https://www.exchangerate-api.com).
+The taskbar add-on PillTaskbar is a separate program under GPL-3.0 ([source](https://github.com/hyeon1035298/PillTaskbar_BloomAddon)); Bloom itself stays MIT.
