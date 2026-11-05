@@ -24,10 +24,10 @@ internal static class ColorPick
     public static async Task<Color?> Pick()
     {
         int vx = Win32.GetSystemMetrics(76), vy = Win32.GetSystemMetrics(77), vw = Win32.GetSystemMetrics(78), vh = Win32.GetSystemMetrics(79);
-        var shot = ScreenGrab.Grab(new ScreenRect(vx, vy, vw, vh));
-        if (shot is null) return null;
-        var desktop = BitmapSource.Create(vw, vh, 96, 96, PixelFormats.Bgra32, null, shot, vw * 4);
-        desktop.Freeze();
+        // WIC's copy alone (no desktop-sized array beside it, 28 MB for two 2560 × 1440 monitors); a pixel is read from it
+        var desktop = ScreenGrab.GrabDesktop(new ScreenRect(vx, vy, vw, vh));
+        if (desktop is null) return null;
+        var one = new byte[4];
         var done = new TaskCompletionSource<Color?>(TaskCreationOptions.RunContinuationsAsynchronously);
         var windows = new List<Window>();
         void Finish(Color? c)
@@ -47,8 +47,8 @@ internal static class ColorPick
         {
             x = Math.Clamp(x - vx, 0, vw - 1);
             y = Math.Clamp(y - vy, 0, vh - 1);
-            int i = (y * vw + x) * 4;
-            return Color.FromRgb(shot[i + 2], shot[i + 1], shot[i]);
+            desktop.CopyPixels(new Int32Rect(x, y, 1, 1), one, 4, 0);
+            return Color.FromRgb(one[2], one[1], one[0]);
         }
         foreach (IntPtr mon in Launcher.Monitors())
         {
@@ -65,7 +65,9 @@ internal static class ColorPick
                 w.Activate();
                 Win32.ForceForeground(new WindowInteropHelper(w).Handle);
             }
-        return await done.Task;
+        var picked = await done.Task;
+        Core.MemoryTrim.AfterBigWork("colour picker"); // the desktop and the overlays wait for a GC now
+        return picked;
     }
 
     private static Window Overlay(BitmapSource desktop, ScreenRect mon, int vx, int vy, Func<int, int, Color> at, Action<Color?> finish)

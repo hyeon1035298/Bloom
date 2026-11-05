@@ -91,6 +91,8 @@ internal static class ScreenGrab
         finally
         {
             CloseWindows();
+            // the desktop and every monitor's overlay wait for a GC now, picked or cancelled
+            Core.MemoryTrim.AfterBigWork(draw ? "capture" : "Lens");
         }
     }
 

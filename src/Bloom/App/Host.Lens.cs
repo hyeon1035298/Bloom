@@ -43,11 +43,13 @@ internal sealed partial class Host
             };
             var pick = await Ocr.ScreenGrab.Pick(hint, kind == "capture"); // 화면 캡처 draws on the area before it goes anywhere
             if (pick is not { } p) return;
-            LastLens = new LensShot(p.rect, p.bgra, SaveLens(p.rect, p.bgra), DateTime.Now);
+            var shot = new LensShot(p.rect, p.bgra, SaveLens(p.rect, p.bgra), DateTime.Now);
+            LastLens = shot;
             kind = p.then ?? kind;
             if (kind == "menu")
             {
                 OpenView(Mode.Lens);
+                _ = ReleaseLensPixelsLater(shot);
                 return;
             }
             await LensDo(kind);
@@ -94,7 +96,7 @@ internal sealed partial class Host
                     await MakePalette(l);
                     return;
             }
-            var (px, w, h, _) = Ocr.ScreenGrab.ForOcr(l.Bgra, l.Rect.Width, l.Rect.Height);
+            var (px, w, h, _) = Ocr.ScreenGrab.ForOcr(l.Pixels(), l.Rect.Width, l.Rect.Height);
             var r = await Ocr.WinOcr.Recognize(px, w, h, OcrLanguage());
             if (r is null || r.Text.Trim().Length == 0)
             {
@@ -119,6 +121,45 @@ internal sealed partial class Host
         {
             Log.Error("lens " + kind, e);
         }
+        finally
+        {
+            ReleaseLensPixels(l);
+        }
+    }
+
+    /// How long the pixels of an area waiting in the Lens view (nothing picked yet) are kept before they go.
+    private static readonly TimeSpan LensPixelsKept = TimeSpan.FromMinutes(5);
+
+    /// The last area's pixels go once an action is done with them: LensShot.Pixels reads them back from its PNG when
+    /// another action wants them (tens of ms). Kept while there is no PNG to read them from.
+    private void ReleaseLensPixels(LensShot l)
+    {
+        if (ReferenceEquals(LastLens, l) && l.Bgra.Length > 0 && File.Exists(l.Png)) LastLens = l with { Bgra = [] };
+    }
+
+    private async Task ReleaseLensPixelsLater(LensShot l)
+    {
+        await Task.Delay(LensPixelsKept);
+        ReleaseLensPixels(l);
+    }
+
+    /// The pixels of a Lens copy whose pixels went (ReleaseLensPixels), decoded from its PNG; blank when that copy was
+    /// deleted since (설정 › 캡처 저장본 모두 삭제) or doesn't read, so an action finds nothing rather than fails.
+    internal static byte[] ReadLensPixels(LensShot l)
+    {
+        int w = l.Rect.Width, h = l.Rect.Height;
+        var px = new byte[w * h * 4];
+        try
+        {
+            using var fs = File.OpenRead(l.Png);
+            var frame = BitmapDecoder.Create(fs, BitmapCreateOptions.PreservePixelFormat, BitmapCacheOption.None).Frames[0];
+            if (frame.PixelWidth == w && frame.PixelHeight == h) new FormatConvertedBitmap(frame, PixelFormats.Bgra32, null, 0).CopyPixels(px, w * 4, 0);
+        }
+        catch (Exception e) when (e is IOException or UnauthorizedAccessException or NotSupportedException or FileFormatException)
+        {
+            Log.Error("lens pixels", e);
+        }
+        return px;
     }
 
     /// 캡처: the area as a picture on the clipboard (the bitmap + its PNG) and in the Screenshots folder, like Windows'
@@ -154,7 +195,7 @@ internal sealed partial class Host
 
     private static BitmapSource Picture(LensShot l)
     {
-        var picture = BitmapSource.Create(l.Rect.Width, l.Rect.Height, 96, 96, PixelFormats.Bgra32, null, l.Bgra, l.Rect.Width * 4);
+        var picture = BitmapSource.Create(l.Rect.Width, l.Rect.Height, 96, 96, PixelFormats.Bgra32, null, l.Pixels(), l.Rect.Width * 4);
         picture.Freeze();
         return picture;
     }
