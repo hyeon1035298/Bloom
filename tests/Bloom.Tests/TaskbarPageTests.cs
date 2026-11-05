@@ -24,6 +24,7 @@ internal static class TaskbarPageTests
         "size.enabled", "size.taskbarHeight", "size.iconSize", "size.iconSpacing",
         "start.mode",
         "autohide.enabled", "autohide.revealZone", "autohide.showDelay", "autohide.hideDelay", "autohide.animation", "autohide.keepHiddenForBloom",
+        "autohide.keepHiddenOnFlash",
         "media.enabled", "media.maxWidth",
         "usage.enabled", "usage.logoColor", "usage.gapBefore", "usage.gapAfter",
         "island.enabled", "island.showClock", "island.showMedia", "island.showUsage", "island.height", "island.width", "island.reveal", "island.hoverTransparency",
@@ -103,7 +104,7 @@ internal static class TaskbarPageTests
     public static void MapHasEveryKeyOnce()
     {
         var mapped = TaskbarMap.Entries.Select(e => e.Key).ToList();
-        Check.Eq(AddonKeys.Length, 55, "the add-on's 55 keys");
+        Check.Eq(AddonKeys.Length, 56, "the add-on's 56 keys");
         Check.Eq(mapped.Count, mapped.Distinct().Count(), "no key twice on the page");
         Check.True(mapped.ToHashSet().SetEquals(AddonKeys), "every key has its place, and none the add-on lacks");
         foreach (var (key, _, _, _) in TaskbarMap.Sizes) Check.True(key is "s" or "m" or "l", "three size presets");
