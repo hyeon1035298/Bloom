@@ -124,6 +124,15 @@ internal sealed class TaskbarEditor : Border
     private FrameworkElement Preview()
     {
         var pill = new StackPanel { Orientation = Orientation.Horizontal };
+        // the Start button as Bloom's flower (시작 버튼 › Bloom 버튼), first as on the taskbar; the gap under it
+        // stands for a pin's mark so the row lines up
+        if (values.Text("start.mode") == "bloom")
+        {
+            var start = new StackPanel { Margin = new Thickness(5, 0, 5, 0), ToolTip = "Bloom" };
+            start.Children.Add(Launcher.MarkImage(26));
+            start.Children.Add(new FrameworkElement { Height = 7 });
+            pill.Children.Add(start);
+        }
         foreach (var pin in state!.Pinned)
         {
             string? folder = pin.Kind switch { "folder" => pin.Name, "running" => Running, _ => null };
