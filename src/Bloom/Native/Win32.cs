@@ -77,6 +77,9 @@ internal static class Win32
     // a window's own caption buttons (DocWindow): hit-testing, and the mouse over the non-client area
     public const int WM_NCHITTEST = 0x0084, WM_NCMOUSEMOVE = 0x00A0, WM_NCLBUTTONDOWN = 0x00A1, WM_NCLBUTTONUP = 0x00A2, WM_NCMOUSELEAVE = 0x02A2;
     public const int HTMAXBUTTON = 9;
+    // a frame's active look (a glass window's acrylic draws only while it looks active)
+    public const int WM_NCACTIVATE = 0x0086;
+    [DllImport("user32.dll", EntryPoint = "DefWindowProcW")] public static extern IntPtr DefWindowProc(IntPtr hwnd, uint msg, IntPtr wParam, IntPtr lParam);
 
     [StructLayout(LayoutKind.Sequential)]
     public struct TRACKMOUSEEVENT { public int cbSize; public uint dwFlags; public IntPtr hwndTrack; public uint dwHoverTime; }
