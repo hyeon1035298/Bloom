@@ -2302,6 +2302,8 @@ Imports exported settings · backs up current settings in the data folder	导入
 Removes Bloom from this PC · asks once more about your chats and settings	从本机删除 Bloom · 会再确认一次是否删除对话和设置
 Version	版本
 Windows launcher	Windows 启动器
+License	许可证
+Bloom is MIT · the taskbar add-on PillTaskbar is a separate GPL-3.0 program	Bloom 采用 MIT · 任务栏插件 PillTaskbar 是采用 GPL-3.0 的独立程序
 What's new in this version	此版本的更新内容
 Also shown once at the first start after an update · Enter shows it	更新后首次启动时也会显示一次 · 按 Enter 查看
 Problem report	问题报告

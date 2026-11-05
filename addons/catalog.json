@@ -1,0 +1,11 @@
+{
+  "about": "Add-ons the release ships in addons\\<id>. Each is a separate program from its own repository; the release workflow downloads url, checks it against sha256 (hex of the zip) and refuses to release while a sha256 is empty or wrong.",
+  "addons": [
+    {
+      "id": "pill-taskbar",
+      "version": "0.2.2",
+      "url": "https://github.com/hyeon1035298/PillTaskbar_BloomAddon/releases/download/v0.2.2/PillTaskbar_BloomAddon-v0.2.2.zip",
+      "sha256": ""
+    }
+  ]
+}
