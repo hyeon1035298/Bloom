@@ -2,6 +2,20 @@
 
 Each release on GitHub shows its section from this file (the workflow looks for `## <version>`).
 
+## 0.18.0
+
+- Notices: cards no longer cover the island some taskbar add-ons draw at the top middle of the screen. A card that would sit on it shows just below it, and moves again when the island grows or comes back later.
+- Notices: Move it yourself (Settings › Notifications) lets you drag a notice card anywhere on the screen. It sticks to the middle and to the edges (hold Ctrl to place it freely). Enter keeps the place and Esc leaves it as it was, and Position then says Custom position. Notices already on the screen wait while you move it and come back at the new place.
+- Usage file: Settings › Home › Write the usage to a file writes the AI usage to %LOCALAPPDATA%\Bloom\export\ai-usage.json for other programs to read. It holds the percentages and reset times, never an e-mail. Each limit has a key and a name, and Claude's week for a single model (Current week (Fable)) is in the file too. It is off at first.
+- Buttons, key caps and chips: their labels are centred by the letters themselves, not by the font's line box, so Latin letters, Korean and symbols such as ↵ no longer sit a pixel high or low. Every control keeps its height.
+
+### 한국어
+
+- 알림: 일부 작업표시줄 애드온이 화면 위 가운데에 그리는 아일랜드를 카드가 가리지 않습니다. 그 자리에 올 카드는 바로 아래에 나오고, 나중에 아일랜드가 커지거나 다시 나타나면 그에 맞춰 다시 옮겨 갑니다.
+- 알림: 설정 › 알림 › 직접 옮기기로 알림 카드를 화면 아무 곳에나 끌어 둘 수 있습니다. 가운데와 가장자리에 붙고, Ctrl을 누른 채 끌면 붙지 않습니다. Enter를 누르면 그 자리로 정하고 Esc를 누르면 그대로 두며, 정한 뒤에는 위치가 '직접 정한 위치'로 나옵니다. 옮기는 동안 떠 있던 알림은 기다렸다가 새 자리에 다시 나옵니다.
+- 사용량 파일: 설정 › 홈 화면 › 사용량 파일 내보내기를 켜면 다른 프로그램이 읽을 수 있게 AI 사용량을 %LOCALAPPDATA%\Bloom\export\ai-usage.json에 씁니다. 퍼센트와 리셋 시각만 쓰고 이메일은 쓰지 않습니다. 한도마다 key와 이름이 붙고, Claude의 모델 하나짜리 주간 한도(Current week (Fable))도 들어갑니다. 처음에는 꺼져 있습니다.
+- 버튼 · 키캡 · 칩: 글자를 글꼴의 줄 상자가 아니라 실제 글자 모양으로 가운데에 맞춥니다. 영문, 한글, ↵ 같은 기호가 1픽셀 위나 아래로 치우치지 않고, 컨트롤 높이는 그대로입니다.
+
 ## 0.17.1
 
 - Mini player: the song's cover shows next to its title — the picture inside the file, or the album picture in its folder (cover.jpg, folder.jpg and the like). Songs show their real title, artist and album instead of the file name.
