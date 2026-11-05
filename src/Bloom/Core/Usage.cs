@@ -39,6 +39,13 @@ internal sealed class Usage
         if (Current.Items.Remove(id)) saver?.Touch();
     }
 
+    /// 설정 > 데이터 > 최근 사용: every count and time goes, so the ranking starts over.
+    public static void Clear()
+    {
+        Current.Items.Clear();
+        saver?.Touch();
+    }
+
     public static void Save() => saver?.Touch();
 
     /// 0…~70: frequency (log) plus a recency step.

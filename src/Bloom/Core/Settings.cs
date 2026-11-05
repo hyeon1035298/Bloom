@@ -195,4 +195,35 @@ internal sealed class Settings
     }
 
     public static void Flush() => saver?.Flush();
+
+    /// 설정 > 데이터 > 설정 기본값으로: default settings that keep what is the user's data rather than a choice (the added
+    /// accounts and the ones the chats use, item shortcuts, omp's model list, whether the Win-key helper is installed)
+    /// and where the first run and the release notes stand.
+    internal Settings Kept() => new()
+    {
+        AiAccounts = AiAccounts,
+        ClaudeChatAccount = ClaudeChatAccount,
+        GptChatAccount = GptChatAccount,
+        ItemKeys = ItemKeys,
+        OmpModels = OmpModels,
+        WinKeyAdmin = WinKeyAdmin,
+        Onboarded = Onboarded,
+        SeenVersion = SeenVersion,
+    };
+
+    /// Kept written over settings.json for the restart that follows, and this run's saving stopped so nothing in memory
+    /// goes back over it.
+    public static void WriteDefaults()
+    {
+        saver?.Dispose();
+        saver = null;
+        Json.Save(Paths.In("settings.json"), Current.Kept());
+    }
+
+    /// The restart after WriteDefaults did not start: what is in memory goes back to the file and saving goes on.
+    public static void KeepCurrent()
+    {
+        Json.Save(Paths.In("settings.json"), Current);
+        saver ??= Saver.ForJson(Paths.In("settings.json"), () => Current);
+    }
 }
