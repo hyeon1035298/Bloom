@@ -82,7 +82,7 @@ internal sealed partial class SettingsView : ScrollViewer
         if (Dispatcher.HasShutdownStarted) return;
         Dispatcher.BeginInvoke(() =>
         {
-            if (IsLoaded && IsVisible && (current is "ai" or "screen" or "accounts" || lastFilter.Length > 0)) Build(lastFilter);
+            if (IsLoaded && IsVisible && (current is "ai" or "accounts" || lastFilter.Length > 0)) Build(lastFilter);
         }, System.Windows.Threading.DispatcherPriority.Background);
     }
 
@@ -99,18 +99,30 @@ internal sealed partial class SettingsView : ScrollViewer
     }
 
     /// A line: its title, a faint line under it, its control at the end, and no icon (the sidebar carries the page's).
-    /// Its height grows with a second line under it.
-    private static Row Line(string title, string? sub, FrameworkElement? control)
+    /// Its height grows with a second line under it. `folded`: a match from under a 자세히 fold, marked so after its title.
+    private static Row Line(string title, string? sub, FrameworkElement? control, bool folded = false)
     {
         var r = new Row(null) { Height = double.NaN, MinHeight = 56, Margin = new Thickness(0), Padding = new Thickness(0, 9, 12, 9), Selectable = false };
+        FrameworkElement Title()
+        {
+            var t = Theme.T(title, 13, Theme.P.Text, Theme.Medium);
+            if (!folded) return t;
+            var line = new StackPanel { Orientation = Orientation.Horizontal, VerticalAlignment = VerticalAlignment.Center };
+            line.Children.Add(t);
+            var more = Theme.T(Tr("자세히", "More"), 11, Theme.P.TextFaint);
+            more.Margin = new Thickness(8, 1, 0, 0);
+            more.VerticalAlignment = VerticalAlignment.Center;
+            line.Children.Add(more);
+            return line;
+        }
         if (sub is null)
         {
-            r.Add(Theme.Label(title, 13, Theme.P.Text, Theme.Medium, true), new GridLength(1, GridUnitType.Star));
+            r.Add(folded ? Title() : Theme.Label(title, 13, Theme.P.Text, Theme.Medium, true), new GridLength(1, GridUnitType.Star));
         }
         else
         {
             var text = new StackPanel { VerticalAlignment = VerticalAlignment.Center };
-            text.Children.Add(Theme.T(title, 13, Theme.P.Text, Theme.Medium));
+            text.Children.Add(Title());
             // up to two lines next to a wide control (a long line was cut at one), Korean words kept whole
             var s = Theme.T(Hangul.KeepAll(sub), 12, Theme.P.TextFaint);
             s.TextWrapping = TextWrapping.Wrap;
@@ -154,11 +166,16 @@ internal sealed partial class SettingsView : ScrollViewer
     }
 
     private bool groupShown; // the page has a group on it already (the first sits closer to the page's title)
+    private string? groupNote; // a line under the group's title
+    private (string text, Action click)? groupButton; // a text button at the end of the group's title
 
-    /// A group of lines inside the category: a small title over one card.
-    private void Header(string title)
+    /// A group of lines inside the category: a small title over one card; `note` a line under the title, `button` a
+    /// text button beside it (미리 보기, 목록 다시 읽기).
+    private void Header(string title, string? note = null, (string text, Action click)? button = null)
     {
         groupTitle = title;
+        groupNote = note;
+        groupButton = button;
         card = null;
     }
 
@@ -178,8 +195,24 @@ internal sealed partial class SettingsView : ScrollViewer
         if (groupTitle.Length > 0)
         {
             var g = Theme.T(groupTitle, 13, Theme.P.Text, Theme.Semi);
-            g.Margin = new Thickness(32, top, 32, 10);
-            stack.Children.Add(g);
+            g.VerticalAlignment = VerticalAlignment.Center;
+            var head = new DockPanel { Margin = new Thickness(32, top, 32, groupNote is null ? 10 : 2), LastChildFill = true };
+            if (groupButton is { } button)
+            {
+                var b = ToolUi.TextButton(button.text, button.click);
+                b.VerticalAlignment = VerticalAlignment.Center;
+                DockPanel.SetDock(b, Dock.Right);
+                head.Children.Add(b);
+            }
+            head.Children.Add(g);
+            stack.Children.Add(head);
+            if (groupNote is not null)
+            {
+                var n = Theme.T(Hangul.KeepAll(groupNote), 12, Theme.P.TextFaint);
+                n.TextWrapping = TextWrapping.Wrap;
+                n.Margin = new Thickness(32, 0, 32, 10);
+                stack.Children.Add(n);
+            }
         }
         // a faint card with no outline; its lines inset by its padding so a chosen line's fill keeps clear of its corners
         card = new StackPanel();
@@ -197,7 +230,62 @@ internal sealed partial class SettingsView : ScrollViewer
     /// A line (when it shows: the open category, or a match while filtering) → its row, else null. `glyph` is not drawn
     /// since the lines lost their icons; the pages still give one per line.
     private Row? Add(string title, string? sub, FrameworkElement? control, char glyph, Action? toggle, Func<int, bool>? step, string filter) =>
-        Place(title, sub, () => Line(title, sub, control), toggle, step, filter);
+        Place(title, sub, () => Line(title, sub, control, folding && filter.Length > 0), toggle, step, filter);
+
+    // ── 자세히 · N개 ──
+    /// The folds open now (page/fold), kept while this window is open; a new window starts with all of them folded.
+    private readonly HashSet<string> unfolded = new();
+    private bool folding; // the lines being added are a fold's
+    private string? nextTip; // a tooltip for the next line (Tip)
+
+    /// The defaults a fold compares the values with (바꾼 값 N개).
+    private static readonly Settings Defaults = new();
+
+    /// A tooltip on the next line placed (its numbers, what the line under it leaves out).
+    private void Tip(string text) => nextTip = text;
+
+    /// 자세히 · N개: the rarely changed lines of a card, folded under a last line that opens and closes them; folded, it
+    /// counts the ones whose value is not the default. Filtering and collecting ignore the fold (every line is found, and
+    /// a match is marked 자세히). `lines`: whether the value is changed, and what adds the line.
+    private void More(string id, string filter, List<(bool changed, Action add)> lines)
+    {
+        if (lines.Count == 0) return;
+        bool all = collected is not null || filter.Length > 0;
+        string key = pageKey + "/" + id;
+        bool open = all || unfolded.Contains(key);
+        if (!all)
+        {
+            int changed = lines.Count(l => l.changed);
+            Disclose(Tr($"자세히 · {lines.Count}개", $"More · {lines.Count}"), !open && changed > 0 ? Tr($"바꾼 값 {changed}개", $"{changed} changed") : null, open, () =>
+            {
+                if (!unfolded.Remove(key)) unfolded.Add(key);
+                TaskbarRebuild();
+            }, filter);
+        }
+        if (!open) return;
+        folding = true;
+        foreach (var (_, add) in lines) add();
+        folding = false;
+    }
+
+    /// A feature switched off on 기능 takes its lines elsewhere with it: one line in their place says so, and Enter opens
+    /// 기능. Off only when every one of `keys` is off. True: the caller adds nothing more for it.
+    private bool FeatureOff(string filter, params string[] keys)
+    {
+        if (keys.Any(Features.On)) return false;
+        string names = string.Join(", ", keys.Select(k => Features.All.First(f => f.key == k).name));
+        Add(names, Tr("꺼진 기능 · 기능에서 켜기", "Off · turn it on in Features"), null, G.Sliders, () => Go("features"), null, filter);
+        return true;
+    }
+
+    /// A line and a row of keys under it (사용할 대화), each on or off on its own; while filtering or collecting, the line
+    /// under the title names the keys too, so a key's name finds it.
+    private void KeyChips(string title, string sub, List<(string label, bool on, Action<bool> set)> chips, char glyph, string filter)
+    {
+        string names = string.Join(", ", chips.Select(c => c.label));
+        if (Add(title, collected is null && filter.Length == 0 ? sub : $"{sub} · {names}", null, glyph, null, null, filter) is null) return;
+        card?.Children.Add(Chips(chips));
+    }
 
     /// 자세히 · N개: a card's last line, opening the lines folded under it (`flip`): a chevron (turned down when open), the
     /// words, and `note` after them (a summary of the folded values, or what the open lines are).
@@ -219,6 +307,8 @@ internal sealed partial class SettingsView : ScrollViewer
     /// A line made by `make`, placed like Add's: recorded while collecting, matched while filtering, then into the card.
     private Row? Place(string title, string? sub, Func<Row> make, Action? toggle, Func<int, bool>? step, string filter)
     {
+        string? tip = nextTip;
+        nextTip = null;
         if (collected is not null)
         {
             collected.Add(new SettingsCatalog.Line(title, sub ?? "", groupTitle, pageKey, pageTitle));
@@ -232,6 +322,7 @@ internal sealed partial class SettingsView : ScrollViewer
         }
         else if (pageKey != current) return null;
         var r = make();
+        if (tip is not null) r.ToolTip = tip;
         int index = rows.Count;
         r.Clicked = () =>
         {
@@ -265,9 +356,14 @@ internal sealed partial class SettingsView : ScrollViewer
         return sw;
     }
 
-    /// A segmented choice: click or ←→ picks, Enter goes round.
+    /// A segmented choice: click or ←→ picks, Enter goes round. Past four options, a list that opens under the value (Menu).
     private void Choice(string title, string? sub, char glyph, (string value, string label)[] options, string value, Action<string> set, string filter)
     {
+        if (options.Length > 4)
+        {
+            Menu(title, sub, glyph, options.Select(o => (o.value, o.label, (string?)null)).ToArray(), value, set, filter);
+            return;
+        }
         if (Record(title, sub, filter)) return;
         var seg = new Segmented(options, value);
         void Pick(string v)
@@ -399,30 +495,37 @@ internal sealed partial class SettingsView : ScrollViewer
         Select(Math.Min(keep, rows.Count - 1));
     }
 
-    /// Every category in the sidebar's four sections, 정보 on its own at the end (one source of the lines, for Build and Collect).
+    /// Every category in the sidebar's three sections, 데이터 and 정보 on their own at the end (one source of the lines,
+    /// for Build and Collect).
     private void BuildPages(Settings s, string filter)
     {
         section = Tr("기본", "Basics");
         PageGeneral(s, filter);
+        PageLauncher(s, filter);
         PageFeatures(s, filter);
-        PagePerformance(s, filter);
-        PageAddons(s, filter);
-        section = Tr("런처", "Launcher");
-        PageHome(s, filter);
-        PageSearch(s, filter);
+        PageShortcuts(s, filter);
         section = "AI";
         PageAi(s, filter);
         PageAccounts(s, filter);
         PageMcp(s, filter);
         PageNotices(s, filter);
         section = Tr("도구", "Tools");
-        PageLens(s, filter);
-        PageClipboard(s, filter);
         PageTools(s, filter);
-        PagePlayer(s, filter);
+        PageAddons(s, filter);
         section = "";
+        PageData(s, filter);
         PageAbout(s, filter);
     }
+
+    /// The page a key of an older layout went to (a search line, a notice or a QA list may still name one).
+    internal static string PageOf(string key) => key switch
+    {
+        "performance" => "general",
+        "home" or "search" => "launcher",
+        "clipboard" or "screen" or "lens" or "player" => "tools",
+        "taskbar" => "addons",
+        _ => key,
+    };
 
     /// Every line of every category as text, for the launcher's settings search (SettingsCatalog). Nothing is built;
     /// the pages skip what reads the disk or the PC (MCP servers, Lens files, CLIs) while this runs.
@@ -520,7 +623,7 @@ internal sealed partial class SettingsView : ScrollViewer
     /// Opens a category (clears the filter first).
     public void Go(string key)
     {
-        current = key;
+        current = PageOf(key);
         sel = 0;
         if (lastFilter.Length > 0 && ClearFilter is not null) ClearFilter(); // rebuilds through the filter line
         else

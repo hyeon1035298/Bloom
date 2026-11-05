@@ -22,7 +22,7 @@ internal static class PlayerGlyph
 }
 
 /// 미니 플레이어's player, one for the whole app (the window is only a view of it; closing it leaves the music on) and
-/// the one place that plays a file: `Play` and `Enqueue`. Four ways (설정 > 미니 플레이어): 직접 — Bloom opens the file
+/// the one place that plays a file: `Play` and `Enqueue`. Four ways (설정 > 도구 > 미니 플레이어): 직접 — Bloom opens the file
 /// itself (WPF MediaPlayer = Media Foundation, read only; the queue is Bloom's own); JRiver — its web service (MCWS);
 /// foobar2000 and MusicBee — their command lines, the song and the state read from Windows' media session (foobar2000)
 /// or the window's title (MusicBee). A music file is only ever read, by Bloom or by the player. UI thread only.
@@ -269,7 +269,7 @@ internal static class MusicPlayer
     public static bool OpenPlaylist(string path, bool add = false)
     {
         string why;
-        if (External) why = Tr("재생목록은 직접 재생에서만 열 수 있음 — 설정 > 미니 플레이어", "Playlists open only with direct playing — Settings > Mini player");
+        if (External) why = Tr("재생목록은 직접 재생에서만 열 수 있음 — 설정 > 도구 > 미니 플레이어", "Playlists open only with direct playing — Settings > Tools > Mini player");
         else if (Playlists.Read(path) is not { Count: > 0 } tracks) why = Tr("재생할 곡이 없는 재생목록", "A playlist with no song to play");
         else
         {
@@ -588,7 +588,7 @@ internal static class MusicPlayer
         string? exe = FindExe(way);
         if (exe is null)
         {
-            Note = Tr($"{Name}을(를) 찾지 못했어요 — 설정 > 미니 플레이어에서 실행 파일 경로를 알려 주세요", $"Could not find {Name} — set its program path in Settings > Mini player");
+            Note = Tr($"{Name}을(를) 찾지 못했어요 — 설정 > 도구 > 미니 플레이어에서 실행 파일 경로를 알려 주세요", $"Could not find {Name} — set its program path in Settings > Tools > Mini player");
             return false;
         }
         if (PlayerCommands.Args(way, op, file) is not { } args) return false;
@@ -686,7 +686,7 @@ internal static class MusicPlayer
     {
         if (Mcws.Base(Settings.Current.JriverAddress) is not { } baseUrl)
         {
-            Note = Tr("JRiver 주소가 올바르지 않아요 — 설정 > 미니 플레이어", "The JRiver address is not valid — Settings > Mini player");
+            Note = Tr("JRiver 주소가 올바르지 않아요 — 설정 > 도구 > 미니 플레이어", "The JRiver address is not valid — Settings > Tools > Mini player");
             return null;
         }
         string? auth = await Task.Run(JriverAuth);
@@ -697,7 +697,7 @@ internal static class MusicPlayer
             using var res = await Http().SendAsync(req);
             if (res.StatusCode == HttpStatusCode.Unauthorized)
             {
-                Note = Tr("JRiver가 사용자 이름이나 비밀번호를 받아 주지 않아요 — 설정 > 미니 플레이어", "JRiver did not accept the user name or password — Settings > Mini player");
+                Note = Tr("JRiver가 사용자 이름이나 비밀번호를 받아 주지 않아요 — 설정 > 도구 > 미니 플레이어", "JRiver did not accept the user name or password — Settings > Tools > Mini player");
                 return null;
             }
             if (!res.IsSuccessStatusCode)
