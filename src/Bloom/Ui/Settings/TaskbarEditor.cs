@@ -29,7 +29,7 @@ internal sealed class TaskbarEditor : Border
         public bool New;
         public string NewName = "";
         public List<(string path, string name)> Picks = new();
-        public bool Confirm;
+        public string? Confirm; // "dissolve" or "delete" while its question shows
         public string IconTab = "auto";
         public bool DarkTone = true;
         public string? Error;
@@ -258,7 +258,7 @@ internal sealed class TaskbarEditor : Border
     {
         edit.Selected = folder;
         edit.New = false;
-        edit.Confirm = false;
+        edit.Confirm = null;
         edit.Picks.Clear();
         rebuild();
     }
@@ -266,7 +266,7 @@ internal sealed class TaskbarEditor : Border
     private void StartNew()
     {
         edit.New = true;
-        edit.Confirm = false;
+        edit.Confirm = null;
         edit.Picks.Clear();
         rebuild();
     }
@@ -400,34 +400,48 @@ internal sealed class TaskbarEditor : Border
         sp.Children.Add(apps);
         sp.Children.Add(new SmoothBorder { Height = 1, Background = Theme.P.Line, Margin = new Thickness(0, 6, 0, 10) });
         var foot = new WrapPanel();
-        if (edit.Confirm)
+        if (edit.Confirm is { } act)
         {
-            var q = Theme.T(Tr($"‘{folder}’ 폴더를 풉니다. 안의 앱 {f.Apps.Count}개는 작업표시줄로 돌아갑니다.", $"Ungroups ‘{folder}’. Its {f.Apps.Count} apps go back to the taskbar."), 12.5, Theme.P.Text, Theme.Medium);
+            bool delete = act == "delete";
+            string question = delete
+                ? f.Apps.Count > 0
+                    ? Tr($"‘{folder}’ 폴더를 지웁니다. 안의 앱 {f.Apps.Count}개도 작업표시줄에서 빠지고, 폴더는 휴지통으로 갑니다.", $"Deletes ‘{folder}’. Its {f.Apps.Count} apps leave the taskbar too, and the folder goes to the Recycle Bin.")
+                    : Tr($"‘{folder}’ 폴더를 지웁니다. 폴더는 휴지통으로 갑니다.", $"Deletes ‘{folder}’. The folder goes to the Recycle Bin.")
+                : Tr($"‘{folder}’ 폴더를 풉니다. 안의 앱 {f.Apps.Count}개는 작업표시줄로 돌아갑니다.", $"Ungroups ‘{folder}’. Its {f.Apps.Count} apps go back to the taskbar.");
+            var q = Theme.T(question, 12.5, Theme.P.Text, Theme.Medium);
             q.VerticalAlignment = VerticalAlignment.Center;
             q.Margin = new Thickness(0, 0, 8, 0);
             foot.Children.Add(q);
             foot.Children.Add(ActionButton.Make(Tr("취소", "Cancel"), false, () =>
             {
-                edit.Confirm = false;
+                edit.Confirm = null;
                 rebuild();
             }));
-            foot.Children.Add(ActionButton.Make(Tr("풀기", "Ungroup"), true, () =>
+            foot.Children.Add(ActionButton.Make(delete ? Tr("지우기", "Delete") : Tr("풀기", "Ungroup"), true, () =>
             {
-                edit.Confirm = false;
+                edit.Confirm = null;
                 edit.Selected = null;
-                Send(TaskbarCommands.Dissolve(folder), Tr("폴더 풀기", "Ungroup"), null);
+                if (delete) Send(TaskbarCommands.Delete(folder), Tr("폴더 지우기", "Delete folder"), null);
+                else Send(TaskbarCommands.Dissolve(folder), Tr("폴더 풀기", "Ungroup"), null);
             }));
         }
         else
         {
-            var b = ToolUi.TextButton(Tr("폴더 풀기", "Ungroup folder"), () =>
+            void Ask(string label, string act)
             {
-                edit.Confirm = true;
-                rebuild();
-            });
-            b.Margin = new Thickness(0, 0, 10, 0);
-            foot.Children.Add(b);
-            var hint = Faint(Tr("앱은 지워지지 않고 작업표시줄로 돌아갑니다", "The apps aren't deleted; they go back to the taskbar"));
+                var b = ToolUi.TextButton(label, () =>
+                {
+                    edit.Confirm = act;
+                    rebuild();
+                });
+                b.Margin = new Thickness(0, 0, 10, 0);
+                foot.Children.Add(b);
+            }
+            if (f.Apps.Count > 0) Ask(Tr("폴더 풀기", "Ungroup folder"), "dissolve");
+            Ask(Tr("폴더 지우기", "Delete folder"), "delete");
+            var hint = Faint(f.Apps.Count > 0
+                ? Tr("풀면 앱이 작업표시줄로 돌아가고, 지우면 앱도 빠집니다. 폴더는 휴지통으로 갑니다", "Ungrouping puts the apps back on the taskbar; deleting takes them off too. The folder goes to the Recycle Bin")
+                : Tr("빈 폴더는 지우면 작업표시줄에서 빠지고 휴지통으로 갑니다", "An empty folder, deleted, leaves the taskbar for the Recycle Bin"));
             hint.VerticalAlignment = VerticalAlignment.Center;
             foot.Children.Add(hint);
         }

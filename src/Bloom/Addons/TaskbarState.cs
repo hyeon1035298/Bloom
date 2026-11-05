@@ -126,6 +126,7 @@ internal sealed class TaskbarCommands
     public static (string, JsonObject) TakeOut(string folder, string item) => ("takeOut", new() { ["folder"] = folder, ["item"] = item });
     public static (string, JsonObject) Order(string folder, IEnumerable<string> names) => ("order", new() { ["folder"] = folder, ["names"] = Strings(names) });
     public static (string, JsonObject) Dissolve(string folder) => ("dissolve", new() { ["folder"] = folder });
+    public static (string, JsonObject) Delete(string folder) => ("delete", new() { ["folder"] = folder });
 
     private static JsonArray Strings(IEnumerable<string> items) => new(items.Select(s => (JsonNode)JsonValue.Create(s)).ToArray());
 

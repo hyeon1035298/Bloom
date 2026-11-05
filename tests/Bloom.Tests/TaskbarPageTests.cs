@@ -342,6 +342,7 @@ internal static class TaskbarPageTests
         try
         {
             Check.Eq(TaskbarCommands.AnswerWait, TimeSpan.FromSeconds(5), "5 s in the page");
+            Check.Eq(TaskbarCommands.Delete("F").Item1, "delete", "deleting a folder is its own command");
             var c = new TaskbarCommands(dir, TimeSpan.FromMilliseconds(200));
             var r = c.Send(TaskbarCommands.Dissolve("F")).Result;
             Check.Eq(r, new CommandResult(false, CommandResult.Timeout), "timed out");
