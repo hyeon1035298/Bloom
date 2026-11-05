@@ -4,22 +4,13 @@ Each release on GitHub shows its section from this file (the workflow looks for 
 
 ## 0.18.1
 
-- Memory: a clipboard picture, Lens and the colour picker no longer make a second copy of the whole picture. Copying a 4K screenshot takes about 30 MB less for a moment, and Lens lets go of the area's pixels once you have used it.
-- Memory: after a screen capture, Lens, the colour picker or a clipboard picture, Bloom gives the memory they used back once. It does this at most once an hour, and only while every Bloom window is hidden, nothing has been typed or clicked for a minute and the PC is idle.
-- Settings opens larger (1040 × 780), so the buttons on the wider pages fit.
-
-### 한국어
-
-- 메모리: 클립보드 그림, Lens, 색 고르기가 그림 전체를 한 벌 더 만들지 않습니다. 4K 스크린샷을 복사할 때 잠깐 늘던 메모리가 약 30 MB 줄었고, Lens는 쓴 영역의 화소를 바로 놓습니다.
-- 메모리: 화면 캡처, Lens, 색 고르기, 클립보드 그림 뒤에 쓴 메모리를 한 번 돌려줍니다. 한 시간에 한 번까지이고, Bloom 창이 모두 숨겨져 있고 1분 동안 입력이 없으며 PC가 한가할 때만 합니다.
-- 설정 창이 더 크게(1040 × 780) 열려서 넓은 페이지의 단추가 잘리지 않습니다.
-
-## 0.18.0
-
 - Notices: cards no longer cover the island some taskbar add-ons draw at the top middle of the screen. A card that would sit on it shows just below it, and moves again when the island grows or comes back later.
 - Notices: Move it yourself (Settings › Notifications) lets you drag a notice card anywhere on the screen. It sticks to the middle and to the edges (hold Ctrl to place it freely). Enter keeps the place and Esc leaves it as it was, and Position then says Custom position. Notices already on the screen wait while you move it and come back at the new place.
 - Usage file: Settings › Home › Write the usage to a file writes the AI usage to %LOCALAPPDATA%\Bloom\export\ai-usage.json for other programs to read. It holds the percentages and reset times, never an e-mail. Each limit has a key and a name, and Claude's week for a single model (Current week (Fable)) is in the file too. It is off at first.
 - Buttons, key caps and chips: their labels are centred by the letters themselves, not by the font's line box, so Latin letters, Korean and symbols such as ↵ no longer sit a pixel high or low. Every control keeps its height.
+- Memory: a clipboard picture, Lens and the colour picker no longer make a second copy of the whole picture. Copying a 4K screenshot takes about 30 MB less for a moment, and Lens lets go of the area's pixels once you have used it.
+- Memory: after a screen capture, Lens, the colour picker or a clipboard picture, Bloom gives the memory they used back once. It does this at most once an hour, and only while every Bloom window is hidden, nothing has been typed or clicked for a minute and the PC is idle.
+- Settings opens larger (1040 × 780), so the buttons on the wider pages fit.
 
 ### 한국어
 
@@ -27,6 +18,9 @@ Each release on GitHub shows its section from this file (the workflow looks for 
 - 알림: 설정 › 알림 › 직접 옮기기로 알림 카드를 화면 아무 곳에나 끌어 둘 수 있습니다. 가운데와 가장자리에 붙고, Ctrl을 누른 채 끌면 붙지 않습니다. Enter를 누르면 그 자리로 정하고 Esc를 누르면 그대로 두며, 정한 뒤에는 위치가 '직접 정한 위치'로 나옵니다. 옮기는 동안 떠 있던 알림은 기다렸다가 새 자리에 다시 나옵니다.
 - 사용량 파일: 설정 › 홈 화면 › 사용량 파일 내보내기를 켜면 다른 프로그램이 읽을 수 있게 AI 사용량을 %LOCALAPPDATA%\Bloom\export\ai-usage.json에 씁니다. 퍼센트와 리셋 시각만 쓰고 이메일은 쓰지 않습니다. 한도마다 key와 이름이 붙고, Claude의 모델 하나짜리 주간 한도(Current week (Fable))도 들어갑니다. 처음에는 꺼져 있습니다.
 - 버튼 · 키캡 · 칩: 글자를 글꼴의 줄 상자가 아니라 실제 글자 모양으로 가운데에 맞춥니다. 영문, 한글, ↵ 같은 기호가 1픽셀 위나 아래로 치우치지 않고, 컨트롤 높이는 그대로입니다.
+- 메모리: 클립보드 그림, Lens, 색 고르기가 그림 전체를 한 벌 더 만들지 않습니다. 4K 스크린샷을 복사할 때 잠깐 늘던 메모리가 약 30 MB 줄었고, Lens는 쓴 영역의 화소를 바로 놓습니다.
+- 메모리: 화면 캡처, Lens, 색 고르기, 클립보드 그림 뒤에 쓴 메모리를 한 번 돌려줍니다. 한 시간에 한 번까지이고, Bloom 창이 모두 숨겨져 있고 1분 동안 입력이 없으며 PC가 한가할 때만 합니다.
+- 설정 창이 더 크게(1040 × 780) 열려서 넓은 페이지의 단추가 잘리지 않습니다.
 
 ## 0.17.1
 
