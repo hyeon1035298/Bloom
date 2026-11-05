@@ -1,7 +1,7 @@
 namespace Bloom.Addons;
 
-/// What Bloom and the taskbar add-on's host (PillTaskbarHost.exe, a separate GPL program shipped beside Bloom) agree on:
-/// file names, named objects, arguments and exit codes. The add-on keeps the same values in its own header; change both
+/// What Bloom and an add-on's host (a separate GPL program, such as the taskbar add-on's PillTaskbarHost.exe) agree on:
+/// file names, named objects, arguments and exit codes. The add-ons keep the same values in their own header; change both
 /// together and raise Version. Bloom only starts the host and talks to it through these: files, arguments, one event and
 /// the exit code. It never loads any of the add-on's code.
 internal static class AddonProtocol

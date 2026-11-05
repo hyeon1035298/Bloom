@@ -343,8 +343,8 @@ internal sealed class Addon
     }
 }
 
-/// Bloom's add-ons (for now the taskbar one, downloaded from Settings > Add-ons or in a local install's folder) and the
-/// user's own, their start with Bloom and their status.
+/// Bloom's add-ons (the taskbar one and the others its catalog offers, downloaded from Settings > Add-ons or in a local
+/// install's folder) and the user's own, their start with Bloom and their status.
 internal static class AddonHub
 {
     /// Only the user's own Bloom starts hosts: never a dev or QA copy (--data, which every QA mode needs) or another
