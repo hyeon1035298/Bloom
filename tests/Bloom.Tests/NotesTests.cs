@@ -17,6 +17,7 @@ internal static class NotesTests
         Notes.SetPinned(a, true);
         Check.Eq(Notes.Ordered.First().Id, a.Id, "a pinned note comes first");
         a.Updated = 1;
+        b.Updated = 2; // older than the change below even within one millisecond (the clock's step)
         Notes.SetText(c, "회의\n견적서 다시 보내기 · 일정");
         Check.Eq(Notes.Ordered.ElementAt(1).Id, c.Id, "then the most recently changed");
         Check.True(Matcher.Score(new Query("견적서"), c.Match) > 0 && Matcher.Score(new Query("견적서"), a.Match) == 0, "the search finds words past the title");
