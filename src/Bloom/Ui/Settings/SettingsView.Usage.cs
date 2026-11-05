@@ -89,8 +89,8 @@ internal sealed partial class SettingsView
             end.Children.Add(clear);
         }
         string sub = a.Icon is not null ? Tr("홈 카드와 작업표시줄에 이 그림을 씁니다", "The home card and the taskbar use this picture")
-            : shown is not null ? Tr("회사 사이트에서 받은 공식 로고를 씁니다. 다른 그림을 쓰려면 파일을 고르세요", "Uses the company's logo from its website. Choose a file to use another picture")
-            : Tr("공식 로고를 아직 받지 못해 글자로 보입니다. 로고 파일(SVG, PNG, ICO)을 직접 고를 수도 있습니다", "The company's logo isn't fetched yet, so a letter shows. You can also choose a logo file (SVG, PNG, ICO)");
+            : shown is not null ? Tr("회사 로고를 씁니다. 다른 그림을 쓰려면 파일을 고르세요", "Uses the company's logo. Choose a file to use another picture")
+            : Tr("글자로 보입니다. 로고 파일(SVG, PNG, ICO)을 고를 수 있습니다", "A letter shows. You can choose a logo file (SVG, PNG, ICO)");
         Add(Tr("아이콘", "Icon"), sub, end, G.Palette, () => PickUsageIcon(a), null, filter);
     }
 

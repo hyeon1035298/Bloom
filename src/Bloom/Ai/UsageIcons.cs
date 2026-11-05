@@ -7,8 +7,8 @@ using Bloom.Core;
 namespace Bloom.Ai;
 
 /// The logo an account wears on its home card and in the taskbar's usage (설정 > AI 계정 > 아이콘): a file the user picks
-/// (.svg, .png or .ico; Bloom ships no company logos) copied into Local\usage-icons, so moving or deleting the original
-/// changes nothing. The usage file names that copy.
+/// (.svg, .png or .ico) copied into Local\usage-icons, so moving or deleting the original changes nothing, else its
+/// company's logo (OfficialLogos). The usage file names that file.
 internal static class UsageIcons
 {
     public static readonly string[] Types = { ".svg", ".png", ".ico" };

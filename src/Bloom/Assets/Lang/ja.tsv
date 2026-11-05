@@ -2514,8 +2514,8 @@ This plan has only the {0} limit	このプランには {0} の上限しかあり
 Choose a file…	ファイルを選ぶ…
 Clear the icon	アイコンを消す
 The home card and the taskbar use this picture	ホームのカードとタスクバーでこの画像を使います
-Uses the company's logo from its website. Choose a file to use another picture	会社のサイトから取得した公式ロゴを使います。別の画像を使うにはファイルを選んでください
-The company's logo isn't fetched yet, so a letter shows. You can also choose a logo file (SVG, PNG, ICO)	公式ロゴをまだ取得できていないため、文字で表示しています。ロゴファイル (SVG、PNG、ICO) を自分で選ぶこともできます
+Uses the company's logo. Choose a file to use another picture	会社のロゴを使います。別の画像を使うにはファイルを選んでください
+A letter shows. You can choose a logo file (SVG, PNG, ICO)	文字で表示しています。ロゴファイル (SVG、PNG、ICO) を選べます
 Icon	アイコン
 Logos (*.svg;*.png;*.ico)|*.svg;*.png;*.ico	ロゴ (*.svg;*.png;*.ico)|*.svg;*.png;*.ico
 That file couldn't be brought in as the icon.	そのファイルをアイコンとして読み込めませんでした。
