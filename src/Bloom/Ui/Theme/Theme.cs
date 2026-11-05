@@ -82,19 +82,6 @@ internal static class Theme
     public static FontWeight Medium => FontWeights.Medium;
     public static FontWeight Semi => FontWeights.SemiBold;
 
-    public static bool SystemDark()
-    {
-        try
-        {
-            using var k = Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Themes\Personalize");
-            return k?.GetValue("AppsUseLightTheme") is int v && v == 0;
-        }
-        catch
-        {
-            return false;
-        }
-    }
-
     private static bool SystemTransparency()
     {
         try
@@ -110,7 +97,7 @@ internal static class Theme
 
     public static void Apply(string setting)
     {
-        bool dark = setting switch { "dark" => true, "light" => false, _ => SystemDark() };
+        bool dark = Core.SystemTheme.Dark(setting);
         Acrylic = Core.Settings.Current.Transparency != "off" && SystemTransparency() && Environment.OSVersion.Version.Build >= 22621;
         P.Apply(dark, Accents.Current, Core.Settings.Current.GlassTransparency);
         // a ResourceDictionary freezes what it holds, so the scroll thumb gets a fresh copy each time
