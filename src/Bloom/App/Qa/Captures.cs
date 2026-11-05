@@ -70,6 +70,7 @@ internal static partial class Captures
         ["taskbar-folders"] = TaskbarFolderScreens,
         ["taskbar-usage"] = TaskbarUsageScreens,
         ["usagecards"] = UsageCardScreens,
+        ["accent"] = AccentScreens,
     };
 
     public static async Task Run(Host host, string dir)
