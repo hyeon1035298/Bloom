@@ -48,7 +48,7 @@ internal static class TokenViews
         {
             var line = Theme.T(UnpricedWords(v), 11, Theme.P.TextFaint);
             line.Margin = new Thickness(0, 6, 0, 0);
-            line.ToolTip = Tr("설정 > 홈 화면 > 가격표 고치기에서 가격을 넣을 수 있습니다", "Add a price in Settings > Home > Edit prices");
+            line.ToolTip = Tr("설정 > AI 계정 > 가격표 고치기에서 가격을 넣을 수 있습니다", "Add a price in Settings > AI accounts > Edit prices");
             stack.Children.Add(line);
         }
         return stack;

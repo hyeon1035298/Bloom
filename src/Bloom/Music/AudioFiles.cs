@@ -59,7 +59,7 @@ internal static class AudioFiles
     public static string? Reject(string path, bool direct, Func<string, bool> exists)
     {
         if (Resolve(path) is not { } full) return Tr("오디오 파일이 아니에요", "Not an audio file");
-        if (direct && !CanPlayDirect(full)) return Tr($"{Path.GetExtension(full)} 형식은 Bloom이 직접 재생하지 못해요 — 설정 > 미니 플레이어에서 다른 플레이어를 고르세요", $"Bloom cannot play {Path.GetExtension(full)} files itself — pick another player in Settings > Mini player");
+        if (direct && !CanPlayDirect(full)) return Tr($"{Path.GetExtension(full)} 형식은 Bloom이 직접 재생하지 못해요 — 설정 > 도구 > 미니 플레이어에서 다른 플레이어를 고르세요", $"Bloom cannot play {Path.GetExtension(full)} files itself — pick another player in Settings > Tools > Mini player");
         if (!exists(full)) return Tr("파일이 없어요", "The file is gone");
         return null;
     }

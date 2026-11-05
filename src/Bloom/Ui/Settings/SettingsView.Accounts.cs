@@ -1,25 +1,27 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using Bloom.Ai;
+using Bloom.App;
 using Bloom.Core;
 using Bloom.Search;
 
 namespace Bloom.Ui;
 
 /// 설정 > AI 계정: the account list and add rows, each account's menu (AI chat pick, hide/show, sign in again, sign out)
-/// and an added one's X (sign out), the CLI sign-in, the API keys (SettingsView.ApiKeys), and the ChatGPT 조회 방식 and
-/// 조회 간격 rows.
+/// and an added one's X (sign out), the CLI sign-in, the API keys (SettingsView.ApiKeys), and the usage the home shows
+/// (how often, which value, the icons; folded: the ChatGPT checks, the usage file, the prices).
 internal sealed partial class SettingsView
 {
     private void PageAccounts(Settings s, string filter)
     {
-        Page("accounts", Tr("AI 계정", "AI accounts"), G.Account, Tr("계정마다 따로 로그인합니다. 홈에서 계정별 사용량을 보고, AI 채팅에 쓸 계정을 직접 고릅니다. 한도에 닿아도 계정은 자동으로 바뀌지 않습니다.", "Each account signs in on its own. The home shows each one's usage, and AI chat uses the account you pick. Nothing switches accounts when a limit is reached."), filter);
+        Page("accounts", Tr("AI 계정", "AI accounts"), G.Account, Tr("Claude · ChatGPT 계정과 API 키, 홈의 사용량", "Claude and ChatGPT accounts, API keys and the usage on the home"), filter);
         foreach (var (kind, title) in new[] { ("claude", "Claude"), ("chatgpt", "ChatGPT") })
         {
-            Header(title);
+            Header(title, kind == "claude" ? Tr("한도에 닿아도 계정은 자동으로 바뀌지 않습니다", "Nothing switches accounts when a limit is reached") : null);
             // the accounts are the user's data, not settings lines: collecting skips them (and leaves AiAccounts alone)
             string chatId = collected is null ? AiAccounts.Chat(kind).Id : "";
             foreach (var a in collected is null ? AiAccounts.All.Where(a => a.Kind == kind).ToList() : [])
@@ -49,17 +51,47 @@ internal sealed partial class SettingsView
             }, null, filter);
         }
         ApiKeyRows(filter);
-        Header(Tr("사용량 조회", "Usage checks"));
-        Choice(Tr("ChatGPT 조회 방식", "ChatGPT checks"), s.ChatGptUsage == "light"
-                ? Tr("가벼운 방식: Codex 로그인으로 HTTPS 요청 1번 · CLI 실행 없음 · 공식 API가 아니라 바뀔 수 있음", "Lightweight: one HTTPS request with the Codex sign-in · no CLI · not an official API, may change")
-                : Tr("공식 CLI: 계정마다 Codex 실행 · 약 110 MB 1초", "Official CLI: runs Codex per account · ~110 MB for 1 s"), G.Sync,
-            new[] { ("cli", Tr("공식 CLI", "Official CLI")), ("light", Tr("가벼운 방식", "Lightweight")) }, s.ChatGptUsage == "light" ? "light" : "cli", v =>
+        Header(Tr("사용량", "Usage"));
+        Tip(Tr("받을 때만 창 없이: Claude 약 470 MB 4초 · Codex 약 110 MB 1초", "Hidden, only while asked: Claude ~470 MB for 4 s · Codex ~110 MB for 1 s"));
+        Choice(Tr("새로 받는 간격", "Refresh every"), Tr($"추가한 계정은 {AiUsage.ExtraMinutes}분마다 · 홈의 ↻는 모든 계정", $"Added accounts every {AiUsage.ExtraMinutes} min · the home's ↻ checks all"), G.Refresh,
+            new[] { ("5", Tr("5분", "5 min")), ("10", Tr("10분", "10 min")) }, s.UsageMinutes == 5 ? "5" : "10", v =>
             {
-                s.ChatGptUsage = v;
-                _ = AiUsage.Refresh();
-                Dispatcher.BeginInvoke(() => Build(lastFilter));
+                s.UsageMinutes = v == "5" ? 5 : 10;
+                AiUsage.Schedule();
+                UsageExport.Changed();
             }, filter);
-        Add(Tr("조회 간격", "How often"), Tr($"기본 계정은 홈 화면 설정의 간격대로 · 추가한 계정은 {AiUsage.ExtraMinutes}분마다 · 홈의 ↻는 모든 계정", $"Default accounts as set on the home page · added ones every {AiUsage.ExtraMinutes} min · the home's ↻ checks all"), null, G.Clock, null, null, filter);
+        Choice(Tr("보여 줄 값", "Show"), Tr("쓴 만큼(32%) 또는 남은 만큼(68% 남음) · 막대도 같이 바뀝니다", "What's used (32%) or what's left (68% left) · the bars follow"), G.Model,
+            new[] { ("used", Tr("쓴 만큼", "Used")), ("left", Tr("남은 만큼", "Left")) }, s.UsageLeft ? "left" : "used", v =>
+            {
+                s.UsageLeft = v == "left";
+                UsageExport.Changed();
+                host.Window.Refresh(true);
+            }, filter);
+        UsageLogoRow(null, Tr("고른 아이콘 파일을 원래 색 또는 단색으로 · 홈 카드와 작업표시줄에 함께 씁니다", "The picked icon files in their own colours or in one · the home cards and the taskbar share it"), filter);
+        More("usage", filter, new()
+        {
+            (s.ChatGptUsage != Defaults.ChatGptUsage, () =>
+                Choice(Tr("ChatGPT 조회 방식", "ChatGPT checks"), s.ChatGptUsage == "light"
+                        ? Tr("가벼운 방식: Codex 로그인으로 HTTPS 요청 1번 · CLI 실행 없음 · 공식 API가 아니라 바뀔 수 있음", "Lightweight: one HTTPS request with the Codex sign-in · no CLI · not an official API, may change")
+                        : Tr("공식 CLI: 계정마다 Codex 실행 · 약 110 MB 1초", "Official CLI: runs Codex per account · ~110 MB for 1 s"), G.Sync,
+                    new[] { ("cli", Tr("공식 CLI", "Official CLI")), ("light", Tr("가벼운 방식", "Lightweight")) }, s.ChatGptUsage == "light" ? "light" : "cli", v =>
+                    {
+                        s.ChatGptUsage = v;
+                        _ = AiUsage.Refresh();
+                        Dispatcher.BeginInvoke(() => Build(lastFilter));
+                    }, filter)),
+            (s.ExportUsage != Defaults.ExportUsage, () =>
+            {
+                var exportSw = Toggle(s.ExportUsage, UsageExport.Set, out var exportT);
+                Add(Tr("사용량 파일 내보내기", "Write the usage to a file"), Tr("다른 프로그램이 읽을 수 있게 퍼센트와 리셋 시각만 %LOCALAPPDATA%\\Bloom\\export\\ai-usage.json에 씁니다 (이메일 없음) · 홈 블록이 꺼져 있어도 조회가 돌아 Claude 약 470 MB 4초가 간격마다 듭니다", "Writes the percentages and reset times, no e-mail, to %LOCALAPPDATA%\\Bloom\\export\\ai-usage.json for other programs to read · the lookups run even with the home block off: Claude ~470 MB for 4 s every interval"), exportSw, G.Document, exportT, null, filter);
+            }),
+            (false, () =>
+                Add(Tr("가격표 고치기", "Edit prices"), Tr($"내장 가격({TokenPrices.Checked} 기준) 위에 덮어씀 · prices.json", $"Overrides the built-in token prices (as of {TokenPrices.Checked}) · prices.json"), null, G.Pen, () =>
+                {
+                    TokenPrices.EnsureOverride();
+                    Launch.Open(TokenPrices.OverridePath);
+                }, null, filter)),
+        });
     }
 
     /// An added account's line ends in its X (로그아웃), after the AI chat chip when it has one.

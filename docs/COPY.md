@@ -46,15 +46,18 @@ Keep prompts sent to AI unchanged. Apply this voice to authored demo responses a
 | Clipboard history | 클립보드 기록 | Clipboard history | クリップボード履歴 | 剪贴板历史 |
 | Color picker | 컬러 피커 | Color picker | カラーピッカー | 取色器 |
 | General page | 일반 | General | 一般 | 常规 |
-| Home page | 홈 화면 | Home | ホーム | 主页 |
-| Search page | 검색 | Search | 検索 | 搜索 |
-| AI page | AI 채팅 | AI chat | AI チャット | AI 聊天 |
-| PC actions page | PC 작업 · MCP | PC actions · MCP | PC 操作 · MCP | 电脑操作 · MCP |
+| Launcher page | 런처 | Launcher | ランチャー | 启动器 |
 | Features page | 기능 | Features | 機能 | 功能 |
+| Shortcuts page | 단축키 | Shortcuts | ショートカットキー | 快捷键 |
+| AI page | AI 채팅 | AI chat | AI チャット | AI 聊天 |
+| AI accounts page | AI 계정 | AI accounts | AI アカウント | AI 账户 |
+| PC actions page | PC 작업 · MCP | PC actions · MCP | PC 操作 · MCP | 电脑操作 · MCP |
+| Work notifications page | 작업 알림 | Work notifications | 作業通知 | 任务通知 |
 | Tools page | 도구 | Tools | ツール | 工具 |
-| Notifications page | 알림 | Notifications | 通知 | 通知 |
-| Performance page | 성능 | Performance | パフォーマンス | 性能 |
+| Add-ons page | 애드온 | Add-ons | アドオン | 插件 |
+| Data page | 데이터 | Data | データ | 数据 |
 | About page | 정보 | About | バージョン情報 | 关于 |
+| More (folded lines) | 자세히 | More | 詳細 | 更多 |
 | Next step | 다음 | Next | 次へ | 下一步 |
 | Back step | 이전 | Back | 戻る | 上一步 |
 | Save | 저장 | Save | 保存 | 保存 |

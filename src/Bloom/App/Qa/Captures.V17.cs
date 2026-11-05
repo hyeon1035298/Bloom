@@ -76,10 +76,10 @@ internal static partial class Captures
             w.CloseActionsForQa();
         }
 
-        // 설정 › Bloom Lens: shortcuts as pressed-in wells, one listening
+        // 설정 › 단축키: shortcuts as pressed-in wells, one listening
         var sw = new SettingsWindow(host) { WindowStartupLocation = WindowStartupLocation.Manual, Left = -32000, Top = -32000, ShowActivated = false };
         sw.Show();
-        sw.Page("screen");
+        sw.Page("shortcuts");
         await Task.Delay(400);
         await sw.Dispatcher.InvokeAsync(() => sw.Capture(Path.Combine(dir, dk + "s01-lens-keys.png")), System.Windows.Threading.DispatcherPriority.ApplicationIdle);
         if (Find<KeyRecorder>(sw) is { } rec)

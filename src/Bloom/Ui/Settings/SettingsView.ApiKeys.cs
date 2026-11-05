@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using Bloom.Ai;
@@ -6,24 +8,41 @@ using Bloom.Search;
 
 namespace Bloom.Ui;
 
-/// 설정 > AI 계정's API keys: one line per provider (ApiProviders), a click adds its key or opens its menu (test and
-/// refresh the models, change the key, remove it). The key itself is never shown; the line says only that one is stored.
+/// 설정 > AI 계정's API keys: a line per provider with a key (ApiProviders), a click opens its menu (test and refresh
+/// the models, change the key, remove it); the ones without a key in one list (API 키 추가…) that asks for the key.
+/// The key itself is never shown; the line says only that one is stored.
 internal sealed partial class SettingsView
 {
     private void ApiKeyRows(string filter)
     {
         Header(Tr("API 키", "API keys"));
+        var missing = new List<ApiProvider>();
         foreach (var p in ApiProviders.All)
         {
-            bool has = collected is null && ApiKeys.Has(p.Id); // collecting reads no keys
-            int count = has ? ApiCatalog.Models(p.Id).Count : 0;
-            string status = !has ? Tr("키 없음 · 클릭하여 키 추가", "No key · click to add one")
-                : ApiCatalog.Refreshing(p.Id) ? Tr("모델 목록 불러오는 중…", "Loading the model list…")
+            if (collected is not null || !ApiKeys.Has(p.Id)) // collecting reads no keys
+            {
+                missing.Add(p);
+                continue;
+            }
+            int count = ApiCatalog.Models(p.Id).Count;
+            string status = ApiCatalog.Refreshing(p.Id) ? Tr("모델 목록 불러오는 중…", "Loading the model list…")
                 : ApiCatalog.Failure(p.Id) is { } failure ? failure.Split('\n')[0]
                 : Tr($"키 저장됨 · 모델 {count}개 · 이 PC에만 암호화 저장", $"Key saved · {count} models · encrypted on this PC only");
             var provider = p;
             Add(p.Name, status, null, G.Lock, () => ApiKeyMenu(provider), null, filter);
         }
+        if (missing.Count == 0) return;
+        // the providers with no key in one list: picking one asks for its key (ApiKeyWindow); their names find the line
+        string sub = Tr($"키가 없는 제공자: {string.Join(", ", missing.Select(p => p.Name))}", $"Providers with no key: {string.Join(", ", missing.Select(p => p.Name))}");
+        if (Record(Tr("API 키 추가…", "Add an API key…"), sub, filter)) return;
+        var dd = new Dropdown(missing.Select(p => (p.Id, p.Name, (string?)null)).ToArray(), Tr("제공자 고르기", "Pick a provider"));
+        dd.Picked += id =>
+        {
+            if (missing.Find(p => p.Id == id) is { } p) EnterApiKey(p);
+            Dispatcher.BeginInvoke(() => Build(lastFilter)); // the list shows its prompt again (or the new key's line)
+        };
+        dropdowns.Add(dd);
+        Add(Tr("API 키 추가…", "Add an API key…"), sub, dd, G.Add, dd.Open, null, filter);
     }
 
     /// No key yet: the key entry. Else: test (the model list asked again), another key, or no key.

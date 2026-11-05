@@ -249,7 +249,7 @@ internal static partial class Captures
 
         var sw = new SettingsWindow(host) { WindowStartupLocation = WindowStartupLocation.Manual, Left = -32000, Top = -32000, ShowActivated = false };
         sw.Show();
-        foreach (string page in new[] { "notices", "performance" })
+        foreach (string page in new[] { "notices", "general" })
         {
             sw.Page(page);
             await Task.Delay(350);
@@ -410,11 +410,11 @@ internal static partial class Captures
             : "팀 여러분, 빌드가 아직 준비되지 않았고 QA에서 버그가 세 개 나와서 출시를 다음 주 금요일로 미루는 게 좋을 것 같습니다.";
         await Shot(w, dir, $"{l}-x15-quick-result", Mode.Quick, "", 700);
 
-        // settings: the sections on the left, language (general), search (+ Everything, site shortcuts), AI (idle chats'
+        // settings: the sections on the left, language (general), launcher (+ Everything, site shortcuts), AI (idle chats'
         // time), clipboard (keep for), tools shortcuts
         var sw = new SettingsWindow(host) { WindowStartupLocation = WindowStartupLocation.Manual, Left = -32000, Top = -32000, ShowActivated = false };
         sw.Show();
-        foreach (string page in new[] { "general", "search", "ai", "clipboard", "tools" })
+        foreach (string page in new[] { "general", "launcher", "ai", "tools", "shortcuts" })
         {
             sw.Page(page);
             await Task.Delay(350);
