@@ -64,11 +64,13 @@ internal sealed partial class SettingsView
         }
     }
 
-    /// 설정 > AI 계정: under an account, its logo — the picture, 파일 고르기… and ✕ to go back to none.
+    /// 설정 > AI 계정: under an account, its logo — the picture, 파일 고르기… and, for a picked one, ✕ to go back to the
+    /// company's logo (OfficialLogos).
     private void UsageIconRow(AiAccount a, string filter)
     {
         var end = new StackPanel { Orientation = Orientation.Horizontal, VerticalAlignment = VerticalAlignment.Center };
-        if (UsageLogo.Of(a.Icon, 20) is { } logo)
+        string? shown = UsageIcons.Shown(a);
+        if (UsageLogo.Of(shown, 20) is { } logo)
         {
             logo.Margin = new Thickness(0, 0, 10, 0);
             logo.VerticalAlignment = VerticalAlignment.Center;
@@ -86,9 +88,9 @@ internal sealed partial class SettingsView
             clear.Margin = new Thickness(6, 0, 0, 0);
             end.Children.Add(clear);
         }
-        string sub = a.Icon is not null
-            ? Tr("홈 카드와 작업표시줄에 이 그림을 씁니다", "The home card and the taskbar use this picture")
-            : Tr("비어 있음 · 로고 파일(SVG, PNG, ICO)을 고르면 홈 카드와 작업표시줄에 그 그림을 씁니다", "None · pick a logo file (SVG, PNG, ICO) for the home card and the taskbar");
+        string sub = a.Icon is not null ? Tr("홈 카드와 작업표시줄에 이 그림을 씁니다", "The home card and the taskbar use this picture")
+            : shown is not null ? Tr("회사 사이트에서 받은 공식 로고를 씁니다. 다른 그림을 쓰려면 파일을 고르세요", "Uses the company's logo from its website. Choose a file to use another picture")
+            : Tr("공식 로고를 아직 받지 못해 글자로 보입니다. 로고 파일(SVG, PNG, ICO)을 직접 고를 수도 있습니다", "The company's logo isn't fetched yet, so a letter shows. You can also choose a logo file (SVG, PNG, ICO)");
         Add(Tr("아이콘", "Icon"), sub, end, G.Palette, () => PickUsageIcon(a), null, filter);
     }
 

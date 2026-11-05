@@ -162,7 +162,7 @@ internal static class HomeViews
         var head = new Grid { Margin = new Thickness(0, 0, 0, 5) };
         for (int c = 0; c < 4; c++)
             head.ColumnDefinitions.Add(new ColumnDefinition { Width = c == 1 ? new GridLength(1, GridUnitType.Star) : GridLength.Auto });
-        var mark = UsageLogo.Mark(account?.Icon, UsageLogo.Letter(a.Name, account?.Kind), 16);
+        var mark = UsageLogo.Mark(account is null ? null : Ai.UsageIcons.Shown(account), UsageLogo.Letter(a.Name, account?.Kind), 16);
         mark.Margin = new Thickness(0, 0, 6, 0);
         mark.VerticalAlignment = VerticalAlignment.Center;
         head.Children.Add(mark);
