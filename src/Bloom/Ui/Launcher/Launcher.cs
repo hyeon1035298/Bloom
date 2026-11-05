@@ -268,6 +268,14 @@ internal sealed partial class Launcher : Window, IChatHost
             if (Mode == Mode.Form && form?.Current.Keys == true) FormKeys(e, up: true); // PrintScreen arrives going up
         };
         Deactivated += (_, _) => OnDeactivated();
+        // with tools beside it, the launcher keeps the group's active look while the focus moves into one (ToolDock);
+        // hooked after WindowChrome's (set above), so it is asked first
+        SourceInitialized += (_, _) => HwndSource.FromHwnd(Handle)?.AddHook((IntPtr hwnd, int msg, IntPtr wParam, IntPtr _, ref bool handled) =>
+        {
+            if (host.Tools?.KeepLook(hwnd, msg, wParam) is not { } kept) return IntPtr.Zero; // the dock comes after the window
+            handled = true;
+            return kept;
+        });
         IsVisibleChanged += (_, e) =>
         {
             if (e.NewValue is false)
@@ -281,6 +289,7 @@ internal sealed partial class Launcher : Window, IChatHost
         {
             Topmost = true;
             host.Tools.SetTopmost(true); // the group comes forward together
+            host.Tools.FocusMoved(); // and looks active together
             Win32.AboveNormal(true); // a pinned launcher clicked again (GroupLeft let it down)
         };
         debounce.Tick += (_, _) =>
@@ -519,6 +528,7 @@ internal sealed partial class Launcher : Window, IChatHost
 
     private void OnDeactivated()
     {
+        host.Tools.FocusMoved();
         if (Capturing || !IsVisible) return;
         // after the focus has landed: in an attached tool the group stays, elsewhere it lets go
         Dispatcher.BeginInvoke(() =>
