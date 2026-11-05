@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 using Bloom.Core;
 
 namespace Bloom.Ai;
@@ -73,10 +74,34 @@ internal static class UsageExport
         {
             if (c.Balance is not null || AiAccounts.Find(c.Id) is not { } a) continue; // an API key's card has no limits
             int every = a.IsDefault ? (s.UsageMinutes == 5 ? 5 : 10) : AiUsage.ExtraMinutes;
-            var limits = c.Limits.ConvertAll(l => new Cap(l.WindowMins, l.Percent, l.Resets is { } r ? Unix(r) : null));
+            var taken = new HashSet<string>();
+            var limits = Ordered(c.Limits).ConvertAll(l => new Cap(l.WindowMins, l.Percent, l.Resets is { } r ? Unix(r) : null, Key(l, taken), l.Title));
             accounts.Add(new Entry(a.Id, a.Kind, c.Name, c.Plan, a.Alias is { Length: > 0 } alias ? alias : null, AiUsage.Failed(a.Id), Unix(c.Fetched), every, limits));
         }
         return new Snapshot(1, "Bloom", now, online, s.UsageLeft ? "left" : "used", accounts);
+    }
+
+    // A reader takes the longest window (the later one on a tie) and only the first four limits: the 5-hour session
+    // first, then at most two models' weeks, the all-models week last, so it stays the week a reader finds and the cap never cuts it.
+    private static List<UsageLimit> Ordered(List<UsageLimit> limits)
+    {
+        var models = limits.Where(l => l.Model is not null).Take(2);
+        var weeks = limits.Where(l => l.Model is null && l.WindowMins == UsageLimit.WeekMins);
+        return limits.Where(l => l.Model is null && l.WindowMins != UsageLimit.WeekMins).Concat(models).Concat(weeks).ToList();
+    }
+
+    /// "session", "week" or "week-<model>" (lower case, anything but letters and digits as -); none for an odd window.
+    /// A model with no letters or digits of its own is "week-model"; a key already given to another limit of the account
+    /// (`taken`, in export order) gets -2, -3 and so on, so no two limits of an account share one.
+    private static string? Key(UsageLimit l, HashSet<string> taken)
+    {
+        string? key = l.Model is { } m
+            ? "week-" + (Regex.Replace(m.ToLowerInvariant(), "[^a-z0-9]+", "-").Trim('-') is { Length: > 0 } slug ? slug : "model")
+            : l.WindowMins switch { UsageLimit.SessionMins => "session", UsageLimit.WeekMins => "week", _ => null };
+        if (key is null) return null;
+        string unique = key;
+        for (int n = 2; !taken.Add(unique); n++) unique = key + "-" + n;
+        return unique;
     }
 
     private static long Unix(DateTime t) => new DateTimeOffset(t).ToUnixTimeSeconds();
@@ -84,5 +109,5 @@ internal static class UsageExport
     // The file's shape (v 1); the names follow Json.Options (camelCase, null left out).
     private sealed record Snapshot(int V, string App, long WrittenAt, bool Online, string Show, List<Entry> Accounts);
     private sealed record Entry(string Id, string Kind, string Name, string? Plan, string? Label, bool SignedOut, long FetchedAt, int EveryMins, List<Cap> Limits);
-    private sealed record Cap(int? Mins, double Used, long? ResetsAt);
+    private sealed record Cap(int? Mins, double Used, long? ResetsAt, string? Key, string Name);
 }
