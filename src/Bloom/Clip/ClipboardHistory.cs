@@ -295,19 +295,21 @@ internal sealed class ClipboardHistory : IDisposable
         }
         try
         {
-            // "PNG" keeps transparency (browsers, the Snipping Tool): its bytes, decoded by the work
+            // "PNG" keeps transparency (browsers, the Snipping Tool): its bytes, decoded by the work as it reads them (a
+            // band of rows at a time for the hash, again for the file), never held decoded whole
             if (d.GetDataPresent("PNG") && d.GetData("PNG") is MemoryStream png)
             {
                 byte[] bytes = png.ToArray();
-                return () => Picture(new PngBitmapDecoder(new MemoryStream(bytes), BitmapCreateOptions.PreservePixelFormat, BitmapCacheOption.OnLoad).Frames[0]);
+                return () => Picture(new PngBitmapDecoder(new MemoryStream(bytes), BitmapCreateOptions.PreservePixelFormat, BitmapCacheOption.None).Frames[0]);
             }
-            // the DIB is the fallback: its bitmap belongs to this thread, so the work gets a frozen copy
+            // the DIB is the fallback: its bitmap belongs to this thread, so the work gets it frozen (a copy only when
+            // it can't be frozen)
             if (d.GetDataPresent(DataFormats.Bitmap) && Clipboard.GetImage() is { } bmp)
             {
                 if ((long)bmp.PixelWidth * bmp.PixelHeight > MaxPixels) return null;
-                var copy = new WriteableBitmap(bmp);
-                copy.Freeze();
-                return () => Picture(copy);
+                BitmapSource frozen = bmp.CanFreeze ? bmp : new WriteableBitmap(bmp);
+                frozen.Freeze();
+                return () => Picture(frozen);
             }
         }
         catch (Exception e)
@@ -323,10 +325,7 @@ internal sealed class ClipboardHistory : IDisposable
     {
         if ((long)bmp.PixelWidth * bmp.PixelHeight > MaxPixels) return null;
         var bgra = new FormatConvertedBitmap(bmp, PixelFormats.Bgra32, null, 0);
-        int stride = bgra.PixelWidth * 4;
-        var px = new byte[stride * bgra.PixelHeight];
-        bgra.CopyPixels(px, stride, 0);
-        string hash = Hash(px);
+        string hash = Hash(bgra);
         string file = hash + ".png";
         string path = Path.Combine(Dir, file);
         if (!File.Exists(path))
@@ -337,10 +336,31 @@ internal sealed class ClipboardHistory : IDisposable
             using (var fs = File.Create(path + ".tmp")) enc.Save(fs);
             File.Move(path + ".tmp", path, true);
         }
+        MemoryTrim.AfterBigWork("clipboard picture"); // its decoded copy waits for a GC now
         return new ClipEntry { Kind = "image", Image = file, Width = bmp.PixelWidth, Height = bmp.PixelHeight, Id = "clip:" + hash };
     }
 
     private static string Hash(byte[] bytes) => Convert.ToHexString(SHA256.HashData(bytes), 0, 10).ToLowerInvariant();
+
+    /// Rows read at a time for a picture's hash: under the large-object heap's 85 KB, whose room the GC keeps long after.
+    private const int HashBandBytes = 64 * 1024;
+
+    /// The pixels' hash, the same as Hash of one array of them all (BGRA, row after row, so the files keep their names),
+    /// read a band of rows at a time: no picture-sized array (a 4K picture is 32 MB).
+    internal static string Hash(BitmapSource bgra)
+    {
+        int width = bgra.PixelWidth, height = bgra.PixelHeight, stride = width * 4;
+        int rows = Math.Max(1, HashBandBytes / stride);
+        var band = new byte[stride * Math.Min(rows, height)];
+        using var sha = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
+        for (int y = 0; y < height; y += rows)
+        {
+            int n = Math.Min(rows, height - y);
+            bgra.CopyPixels(new Int32Rect(0, y, width, n), band, stride, 0);
+            sha.AppendData(band, 0, n * stride);
+        }
+        return Convert.ToHexString(sha.GetHashAndReset(), 0, 10).ToLowerInvariant();
+    }
 
     // ── the list ────────────────────────────────────────────────────────────────────────────────
     /// Also the QA captures' sample entries.

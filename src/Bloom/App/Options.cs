@@ -30,5 +30,9 @@ internal sealed class Options
 }
 
 /// Owns the services and the window and carries out commands.
-/// One Bloom Lens pick: the screen area, its pixels (BGRA, physical size) and the PNG saved of it.
-internal sealed record LensShot(Ocr.ScreenRect Rect, byte[] Bgra, string Png, DateTime At);
+/// One Bloom Lens pick: the screen area, its pixels (BGRA, physical size) and the PNG saved of it. Bgra is empty once
+/// Host let the pixels go after an action (a full screen is 14 MB); Pixels() then reads them back from the PNG.
+internal sealed record LensShot(Ocr.ScreenRect Rect, byte[] Bgra, string Png, DateTime At)
+{
+    public byte[] Pixels() => Bgra.Length > 0 ? Bgra : Host.ReadLensPixels(this);
+}

@@ -32,6 +32,18 @@ Each release on GitHub shows its section from this file (the workflow looks for 
 - 마크: Bloom의 꽃이 끝이 파인 넓은 꽃잎 다섯 장의 벚꽃이 되어, 트레이의 16 px에서도 한 모양으로 보입니다.
 - 설정 › 정보: 라이선스 줄에 Bloom은 MIT이고 작업표시줄 애드온은 GPL-3.0인 별도 프로그램이라고 적고, 소스로 가는 단추를 둡니다.
 
+## 0.18.1
+
+- Memory: a clipboard picture, Lens and the colour picker no longer make a second copy of the whole picture. Copying a 4K screenshot takes about 30 MB less for a moment, and Lens lets go of the area's pixels once you have used it.
+- Memory: after a screen capture, Lens, the colour picker or a clipboard picture, Bloom gives the memory they used back once. It does this at most once an hour, and only while every Bloom window is hidden, nothing has been typed or clicked for a minute and the PC is idle.
+- Settings opens larger (1040 × 780), so the buttons on the wider pages fit.
+
+### 한국어
+
+- 메모리: 클립보드 그림, Lens, 색 고르기가 그림 전체를 한 벌 더 만들지 않습니다. 4K 스크린샷을 복사할 때 잠깐 늘던 메모리가 약 30 MB 줄었고, Lens는 쓴 영역의 화소를 바로 놓습니다.
+- 메모리: 화면 캡처, Lens, 색 고르기, 클립보드 그림 뒤에 쓴 메모리를 한 번 돌려줍니다. 한 시간에 한 번까지이고, Bloom 창이 모두 숨겨져 있고 1분 동안 입력이 없으며 PC가 한가할 때만 합니다.
+- 설정 창이 더 크게(1040 × 780) 열려서 넓은 페이지의 단추가 잘리지 않습니다.
+
 ## 0.18.0
 
 - Notices: cards no longer cover the island some taskbar add-ons draw at the top middle of the screen. A card that would sit on it shows just below it, and moves again when the island grows or comes back later.
