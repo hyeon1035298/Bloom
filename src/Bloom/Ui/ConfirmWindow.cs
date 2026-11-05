@@ -32,7 +32,7 @@ internal sealed class ConfirmWindow : Window
 
         var stack = new StackPanel { Margin = new Thickness(28, 22, 28, 20) };
         stack.Children.Add(Theme.T(title, 17, Theme.P.Text, Theme.Semi));
-        var body = Theme.T(text, 13.5, Theme.P.TextDim, Theme.Regular, false);
+        var body = Theme.T(Core.Hangul.KeepAll(text), 13.5, Theme.P.TextDim, Theme.Regular, false); // Korean words stay whole when it wraps
         body.TextWrapping = TextWrapping.Wrap;
         body.Margin = new Thickness(0, 8, 0, 0);
         stack.Children.Add(body);
@@ -77,20 +77,22 @@ internal sealed class ConfirmWindow : Window
     private static (string, MessageBoxResult, ButtonTone)[] Plain((string label, MessageBoxResult value)[] choices) =>
         choices.Select((c, i) => (c.label, c.value, i == 0 ? ButtonTone.Accent : ButtonTone.Plain)).ToArray();
 
+    /// QA runs (`--qa-set datawipe`): answers in place of the user, given the question's window unshown.
+    internal static System.Func<Window, MessageBoxResult>? QaAnswer;
+
     /// Shows the question and waits; returns the value of the button pressed (the last one on Esc / ✕).
-    public static MessageBoxResult Ask(Window? owner, string title, string text, params (string label, MessageBoxResult value)[] choices)
-    {
-        var w = new ConfirmWindow(owner, title, text, Plain(choices), -1);
-        w.ShowDialog();
-        return w.result;
-    }
+    public static MessageBoxResult Ask(Window? owner, string title, string text, params (string label, MessageBoxResult value)[] choices) =>
+        new ConfirmWindow(owner, title, text, Plain(choices), -1).Wait();
 
     /// As Ask, each button in its own tone; `byDefault` is the value Enter picks, its button ringed.
-    public static MessageBoxResult Ask(Window? owner, string title, string text, MessageBoxResult byDefault, params (string label, MessageBoxResult value, ButtonTone tone)[] choices)
+    public static MessageBoxResult Ask(Window? owner, string title, string text, MessageBoxResult byDefault, params (string label, MessageBoxResult value, ButtonTone tone)[] choices) =>
+        new ConfirmWindow(owner, title, text, choices, System.Array.FindIndex(choices, c => c.value == byDefault)).Wait();
+
+    private MessageBoxResult Wait()
     {
-        var w = new ConfirmWindow(owner, title, text, choices, System.Array.FindIndex(choices, c => c.value == byDefault));
-        w.ShowDialog();
-        return w.result;
+        if (QaAnswer is { } qa) return qa(this);
+        ShowDialog();
+        return result;
     }
 
     /// The window unshown, for a QA capture (`--qa-set lang`).

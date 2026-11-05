@@ -235,7 +235,14 @@ internal static class Notices
 
     /// The end of something the user started in Bloom (a hidden 내 명령 script, a chain with skipped lines, a file moved
     /// or copied): shown whether or not 작업 알림 is on, as it answers the user's own action.
-    public static void Result(bool ok, string head, string title, string? detail, string? actionText = null, Action? action = null) => Show(new Notice(ok ? "done" : "limit", head, title, detail, ActionText: actionText, Action: action));
+    public static void Result(bool ok, string head, string title, string? detail, string? actionText = null, Action? action = null)
+    {
+        QaResults?.Add((ok ? "✓ " : "✕ ") + title + (detail is null ? "" : " · " + detail));
+        Show(new Notice(ok ? "done" : "limit", head, title, detail, ActionText: actionText, Action: action));
+    }
+
+    /// QA runs (`--qa-set datawipe`): the result cards' lines, in order.
+    internal static List<string>? QaResults;
 
     /// A new Bloom is downloaded (Updates): it goes in at the next start, or now with 다시 시작해서 업데이트 (the same as
     /// 설정 > 정보's); a card without a sound.

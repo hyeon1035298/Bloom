@@ -25,6 +25,12 @@ internal sealed partial class SettingsView
     internal List<SettingsCatalog.Line> CollectDataForTests() => Collect(PageData);
     private bool dataMeasuring;
 
+    /// QA runs (`--qa-set datawipe`): each line's button by its key (or title) as the page was last built, and the
+    /// sizes once measured.
+    internal Dictionary<string, Action>? DataRunsForQa;
+    internal bool DataSettledForQa => !dataMeasuring && dataSizes is not null;
+    internal IReadOnlyDictionary<string, long>? DataSizesForQa => dataSizes;
+
     private void PageData(Settings s, string filter)
     {
         Page("data", Tr("데이터", "Data"), G.Save, Tr("Bloom이 이 PC에 저장한 것을 보고 지웁니다. 크기는 이 페이지를 열 때 잽니다.", "What Bloom keeps on this PC, to see and delete. The sizes are measured when this page opens."), filter);
@@ -240,6 +246,7 @@ internal sealed partial class SettingsView
     private void DataLine(string? key, string title, string what, bool? empty, string filter, Action run, string button, FrameworkElement? extra = null)
     {
         if (Record(title, what, filter)) return;
+        if (DataRunsForQa is { } runs) runs[key ?? title] = run;
         long? bytes = key is not null && dataSizes is { } d && d.TryGetValue(key, out long b) ? b : null;
         bool measuring = key is not null && dataSizes is null;
         bool none = empty ?? bytes is 0;
@@ -277,6 +284,7 @@ internal sealed partial class SettingsView
             Log.Error("data " + (key ?? title), e);
             left = 1;
         }
+        host.SaveAll(); // a store writes its emptied file some 400 ms later: now, so the size measured is the one left
         int run = ++dataRun;
         dataMeasuring = true;
         dataSizes = null;
