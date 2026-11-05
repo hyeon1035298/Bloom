@@ -2542,10 +2542,14 @@ Folder name	文件夹名称
 Change icon	更改图标
 {0} apps inside	其中 {0} 个应用
 Add app	添加应用
+Deletes ‘{0}’. Its {1} apps leave the taskbar too, and the folder goes to the Recycle Bin.	删除“{0}”文件夹。其中的 {1} 个应用也会从任务栏移除，文件夹移到回收站。
+Deletes ‘{0}’. The folder goes to the Recycle Bin.	删除“{0}”文件夹。文件夹移到回收站。
 Ungroups ‘{0}’. Its {1} apps go back to the taskbar.	将解散“{0}”文件夹。其中 {1} 个应用会回到任务栏。
 Ungroup	解散
+Delete folder	删除文件夹
 Ungroup folder	解散文件夹
-The apps aren't deleted; they go back to the taskbar	应用不会被删除，会回到任务栏
+Ungrouping puts the apps back on the taskbar; deleting takes them off too. The folder goes to the Recycle Bin	解散后应用回到任务栏，删除则应用也会移除。文件夹移到回收站
+An empty folder, deleted, leaves the taskbar for the Recycle Bin	空文件夹删除后会从任务栏移除并移到回收站
 Reorder	调整顺序
 Pick the apps to put in it	请选择要放入的应用
 {0} picked	已选 {0} 个

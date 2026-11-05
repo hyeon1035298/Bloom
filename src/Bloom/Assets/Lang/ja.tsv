@@ -2542,10 +2542,14 @@ Folder name	フォルダー名
 Change icon	アイコンを変更
 {0} apps inside	中のアプリ {0} 個
 Add app	アプリを追加
+Deletes ‘{0}’. Its {1} apps leave the taskbar too, and the folder goes to the Recycle Bin.	‘{0}’ フォルダーを削除します。中のアプリ {1} 個もタスクバーから外れ、フォルダーはごみ箱に移ります。
+Deletes ‘{0}’. The folder goes to the Recycle Bin.	‘{0}’ フォルダーを削除します。フォルダーはごみ箱に移ります。
 Ungroups ‘{0}’. Its {1} apps go back to the taskbar.	「{0}」フォルダーを解除します。中のアプリ {1} 個はタスクバーに戻ります。
 Ungroup	解除
+Delete folder	フォルダーを削除
 Ungroup folder	フォルダーを解除
-The apps aren't deleted; they go back to the taskbar	アプリは削除されず、タスクバーに戻ります
+Ungrouping puts the apps back on the taskbar; deleting takes them off too. The folder goes to the Recycle Bin	解除するとアプリはタスクバーに戻り、削除するとアプリも外れます。フォルダーはごみ箱に移ります
+An empty folder, deleted, leaves the taskbar for the Recycle Bin	空のフォルダーは削除するとタスクバーから外れ、ごみ箱に移ります
 Reorder	並べ替え
 Pick the apps to put in it	入れるアプリを選んでください
 {0} picked	{0} 個選択
