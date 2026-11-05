@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Shapes;
@@ -424,7 +425,14 @@ internal sealed class AccentPicker : Grid
             code.Text = Code(c);
             bool low = ratio < Accents.MinContrast;
             string r = ratio.ToString("0.0", CultureInfo.InvariantCulture);
-            contrast.Text = low ? Tr($"대비 {r} · 잘 안 보임", $"Contrast {r} · hard to see") : Tr($"대비 {r}", $"Contrast {r}");
+            // the warning on a line of its own: a narrow cell would break it inside a word
+            contrast.Inlines.Clear();
+            contrast.Inlines.Add(new Run(Tr($"대비 {r}", $"Contrast {r}")));
+            if (low)
+            {
+                contrast.Inlines.Add(new LineBreak());
+                contrast.Inlines.Add(new Run(Tr("잘 안 보임", "Hard to see")));
+            }
             contrast.Foreground = low ? p.Warn : p.TextFaint;
         }
     }
