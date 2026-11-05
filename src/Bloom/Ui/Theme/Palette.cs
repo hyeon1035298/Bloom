@@ -25,6 +25,9 @@ internal sealed class Palette
     /// States: working, a warning, and the fill of a button that cannot be undone.
     public readonly SolidColorBrush Ok = new(), Warn = new(), DangerFill = new();
 
+    /// The words on DangerFill: white in both themes.
+    public readonly SolidColorBrush DangerInk = new(Colors.White);
+
     public bool Dark { get; private set; }
 
     private static Color C(uint argb) => Color.FromArgb((byte)(argb >> 24), (byte)(argb >> 16), (byte)(argb >> 8), (byte)argb);

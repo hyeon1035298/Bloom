@@ -106,6 +106,14 @@ internal sealed class Notes
         Touch(null);
     }
 
+    /// 설정 > 데이터 > 메모: every note goes as Delete sends one (its text to the Recycle Bin) → how many went.
+    public static int DeleteAll()
+    {
+        var all = Current.Items.ToList();
+        foreach (var n in all) Delete(n);
+        return all.Count;
+    }
+
     private static void Touch(Note? n)
     {
         saver?.Touch();
