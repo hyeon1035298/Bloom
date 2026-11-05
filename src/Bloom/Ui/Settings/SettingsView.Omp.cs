@@ -89,6 +89,7 @@ internal sealed partial class SettingsView
                 Dispatcher.BeginInvoke(() => Build(lastFilter));
             }, null, filter);
             if (ompListOpen || collected is not null || filter.Length > 0) PageOmpModels(s, filter);
-        }));
+        }
+        ));
     }
 }
