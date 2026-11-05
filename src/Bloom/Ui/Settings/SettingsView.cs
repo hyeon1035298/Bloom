@@ -93,7 +93,7 @@ internal sealed partial class SettingsView : ScrollViewer
         Dispatcher.BeginInvoke(() =>
         {
             if (Keyboard.FocusedElement is TextBox box && IsAncestorOf(box)) return;
-            if (IsLoaded && IsVisible && (current == "taskbar" || lastFilter.Length > 0)) TaskbarRebuild();
+            if (IsLoaded && IsVisible && (current is "taskbar" or "addons" || lastFilter.Length > 0)) TaskbarRebuild();
         }, System.Windows.Threading.DispatcherPriority.Background);
     }
 
@@ -379,6 +379,7 @@ internal sealed partial class SettingsView : ScrollViewer
         PageFeatures(s, filter);
         PagePerformance(s, filter);
         PageTaskbar(s, filter);
+        PageAddons(s, filter);
         section = Tr("런처", "Launcher");
         PageHome(s, filter);
         PageSearch(s, filter);
@@ -406,6 +407,13 @@ internal sealed partial class SettingsView : ScrollViewer
     {
         taskbarAddon = addon;
         return Collect(PageTaskbar);
+    }
+
+    /// The tests: 설정 > 애드온's lines for `addons` (hand-made ones) in place of the user's.
+    internal List<SettingsCatalog.Line> CollectAddonsForTests(IReadOnlyList<Addons.Addon> addons)
+    {
+        userAddons = addons;
+        return Collect(PageAddons);
     }
 
     private List<SettingsCatalog.Line> Collect(Action<Settings, string> build)
