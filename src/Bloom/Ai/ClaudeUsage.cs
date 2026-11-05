@@ -52,7 +52,7 @@ internal static partial class ClaudeUsage
             /* not JSON: an error line, read as text */
         }
         var limits = Parse(text, DateTime.Now);
-        if (limits.Count > 0)
+        if (limits.Exists(l => l.Model is null))
         {
             var (plan, email) = Account(account.Home);
             return new UsageAccount("Claude", plan, limits, DateTime.Now) { Who = email };
@@ -61,10 +61,14 @@ internal static partial class ClaudeUsage
         return null;
     }
 
-    /// The 5-hour session and the all-models week (the per-model weeks are left out: the card has room for two).
+    [GeneratedRegex(@"\(([^)]+)\)")]
+    private static partial Regex Parens();
+
+    /// The 5-hour session, the all-models week, then each model's own week (Model set; only the usage file shows those).
     public static List<UsageLimit> Parse(string text, DateTime now)
     {
         UsageLimit? session = null, week = null;
+        var models = new List<UsageLimit>();
         foreach (string raw in text.Split('\n'))
         {
             var m = UsageLine().Match(raw.Trim());
@@ -74,10 +78,14 @@ internal static partial class ClaudeUsage
             var resets = ParseReset(m.Groups[3].Success ? m.Groups[3].Value : null, now);
             if (SessionName().IsMatch(name)) session ??= new UsageLimit(Tr("5시간", "5h"), used, resets, UsageLimit.SessionMins);
             else if (IsAllModelsWeek(name)) week ??= new UsageLimit(Tr("주간", "Weekly"), used, resets, UsageLimit.WeekMins);
+            else if (name.Contains("week", StringComparison.OrdinalIgnoreCase) && Parens().Match(name) is { Success: true } p
+                && p.Groups[1].Value.Trim() is { Length: > 0 } model && !models.Exists(x => x.Model!.Equals(model, StringComparison.OrdinalIgnoreCase)))
+                models.Add(new UsageLimit(Tr($"{model} 주간", $"{model} weekly"), used, resets, UsageLimit.WeekMins, model));
         }
-        var list = new List<UsageLimit>(2);
+        var list = new List<UsageLimit>(2 + models.Count);
         if (session is not null) list.Add(session);
         if (week is not null) list.Add(week);
+        list.AddRange(models);
         return list;
     }
 
