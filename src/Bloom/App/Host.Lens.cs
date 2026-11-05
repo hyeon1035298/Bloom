@@ -100,7 +100,7 @@ internal sealed partial class Host
             {
                 Summon();
                 if (r is null)
-                    Notices.Result(false, "Bloom Lens", Tr("글자 인식 실패", "Text recognition failed"), Tr("설치된 인식 언어를 확인하세요", "Check installed recognition languages"), Tr("인식 언어 설정", "Recognition language settings"), () => OpenSettings("lens", Tr("인식 언어", "Recognition language")));
+                    Notices.Result(false, "Bloom Lens", Tr("글자 인식 실패", "Text recognition failed"), Tr("설치된 인식 언어를 확인하세요", "Check installed recognition languages"), Tr("인식 언어 설정", "Recognition language settings"), () => OpenSettings("tools", Tr("인식 언어", "Recognition language")));
                 else Window.ShowToast(Tr("인식된 글자 없음", "No text found"));
                 return;
             }
