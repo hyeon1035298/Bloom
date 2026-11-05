@@ -66,6 +66,8 @@ internal static partial class Captures
         ["providers"] = ProviderScreens,
         ["tokens"] = TokenScreens,
         ["taskbar"] = TaskbarScreens,
+        ["taskbar-folders"] = TaskbarFolderScreens,
+        ["taskbar-usage"] = TaskbarUsageScreens,
     };
 
     public static async Task Run(Host host, string dir)

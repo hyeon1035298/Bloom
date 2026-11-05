@@ -9,7 +9,7 @@ using Bloom.Core;
 namespace Bloom.Addons;
 
 /// One add-on's host process: started with the protocol's arguments, watched for its exit code, started again after an
-/// unexpected end (twice, 5 s then 30 s later) but never after a code that says why it stopped (10-14), and stopped
+/// unexpected end (twice, 5 s then 30 s later) but never after a code that says why it stopped (10-15), and stopped
 /// through its named Stop event. A Bloom that quits only lets go of it: the host watches Bloom's process and unloads by
 /// itself a little after Bloom is gone, unless a new Bloom (a restart, an update) takes it over in that time.
 internal sealed class AddonRunner : IDisposable
@@ -143,7 +143,7 @@ internal sealed class AddonRunner : IDisposable
             p.Dispose();
             LastExit = code;
             Log.Write($"add-on host ended: {code}");
-            // 0 is a normal end: asked to stop, or this start handed its command line to a host already running. 10-14
+            // 0 is a normal end: asked to stop, or this start handed its command line to a host already running. 10-15
             // say why it stopped and would only end the same way again: the user decides (다시 켜기, 다시 시도).
             if (!stopping && !disposed && code != AddonProtocol.ExitOk && !AddonProtocol.IsFinal(code))
             {

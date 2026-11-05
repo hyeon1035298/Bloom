@@ -27,6 +27,7 @@ internal enum AddonState
     Windhawk, // 12
     Blocked, // 13
     Download, // 14
+    Restart, // 15: explorer must restart before the add-on can load again
     Stopped, // ended some other way, or could not be started
 }
 
@@ -109,6 +110,39 @@ internal sealed class Addon
 
     /// QA pictures: the status to show instead of the real one.
     public AddonStatus? QaStatus { get; set; }
+
+    private AddonSchema? schema;
+    private AddonValues? values;
+    private TaskbarCommands? commands;
+    private bool schemaRead;
+
+    /// The shipped settings schema (read once; null without one, or when its hash doesn't match the manifest).
+    public AddonSchema? Schema
+    {
+        get
+        {
+            if (!schemaRead)
+            {
+                schema = Broken || Manifest is not { } m ? null : AddonSchema.Load(store.ShippedDir(Id), m);
+                schemaRead = true;
+            }
+            return schema;
+        }
+    }
+
+    /// The user's values for the schema's settings (null without a schema).
+    public AddonValues? Values => values ??= Schema is { } s ? new AddonValues(AddonHub.UserValuesFile(Id), Path.Combine(DataDir, AddonProtocol.ValuesFile), s) : null;
+
+    /// Folder commands to the mod in this add-on's data folder.
+    public TaskbarCommands Commands => commands ??= new TaskbarCommands(DataDir);
+
+    /// The taskbar's pins and folders as the mod last wrote them.
+    public TaskbarState? State()
+    {
+        var s = TaskbarState.Read(DataDir);
+        if (s is not null) Commands.Heard(File.GetLastWriteTimeUtc(Path.Combine(DataDir, AddonProtocol.StateFile)));
+        return s;
+    }
 
     /// Makes the run copy and values.json and starts the host (a worker thread: copying and hashing read the disk).
     public void Start(bool resetSafeMode = false)
@@ -283,7 +317,7 @@ internal static class AddonHub
         foreach (var a in All) a.Stop();
     }
 
-    /// The user's values for the add-on, kept with Bloom's settings (Windhawk's, once brought in).
+    /// The user's values for the add-on, kept with Bloom's settings.
     public static string UserValuesFile(string id) => Path.Combine(Paths.Data, "addons", id, "settings.json");
 
     private static readonly JsonSerializerOptions Indented = new() { WriteIndented = true };
@@ -369,6 +403,8 @@ internal static class AddonHub
         return new(f.Started ? AddonState.Stopped : AddonState.Starting); // not started yet this run: it is about to
     }
 
+    /// A code the protocol adds later gets its line here, an AddonState and a status text, and joins IsFinal when the user
+    /// has to act before a start can work; until then it reads as Stopped.
     private static AddonState FromCode(int code) => code switch
     {
         AddonProtocol.ExitCrashes => AddonState.SafeMode,
@@ -376,6 +412,7 @@ internal static class AddonHub
         AddonProtocol.ExitWindhawk => AddonState.Windhawk,
         AddonProtocol.ExitBlocked => AddonState.Blocked,
         AddonProtocol.ExitDownload => AddonState.Download,
+        AddonProtocol.ExitRestart => AddonState.Restart,
         _ => AddonState.Stopped,
     };
 
@@ -386,6 +423,7 @@ internal static class AddonHub
         "windhawk" => AddonState.Windhawk,
         "blocked" => AddonState.Blocked,
         "download" => AddonState.Download,
+        "restart" => AddonState.Restart,
         _ => AddonState.Stopped,
     };
 }

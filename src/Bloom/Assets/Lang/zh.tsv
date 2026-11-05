@@ -2398,14 +2398,11 @@ Detach from the launcher	从启动器分离
 Always on top	始终置顶
 Attach to the launcher	附到启动器
 {0} weekly	{0} 每周
-PillTaskbar, an add-on that turns the taskbar into a centred pill	将任务栏变为居中药丸形状的加载项 PillTaskbar
 Turns the taskbar into a centred pill	将任务栏变为居中的药丸形状
 Customize the taskbar	自定义任务栏
 Turn on again	重新开启
 Clears Explorer's crash record and turns it on again	清除资源管理器的崩溃记录并重新开启
 Starts taskbar customization again	重新启动任务栏自定义
-Import Windhawk settings	导入 Windhawk 设置
-Brings over the pill-taskbar mod's settings from Windhawk · applies at once while running	原样迁移 Windhawk 中 pill-taskbar 模组的设置 · 运行中立即生效
 PillTaskbar is a separate GPL-3.0 program · {0}	PillTaskbar 是采用 GPL-3.0 的独立程序 · {0}
 View source	查看源代码
 Not turned on in a development copy	开发副本中不会开启
@@ -2422,6 +2419,104 @@ Could not download the symbol files · check your connection and try again	无�
 Stopped · taskbar customization stopped	已停止 · 任务栏自定义已停止
 Turn on taskbar customization	开启任务栏自定义
 PillTaskbar is a program separate from Bloom. It changes how the taskbar looks by loading code into Explorer, and is licensed under GPL-3.0. The first start downloads the taskbar's symbol files (about 70 MB) from the Microsoft symbol server.	PillTaskbar 是独立于 Bloom 的程序，通过向资源管理器加载代码来改变任务栏的外观，采用 GPL-3.0 许可。首次启动时会从 Microsoft 符号服务器下载任务栏符号文件（约 70 MB）。
-Windhawk has no settings for the pill-taskbar mod.	Windhawk 中没有 pill-taskbar 模组的设置。
-{0} settings imported	已导入 {0} 项设置
-Could not save the settings. Check the data folder's permissions, then retry.	无法保存设置。请检查数据文件夹的权限后重试。
+File Explorer	文件资源管理器
+Gathers the taskbar into a centred pill, groups apps into folders, and puts a small island at the top centre while it hides.	把任务栏收拢成居中的胶囊，把应用归入文件夹，隐藏时在屏幕顶部中央放一个小岛。
+About PillTaskbar	关于 PillTaskbar
+Folders	文件夹
+Dragging an app onto another on the taskbar and holding it there briefly makes a folder too	在任务栏上把应用拖到另一个应用上停留片刻，也会成为文件夹
+Off · when on, pinned apps can be grouped into folders	关闭 · 打开后可把固定的应用归入文件夹
+Folders can be edited while taskbar customization runs	任务栏美化运行时可以编辑文件夹
+The taskbar hasn't sent its folders yet	任务栏尚未发来文件夹信息
+The taskbar didn't answer within 5 seconds, so for now this is read only	任务栏 5 秒内没有响应，目前只能查看
+Taskbar folders haven't turned on yet	任务栏文件夹尚未打开
+Edit folders	编辑文件夹
+Make folders and change their names, icons and apps	创建文件夹，并更改名称、图标和其中的应用
+Changes the taskbar's height and icon size together	同时更改任务栏高度和图标大小
+Blurs what is behind the pill. Lit glass adds light and a sheen at the edges	模糊显示胶囊后方。受光玻璃会在边缘加上光线和反光
+The flower button opens and closes Bloom	按下花朵按钮可打开或关闭 Bloom
+A number changed here makes the size above ‘Custom’	在此更改数值后，上方的大小会变为“自定义”
+Tray	托盘
+Icons shown	显示的图标
+Only the ones on stay in the tray; the ones off leave no gap	只有打开的留在托盘中，关闭的图标不留空位
+Now playing	正在播放
+Puts the album art, the title and previous, play and next buttons before the tray	在托盘前放置专辑封面、标题以及上一首、播放、下一首按钮
+Usage file export is off	用量文件导出已关闭
+The taskbar reads the usage file Bloom exports; turn it on to see the usage	任务栏读取 Bloom 导出的用量文件，打开后才会显示用量
+Other icons	其他图标
+Bell only with new notifications	仅在有新通知时显示通知铃
+Hides the bell while there are no notifications	没有通知时隐藏通知铃
+Auto-hide island	自动隐藏小岛
+Use the auto-hide island	使用自动隐藏小岛
+The taskbar hides itself, and an island appears at the top centre of the screen	任务栏会自动隐藏，屏幕顶部中央会出现小岛
+With click, pointing at it alone doesn't bring it out	选择点击时，仅指向不会唤出
+Shown on the island	小岛上显示的内容
+With the pointer over it	指针悬停时
+What is below shows through while the pointer is there: 0 not at all, 100 fully	指针在上方时可透出下方内容：0 不透，100 完全透明
+More · {0}	更多 · {0} 项
+{0} to {1}	{0} 到 {1}
+Explorer needs a restart · restart Explorer, then try again	需要重启资源管理器 · 请重启资源管理器后重试
+Sending to the taskbar…	正在发送到任务栏…
+Click a folder to edit it below	点击文件夹即可在下方编辑
+No folders yet	还没有文件夹
+New folder	新建文件夹
+Automatic folder	自动文件夹
+The folders pinned to the taskbar show here while taskbar customization runs.	任务栏美化运行时，固定的文件夹会显示在这里。
+Take out	移出
+Folder name	文件夹名称
+Change icon	更改图标
+{0} apps inside	其中 {0} 个应用
+Add app	添加应用
+Ungroups ‘{0}’. Its {1} apps go back to the taskbar.	将解散“{0}”文件夹。其中 {1} 个应用会回到任务栏。
+Ungroup	解散
+Ungroup folder	解散文件夹
+The apps aren't deleted; they go back to the taskbar	应用不会被删除，会回到任务栏
+Reorder	调整顺序
+Pick the apps to put in it	请选择要放入的应用
+{0} picked	已选 {0} 个
+One or more	一个或以上
+Pinned apps and Start menu apps can go in	可以放入固定的应用和开始菜单中的应用
+Use the running folder	使用运行中文件夹
+Gathers the apps you run without pinning that aren't in any folder. A closed app leaves it, and with none left the folder leaves the taskbar.	把未固定就运行、且不在任何文件夹中的应用收进这个文件夹。关闭应用后会移出，没有这类应用时文件夹也会从任务栏消失。
+Apps in it now	当前包含的应用
+While off, unpinned apps get their own buttons, as in Windows.	关闭后，未固定的应用会像 Windows 一样各自显示按钮。
+Pick a few apps to make a folder. Dragging an app onto another on the taskbar and holding it there briefly makes one too.	选几个应用来创建文件夹。在任务栏上把应用拖到另一个应用上停留片刻也会成为文件夹。
+Start menu apps	开始菜单中的应用
+In this folder	在此文件夹中
+In {0}	在 {0} 中
+No shortcut	无快捷方式
+Shows the first four apps together. Reordering the apps changes it too.	将其中前四个应用合在一起显示。调整应用顺序，图标也会随之改变。
+Use the apps	使用应用组合
+Choose a file	选择文件
+Uses the icon of an .ico, .png, .exe or .dll file.	使用 .ico、.png、.exe 或 .dll 文件的图标。
+Folder icon	文件夹图标
+Icons (*.ico;*.png;*.exe;*.dll)|*.ico;*.png;*.exe;*.dll	图标 (*.ico;*.png;*.exe;*.dll)|*.ico;*.png;*.exe;*.dll
+Taskbar folders are off	任务栏文件夹已关闭
+The folder wasn't found	找不到该文件夹
+A folder with that name already exists	已有同名文件夹
+The name has characters a folder can't have	名称中含有文件夹不能使用的字符
+The app or item wasn't found	找不到该应用或项目
+The taskbar didn't answer within 5 seconds	任务栏 5 秒内没有响应
+The taskbar couldn't carry it out	任务栏无法执行该命令
+{0} failed · {1}	{0} 失败 · {1}
+Fits the content	适应内容
+Windows default	Windows 默认
+Lit glass	受光玻璃
+Borderless glass	无边框玻璃
+5 hours	5 小时
+The picked icon files in their own colours or in one · the home cards and the taskbar share it	所选图标文件使用原色或单色 · 主页卡片与任务栏共用
+Shows one picked value per account as a bar. The auto-hide island shows the same	每个账户以条形显示所选的一个值。自动隐藏小岛也显示相同的值
+The same setting as the home cards	与主页卡片相同的设置
+Icon colour	图标颜色
+Original	原色
+Single colour	单色
+Label	名称标签
+Written beside the icon. An account without a name shows its plan; a long one is cut with …. The island shows it too	显示在图标旁。没有名称的账户显示套餐，过长时以 … 截断。小岛上也会显示
+Plan	套餐
+This plan has only the {0} limit	此套餐只有 {0} 限额
+Choose a file…	选择文件…
+Clear the icon	清除图标
+The home card and the taskbar use this picture	主页卡片和任务栏使用此图片
+None · pick a logo file (SVG, PNG, ICO) for the home card and the taskbar	无 · 选择徽标文件（SVG、PNG、ICO）后，主页卡片和任务栏将使用该图片
+Icon	图标
+Logos (*.svg;*.png;*.ico)|*.svg;*.png;*.ico	徽标 (*.svg;*.png;*.ico)|*.svg;*.png;*.ico
+That file couldn't be brought in as the icon.	无法将该文件用作图标。

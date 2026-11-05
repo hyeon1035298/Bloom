@@ -150,7 +150,18 @@ internal static class HomeViews
         name.Inlines.Add(new System.Windows.Documents.Run(a.Name) { FontFamily = Theme.Sans, FontSize = 12.5, FontWeight = Theme.Semi, Foreground = Theme.P.Text });
         if (a.Plan is { Length: > 0 } plan)
             name.Inlines.Add(new System.Windows.Documents.Run("  " + plan) { FontFamily = Theme.Sans, FontSize = 11.5, Foreground = Theme.P.TextFaint });
-        head.Children.Add(name);
+        // the logo the user picked for the account goes before its name; without one the card is as it always was
+        if (UsageLogo.Of(Core.AiAccounts.Find(a.Id)?.Icon, 14) is { } logo)
+        {
+            var named = new DockPanel();
+            logo.Margin = new Thickness(0, 0, 6, 0);
+            logo.VerticalAlignment = VerticalAlignment.Center;
+            DockPanel.SetDock(logo, Dock.Left);
+            named.Children.Add(logo);
+            named.Children.Add(name);
+            head.Children.Add(named);
+        }
+        else head.Children.Add(name);
         if (DateTime.Now - a.Fetched > TimeSpan.FromMinutes(15)) // this side failed since: its numbers are old
         {
             var age = Theme.T(Tr($"{Ago(DateTime.Now - a.Fetched)} 전", $"{Ago(DateTime.Now - a.Fetched)} ago"), 11, Theme.P.TextFaint, Theme.Regular, false);

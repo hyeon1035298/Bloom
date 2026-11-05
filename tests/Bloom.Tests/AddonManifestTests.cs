@@ -200,8 +200,9 @@ internal static class AddonManifestTests
         Check.Eq(AddonHub.Decide(On(host: running, rt: new RuntimeState { Pid = 70, State = "running" })).State, AddonState.Starting, "a runtime file of an earlier explorer");
         Check.Eq(AddonHub.Decide(On(host: running)).State, AddonState.Starting, "no runtime file yet");
         Check.Eq(AddonHub.Decide(On(host: new HostState { Pid = 5, Phase = "failed", Reason = "windhawk" })).State, AddonState.Windhawk, "failed: the reason");
-        var codes = new Dictionary<int, AddonState> { [10] = AddonState.SafeMode, [11] = AddonState.NoSymbols, [12] = AddonState.Windhawk, [13] = AddonState.Blocked, [14] = AddonState.Download };
+        var codes = new Dictionary<int, AddonState> { [10] = AddonState.SafeMode, [11] = AddonState.NoSymbols, [12] = AddonState.Windhawk, [13] = AddonState.Blocked, [14] = AddonState.Download, [15] = AddonState.Restart };
         foreach (var (code, state) in codes) Check.Eq(AddonHub.Decide(On(alive: false, exit: code)).State, state, $"exit {code}");
+        Check.Eq(AddonHub.Decide(On(alive: false, host: new HostState { Phase = "failed", Reason = "restart" })).State, AddonState.Restart, "explorer must restart first");
         Check.Eq(AddonHub.Decide(On(alive: false, host: new HostState { SafeMode = true })).State, AddonState.SafeMode, "safe mode from an earlier run");
         Check.Eq(AddonHub.Decide(On(alive: false) with { Failed = true }).State, AddonState.Stopped, "gave up");
         Check.Eq(AddonHub.Decide(On(alive: false) with { Started = false }).State, AddonState.Starting, "about to start");
