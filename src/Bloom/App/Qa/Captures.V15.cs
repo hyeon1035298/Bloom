@@ -258,7 +258,59 @@ internal static partial class Captures
         sw.Filter(Tr("한도", "limit"));
         await Task.Delay(350);
         await sw.Dispatcher.InvokeAsync(() => sw.Capture(Path.Combine(dir, $"{l}-dark-n5-settings-kinds.png")), System.Windows.Threading.DispatcherPriority.ApplicationIdle);
+        sw.Filter("");
+        Settings.Current.NoticeSpot = "free"; // a dragged place: the menu names it
+        sw.Page("notices");
+        await Task.Delay(350);
+        await sw.Dispatcher.InvokeAsync(() => sw.Capture(Path.Combine(dir, $"{l}-dark-n6-settings-free.png")), System.Windows.Threading.DispatcherPriority.ApplicationIdle);
         sw.Close();
+        Settings.Current.NoticeSpot = "bottom-right";
+        await NoticePlacerScreens(dir, l);
+    }
+
+    /// 직접 옮기기 over a made-up 1280×720 work area with an island at the top middle: stuck to the top middle (under
+    /// the island), to the left middle, and placed freely; and placement.txt, where the cards would go on this PC's
+    /// primary monitor with the island found there now (read only).
+    private static async Task NoticePlacerScreens(string dir, string l)
+    {
+        var work = new Rect(0, 0, 1280, 720);
+        var island = new Rect(530, 0, 220, 35);
+        var desk = new System.Windows.Media.LinearGradientBrush(System.Windows.Media.Color.FromRgb(0x4A, 0x5D, 0x73), System.Windows.Media.Color.FromRgb(0x1F, 0x27, 0x33), 60);
+        var steps = new (string theme, string name, Point corner, bool free)[]
+        {
+            ("dark", "n7-place-top", new Point(470, 30), false),
+            ("dark", "n8-place-left", new Point(9, 302), false),
+            ("dark", "n9-place-free", new Point(820, 420), true),
+            ("light", "n7-place-top", new Point(470, 30), false),
+        };
+        Settings.Current.NoticeSize = "m";
+        foreach (var (theme, name, corner, free) in steps)
+        {
+            Theme.Apply(theme);
+            var placer = NoticePlacer.ForQa(work, island, desk);
+            placer.Left = placer.Top = -32000;
+            placer.Show();
+            placer.DragTo(corner, free);
+            await Task.Delay(300);
+            await placer.Dispatcher.InvokeAsync(() => placer.Capture(Path.Combine(dir, $"{l}-{theme}-{name}.png")), System.Windows.Threading.DispatcherPriority.ApplicationIdle);
+            placer.Close();
+        }
+        Theme.Apply("dark");
+
+        var log = new System.Text.StringBuilder();
+        var wa = SystemParameters.WorkArea;
+        var found = NoticeIsland.Find();
+        log.AppendLine($"work area {wa}  island {(found is { } f ? f.ToString() : "none")}");
+        var sheet = NoticeWindow.Sheet(SampleDone("Codex", Tr("결제 모듈 테스트 추가", "Add payment module tests"), 12)); // one medium card as the window holds it
+        sheet.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
+        var one = sheet.DesiredSize;
+        log.AppendLine($"one card {one}");
+        foreach (var (id, x, y) in NoticePlacement.Spots)
+        {
+            var at = NoticePlacement.At(wa, one, x, y);
+            log.AppendLine($"{id}: {at} -> {NoticePlacement.Avoid(wa, one, at, found)}");
+        }
+        await File.WriteAllTextAsync(Path.Combine(dir, "placement.txt"), log.ToString());
     }
 
     /// `--qa-set promo` (fresh data): pictures for the promo images at 2× — the home with Bloom's tools, a reminder on
