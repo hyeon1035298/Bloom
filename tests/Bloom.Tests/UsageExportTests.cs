@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text.Json.Nodes;
 using Bloom.Ai;
 using Bloom.Core;
@@ -75,6 +76,34 @@ internal static class UsageExportTests
         {
             list.Clear();
             Settings.Current.UsageMinutes = minutes;
+        }
+    }
+
+    public static void ModelKeysAreNeverEmptyOrRepeated()
+    {
+        var list = Settings.Current.AiAccounts;
+        list.Clear();
+        list.Add(new AiAccount { Id = "claude", Kind = "claude" });
+        try
+        {
+            var fetched = new DateTime(2026, 11, 4, 12, 0, 0, DateTimeKind.Local);
+            UsageLimit Week(string model) => new(model + " week", 1, null, UsageLimit.WeekMins, model);
+            string[] Keys(params UsageLimit[] limits)
+            {
+                var cards = new List<UsageAccount> { new("Claude", null, limits.ToList(), fetched) { Id = "claude" } };
+                var arr = JsonNode.Parse(UsageExport.Build(cards, online: true, now: 1))!["accounts"]![0]!["limits"]!.AsArray();
+                return arr.Select(l => (string)l!["key"]!).ToArray();
+            }
+
+            Check.Eq(string.Join(",", Keys(Week("Fable"), Week("Opus 4.5"))), "week-fable,week-opus-4-5", "ordinary names keep their keys");
+            Check.Eq(string.Join(",", Keys(Week("주간 모델"), new UsageLimit("주간", 2, null, UsageLimit.WeekMins))), "week-model,week", "a name with no ASCII letters or digits falls back, never ends in -");
+            Check.Eq(string.Join(",", Keys(Week("Fable!"), Week("fable"))), "week-fable,week-fable-2", "two names that normalise alike get distinct keys");
+            Check.Eq(string.Join(",", Keys(Week("???"), Week("한국어"))), "week-model,week-model-2", "two fallbacks are told apart too");
+            Check.Eq(string.Join(",", Keys(Week("model"), Week("한국어"))), "week-model,week-model-2", "the fallback does not collide with a real model called model");
+        }
+        finally
+        {
+            list.Clear();
         }
     }
 }
