@@ -9,7 +9,7 @@ Each release on GitHub shows its section from this file (the workflow looks for 
 - Auto-hide island: one switch turns on the island at the top centre of the screen and Windows' own taskbar auto-hide together, and turns both off again.
 - Your own add-ons: an add-on put in the user-addons folder in Bloom's local data folder shows on Settings › Add-ons after a restart, with its own switch. It is off at first, and the first switch-on says that it is a separate program Bloom did not make or check. Its files are checked against the SHA-256 in its addon.json, as the taskbar add-on's are.
 - Sign-in: while an add-on is on and Start with Windows is on, a sign-in task of your own starts Bloom earlier, so the taskbar changes soon after you sign in. Hold Shift while Bloom starts to skip add-ons for that run.
-- AI usage: each account can have a logo file (SVG, PNG or ICO) on Settings › AI accounts, shown before its name on the home card and on the taskbar. Icon colour (original or one colour), the name tag and the limit the taskbar shows per account are shared by the home and the taskbar, and the usage file carries them.
+- AI usage: each account shows its company's logo before its name on the home card and on the taskbar. Bloom carries no company logos. It downloads each one once from the company's own site (claude.ai, chatgpt.com) and keeps it, and shows a letter until then. A logo file of your own (SVG, PNG or ICO) picked on Settings › AI accounts comes first. A logo in black or white alone takes the text colour. Icon colour (original or one colour), the name tag and the limit the taskbar shows per account are shared by the home and the taskbar, and the usage file carries them.
 - Mark: Bloom's flower is now a cherry blossom with five broad notched petals, which stays one shape down to 16 px in the tray.
 - Settings › About: a License line says Bloom is MIT and that the taskbar add-on is a separate GPL-3.0 program, with a button to its source.
 
@@ -20,7 +20,7 @@ Each release on GitHub shows its section from this file (the workflow looks for 
 - 숨김 아일랜드: 스위치 하나로 화면 위 가운데의 아일랜드와 Windows의 작업표시줄 자동 숨기기를 함께 켜고 함께 끕니다.
 - 직접 넣는 애드온: Bloom 로컬 데이터 폴더 안 user-addons에 넣은 애드온은 다시 시작하면 설정 › 애드온에 자기 스위치와 함께 나옵니다. 처음에는 꺼져 있고, 처음 켤 때 Bloom이 만들거나 검사하지 않은 별도 프로그램이라고 알려 줍니다. 파일은 작업표시줄 애드온처럼 addon.json에 적힌 SHA-256과 맞춰 봅니다.
 - 로그인: 애드온이 켜져 있고 윈도우 시작 시 실행도 켜져 있으면, 사용자 계정의 로그인 작업이 Bloom을 더 일찍 띄워 로그인 뒤 작업표시줄이 금방 바뀝니다. Bloom이 켜질 때 Shift를 누르고 있으면 그 실행에서는 애드온을 켜지 않습니다.
-- AI 사용량: 설정 › AI 계정에서 계정마다 로고 파일(SVG, PNG, ICO)을 고르면 홈 카드와 작업표시줄에서 이름 앞에 나옵니다. 아이콘 색(원래 색 또는 단색), 이름표, 계정별로 작업표시줄에 보일 한도는 홈과 작업표시줄이 함께 쓰고, 사용량 파일에도 들어갑니다.
+- AI 사용량: 홈 카드와 작업표시줄에서 계정 이름 앞에 회사 로고가 나옵니다. Bloom에는 회사 로고가 들어 있지 않고, 회사 사이트(claude.ai, chatgpt.com)에서 한 번 받아 계속 쓰며 받기 전에는 글자가 보입니다. 설정 › AI 계정에서 직접 고른 로고 파일(SVG, PNG, ICO)이 있으면 그것을 씁니다. 검정이나 흰색 한 가지로 된 로고는 글자색을 따릅니다. 아이콘 색(원래 색 또는 단색), 이름표, 계정별로 작업표시줄에 보일 한도는 홈과 작업표시줄이 함께 쓰고, 사용량 파일에도 들어갑니다.
 - 마크: Bloom의 꽃이 끝이 파인 넓은 꽃잎 다섯 장의 벚꽃이 되어, 트레이의 16 px에서도 한 모양으로 보입니다.
 - 설정 › 정보: 라이선스 줄에 Bloom은 MIT이고 작업표시줄 애드온은 GPL-3.0인 별도 프로그램이라고 적고, 소스로 가는 단추를 둡니다.
 

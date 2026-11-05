@@ -32,7 +32,11 @@ internal static class UsageIcons
         UsageExport.Changed();
     }
 
-    /// Back to no logo: the card and the taskbar show what they show without one.
+    /// The picture the account shows: the user's pick while Bloom's copy is there, else its company's logo
+    /// (OfficialLogos), else none (the letter tile).
+    public static string? Shown(AiAccount a) => a.Icon is { } i && File.Exists(i) ? i : OfficialLogos.For(a.Kind);
+
+    /// Back to no picked logo: the card and the taskbar show its company's logo, or the letter without one.
     public static void Clear(AiAccount a)
     {
         string? old = a.Icon;
