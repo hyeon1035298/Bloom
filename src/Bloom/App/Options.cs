@@ -6,6 +6,7 @@ internal sealed class Options
 {
     public string? Data;
     public bool NoHook, NoTray, Settings, Show;
+    public bool Autostart; // --autostart: started at sign-in (the Run entry, the logon task): add-ons first, and a second start stays quiet
     public string? Open; // --open <file>: a Markdown file to open in its document window (Explorer's 연결 프로그램)
     public bool Demo; // --demo: the recording mode (Core.Demo), on a --data folder only
     public double? QaScale; // --qa-scale <n>: QA pictures at n× (README and promo pictures want 2)

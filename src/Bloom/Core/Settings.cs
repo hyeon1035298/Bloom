@@ -58,6 +58,8 @@ internal sealed class Settings
     public List<string> McpOn { get; set; } = new(); // other MCP servers the chats may use: "source|name" (Ai\McpCatalog.cs)
     public List<string> McpFiles { get; set; } = new(); // .mcp.json files brought in on 설정 > PC 작업 · MCP
     public List<string> FeaturesOff { get; set; } = new(); // Core\Features.cs keys switched off in 설정 > 기능
+    public List<string> AddonsOn { get; set; } = new(); // add-ons whose host Bloom starts (Addons\Addons.cs); empty after an install = all off
+    public List<string> AddonsConfirmed { get; set; } = new(); // add-ons whose first-switch-on notice (a separate program, its license) was accepted
     public string? ClaudePath { get; set; }
     public string? CodexPath { get; set; }
     public string? OmpPath { get; set; } // omp.exe; null = the PATH

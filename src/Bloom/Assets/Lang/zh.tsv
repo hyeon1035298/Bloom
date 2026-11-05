@@ -2398,3 +2398,30 @@ Detach from the launcher	从启动器分离
 Always on top	始终置顶
 Attach to the launcher	附到启动器
 {0} weekly	{0} 每周
+PillTaskbar, an add-on that turns the taskbar into a centred pill	将任务栏变为居中药丸形状的加载项 PillTaskbar
+Turns the taskbar into a centred pill	将任务栏变为居中的药丸形状
+Customize the taskbar	自定义任务栏
+Turn on again	重新开启
+Clears Explorer's crash record and turns it on again	清除资源管理器的崩溃记录并重新开启
+Starts taskbar customization again	重新启动任务栏自定义
+Import Windhawk settings	导入 Windhawk 设置
+Brings over the pill-taskbar mod's settings from Windhawk · applies at once while running	原样迁移 Windhawk 中 pill-taskbar 模组的设置 · 运行中立即生效
+PillTaskbar is a separate GPL-3.0 program · {0}	PillTaskbar 是采用 GPL-3.0 的独立程序 · {0}
+View source	查看源代码
+Not turned on in a development copy	开发副本中不会开启
+This Bloom has no taskbar add-on	此 Bloom 不含任务栏加载项
+The taskbar add-on's files are not valid · reinstall Bloom	任务栏加载项文件无效 · 请重新安装 Bloom
+Bloom started with Shift held, so it is off this time	启动时按住了 Shift，本次未开启
+Turning on · downloading symbol files {0}%	正在开启 · 正在下载符号文件 {0}%
+Turning on	正在开启
+Paused · Explorer kept crashing, so taskbar customization was turned off	已暂停 · 资源管理器连续崩溃，已关闭任务栏自定义
+No symbols · this Windows version lacks the taskbar symbols it needs	无符号 · 此 Windows 版本缺少所需的任务栏符号
+On in Windhawk · turn the PillTaskbar mod off in Windhawk first	已在 Windhawk 中开启 · 请先在 Windhawk 中关闭 PillTaskbar 模组
+Blocked by a security feature · Windows Security (Smart App Control) kept it from loading	被安全功能阻止 · Windows 安全中心（智能应用控制）阻止了加载
+Could not download the symbol files · check your connection and try again	无法下载符号文件 · 请检查网络连接后重试
+Stopped · taskbar customization stopped	已停止 · 任务栏自定义已停止
+Turn on taskbar customization	开启任务栏自定义
+PillTaskbar is a program separate from Bloom. It changes how the taskbar looks by loading code into Explorer, and is licensed under GPL-3.0. The first start downloads the taskbar's symbol files (about 70 MB) from the Microsoft symbol server.	PillTaskbar 是独立于 Bloom 的程序，通过向资源管理器加载代码来改变任务栏的外观，采用 GPL-3.0 许可。首次启动时会从 Microsoft 符号服务器下载任务栏符号文件（约 70 MB）。
+Windhawk has no settings for the pill-taskbar mod.	Windhawk 中没有 pill-taskbar 模组的设置。
+{0} settings imported	已导入 {0} 项设置
+Could not save the settings. Check the data folder's permissions, then retry.	无法保存设置。请检查数据文件夹的权限后重试。

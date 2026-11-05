@@ -14,6 +14,7 @@ internal static class Program
     {
         if (args.Length == 2 && args[0] == FakeMcpServer.Flag) return FakeMcpServer.Run(args[1]); // a test's MCP server, not the tests
         if (FakeOmp.Called(args)) return FakeOmp.Run(args); // a test's omp, not the tests
+        if (FakeAddonHost.Called(args)) return FakeAddonHost.Run(args); // a test's add-on host, not the tests
         string? filter = args.Length > 0 ? args[0] : null;
         var tests = typeof(Program).Assembly.GetTypes()
             .Where(t => t.Name.EndsWith("Tests", StringComparison.Ordinal) && t.IsClass)

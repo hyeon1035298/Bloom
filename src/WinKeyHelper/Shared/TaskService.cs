@@ -113,6 +113,50 @@ internal sealed unsafe class TaskService : IDisposable
         return true;
     }
 
+    /// Bloom (not elevated): a task of the user's own in the root folder, created or replaced, running as the principal
+    /// its XML names. The root folder lets a user add and remove their own tasks; the \Bloom folder above doesn't.
+    public void RegisterOwn(string name, string xml)
+    {
+        IntPtr folder = GetFolder(@"\");
+        IntPtr path = Marshal.StringToBSTR(name), text = Marshal.StringToBSTR(xml);
+        try
+        {
+            IntPtr task;
+            Check(((delegate* unmanaged[Stdcall]<IntPtr, IntPtr, IntPtr, int, Variant, Variant, int, Variant, IntPtr*, int>)Slot(folder, 16))(
+                folder, path, text, TASK_CREATE_OR_UPDATE, default, default, TASK_LOGON_INTERACTIVE_TOKEN, default, &task));
+            Release(task);
+        }
+        finally
+        {
+            Marshal.FreeBSTR(path);
+            Marshal.FreeBSTR(text);
+            Release(folder);
+        }
+    }
+
+    /// The user's own task `name` in the root folder is there.
+    public bool ExistsOwn(string name)
+    {
+        IntPtr folder = GetFolder(@"\"), path = Marshal.StringToBSTR(name), task;
+        int hr = ((delegate* unmanaged[Stdcall]<IntPtr, IntPtr, IntPtr*, int>)Slot(folder, 13))(folder, path, &task);
+        Marshal.FreeBSTR(path);
+        Release(folder);
+        if (hr < 0 && !Missing(hr)) Check(hr);
+        if (hr < 0) return false;
+        Release(task);
+        return true;
+    }
+
+    /// The user's own task `name` in the root folder gone (a missing one is fine).
+    public void DeleteOwn(string name)
+    {
+        IntPtr folder = GetFolder(@"\"), path = Marshal.StringToBSTR(name);
+        int hr = ((delegate* unmanaged[Stdcall]<IntPtr, IntPtr, int, int>)Slot(folder, 15))(folder, path, 0);
+        Marshal.FreeBSTR(path);
+        Release(folder);
+        if (hr < 0 && !Missing(hr)) Check(hr);
+    }
+
     private static List<string> Names(IntPtr folder)
     {
         var names = new List<string>();

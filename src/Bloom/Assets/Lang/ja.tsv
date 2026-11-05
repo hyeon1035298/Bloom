@@ -2398,3 +2398,30 @@ Detach from the launcher	ランチャーから切り離す
 Always on top	常に手前に表示
 Attach to the launcher	ランチャーに付ける
 {0} weekly	{0} 週間
+PillTaskbar, an add-on that turns the taskbar into a centred pill	タスクバーを中央のピル型に変えるアドオン PillTaskbar
+Turns the taskbar into a centred pill	タスクバーを中央のピル型に変えます
+Customize the taskbar	タスクバーのカスタマイズ
+Turn on again	再びオンにする
+Clears Explorer's crash record and turns it on again	エクスプローラーの停止記録を消去して再びオンにします
+Starts taskbar customization again	タスクバーのカスタマイズを再開します
+Import Windhawk settings	Windhawk の設定を読み込む
+Brings over the pill-taskbar mod's settings from Windhawk · applies at once while running	Windhawk の pill-taskbar Mod の設定をそのまま移します · 実行中ならすぐに反映
+PillTaskbar is a separate GPL-3.0 program · {0}	PillTaskbar は GPL-3.0 の別プログラムです · {0}
+View source	ソースを見る
+Not turned on in a development copy	開発用コピーではオンになりません
+This Bloom has no taskbar add-on	この Bloom にはタスクバーアドオンがありません
+The taskbar add-on's files are not valid · reinstall Bloom	タスクバーアドオンのファイルが正しくありません · Bloom を再インストールしてください
+Bloom started with Shift held, so it is off this time	Shift を押したまま起動したため、今回はオンになっていません
+Turning on · downloading symbol files {0}%	オンにしています · シンボルファイルをダウンロード中 {0}%
+Turning on	オンにしています
+Paused · Explorer kept crashing, so taskbar customization was turned off	停止中 · エクスプローラーが続けて停止したため、タスクバーのカスタマイズをオフにしました
+No symbols · this Windows version lacks the taskbar symbols it needs	シンボルなし · この Windows のバージョンには必要なタスクバーのシンボルがありません
+On in Windhawk · turn the PillTaskbar mod off in Windhawk first	Windhawk でオン · 先に Windhawk で PillTaskbar Mod をオフにしてください
+Blocked by a security feature · Windows Security (Smart App Control) kept it from loading	セキュリティ機能がブロック · Windows セキュリティ (スマート アプリ コントロール) が読み込みを止めました
+Could not download the symbol files · check your connection and try again	シンボルファイルをダウンロードできませんでした · 接続を確認して再試行してください
+Stopped · taskbar customization stopped	停止 · タスクバーのカスタマイズが停止しました
+Turn on taskbar customization	タスクバーのカスタマイズをオンにする
+PillTaskbar is a program separate from Bloom. It changes how the taskbar looks by loading code into Explorer, and is licensed under GPL-3.0. The first start downloads the taskbar's symbol files (about 70 MB) from the Microsoft symbol server.	PillTaskbar は Bloom とは別のプログラムで、エクスプローラーにコードを読み込んでタスクバーの見た目を変えます。ライセンスは GPL-3.0 です。初回の起動時に Microsoft シンボル サーバーからタスクバーのシンボルファイル (約 70 MB) をダウンロードします。
+Windhawk has no settings for the pill-taskbar mod.	Windhawk に pill-taskbar Mod の設定がありません。
+{0} settings imported	{0} 件の設定を読み込みました
+Could not save the settings. Check the data folder's permissions, then retry.	設定を保存できませんでした。データフォルダーの権限を確認して、もう一度お試しください。
