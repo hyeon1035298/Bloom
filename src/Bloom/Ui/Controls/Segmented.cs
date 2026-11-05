@@ -7,36 +7,26 @@ using System.Windows.Media;
 
 namespace Bloom.Ui;
 
-/// A small segmented choice (settings), drawn as a sunken well with a hairline,
-/// the chosen option on a raised surface with a soft shadow.
+/// A small segmented choice (settings): the options on a faint well, the chosen one on a lighter fill with a light
+/// line along its top.
 internal sealed class Segmented : SmoothBorder
 {
-    private readonly List<(string value, Border item, TextBlock text)> items = new();
-    private static readonly System.Windows.Media.Effects.DropShadowEffect Lift = MakeLift();
+    private readonly List<(string value, SmoothBorder item, TextBlock text)> items = new();
     public string Value { get; private set; }
     public event Action<string>? Picked;
-
-    private static System.Windows.Media.Effects.DropShadowEffect MakeLift()
-    {
-        var e = new System.Windows.Media.Effects.DropShadowEffect { BlurRadius = 3, ShadowDepth = 1, Direction = 270, Opacity = 0.25, Color = Colors.Black };
-        e.Freeze();
-        return e;
-    }
 
     public Segmented(IEnumerable<(string value, string label)> options, string value)
     {
         Value = value;
-        CornerRadius = new CornerRadius(10);
-        Background = Theme.P.Well;
-        BorderBrush = Theme.P.Line;
-        BorderThickness = new Thickness(1);
+        CornerRadius = new CornerRadius(8);
+        Background = Theme.P.Card;
         Padding = new Thickness(2);
         VerticalAlignment = VerticalAlignment.Center;
         var sp = new StackPanel { Orientation = Orientation.Horizontal };
         foreach (var (v, label) in options)
         {
             var t = Theme.Label(label, 12, Theme.P.TextFaint, Theme.Medium, inBorder: true);
-            var b = new SmoothBorder { CornerRadius = new CornerRadius(7), Padding = new Thickness(10, 2, 10, 3), Child = t, Cursor = Cursors.Hand };
+            var b = new SmoothBorder { CornerRadius = new CornerRadius(6), Height = 24, Padding = new Thickness(10, 0, 10, 0), Margin = new Thickness(items.Count > 0 ? 2 : 0, 0, 0, 0), Child = t, Cursor = Cursors.Hand };
             string vv = v;
             b.MouseLeftButtonUp += (_, e) =>
             {
@@ -57,8 +47,8 @@ internal sealed class Segmented : SmoothBorder
         foreach (var (value, item, text) in items)
         {
             bool on = value == v;
-            item.Background = on ? Theme.P.Raised : Brushes.Transparent;
-            item.Effect = on ? Lift : null;
+            item.Background = on ? Theme.P.Edge : Brushes.Transparent;
+            item.TopLine = on ? Theme.P.Hilite : null;
             text.Foreground = on ? Theme.P.Text : Theme.P.TextFaint;
         }
     }

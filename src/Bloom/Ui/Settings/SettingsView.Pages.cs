@@ -75,7 +75,7 @@ internal sealed partial class SettingsView
             Theme.Apply(s.Theme); // every window repaints; this list is rebuilt by its window
         }
         sw.Picked += PickAccent;
-        Add(Tr("색", "Colour"), Tr($"{accent.Name} · 강조색과 전체 톤이 함께 바뀝니다", $"{accent.Name} · the accent and the overall tone change together"), sw, G.Palette, () =>
+        Add(Tr("색", "Colour"), Tr($"{accent.Name} · 켠 스위치, 고른 줄, 글자 커서에 쓰입니다", $"{accent.Name} · for switches that are on, the chosen line and the text cursor"), sw, G.Palette, () =>
         {
             string next = sw.Cycle();
             if (next == Accents.CustomKey && !customOk) // nothing typed in: round to the first

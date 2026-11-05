@@ -13,7 +13,6 @@ namespace Bloom.Ui;
 internal sealed class Row : SmoothBorder
 {
     public ResultItem? Item { get; private set; } // this opening's (Reuse puts the new one in)
-    public readonly Shape Bar;
     public bool Selectable = true;
     private bool selected, hover;
     public Action? Clicked, RightClicked;
@@ -21,6 +20,7 @@ internal sealed class Row : SmoothBorder
     public Action<ActionItem>? SideClicked; // the item's side button (관리자로 실행) was pressed
     private static Row? pressed; // the row the left button last went down on: only a release on it clicks it
     private FrameworkElement? side;
+    private FrameworkElement? enter; // a result's ↵ key cap, on the selected row only
     public readonly Grid Cells;
     private TextBlock? title; // a result's title (Result): up to its share of the row, the subtitle takes the rest
     private double titleShare;
@@ -42,10 +42,8 @@ internal sealed class Row : SmoothBorder
         Padding = new Thickness(0, 0, 16, 0);
         Background = Brushes.Transparent;
         Cells = new Grid();
-        Cells.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(13) });
+        Cells.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(13) }); // the row's own inset
         Child = Cells;
-        Bar = new Rectangle { Width = 3, Height = 18, RadiusX = 1.5, RadiusY = 1.5, Fill = Theme.P.Accent, HorizontalAlignment = HorizontalAlignment.Left, Margin = new Thickness(3, 0, 0, 0), SnapsToDevicePixels = true, Visibility = Visibility.Hidden };
-        Cells.Children.Add(Bar);
         MouseEnter += (_, _) =>
         {
             hover = true;
@@ -116,9 +114,10 @@ internal sealed class Row : SmoothBorder
             Background = Brushes.Transparent;
             return;
         }
+        // the chosen row by its fill alone (no mark in the accent: that is for what is on)
         Background = selected ? Theme.P.Selected : hover && Selectable ? Theme.P.Hover : Brushes.Transparent;
-        Bar.Visibility = selected ? Visibility.Visible : Visibility.Hidden;
         if (side is not null) side.Visibility = selected ? Visibility.Visible : Visibility.Collapsed;
+        if (enter is not null) enter.Visibility = selected ? Visibility.Visible : Visibility.Collapsed;
     }
 
     /// The item's side action as a small button at the row's end, shown only on the selected row (not on hover).
@@ -185,6 +184,11 @@ internal sealed class Row : SmoothBorder
         }
         r.AddSide(item);
         r.AddRemove();
+        var cap = Keys.Cap("↵");
+        cap.Margin = new Thickness(8, 0, 0, 0);
+        cap.Visibility = Visibility.Collapsed;
+        r.enter = cap;
+        r.Add(cap, GridLength.Auto);
         return r;
     }
 
@@ -256,7 +260,6 @@ internal sealed class Row : SmoothBorder
     public static Row Calc(ResultItem item)
     {
         var r = new Row(item, 96) { CornerRadius = new CornerRadius(12), Margin = new Thickness(8, 4, 8, 6), Padding = new Thickness(0) };
-        r.Cells.Children.Remove(r.Bar);
         r.Cells.ColumnDefinitions.Clear();
         var card = new Grid();
         card.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
@@ -301,7 +304,7 @@ internal static class Section2
     public static FrameworkElement Header(string title, string? note, Action? reload = null, Action? fold = null, bool folded = false)
     {
         var g = new Grid { Margin = new Thickness(22, 12, 22, 5) };
-        var name = Theme.T(title, 11.5, Theme.P.TextFaint, Theme.Semi);
+        var name = Theme.T(title, 12, Theme.P.TextDim, Theme.Medium);
         if (fold is null) g.Children.Add(name);
         else
         {
@@ -313,7 +316,11 @@ internal static class Section2
             toggle.Children.Add(chevron);
             toggle.Children.Add(name);
             toggle.MouseEnter += (_, _) => chevron.Foreground = name.Foreground = Theme.P.Text;
-            toggle.MouseLeave += (_, _) => chevron.Foreground = name.Foreground = Theme.P.TextFaint;
+            toggle.MouseLeave += (_, _) =>
+            {
+                chevron.Foreground = Theme.P.TextFaint;
+                name.Foreground = Theme.P.TextDim;
+            };
             toggle.MouseLeftButtonDown += (_, e) => e.Handled = true; // the search line keeps the focus
             toggle.MouseLeftButtonUp += (_, e) =>
             {

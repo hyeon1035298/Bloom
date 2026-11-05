@@ -2015,7 +2015,7 @@ Taskbar look	任务栏外观
 Glass on (Windows transparency effects)	玻璃效果已开启 (Windows 透明效果)
 Windows transparency effects are off, so it is solid	Windows 透明效果已关闭，因此显示为纯色
 Custom	自定义
-{0} · the accent and the overall tone change together	{0} · 强调色和整体色调会一起改变
+{0} · for switches that are on, the chosen line and the text cursor	{0} · 用于打开的开关、选中的线条和文字光标
 Custom colour	自定义颜色
 Type #RRGGBB (like #3A7BD5) · the light theme uses it, the dark one a lighter take	输入 #RRGGBB（例如 #3A7BD5）· 浅色主题使用该颜色，深色主题使用其较亮的版本
 The launcher, tool windows, chat and settings together · Ctrl+= / Ctrl+- / Ctrl+0 in the launcher	启动器、工具窗口、对话和设置一起调整 · 在启动器中按 Ctrl+= / Ctrl+- / Ctrl+0
@@ -2351,6 +2351,7 @@ No settings found	未找到设置
 Basics	基本
 Launcher	启动器
 Find a setting	查找设置
+Changes take effect right away	更改会立即生效
 Section	分类
 Change	更改
 Clear	清除

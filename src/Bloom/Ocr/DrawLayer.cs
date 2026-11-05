@@ -22,9 +22,9 @@ internal sealed class DrawLayer
     private static readonly Color[] Inks = { Color.FromRgb(0xFF, 0x4D, 0x4F), Color.FromRgb(0xFF, 0xD4, 0x3B), Color.FromRgb(0x3B, 0x82, 0xF6), Color.FromRgb(0x22, 0xC5, 0x5E) };
     private static readonly double[] PenSizes = { 2, 4, 7 }, MarkSizes = { 12, 20, 30 };
     private static string[] ColorNames => new[] { Tr("빨강", "Red"), Tr("노랑", "Yellow"), Tr("파랑", "Blue"), Tr("초록", "Green") }; // the colour picker's names
-    private static readonly Brush BarFill = Frozen(Color.FromArgb(0xF5, 0x1E, 0x19, 0x1C)), BarLine = Frozen(Color.FromArgb(0x24, 0xFD, 0xED, 0xF4)),
-        Bright = Frozen(Color.FromRgb(0xF1, 0xEC, 0xEE)), Dim = Frozen(Color.FromRgb(0xC1, 0xB8, 0xBB)), Hover = Frozen(Color.FromArgb(0x14, 0xFD, 0xED, 0xF4)),
-        On = Frozen(Color.FromArgb(0x1A, 0xFD, 0xED, 0xF4));
+    private static readonly Brush BarFill = Frozen(Color.FromArgb(0xF5, 0x27, 0x27, 0x2A)), BarLine = Frozen(Color.FromArgb(0x24, 0xFF, 0xFF, 0xFF)),
+        Bright = Frozen(Color.FromRgb(0xEC, 0xED, 0xEE)), Dim = Frozen(Color.FromRgb(0xA1, 0xA1, 0xAA)), Hover = Frozen(Color.FromArgb(0x14, 0xFF, 0xFF, 0xFF)),
+        On = Frozen(Color.FromArgb(0x1A, 0xFF, 0xFF, 0xFF));
 
     public static string Hint => Tr("펜 P · 형광펜 H · 지우개 E · Enter 복사 · Esc 취소", "Pen P · highlighter H · eraser E · Enter copies · Esc cancels");
 

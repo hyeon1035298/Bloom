@@ -6,13 +6,31 @@ using System.Windows.Media;
 
 namespace Bloom.Ui;
 
-/// A Border whose rounded corners have continuous curvature (the "squircle" of iOS / macOS and Figma's corner
-/// smoothing): the edge eases into the curve instead of meeting a circular arc at a kink. Layout, padding and
-/// hit-testing are Border's own; only the drawing differs. CornerRadius keeps its meaning (the visible radius).
+/// A Border whose rounded corners have continuous curvature (G2): each corner is a superellipse that leaves the edge
+/// with no curvature at all and bends without a step, instead of a circular arc meeting the edge at a kink. Layout,
+/// padding and hit-testing are Border's own; only the drawing differs. CornerRadius keeps its meaning (the radius a
+/// circular corner of the same look would have); a radius of half the short side or more is a pill, its ends round.
 internal class SmoothBorder : Border
 {
-    /// 0 = plain circular corners, 0.6 = the iOS look.
-    public const double Smoothing = 0.6;
+    /// A line drawn just inside the top edge (a button's light, a chosen segment's), clipped to the shape.
+    public static readonly DependencyProperty TopLineProperty = DependencyProperty.Register(nameof(TopLine), typeof(Brush), typeof(SmoothBorder),
+        new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.AffectsRender));
+
+    /// A line drawn just inside the bottom edge (a key cap's shade), clipped to the shape.
+    public static readonly DependencyProperty BottomLineProperty = DependencyProperty.Register(nameof(BottomLine), typeof(Brush), typeof(SmoothBorder),
+        new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.AffectsRender));
+
+    public Brush? TopLine
+    {
+        get => (Brush?)GetValue(TopLineProperty);
+        set => SetValue(TopLineProperty, value);
+    }
+
+    public Brush? BottomLine
+    {
+        get => (Brush?)GetValue(BottomLineProperty);
+        set => SetValue(BottomLineProperty, value);
+    }
 
     private Geometry? fill, stroke;
     private Size builtFor;
@@ -24,7 +42,7 @@ internal class SmoothBorder : Border
         var size = new Size(ActualWidth, ActualHeight);
         if (size.Width <= 0 || size.Height <= 0) return;
         var cr = CornerRadius;
-        if (cr.TopLeft + cr.TopRight + cr.BottomRight + cr.BottomLeft <= 0)
+        if (cr.TopLeft + cr.TopRight + cr.BottomRight + cr.BottomLeft <= 0 && TopLine is null && BottomLine is null)
         {
             base.OnRender(dc);
             return;
@@ -39,12 +57,19 @@ internal class SmoothBorder : Border
             builtThickness = t;
         }
         if (Background is { } bg) dc.DrawGeometry(bg, null, fill);
+        if (TopLine is not null || BottomLine is not null)
+        {
+            dc.PushClip(fill);
+            if (TopLine is { } top) dc.DrawRectangle(top, null, new Rect(0, 0, size.Width, 1));
+            if (BottomLine is { } bottom) dc.DrawRectangle(bottom, null, new Rect(0, size.Height - 1, size.Width, 1));
+            dc.Pop();
+        }
         if (stroke is not null && BorderBrush is { } line) dc.DrawGeometry(null, new Pen(line, t), stroke);
     }
 
     private static readonly Dictionary<(double w, double h, double tl, double tr, double br, double bl), Geometry> Cache = new();
 
-    /// The outline of `r` with smoothed corners (each corner its own radius, less `inset` for a stroke drawn inside).
+    /// The outline of `r` with smooth corners (each corner its own radius, less `inset` for a stroke drawn inside).
     public static Geometry Shape(Rect r, CornerRadius radius, double inset = 0)
     {
         double tl = Math.Max(0, radius.TopLeft - inset), tr = Math.Max(0, radius.TopRight - inset), br = Math.Max(0, radius.BottomRight - inset), bl = Math.Max(0, radius.BottomLeft - inset);
@@ -73,48 +98,44 @@ internal class SmoothBorder : Border
         }
         g.Freeze();
         lock (Cache)
-            if (r.X == 0 && r.Y == 0 && Cache.Count < 512) Cache[key] = g;
+            if (r.X == 0 && r.Y == 0)
+            {
+                if (Cache.Count >= 1024) Cache.Clear(); // a window dragged to many sizes
+                Cache[key] = g;
+            }
         return g;
     }
 
-    /// How far along each edge a corner reaches (the radius grown by the smoothing, kept inside half the box).
+    // The superellipse |x|^n + |y|^n = 1 with n = 2^1.32 in a box of 1.2 × the radius: the same size as the corner it
+    // replaced (Figma's 60 % smoothing), within 0.006 of the radius. Each quarter is two cubics meeting at its middle:
+    // the first leaves the edge flat (its control points on the edge, so no curvature there), the second is its mirror,
+    // and the mirror makes the curvature the same on both sides of the middle. Off the true curve by 0.00012 of the box.
+    private const double Box = 1.2;
+    private const double Mid = 0.7575773280750414; // 2^(-1/n): where the curve crosses the box's diagonal
+    private const double Near = 0.1706; // the first control point along the edge, fitted
+    private const double Far = 2 * Mid - 1; // the second: on the edge, on the tangent through the middle
+
+    /// How far along each edge a corner reaches: the superellipse's box, or a pill's half height.
     private static double Reach(double radius, double w, double h)
     {
         if (radius <= 0) return 0;
-        var (_, p) = Fit(radius, w, h);
-        return p;
-    }
-
-    /// The radius and smoothing a corner can have in this box: a pill's ends stay round (no room to smooth).
-    private static (double s, double p) Fit(double radius, double w, double h)
-    {
         double max = Math.Min(w, h) / 2;
-        radius = Math.Min(radius, max);
-        double s = Math.Clamp(Math.Min(Smoothing, max / radius - 1), 0, Smoothing);
-        return (s, Math.Min((1 + s) * radius, max));
+        return radius >= max ? max : Math.Min(radius * Box, max);
     }
 
-    /// One corner as Figma draws it: a cubic easing off the edge, a circular arc in the middle, a cubic onto the next edge.
     private static void Corner(StreamGeometryContext c, Point start, Vector u, Vector v, double radius, double w, double h)
     {
         if (radius <= 0) return;
-        radius = Math.Min(radius, Math.Min(w, h) / 2);
-        var (s, p) = Fit(radius, w, h);
-        static double Rad(double deg) => deg * Math.PI / 180;
-        double arcMeasure = 90 * (1 - s);
-        double arcLen = Math.Sin(Rad(arcMeasure / 2)) * radius * Math.Sqrt(2);
-        double alpha = (90 - arcMeasure) / 2;
-        double p3p4 = radius * Math.Tan(Rad(alpha / 2));
-        double beta = 45 * s;
-        double cc = p3p4 * Math.Cos(Rad(beta));
-        double d = cc * Math.Tan(Rad(beta));
-        double b = (p - arcLen - cc - d) / 3, a = 2 * b;
-
-        var e1 = start + (a + b + cc) * u + d * v;
-        c.BezierTo(start + a * u, start + (a + b) * u, e1, true, true);
-        var e2 = e1 + arcLen * u + arcLen * v;
-        if (arcLen > 0.001) c.ArcTo(e2, new Size(radius, radius), 0, false, SweepDirection.Clockwise, true, true);
-        var e3 = e2 + d * u + (a + b + cc) * v;
-        c.BezierTo(e2 + d * u + cc * v, e2 + d * u + (b + cc) * v, e3, true, true);
+        double max = Math.Min(w, h) / 2;
+        if (radius >= max)
+        {
+            // a pill's end (or a circle): a round arc, as a G2 corner there would blunt it beside round knobs
+            c.ArcTo(start + max * u + max * v, new Size(max, max), 0, false, SweepDirection.Clockwise, true, true);
+            return;
+        }
+        double b = Math.Min(radius * Box, max);
+        Point At(double along, double into) => start + b * along * u + b * into * v;
+        c.BezierTo(At(Near, 0), At(Far, 0), At(Mid, 1 - Mid), true, true);
+        c.BezierTo(At(1, 1 - Far), At(1, 1 - Near), At(1, 1), true, true);
     }
 }

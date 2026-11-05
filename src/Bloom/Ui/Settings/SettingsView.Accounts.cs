@@ -31,7 +31,7 @@ internal sealed partial class SettingsView
                     : Tr("Bloom에서 추가한 계정", "Added in Bloom");
                 if (a.Hidden) status += Tr(" · 홈에서 숨김", " · hidden on the home");
                 if (!Demo.On && a.Alias is { Length: > 0 } && a.Email is { Length: > 0 } mail) status = mail + " · " + status; // the title is the user's own words
-                var chip = a.Id == chatId ? Theme.T(Tr("AI 채팅에 사용 중", "Used for AI chat"), 12, Theme.P.Accent, Theme.Medium, false) : null;
+                var chip = a.Id == chatId ? Theme.T(Tr("AI 채팅에 사용 중", "Used for AI chat"), 12, Theme.P.TextDim, Theme.Medium, false) : null;
                 var account = a;
                 Add(Demo.On ? title : AiAccounts.Label(a), status, a.IsDefault ? chip : SignOutEnd(chip, account), G.Account, () => AccountMenu(account), null, filter);
                 UsageIconRow(account, filter);

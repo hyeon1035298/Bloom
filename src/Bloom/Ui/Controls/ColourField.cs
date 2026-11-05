@@ -69,7 +69,8 @@ internal sealed class ColourField : StackPanel
         };
         var apply = ActionButton.Make(Tr("적용", "Apply"), true, Apply);
         apply.Margin = new Thickness(8, 0, 0, 0);
-        apply.Padding = new Thickness(12, 5, 12, 6);
+        apply.Height = 28; // a small button beside the field
+        apply.Padding = new Thickness(12, 0, 12, 0);
         error.Margin = new Thickness(10, 0, 0, 0);
         Children.Add(well);
         Children.Add(apply);

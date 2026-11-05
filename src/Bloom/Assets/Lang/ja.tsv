@@ -2015,7 +2015,7 @@ Taskbar look	タスクバーの見た目
 Glass on (Windows transparency effects)	ガラス効果オン (Windows の透明効果)
 Windows transparency effects are off, so it is solid	Windows の透明効果がオフのため、単色になります
 Custom	カスタム
-{0} · the accent and the overall tone change together	{0} · アクセントと全体のトーンが一緒に変わります
+{0} · for switches that are on, the chosen line and the text cursor	{0} · オンのスイッチ、選んだ線、文字カーソルに使います
 Custom colour	カスタムカラー
 Type #RRGGBB (like #3A7BD5) · the light theme uses it, the dark one a lighter take	#RRGGBB で入力 (例: #3A7BD5) · ライトテーマはその色、ダークテーマは明るくした色を使います
 The launcher, tool windows, chat and settings together · Ctrl+= / Ctrl+- / Ctrl+0 in the launcher	ランチャー、ツール ウィンドウ、チャット、設定をまとめて · ランチャーで Ctrl+= / Ctrl+- / Ctrl+0
@@ -2351,6 +2351,7 @@ No settings found	設定の検索結果なし
 Basics	基本
 Launcher	ランチャー
 Find a setting	設定を探す
+Changes take effect right away	変更はすぐに反映されます
 Section	セクション
 Change	変更
 Clear	クリア

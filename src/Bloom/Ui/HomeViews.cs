@@ -98,16 +98,28 @@ internal static class HomeViews
         return Pill(EditButton(G.Minus, fewer, value > min, () => set(value - 1)), n, EditButton(G.Add, more, value < max, () => set(value + 1)));
     }
 
-    /// A dashed rounded outline over the whole of what it is put in (홈 편집's "+ 블록 추가").
-    public static System.Windows.Shapes.Rectangle Dashes(Brush line) => new()
+    /// A dashed rounded outline over the whole of what it is put in (홈 편집's "+ 블록 추가"), with the corners every
+    /// SmoothBorder has.
+    public static FrameworkElement Dashes(Brush line) => new DashedOutline(line) { IsHitTestVisible = false };
+
+    private sealed class DashedOutline(Brush line) : FrameworkElement
     {
-        Stroke = line,
-        StrokeThickness = 1,
-        StrokeDashArray = new DoubleCollection { 4, 3 },
-        RadiusX = 10,
-        RadiusY = 10,
-        IsHitTestVisible = false,
-    };
+        private static readonly DashStyle Dash = MakeDash();
+
+        private static DashStyle MakeDash()
+        {
+            var d = new DashStyle(new double[] { 4, 3 }, 0);
+            d.Freeze();
+            return d;
+        }
+
+        protected override void OnRender(DrawingContext dc)
+        {
+            if (ActualWidth <= 1 || ActualHeight <= 1) return;
+            // the stroke inside the box, as a 1 px Border line is
+            dc.DrawGeometry(null, new Pen(line, 1) { DashStyle = Dash }, SmoothBorder.Shape(new Rect(0.5, 0.5, ActualWidth - 1, ActualHeight - 1), new CornerRadius(10), 0.5));
+        }
+    }
 
     /// "+ 블록 추가" with nothing hidden: says so, takes no clicks (no row: the keys pass it by).
     public static FrameworkElement NoneHidden()

@@ -139,7 +139,7 @@ internal sealed class TaskbarEditor : Border
             if (pin.Kind == "running" && !values.Bool("folders.autoRunning")) continue;
             var icon = folder is null ? AppIcon(pin.Path is { Length: > 0 } ? pin.Path : pin.AppId is { Length: > 0 } id ? @"shell:AppsFolder\" + id : null, 26) : FolderIcon(folder, 26);
             bool on = folder is not null && folder == Current && !edit.New;
-            var mark = new SmoothBorder { Height = 3, Width = on ? 14 : 5, CornerRadius = new CornerRadius(1.5), Background = on ? Theme.P.Accent : Theme.P.TextFaint, Margin = new Thickness(0, 4, 0, 0), HorizontalAlignment = HorizontalAlignment.Center, Opacity = folder is null && pin.Kind != "app" ? 0 : 1 };
+            var mark = new SmoothBorder { Height = on ? 2 : 3, Width = on ? 18 : 6, CornerRadius = new CornerRadius(1.5), Background = on ? Theme.P.Accent : Theme.P.TextFaint, Margin = new Thickness(0, 4, 0, on ? 1 : 0), HorizontalAlignment = HorizontalAlignment.Center, Opacity = folder is null && pin.Kind != "app" ? 0 : on ? 1 : 0.6 };
             var item = new StackPanel { Margin = new Thickness(5, 0, 5, 0), ToolTip = folder == Running ? RunningName : pin.Name };
             item.Children.Add(icon);
             item.Children.Add(mark);
@@ -159,42 +159,68 @@ internal sealed class TaskbarEditor : Border
         clock.VerticalAlignment = VerticalAlignment.Center;
         clock.Margin = new Thickness(14, 0, 4, 4);
         pill.Children.Add(clock);
+        // the taskbar as it looks on a desktop: a see-through pill over a made-up wallpaper
+        bool dark = Theme.P.Dark;
         var bar = new SmoothBorder
         {
-            Background = Theme.P.Raised,
-            BorderBrush = Theme.P.CardLine,
+            Background = new SolidColorBrush(dark ? Color.FromArgb(0x8C, 0x1C, 0x1C, 0x20) : Color.FromArgb(0x9E, 0xFA, 0xFA, 0xFC)),
+            BorderBrush = new SolidColorBrush(dark ? Color.FromArgb(0x14, 0xFF, 0xFF, 0xFF) : Color.FromArgb(0xB3, 0xFF, 0xFF, 0xFF)),
             BorderThickness = new Thickness(1),
-            CornerRadius = new CornerRadius(14),
-            Padding = new Thickness(10, 8, 10, 4),
+            CornerRadius = new CornerRadius(100), // a pill
+            Padding = new Thickness(14, 9, 14, 3),
             HorizontalAlignment = HorizontalAlignment.Center,
             Child = pill,
         };
         var desk = new StackPanel();
         desk.Children.Add(bar);
-        var hint = Theme.T(Tr("폴더를 누르면 아래에서 고칩니다", "Click a folder to edit it below"), 11.5, Theme.P.TextFaint, Theme.Regular);
+        var hint = Theme.T(Tr("폴더를 누르면 아래에서 고칩니다", "Click a folder to edit it below"), 11.5, Theme.P.TextDim, Theme.Regular);
         hint.HorizontalAlignment = HorizontalAlignment.Center;
-        hint.Margin = new Thickness(0, 8, 0, 0);
+        hint.Margin = new Thickness(0, 10, 0, 0);
         desk.Children.Add(hint);
-        return new SmoothBorder { Background = Theme.P.Well, CornerRadius = new CornerRadius(10), Padding = new Thickness(12, 18, 12, 12), Child = desk };
+        return new SmoothBorder { Background = Wallpaper(dark), CornerRadius = new CornerRadius(12), Padding = new Thickness(12, 20, 12, 12), Child = desk };
+    }
+
+    /// A soft made-up wallpaper for the preview: two blurred glows (rose top left, blue bottom right) on a slanted wash.
+    private static Brush Wallpaper(bool dark)
+    {
+        static Color C(uint rgb) => Color.FromRgb((byte)(rgb >> 16), (byte)(rgb >> 8), (byte)rgb);
+        static Brush Glow(Color c, Point at, double rx, double ry, double reach) => new RadialGradientBrush
+        {
+            Center = at,
+            GradientOrigin = at,
+            RadiusX = rx,
+            RadiusY = ry,
+            GradientStops = { new GradientStop(c, 0), new GradientStop(Color.FromArgb(0, c.R, c.G, c.B), reach) },
+        };
+        var box = new RectangleGeometry(new Rect(0, 0, 1, 1));
+        var wash = new LinearGradientBrush(C(dark ? 0x1D1D24u : 0xECEEF3u), C(dark ? 0x131318u : 0xDDE1E8u), new Point(0.33, 0.03), new Point(0.67, 0.97));
+        var art = new DrawingGroup();
+        art.Children.Add(new GeometryDrawing(wash, null, box));
+        art.Children.Add(new GeometryDrawing(Glow(C(dark ? 0x3B3247u : 0xF2DBE4u), new Point(0.15, 0), 1.2, 1.4, 0.55), null, box));
+        art.Children.Add(new GeometryDrawing(Glow(C(dark ? 0x23384Au : 0xD5E5F2u), new Point(0.9, 1), 0.9, 1.2, 0.6), null, box));
+        var brush = new DrawingBrush(art) { Stretch = Stretch.Fill };
+        brush.Freeze();
+        return brush;
     }
 
     private string RunningName => values.Text("folders.runningName") is { Length: > 0 } n ? n : Tr("실행 중", "Running");
 
     private FrameworkElement ListRow(FrameworkElement icon, string name, string end, bool on, Action? click)
     {
-        var g = new Grid { Height = 36 };
+        var g = new Grid { Height = 40 };
         g.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
         g.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
         g.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
         icon.Margin = new Thickness(0, 0, 10, 0);
         g.Children.Add(icon);
-        var t = Theme.Label(name, 13, on ? Theme.P.AccentText : Theme.P.Text, on ? Theme.Semi : Theme.Medium, true);
+        var t = Theme.Label(name, 13, Theme.P.Text, Theme.Medium, true);
         Grid.SetColumn(t, 1);
         g.Children.Add(t);
         var c = Theme.Label(end, 12, Theme.P.TextFaint, Theme.Regular);
         Grid.SetColumn(c, 2);
         g.Children.Add(c);
-        var b = new SmoothBorder { CornerRadius = new CornerRadius(8), Padding = new Thickness(8, 0, 10, 0), Margin = new Thickness(0, 1, 0, 1), Background = on ? Theme.P.AccentSoft : Brushes.Transparent, Child = g };
+        // the folder open on the right: a gray fill, as the settings' own list marks its page
+        var b = new SmoothBorder { CornerRadius = new CornerRadius(8), Padding = new Thickness(8, 0, 10, 0), Margin = new Thickness(0, 1, 0, 1), Background = on ? Theme.P.Selected : Brushes.Transparent, Child = g };
         if (click is not null)
         {
             b.Cursor = Cursors.Hand;
@@ -313,7 +339,7 @@ internal sealed class TaskbarEditor : Border
         cell.Children.Add(new SmoothBorder { CornerRadius = new CornerRadius(10), Padding = new Thickness(0, 8, 0, 6), Background = picked ? Theme.P.AccentSoft : Brushes.Transparent, Child = sp });
         if (takeOut is not null)
         {
-            var x = new SmoothBorder { Width = 20, Height = 20, CornerRadius = new CornerRadius(10), Background = Theme.P.Key, Cursor = Cursors.Hand, HorizontalAlignment = HorizontalAlignment.Right, VerticalAlignment = VerticalAlignment.Top, Margin = new Thickness(0, 2, 10, 0), ToolTip = Tr("빼기", "Take out"), Child = Theme.Glyph(G.Close, 9, Theme.P.TextDim) };
+            var x = new SmoothBorder { Width = 20, Height = 20, CornerRadius = new CornerRadius(6), Background = Theme.P.Btn, Cursor = Cursors.Hand, HorizontalAlignment = HorizontalAlignment.Right, VerticalAlignment = VerticalAlignment.Top, Margin = new Thickness(0, 2, 10, 0), ToolTip = Tr("빼기", "Take out"), Child = Theme.Glyph(G.Close, 9, Theme.P.TextDim) };
             ((FrameworkElement)x.Child).HorizontalAlignment = HorizontalAlignment.Center;
             ((FrameworkElement)x.Child).VerticalAlignment = VerticalAlignment.Center;
             x.MouseLeftButtonUp += (_, e) =>
@@ -329,7 +355,7 @@ internal sealed class TaskbarEditor : Border
     private static FrameworkElement AddTile(string label, Action<FrameworkElement> open)
     {
         var sp = new StackPanel { Width = 78, Margin = new Thickness(0, 0, 6, 8) };
-        var plus = new SmoothBorder { Width = 40, Height = 40, CornerRadius = new CornerRadius(11), BorderBrush = Theme.P.Line, BorderThickness = new Thickness(1), Child = Theme.Glyph(G.Add, 14, Theme.P.TextDim), HorizontalAlignment = HorizontalAlignment.Center };
+        var plus = new SmoothBorder { Width = 40, Height = 40, CornerRadius = new CornerRadius(10), BorderBrush = Theme.P.EdgeStrong, BorderThickness = new Thickness(1), Child = Theme.Glyph(G.Add, 14, Theme.P.TextDim), HorizontalAlignment = HorizontalAlignment.Center };
         ((FrameworkElement)plus.Child).HorizontalAlignment = HorizontalAlignment.Center;
         ((FrameworkElement)plus.Child).VerticalAlignment = VerticalAlignment.Center;
         sp.Children.Add(plus);
