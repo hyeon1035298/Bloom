@@ -207,7 +207,7 @@ internal sealed class HomeColumns : Panel
         base.OnRender(dc);
         if (gap is null || gapBox.Width < 40 || gapBox.Height < 16) return;
         var line = new Pen(Theme.P.Accent, 1.5) { DashStyle = new DashStyle(new[] { 4.0, 3.0 }, 0) };
-        dc.DrawRoundedRectangle(Theme.P.AccentSoft, line, new Rect(gapBox.X + 12, gapBox.Y + 4, gapBox.Width - 24, gapBox.Height - 8), 10, 10);
+        dc.DrawGeometry(Theme.P.AccentSoft, line, SmoothBorder.Shape(new Rect(gapBox.X + 12, gapBox.Y + 4, gapBox.Width - 24, gapBox.Height - 8), new CornerRadius(10)));
     }
 
     /// Where a block (or a card) let go at `p` would land, in the columns as they would be without the held block and the

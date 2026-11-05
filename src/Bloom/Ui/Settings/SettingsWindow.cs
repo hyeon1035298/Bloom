@@ -31,7 +31,7 @@ internal sealed class SettingsWindow : Window
         Shots.TrackIcon(this);
 
         root = new Grid { Background = Theme.P.Solid };
-        root.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(220) });
+        root.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(232) });
         root.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1) });
         root.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
 
@@ -42,14 +42,14 @@ internal sealed class SettingsWindow : Window
         var bar = new Grid { Margin = new Thickness(10, 0, 0, 0) };
         bar.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
         bar.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
-        var glyph = Theme.Glyph(G.Search, 13, Theme.P.TextFaint);
-        glyph.Margin = new Thickness(0, 0, 9, 0);
+        var glyph = Theme.Glyph(G.Search, 14, Theme.P.TextFaint);
+        glyph.Margin = new Thickness(0, 0, 8, 0);
         glyph.VerticalAlignment = VerticalAlignment.Center;
         bar.Children.Add(glyph);
         box = new TextBox
         {
             FontFamily = Theme.Sans,
-            FontSize = 13.5,
+            FontSize = 13,
             Foreground = Theme.P.Text,
             CaretBrush = Theme.P.Accent,
             SelectionBrush = Theme.P.Selection,
@@ -60,7 +60,7 @@ internal sealed class SettingsWindow : Window
             Padding = new Thickness(0),
             Template = Launcher.BareTextBox(),
         };
-        placeholder = Theme.T(Tr("설정 찾기", "Find a setting"), 13.5, Theme.P.TextFaint);
+        placeholder = Theme.T(Tr("설정 찾기", "Find a setting"), 13, Theme.P.TextFaint);
         placeholder.IsHitTestVisible = false;
         placeholder.VerticalAlignment = VerticalAlignment.Center;
         var boxHost = new Grid();
@@ -70,12 +70,10 @@ internal sealed class SettingsWindow : Window
         bar.Children.Add(boxHost);
         side.Children.Add(new SmoothBorder
         {
-            Height = 36,
-            CornerRadius = new CornerRadius(9),
-            Background = Theme.P.Card,
-            BorderBrush = Theme.P.CardLine,
-            BorderThickness = new Thickness(1),
-            Margin = new Thickness(10, 14, 10, 12),
+            Height = 32,
+            CornerRadius = new CornerRadius(8),
+            Background = Theme.P.Well,
+            Margin = new Thickness(12, 12, 12, 10),
             Child = bar,
             Cursor = Cursors.IBeam,
         });
@@ -99,11 +97,16 @@ internal sealed class SettingsWindow : Window
         var main = new Grid();
         main.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
         main.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1) });
-        main.RowDefinitions.Add(new RowDefinition { Height = new GridLength(40) });
+        main.RowDefinitions.Add(new RowDefinition { Height = new GridLength(36) });
         main.Children.Add(view);
         var footLine = new SmoothBorder { Background = Theme.P.Line };
         Grid.SetRow(footLine, 1);
         main.Children.Add(footLine);
+        // the left of the foot: a change needs no saving
+        var saved = Theme.T(Tr("바꾼 값은 바로 들어갑니다", "Changes take effect right away"), 12, Theme.P.TextFaint, Theme.Regular, false);
+        saved.Margin = new Thickness(16, 0, 0, 0);
+        Grid.SetRow(saved, 2);
+        main.Children.Add(saved);
         var foot = new StackPanel { Orientation = Orientation.Horizontal, HorizontalAlignment = HorizontalAlignment.Right, VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(0, 0, 16, 0) };
         void Hint(string label, string keys, bool divider)
         {

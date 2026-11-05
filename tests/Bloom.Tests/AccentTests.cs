@@ -69,12 +69,13 @@ internal static class AccentTests
         p.Apply(false, custom, 0);
         Check.Eq(p.Accent.Color, typed, "light accent");
         var lightText = p.Text.Color;
+        var lightSolid = p.Solid.Color;
         p.Apply(true, custom, 0);
         Check.Eq(p.Accent.Color, Accents.Swatch(custom, true), "dark accent");
         Check.True(p.Dark, "dark");
-        Check.Near(Hsl.From(p.Solid.Color).h, custom.Hue, 8, "the neutrals take the hue (their low saturation rounds to 8 bits)");
         Check.True(p.Text.Color != lightText, "the text differs between the themes");
         p.Apply(false, null, 0);
         Check.Eq(p.Accent.Color, Color.FromRgb(0xE0, 0x4E, 0x78), "no accent is Bloom's rose");
+        Check.Eq(p.Solid.Color, lightSolid, "the grays are the same whatever the accent");
     }
 }

@@ -454,7 +454,7 @@ internal static class TokenViews
         foreach (var p in AllPeriods)
         {
             bool on = p == current;
-            var text = Theme.T(Short(p), 11, on ? Theme.P.AccentText : Theme.P.TextFaint, on ? Theme.Semi : Theme.Medium, false);
+            var text = Theme.T(Short(p), 11, on ? Theme.P.Text : Theme.P.TextFaint, on ? Theme.Semi : Theme.Medium, false);
             text.HorizontalAlignment = HorizontalAlignment.Center;
             var chip = new SmoothBorder
             {
@@ -462,7 +462,7 @@ internal static class TokenViews
                 MinWidth = 30,
                 Padding = new Thickness(7, 2, 7, 3),
                 CornerRadius = new CornerRadius(6),
-                Background = on ? Theme.P.AccentSoft : Brushes.Transparent,
+                Background = on ? Theme.P.Edge : Brushes.Transparent,
                 Cursor = on ? Cursors.Arrow : Cursors.Hand,
                 ToolTip = Long(p),
             };

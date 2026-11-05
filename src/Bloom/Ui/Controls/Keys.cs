@@ -17,7 +17,7 @@ internal static class Keys
         return sp;
     }
 
-    public static Border Cap(string label)
+    public static SmoothBorder Cap(string label)
     {
         var t = Theme.Label(label, 11, Theme.P.KeyFg, Theme.Medium);
         t.HorizontalAlignment = HorizontalAlignment.Center;
@@ -25,10 +25,11 @@ internal static class Keys
         return new SmoothBorder
         {
             Background = Theme.P.Key,
+            BottomLine = Theme.P.Shade, // a key's lower edge
             CornerRadius = new CornerRadius(4),
-            Padding = new Thickness(5, 0, 5, 0),
-            MinWidth = 19,
-            Height = 19,
+            Padding = new Thickness(6, 0, 6, 0),
+            MinWidth = 20,
+            Height = 20,
             Margin = new Thickness(3, 0, 0, 0),
             Child = t,
             VerticalAlignment = VerticalAlignment.Center,

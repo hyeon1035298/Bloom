@@ -18,15 +18,15 @@ internal static class IconFile
     public static byte[] Glyph(char glyph, bool dark)
     {
         var frames = new List<byte[]>();
-        var ground = new SolidColorBrush(dark ? Color.FromRgb(0x23, 0x1D, 0x20) : Color.FromRgb(0xF4, 0xEF, 0xF1));
-        var ink = new SolidColorBrush(dark ? Colors.White : Color.FromRgb(0x2B, 0x24, 0x27));
+        var ground = new SolidColorBrush(dark ? Color.FromRgb(0x27, 0x27, 0x2A) : Color.FromRgb(0xF4, 0xF4, 0xF5));
+        var ink = new SolidColorBrush(dark ? Colors.White : Color.FromRgb(0x27, 0x27, 0x2A));
         foreach (int px in Sizes)
         {
             var v = new DrawingVisual();
             using (var dc = v.RenderOpen())
             {
                 double r = px * 0.22;
-                dc.DrawRoundedRectangle(ground, null, new Rect(0, 0, px, px), r, r);
+                dc.DrawGeometry(ground, null, SmoothBorder.Shape(new Rect(0, 0, px, px), new CornerRadius(r)));
                 var text = new FormattedText(glyph.ToString(), CultureInfo.InvariantCulture, FlowDirection.LeftToRight,
                     new Typeface(Theme.IconFont, FontStyles.Normal, FontWeights.Normal, FontStretches.Normal), px * 0.56, ink, 1.0);
                 dc.DrawText(text, new Point((px - text.Width) / 2, (px - text.Height) / 2));

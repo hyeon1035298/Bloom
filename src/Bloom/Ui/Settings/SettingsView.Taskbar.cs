@@ -183,37 +183,19 @@ internal sealed partial class SettingsView
         return n.Length > 0 ? char.ToUpper(n[0], CultureInfo.CurrentCulture) + n[1..] : n;
     }
 
+    /// The chips as keys, under their line and lined up with its title.
     private static FrameworkElement Chips(List<(string label, bool on, Action<bool> set)> chips)
     {
-        var wrap = new WrapPanel { Margin = new Thickness(55, 0, 14, 12) };
-        foreach (var (label, first, set) in chips)
+        var wrap = new WrapPanel { Margin = new Thickness(13, 0, 12, 10) };
+        foreach (var (label, on, set) in chips)
         {
-            bool on = first;
-            var check = Theme.Glyph(G.Check, 10, Theme.P.AccentText);
-            check.Margin = new Thickness(0, 0, 6, 0);
-            check.VerticalAlignment = VerticalAlignment.Center;
-            var text = Theme.Label(label, 12.5, Theme.P.TextDim, Theme.Medium);
-            var sp = new StackPanel { Orientation = Orientation.Horizontal };
-            sp.Children.Add(check);
-            sp.Children.Add(text);
-            var b = new SmoothBorder { CornerRadius = new CornerRadius(14), Padding = new Thickness(11, 4, 12, 5), Margin = new Thickness(0, 0, 6, 6), BorderThickness = new Thickness(1), Cursor = System.Windows.Input.Cursors.Hand, Child = sp };
-            void Paint()
+            var key = new ToggleKey(label, on) { Margin = new Thickness(0, 0, 6, 6) };
+            key.Changed += v =>
             {
-                b.Background = on ? Theme.P.AccentSoft : Theme.P.Well;
-                b.BorderBrush = on ? Theme.P.AccentSoft : Theme.P.Line;
-                text.Foreground = on ? Theme.P.AccentText : Theme.P.TextDim;
-                check.Visibility = on ? Visibility.Visible : Visibility.Collapsed;
-            }
-            Paint();
-            b.MouseLeftButtonUp += (_, e) =>
-            {
-                on = !on;
-                set(on);
+                set(v);
                 Settings.Save();
-                Paint();
-                e.Handled = true;
             };
-            wrap.Children.Add(b);
+            wrap.Children.Add(key);
         }
         return wrap;
     }
@@ -258,9 +240,7 @@ internal sealed partial class SettingsView
             }
             int n = items.Count + extras;
             string summary = string.Join(" · ", items.Where(e => e.Control == Control.Number).Select(e => Summary(schema[e.Key]!, v)));
-            var chevron = Theme.Glyph(open ? G.Up : G.Down, 11, Theme.P.TextFaint);
-            chevron.VerticalAlignment = VerticalAlignment.Center;
-            Add(Tr($"자세히 · {n}개", $"More · {n}"), open ? openSub : summary.Length > 0 ? summary : null, chevron, G.Sliders, Flip, null, filter);
+            Disclose(Tr($"자세히 · {n}개", $"More · {n}"), open ? openSub : summary.Length > 0 ? summary : null, open, Flip, filter);
         }
         if (!open) return;
         extra?.Invoke();
@@ -363,7 +343,7 @@ internal sealed partial class SettingsView
     {
         if (collected is not null || filter.Length > 0 || pageKey != current) return;
         var into = Card(filter);
-        if (line && into.Children.Count > 0) into.Children.Add(new SmoothBorder { Height = 1, Background = Theme.P.Line, Margin = new Thickness(14, 0, 14, 0) });
+        if (line && into.Children.Count > 0) into.Children.Add(new SmoothBorder { Height = 1, Background = Theme.P.Rule });
         into.Children.Add(e);
     }
 
