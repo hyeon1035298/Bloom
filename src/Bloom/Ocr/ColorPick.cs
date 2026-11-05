@@ -65,7 +65,9 @@ internal static class ColorPick
                 w.Activate();
                 Win32.ForceForeground(new WindowInteropHelper(w).Handle);
             }
-        return await done.Task;
+        var picked = await done.Task;
+        Core.MemoryTrim.AfterBigWork("colour picker"); // the desktop and the overlays wait for a GC now
+        return picked;
     }
 
     private static Window Overlay(BitmapSource desktop, ScreenRect mon, int vx, int vy, Func<int, int, Color> at, Action<Color?> finish)
