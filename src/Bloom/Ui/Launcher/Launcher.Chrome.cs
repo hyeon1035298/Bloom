@@ -122,11 +122,10 @@ internal sealed partial class Launcher
     {
         var chip = new SmoothBorder
         {
-            Child = Theme.Label(label, 12, accent ? Theme.P.AccentText : Theme.P.TextDim, Theme.Medium),
+            Child = Theme.Label(label, 12, accent ? Theme.P.AccentText : Theme.P.TextDim, Theme.Medium, inBorder: true),
             Background = accent ? Theme.P.AccentSoft : Theme.P.Tile,
             CornerRadius = new CornerRadius(6),
-            Padding = new Thickness(8, 0, 8, 0),
-            MinHeight = 20,
+            Padding = new Thickness(8, 2, 8, 3),
             Cursor = Cursors.Hand,
             VerticalAlignment = VerticalAlignment.Center,
         };

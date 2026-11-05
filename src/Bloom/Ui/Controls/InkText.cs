@@ -14,13 +14,20 @@ namespace Bloom.Ui;
 /// digits low and Hangul a little high; this label finds the ink of its scripts instead (H for Latin and digits, 한 for
 /// Hangul, 国 for kana and Han, the text itself when it is only symbols such as ↵), so a descender doesn't lift it.
 /// The ink is read from the glyphs drawn at the label's own pixel size: hinting moves their edges by up to a pixel, so
-/// the outlines alone (BuildGeometry) put some labels a pixel off. It stretches to its container's height, so the
-/// container's padding must be even; the move is whole device pixels, a tie going up. Not for paragraphs, wrapped text
-/// or icon glyphs.
+/// the outlines alone (BuildGeometry) put some labels a pixel off. It stretches to its container's height and centres in
+/// its own box, or with InBorder in the nearest Border's box inside its border lines, padding and all: that Border keeps
+/// its padding, even or not, and so its height. The move puts the label's top on a whole device pixel and the ink's
+/// middle as near the box's as that allows, a tie going up. Not for paragraphs, wrapped text or icon glyphs.
 internal sealed class InkText : TextBlock
 {
     private static readonly Dictionary<(string font, FontWeight weight, FontStyle style, FontStretch stretch, double size, string probe, double k, TextFormattingMode mode, string culture), (int top, int bottom)> Ink = new();
     private readonly TranslateTransform shift = new();
+    private bool zoomed; // under a scale other than 1, where a move alone (a scrolled list) changes the pixel grid's phase
+    private double placedTop = double.NaN;
+
+    /// The ink centres in the nearest Border above the label (a button, chip or segment around it) rather than in the
+    /// label's own box.
+    public bool InBorder { get; init; }
 
     static InkText()
     {
@@ -33,17 +40,30 @@ internal sealed class InkText : TextBlock
     {
         VerticalAlignment = VerticalAlignment.Stretch;
         RenderTransform = shift;
-        // the move is rounded to the device pixels Bloom's scale makes: a new scale moves it again (once laid out anew)
+        // the move is rounded to the device pixels Bloom's scale makes: a new scale moves it again (once laid out anew);
+        // under a scale other than 1 the layout's dips no longer fall on whole pixels, so a label that only moved (a
+        // scrolled list) is placed again too
         Loaded += (_, _) =>
         {
             Theme.ScaleChanged -= Rescaled;
             Theme.ScaleChanged += Rescaled;
+            LayoutUpdated -= Moved;
+            LayoutUpdated += Moved;
             Place();
         };
-        Unloaded += (_, _) => Theme.ScaleChanged -= Rescaled;
+        Unloaded += (_, _) =>
+        {
+            Theme.ScaleChanged -= Rescaled;
+            LayoutUpdated -= Moved;
+        };
     }
 
     private void Rescaled(double from, double to) => Dispatcher.BeginInvoke(Place, DispatcherPriority.Loaded);
+
+    private void Moved(object? sender, EventArgs e)
+    {
+        if (zoomed && Top() != placedTop) Place();
+    }
 
     protected override void OnRenderSizeChanged(SizeChangedInfo sizeInfo)
     {
@@ -57,24 +77,72 @@ internal sealed class InkText : TextBlock
         Place();
     }
 
-    /// The ink's middle onto the middle of the label's height.
+    /// The ink's middle onto the middle of the box.
     private void Place()
     {
-        double dy = 0, h = RenderSize.Height - Padding.Top - Padding.Bottom;
+        double dy = 0;
+        placedTop = Top();
+        var (y, h) = InBorder && BorderBox() is { } box ? box : (0, RenderSize.Height - Padding.Top - Padding.Bottom);
         if (Text.Length > 0 && h > 0)
         {
-            double ppd = VisualTreeHelper.GetDpi(this).PixelsPerDip, k = ppd * Scale();
+            double ppd = VisualTreeHelper.GetDpi(this).PixelsPerDip, scale = LayoutScale(this), k = ppd * scale;
+            zoomed = Math.Abs(scale - 1) > 0.001;
             var (top, bottom) = Rows(ppd, k);
-            if (bottom > top) dy = Math.Ceiling((Math.Round(h * k) - top - bottom) / 2 - 0.5) / k;
+            if (bottom > top)
+            {
+                // the label's top onto a whole pixel (its glyphs are drawn from there), the ink's middle as near the box's
+                // as that allows, a tie going up
+                double at = Math.Round(placedTop * ppd, 4), middle = at + (y + h / 2) * k - (top + bottom) / 2.0;
+                dy = (Math.Ceiling(Math.Round(middle - 0.5, 4)) - at) / k;
+            }
         }
         if (shift.Y != dy) shift.Y = dy;
     }
 
-    /// Bloom's scale where this label is (1 in the windows it doesn't reach).
-    private double Scale()
+    /// The nearest Border's box inside its border lines: its top from the label's top (above it: less than 0) and its
+    /// height, in dips; from the laid-out offsets, which leave render transforms out.
+    private (double y, double h)? BorderBox()
     {
-        if (PresentationSource.FromVisual(this)?.RootVisual is not { } root || ReferenceEquals(root, this)) return 1;
-        double s = TransformToAncestor(root).TransformBounds(new Rect(0, 0, 0, 1)).Height;
+        double y = 0;
+        for (Visual v = this; VisualTreeHelper.GetParent(v) is Visual parent; v = parent)
+        {
+            y += VisualTreeHelper.GetOffset(v).Y;
+            if (parent is not Border b) continue;
+            double top = b.BorderThickness.Top, bottom = b.BorderThickness.Bottom;
+            if (b.UseLayoutRounding)
+            {
+                // drawn and laid out at whole device pixels, as the Border rounds them itself
+                double dpi = VisualTreeHelper.GetDpi(b).DpiScaleY;
+                top = Math.Round(top * dpi) / dpi;
+                bottom = Math.Round(bottom * dpi) / dpi;
+            }
+            return (top - y, b.RenderSize.Height - top - bottom);
+        }
+        return null;
+    }
+
+    /// The label's top in dips from its window's, as laid out: render transforms, its own move among them, left out.
+    private double Top()
+    {
+        double y = 0;
+        for (Visual v = this; ;)
+        {
+            y += VisualTreeHelper.GetOffset(v).Y;
+            if (VisualTreeHelper.GetParent(v) is not Visual parent) return y;
+            if (parent is FrameworkElement { LayoutTransform: { } t } && t.Value is { IsIdentity: false } m) y = m.Transform(new Point(0, y)).Y;
+            v = parent;
+        }
+    }
+
+    /// How tall a dip of `v` is in dips of its window: the layout transforms on it and above it (Bloom's scale; 1 in the
+    /// windows it doesn't reach). Render transforms are left out: a panel growing in from 0.96 is a moment, and a move
+    /// worked out then would stay a pixel off once it rests at 1.
+    internal static double LayoutScale(DependencyObject v)
+    {
+        double s = 1;
+        for (var d = v; d is Visual; d = VisualTreeHelper.GetParent(d))
+            if (d is FrameworkElement { LayoutTransform: { } t } && t.Value is { IsIdentity: false } m)
+                s *= Math.Sqrt(m.M21 * m.M21 + m.M22 * m.M22);
         return s > 0.01 ? s : 1;
     }
 
