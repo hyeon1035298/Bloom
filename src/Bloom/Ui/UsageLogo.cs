@@ -28,6 +28,20 @@ internal static class UsageLogo
         return new Rectangle { Width = size, Height = size, Fill = Theme.P.Text, OpacityMask = new ImageBrush(src) { Stretch = Stretch.Uniform } };
     }
 
+    /// The picked logo, or without one a letter on a small tile (the card's mark when the user has picked none).
+    public static FrameworkElement Mark(string? file, string letter, double size) => Of(file, size) ?? Tile(letter, size);
+
+    /// The first letter of what a card is called, capitalised; ChatGPT's is its G.
+    public static string Letter(string name, string? kind) =>
+        kind == "chatgpt" ? "G" : name.Trim() is { Length: > 0 } n ? char.ToUpperInvariant(n[0]).ToString() : "?";
+
+    private static SmoothBorder Tile(string letter, double size)
+    {
+        var text = Theme.Label(letter, size * 0.62, Theme.P.TileFg, Theme.Semi, inBorder: true);
+        text.HorizontalAlignment = HorizontalAlignment.Center;
+        return new SmoothBorder { Width = size, Height = size, CornerRadius = new CornerRadius(4), Background = Theme.P.Tile, Child = text };
+    }
+
     private static ImageSource? Source(string file)
     {
         if (Cache.TryGetValue(file, out var known)) return known;
