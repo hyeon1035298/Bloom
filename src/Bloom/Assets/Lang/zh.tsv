@@ -2011,6 +2011,7 @@ Autostart unavailable in development runs	开发运行时无法设置自动启�
 Runs in the tray at sign-in	登录时在托盘中运行
 Not registered	未注册
 Look	外观
+Taskbar look	任务栏外观
 Glass on (Windows transparency effects)	玻璃效果已开启 (Windows 透明效果)
 Windows transparency effects are off, so it is solid	Windows 透明效果已关闭，因此显示为纯色
 Custom	自定义
@@ -2399,7 +2400,6 @@ Always on top	始终置顶
 Attach to the launcher	附到启动器
 {0} weekly	{0} 每周
 Turns the taskbar into a centred pill	将任务栏变为居中的药丸形状
-Customize the taskbar	自定义任务栏
 Turn on again	重新开启
 Clears Explorer's crash record and turns it on again	清除资源管理器的崩溃记录并重新开启
 Starts taskbar customization again	重新启动任务栏自定义
@@ -2419,9 +2419,8 @@ Stopped · taskbar customization stopped	已停止 · 任务栏自定义已停�
 Turn on taskbar customization	开启任务栏自定义
 PillTaskbar is a program separate from Bloom. It changes how the taskbar looks by loading code into Explorer, and is licensed under GPL-3.0. The first start downloads the taskbar's symbol files (about 70 MB) from the Microsoft symbol server.	PillTaskbar 是独立于 Bloom 的程序，通过向资源管理器加载代码来改变任务栏的外观，采用 GPL-3.0 许可。首次启动时会从 Microsoft 符号服务器下载任务栏符号文件（约 70 MB）。
 File Explorer	文件资源管理器
-Gathers the taskbar into a centred pill, groups apps into folders, and puts a small island at the top centre while it hides.	把任务栏收拢成居中的胶囊，把应用归入文件夹，隐藏时在屏幕顶部中央放一个小岛。
 About PillTaskbar	关于 PillTaskbar
-Folders	文件夹
+Taskbar folders	任务栏文件夹
 Dragging an app onto another on the taskbar and holding it there briefly makes a folder too	在任务栏上把应用拖到另一个应用上停留片刻，也会成为文件夹
 Off · when on, pinned apps can be grouped into folders	关闭 · 打开后可把固定的应用归入文件夹
 Folders can be edited while taskbar customization runs	任务栏美化运行时可以编辑文件夹
@@ -2434,7 +2433,7 @@ Changes the taskbar's height and icon size together	同时更改任务栏高度�
 Blurs what is behind the pill. Lit glass adds light and a sheen at the edges	模糊显示胶囊后方。受光玻璃会在边缘加上光线和反光
 The flower button opens and closes Bloom	按下花朵按钮可打开或关闭 Bloom
 A number changed here makes the size above ‘Custom’	在此更改数值后，上方的大小会变为“自定义”
-Tray	托盘
+Taskbar tray	任务栏托盘
 Icons shown	显示的图标
 Only the ones on stay in the tray; the ones off leave no gap	只有打开的留在托盘中，关闭的图标不留空位
 Now playing	正在播放
@@ -2520,8 +2519,8 @@ Icon	图标
 Logos (*.svg;*.png;*.ico)|*.svg;*.png;*.ico	徽标 (*.svg;*.png;*.ico)|*.svg;*.png;*.ico
 That file couldn't be brought in as the icon.	无法将该文件用作图标。
 Add-ons	加载项
-Add-ons you put in the user-addons folder in Bloom's local data folder yourself. One added there shows after Bloom restarts.	你自己放入 Bloom 本地数据文件夹中 user-addons 的加载项。新放入的加载项在重新启动 Bloom 后显示。
-Your add-ons	你添加的加载项
+Add-ons are separate programs Bloom starts, each turned on and off here. One you put in the user-addons folder in Bloom's local data folder shows after Bloom restarts.	加载项是由 Bloom 启动的独立程序，在这里逐个开启和关闭。你自己放入 Bloom 本地数据文件夹中 user-addons 的加载项，在重新启动 Bloom 后显示。
+All add-ons	加载项列表
 An add-on you added	你添加的加载项
 Starts this add-on again	重新启动此加载项
 The add-on's files are not valid, or it needs a newer Bloom	加载项文件无效，或需要更新版本的 Bloom

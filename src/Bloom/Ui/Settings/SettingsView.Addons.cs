@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
@@ -7,9 +8,9 @@ using Bloom.Search;
 
 namespace Bloom.Ui;
 
-/// 설정 > 애드온: the add-ons the user put in Bloom's user-addons folder themselves (AddonStore.User). Bloom ships none
-/// of them and draws no settings for them, so each gets one line: its name, its host's status and its switch. The page
-/// is there only while the folder holds one.
+/// 설정 > 애드온: every add-on with its switch and its host's status. First the taskbar add-on Bloom ships (PillTaskbar),
+/// then the ones the user put in Bloom's user-addons folder themselves (AddonStore.User), which Bloom draws no settings
+/// for. Below the list, the taskbar add-on's own settings while it is on (SettingsView.Taskbar).
 internal sealed partial class SettingsView
 {
     /// The tests: hand-made add-ons in place of the user's.
@@ -17,44 +18,54 @@ internal sealed partial class SettingsView
 
     private void PageAddons(Settings s, string filter)
     {
-        var list = userAddons ?? AddonHub.Users.ToList();
-        if (list.Count == 0) return;
+        var taskbar = taskbarAddon ?? AddonHub.Taskbar;
+        var users = userAddons ?? AddonHub.Users.ToList();
         Page("addons", Tr("애드온", "Add-ons"), G.Plug,
-            Tr("Bloom의 로컬 데이터 폴더 안 user-addons에 직접 넣은 애드온입니다. 새로 넣은 애드온은 Bloom을 다시 시작하면 보입니다.",
-                "Add-ons you put in the user-addons folder in Bloom's local data folder yourself. One added there shows after Bloom restarts."), filter);
-        Header(Tr("직접 넣은 애드온", "Your add-ons"));
-        foreach (var addon in list) UserAddonLines(s, addon, filter);
+            Tr("애드온은 Bloom이 함께 실행하는 별도 프로그램이며, 여기서 하나씩 켜고 끕니다. Bloom의 로컬 데이터 폴더 안 user-addons에 직접 넣은 애드온은 Bloom을 다시 시작하면 보입니다.",
+                "Add-ons are separate programs Bloom starts, each turned on and off here. One you put in the user-addons folder in Bloom's local data folder shows after Bloom restarts."), filter);
+        Header(Tr("애드온 목록", "All add-ons"));
+        var status = AddonLine(s, taskbar, Tr("작업표시줄", "Taskbar"), Tr("작업표시줄을 가운데 알약 모양으로 바꿉니다", "Turns the taskbar into a centred pill"), G.Screen,
+            TaskbarStatusText, Tr("작업표시줄 꾸미기를 다시 시작합니다", "Starts taskbar customization again"), (v, sw) => SetTaskbar(taskbar, v, sw), filter);
+        foreach (var addon in users)
+        {
+            string name = addon.Manifest?.Title(Lang.Code) ?? addon.Id;
+            AddonLine(s, addon, name, Tr("직접 넣은 애드온", "An add-on you added"), G.Plug,
+                UserAddonStatusText, Tr("이 애드온을 다시 시작합니다", "Starts this add-on again"), (v, sw) => SetUserAddon(addon, name, v, sw), filter);
+        }
+        if (s.AddonsOn.Contains(taskbar.Id)) TaskbarLines(taskbar, status, filter);
     }
 
-    private void UserAddonLines(Settings s, Addon addon, string filter)
+    /// One add-on's line: its switch (greyed where it can't run) with its host's status under it (`collectedSub` while
+    /// the launcher's search collects), and a line to start it again after it stopped. Returns the status it showed.
+    private AddonStatus AddonLine(Settings s, Addon addon, string title, string collectedSub, char glyph, Func<AddonStatus, string> statusText,
+        string againSub, Action<bool, Switch> set, string filter)
     {
-        string name = addon.Manifest?.Title(Lang.Code) ?? addon.Id;
         // the status reads the host's state files: not while the launcher's search collects the lines
         var status = collected is null ? addon.Status() : new AddonStatus(AddonState.Off);
         bool usable = status.State is not (AddonState.Dev or AddonState.NotShipped or AddonState.Broken);
         Switch? sw = null;
-        sw = Toggle(s.AddonsOn.Contains(addon.Id), v => SetUserAddon(addon, name, v, sw!), out var toggle);
+        sw = Toggle(s.AddonsOn.Contains(addon.Id), v => set(v, sw!), out var toggle);
         if (!usable)
         {
             sw.On = false;
             sw.Opacity = 0.45;
             sw.IsHitTestVisible = false;
         }
-        string sub = collected is null ? UserAddonStatusText(status) : Tr("직접 넣은 애드온", "An add-on you added");
-        Add(name, sub, sw, G.Plug, usable ? toggle : null, null, filter);
+        Add(title, collected is null ? statusText(status) : collectedSub, sw, glyph, usable ? toggle : null, null, filter);
 
         if (collected is null && status.State is AddonState.SafeMode or AddonState.Download or AddonState.Restart or AddonState.Stopped)
         {
             bool reset = status.State == AddonState.SafeMode;
-            string title = reset ? Tr("다시 켜기", "Turn on again") : Tr("다시 시도", "Try again");
+            string again = reset ? Tr("다시 켜기", "Turn on again") : Tr("다시 시도", "Try again");
             void Again()
             {
                 _ = AddonHub.Retry(addon, reset);
                 Build(lastFilter);
             }
-            Add(title, reset ? Tr("탐색기가 멈춘 기록을 지우고 다시 켭니다", "Clears Explorer's crash record and turns it on again") : Tr("이 애드온을 다시 시작합니다", "Starts this add-on again"),
-                RowButton(title, Again), G.Refresh, Again, null, filter);
+            Add(again, reset ? Tr("탐색기가 멈춘 기록을 지우고 다시 켭니다", "Clears Explorer's crash record and turns it on again") : againSub,
+                RowButton(again, Again), G.Refresh, Again, null, filter);
         }
+        return status;
     }
 
     private static string UserAddonStatusText(AddonStatus st) => st.State switch

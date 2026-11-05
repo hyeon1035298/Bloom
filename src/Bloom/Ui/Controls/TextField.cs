@@ -92,7 +92,7 @@ internal sealed class TextField : StackPanel
         });
     }
 
-    /// What is typed in now, applied or not (a form whose own button reads it: 설정 > 작업표시줄's 새 폴더).
+    /// What is typed in now, applied or not (a form whose own button reads it: 설정 > 애드온's 새 폴더).
     public string Text => box.Text.Trim();
 
     public void FocusBox()

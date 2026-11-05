@@ -3,7 +3,7 @@ using System.Linq;
 
 namespace Bloom.Ui;
 
-/// Where on 설정 > 작업표시줄 each of the add-on's settings is changed. Every key the add-on has belongs to exactly one
+/// Where on 설정 > 애드온 each of the add-on's settings is changed. Every key the add-on has belongs to exactly one
 /// line (the tests check it against the add-on's key list); the "More" sections are folded under 자세히 at first.
 internal static class TaskbarMap
 {

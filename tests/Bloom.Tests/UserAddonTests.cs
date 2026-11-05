@@ -101,10 +101,10 @@ internal static class UserAddonTests
             using (new SettingsTransferTests.DataFolder())
             {
                 var addon = new Addon("my-addon", new AddonStore(root, Path.Combine(Paths.Local, "addons")), user: true);
-                var lines = new SettingsView(new Host(new Options())).CollectAddonsForTests(new[] { addon });
-                Check.True(lines.Count == 1 && lines[0].Title == "내 애드온" && lines[0].PageKey == "addons", "one line, by its name, on its page");
-                var none = new SettingsView(new Host(new Options())).CollectAddonsForTests(Array.Empty<Addon>());
-                Check.Eq(none.Count, 0, "no page without one");
+                var lines = new SettingsView(new Host(new Options())).CollectAddonsForTests(users: new[] { addon });
+                Check.True(lines.Count(l => l.Title == "내 애드온" && l.PageKey == "addons" && l.Group == "애드온 목록") == 1, "one line, by its name, in the list");
+                var none = new SettingsView(new Host(new Options())).CollectAddonsForTests();
+                Check.True(none.Any(l => l.Title == "작업표시줄") && none.All(l => l.Title != "내 애드온"), "the page with the taskbar alone");
             }
         }
         finally

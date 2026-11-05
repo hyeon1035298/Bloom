@@ -216,8 +216,9 @@ internal static class AddonRunnerTests
     /// The launcher's settings search finds the page's lines (collect mode), without reading the host's files.
     public static void TaskbarPageCollected()
     {
-        var lines = new Ui.SettingsView(new Host(new Options())).CollectTaskbarForTests();
-        Check.True(lines.Any(l => l.Title == "작업표시줄 꾸미기" && l.PageKey == "taskbar" && l.PageTitle == "작업표시줄" && l.Group == "PillTaskbar"), "the switch on 설정 > 작업표시줄");
-        Check.True(lines.All(l => l.PageKey == "taskbar"), "nothing else");
+        var lines = new Ui.SettingsView(new Host(new Options())).CollectAddonsForTests();
+        Check.True(lines.Any(l => l.Title == "작업표시줄" && l.PageKey == "addons" && l.PageTitle == "애드온" && l.Group == "애드온 목록"), "the switch on 설정 > 애드온");
+        Check.True(lines.All(l => l.PageKey == "addons"), "nothing else");
+        Check.True(!lines.Any(l => l.Group == "작업표시줄 모양"), "its settings only while it is on");
     }
 }
