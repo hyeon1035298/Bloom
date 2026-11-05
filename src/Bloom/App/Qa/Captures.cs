@@ -69,6 +69,7 @@ internal static partial class Captures
         ["addons"] = AddonScreens,
         ["taskbar-folders"] = TaskbarFolderScreens,
         ["taskbar-usage"] = TaskbarUsageScreens,
+        ["accent"] = AccentScreens,
     };
 
     public static async Task Run(Host host, string dir)

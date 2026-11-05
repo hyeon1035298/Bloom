@@ -11,14 +11,15 @@ namespace Bloom.Ui;
 internal sealed class ColourField : StackPanel
 {
     private readonly TextBox box;
-    private readonly TextBlock error = Theme.T("", 12, Theme.P.Danger, Theme.Regular, false);
-    private readonly string? kept;
+    /// Why a code was not taken; beside the field, or where the owner puts it when it asked to place it itself.
+    public readonly TextBlock Error = Theme.T("", 12, Theme.P.Danger, Theme.Regular, false);
+    private string? kept;
 
     /// The code was good: its normal form ("#3A7BD5").
     public event Action<string>? Applied;
     public Action? Done;
 
-    public ColourField(string? value)
+    public ColourField(string? value, bool placeError = false)
     {
         kept = value;
         Orientation = Orientation.Horizontal;
@@ -50,7 +51,7 @@ internal sealed class ColourField : StackPanel
         box.TextChanged += (_, _) =>
         {
             hint.Visibility = box.Text.Length == 0 ? Visibility.Visible : Visibility.Collapsed;
-            error.Text = "";
+            Why("");
         };
         hint.Visibility = box.Text.Length == 0 ? Visibility.Visible : Visibility.Collapsed;
         var well = new SmoothBorder
@@ -71,10 +72,15 @@ internal sealed class ColourField : StackPanel
         apply.Margin = new Thickness(8, 0, 0, 0);
         apply.Height = 28; // a small button beside the field
         apply.Padding = new Thickness(12, 0, 12, 0);
-        error.Margin = new Thickness(10, 0, 0, 0);
         Children.Add(well);
         Children.Add(apply);
-        Children.Add(error);
+        placed = placeError;
+        if (placeError) Error.Visibility = Visibility.Collapsed;
+        else
+        {
+            Error.Margin = new Thickness(10, 0, 0, 0);
+            Children.Add(Error);
+        }
         box.Tag = (Func<Key, bool>)(key =>
         {
             switch (key)
@@ -92,6 +98,26 @@ internal sealed class ColourField : StackPanel
         });
     }
 
+    /// The reason under the field; placed by its owner, it takes no room while there is none.
+    private void Why(string text)
+    {
+        Error.Text = text;
+        if (placed) Error.Visibility = text.Length > 0 ? Visibility.Visible : Visibility.Collapsed;
+    }
+
+    private readonly bool placed;
+
+    public bool Typing => box.IsKeyboardFocused;
+
+    /// A code set from elsewhere (the picker moved): shown and kept for Esc, unless it is being typed in.
+    public void Show(string code)
+    {
+        kept = code;
+        if (box.IsKeyboardFocused) return;
+        box.Text = code;
+        Why("");
+    }
+
     public void FocusBox()
     {
         box.Focus();
@@ -103,7 +129,7 @@ internal sealed class ColourField : StackPanel
     {
         if (!Accents.TryParse(box.Text, out var c, out string why))
         {
-            error.Text = why;
+            Why(why);
             return;
         }
         string code = $"#{c.R:X2}{c.G:X2}{c.B:X2}";
