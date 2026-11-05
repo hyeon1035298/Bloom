@@ -8,9 +8,10 @@ using Bloom.Search;
 
 namespace Bloom.Ui;
 
-/// 설정 > 애드온: every add-on with its switch and its host's status. First the taskbar add-on Bloom ships (PillTaskbar),
-/// then the ones the user put in Bloom's user-addons folder themselves (AddonStore.User), which Bloom draws no settings
-/// for. Below the list, the taskbar add-on's own settings while it is on (SettingsView.Taskbar).
+/// 설정 > 애드온: every add-on with its switch and its host's status. First the taskbar add-on (PillTaskbar), which this
+/// page downloads from the release Bloom's catalog pins (TaskbarDownload), then the ones the user put in Bloom's
+/// user-addons folder themselves (AddonStore.User), which Bloom draws no settings for. Below the list, the taskbar
+/// add-on's own settings while it is on (SettingsView.Taskbar).
 internal sealed partial class SettingsView
 {
     /// The tests: hand-made add-ons in place of the user's.
@@ -26,6 +27,7 @@ internal sealed partial class SettingsView
         Header(Tr("애드온 목록", "All add-ons"));
         var status = AddonLine(s, taskbar, Tr("작업표시줄", "Taskbar"), Tr("작업표시줄을 가운데 알약 모양으로 바꿉니다", "Turns the taskbar into a centred pill"), G.Screen,
             TaskbarStatusText, Tr("작업표시줄 꾸미기를 다시 시작합니다", "Starts taskbar customization again"), (v, sw) => SetTaskbar(taskbar, v, sw), filter);
+        TaskbarDownload(taskbar, status, filter);
         foreach (var addon in users)
         {
             string name = addon.Manifest?.Title(Lang.Code) ?? addon.Id;

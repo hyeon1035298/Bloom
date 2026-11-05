@@ -655,6 +655,8 @@ internal sealed partial class SettingsView
         Add(Tr("지금 Bloom이 쓰는 메모리", "Memory Bloom uses now"), Tr($"{me.PrivateMemorySize64 / 1048576.0:0} MB · 모두 끈 기준 약 80 MB, 켤 때 늘어나는 양은 각 설정에 적혀 있습니다", $"{me.PrivateMemorySize64 / 1048576.0:0} MB · about 80 MB with everything off; each setting says what it adds"), null, G.Speed, () => Build(lastFilter), null, filter);
     }
 
+    private const string PillTaskbarSource = "https://github.com/hyeon1035298/PillTaskbar_BloomAddon";
+
     private void PageAbout(Settings s, string filter)
     {
         Page("about", Tr("정보", "About"), G.Info, Tr("데이터와 버전", "Data and version"), filter);
@@ -667,6 +669,9 @@ internal sealed partial class SettingsView
         Header(Tr("버전", "Version"));
         string ver = typeof(SettingsView).Assembly.GetName().Version?.ToString(3) ?? "";
         Add($"Bloom {ver}", Tr("Windows 런처", "Windows launcher"), null, G.Info, null, null, filter);
+        // the taskbar add-on ships beside Bloom under its own licence; its source is a separate repository
+        Add(Tr("라이선스", "License"), Tr("Bloom은 MIT입니다 · 작업표시줄 애드온 PillTaskbar는 GPL-3.0인 별도 프로그램입니다", "Bloom is MIT · the taskbar add-on PillTaskbar is a separate GPL-3.0 program"),
+            RowButton(Tr("소스 보기", "View source"), () => Launch.Open(PillTaskbarSource)), G.Document, () => Launch.Open(PillTaskbarSource), null, filter);
         Add(Tr("이번 버전에서 바뀐 점", "What's new in this version"), Tr("업데이트한 뒤 처음 켤 때도 한 번 표시합니다 · Enter로 보기", "Also shown once at the first start after an update · Enter shows it"), null, G.Document, () => host.ShowWhatsNew(), null, filter);
         UpdateRows(s, filter);
         Add(Tr("Bloom 둘러보기", "Bloom tour"), Tr("처음 설정과 사용법 안내를 다시 보기", "See the first-run setup and the guide again"), null, G.Info, () => host.ShowOnboarding(), null, filter);

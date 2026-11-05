@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Threading;
@@ -16,7 +17,7 @@ namespace Bloom.Addons;
 internal enum AddonState
 {
     Dev, // a dev or QA copy: hosts are never started from one (they would reach the user's real taskbar)
-    NotShipped, // this Bloom came without the add-on
+    NotShipped, // not downloaded yet, and not in the install folder
     Broken, // its addon.json is wrong, or it needs a newer Bloom
     Off,
     Skipped, // Shift was held while Bloom started
@@ -78,32 +79,113 @@ internal sealed class Addon
         Id = id;
         User = user;
         this.store = store;
+        Load();
+    }
+
+    /// The manifest from the source folder (again after a download), and whether this Bloom can use it.
+    private void Load()
+    {
+        AddonManifest? m = null;
+        bool broken = false;
         try
         {
-            Manifest = store.Shipped(id);
+            m = store.Shipped(Id);
             var v = typeof(Addon).Assembly.GetName().Version ?? new Version(0, 0);
-            if (Manifest is not null && !Manifest.Fits(new Version(v.Major, v.Minor, Math.Max(0, v.Build))))
+            if (m is not null && !m.Fits(new Version(v.Major, v.Minor, Math.Max(0, v.Build))))
             {
-                Log.Write($"add-on {id}: needs Bloom {Manifest.MinBloom}");
-                Broken = true;
+                Log.Write($"add-on {Id}: needs Bloom {m.MinBloom}");
+                broken = true;
             }
         }
         catch (Exception e) when (e is InvalidDataException or IOException or UnauthorizedAccessException)
         {
-            Log.Error("add-on " + id, e);
-            Broken = true;
+            Log.Error("add-on " + Id, e);
+            broken = true;
         }
+        Broken = broken;
+        Manifest = m;
+        schemaRead = false;
+        values = null;
     }
 
     public string Id { get; }
 
-    /// One the user put in the user-addons folder (AddonStore.User), not one Bloom ships.
+    /// One the user put in the user-addons folder (AddonStore.User), not one of Bloom's.
     public bool User { get; }
 
-    /// The shipped add-on's manifest; null when Bloom came without it (or it couldn't be read).
-    public AddonManifest? Manifest { get; }
+    /// The add-on's manifest, shipped or downloaded; null while it is neither (or it couldn't be read).
+    public AddonManifest? Manifest { get; private set; }
 
-    public bool Broken { get; }
+    public bool Broken { get; private set; }
+
+    /// The download on the page: how far it is, or why the last one failed.
+    public AddonFetch Fetch { get; } = new();
+
+    /// The version the host was last started from this run (an update downloaded since applies at the next start).
+    public string? StartedVersion { get; private set; }
+
+    /// The catalog's release to download for this add-on: when the install folder doesn't hold it and it is missing,
+    /// broken or older than the catalog's. Null otherwise, and for the user's own add-ons.
+    public AddonCatalog.Entry? Offer(Func<string, AddonCatalog.Entry?>? catalog = null)
+    {
+        if (User || store.DownloadRoot is null || store.Bundled(Id)) return null;
+        if ((catalog ?? AddonCatalog.Find)(Id) is not { Offered: true } e) return null;
+        return Manifest is not { } m || Broken || AddonCatalog.Newer(e.Version, m.Version) ? e : null;
+    }
+
+    /// Downloads the catalog's release, checks it and puts it in as this add-on's source: Fetch shows it busy at once,
+    /// the rest runs on a worker thread. Never starts the host: a running one keeps its version until it starts again.
+    public Task Download(HttpClient http, AddonCatalog.Entry e)
+    {
+        if (store.DownloadRoot is not { } root || !Fetch.Begin()) return Task.CompletedTask;
+        AddonHub.Notify();
+        return Task.Run(() => Fetched(http, e, root));
+    }
+
+    private async Task Fetched(HttpClient http, AddonCatalog.Entry e, string root)
+    {
+        AddonFailure? failed = null;
+        try
+        {
+            string staging = await AddonDownload.Prepare(http, e, root, (done, total) =>
+            {
+                if (Fetch.Report(done, total)) AddonHub.Notify();
+            }, CancellationToken.None).ConfigureAwait(false);
+            try
+            {
+                lock (gate)
+                {
+                    AddonDownload.Commit(staging, e, root);
+                    Load();
+                }
+            }
+            finally
+            {
+                if (Directory.Exists(staging)) Directory.Delete(staging, true);
+            }
+            Log.Write($"add-on {Id}: {e.Version} downloaded");
+        }
+        catch (AddonDownloadException x)
+        {
+            Log.Write($"add-on {Id}: download of {e.Version} failed ({x.Reason}): {x.Message}");
+            failed = x.Reason;
+        }
+        catch (Exception x) when (x is IOException or UnauthorizedAccessException)
+        {
+            Log.Error("add-on " + Id, x);
+            failed = AddonFailure.Disk;
+        }
+        catch (Exception x) when (x is InvalidOperationException or OperationCanceledException or HttpRequestException)
+        {
+            Log.Error("add-on " + Id, x);
+            failed = AddonFailure.Network;
+        }
+        finally
+        {
+            Fetch.End(failed);
+            AddonHub.Notify();
+        }
+    }
 
     public string DataDir => store.DataDir(Id);
 
@@ -120,14 +202,14 @@ internal sealed class Addon
     private TaskbarCommands? commands;
     private bool schemaRead;
 
-    /// The shipped settings schema (read once; null without one, or when its hash doesn't match the manifest).
+    /// The settings schema it comes with (read once per manifest; null without one, or when its hash doesn't match).
     public AddonSchema? Schema
     {
         get
         {
             if (!schemaRead)
             {
-                schema = Broken || Manifest is not { } m ? null : AddonSchema.Load(store.ShippedDir(Id), m);
+                schema = Broken || Manifest is not { } m ? null : AddonSchema.Load(store.SourceDir(Id), m);
                 schemaRead = true;
             }
             return schema;
@@ -151,15 +233,24 @@ internal sealed class Addon
     /// Makes the run copy and values.json and starts the host (a worker thread: copying and hashing read the disk).
     public void Start(bool resetSafeMode = false)
     {
-        if (!AddonHub.Offered || Broken || Manifest is not { } m) return;
+        if (!AddonHub.Offered) return;
         lock (gate)
         {
+            if (Broken || Manifest is not { } m) return;
             try
             {
                 string dir = store.RunCopy(m);
                 store.Prune(m);
                 AddonHub.WriteValues(this);
                 Watch();
+                // a version downloaded since the last start runs from its own copy: a runner of the old one that has
+                // stopped is let go
+                if (runner is { Running: false } old && StartedVersion != m.Version)
+                {
+                    old.Changed -= AddonHub.Notify;
+                    old.Dispose();
+                    runner = null;
+                }
                 if (runner is null)
                 {
                     var r = new AddonRunner(Path.Combine(dir, m.HostExe), StopEvent, OtherHost);
@@ -167,7 +258,9 @@ internal sealed class Addon
                     runner = r;
                 }
                 problem = false;
+                bool wasRunning = runner.Running; // then Start leaves it, and its version, as they are
                 runner.Start(resetSafeMode);
+                if (!wasRunning) StartedVersion = m.Version;
             }
             catch (Exception e) when (e is IOException or UnauthorizedAccessException or InvalidDataException)
             {
@@ -248,7 +341,8 @@ internal sealed class Addon
     }
 }
 
-/// The add-ons Bloom ships (for now the taskbar one) and the user's own, their start with Bloom and their status.
+/// Bloom's add-ons (for now the taskbar one, downloaded from Settings > Add-ons or in a local install's folder) and the
+/// user's own, their start with Bloom and their status.
 internal static class AddonHub
 {
     /// Only the user's own Bloom starts hosts: never a dev or QA copy (--data, which every QA mode needs) or another
@@ -320,6 +414,10 @@ internal static class AddonHub
 
     /// 다시 켜기 (safe mode cleared) and 다시 시도.
     public static Task Retry(Addon a, bool resetSafeMode) => Task.Run(() => a.Start(resetSafeMode));
+
+    /// 받기, 업데이트 and 다시 받기: the catalog's release, over the API chats' shared client, on a worker thread. Also in a
+    /// dev or QA copy (into its own data folder), where nothing is started from it.
+    public static Task Download(Addon a, AddonCatalog.Entry e) => a.Download(Ai.ApiClient.Shared, e);
 
     /// Bloom quits: every host let go, none stopped (Addon.Detach).
     public static void Quit()
