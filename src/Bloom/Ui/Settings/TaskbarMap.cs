@@ -30,6 +30,7 @@ internal static class TaskbarMap
         // 모양
         new("size.enabled", Section.Look, Control.SetWith),
         new("pill.style", Section.Look, Control.Curated),
+        new("pill.theme", Section.Look, Control.SetWith), // Bloom's own light or dark (AddonHub.FollowTheme)
         new("start.mode", Section.Look, Control.Curated),
         new("size.taskbarHeight", Section.LookMore, Control.Number),
         new("size.iconSize", Section.LookMore, Control.Number),
@@ -46,6 +47,7 @@ internal static class TaskbarMap
         new("tray.hideCopilot", Section.Tray, Control.Shown),
         new("tray.bell", Section.Tray, Control.Bell),
         new("tray.clock", Section.Tray, Control.Choice),
+        new("tray.clockFormat", Section.Tray, Control.Choice),
         new("media.enabled", Section.Tray, Control.Curated),
         new("usage.enabled", Section.Tray, Control.Curated),
         new("tray.hideLocation", Section.TrayMore, Control.Shown),
@@ -61,6 +63,7 @@ internal static class TaskbarMap
         new("island.enabled", Section.Island, Control.Curated),
         new("autohide.enabled", Section.Island, Control.SetWith),
         new("island.reveal", Section.Island, Control.Choice),
+        new("island.color", Section.Island, Control.Choice),
         new("island.showClock", Section.Island, Control.Chip),
         new("island.showMedia", Section.Island, Control.Chip),
         new("island.showUsage", Section.Island, Control.Chip),
@@ -108,6 +111,7 @@ internal static class TaskbarMap
     /// The page's own name for an option whose schema name is a description (else null: the schema's name).
     public static string? OptionLabel(string key, string value) => (key, value) switch
     {
+        ("pill.style", "bloom") => Tr("옅은 윤곽선 유리", "Faintly outlined glass"),
         ("pill.style", "glass") => Tr("빛 받는 유리", "Lit glass"),
         ("pill.style", "windowGlass") => Tr("테두리 없는 유리", "Borderless glass"),
         _ => null,

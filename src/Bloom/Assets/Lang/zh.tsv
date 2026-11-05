@@ -2478,6 +2478,7 @@ A number changed here makes the size above ‘Custom’	在此更改数值后，
 Taskbar tray	任务栏托盘
 Icons shown	显示的图标
 Only the ones on stay in the tray; the ones off leave no gap	只有打开的留在托盘中，关闭的图标不留空位
+Only the 12-hour clock shows AM and PM	仅 12 小时制显示上午、下午
 Now playing	正在播放
 Puts the album art, the title and previous, play and next buttons before the tray	在托盘前放置专辑封面、标题以及上一首、播放、下一首按钮
 Shows one picked value per account as a bar. The auto-hide island shows the same	每个账户以条形显示所选的一个值。自动隐藏小岛也显示相同的值
@@ -2491,6 +2492,7 @@ Auto-hide island	自动隐藏小岛
 Use the auto-hide island	使用自动隐藏小岛
 The taskbar hides itself, and an island appears at the top centre of the screen	任务栏会自动隐藏，屏幕顶部中央会出现小岛
 With click, pointing at it alone doesn't bring it out	选择点击时，仅指向不会唤出
+The taskbar follows Bloom's light or dark; the island's colour is picked here	任务栏跟随 Bloom 的浅色或深色，灵动岛的颜色在此选择
 Shown on the island	小岛上显示的内容
 With the pointer over it	指针悬停时
 What is below shows through while the pointer is there: 0 not at all, 100 fully	指针在上方时可透出下方内容：0 不透，100 完全透明
@@ -2575,6 +2577,7 @@ The taskbar couldn't carry it out	任务栏无法执行该命令
 {0} failed · {1}	{0} 失败 · {1}
 Fits the content	适应内容
 Windows default	Windows 默认
+Faintly outlined glass	淡轮廓玻璃
 Lit glass	受光玻璃
 Borderless glass	无边框玻璃
 Rose	玫瑰

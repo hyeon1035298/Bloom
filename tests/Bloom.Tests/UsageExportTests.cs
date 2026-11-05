@@ -13,6 +13,7 @@ internal static class UsageExportTests
 {
     public static void FileHasTheNumbersAndNoIdentity()
     {
+        using var folder = new SettingsTransferTests.DataFolder(); // the logos it names are written there
         var list = Settings.Current.AiAccounts;
         list.Clear();
         list.Add(new AiAccount { Id = "claude", Kind = "claude", Email = "someone@example.com", Alias = "Work" });
@@ -32,7 +33,7 @@ internal static class UsageExportTests
                 new("OpenRouter", null, new List<UsageLimit>(), fetched) { Id = "openrouter", Balance = new UsageBalance("잔액", "$4.20", "") },
             };
             string text = UsageExport.Build(cards, online: true, now: 1762238400);
-            foreach (var secret in new[] { "example.com", "someone", @"C:\", "$4.20", "OpenRouter", "\n" })
+            foreach (var secret in new[] { "example.com", "someone", @"C:\Made", "$4.20", "OpenRouter", "\n" })
                 Check.True(!text.Contains(secret, StringComparison.Ordinal), "nothing of " + secret + " in the file");
 
             var root = JsonNode.Parse(text)!.AsObject();
@@ -81,6 +82,7 @@ internal static class UsageExportTests
 
     public static void ModelKeysAreNeverEmptyOrRepeated()
     {
+        using var folder = new SettingsTransferTests.DataFolder();
         var list = Settings.Current.AiAccounts;
         list.Clear();
         list.Add(new AiAccount { Id = "claude", Kind = "claude" });
