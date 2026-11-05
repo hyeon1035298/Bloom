@@ -2,7 +2,9 @@
 #   framework-dependent win-x64 (needs the .NET 10 Desktop Runtime, already on this PC).
 #   -ReadyToRun precompiles the code (faster first start); it needs the crossgen2 pack from NuGet
 #   (Microsoft.NETCore.App.Crossgen2.win-x64), which is not in the local cache yet.
-#   -Addon <folder>[,<folder>...] ships add-on bundles (folders with addon.json) in dist\app\addons\<id>.
+#   -Addon <folder>[,<folder>...] puts add-on bundles (folders with addon.json) in dist\app\addons\<id>, for a local
+#   install or a test build; Bloom then uses them instead of downloading them. Releases carry none (Settings > Add-ons
+#   downloads them from the release addons\catalog.json pins).
 #   -Out <folder> builds there instead of dist\app (the release workflow's publish folder); it is emptied first.
 param([switch]$ReadyToRun, [string[]]$Addon, [string]$Out)
 $ErrorActionPreference = 'Stop'

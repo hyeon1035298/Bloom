@@ -2407,9 +2407,22 @@ Clears Explorer's crash record and turns it on again	清除资源管理器的崩
 Starts taskbar customization again	重新启动任务栏自定义
 PillTaskbar is a separate GPL-3.0 program · {0}	PillTaskbar 是采用 GPL-3.0 的独立程序 · {0}
 View source	查看源代码
+Downloading PillTaskbar	正在下载 PillTaskbar
+Download	下载
+Couldn't download PillTaskbar	无法下载 PillTaskbar
+PillTaskbar {0} update	PillTaskbar {0} 更新
+Now {0} · from PillTaskbar's GitHub release	当前 {0} · 从 PillTaskbar 的 GitHub 发布版下载
+Download PillTaskbar {0}	下载 PillTaskbar {0}
+From PillTaskbar's GitHub release, checked by Bloom before it is installed	从 PillTaskbar 的 GitHub 发布版下载，经 Bloom 校验后安装
+PillTaskbar {0} downloaded	已下载 PillTaskbar {0}
+Turn taskbar customization off and on to switch to the new version	关闭再开启任务栏自定义即可切换到新版本
+Check your connection and try again	请检查网络连接后重试
+The downloaded file isn't the one Bloom expects, so it wasn't installed	下载的文件与 Bloom 预期的不同，因此未安装
+What the download holds isn't valid, so it wasn't installed	下载的内容无效，因此未安装
+Couldn't save the download · check the free disk space	无法保存下载的文件 · 请检查可用磁盘空间
 Not turned on in a development copy	开发副本中不会开启
-This Bloom has no taskbar add-on	此 Bloom 不含任务栏加载项
-The taskbar add-on's files are not valid · reinstall Bloom	任务栏加载项文件无效 · 请重新安装 Bloom
+Not downloaded yet	尚未下载
+The taskbar add-on's files are not valid, or it needs a newer Bloom	任务栏加载项文件无效，或需要更新版本的 Bloom
 Bloom started with Shift held, so it is off this time	启动时按住了 Shift，本次未开启
 Turning on · downloading symbol files {0}%	正在开启 · 正在下载符号文件 {0}%
 Turning on	正在开启
