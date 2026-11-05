@@ -39,7 +39,22 @@ internal static class ApiToolTests
             Directory.CreateDirectory(Path);
             File.WriteAllText(System.IO.Path.Combine(Path, "notes.txt"), "the notes' contents");
         }
-        public void Dispose() => Directory.Delete(Path, true);
+        // a command just stopped may hold the folder (its working directory) for a moment after it ends
+        public void Dispose()
+        {
+            for (int i = 0; ; i++)
+            {
+                try
+                {
+                    Directory.Delete(Path, true);
+                    return;
+                }
+                catch (IOException) when (i < 20)
+                {
+                    Thread.Sleep(100);
+                }
+            }
+        }
     }
 
     private static ApiRequest Request(FakeApiServer server, ApiWire wire) =>
