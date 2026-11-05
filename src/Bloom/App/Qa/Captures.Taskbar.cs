@@ -1,4 +1,5 @@
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using Bloom.Addons;
@@ -35,10 +36,32 @@ internal static partial class Captures
         sw.Close();
     }
 
-    private static async Task TaskbarShot(SettingsWindow sw, string file)
+    private static async Task TaskbarShot(SettingsWindow sw, string file, string page = "taskbar")
     {
-        sw.Page("taskbar");
+        sw.Page(page);
         await Task.Delay(300);
         await sw.Dispatcher.InvokeAsync(() => sw.Capture(file), System.Windows.Threading.DispatcherPriority.ApplicationIdle);
+    }
+
+    /// `--qa-set addons`: 설정 > 애드온 for the add-ons in this dev copy's user-addons folder (put one there first), as a
+    /// dev copy shows it, then with the statuses a real host reports drawn in its place.
+    private static async Task AddonScreens(Host host, Launcher w, string dir)
+    {
+        string l = Lang.Code;
+        var list = AddonHub.Users.ToList();
+        if (list.Count == 0) return;
+        var sw = new SettingsWindow(host) { WindowStartupLocation = WindowStartupLocation.Manual, Left = -32000, Top = -32000, ShowActivated = false };
+        sw.Show();
+        foreach (string theme in new[] { "light", "dark" })
+        {
+            Theme.Apply(theme);
+            foreach (var (name, status) in new (string, AddonStatus?)[] { ("dev", null), ("running", new AddonStatus(AddonState.Running)), ("windhawk", new AddonStatus(AddonState.Windhawk)), ("stopped", new AddonStatus(AddonState.Stopped)) })
+            {
+                foreach (var a in list) a.QaStatus = status;
+                await TaskbarShot(sw, Path.Combine(dir, $"{l}-{theme}-addons-{name}.png"), "addons");
+            }
+        }
+        foreach (var a in list) a.QaStatus = null;
+        sw.Close();
     }
 }

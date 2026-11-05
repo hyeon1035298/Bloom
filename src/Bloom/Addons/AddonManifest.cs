@@ -11,7 +11,8 @@ namespace Bloom.Addons;
 /// of Bloom's, so nothing that could leave that folder (a drive, a rooted path, "..") gets through; each file Bloom
 /// copies carries the SHA-256 it must have.
 internal sealed record AddonManifest(string Id, string Version, string License, string Source, System.Version MinBloom,
-    string HostExe, int HostProtocol, IReadOnlyDictionary<string, string> Files, string? Settings = null)
+    string HostExe, int HostProtocol, IReadOnlyDictionary<string, string> Files, string? Settings = null,
+    IReadOnlyDictionary<string, string>? Names = null)
 {
     public const string FileName = "addon.json";
 
@@ -56,8 +57,16 @@ internal sealed record AddonManifest(string Id, string Version, string License, 
             settings = SafePath(sp) ?? throw Bad("settings is not a path inside the add-on's folder");
             if (!files.ContainsKey(settings)) throw Bad("settings is not among the files");
         }
-        return new AddonManifest(id, version, license, source, minBloom, exe, protocol, files, settings);
+        // its name by language ({"ko": …, "en": …}): optional and only shown, so a wrong one is left out, not refused
+        var names = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        if (root["name"] is JsonObject nameList)
+            foreach (var (lang, value) in nameList)
+                if (value is JsonValue nv && nv.TryGetValue(out string? text) && text.Trim() is { Length: > 0 and <= 80 } shown) names[lang] = shown;
+        return new AddonManifest(id, version, license, source, minBloom, exe, protocol, files, settings, names);
     }
+
+    /// The name to show in a language: that language's, else the English one, else the id.
+    public string Title(string lang) => Names?.GetValueOrDefault(lang) ?? Names?.GetValueOrDefault("en") ?? Id;
 
     /// This Bloom is new enough for it.
     public bool Fits(System.Version bloom) => bloom >= MinBloom;

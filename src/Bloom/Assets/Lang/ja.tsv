@@ -2413,7 +2413,6 @@ Turning on · downloading symbol files {0}%	オンにしています · シン�
 Turning on	オンにしています
 Paused · Explorer kept crashing, so taskbar customization was turned off	停止中 · エクスプローラーが続けて停止したため、タスクバーのカスタマイズをオフにしました
 No symbols · this Windows version lacks the taskbar symbols it needs	シンボルなし · この Windows のバージョンには必要なタスクバーのシンボルがありません
-On in Windhawk · turn the PillTaskbar mod off in Windhawk first	Windhawk でオン · 先に Windhawk で PillTaskbar Mod をオフにしてください
 Blocked by a security feature · Windows Security (Smart App Control) kept it from loading	セキュリティ機能がブロック · Windows セキュリティ (スマート アプリ コントロール) が読み込みを止めました
 Could not download the symbol files · check your connection and try again	シンボルファイルをダウンロードできませんでした · 接続を確認して再試行してください
 Stopped · taskbar customization stopped	停止 · タスクバーのカスタマイズが停止しました
@@ -2520,3 +2519,16 @@ None · pick a logo file (SVG, PNG, ICO) for the home card and the taskbar	な�
 Icon	アイコン
 Logos (*.svg;*.png;*.ico)|*.svg;*.png;*.ico	ロゴ (*.svg;*.png;*.ico)|*.svg;*.png;*.ico
 That file couldn't be brought in as the icon.	そのファイルをアイコンとして読み込めませんでした。
+Add-ons	アドオン
+Add-ons you put in the user-addons folder in Bloom's local data folder yourself. One added there shows after Bloom restarts.	Bloom のローカルデータフォルダー内の user-addons に自分で入れたアドオンです。新しく入れたものは Bloom を再起動すると表示されます。
+Your add-ons	自分で入れたアドオン
+An add-on you added	自分で入れたアドオン
+Starts this add-on again	このアドオンを再開します
+The add-on's files are not valid, or it needs a newer Bloom	アドオンのファイルが正しくないか、より新しい Bloom が必要です
+Paused · Explorer kept crashing, so this add-on was turned off	停止中 · エクスプローラーが続けてクラッシュしたため、このアドオンをオフにしました
+No symbols · this Windows version lacks the symbols it needs	シンボルなし · この Windows のバージョンには必要なシンボルがありません
+On in Windhawk · turn the same mod off in Windhawk. If you don't use Windhawk, set its service to manual start and close or uninstall Windhawk instead	Windhawk でオン · Windhawk で同じ Mod をオフにしてください。Windhawk を使わない場合は、サービスを手動開始にして Windhawk を終了するかアンインストールしてもかまいません
+Stopped · this add-on stopped	停止 · このアドオンが停止しました
+Turn on {0}	{0} をオンにする
+An add-on you added is a separate program that Bloom neither made nor checked. Turning it on starts that program, and it may load code into Explorer. Only turn on add-ons you trust.	自分で入れたアドオンは、Bloom が作成も確認もしていない別のプログラムです。オンにするとそのプログラムが起動し、エクスプローラーにコードを読み込むことがあります。信頼できるアドオンだけをオンにしてください。
+On in Windhawk · turn the PillTaskbar mod off in Windhawk. If you don't use Windhawk, set its service to manual start and close or uninstall Windhawk instead	Windhawk でオン · Windhawk で PillTaskbar Mod をオフにしてください。Windhawk を使わない場合は、サービスを手動開始にして Windhawk を終了するかアンインストールしてもかまいません
