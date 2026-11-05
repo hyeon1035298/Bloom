@@ -76,9 +76,9 @@ internal static class UsageExport
             int every = a.IsDefault ? (s.UsageMinutes == 5 ? 5 : 10) : AiUsage.ExtraMinutes;
             var taken = new HashSet<string>();
             var limits = Ordered(c.Limits).ConvertAll(l => new Cap(l.WindowMins, l.Percent, l.Resets is { } r ? Unix(r) : null, Key(l, taken), l.Title));
-            // the taskbar's pick only while the account still has that limit, the logo only while Bloom's copy is there
+            // the taskbar's pick only while the account still has that limit; the logo the account shows (UsageIcons.Shown)
             string? bar = a.Bar is { } b && limits.Exists(l => l.Key == b) ? b : null;
-            string? icon = a.Icon is { } i && File.Exists(i) ? i : null;
+            string? icon = UsageIcons.Shown(a);
             accounts.Add(new Entry(a.Id, a.Kind, c.Name, c.Plan, a.Alias is { Length: > 0 } alias ? alias : null, AiUsage.Failed(a.Id), Unix(c.Fetched), every, limits, bar, icon));
         }
         string? tag = s.UsageTag is "name" or "plan" ? s.UsageTag : null; // none is left out

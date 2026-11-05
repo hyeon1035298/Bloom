@@ -14,21 +14,23 @@ using Bloom.Core;
 
 namespace Bloom.Ui;
 
-/// An account's picked logo (Ai\UsageIcons.cs) drawn small: a .png or .ico as it is, an .svg from its shapes (paths,
+/// An account's logo (Ai\UsageIcons.Shown) drawn small: a .png or .ico as it is, an .svg from its shapes (paths,
 /// circles, rectangles with flat fills: what a logo file holds; gradients, text and transforms are not drawn). 아이콘 색
-/// 단색 draws it in the text colour, keeping only its outline. Null when the file is gone or unreadable.
+/// 단색 draws it in the text colour, keeping only its outline, and so does 원래 색 a logo in one grey (black, grey or
+/// white, as a company draws its one-colour mark in the text colour of a dark page). Null when the file is gone or
+/// unreadable.
 internal static class UsageLogo
 {
-    private static readonly Dictionary<string, ImageSource?> Cache = new(StringComparer.OrdinalIgnoreCase);
+    private static readonly Dictionary<string, (ImageSource? Src, bool Grey)> Cache = new(StringComparer.OrdinalIgnoreCase);
 
     public static FrameworkElement? Of(string? file, double size)
     {
-        if (file is null || Source(file) is not { } src) return null;
-        if (Settings.Current.UsageLogo != "mono") return new Image { Source = src, Width = size, Height = size, Stretch = Stretch.Uniform };
+        if (file is null || Read(file) is not ({ } src, bool grey)) return null;
+        if (Settings.Current.UsageLogo != "mono" && !grey) return new Image { Source = src, Width = size, Height = size, Stretch = Stretch.Uniform };
         return new Rectangle { Width = size, Height = size, Fill = Theme.P.Text, OpacityMask = new ImageBrush(src) { Stretch = Stretch.Uniform } };
     }
 
-    /// The picked logo, or without one a letter on a small tile (the card's mark when the user has picked none).
+    /// The account's logo, or without one a letter on a small tile (the card's mark when there is no logo).
     public static FrameworkElement Mark(string? file, string letter, double size) => Of(file, size) ?? Tile(letter, size);
 
     /// The first letter of what a card is called, capitalised; ChatGPT's is its G.
@@ -42,7 +44,7 @@ internal static class UsageLogo
         return new SmoothBorder { Width = size, Height = size, CornerRadius = new CornerRadius(4), Background = Theme.P.Tile, Child = text };
     }
 
-    private static ImageSource? Source(string file)
+    private static (ImageSource?, bool) Read(string file)
     {
         if (Cache.TryGetValue(file, out var known)) return known;
         ImageSource? src = null;
@@ -58,8 +60,36 @@ internal static class UsageLogo
             Log.Error("usage logo", e);
             src = null;
         }
-        Cache[file] = src;
-        return src;
+        var read = (src, src is not null && OneGrey(src));
+        Cache[file] = read;
+        return read;
+    }
+
+    /// Every shape, or every pixel that is more than half there, of one grey: black, grey or white, one of them.
+    internal static bool OneGrey(ImageSource src)
+    {
+        int low = 255, high = 0;
+        bool Grey(byte r, byte g, byte b)
+        {
+            int max = Math.Max(r, Math.Max(g, b)), min = Math.Min(r, Math.Min(g, b));
+            low = Math.Min(low, min);
+            high = Math.Max(high, max);
+            return max - min <= 24; // else a hue
+        }
+        if (src is DrawingImage { Drawing: DrawingGroup group })
+        {
+            foreach (var d in group.Children.OfType<GeometryDrawing>())
+                if (d.Brush is not SolidColorBrush { Color: var c } || c.A > 0 && !Grey(c.R, c.G, c.B)) return false; // the viewBox's transparent frame is no colour
+        }
+        else if (src is BitmapSource bitmap)
+        {
+            var bgra = new FormatConvertedBitmap(bitmap, PixelFormats.Bgra32, null, 0);
+            var px = new byte[bgra.PixelWidth * bgra.PixelHeight * 4];
+            bgra.CopyPixels(px, bgra.PixelWidth * 4, 0);
+            for (int i = 0; i < px.Length; i += 4)
+                if (px[i + 3] >= 128 && !Grey(px[i + 2], px[i + 1], px[i])) return false;
+        }
+        return low <= high && high - low <= 48; // nothing there is no grey logo; black on a white disc is two
     }
 
     /// The SVG's flat shapes in its viewBox; null when it has none.
