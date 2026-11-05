@@ -2413,7 +2413,6 @@ Turning on · downloading symbol files {0}%	正在开启 · 正在下载符号�
 Turning on	正在开启
 Paused · Explorer kept crashing, so taskbar customization was turned off	已暂停 · 资源管理器连续崩溃，已关闭任务栏自定义
 No symbols · this Windows version lacks the taskbar symbols it needs	无符号 · 此 Windows 版本缺少所需的任务栏符号
-On in Windhawk · turn the PillTaskbar mod off in Windhawk first	已在 Windhawk 中开启 · 请先在 Windhawk 中关闭 PillTaskbar 模组
 Blocked by a security feature · Windows Security (Smart App Control) kept it from loading	被安全功能阻止 · Windows 安全中心（智能应用控制）阻止了加载
 Could not download the symbol files · check your connection and try again	无法下载符号文件 · 请检查网络连接后重试
 Stopped · taskbar customization stopped	已停止 · 任务栏自定义已停止
@@ -2520,3 +2519,16 @@ None · pick a logo file (SVG, PNG, ICO) for the home card and the taskbar	无 �
 Icon	图标
 Logos (*.svg;*.png;*.ico)|*.svg;*.png;*.ico	徽标 (*.svg;*.png;*.ico)|*.svg;*.png;*.ico
 That file couldn't be brought in as the icon.	无法将该文件用作图标。
+Add-ons	加载项
+Add-ons you put in the user-addons folder in Bloom's local data folder yourself. One added there shows after Bloom restarts.	你自己放入 Bloom 本地数据文件夹中 user-addons 的加载项。新放入的加载项在重新启动 Bloom 后显示。
+Your add-ons	你添加的加载项
+An add-on you added	你添加的加载项
+Starts this add-on again	重新启动此加载项
+The add-on's files are not valid, or it needs a newer Bloom	加载项文件无效，或需要更新版本的 Bloom
+Paused · Explorer kept crashing, so this add-on was turned off	已暂停 · 资源管理器连续崩溃，已关闭此加载项
+No symbols · this Windows version lacks the symbols it needs	无符号 · 此 Windows 版本缺少所需的符号
+On in Windhawk · turn the same mod off in Windhawk. If you don't use Windhawk, set its service to manual start and close or uninstall Windhawk instead	已在 Windhawk 中开启 · 请在 Windhawk 中关闭同一模组。如果不使用 Windhawk，也可以将其服务设为手动启动并退出或卸载 Windhawk
+Stopped · this add-on stopped	已停止 · 此加载项已停止
+Turn on {0}	开启 {0}
+An add-on you added is a separate program that Bloom neither made nor checked. Turning it on starts that program, and it may load code into Explorer. Only turn on add-ons you trust.	你添加的加载项是 Bloom 未制作也未检查的独立程序。开启后会启动该程序，它可能会向资源管理器载入代码。请只开启你信任的加载项。
+On in Windhawk · turn the PillTaskbar mod off in Windhawk. If you don't use Windhawk, set its service to manual start and close or uninstall Windhawk instead	已在 Windhawk 中开启 · 请在 Windhawk 中关闭 PillTaskbar 模组。如果不使用 Windhawk，也可以将其服务设为手动启动并退出或卸载 Windhawk

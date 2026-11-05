@@ -1,5 +1,7 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Security.Cryptography;
 using Bloom.Core;
 
@@ -22,7 +24,28 @@ internal sealed class AddonStore
     /// Bloom's own: <install folder>\addons and <Paths.Local>\addons.
     public static AddonStore Default => new(Path.Combine(Paths.AppDir, "addons"), Path.Combine(Paths.Local, "addons"));
 
+    /// The user's own: add-ons they put in <Paths.Local>\user-addons\<id> themselves, none of them Bloom's. Read from
+    /// there the way shipped ones are read from the install folder; their run copies and data sit beside the shipped
+    /// ones in <Paths.Local>\addons.
+    public static AddonStore User => new(Path.Combine(Paths.Local, "user-addons"), Path.Combine(Paths.Local, "addons"));
+
     public string ShippedDir(string id) => Path.Combine(shippedRoot, id);
+
+    /// The add-ons in the read-only root: each folder named like an add-on id with an addon.json in it, by name.
+    public IReadOnlyList<string> Ids()
+    {
+        try
+        {
+            if (!Directory.Exists(shippedRoot)) return Array.Empty<string>();
+            return Directory.GetDirectories(shippedRoot).Select(Path.GetFileName).OfType<string>()
+                .Where(n => AddonManifest.IsId(n) && File.Exists(Path.Combine(shippedRoot, n, AddonManifest.FileName)))
+                .Order(StringComparer.Ordinal).ToList();
+        }
+        catch (Exception e) when (e is IOException or UnauthorizedAccessException)
+        {
+            return Array.Empty<string>();
+        }
+    }
 
     /// The add-on's data folder (values.json, the host's and runtime's state files, its logs), with the run copies in it.
     public string DataDir(string id) => Path.Combine(localRoot, id);
