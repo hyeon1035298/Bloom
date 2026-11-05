@@ -40,7 +40,10 @@ internal static class FakeOmp
                     var usage = new JsonObject { ["tokens"] = known ? turns * 1200 : null, ["contextWindow"] = 200000 };
                     Say(new JsonObject
                     {
-                        ["id"] = id, ["type"] = "response", ["command"] = "get_state", ["success"] = true,
+                        ["id"] = id,
+                        ["type"] = "response",
+                        ["command"] = "get_state",
+                        ["success"] = true,
                         ["data"] = new JsonObject { ["sessionId"] = "fake-session", ["contextUsage"] = usage },
                     });
                     break;
