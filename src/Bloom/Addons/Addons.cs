@@ -64,7 +64,7 @@ internal sealed class RuntimeState
     public string? Reason { get; set; }
 }
 
-/// One shipped add-on: its manifest, its run copy and host, and its status for the settings page.
+/// One add-on, shipped or the user's own: its manifest, its run copy and host, and its status for the settings page.
 internal sealed class Addon
 {
     private readonly AddonStore store;
@@ -73,9 +73,10 @@ internal sealed class Addon
     private FileSystemWatcher? watcher;
     private volatile bool problem;
 
-    public Addon(string id, AddonStore store)
+    public Addon(string id, AddonStore store, bool user = false)
     {
         Id = id;
+        User = user;
         this.store = store;
         try
         {
@@ -95,6 +96,9 @@ internal sealed class Addon
     }
 
     public string Id { get; }
+
+    /// One the user put in the user-addons folder (AddonStore.User), not one Bloom ships.
+    public bool User { get; }
 
     /// The shipped add-on's manifest; null when Bloom came without it (or it couldn't be read).
     public AddonManifest? Manifest { get; }
@@ -244,7 +248,7 @@ internal sealed class Addon
     }
 }
 
-/// The add-ons Bloom ships (for now the taskbar one), their start with Bloom and their status.
+/// The add-ons Bloom ships (for now the taskbar one) and the user's own, their start with Bloom and their status.
 internal static class AddonHub
 {
     /// Only the user's own Bloom starts hosts: never a dev or QA copy (--data, which every QA mode needs) or another
@@ -259,9 +263,23 @@ internal static class AddonHub
 
     private static Addon[]? all;
 
-    public static IReadOnlyList<Addon> All => LazyInitializer.EnsureInitialized(ref all, () => new[] { new Addon(AddonProtocol.Id, AddonStore.Default) });
+    /// Read once a run: an add-on put in the user's folder later shows after Bloom restarts.
+    public static IReadOnlyList<Addon> All => LazyInitializer.EnsureInitialized(ref all, () => Discover(AddonStore.Default, AddonStore.User).ToArray());
 
     public static Addon Taskbar => All[0];
+
+    /// The user's own add-ons, in id order.
+    public static IEnumerable<Addon> Users => All.Where(a => a.User);
+
+    /// The shipped taskbar add-on first, then each one in the user's folder; a user one with a shipped one's id is left
+    /// out (it would share that one's data folder and switch).
+    internal static List<Addon> Discover(AddonStore shipped, AddonStore user)
+    {
+        var list = new List<Addon> { new(AddonProtocol.Id, shipped) };
+        foreach (string id in user.Ids())
+            if (list.All(a => a.Id != id)) list.Add(new Addon(id, user, user: true));
+        return list;
+    }
 
     /// Bloom starts: the add-ons switched on start on a worker thread. `autostart`: started at sign-in (logged with the
     /// time since then, for comparing the ways Bloom is started at sign-in).

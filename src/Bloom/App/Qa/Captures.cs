@@ -66,6 +66,7 @@ internal static partial class Captures
         ["providers"] = ProviderScreens,
         ["tokens"] = TokenScreens,
         ["taskbar"] = TaskbarScreens,
+        ["addons"] = AddonScreens,
         ["taskbar-folders"] = TaskbarFolderScreens,
         ["taskbar-usage"] = TaskbarUsageScreens,
     };
