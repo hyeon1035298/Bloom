@@ -1,17 +1,21 @@
+using System;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
+using System.Windows.Media.Animation;
 using System.Windows.Shapes;
 
 namespace Bloom.Ui;
 
 /// On/off switch (settings): an outlined track with a ring for a knob; on, the knob fills with the accent and moves
-/// right, and a short lit line in the accent shows where it came from.
+/// right, and a short lit line in the accent shows where it came from. A change after the first draw eases over 160 ms
+/// (when Motion.Moves allows it); the first draw and a change while the switch is off screen snap.
 internal sealed class Switch : SmoothBorder
 {
-    private const double KnobSize = 14, Travel = 18;
+    private const double KnobSize = 14, Travel = 18, GlowShift = 5;
     private readonly Ellipse knob, glow;
     private readonly Rectangle lit, litGlow;
+    private readonly ScaleTransform litScale = new(1, 1), litGlowScale = new(1, 1);
     private bool on;
 
     public Switch(bool value)
@@ -27,6 +31,10 @@ internal sealed class Switch : SmoothBorder
         litGlow = new Rectangle { Width = Travel + 4, Height = 6, RadiusX = 3, RadiusY = 3, IsHitTestVisible = false };
         lit = new Rectangle { Width = Travel, Height = 2, RadiusX = 1, RadiusY = 1, IsHitTestVisible = false };
         knob = new Ellipse { Width = KnobSize, Height = KnobSize, StrokeThickness = 1.5 };
+        // the lit line grows out of its left end as the knob travels
+        lit.RenderTransformOrigin = litGlow.RenderTransformOrigin = new Point(0, 0.5);
+        lit.RenderTransform = litScale;
+        litGlow.RenderTransform = litGlowScale;
         Canvas.SetLeft(litGlow, 4);
         Canvas.SetTop(litGlow, 7);
         Canvas.SetLeft(lit, 6);
@@ -47,23 +55,71 @@ internal sealed class Switch : SmoothBorder
         get => on;
         set
         {
+            bool animate = IsLoaded && value != on && Motion.Moves;
             on = value;
             BorderBrush = on ? Theme.P.Edge : Theme.P.EdgeStrong;
-            double x = on ? 3 + Travel : 3;
-            Canvas.SetLeft(knob, x);
-            Canvas.SetLeft(glow, x - 5);
             knob.Fill = on ? Theme.P.Accent : Brushes.Transparent;
             knob.Stroke = on ? Theme.P.Accent : Theme.P.TextFaint;
             lit.Fill = Theme.P.Accent;
-            var shown = on ? Visibility.Visible : Visibility.Hidden;
-            lit.Visibility = litGlow.Visibility = glow.Visibility = shown;
             if (on)
             {
                 var c = Theme.P.Accent.Color;
                 glow.Fill = Glow(c, 0x8C);
                 litGlow.Fill = Glow(c, 0x60);
             }
+            Place(animate);
         }
+    }
+
+    /// Puts the knob, its glow and the lit line where `on` says; `animate` eases them from where they were.
+    private void Place(bool animate)
+    {
+        double x = on ? 3 + Travel : 3, from = Canvas.GetLeft(knob);
+        Clear();
+        Canvas.SetLeft(knob, x);
+        Canvas.SetLeft(glow, x - GlowShift);
+        var shown = on ? Visibility.Visible : Visibility.Hidden;
+        lit.Visibility = litGlow.Visibility = glow.Visibility = shown;
+        if (!animate) return;
+        knob.BeginAnimation(Canvas.LeftProperty, Ease(from, x));
+        glow.BeginAnimation(Canvas.LeftProperty, Ease(from - GlowShift, x - GlowShift));
+        double a = on ? 0 : 1, b = on ? 1 : 0;
+        litScale.BeginAnimation(ScaleTransform.ScaleXProperty, Ease(a, b));
+        glow.BeginAnimation(OpacityProperty, Ease(a, b));
+        if (on)
+        {
+            litGlowScale.BeginAnimation(ScaleTransform.ScaleXProperty, Ease(a, b));
+            return;
+        }
+        // off: the line shrinks back into its left end and the glow fades; they are hidden only once gone
+        lit.Visibility = litGlow.Visibility = glow.Visibility = Visibility.Visible;
+        var done = Ease(a, b);
+        done.Completed += (_, _) =>
+        {
+            if (on) return;
+            Clear();
+            lit.Visibility = litGlow.Visibility = glow.Visibility = Visibility.Hidden;
+        };
+        litGlowScale.BeginAnimation(ScaleTransform.ScaleXProperty, done);
+    }
+
+    /// Drops running animations, so the values set after it hold.
+    private void Clear()
+    {
+        knob.BeginAnimation(Canvas.LeftProperty, null);
+        glow.BeginAnimation(Canvas.LeftProperty, null);
+        glow.BeginAnimation(OpacityProperty, null);
+        litScale.BeginAnimation(ScaleTransform.ScaleXProperty, null);
+        litGlowScale.BeginAnimation(ScaleTransform.ScaleXProperty, null);
+    }
+
+    /// 160 ms along cubic-bezier(0.22, 1, 0.36, 1), from `from` to `to`.
+    private static DoubleAnimationUsingKeyFrames Ease(double from, double to)
+    {
+        var a = new DoubleAnimationUsingKeyFrames();
+        a.KeyFrames.Add(new DiscreteDoubleKeyFrame(from, KeyTime.FromTimeSpan(TimeSpan.Zero)));
+        a.KeyFrames.Add(new SplineDoubleKeyFrame(to, KeyTime.FromTimeSpan(TimeSpan.FromMilliseconds(160)), new KeySpline(0.22, 1, 0.36, 1)));
+        return Motion.Paced(a);
     }
 
     private static Brush Glow(Color c, byte alpha)
