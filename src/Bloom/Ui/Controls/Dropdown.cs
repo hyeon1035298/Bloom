@@ -37,7 +37,7 @@ internal sealed class Dropdown : SmoothBorder
         Cursor = Cursors.Hand;
         VerticalAlignment = VerticalAlignment.Center;
         var sp = new StackPanel { Orientation = Orientation.Horizontal };
-        text = Theme.T(LabelOf(value), 12, Theme.P.Text, Theme.Medium, false);
+        text = Theme.Label(LabelOf(value), 12, Theme.P.Text, Theme.Medium, inBorder: true);
         sp.Children.Add(text);
         var chevron = Theme.Glyph('\uE70D', 9, Theme.P.TextFaint);
         chevron.Margin = new Thickness(9, 1, 0, 0);

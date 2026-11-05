@@ -19,12 +19,9 @@ internal static class Keys
 
     public static Border Cap(string label)
     {
-        var t = Theme.T(label, 11, Theme.P.KeyFg, Theme.Medium, false);
+        var t = Theme.Label(label, 11, Theme.P.KeyFg, Theme.Medium);
         t.HorizontalAlignment = HorizontalAlignment.Center;
         if (label is "↵" or "↑" or "↓" or "←" or "→" or "⌫") t.FontSize = 12;
-        // ↵ comes from a fallback font whose tall line fills the cap, so its hook sits low and a margin can't move it:
-        // drawn 1 dip higher instead (measured 7.5 over / 5.5 under at 2×)
-        if (label == "↵") t.RenderTransform = new System.Windows.Media.TranslateTransform(0, -1);
         return new SmoothBorder
         {
             Background = Theme.P.Key,
