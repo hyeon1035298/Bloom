@@ -20,8 +20,8 @@ internal sealed class SettingsWindow : Window
     public SettingsWindow(Host host)
     {
         Title = Tr("Bloom 설정", "Bloom settings");
-        Width = 880;
-        Height = 660;
+        Width = 1040;
+        Height = 780;
         MinWidth = 700;
         MinHeight = 460;
         WindowStartupLocation = WindowStartupLocation.CenterScreen; // the screen with the mouse
@@ -123,6 +123,9 @@ internal sealed class SettingsWindow : Window
         root.Children.Add(main);
         Content = root;
         Theme.Scaled(this, root); // 설정 > 일반 > 크기
+        // a small screen, or a large 크기, still shows the whole window
+        Width = System.Math.Min(Width, SystemParameters.WorkArea.Width);
+        Height = System.Math.Min(Height, SystemParameters.WorkArea.Height);
 
         box.TextChanged += (_, _) =>
         {
