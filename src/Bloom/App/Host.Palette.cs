@@ -51,7 +51,8 @@ internal sealed partial class Host
     private async Task MakePalette(LensShot l)
     {
         var p = new PaletteShow { Saved = new SavedPalette { Source = l.Png, At = l.At }, Asked = 1 };
-        p.Points = Task.Run(() => (byte[]?)PaletteExtract.Sample(l.Bgra, l.Rect.Width, l.Rect.Height));
+        // pixels gone (an earlier action): the Lens copy read a row at a time, as − n + does
+        p.Points = Task.Run(() => l.Bgra.Length > 0 ? PaletteExtract.Sample(l.Bgra, l.Rect.Width, l.Rect.Height) : ReadPoints(l.Png));
         if (await Extract(p, PaletteExtract.DefaultCount, 1) is not { } colors) return;
         Keep(p, colors, PaletteExtract.DefaultCount);
         Palette = p;
