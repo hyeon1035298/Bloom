@@ -3,10 +3,10 @@
   "addons": [
     {
       "id": "pill-taskbar",
-      "version": "0.2.2",
-      "url": "https://github.com/hyeon1035298/PillTaskbar_BloomAddon/releases/download/v0.2.2/PillTaskbar_BloomAddon-v0.2.2.zip",
-      "sha256": "94d36e90f9ad3a626ada44bed338bd3afb2c6a2815cb2841c3142a2dc67e3bfd",
-      "size": 1374004
+      "version": "0.2.4",
+      "url": "https://github.com/hyeon1035298/PillTaskbar_BloomAddon/releases/download/v0.2.4/PillTaskbar_BloomAddon-v0.2.4.zip",
+      "sha256": "f142c87222c688b5a0212a6084df2be30cb11e09a832ed19af7e5b7d0754a7da",
+      "size": 1384119
     }
   ]
 }
