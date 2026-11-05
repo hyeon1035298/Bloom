@@ -76,6 +76,18 @@ internal sealed partial class UserCommands
         if (Current.Items.RemoveAll(x => x.Id == c.Id) > 0) Touch();
     }
 
+    /// 설정 > 데이터 > 사용자 명령: every command goes, and so do the item shortcuts given to them (their copies would run
+    /// a command that is gone); the caller registers the shortcuts again. → how many commands went.
+    public static int Clear()
+    {
+        var ids = Current.Items.Select(c => "my:" + c.Id).ToHashSet(StringComparer.Ordinal);
+        if (ids.Count == 0) return 0;
+        Current.Items.Clear();
+        Touch();
+        if (Settings.Current.ItemKeys.RemoveAll(k => ids.Contains(k.Item.Id)) > 0) Settings.Save();
+        return ids.Count;
+    }
+
     public static void Flush() => saver?.Flush();
 
     /// "bk D:\사진" → (백업, "D:\사진"); the keyword alone with a space waits for the words.
