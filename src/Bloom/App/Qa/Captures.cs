@@ -71,6 +71,9 @@ internal static partial class Captures
         ["taskbar-usage"] = TaskbarUsageScreens,
         ["usagecards"] = UsageCardScreens,
         ["accent"] = AccentScreens,
+        ["datawipe"] = DataWipeScreens,
+        ["datadefaults"] = DataDefaultsScreens,
+        ["datareset"] = DataResetScreens,
     };
 
     public static async Task Run(Host host, string dir)
