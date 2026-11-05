@@ -30,7 +30,7 @@ internal sealed class PinWindow : Window
         this.host = host;
         area = shot.Rect;
         this.shot = shot with { Bgra = [] }; // the pixels live in `picture` only
-        picture = BitmapSource.Create(shot.Rect.Width, shot.Rect.Height, 96, 96, PixelFormats.Bgra32, null, shot.Bgra, shot.Rect.Width * 4);
+        picture = BitmapSource.Create(shot.Rect.Width, shot.Rect.Height, 96, 96, PixelFormats.Bgra32, null, shot.Pixels(), shot.Rect.Width * 4);
         picture.Freeze();
         Title = Tr("Bloom 화면 고정", "Bloom pinned picture");
         WindowStyle = WindowStyle.None;
