@@ -11,11 +11,10 @@ internal static class ActionButton
     {
         var b = new SmoothBorder
         {
-            Child = Theme.Label(label, 13.5, primary ? Theme.P.AccentInk : Theme.P.Text, Theme.Medium),
+            Child = Theme.Label(label, 13.5, primary ? Theme.P.AccentInk : Theme.P.Text, Theme.Medium, inBorder: true),
             Background = primary ? Theme.P.Accent : Theme.P.Key,
             CornerRadius = new CornerRadius(9),
-            Padding = new Thickness(18, 0, 18, 0),
-            MinHeight = 36,
+            Padding = new Thickness(18, 8, 18, 9),
             Margin = new Thickness(8, 0, 0, 0),
             Cursor = Cursors.Hand,
         };

@@ -122,9 +122,10 @@ internal static class Theme
     public static TextBlock T(string text, double size, Brush color, FontWeight? weight = null, bool ellipsis = true) =>
         Set(new TextBlock { VerticalAlignment = VerticalAlignment.Center }, text, size, color, weight, ellipsis);
 
-    /// A one-line control label with its ink in the middle of its container (InkText): the container's padding is even.
-    public static TextBlock Label(string text, double size, Brush color, FontWeight? weight = null, bool ellipsis = false) =>
-        Set(new InkText(), text, size, color, weight, ellipsis);
+    /// A one-line control label with its ink in the middle of its box (InkText): its own, or with `inBorder` the nearest
+    /// Border's, whose padding (uneven too) then stays as it is and so does the Border's height.
+    public static TextBlock Label(string text, double size, Brush color, FontWeight? weight = null, bool ellipsis = false, bool inBorder = false) =>
+        Set(new InkText { InBorder = inBorder }, text, size, color, weight, ellipsis);
 
     private static TextBlock Set(TextBlock t, string text, double size, Brush color, FontWeight? weight, bool ellipsis)
     {
