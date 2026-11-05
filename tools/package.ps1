@@ -2,7 +2,8 @@
 #   framework-dependent win-x64 (needs the .NET 10 Desktop Runtime, already on this PC).
 #   -ReadyToRun precompiles the code (faster first start); it needs the crossgen2 pack from NuGet
 #   (Microsoft.NETCore.App.Crossgen2.win-x64), which is not in the local cache yet.
-param([switch]$ReadyToRun)
+#   -Addon <folder> ships an add-on bundle (a folder with addon.json) in dist\app\addons\<id>.
+param([switch]$ReadyToRun, [string]$Addon)
 $ErrorActionPreference = 'Stop'
 
 $root = Split-Path $PSScriptRoot -Parent
@@ -33,6 +34,25 @@ if ($gc.'System.GC.Concurrent' -ne $false -or $gc.'System.GC.ConserveMemory' -ne
 # no debug leftovers
 $pdb = @(Get-ChildItem -LiteralPath $out -Filter *.pdb)
 foreach ($f in $pdb) { Remove-Item -LiteralPath $f.FullName }
+
+# an add-on: only the files its addon.json lists, each with the SHA-256 it gives, and a host protocol this Bloom speaks
+if ($Addon) {
+    $manifest = Get-Content -LiteralPath (Join-Path $Addon 'addon.json') -Raw | ConvertFrom-Json
+    if ($manifest.id -notmatch '^[a-z0-9-]+$') { throw "add-on id '$($manifest.id)' is not lowercase letters, digits and -" }
+    $known = [regex]::Match((Get-Content -LiteralPath (Join-Path $root 'src\Bloom\Addons\AddonProtocol.cs') -Raw), 'const int Version = (\d+);').Groups[1].Value
+    if ($manifest.host.protocol -ne [int]$known) { throw "add-on host protocol $($manifest.host.protocol), this Bloom speaks $known" }
+    $dir = Join-Path $out "addons\$($manifest.id)"
+    New-Item -ItemType Directory -Path $dir | Out-Null
+    foreach ($f in $manifest.files.PSObject.Properties) {
+        if ($f.Name -notmatch '^[\w.-]+$') { throw "add-on file '$($f.Name)' is not a plain file name" }
+        $from = Join-Path $Addon $f.Name
+        if ((Get-FileHash -LiteralPath $from -Algorithm SHA256).Hash -ne $f.Value) { throw "$($f.Name) does not match addon.json" }
+        Copy-Item -LiteralPath $from -Destination $dir
+    }
+    Copy-Item -LiteralPath (Join-Path $Addon 'addon.json') -Destination $dir
+    if (-not (Test-Path -LiteralPath (Join-Path $dir $manifest.host.exe))) { throw 'the host exe is not among the files' }
+    'addons\{0}: {1} ({2}), {3} files' -f $manifest.id, $manifest.version, $manifest.license, @($manifest.files.PSObject.Properties).Count
+}
 
 $files = @(Get-ChildItem -LiteralPath $out -Recurse -File)
 $mb = ($files | Measure-Object Length -Sum).Sum / 1MB
