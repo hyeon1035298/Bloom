@@ -563,15 +563,19 @@ internal sealed partial class SettingsView
             Notices.Apply();
         }, out var onT);
         Add(Tr("작업 알림", "Work notifications"), s.Notices ? Tr("켜짐 · 메모리 약 +1 MB · 알릴 일은 아래에서 선택하세요", "On · about +1 MB of memory · pick what to tell below") : Tr("꺼짐 — 알림도 소리도 없음 · 켜면 메모리 약 +1 MB", "Off — no cards, no sounds · on: about +1 MB"), on, G.Bell, onT, null, filter);
-        Menu(Tr("위치", "Position"), Tr("고르면 미리 보기 카드가 그 자리에 표시됩니다", "A preview card shows there when you pick"), G.Screen, new (string, string, string?)[]
+        var spots = new List<(string, string, string?)>
         {
             ("top-left", Tr("왼쪽 위", "Top left"), null), ("top-center", Tr("가운데 위", "Top center"), null), ("top-right", Tr("오른쪽 위", "Top right"), null),
             ("bottom-left", Tr("왼쪽 아래", "Bottom left"), null), ("bottom-center", Tr("가운데 아래", "Bottom center"), null), ("bottom-right", Tr("오른쪽 아래", "Bottom right"), null),
-        }, s.NoticeSpot, v =>
+        };
+        if (s.NoticeSpot == "free") spots.Add(("free", Tr("직접 정한 위치", "Custom position"), null));
+        Menu(Tr("위치", "Position"), Tr("고르면 미리 보기 카드가 그 자리에 표시됩니다", "A preview card shows there when you pick"), G.Screen, spots.ToArray(), s.NoticeSpot, v =>
         {
             s.NoticeSpot = v;
             Notices.Preview(one: true);
         }, filter);
+        Add(Tr("직접 옮기기", "Move it yourself"), Tr("화면에서 알림 카드를 끌어 옮깁니다 · 가운데와 가장자리에 붙습니다", "Drag a notice card on the screen · it sticks to the middle and the edges"), null, G.Move,
+            () => Notices.Arrange(() => Build(lastFilter)), null, filter);
         Choice(Tr("크기", "Size"), null, G.Sliders, new[] { ("s", Tr("작게", "Small")), ("m", Tr("보통", "Medium")), ("l", Tr("크게", "Large")), ("xl", Tr("아주 크게", "X-large")) }, s.NoticeSize, v =>
         {
             s.NoticeSize = v;
