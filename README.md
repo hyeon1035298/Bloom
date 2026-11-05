@@ -332,7 +332,7 @@ Under `src/Bloom`, one folder is one feature. Big classes are split into `partia
 | `Ai/` | Claude Code / Codex / omp CLI sessions with chats · groups (`Chats`), one-shot asks (`OneShot`), translation, AI actions, AI icons, usage (`AiUsage`), reading work logs (`ClaudeWatch` · `CodexWatch`) |
 | `Ocr/` | Picking a screen area, Windows OCR, the translation window, picking colors |
 | `Clip/`, `Space/`, `Browser/` | Clipboard history, the disk space map, handing off to the browser |
-| `Addons/` | Add-ons as separate programs (the taskbar add-on, PillTaskbar, GPL-3.0), downloaded from the releases Bloom pins (`AddonCatalog`, `AddonDownload`): `addon.json` checks, the hash-checked run copy under the local data folder, starting and stopping the host process (`AddonRunner`), its status for 설정 > 애드온. Bloom only starts the host and talks to it through files, arguments, one named event and exit codes; it never loads add-on code (`AddonProtocol` holds the shared names) |
+| `Addons/` | Add-ons as separate programs (the taskbar add-on PillTaskbar and Alt+Tab per monitor, both GPL-3.0), downloaded from the releases Bloom pins (`AddonCatalog`, `AddonDownload`): `addon.json` checks, the hash-checked run copy under the local data folder, starting and stopping the host process (`AddonRunner`), its status for 설정 > 애드온. Bloom only starts the host and talks to it through files, arguments, one named event and exit codes; it never loads add-on code (`AddonProtocol` holds the shared names) |
 | `Native/` | Win32 calls (System32 DLLs only), WinRT calls (`WinRt`), system toggles (`SystemControl` — sound · wireless · dark mode …), Explorer-style file operations (`ShellFiles`) |
 | `Ui/Tools/` | Tool windows: free placement · attaching · magnetic snapping · sizing (`ToolDock`), the window frame (`ToolWindow`), notes · timers · calculator · clipboard |
 | `Ui/` | The launcher window (`Launcher/` — every view's chips · hints · results in one place, `Launcher.ViewSpecs.cs`), the AI chat window (`Chat/`), the settings window (`Settings/`), notice cards, shared controls (`Controls/` — continuous-curvature corners `SmoothBorder`, `Dropdown`, `PopupMenu`), theme (`Theme/` — animation settings in `Motion`) |
@@ -373,5 +373,5 @@ Install these programs to enable their related features, blocks and settings.
 
 MIT — [LICENSE](LICENSE).
 Exchange rates: [Rates By Exchange Rate API](https://www.exchangerate-api.com).
-The taskbar add-on PillTaskbar is a separate program under GPL-3.0 ([source](https://github.com/hyeon1035298/PillTaskbar_BloomAddon)); Bloom itself stays MIT.
+The taskbar add-on PillTaskbar ([source](https://github.com/hyeon1035298/PillTaskbar_BloomAddon)) and the Alt+Tab per monitor add-on ([source](https://github.com/hyeon1035298/AltTabPerMonitor_BloomAddon)) are separate programs under GPL-3.0; Bloom itself stays MIT.
 The OpenAI and Anthropic logos in `src/Bloom/Assets/Logos` are trademarks of their owners and are not covered by the MIT license; Bloom shows them only to mark which service an AI usage account belongs to.

@@ -57,16 +57,30 @@ internal sealed record AddonManifest(string Id, string Version, string License, 
             settings = SafePath(sp) ?? throw Bad("settings is not a path inside the add-on's folder");
             if (!files.ContainsKey(settings)) throw Bad("settings is not among the files");
         }
-        // its name by language ({"ko": …, "en": …}): optional and only shown, so a wrong one is left out, not refused
-        var names = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
-        if (root["name"] is JsonObject nameList)
-            foreach (var (lang, value) in nameList)
-                if (value is JsonValue nv && nv.TryGetValue(out string? text) && text.Trim() is { Length: > 0 and <= 80 } shown) names[lang] = shown;
+        var names = LangTexts(root["name"], MaxName);
         return new AddonManifest(id, version, license, source, minBloom, exe, protocol, files, settings, names);
     }
 
+    /// The longest name shown (addon.json's and the catalog's).
+    public const int MaxName = 80;
+
     /// The name to show in a language: that language's, else the English one, else the id.
-    public string Title(string lang) => Names?.GetValueOrDefault(lang) ?? Names?.GetValueOrDefault("en") ?? Id;
+    public string Title(string lang) => Pick(Names, lang) ?? Id;
+
+    /// Texts by language ({"ko": …, "en": …}) as addon.json and Bloom's catalog give a name or a line about the add-on:
+    /// optional and only shown, so a wrong or over-long one is left out, not refused.
+    internal static Dictionary<string, string> LangTexts(JsonNode? node, int max)
+    {
+        var texts = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        if (node is JsonObject list)
+            foreach (var (lang, value) in list)
+                if (value is JsonValue v && v.TryGetValue(out string? text) && text.Trim() is { Length: > 0 } shown && shown.Length <= max) texts[lang] = shown;
+        return texts;
+    }
+
+    /// The text for a language: that language's, else the English one; null when there is neither.
+    internal static string? Pick(IReadOnlyDictionary<string, string>? texts, string lang) =>
+        texts?.GetValueOrDefault(lang) ?? texts?.GetValueOrDefault("en");
 
     /// This Bloom is new enough for it.
     public bool Fits(System.Version bloom) => bloom >= MinBloom;

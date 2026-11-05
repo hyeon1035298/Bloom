@@ -4,22 +4,23 @@ using Bloom.Search;
 
 namespace Bloom.Ui;
 
-/// 설정 > 애드온: the taskbar add-on's download row, under its line (SettingsView.Addons). The add-on itself comes from
-/// the release Bloom's built-in catalog pins (AddonCatalog, AddonDownload); the installer doesn't carry it.
+/// 설정 > 애드온: an add-on's download row, under its line (SettingsView.Addons). The taskbar add-on and the others come
+/// from the release Bloom's built-in catalog pins (AddonCatalog, AddonDownload); the installer carries none of them.
 internal sealed partial class SettingsView
 {
-    /// Under the taskbar add-on's line: 받기 while this Bloom doesn't have it, 업데이트 when the catalog's version is newer
-    /// than the downloaded one, how far a download is, why one failed (with 다시 받기), and after an update while the host
-    /// runs, that the new version comes with its next start. Not while the launcher's search collects. Works in a dev or
-    /// QA copy too (into its own data folder): its switch still starts nothing there.
-    private void TaskbarDownload(Addon addon, AddonStatus status, string filter)
+    /// Under an add-on's line: 받기 while this Bloom doesn't have it, 업데이트 when the catalog's version is newer than the
+    /// downloaded one, how far a download is, why one failed (with 다시 받기), and after an update while the host runs,
+    /// that the new version comes with its next start (`switchHint` says how). `name`: the add-on's name in the rows. Not
+    /// while the launcher's search collects. Works in a dev or QA copy too (into its own data folder): its switch still
+    /// starts nothing there.
+    private void AddonDownload(Addon addon, string name, string switchHint, AddonStatus status, string filter)
     {
         if (collected is not null) return;
         var fetch = addon.Fetch;
         if (fetch.Busy)
         {
             long done = fetch.Done, total = fetch.Total;
-            Add(Tr("PillTaskbar 받는 중", "Downloading PillTaskbar"), total > 0 ? $"{fetch.Percent}% · {Engine.Size(done)} / {Engine.Size(total)}" : Engine.Size(done),
+            Add(Tr($"{name} 받는 중", $"Downloading {name}"), total > 0 ? $"{fetch.Percent}% · {Engine.Size(done)} / {Engine.Size(total)}" : Engine.Size(done),
                 null, G.Download, null, null, filter);
             return;
         }
@@ -32,18 +33,17 @@ internal sealed partial class SettingsView
             }
             string get = Tr("받기", "Download");
             if (fetch.Failed is { } why)
-                Add(Tr("PillTaskbar를 받지 못했습니다", "Couldn't download PillTaskbar"), FailureText(why), RowButton(Tr("다시 받기", "Try again"), Get), G.Warning, Get, null, filter);
+                Add(Tr($"{name} 받기 실패", $"Couldn't download {name}"), FailureText(why), RowButton(Tr("다시 받기", "Try again"), Get), G.Warning, Get, null, filter);
             else if (addon.Manifest is { } now && !addon.Broken)
-                Add(Tr($"PillTaskbar {e.Version} 업데이트", $"PillTaskbar {e.Version} update"), Tr($"지금 {now.Version} · GitHub의 PillTaskbar 릴리스에서 받습니다", $"Now {now.Version} · from PillTaskbar's GitHub release"),
+                Add(Tr($"{name} {e.Version} 업데이트", $"{name} {e.Version} update"), Tr($"지금 {now.Version} · GitHub 릴리스에서 받습니다", $"Now {now.Version} · from its GitHub release"),
                     RowButton(e.Size > 0 ? $"{Tr("업데이트", "Update")} · {Engine.Size(e.Size)}" : Tr("업데이트", "Update"), Get), G.Download, Get, null, filter);
             else
-                Add(Tr($"PillTaskbar {e.Version} 받기", $"Download PillTaskbar {e.Version}"), Tr("GitHub의 PillTaskbar 릴리스에서 받아 Bloom이 확인한 뒤 설치합니다", "From PillTaskbar's GitHub release, checked by Bloom before it is installed"),
+                Add(Tr($"{name} {e.Version} 받기", $"Download {name} {e.Version}"), Tr("GitHub 릴리스에서 받아 Bloom이 확인한 뒤 설치합니다", "From its GitHub release, checked by Bloom before it is installed"),
                     RowButton(e.Size > 0 ? $"{get} · {Engine.Size(e.Size)}" : get, Get), G.Download, Get, null, filter);
             return;
         }
         if (addon.Manifest is { } m && addon.StartedVersion is { } started && started != m.Version && status.State is AddonState.Running or AddonState.Starting)
-            Add(Tr($"PillTaskbar {m.Version} 받음", $"PillTaskbar {m.Version} downloaded"), Tr("작업표시줄 꾸미기를 껐다 켜면 새 버전으로 바뀝니다", "Turn taskbar customization off and on to switch to the new version"),
-                null, G.Check, null, null, filter);
+            Add(Tr($"{name} {m.Version} 받음", $"{name} {m.Version} downloaded"), switchHint, null, G.Check, null, null, filter);
     }
 
     private static string FailureText(AddonFailure why) => why switch

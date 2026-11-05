@@ -43,12 +43,12 @@ internal static partial class Captures
         await sw.Dispatcher.InvokeAsync(() => sw.Capture(file), System.Windows.Threading.DispatcherPriority.ApplicationIdle);
     }
 
-    /// `--qa-set addons`: 설정 > 애드온 for the add-ons in this dev copy's user-addons folder (put one there first), as a
-    /// dev copy shows it, then with the statuses a real host reports drawn in its place.
+    /// `--qa-set addons`: 설정 > 애드온 for the catalog's add-ons besides the taskbar one and the ones in this dev copy's
+    /// user-addons folder, as a dev copy shows them, then with the statuses a real host reports drawn in their place.
     private static async Task AddonScreens(Host host, Launcher w, string dir)
     {
         string l = Lang.Code;
-        var list = AddonHub.Users.ToList();
+        var list = AddonHub.Listed.Concat(AddonHub.Users).ToList();
         if (list.Count == 0) return;
         var sw = new SettingsWindow(host) { WindowStartupLocation = WindowStartupLocation.Manual, Left = -32000, Top = -32000, ShowActivated = false };
         sw.Show();

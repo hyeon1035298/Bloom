@@ -532,10 +532,12 @@ internal sealed partial class SettingsView : ScrollViewer
     public List<SettingsCatalog.Line> Collect() => Collect(BuildPages);
 
     /// The tests: 설정 > 애드온's lines alone (the other pages want a started Host), for `taskbar` (a hand-made one) or the
-    /// shipped one, and `users` (hand-made ones, none by default) in place of the user's.
-    internal List<SettingsCatalog.Line> CollectAddonsForTests(Addons.Addon? taskbar = null, IReadOnlyList<Addons.Addon>? users = null)
+    /// shipped one, and `listed` and `users` (hand-made ones, none by default) in place of the catalog's and the user's.
+    internal List<SettingsCatalog.Line> CollectAddonsForTests(Addons.Addon? taskbar = null, IReadOnlyList<Addons.Addon>? users = null,
+        IReadOnlyList<Addons.Addon>? listed = null)
     {
         taskbarAddon = taskbar;
+        listedAddons = listed ?? Array.Empty<Addons.Addon>();
         userAddons = users ?? Array.Empty<Addons.Addon>();
         return Collect(PageAddons);
     }
