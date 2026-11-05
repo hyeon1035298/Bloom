@@ -20,7 +20,7 @@ namespace Bloom.Ui;
 /// middle as near the box's as that allows, a tie going up. Not for paragraphs, wrapped text or icon glyphs.
 internal sealed class InkText : TextBlock
 {
-    private static readonly Dictionary<(string font, FontWeight weight, FontStyle style, FontStretch stretch, double size, string probe, double k, TextFormattingMode mode, string culture), (int top, int bottom)> Ink = new();
+    private static readonly Dictionary<(string font, FontWeight weight, FontStyle style, FontStretch stretch, double size, string probe, double ppd, double k, TextFormattingMode mode, string culture), (int top, int bottom)> Ink = new();
     private readonly TranslateTransform shift = new();
     private bool zoomed; // under a scale other than 1, where a move alone (a scrolled list) changes the pixel grid's phase
     private double placedTop = double.NaN;
@@ -74,7 +74,9 @@ internal sealed class InkText : TextBlock
     protected override void OnDpiChanged(DpiScale oldDpi, DpiScale newDpi)
     {
         base.OnDpiChanged(oldDpi, newDpi);
-        Place();
+        // once laid out at the new DPI: the offsets now are still the old DPI's whole pixels, and a label whose size in
+        // dips stays the same gets no OnRenderSizeChanged to place it again
+        Dispatcher.BeginInvoke(Place, DispatcherPriority.Loaded);
     }
 
     /// The ink's middle onto the middle of the box.
@@ -147,13 +149,14 @@ internal sealed class InkText : TextBlock
     }
 
     /// The first and past-the-last pixel rows with ink, from the top of the line, for this font, size and kind of text
-    /// drawn at `k` pixels per dip (kept per kind: a few small pictures in all).
+    /// drawn at `k` pixels per dip (kept per kind: a few small pictures in all). The text is shaped at the monitor's `ppd`,
+    /// which snaps its baseline, so the same `k` from a different scale and DPI is a different picture.
     private (int top, int bottom) Rows(double ppd, double k)
     {
         string probe = Probe(Text);
         var mode = TextOptions.GetTextFormattingMode(this);
         var culture = CultureInfo.CurrentUICulture;
-        var key = (FontFamily.Source, FontWeight, FontStyle, FontStretch, FontSize, probe, k, mode, culture.Name);
+        var key = (FontFamily.Source, FontWeight, FontStyle, FontStretch, FontSize, probe, ppd, k, mode, culture.Name);
         if (Ink.TryGetValue(key, out var ink)) return ink;
         var ft = new FormattedText(probe, culture, FlowDirection.LeftToRight, new Typeface(FontFamily, FontStyle, FontWeight, FontStretch), FontSize, Brushes.Black, null, mode, ppd);
         int w = (int)Math.Ceiling(ft.WidthIncludingTrailingWhitespace * k) + 4, h = (int)Math.Ceiling(ft.Height * k) + 4;
