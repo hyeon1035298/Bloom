@@ -1521,6 +1521,14 @@ MMMM yyyy	yyyy年M月
 Last month (PgUp)	上个月 (PgUp)
 To today (Home)	回到今天 (Home)
 Next month (PgDn)	下个月 (PgDn)
+Notice position	通知位置
+Bloom · Notice position	Bloom · 通知位置
+Notices show here	通知将显示在这里
+Drag it to move	拖动以移动
+Drag the notice card where you want it.	将通知卡片拖到想要的位置。
+It sticks to the middle and the edges nearby.	靠近中央和边缘时会自动吸附。
+Hold Ctrl while dragging to place it freely.	按住 Ctrl 拖动则不吸附。
+Island	浮岛
 Click to go to the session window	点击转到会话窗口
 Search in your browser · site shortcuts (e.g. yt cats)	在浏览器中搜索 · 网站快捷方式 (例如 yt cats)
 Find files on this PC by name (Everything)	按名称查找本机文件 (Everything)
@@ -2229,14 +2237,17 @@ Shows Claude Code and Codex tasks and AI usage limits in a screen corner. Hidden
 Work notifications	工作通知
 On · about +1 MB of memory · pick what to tell below	已开启 · 内存约 +1 MB · 在下方选择要通知的内容
 Off — no cards, no sounds · on: about +1 MB	已关闭 — 没有卡片和声音 · 开启后内存约 +1 MB
-Position	位置
-A preview card shows there when you pick	选择后预览卡片会显示在该位置
 Top left	左上
 Top center	顶部居中
 Top right	右上
 Bottom left	左下
 Bottom center	底部居中
 Bottom right	右下
+Custom position	自定义位置
+Position	位置
+A preview card shows there when you pick	选择后预览卡片会显示在该位置
+Move it yourself	手动移动
+Drag a notice card on the screen · it sticks to the middle and the edges	在屏幕上拖动通知卡片 · 会吸附到中央和边缘
 Small	小
 Large	大
 X-large	特大

@@ -13,9 +13,9 @@ namespace Bloom.App;
 /// what it is about, a line under that, and a key for a card that stays until its state ends (승인 대기). Action is the
 /// button under the card; Click is what a click on the card itself does before it closes (a turn's card: go to its
 /// session window). Gone runs when the card leaves for any reason; Buttons are a row of choices (an approval's 허용 · 거절);
-/// Body is text shown whole, wrapped (what an approval would allow).
+/// Body is text shown whole, wrapped (what an approval would allow); Sample marks a made-up card of 미리 보기.
 internal sealed record Notice(string Kind, string Head, string Title, string? Detail, string? Key = null, string? ActionText = null, Action? Action = null, Action? Click = null,
-    Action? Gone = null, IReadOnlyList<(string Text, Action Run)>? Buttons = null, string? Body = null);
+    Action? Gone = null, IReadOnlyList<(string Text, Action Run)>? Buttons = null, string? Body = null, bool Sample = false);
 
 /// 알림: Claude Code and Codex turns (ClaudeWatch, CodexWatch — 진행 중, 작업 완료, 승인 대기) and the plan limits
 /// (AiUsage — 한도 임박 · 소진, 한도 복구) as cards (NoticeWindow) with a sound each (Chimes). Every kind has its switch
@@ -38,7 +38,7 @@ internal static class Notices
     private static Dictionary<string, AgentTask> last = new();
     private static DispatcherTimer? tick;
     private static NoticeWindow? window;
-    private static bool first = true, polling;
+    private static bool first = true, polling, holding;
 
     /// QA measuring runs: cards stay off-screen and make no sound.
     public static bool Quiet;
@@ -67,23 +67,40 @@ internal static class Notices
         window?.Clear();
     }
 
-    /// 미리 보기 (설정 > 알림, and after a position or size change): a made-up card of each kind switched on.
+    /// 미리 보기 (설정 > 알림, and after a position or size change): a made-up card of each kind switched on, in place of
+    /// the made-up ones shown before; real cards on screen stay.
     public static void Preview(bool one = false)
     {
         var s = Settings.Current;
         var all = new (bool on, Notice n)[]
         {
-            (s.NoticeStart, new Notice("start", Tr("Claude Code · 진행 중", "Claude Code · Working"), Tr("알림 미리 보기", "Notice preview"), Tr("현재 작업 표시", "Current task"))),
-            (s.NoticeDone, new Notice("done", Tr("Codex · 작업 완료", "Codex · Done"), Tr("알림 미리 보기", "Notice preview"), Tr("소요 시간 3분", "Elapsed: 3 min"))),
-            (s.NoticeWaiting, new Notice("waiting", Tr("Claude Code · 승인 대기", "Claude Code · Needs approval"), Tr("알림 미리 보기", "Notice preview"), Tr("승인 대기 · 클릭하여 세션으로 이동", "Approval pending · click to go to session"), Click: () => { })), // no session behind a preview: the click only closes it
-            (s.NoticeLimit, new Notice("limit", Tr("Claude · 한도 임박", "Claude · Limit near"), Tr("주간 한도 18% 남음", "18% of the weekly limit left"), Tr("2일 뒤 초기화", "Resets in 2 d"))),
-            (s.NoticeRecover, new Notice("recover", Tr("ChatGPT · 한도 복구", "ChatGPT · Limit reset"), Tr("5시간 한도 초기화 완료", "5-hour limit reset"), null)),
+            (s.NoticeStart, new Notice("start", Tr("Claude Code · 진행 중", "Claude Code · Working"), Tr("알림 미리 보기", "Notice preview"), Tr("현재 작업 표시", "Current task"), Sample: true)),
+            (s.NoticeDone, new Notice("done", Tr("Codex · 작업 완료", "Codex · Done"), Tr("알림 미리 보기", "Notice preview"), Tr("소요 시간 3분", "Elapsed: 3 min"), Sample: true)),
+            (s.NoticeWaiting, new Notice("waiting", Tr("Claude Code · 승인 대기", "Claude Code · Needs approval"), Tr("알림 미리 보기", "Notice preview"), Tr("승인 대기 · 클릭하여 세션으로 이동", "Approval pending · click to go to session"), Click: () => { }, Sample: true)), // no session behind a preview: the click only closes it
+            (s.NoticeLimit, new Notice("limit", Tr("Claude · 한도 임박", "Claude · Limit near"), Tr("주간 한도 18% 남음", "18% of the weekly limit left"), Tr("2일 뒤 초기화", "Resets in 2 d"), Sample: true)),
+            (s.NoticeRecover, new Notice("recover", Tr("ChatGPT · 한도 복구", "ChatGPT · Limit reset"), Tr("5시간 한도 초기화 완료", "5-hour limit reset"), null, Sample: true)),
         };
         var shown = all.Where(x => x.on).Select(x => x.n).ToList();
         if (shown.Count == 0) shown.Add(all[1].n);
-        window?.Clear();
-        foreach (var n in one ? shown.Take(1) : shown) Show(n, sound: false, asked: true);
-        Chimes.Play(shown[0].Kind);
+        window?.ClearSamples();
+        bool stayed = false;
+        foreach (var n in one ? shown.Take(1) : shown) stayed |= Show(n, sound: false, asked: true);
+        if (stayed) Chimes.Play(shown[0].Kind);
+    }
+
+    /// 직접 옮기기 (설정 > 알림): the cards on screen step out of sight while a card is dragged to its place on the whole
+    /// screen (NoticePlacer); kept, a preview card shows there with the cards that were up. `after` runs either way.
+    public static void Arrange(Action? after = null)
+    {
+        holding = true;
+        window?.Hold(true);
+        NoticePlacer.Open(kept =>
+        {
+            holding = false;
+            window?.Hold(false);
+            if (kept) Preview(one: true);
+            after?.Invoke();
+        });
     }
 
     /// Windows says now is not the time: the PC is locked, or a full-screen app, game or presentation is in front.
@@ -254,12 +271,17 @@ internal static class Notices
     }
 
     /// A card (and its sound) — not over a full-screen game or presentation, unless asked for (미리 보기).
-    private static void Show(Notice n, bool sound = true, bool asked = false)
+    private static bool Show(Notice n, bool sound = true, bool asked = false)
     {
-        if (!asked && !Quiet && UserBusy()) return;
-        window ??= new NoticeWindow { Offscreen = Quiet };
-        window.Add(n);
-        if (sound && !Quiet) Chimes.Play(n.Kind);
+        if (!asked && !Quiet && UserBusy()) return false;
+        if (window is null)
+        {
+            window = new NoticeWindow { Offscreen = Quiet };
+            if (holding) window.Hold(true); // the place is being picked: the new card waits with the others
+        }
+        bool stayed = window.Add(n);
+        if (stayed && sound && !Quiet) Chimes.Play(n.Kind);
+        return stayed;
     }
 
     private static string Head(string who, string what) => $"{who} · {what}";

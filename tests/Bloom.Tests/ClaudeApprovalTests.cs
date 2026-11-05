@@ -212,4 +212,28 @@ internal static class ClaudeApprovalTests
             window.Close();
         }
     }
+
+    public static void PreviewsNeverPushRealCardsOut()
+    {
+        var window = new NoticeWindow { Offscreen = true };
+        try
+        {
+            int gone = 0;
+            for (int i = 0; i < 3; i++) window.Add(new Notice("waiting", "Claude Code · 승인 요청", "card " + i, null, "k" + i, Gone: () => gone++));
+            window.Add(new Notice("done", "Codex · 작업 완료", "real", null, Gone: () => gone++));
+            window.Add(new Notice("done", "Codex · 작업 완료", "preview", null, Sample: true));
+            window.Add(new Notice("done", "Codex · 작업 완료", "preview 2", null, Sample: true));
+            Check.Eq(gone, 0, "a preview past four cards goes itself, never an approval or a real card");
+            window.ClearSamples();
+            window.Hold(true);
+            window.Hold(false);
+            Check.Eq(gone, 0, "previews cleared, the window held and let go: the real cards all stay");
+            window.Clear();
+            Check.Eq(gone, 4, "the four real cards were there to the end");
+        }
+        finally
+        {
+            window.Close();
+        }
+    }
 }

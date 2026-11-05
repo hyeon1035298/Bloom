@@ -15,10 +15,11 @@ using Bloom.Search;
 
 namespace Bloom.Ui;
 
-/// The notices (App\Notices) as cards in the screen corner or edge picked in 설정 > 알림, newest nearest the edge, at the
-/// size picked there. Drawn like the timer card (AlarmWindow). Never takes the focus; a click closes a card (after the
-/// card's own Click, if it has one: a turn's card goes to its session window), the mouse
-/// over one holds it, and a card with a key (승인 대기) stays until Notices takes it away.
+/// The notices (App\Notices) as cards at the place picked in 설정 > 알림 (a corner, an edge or anywhere: NoticePlacement),
+/// under the island window when they would cover it (NoticeIsland), newest nearest the edge, at the size picked
+/// there. Drawn like the timer card (AlarmWindow). Never takes the focus; a click closes a card (after the card's own
+/// Click, if it has one: a turn's card goes to its session window), the mouse over one holds it, and a card with a key
+/// (승인 대기) stays until Notices takes it away.
 internal sealed class NoticeWindow : Window
 {
     private const int MaxCards = 4;
@@ -51,15 +52,50 @@ internal sealed class NoticeWindow : Window
             Win32.SetWindowLongPtr(hwnd, Win32.GWL_EXSTYLE, new IntPtr(ex | Win32.WS_EX_NOACTIVATE)); // a click never takes the focus
         };
         SizeChanged += (_, _) => Place();
+        islandWatch.Tick += (_, _) =>
+        {
+            if (!Offscreen && NoticeIsland.Find() != islandSeen) Place(); // it grew, came back or went
+        };
+        IsVisibleChanged += (_, _) => islandWatch.IsEnabled = IsVisible;
     }
 
-    private static bool AtTop => Settings.Current.NoticeSpot.StartsWith("top", StringComparison.Ordinal);
+    private bool held;
+    private bool topSeen = AtTop; // which edge the stack's order is for
+    private Rect? islandSeen; // the island as the cards were last placed
+    private readonly Dictionary<FrameworkElement, DispatcherTimer> lives = new(); // the timers of the cards that expire
+    private readonly DispatcherTimer islandWatch = new() { Interval = TimeSpan.FromSeconds(1) };
 
-    /// A new card (one with the same key replaces the old one).
-    public void Add(Notice n)
+    /// The place picked in 설정 > 알림 as fractions (NoticePlacement).
+    public static (double X, double Y) Spot => NoticePlacement.Of(Settings.Current.NoticeSpot, Settings.Current.NoticeX, Settings.Current.NoticeY);
+
+    private static bool AtTop => NoticePlacement.AtTop(Spot.Y);
+
+    /// The card scale of the size picked in 설정 > 알림.
+    public static double SizeScale => Settings.Current.NoticeSize switch { "s" => 0.85, "l" => 1.2, "xl" => 1.4, _ => 1 };
+
+    /// While the place is being picked (NoticePlacer) the cards are out of sight but kept, with their timers and keys;
+    /// a card that comes meanwhile waits with them. Let go, they show at the new place.
+    public void Hold(bool on)
     {
-        double s = Settings.Current.NoticeSize switch { "s" => 0.85, "l" => 1.2, "xl" => 1.4, _ => 1 };
-        scale.ScaleX = scale.ScaleY = s;
+        held = on;
+        if (on)
+        {
+            foreach (var life in lives.Values) life.Stop();
+            Hide();
+            return;
+        }
+        foreach (var life in lives.Values) life.Start();
+        if (stack.Children.Count == 0) return;
+        Show();
+        Place();
+    }
+
+    /// A new card (one with the same key replaces the old one); whether it stayed (a made-up one goes at once when
+    /// four real cards are up).
+    public bool Add(Notice n)
+    {
+        Orient();
+        scale.ScaleX = scale.ScaleY = SizeScale;
         if (n.Key is { } k && keyed.Remove(k, out var old))
         {
             stack.Children.Remove(old);
@@ -69,10 +105,38 @@ internal sealed class NoticeWindow : Window
         if (AtTop) stack.Children.Insert(0, card);
         else stack.Children.Add(card);
         if (n.Key is { } key) keyed[key] = card;
-        while (stack.Children.Count > MaxCards) Dismiss((FrameworkElement)stack.Children[AtTop ? stack.Children.Count - 1 : 0], false);
-        if (!IsVisible) Show();
+        while (stack.Children.Count > MaxCards) Dismiss(Farthest(), false);
+        if (!stack.Children.Contains(card)) return false;
+        if (!IsVisible && !held) Show();
         Place();
         Enter(card);
+        return true;
+    }
+
+    /// The cards in the order of the edge they are at: newest nearest it. Turned over when the place moved to the
+    /// other side.
+    private void Orient()
+    {
+        if (topSeen == AtTop) return;
+        topSeen = AtTop;
+        var cards = stack.Children.Cast<UIElement>().Reverse().ToList();
+        stack.Children.Clear();
+        foreach (var c in cards) stack.Children.Add(c);
+    }
+
+    /// The card that goes when there are too many: a made-up one first (a preview never pushes a real card out), else
+    /// the one farthest from the edge.
+    private FrameworkElement Farthest()
+    {
+        var cards = stack.Children.OfType<FrameworkElement>().ToList();
+        if (AtTop) cards.Reverse();
+        return cards.FirstOrDefault(c => c.Tag is Notice { Sample: true }) ?? cards[0];
+    }
+
+    /// The made-up cards of 미리 보기 go; the real ones (an approval waiting among them) stay.
+    public void ClearSamples()
+    {
+        foreach (var card in stack.Children.OfType<FrameworkElement>().Where(c => c.Tag is Notice { Sample: true }).ToList()) Dismiss(card, false);
     }
 
     /// The card with this key goes (its 승인 대기 ended).
@@ -87,7 +151,18 @@ internal sealed class NoticeWindow : Window
         stack.Children.Clear();
         keyed.Clear();
         Hide();
-        foreach (var card in all) TellGone(card);
+        foreach (var card in all)
+        {
+            Forget(card);
+            TellGone(card);
+        }
+    }
+
+    /// A card off the window stops its timer and leaves `lives`: one that was never shown (it came while held) gets
+    /// no Unloaded.
+    private void Forget(FrameworkElement card)
+    {
+        if (lives.Remove(card, out var life)) life.Stop();
     }
 
     /// A card is off the window: its notice's Gone (an approval card left unanswered: the terminal asks).
@@ -102,15 +177,55 @@ internal sealed class NoticeWindow : Window
             Left = Top = -32000;
             return;
         }
+        Orient();
         var wa = SystemParameters.WorkArea;
-        string spot = Settings.Current.NoticeSpot;
-        Left = spot.EndsWith("left", StringComparison.Ordinal) ? wa.Left + 4
-            : spot.EndsWith("right", StringComparison.Ordinal) ? wa.Right - ActualWidth - 4
-            : wa.Left + ((wa.Width - ActualWidth) / 2);
-        Top = AtTop ? wa.Top + 4 : wa.Bottom - ActualHeight - 4;
+        var size = new Size(ActualWidth, ActualHeight);
+        var (x, y) = Spot;
+        islandSeen = NoticeIsland.Find();
+        var at = NoticePlacement.Avoid(wa, size, NoticePlacement.At(wa, size, x, y), islandSeen);
+        Left = at.X;
+        Top = at.Y;
     }
 
+    /// One card as this window holds it, at the picked size, without its timer or click (the place picker's card).
+    public static FrameworkElement Sheet(Notice n) => new Border
+    {
+        Child = new StackPanel { Margin = new Thickness(0, 4, 0, 4), Children = { Face(n) } },
+        LayoutTransform = new ScaleTransform(SizeScale, SizeScale),
+    };
+
     private FrameworkElement Card(Notice n)
+    {
+        var card = Face(n);
+        card.MouseLeftButtonUp += (_, e) =>
+        {
+            e.Handled = true;
+            n.Click?.Invoke();
+            Dismiss(card, true);
+        };
+        if (n.Key is null) // a keyed card stays until its wait ends
+        {
+            var life = new DispatcherTimer { Interval = TimeSpan.FromSeconds(Math.Clamp(Settings.Current.NoticeSeconds, 2, 60) + (n.Kind is "limit" or "recover" ? 4 : 0)) };
+            life.Tick += (_, _) =>
+            {
+                life.Stop();
+                Dismiss(card, true);
+            };
+            card.MouseEnter += (_, _) => life.Stop();
+            card.MouseLeave += (_, _) =>
+            {
+                life.Interval = TimeSpan.FromSeconds(2);
+                life.Start();
+            };
+            card.Unloaded += (_, _) => Forget(card);
+            lives[card] = life;
+            if (!held) life.Start(); // a card that comes while held starts its time when it shows
+        }
+        return card;
+    }
+
+    /// What a card looks like: the kind's glyph, the head, title, body, detail and buttons.
+    private static SmoothBorder Face(Notice n)
     {
         var tint = Tint(n.Kind);
         var icon = new SmoothBorder
@@ -166,7 +281,7 @@ internal sealed class NoticeWindow : Window
         row.Children.Add(icon);
         Grid.SetColumn(text, 1);
         row.Children.Add(text);
-        var card = new SmoothBorder
+        return new SmoothBorder
         {
             Background = Theme.P.Solid,
             BorderBrush = Theme.P.PopupLine,
@@ -181,30 +296,6 @@ internal sealed class NoticeWindow : Window
             Tag = n,
             ToolTip = (n.Detail is { Length: > 0 } ? $"{n.Title}\n{n.Detail}" : n.Title) + (n.Body is { Length: > 0 } ? "\n" + n.Body : "") + (n.Click is null ? "" : "\n" + Tr("클릭하면 세션 창으로 이동합니다", "Click to go to the session window")),
         };
-        card.MouseLeftButtonUp += (_, e) =>
-        {
-            e.Handled = true;
-            n.Click?.Invoke();
-            Dismiss(card, true);
-        };
-        if (n.Key is null) // a keyed card stays until its wait ends
-        {
-            var life = new DispatcherTimer { Interval = TimeSpan.FromSeconds(Math.Clamp(Settings.Current.NoticeSeconds, 2, 60) + (n.Kind is "limit" or "recover" ? 4 : 0)) };
-            life.Tick += (_, _) =>
-            {
-                life.Stop();
-                Dismiss(card, true);
-            };
-            card.MouseEnter += (_, _) => life.Stop();
-            card.MouseLeave += (_, _) =>
-            {
-                life.Interval = TimeSpan.FromSeconds(2);
-                life.Start();
-            };
-            card.Unloaded += (_, _) => life.Stop();
-            life.Start();
-        }
-        return card;
     }
 
     /// 진행 중 · 작업 완료 in the accent, 승인 대기 in tangerine, 한도 in red, 복구 in mint.
@@ -249,6 +340,7 @@ internal sealed class NoticeWindow : Window
         {
             bool shown = stack.Children.Contains(card); // else cleared or replaced meanwhile, which told it already
             stack.Children.Remove(card);
+            Forget(card);
             if (stack.Children.Count == 0) Hide();
             if (shown) TellGone(card);
         }
