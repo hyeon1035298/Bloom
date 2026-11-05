@@ -394,37 +394,11 @@ internal sealed partial class SettingsView
         _ => Tr("멈춤 · 작업표시줄 꾸미기가 멈췄습니다", "Stopped · taskbar customization stopped"),
     };
 
-    /// The switch: the first time on, what the add-on is (a separate GPL program that loads code into Explorer and
-    /// downloads symbol files) is said once and accepted; then the setting is saved and the host started or stopped.
-    private void SetTaskbar(Addon addon, bool on, Switch sw)
-    {
-        var s = Settings.Current;
-        if (on && !s.AddonsConfirmed.Contains(addon.Id))
-        {
-            if (!ConfirmTaskbar(addon))
-            {
-                sw.On = false;
-                return;
-            }
-            s.AddonsConfirmed.Add(addon.Id);
-        }
-        _ = AddonHub.Set(addon, on);
-        Build(lastFilter);
-    }
-
-    private bool ConfirmTaskbar(Addon addon)
-    {
-        var owner = Window.GetWindow(this);
-        while (true)
-        {
-            var r = ConfirmWindow.Ask(owner, Tr("작업표시줄 꾸미기 켜기", "Turn on taskbar customization"),
-                Tr("PillTaskbar는 Bloom과 별도인 프로그램으로, 탐색기에 코드를 넣어 작업표시줄의 모양을 바꿉니다. 라이선스는 GPL-3.0입니다. 처음 켤 때 Microsoft 기호 서버에서 작업표시줄 기호 파일(약 70 MB)을 받습니다.",
-                    "PillTaskbar is a program separate from Bloom. It changes how the taskbar looks by loading code into Explorer, and is licensed under GPL-3.0. The first start downloads the taskbar's symbol files (about 70 MB) from the Microsoft symbol server."),
-                (Tr("켜기", "Turn on"), MessageBoxResult.Yes), (Tr("소스 보기", "View source"), MessageBoxResult.No), (Tr("취소", "Cancel"), MessageBoxResult.Cancel));
-            if (r != MessageBoxResult.No) return r == MessageBoxResult.Yes;
-            if (addon.Manifest is { } m) OpenSource(m); // and the question stays
-        }
-    }
+    /// The taskbar add-on's first switch-on: a separate GPL program that loads code into Explorer and downloads symbol
+    /// files (SetAddon asks it once).
+    private bool ConfirmTaskbar(Addon addon) => ConfirmProgram(addon, Tr("작업표시줄 꾸미기 켜기", "Turn on taskbar customization"),
+        Tr("PillTaskbar는 Bloom과 별도인 프로그램으로, 탐색기에 코드를 넣어 작업표시줄의 모양을 바꿉니다. 라이선스는 GPL-3.0입니다. 처음 켤 때 Microsoft 기호 서버에서 작업표시줄 기호 파일(약 70 MB)을 받습니다.",
+            "PillTaskbar is a program separate from Bloom. It changes how the taskbar looks by loading code into Explorer, and is licensed under GPL-3.0. The first start downloads the taskbar's symbol files (about 70 MB) from the Microsoft symbol server."));
 
     /// The add-on's source repository: a web address only, never anything else the manifest might name.
     private static void OpenSource(AddonManifest m)

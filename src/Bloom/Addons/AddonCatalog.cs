@@ -13,12 +13,23 @@ namespace Bloom.Addons;
 /// explorer through a download is the zip whose hash this build pins.
 internal static class AddonCatalog
 {
-    /// One add-on's release. `Size`: the zip's length in bytes, 0 while not known.
-    internal sealed record Entry(string Id, string Version, string Url, string Sha256, long Size)
+    /// One add-on's release. `Size`: the zip's length in bytes, 0 while not known. `Names`, `Abouts`: its name and a line
+    /// about it by language, which the page shows before and after its addon.json is here (in Bloom's languages).
+    internal sealed record Entry(string Id, string Version, string Url, string Sha256, long Size,
+        IReadOnlyDictionary<string, string>? Names = null, IReadOnlyDictionary<string, string>? Abouts = null)
     {
         /// Downloadable: its hash is filled in (an entry without one waits for its release).
         public bool Offered => Sha256.Length == 64;
+
+        /// Its name in a language: that language's, else the English one; null when the catalog names it in neither.
+        public string? Title(string lang) => AddonManifest.Pick(Names, lang);
+
+        /// What it does, in a language; empty when the catalog says nothing.
+        public string About(string lang) => AddonManifest.Pick(Abouts, lang) ?? "";
     }
+
+    /// The longest line about an add-on.
+    private const int MaxAbout = 200;
 
     private static IReadOnlyList<Entry>? builtIn;
 
@@ -44,8 +55,9 @@ internal static class AddonCatalog
         }
     }
 
-    /// {"addons": [{id, version, url, sha256, size?}]}. An entry with a wrong field is left out (logged); an empty sha256
-    /// is kept, as an entry that is not offered. InvalidDataException when the file itself isn't such a list.
+    /// {"addons": [{id, version, url, sha256, size?, name?, about?}]}, name and about as {"ko": …, "en": …}. An entry with
+    /// a wrong field is left out (logged); an empty sha256 is kept, as an entry that is not offered. InvalidDataException
+    /// when the file itself isn't such a list.
     public static IReadOnlyList<Entry> Parse(string json)
     {
         JsonArray list;
@@ -71,7 +83,8 @@ internal static class AddonCatalog
                 Log.Write($"add-on catalog: entry «{id}» left out");
                 continue;
             }
-            entries.Add(new Entry(id, version, url, sha, size));
+            entries.Add(new Entry(id, version, url, sha, size,
+                AddonManifest.LangTexts(o["name"], AddonManifest.MaxName), AddonManifest.LangTexts(o["about"], MaxAbout)));
         }
         return entries;
     }

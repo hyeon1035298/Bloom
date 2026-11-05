@@ -360,7 +360,7 @@ internal static class AddonHub
     private static Addon[]? all;
 
     /// Read once a run: an add-on put in the user's folder later shows after Bloom restarts.
-    public static IReadOnlyList<Addon> All => LazyInitializer.EnsureInitialized(ref all, () => Discover(AddonStore.Default, AddonStore.User).ToArray());
+    public static IReadOnlyList<Addon> All => LazyInitializer.EnsureInitialized(ref all, () => Discover(AddonStore.Default, AddonStore.User, AddonCatalog.BuiltIn).ToArray());
 
     public static Addon Taskbar => All[0];
 
@@ -375,14 +375,20 @@ internal static class AddonHub
         v.Flush();
     }
 
+    /// Bloom's add-ons besides the taskbar one: the others its catalog offers, in the catalog's order.
+    public static IEnumerable<Addon> Listed => All.Skip(1).Where(a => !a.User);
+
     /// The user's own add-ons, in id order.
     public static IEnumerable<Addon> Users => All.Where(a => a.User);
 
-    /// The shipped taskbar add-on first, then each one in the user's folder; a user one with a shipped one's id is left
-    /// out (it would share that one's data folder and switch).
-    internal static List<Addon> Discover(AddonStore shipped, AddonStore user)
+    /// The shipped taskbar add-on first, then the others the catalog offers (downloaded into Bloom's own store as the
+    /// taskbar one is), then each one in the user's folder; a user one with an id already listed is left out (it would
+    /// share that one's data folder and switch).
+    internal static List<Addon> Discover(AddonStore shipped, AddonStore user, IEnumerable<AddonCatalog.Entry>? catalog = null)
     {
         var list = new List<Addon> { new(AddonProtocol.Id, shipped) };
+        foreach (var e in catalog ?? Enumerable.Empty<AddonCatalog.Entry>())
+            if (e.Offered && list.All(a => a.Id != e.Id)) list.Add(new Addon(e.Id, shipped));
         foreach (string id in user.Ids())
             if (list.All(a => a.Id != id)) list.Add(new Addon(id, user, user: true));
         return list;

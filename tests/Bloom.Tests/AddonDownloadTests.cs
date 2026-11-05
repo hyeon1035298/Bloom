@@ -244,7 +244,34 @@ internal static class AddonDownloadTests
         Check.True(list[0].Offered && list[0].Sha256 == sha && list[0].Size == 1234, "an entry with its hash is offered");
         Check.True(!list[1].Offered, "an empty hash: not offered");
         Check.True(AddonCatalog.BuiltIn.Any(e => e.Id == AddonProtocol.Id), "the catalog is built into Bloom");
+        Check.True(AddonCatalog.BuiltIn.All(e => e.Offered), "every built-in entry carries its zip's hash");
+        Check.True(AddonCatalog.BuiltIn.Where(e => e.Id != AddonProtocol.Id).All(e => e.Title("en") is not null && e.About("en").Length > 0),
+            "every built-in entry besides the taskbar one has a name and a line about it");
         Check.True(AddonCatalog.Newer("0.2.3", "0.2.2") && AddonCatalog.Newer("0.10.0", "0.9.9") && AddonCatalog.Newer("1.0.0", "1.0.0-beta"), "newer");
         Check.True(!AddonCatalog.Newer("0.2.2", "0.2.2") && !AddonCatalog.Newer("0.2.1", "0.2.2"), "not newer");
+        Check.True(AddonCatalog.Newer("1.2.1-2", "1.2.1-1") && AddonCatalog.Newer("1.2.2-1", "1.2.1-2"), "an add-on build after the mod's version");
+    }
+
+    public static void CatalogNamesByLanguage()
+    {
+        string sha = new('a', 64);
+        var list = AddonCatalog.Parse(new JsonObject
+        {
+            ["addons"] = new JsonArray
+            {
+                new JsonObject
+                {
+                    ["id"] = "named", ["version"] = "1.0.0", ["url"] = "https://example.invalid/a.zip", ["sha256"] = sha,
+                    ["name"] = new JsonObject { ["ko"] = "이름", ["en"] = "Name" },
+                    ["about"] = new JsonObject { ["en"] = "What it does", ["ko"] = 5 },
+                },
+                new JsonObject { ["id"] = "bare", ["version"] = "1.0.0", ["url"] = "https://example.invalid/b.zip", ["sha256"] = sha, ["name"] = "Plain" },
+            },
+        }.ToJsonString());
+        Check.Eq(list.Count, 2, "a name that isn't an object leaves the entry in");
+        Check.Eq(list[0].Title("ko") ?? "", "이름", "the language's name");
+        Check.Eq(list[0].Title("ja") ?? "", "Name", "a language it lacks: English");
+        Check.Eq(list[0].About("ko"), "What it does", "a line that isn't text is left out: English");
+        Check.True(list[1].Title("en") is null && list[1].About("en").Length == 0, "no name or line: none");
     }
 }

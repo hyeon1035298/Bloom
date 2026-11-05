@@ -1,5 +1,5 @@
 {
-  "about": "Add-ons Settings > Add-ons can download. Built into Bloom.dll and never fetched at run time. Each is a separate program from its own repository: Bloom downloads url, installs it only when the zip matches sha256 (hex of the zip) and its addon.json has this id and version, and offers none while sha256 is empty. size is the zip's length in bytes (0 while not known). The release workflow downloads and checks every entry the same way and refuses to release while a sha256 is empty or wrong.",
+  "about": "Add-ons Settings > Add-ons can download. Built into Bloom.dll and never fetched at run time. Each is a separate program from its own repository: Bloom downloads url, installs it only when the zip matches sha256 (hex of the zip) and its addon.json has this id and version, and offers none while sha256 is empty. size is the zip's length in bytes (0 while not known). name and about ({\"ko\": …, \"en\": …, \"ja\": …, \"zh\": …}) are what its line on that page shows, before and after it is downloaded; the taskbar add-on (pill-taskbar) has its own line and needs neither. The release workflow downloads and checks every entry the same way and refuses to release while a sha256 is empty or wrong.",
   "addons": [
     {
       "id": "pill-taskbar",
@@ -7,6 +7,20 @@
       "url": "https://github.com/hyeon1035298/PillTaskbar_BloomAddon/releases/download/v0.2.4/PillTaskbar_BloomAddon-v0.2.4.zip",
       "sha256": "f142c87222c688b5a0212a6084df2be30cb11e09a832ed19af7e5b7d0754a7da",
       "size": 1384119
+    },
+    {
+      "id": "alt-tab-per-monitor",
+      "version": "1.2.1-2",
+      "url": "https://github.com/hyeon1035298/AltTabPerMonitor_BloomAddon/releases/download/v1.2.1-2/AltTabPerMonitor_BloomAddon-v1.2.1-2.zip",
+      "sha256": "25303af2d8ec2c15c469cc2d26f2a3d85a6b9f90acaa6c8ea701a05ef0b281a0",
+      "size": 663076,
+      "name": { "ko": "모니터별 Alt+Tab", "en": "Alt+Tab per monitor", "ja": "モニターごとの Alt+Tab", "zh": "按显示器 Alt+Tab" },
+      "about": {
+        "ko": "Alt+Tab에 커서가 있는 모니터의 창만 보입니다",
+        "en": "Alt+Tab shows only the windows on the monitor under the cursor",
+        "ja": "Alt+Tab にカーソルのあるモニターのウィンドウだけが表示されます",
+        "zh": "Alt+Tab 只显示光标所在显示器上的窗口"
+      }
     }
   ]
 }

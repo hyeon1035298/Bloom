@@ -365,4 +365,4 @@ dotnet format whitespace tests\Bloom.Tests\Bloom.Tests.csproj --verify-no-change
 
 MIT — [LICENSE](LICENSE)。
 汇率：[Rates By Exchange Rate API](https://www.exchangerate-api.com)。
-任务栏插件 PillTaskbar 是采用 GPL-3.0 的独立程序（[源代码](https://github.com/hyeon1035298/PillTaskbar_BloomAddon)）；Bloom 本身仍为 MIT。
+任务栏插件 PillTaskbar（[源代码](https://github.com/hyeon1035298/PillTaskbar_BloomAddon)）和按显示器 Alt+Tab 插件（[源代码](https://github.com/hyeon1035298/AltTabPerMonitor_BloomAddon)）是采用 GPL-3.0 的独立程序；Bloom 本身仍为 MIT。

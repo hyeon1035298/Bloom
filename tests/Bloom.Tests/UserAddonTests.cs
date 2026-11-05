@@ -92,6 +92,34 @@ internal static class UserAddonTests
         }
     }
 
+    public static void CatalogAddonsAfterTheTaskbar()
+    {
+        string root = Path.Combine(Path.GetTempPath(), "bloom-user-addons-" + Guid.NewGuid().ToString("N"));
+        try
+        {
+            string shipped = Path.Combine(root, "shipped"), user = Path.Combine(root, "user"), local = Path.Combine(root, "local");
+            Directory.CreateDirectory(shipped);
+            Put(user, "alt-tab", Manifest("alt-tab"));
+            Put(user, "my-addon", Manifest("my-addon"));
+            string sha = new('a', 64);
+            var catalog = new[]
+            {
+                new AddonCatalog.Entry(AddonProtocol.Id, "1.0.0", "https://example.invalid/a.zip", sha, 0),
+                new AddonCatalog.Entry("alt-tab", "1.0.0", "https://example.invalid/b.zip", sha, 0),
+                new AddonCatalog.Entry("waiting", "1.0.0", "https://example.invalid/c.zip", "", 0),
+            };
+            var list = AddonHub.Discover(new AddonStore(shipped, local, Path.Combine(root, "downloads")), new AddonStore(user, local), catalog);
+            Check.Eq(string.Join(",", list.Select(a => a.Id)), $"{AddonProtocol.Id},alt-tab,my-addon",
+                "the taskbar one, the catalog's offered ones, then the user's; a user one with a catalog id left out");
+            Check.True(!list[1].User && list[1].Manifest is null && list[1].Offer(id => catalog.FirstOrDefault(e => e.Id == id)) is not null,
+                "the catalog's one is Bloom's, not downloaded yet, and offered");
+        }
+        finally
+        {
+            Directory.Delete(root, true);
+        }
+    }
+
     public static void PageLinesPerAddon()
     {
         string root = Path.Combine(Path.GetTempPath(), "bloom-user-addons-" + Guid.NewGuid().ToString("N"));
@@ -105,6 +133,12 @@ internal static class UserAddonTests
                 Check.True(lines.Count(l => l.Title == "내 애드온" && l.PageKey == "addons" && l.Group == "애드온 목록") == 1, "one line, by its name, in the list");
                 var none = new SettingsView(new Host(new Options())).CollectAddonsForTests();
                 Check.True(none.Any(l => l.Title == "작업표시줄") && none.All(l => l.Title != "내 애드온"), "the page with the taskbar alone");
+                // a catalog one not downloaded yet: named and described by the built-in catalog
+                var entry = AddonCatalog.BuiltIn.First(e => e.Id != AddonProtocol.Id);
+                var listed = new Addon(entry.Id, new AddonStore(root, Path.Combine(Paths.Local, "addons"), Path.Combine(Paths.Local, "addon-downloads")));
+                var withListed = new SettingsView(new Host(new Options())).CollectAddonsForTests(listed: new[] { listed });
+                Check.True(withListed.Count(l => l.Title == entry.Title("ko") && l.Sub == entry.About("ko") && l.Group == "애드온 목록") == 1,
+                    "the catalog's one: its line, by the catalog's name and line");
             }
         }
         finally

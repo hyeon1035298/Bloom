@@ -1962,16 +1962,18 @@ Show on the home	在主页显示
 Hide on the home	在主页隐藏
 Default account	默认账户
 This account's renewed sign-in isn't saved yet. Try again in a moment.	尚未能保存此账户更新后的登录信息。请稍后再试。
-Downloading PillTaskbar	正在下载 PillTaskbar
+Downloading {0}	正在下载 {0}
 Download	下载
-Couldn't download PillTaskbar	无法下载 PillTaskbar
-PillTaskbar {0} update	PillTaskbar {0} 更新
-Now {0} · from PillTaskbar's GitHub release	当前 {0} · 从 PillTaskbar 的 GitHub 发布版下载
+Couldn't download {0}	无法下载 {0}
+{0} {1} update	{0} {1} 更新
+Now {0} · from its GitHub release	当前 {0} · 从其 GitHub 发布版下载
 Update	更新
-Download PillTaskbar {0}	下载 PillTaskbar {0}
-From PillTaskbar's GitHub release, checked by Bloom before it is installed	从 PillTaskbar 的 GitHub 发布版下载，经 Bloom 校验后安装
-PillTaskbar {0} downloaded	已下载 PillTaskbar {0}
+Download {0} {1}	下载 {0} {1}
+From its GitHub release, checked by Bloom before it is installed	从其 GitHub 发布版下载，经 Bloom 校验后安装
+{0} {1} downloaded	已下载 {0} {1}
 Turn taskbar customization off and on to switch to the new version	关闭再开启任务栏自定义即可切换到新版本
+Turn this add-on off and on to switch to the new version	关闭再开启此加载项即可切换到新版本
+This add-on is a program separate from Bloom. It works by loading code into Explorer, and is licensed under {0}. The first start downloads the symbol files it needs from the Microsoft symbol server.	此加载项是独立于 Bloom 的程序，通过向资源管理器加载代码来运行，采用 {0} 许可。首次启动时会从 Microsoft 符号服务器下载所需的符号文件。
 Check your connection and try again	请检查网络连接后重试
 The downloaded file isn't the one Bloom expects, so it wasn't installed	下载的文件与 Bloom 预期的不同，因此未安装
 What the download holds isn't valid, so it wasn't installed	下载的内容无效，因此未安装
