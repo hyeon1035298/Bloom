@@ -18,16 +18,17 @@ internal static class TaskbarPageTests
     /// The add-on's setting keys (its interface, from settings.schema.json): the page has a place for each.
     private static readonly string[] AddonKeys =
     {
-        "pill.enabled", "pill.style", "pill.cornerRadius", "pill.blur", "pill.tintOpacity",
+        "pill.enabled", "pill.style", "pill.theme", "pill.cornerRadius", "pill.blur", "pill.tintOpacity",
         "tray.hideVolume", "tray.hideNetwork", "tray.hideBattery", "tray.hideMicrophone", "tray.hideLocation", "tray.hideStudioEffects",
         "tray.hideRecall", "tray.hideLanguageBar", "tray.hideLanguageExtras", "tray.hideCopilot", "tray.bell", "tray.clock",
+        "tray.clockFormat",
         "size.enabled", "size.taskbarHeight", "size.iconSize", "size.iconSpacing",
         "start.mode",
         "autohide.enabled", "autohide.revealZone", "autohide.showDelay", "autohide.hideDelay", "autohide.animation", "autohide.keepHiddenForBloom",
         "autohide.keepHiddenOnFlash",
         "media.enabled", "media.maxWidth",
         "usage.enabled", "usage.logoColor", "usage.gapBefore", "usage.gapAfter",
-        "island.enabled", "island.showClock", "island.showMedia", "island.showUsage", "island.height", "island.width", "island.reveal", "island.hoverTransparency",
+        "island.enabled", "island.color", "island.showClock", "island.showMedia", "island.showUsage", "island.height", "island.width", "island.reveal", "island.hoverTransparency",
         "folders.enabled", "folders.foldersPath", "folders.mergeDelay", "folders.popupScale", "folders.showLabels", "folders.iconSize", "folders.appSpacing",
         "folders.popupSide", "folders.popupGap", "folders.cornerRadius", "folders.cornerSmoothing", "folders.autoRunning", "folders.runningName",
     };
@@ -104,7 +105,7 @@ internal static class TaskbarPageTests
     public static void MapHasEveryKeyOnce()
     {
         var mapped = TaskbarMap.Entries.Select(e => e.Key).ToList();
-        Check.Eq(AddonKeys.Length, 56, "the add-on's 56 keys");
+        Check.Eq(AddonKeys.Length, 59, "the add-on's 59 keys");
         Check.Eq(mapped.Count, mapped.Distinct().Count(), "no key twice on the page");
         Check.True(mapped.ToHashSet().SetEquals(AddonKeys), "every key has its place, and none the add-on lacks");
         foreach (var (key, _, _, _) in TaskbarMap.Sizes) Check.True(key is "s" or "m" or "l", "three size presets");

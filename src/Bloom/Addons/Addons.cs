@@ -241,6 +241,7 @@ internal sealed class Addon
             {
                 string dir = store.RunCopy(m);
                 store.Prune(m);
+                if (this == AddonHub.Taskbar) AddonHub.FollowTheme();
                 AddonHub.WriteValues(this);
                 Watch();
                 // a version downloaded since the last start runs from its own copy: a runner of the old one that has
@@ -361,6 +362,17 @@ internal static class AddonHub
     public static IReadOnlyList<Addon> All => LazyInitializer.EnsureInitialized(ref all, () => Discover(AddonStore.Default, AddonStore.User).ToArray());
 
     public static Addon Taskbar => All[0];
+
+    /// The taskbar add-on draws in Bloom's theme: its pill.theme is kept to the one Bloom shows (on each theme change,
+    /// and as it starts). Nothing while the add-on has no schema or no such key.
+    public static void FollowTheme()
+    {
+        if (Taskbar.Schema?["pill.theme"] is null || Taskbar.Values is not { } v) return;
+        string theme = Ui.Theme.P.Dark ? "dark" : "light";
+        if (v.Text("pill.theme") == theme) return;
+        v.Set("pill.theme", theme);
+        v.Flush();
+    }
 
     /// The user's own add-ons, in id order.
     public static IEnumerable<Addon> Users => All.Where(a => a.User);

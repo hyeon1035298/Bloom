@@ -117,6 +117,7 @@ internal sealed partial class SettingsView
         Header(Tr("작업표시줄 트레이", "Taskbar tray"));
         IconChips(schema, v, Section.Tray, Tr("보일 아이콘", "Icons shown"), Tr("켠 것만 트레이에 남고, 끈 아이콘은 자리도 남기지 않습니다", "Only the ones on stay in the tray; the ones off leave no gap"), filter);
         SchemaRow(schema, v, "tray.clock", G.Clock, filter);
+        SchemaRow(schema, v, "tray.clockFormat", G.Clock, filter, sub: Tr("12시간일 때만 오전·오후가 붙습니다", "Only the 12-hour clock shows AM and PM"));
         SchemaRow(schema, v, "media.enabled", G.Volume, filter, Tr("재생 중인 곡", "Now playing"),
             Tr("앨범 아트, 제목, 이전·재생·다음 단추를 트레이 앞에 둡니다", "Puts the album art, the title and previous, play and next buttons before the tray"));
         SchemaRow(schema, v, "usage.enabled", G.Speed, filter, Tr("AI 사용량", "AI usage"),
@@ -217,6 +218,7 @@ internal sealed partial class SettingsView
             Add(Tr("숨김 아일랜드 쓰기", "Use the auto-hide island"), Tr("켜면 작업표시줄이 자동으로 숨고 화면 위 가운데에 아일랜드가 생깁니다", "The taskbar hides itself, and an island appears at the top centre of the screen"), sw, G.Screen, t, null, filter);
         }
         SchemaRow(schema, v, "island.reveal", G.Up, filter, sub: Tr("클릭이면 포인터를 대기만 해서는 나오지 않습니다", "With click, pointing at it alone doesn't bring it out"));
+        SchemaRow(schema, v, "island.color", G.Palette, filter, sub: Tr("작업표시줄은 Bloom의 라이트·다크를 따르고, 아일랜드는 여기서 고릅니다", "The taskbar follows Bloom's light or dark; the island's colour is picked here"));
         IconChips(schema, v, Section.Island, Tr("아일랜드에 보일 것", "Shown on the island"), null, filter);
         SchemaRow(schema, v, "island.hoverTransparency", G.View, filter, Tr("포인터를 올리면", "With the pointer over it"),
             Tr("포인터가 있는 동안 아래가 비쳐 보입니다. 0이면 그대로, 100이면 다 비칩니다", "What is below shows through while the pointer is there: 0 not at all, 100 fully"));

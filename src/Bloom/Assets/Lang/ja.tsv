@@ -2478,6 +2478,7 @@ A number changed here makes the size above ‘Custom’	ここで数値を変え
 Taskbar tray	タスクバーのトレイ
 Icons shown	表示するアイコン
 Only the ones on stay in the tray; the ones off leave no gap	オンのものだけがトレイに残り、オフのアイコンは場所も残しません
+Only the 12-hour clock shows AM and PM	12時間表示のときだけ午前・午後が付きます
 Now playing	再生中の曲
 Puts the album art, the title and previous, play and next buttons before the tray	アルバムアート、タイトル、前へ・再生・次へボタンをトレイの前に置きます
 Shows one picked value per account as a bar. The auto-hide island shows the same	アカウントごとに選んだ値を 1 つバーで表示します。自動非表示アイランドにも同じ値が出ます
@@ -2491,6 +2492,7 @@ Auto-hide island	自動非表示アイランド
 Use the auto-hide island	自動非表示アイランドを使う
 The taskbar hides itself, and an island appears at the top centre of the screen	タスクバーが自動的に隠れ、画面上部中央にアイランドが現れます
 With click, pointing at it alone doesn't bring it out	クリックにすると、ポインターを当てるだけでは出てきません
+The taskbar follows Bloom's light or dark; the island's colour is picked here	タスクバーは Bloom のライト・ダークに従い、アイランドの色はここで選びます
 Shown on the island	アイランドに表示するもの
 With the pointer over it	ポインターを乗せると
 What is below shows through while the pointer is there: 0 not at all, 100 fully	ポインターがある間、下が透けて見えます。0 はそのまま、100 は完全に透けます
@@ -2575,6 +2577,7 @@ The taskbar couldn't carry it out	タスクバーがコマンドを処理でき�
 {0} failed · {1}	{0} に失敗 · {1}
 Fits the content	内容に合わせる
 Windows default	Windows の既定
+Faintly outlined glass	薄い輪郭線のガラス
 Lit glass	光を受けるガラス
 Borderless glass	縁のないガラス
 Rose	ローズ
