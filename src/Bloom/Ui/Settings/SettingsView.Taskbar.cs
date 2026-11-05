@@ -17,7 +17,7 @@ using Section = Bloom.Ui.TaskbarMap.Section;
 
 namespace Bloom.Ui;
 
-/// 설정 > 애드온's taskbar add-on (PillTaskbar, a separate GPL-3.0 program Bloom ships and starts): its status text and
+/// 설정 > 애드온's taskbar add-on (PillTaskbar, a separate GPL-3.0 program Bloom downloads and starts): its status text and
 /// switch (the line itself is SettingsView.Addons'); its folders (TaskbarEditor), look, tray and auto-hide island, drawn
 /// from the settings.schema.json it ships (names, defaults, ranges) and laid out by TaskbarMap; and what it is (version,
 /// license, source).

@@ -108,7 +108,7 @@ internal sealed partial class SettingsView
                 s.GpuDrawing = v;
                 AskRestart(Tr("GPU로 그리기 설정을 적용하려면 Bloom을 다시 시작해야 합니다.", "Restart Bloom to apply GPU drawing."));
             }, out var gpuT);
-            // experimental since 10-14: GPU drawing froze the whole screen for seconds on one PC (Settings.GpuDrawing)
+            // experimental: GPU drawing froze the whole screen for seconds on one PC (Settings.GpuDrawing)
             Add(Tr("GPU로 그리기 (실험적)", "GPU drawing (experimental)"), s.GpuDrawing == (System.Windows.Media.RenderOptions.ProcessRenderMode != System.Windows.Interop.RenderMode.SoftwareOnly)
                 ? Tr("GPU로 화면을 그립니다. 일부 PC에서는 화면이 끊기거나 몇 초 동안 멈출 수 있습니다. 끄면 CPU로 그리며 메모리를 약 30 MB 덜 씁니다.", "Draws the screen with the GPU. Some PCs may stutter or freeze for seconds. Off: the CPU draws, with about 30 MB less memory.")
                 : Tr("다시 시작하면 바뀝니다", "Changes when Bloom restarts"), gpuSw, G.Screen, gpuT, null, filter);
