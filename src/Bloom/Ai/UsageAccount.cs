@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Bloom.Ai;
 
@@ -9,6 +10,9 @@ internal sealed record UsageAccount(string Name, string? Plan, List<UsageLimit> 
     public string Id { get; init; } = ""; // the AiAccount it belongs to
     public string? Who { get; init; } // the account's e-mail, shown when one kind has more than one card
     public UsageBalance? Balance { get; init; } // an API key's card (ApiBalances): its balance, no limits; not an AiAccount
+
+    /// The limits the home, the notices and the tooltip show: a model's own week (Model set) is only in the usage file.
+    public IEnumerable<UsageLimit> Shown => Limits.Where(l => l.Model is null);
 
     /// ChatGPT's plan as Codex's app-server and wham name it, in the card's words: the three Pro tiers by their monthly
     /// price (the user's call, 10-12), from Codex's own names (prolite, pro, promax; OpenAI publishes no table), the
@@ -24,8 +28,8 @@ internal sealed record UsageAccount(string Name, string? Plan, List<UsageLimit> 
 }
 
 /// A limit's title, percent used, reset time (null means the reset time is unknown) and the window's length in minutes
-/// (null when the provider doesn't say).
-internal sealed record UsageLimit(string Title, double Percent, DateTime? Resets, int? WindowMins = null)
+/// (null when the provider doesn't say); Model is set for one model's own week (Claude's "Current week (Fable)").
+internal sealed record UsageLimit(string Title, double Percent, DateTime? Resets, int? WindowMins = null, string? Model = null)
 {
     /// The two windows every plan has: the 5-hour session and the week.
     public const int SessionMins = 300, WeekMins = 10080;

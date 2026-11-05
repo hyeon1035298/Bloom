@@ -174,7 +174,7 @@ internal static class HomeViews
             stack.Children.Add(need);
         }
         bool left = Core.Settings.Current.UsageLeft;
-        foreach (var l in a.Limits.Take(3))
+        foreach (var l in a.Shown.Take(3))
         {
             var row = new Grid { Margin = new Thickness(0, 2, 0, 0) };
             row.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
@@ -225,7 +225,7 @@ internal static class HomeViews
             CornerRadius = new CornerRadius(10),
             Padding = new Thickness(12, 9, 12, 10),
             Child = body,
-            ToolTip = a.Balance?.Tip ?? string.Join("\n", a.Limits.Select(l => Tip(l, left))),
+            ToolTip = a.Balance?.Tip ?? string.Join("\n", a.Shown.Select(l => Tip(l, left))),
         };
     }
 
