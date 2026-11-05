@@ -2514,6 +2514,8 @@ This plan has only the {0} limit	此套餐只有 {0} 限额
 Choose a file…	选择文件…
 Clear the icon	清除图标
 The home card and the taskbar use this picture	主页卡片和任务栏使用此图片
+Uses the company's logo from its website. Choose a file to use another picture	使用从公司网站获取的官方徽标。要使用其他图片，请选择文件
+The company's logo isn't fetched yet, so a letter shows. You can also choose a logo file (SVG, PNG, ICO)	尚未获取官方徽标，因此显示字母。也可以自行选择徽标文件（SVG、PNG、ICO）
 Icon	图标
 Logos (*.svg;*.png;*.ico)|*.svg;*.png;*.ico	徽标 (*.svg;*.png;*.ico)|*.svg;*.png;*.ico
 That file couldn't be brought in as the icon.	无法将该文件用作图标。
@@ -2619,5 +2621,3 @@ just now	刚刚
 Detach from the launcher	从启动器分离
 Always on top	始终置顶
 Attach to the launcher	附到启动器
-Uses the company's logo from its website. Choose a file to use another picture	使用从公司网站获取的官方徽标。要使用其他图片，请选择文件
-The company's logo isn't fetched yet, so a letter shows. You can also choose a logo file (SVG, PNG, ICO)	尚未获取官方徽标，因此显示字母。也可以自行选择徽标文件（SVG、PNG、ICO）
