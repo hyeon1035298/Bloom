@@ -336,6 +336,7 @@ internal sealed class ClipboardHistory : IDisposable
             using (var fs = File.Create(path + ".tmp")) enc.Save(fs);
             File.Move(path + ".tmp", path, true);
         }
+        MemoryTrim.AfterBigWork("clipboard picture"); // its decoded copy waits for a GC now
         return new ClipEntry { Kind = "image", Image = file, Width = bmp.PixelWidth, Height = bmp.PixelHeight, Id = "clip:" + hash };
     }
 
