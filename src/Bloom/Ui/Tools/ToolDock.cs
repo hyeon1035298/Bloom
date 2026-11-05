@@ -488,12 +488,14 @@ internal sealed class ToolDock
         if (w.Edge is null) return;
         L.Topmost = true;
         SetTopmost(true);
+        FocusMoved();
     }
 
     /// An attached tool lost the focus: to the launcher or another attached tool, nothing; elsewhere, the group lets go.
     public void Deactivated(ToolWindow w)
     {
         if (w.Edge is null) return;
+        FocusMoved();
         L.Dispatcher.BeginInvoke(() =>
         {
             IntPtr fg = Win32.GetForegroundWindow();
@@ -501,6 +503,38 @@ internal sealed class ToolDock
             L.GroupLeft();
         }, DispatcherPriority.Input);
     }
+
+    // The launcher and its attached tools look active together. Windows draws a glass window's acrylic only while its
+    // frame looks active, so a tool beside the focused launcher showed flat, and the launcher beside a focused tool. A
+    // member losing the focus keeps its look (KeepLook, from its window procedure); once the focus has landed
+    // (FocusMoved) every member takes the group's: active while the focus is in the group, let go together once not.
+    private bool lettingGo; // the members are being told to look inactive: none keeps its look
+
+    /// From a member's window procedure: WM_NCACTIVATE for losing the focus, with tools beside the launcher, is answered
+    /// as an active one (lParam -1 as WindowChrome passes it: nothing drawn over the head); null for anything else.
+    public IntPtr? KeepLook(IntPtr hwnd, int msg, IntPtr wParam)
+    {
+        if (msg != Win32.WM_NCACTIVATE || wParam != IntPtr.Zero || lettingGo || !(hwnd == L.Handle || Owns(hwnd))) return null;
+        if (!windows.Exists(w => w.Edge is not null && w.IsVisible)) return null; // the launcher alone: as any window
+        return Win32.DefWindowProc(hwnd, (uint)msg, new IntPtr(1), new IntPtr(-1));
+    }
+
+    /// A member gained or lost the focus: once it has landed, the members look as the group is, active or not.
+    public void FocusMoved() => L.Dispatcher.BeginInvoke(() =>
+    {
+        IntPtr fg = Win32.GetForegroundWindow();
+        bool active = L.IsVisible && (fg == L.Handle || Owns(fg));
+        var others = windows.Where(w => w.Edge is not null).Select(w => w.Handle).Append(L.Handle).Where(h => h != IntPtr.Zero && h != fg).ToList();
+        lettingGo = !active;
+        try
+        {
+            foreach (var h in others) Win32.SendMessage(h, (uint)Win32.WM_NCACTIVATE, new IntPtr(active ? 1 : 0), IntPtr.Zero);
+        }
+        finally
+        {
+            lettingGo = false;
+        }
+    }, DispatcherPriority.Input);
 
     /// Esc in a tool: an attached one hides with the launcher; a floating one keeps it (true: handled).
     public bool Escape(ToolWindow w)
