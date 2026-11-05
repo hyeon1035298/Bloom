@@ -73,6 +73,7 @@ Making a file…	正在生成文件…
 Using {0}…	正在使用 {0}…
 5h	5小时
 Weekly	每周
+{0} weekly	{0} 每周
 Working with files…	正在处理文件…
 Working on the PC…	正在电脑上操作…
 Using a tool…	正在使用工具…
@@ -129,6 +130,7 @@ Chinese	中文
 {0}h	{0}小时
 {0} min	{0}分钟
 Limit	上限
+5 hours	5 小时
 Another sign-in is running	另一个账户正在登录
 Sign the default account in from Claude Code or Codex itself	默认账户请直接在 Claude Code 或 Codex 中登录
 This account's sign-in terminal is still open. Close it first.	此账户的登录终端仍处于打开状态。请先将其关闭。
@@ -182,6 +184,9 @@ Restart	重启
 Shut down	关机
 Restart failed. Save your work and restart from the Windows Start menu.	重新启动失败。请保存工作并从 Windows 开始菜单重新启动。
 Shutdown failed. Save your work and shut down from the Windows Start menu.	关机失败。请保存工作并从 Windows 开始菜单关机。
+Default settings	恢复默认设置
+Could not restart Bloom, so the settings stay as they were. Reopen Bloom and try again.	无法重新启动 Bloom，设置保持不变。请重新打开 Bloom 后再试。
+Signing out of {0} added AI accounts	正在退出 {0} 个已添加的 AI 账户
 Meeting notes: next Tuesday at 2 PM, room 3	会议记录：下周二下午 2 点，3 楼会议室
 Notepad	记事本
 See you at 7 tonight. Text me if you're running late.	今晚 7 点见。要是晚到了就发消息给我。
@@ -239,31 +244,30 @@ Later	稍后
 Could not access settings. Check permissions for the file and data folder, then retry.	无法访问设置。请检查文件和数据文件夹的权限后重试。
 Could not read settings. Choose a file exported from Bloom.	无法读取设置。请选择从 Bloom 导出的文件。
 Settings import failed	设置导入失败
-Permanently deletes settings, favorites, app names, browser shortcuts, timers and reminders, clipboard history, AI chats and usage history, then starts from the first-run screens.	将永久删除设置、收藏、应用名称、浏览器快捷方式、计时器和提醒、剪贴板历史、AI 聊天和使用记录，然后从首次设置界面开始。
 Reset Bloom	重置 Bloom
+Deletes everything Bloom saved and starts again from the first-run screens. This includes settings, favorites, AI chats, notes, clipboard history, the sign-ins of added AI accounts, API keys and add-on settings. Start with Windows turns on again. This can't be undone.	删除 Bloom 保存的所有数据，并从首次设置界面重新开始。包括设置、收藏、AI 聊天、便笺、剪贴板记录、已添加 AI 账户的登录信息、API 密钥和加载项设置。“随 Windows 启动”会重新开启。此操作无法撤销。
+The Bloom program, the default sign-ins and history of Claude Code and Codex, and the other files on this PC stay.	Bloom 程序本身、Claude Code 和 Codex 的默认登录与记录，以及本机的其他文件都会保留。
+The admin Win-key helper goes too. Windows asks for admin approval.	管理员 Win 键助手也会删除。Windows 会请求管理员批准。
+Export settings, then reset	导出设置后重置
 Reset	重置
 Cancel	取消
-Back up settings before reset	重置前备份设置
-Export settings and favorites to a file to restore them with ‘Import settings’ on the first-run screens.	将设置和收藏导出到文件后，可在首次设置界面通过“导入设置”恢复。
-Export settings	导出设置
-Reset without backup	不备份直接重置
+Without admin approval the helper stays installed. It does nothing while off. Remove ‘Bloom Win-key helper’ in Windows Settings › Apps.	未获管理员批准，助手仍保持安装。关闭期间不会运行。可在 Windows 设置 › 应用中删除“Bloom Win-key helper”。
 Reset failed	重置失败
+Could not restart Bloom. Apart from signing out of the added AI accounts, no data was deleted. Reopen Bloom and try again.	无法重新启动 Bloom。除了已退出添加的 AI 账户外，没有删除任何数据。请重新打开 Bloom 后再试。
 Could not restart Bloom. No data was deleted. Reopen Bloom and try again.	无法重新启动 Bloom。未删除任何数据。请重新打开 Bloom 后重试。
 Removes Bloom and its Start menu shortcut from this PC and stops it starting with Windows.	从此电脑删除 Bloom 及其开始菜单快捷方式，并取消随 Windows 启动。
 This copy was not installed with the setup. Bloom quits and stops starting with Windows. Delete the folder that opens afterwards.	此 Bloom 不是通过安装程序安装的。Bloom 将退出并取消随 Windows 启动。请手动删除退出后打开的文件夹。
 Uninstall Bloom	卸载 Bloom
 Saved data	已保存的数据
-Deleting data permanently removes AI chats, settings, favorites, notes and clipboard history. Kept data is used again after reinstalling.	删除数据将永久移除 AI 聊天、设置、收藏、笔记和剪贴板历史。保留的数据在重新安装后可继续使用。
+Deleting data permanently removes AI chats, settings, favorites, notes and clipboard history, and signs out of the added AI accounts first. Kept data is used again after reinstalling.	删除数据会永久删除 AI 聊天、设置、收藏、便笺和剪贴板记录，并先退出已添加的 AI 账户。保留的数据在重新安装后可继续使用。
 Keep data	保留数据
 Delete data	删除数据
 Without admin approval the Win-key helper stays installed. After Bloom is removed, remove ‘Bloom Win-key helper’ in Windows Settings › Apps.	未获管理员批准，Win 键助手未被删除。删除 Bloom 后，请在 Windows 设置 › 应用中删除“Bloom Win-key helper”。
 Uninstall failed	卸载失败
-Update	更新
 No release notes for this version	此版本无更新说明
 Update the Win-key helper	更新 Win 键助手
 This version of Bloom needs the Win-key helper installed again. Until then, Win does not open Bloom over admin apps.	此版本的 Bloom 需要重新安装 Win 键助手。在此之前，管理员应用在前台时按 Win 键不会打开 Bloom。
 Reinstall	重新安装
-Without admin approval the helper stays installed. It does nothing while off. Remove ‘Bloom Win-key helper’ in Windows Settings › Apps.	未获管理员批准，助手仍保持安装。关闭期间不会运行。可在 Windows 设置 › 应用中删除“Bloom Win-key helper”。
 Win-key helper still installed	Win 键助手仍已安装
 Win-key helper install failed	Win 键助手安装失败
 Could not install the helper. Try again.	无法安装助手。请重试。
@@ -959,6 +963,8 @@ Mini player	迷你播放器
 Dawn Walk	黎明散步
 ntpd	ntpd
 chrom	chrom
+Rename	重命名
+File Explorer	文件资源管理器
 AI tokens	AI Token
 usage	用量
 Friday meeting\nresend the quote · fix the date	周五会议\n重新发送报价单 · 确定日期
@@ -1160,21 +1166,21 @@ Reminder	提醒
 today	今天
 tomorrow	明天
 Not an audio file	不是音频文件
-Bloom cannot play {0} files itself — pick another player in Settings > Mini player	Bloom 无法直接播放 {0} 文件 — 请在 设置 > 迷你播放器 中选择其他播放器
+Bloom cannot play {0} files itself — pick another player in Settings > Tools > Mini player	Bloom 无法直接播放 {0} 文件 — 请在 设置 > 工具 > 迷你播放器 中选择其他播放器
 The file is gone	文件已不存在
-Playlists open only with direct playing — Settings > Mini player	播放列表仅在直接播放时可以打开 — 设置 > 迷你播放器
+Playlists open only with direct playing — Settings > Tools > Mini player	播放列表仅在直接播放时可以打开 — 设置 > 工具 > 迷你播放器
 A playlist with no song to play	没有可播放歌曲的播放列表
 The file cannot be opened	无法打开该文件
 {0} songs	{0} 首
 Skipped	已跳过
 Not played	未播放
 {0} is not running — picking a song starts it	{0} 未运行 — 选择歌曲时会一并启动
-Could not find {0} — set its program path in Settings > Mini player	找不到 {0} — 请在 设置 > 迷你播放器 中设置程序路径
+Could not find {0} — set its program path in Settings > Tools > Mini player	找不到 {0} — 请在 设置 > 工具 > 迷你播放器 中设置程序路径
 Could not start {0} · {1}	无法启动 {0} · {1}
 {0} does not tell which song is on	{0} 不提供当前播放的歌曲
 {0} is not running	{0} 未运行
-The JRiver address is not valid — Settings > Mini player	JRiver 地址无效 — 设置 > 迷你播放器
-JRiver did not accept the user name or password — Settings > Mini player	JRiver 不接受该用户名或密码 — 设置 > 迷你播放器
+The JRiver address is not valid — Settings > Tools > Mini player	JRiver 地址无效 — 设置 > 工具 > 迷你播放器
+JRiver did not accept the user name or password — Settings > Tools > Mini player	JRiver 不接受该用户名或密码 — 设置 > 工具 > 迷你播放器
 JRiver refused the request (HTTP {0})	JRiver 拒绝了请求 (HTTP {0})
 Cannot reach JRiver — is it running with its web service (Media Network) on?	无法连接 JRiver — JRiver 是否正在运行并已开启网络服务 (Media Network)？
 JRiver did not accept this request	JRiver 不接受此请求
@@ -1291,6 +1297,7 @@ Dark mode · sound · Bluetooth · Wi-Fi · sleep …	深色模式 · 声音 · 
 Summarize, translate or polish the selected or copied text	对选中或复制的文字进行总结、翻译、润色
 Bloom tour	Bloom 导览
 See the first-run setup and the guide again	再次查看首次设置和使用指南
+Export settings	导出设置
 Settings, favorites, app names and browser shortcuts in one file	把设置、收藏、应用名称和浏览器快捷方式存成一个文件
 Import settings	导入设置
 From an exported settings file	从导出的设置文件导入
@@ -1483,12 +1490,13 @@ Checking AI usage…	正在查询 AI 用量…
 Could not get usage. Check the Claude Code or Codex sign-in, then press ↻.	无法获取用量。请检查 Claude Code 或 Codex 的登录状态，再按 ↻。
 Move earlier	前移
 Move later	后移
-Rename	重命名
 Rows shown ({0}–{1})	显示条数 ({0}–{1})
 Fewer rows	减少条数
 {0} ago	{0}前
 Last fetched	上次获取
+Signed out, so usage can't be fetched	登录已失效，无法获取用量
  left	 剩余
+Sign in again	重新登录
  · resets {0:M/d HH:mm}	 · {0:M/d HH:mm} 重置
 now	即将
 Su	日
@@ -1626,7 +1634,7 @@ Calls	调用
 {0} calls	调用 {0}
 Cache hits	缓存命中
 {0} of {1} prompt tokens read from the cache	发送的输入 {1} 中从缓存读取 {0}
-Add a price in Settings > Home > Edit prices	可在 设置 > 主页 > 编辑价格表 中添加价格
+Add a price in Settings > AI accounts > Edit prices	可在 设置 > AI 账户 > 编辑价格表 中添加价格
 {0} tokens · {1}	Token {0} · {1}
 Now	现在
 1 model	1 个模型
@@ -1734,6 +1742,14 @@ Model (Ctrl+M)	模型 (Ctrl+M)
 Thinking level (Ctrl+E)	思考级别 (Ctrl+E)
 End session	结束会话
 Frees chat memory and opens a new chat. History stays.	释放聊天内存并打开新聊天。保留聊天记录。
+Saturation and brightness	饱和度和亮度
+Hue	色相
+Pick from screen	从屏幕取色
+Recent picks	最近取的颜色
+A switch that is on gets lost on its background	开启的开关会与背景混在一起
+Make it stand out	调整为醒目
+Contrast {0}	对比度 {0}
+Hard to see	不易看清
 Apply	应用
 min	分钟
 h	小时
@@ -1903,8 +1919,15 @@ Not deleted	未删除
 {0} API key	{0} API 密钥
 The key is stored encrypted on this PC only and used only for requests to {0}. Usage is billed to your {1} account.	密钥仅加密保存在这台电脑上，只用于发往 {0} 的请求。使用费用计入你的 {1} 账户。
 Open the key page	打开密钥页面
+Custom colour	自定义颜色
+{0} · for switches that are on, the chosen line and the text cursor	{0} · 用于打开的开关、选中的线条和文字光标
+Type #RRGGBB (like #3A7BD5) · the light theme uses it, the dark one a lighter take	输入 #RRGGBB（例如 #3A7BD5）· 浅色主题使用该颜色，深色主题使用其较亮的版本
+Custom	自定义
+Back to the first colour	恢复为最初的颜色
+Pick the colour this theme shows; the other theme gets the same colour, lighter or darker	选择当前主题显示的颜色；另一个主题会使用同一颜色的较亮或较暗版本
 AI accounts	AI 账户
-Each account signs in on its own. The home shows each one's usage, and AI chat uses the account you pick. Nothing switches accounts when a limit is reached.	每个账户单独登录。主页显示各账户的用量，AI 聊天使用你选择的账户。达到限额时不会自动切换账户。
+Claude and ChatGPT accounts, API keys and the usage on the home	Claude · ChatGPT 账户、API 密钥和主页上的用量
+Nothing switches accounts when a limit is reached	达到上限时不会自动切换账户
 Signing in · finish in the terminal that opened	正在登录 · 请在打开的终端中完成
 Sign-in terminal still open · close it to change the account	登录终端仍处于打开状态 · 关闭后即可更改账户
 Default account · Codex's own sign-in	默认账户 · Codex 的登录
@@ -1915,12 +1938,21 @@ Used for AI chat	用于 AI 聊天
 Add a {0} account…	添加 {0} 账户…
 Runs the official sign-in in a new terminal · sign in in the browser	在新终端中运行官方登录 · 在浏览器中登录
 Add a {0} account	添加 {0} 账户
-Usage checks	用量查询
+Usage	用量
+Hidden, only while asked: Claude ~470 MB for 4 s · Codex ~110 MB for 1 s	仅在查询时后台运行：Claude 约 470 MB 持续 4 秒 · Codex 约 110 MB 持续 1 秒
+Added accounts every {0} min · the home's ↻ checks all	已添加的账户每 {0} 分钟 · 主页的 ↻ 查询全部账户
+5 min	5 分钟
+10 min	10 分钟
+What's used (32%) or what's left (68% left) · the bars follow	已用量 (32%) 或剩余量 (剩 68%) · 进度条也随之变化
+Left	剩余
+The picked icon files in their own colours or in one · the home cards and the taskbar share it	所选图标文件使用原色或单色 · 主页卡片与任务栏共用
 ChatGPT checks	ChatGPT 查询方式
 Lightweight: one HTTPS request with the Codex sign-in · no CLI · not an official API, may change	轻量方式：使用 Codex 登录发送 1 次 HTTPS 请求 · 不运行 CLI · 非官方 API，可能变化
 Official CLI: runs Codex per account · ~110 MB for 1 s	官方 CLI：每个账户运行 Codex · 约 110 MB 1 秒
-How often	查询间隔
-Default accounts as set on the home page · added ones every {0} min · the home's ↻ checks all	默认账户按主页设置的间隔 · 添加的账户每 {0} 分钟 · 主页的 ↻ 查询全部账户
+Write the usage to a file	将用量写入文件
+Writes the percentages and reset times, no e-mail, to %LOCALAPPDATA%\\Bloom\\export\\ai-usage.json for other programs to read · the lookups run even with the home block off: Claude ~470 MB for 4 s every interval	仅将已用百分比和重置时间（不含邮箱）写入 %LOCALAPPDATA%\\Bloom\\export\\ai-usage.json，供其他程序读取 · 即使主页区块关闭，查询也会运行，每个间隔 Claude 约占用 470 MB、耗时 4 秒
+Edit prices	编辑价格表
+Overrides the built-in token prices (as of {0}) · prices.json	覆盖内置的 Token 价格（截至 {0}）· prices.json
 Sign out	退出登录
 The sign-in terminal is open. Finish signing in or close it.	登录终端已打开。请完成登录或关闭终端。
 Signs this account out and takes it off the list. Add it again to use it.	退出此账户的登录并将其从列表中移除。如需再次使用，请重新添加该账户。
@@ -1928,45 +1960,188 @@ AI chat goes back to the default account.	AI 聊天将改回使用默认账户�
 Use for AI chat	用于 AI 聊天
 Show on the home	在主页显示
 Hide on the home	在主页隐藏
-Sign in again	重新登录
 Default account	默认账户
 This account's renewed sign-in isn't saved yet. Try again in a moment.	尚未能保存此账户更新后的登录信息。请稍后再试。
+Downloading PillTaskbar	正在下载 PillTaskbar
+Download	下载
+Couldn't download PillTaskbar	无法下载 PillTaskbar
+PillTaskbar {0} update	PillTaskbar {0} 更新
+Now {0} · from PillTaskbar's GitHub release	当前 {0} · 从 PillTaskbar 的 GitHub 发布版下载
+Update	更新
+Download PillTaskbar {0}	下载 PillTaskbar {0}
+From PillTaskbar's GitHub release, checked by Bloom before it is installed	从 PillTaskbar 的 GitHub 发布版下载，经 Bloom 校验后安装
+PillTaskbar {0} downloaded	已下载 PillTaskbar {0}
+Turn taskbar customization off and on to switch to the new version	关闭再开启任务栏自定义即可切换到新版本
+Check your connection and try again	请检查网络连接后重试
+The downloaded file isn't the one Bloom expects, so it wasn't installed	下载的文件与 Bloom 预期的不同，因此未安装
+What the download holds isn't valid, so it wasn't installed	下载的内容无效，因此未安装
+Couldn't save the download · check the free disk space	无法保存下载的文件 · 请检查可用磁盘空间
+Add-ons	加载项
+Add-ons are separate programs Bloom starts, each turned on and off here. One you put in the user-addons folder in Bloom's local data folder shows after Bloom restarts.	加载项是由 Bloom 启动的独立程序，在这里逐个开启和关闭。你自己放入 Bloom 本地数据文件夹中 user-addons 的加载项，在重新启动 Bloom 后显示。
+All add-ons	加载项列表
+Turns the taskbar into a centred pill	将任务栏变为居中的药丸形状
+Starts taskbar customization again	重新启动任务栏自定义
+An add-on you added	你添加的加载项
+Starts this add-on again	重新启动此加载项
+Turn on again	重新开启
+Clears Explorer's crash record and turns it on again	清除资源管理器的崩溃记录并重新开启
+Not turned on in a development copy	开发副本中不会开启
+The add-on's files are not valid, or it needs a newer Bloom	加载项文件无效，或需要更新版本的 Bloom
+Bloom started with Shift held, so it is off this time	启动时按住了 Shift，本次未开启
+Turning on · downloading symbol files {0}%	正在开启 · 正在下载符号文件 {0}%
+Turning on	正在开启
+Paused · Explorer kept crashing, so this add-on was turned off	已暂停 · 资源管理器连续崩溃，已关闭此加载项
+No symbols · this Windows version lacks the symbols it needs	无符号 · 此 Windows 版本缺少所需的符号
+On in Windhawk · turn the same mod off in Windhawk. If you don't use Windhawk, set its service to manual start and close or uninstall Windhawk instead	已在 Windhawk 中开启 · 请在 Windhawk 中关闭同一模组。如果不使用 Windhawk，也可以将其服务设为手动启动并退出或卸载 Windhawk
+Blocked by a security feature · Windows Security (Smart App Control) kept it from loading	被安全功能阻止 · Windows 安全中心（智能应用控制）阻止了加载
+Could not download the symbol files · check your connection and try again	无法下载符号文件 · 请检查网络连接后重试
+Explorer needs a restart · restart Explorer, then try again	需要重启资源管理器 · 请重启资源管理器后重试
+Stopped · this add-on stopped	已停止 · 此加载项已停止
+Turn on {0}	开启 {0}
+An add-on you added is a separate program that Bloom neither made nor checked. Turning it on starts that program, and it may load code into Explorer. Only turn on add-ons you trust.	你添加的加载项是 Bloom 未制作也未检查的独立程序。开启后会启动该程序，它可能会向资源管理器载入代码。请只开启你信任的加载项。
 API keys	API 密钥
-No key · click to add one	无密钥 · 点击添加密钥
 Loading the model list…	正在加载模型列表…
 Key saved · {0} models · encrypted on this PC only	密钥已保存 · {0} 个模型 · 仅加密保存在这台电脑上
+Providers with no key: {0}	没有密钥的提供方：{0}
+Add an API key…	添加 API 密钥…
+Pick a provider	选择提供方
 Stored encrypted on this PC only · used only for requests to {0}	仅加密保存在这台电脑上的密钥 · 只用于发往 {0} 的请求
 Test · refresh models	测试连接 · 刷新模型
 Change key	更换密钥
 Remove key	删除密钥
 Deletes the {0} API key and model list from this PC.	从这台电脑删除 {0} 的 API 密钥和模型列表。
 Connected. {0} models loaded.	已连接。已加载 {0} 个模型。
- Install it and sign in with omp login.	 请安装后用 omp login 登录。
+Data	数据
+What Bloom keeps on this PC, to see and delete. The sizes are measured when this page opens.	查看并删除 Bloom 在本机保存的数据。大小在打开此页面时计算。
+The recording's data folder	录屏用数据文件夹
+Bloom data	Bloom 数据
+Add-on data	加载项数据
+The add-ons' settings, state and run copies	加载项的设置、状态和运行副本
+Chats and history	对话和记录
+AI chat history	AI 聊天记录
+{0} chats and their attachments	{0} 个对话及其附件
+Chats and their attachments	对话及其附件
+Deletes {0} AI chats and their attachments. An open AI chat window closes. What Claude Code and Codex saved in their own folders stays. This can't be undone.	删除 {0} 个 AI 聊天对话及其附件。已打开的 AI 聊天窗口会关闭。Claude Code 和 Codex 保存在各自文件夹中的记录会保留。此操作无法撤销。
+Added accounts' CLI history	已添加账户的 CLI 记录
+Chats the accounts added in Bloom left in Claude Code and Codex	在 Bloom 中添加的账户留在 Claude Code 和 Codex 中的对话
+Deletes the {0} of history that chats with the accounts added in Bloom left in Claude Code and Codex. Those chats can't be continued any more. The default accounts' history stays. This can't be undone.	删除在 Bloom 中添加的账户的对话留在 Claude Code 和 Codex 中的 {0} 记录。这些对话将无法继续。默认账户的记录会保留。此操作无法撤销。
+{0} copies · pinned ones stay	{0} 条复制内容 · 已固定的会保留
+Copies · pinned ones stay	复制内容 · 已固定的会保留
+Deletes {0} copies. Pinned ones stay. This can't be undone.	删除 {0} 条复制内容。已固定的会保留。此操作无法撤销。
+Sends {0} notes to the Recycle Bin. They can be restored from there.	将 {0} 个便笺移到回收站。可以从回收站还原。
+{0} running	{0} 个进行中
+Running timers and reminders	正在运行的计时器和提醒
+Cancels {0} running timers and reminders. This can't be undone.	取消 {0} 个正在运行的计时器和提醒。此操作无法撤销。
+Recently used	最近使用
+The recent list and how often each item was opened	最近使用列表和各项目的打开次数
+Deletes the recent list and how often each item was opened. The search results go back to their first order. This can't be undone.	删除最近使用列表和各项目的打开次数。搜索结果将恢复为最初的顺序。此操作无法撤销。
+Search learning	搜索学习
+{0} picked results	{0} 条选择记录
+Picked results	选择记录
+Deletes {0} picked results. This can't be undone.	删除 {0} 条选择记录。此操作无法撤销。
+Recent colours · palettes	最近颜色 · 调色板
+{0} recent colours and {1} palettes	{0} 个最近颜色和 {1} 个调色板
+Recent colours and palettes	最近颜色和调色板
+Deletes {0} recent colours and {1} palettes. This can't be undone.	删除 {0} 个最近颜色和 {1} 个调色板。此操作无法撤销。
+Bloom Lens captures	Bloom Lens 截图
+{0} captures	{0} 张截图
+Captured pictures	截取的图片
+Deletes {0} captures. Pinned pictures stay; the picture previews in AI chats go. This can't be undone.	删除 {0} 张截图。已固定在屏幕上的图片会保留，AI 聊天中的图片预览会消失。此操作无法撤销。
+Things you made	自己创建的内容
+{0} favorites, their folders and picture icons	{0} 个收藏及其文件夹、绘制的图标
+Favorites, their folders and picture icons	收藏及其文件夹、绘制的图标
+Deletes {0} favorites, their folders and picture icons. Item shortcuts stay. This can't be undone.	删除 {0} 个收藏及其文件夹、绘制的图标。项目快捷键会保留。此操作无法撤销。
+{0} shortcuts	{0} 个快捷方式
+Shortcuts you made	自己创建的快捷方式
+Deletes the shortcuts you made and brings back the built-in ones. This can't be undone.	删除自己创建的快捷方式，并恢复内置快捷方式。此操作无法撤销。
+{0} scripts, snippets and chains	{0} 个脚本、片段和操作链
+Scripts, snippets and chains	脚本、片段和操作链
+Deletes {0} scripts, snippets and chains and their shortcuts. This can't be undone.	删除 {0} 个脚本、片段和操作链及其快捷键。此操作无法撤销。
+Changed app names	修改过的应用名称
+{0} app names	{0} 个应用名称
+App names changed in Bloom	在 Bloom 中更改的应用名称
+Puts {0} app names back to their own.	将 {0} 个应用名称恢复为原名。
+Sends {0} playlists to the Recycle Bin.	将 {0} 个播放列表移到回收站。
+Recovered documents	恢复的文档
+Document edits that could not be saved	未能保存的文档编辑内容
+To the Recycle Bin	移到回收站
+Sign-ins	登录信息
+Added AI accounts	已添加的 AI 账户
+Sign-ins of {0} accounts	{0} 个账户的登录信息
+Signs out of the {0} accounts added in Bloom and sends their sign-in folders to the Recycle Bin. The default Claude Code and Codex accounts stay.	退出在 Bloom 中添加的 {0} 个账户，并将其登录文件夹移到回收站。Claude Code 和 Codex 的默认账户保持不变。
+{0} keys	{0} 个密钥
+The API providers' keys	API 提供方的密钥
+Deletes {0} saved API keys. API chats and API translation need a key again. This can't be undone.	删除 {0} 个已保存的 API 密钥。使用 API 对话和 API 翻译需要重新输入密钥。此操作无法撤销。
+JRiver password	JRiver 密码
+The password the mini player sends to JRiver	迷你播放器发送给 JRiver 的密码
+Deletes the saved JRiver password.	删除已保存的 JRiver 密码。
+Settings, favorites, app names, site shortcuts and recent colours in one file	把设置、收藏、应用名称、网站快捷方式和最近颜色存成一个文件
+Export	导出
+Brings in an exported settings file. The current settings are backed up in the data folder.	导入已导出的设置文件。当前设置会备份到数据文件夹。
+Import	导入
+Favorites, chats, accounts and API keys stay	收藏、对话、账户和 API 密钥会保留
+Puts every setting back to its default and restarts Bloom. Start with Windows turns on again. Favorites, chats, added accounts, API keys, item shortcuts and the omp model list stay.	将所有设置恢复为默认值并重新启动 Bloom。“随 Windows 启动”也会重新开启。收藏、对话、已添加的账户、API 密钥、项目快捷键和 omp 模型列表会保留。
+Restore defaults	恢复默认值
+Edited prices	修改过的价格表
+Token prices you edited	自己修改的 Token 价格
+Deletes the token prices you edited and goes back to the built-in ones.	删除自己修改的 Token 价格，恢复为内置价格。
+Settings backups	设置备份
+{0} old copies of the settings	{0} 份旧设置副本
+Deletes {0} old copies of the settings made before an import.	删除导入前创建的 {0} 份旧设置副本。
+Cache and logs	缓存和日志
+Cache	缓存
+Model lists, exchange rates and ChatGPT's connection data	模型列表、汇率和 ChatGPT 连接数据
+Deletes files that can be made again: model lists, exchange rates and ChatGPT's connection data. The first answer of the next ChatGPT chat may take tens of seconds while the history is read again.	删除可以重新生成的文件：模型列表、汇率和 ChatGPT 连接数据。下一次 ChatGPT 对话的第一个回答可能因重新读取记录而慢几十秒。
+Clear	清除
+Clear the cache	清除缓存
+Token counts	Token 统计
+The token numbers on the usage screen	用量界面上的 Token 数
+Clears the token counts Bloom made and counts again from the logs that are left. Logs Claude Code already removed after 30 days do not come back.	清除 Bloom 统计的 Token 数，并从剩下的记录重新统计。Claude Code 已删除的 30 天前的记录无法恢复。
+Clear the token counts	清除 Token 统计
+Logs	日志
+What problem reports are made from	用于生成问题报告的记录
+Clears what problem reports are made from.	清除用于生成问题报告的记录。
+Clear the logs	清除日志
+Everything	全部
+Deletes all data and starts again from the first-run screens	删除所有数据，并从首次设置界面重新开始
+Reset…	重置…
+Removes Bloom from this PC. You choose whether the data stays	从本机删除 Bloom。可以选择是否保留数据
+Measuring	正在计算大小
+Delete {0}	删除{0}
+Bloom · Data	Bloom · 数据
+Part of {0} stayed	{0} 有部分未能删除
+Files another program has open stayed. Close that program and try again.	其他程序正在使用的文件未删除。请关闭该程序后再试。
+{0} moved to the Recycle Bin	已将{0}移到回收站
+{0} deleted · {1} freed	已删除{0} · 释放 {1}
+{0} deleted	已删除{0}
+Delete recovered documents	删除恢复的文档
+Document edits that could not be saved. This copy may be the only one. Open it and check before sending it away.	这是未能保存的文档编辑内容。这可能是唯一的副本。移走前请先打开确认。
+Other	其他
+all	全部
+Type a model…	输入模型…
+A model not in the list, as provider/model	以 提供方/模型 的格式输入列表中没有的模型
+Type a model	输入模型
+A model not in the omp model list: provider/model · empty = omp's own default	不在 omp 模型列表中的模型：提供方/模型 · 留空则用 omp 自己的默认模型
+Use provider/model	请按 提供方/模型 的格式输入
+Model	模型
+omp chat model	omp 聊天模型
+For new chats · empty = omp's own default · Ctrl+M during a chat	新聊天的默认值 · 留空则用 omp 自己的默认模型 · 聊天中按 Ctrl+M
+Thinking level	思考级别
+omp chat thinking level	omp 聊天思考级别
+The levels depend on the model · Ctrl+E during a chat	级别因模型而异 · 对话中按 Ctrl+E
+Web search in omp chats	omp 聊天中的网页搜索
+omp's own file reading, writing and commands are blocked. Bloom's PC actions and the MCP servers switched on are set in PC actions · MCP.	omp 自带的文件读写和命令执行已被禁用。Bloom 的电脑操作和已开启的 MCP 服务器在“电脑操作 · MCP”中设置。
  · answers with the models you signed in to	 · 使用你已登录的模型回答
-Installation guide	安装指南
+omp installation guide	omp 安装指南
+ Install it and sign in with omp login.	 请安装后用 omp login 登录。
 omp path	omp 路径
 Empty = looked up on the PATH	留空则在 PATH 中查找
 No such file	没有这个文件
-Chat model	聊天模型
-For new chats · empty = omp's own default · Ctrl+M during a chat	新聊天的默认值 · 留空则用 omp 自己的默认模型 · 聊天中按 Ctrl+M
-Type a chat model	直接输入聊天模型
-A model not in My models: provider/model · empty = omp's own default	不在“我的模型”中的模型：提供方/模型 · 留空则用 omp 自己的默认模型
-Use provider/model	请按 提供方/模型 的格式输入
-Chat thinking level	聊天思考级别
-The levels depend on the model · Ctrl+E during a chat	级别因模型而异 · 对话中按 Ctrl+E
-Web search in chats	聊天中的网页搜索
-omp's own file access and commands are blocked · Bloom's PC actions and the MCP servers you switched on: Settings › PC actions · MCP	omp 自带的文件访问和命令执行已被禁用 · Bloom 的电脑操作和已开启的 MCP 服务器见 设置 › 电脑操作 · MCP
-Quick jobs	快速任务
-Quick-job model	快速任务模型
-Translation and AI actions · lighter is faster · empty = omp's own default	翻译 · AI 快捷操作 · 越轻越快 · 留空则用 omp 自己的默认模型
-Type a quick-job model	直接输入快速任务模型
-A model not in My models: provider/model	不在“我的模型”中的模型：提供方/模型
-Quick-job thinking level	快速任务思考级别
-Off is fastest and uses least · also a chip in the translation window	关闭最快、用量最少 · 也可在翻译窗口的标签中更改
-In omp chats	在 omp 对话中
-Approval card in AI chat before actions · applies from the next message	操作前在 AI 聊天中显示批准卡片 · 从下一条消息起生效
+omp model list · {0}	omp 模型列表 · {0} 个
+Enter closes it	按 Enter 关闭
+The omp models in the model menus · Enter edits them	模型菜单中显示的 omp 模型 · 按 Enter 编辑
 Answers with the model omp is set to use	使用 omp 中设置的默认模型回答
-My models	我的模型
+omp model list	omp 模型列表
  · not in omp's list now (kept)	 · 已不在 omp 的列表中（保留）
 Default level	默认级别
 The thinking level a chat with this model starts at	用此模型开始新聊天时的思考级别
@@ -2003,25 +2178,59 @@ Language	语言
 Restarts Bloom to apply · Auto uses the Windows display language	应用时重新启动 Bloom · 自动使用 Windows 显示语言
 Restart Bloom to apply the language.	重新启动 Bloom 以应用语言。
 Tap Win alone to open (combinations like Win+E still work)	只按 Win 键即可打开 (Win+E 等组合键照常可用)
-Win key over admin apps	在管理员应用上也使用 Win 键
-Opens with Win even over apps run as administrator · admin approval to turn on	即使前台是以管理员身份运行的应用，也可用 Win 键打开 · 开启需要管理员批准
 Another app uses it	已被其他应用占用
 Open with Alt + Space	用 Alt + Space 打开
 Autostart unavailable in development runs	开发运行时无法设置自动启动
 Runs in the tray at sign-in	登录时在托盘中运行
 Not registered	未注册
+Win key over admin apps	在管理员应用上也使用 Win 键
+Opens with Win even over apps run as administrator · admin approval to turn on	即使前台是以管理员身份运行的应用，也可用 Win 键打开 · 开启需要管理员批准
 Look	外观
-Taskbar look	任务栏外观
-Glass on (Windows transparency effects)	玻璃效果已开启 (Windows 透明效果)
-Windows transparency effects are off, so it is solid	Windows 透明效果已关闭，因此显示为纯色
-Custom	自定义
-{0} · for switches that are on, the chosen line and the text cursor	{0} · 用于打开的开关、选中的线条和文字光标
-Custom colour	自定义颜色
-Type #RRGGBB (like #3A7BD5) · the light theme uses it, the dark one a lighter take	输入 #RRGGBB（例如 #3A7BD5）· 浅色主题使用该颜色，深色主题使用其较亮的版本
+System follows Windows' light or dark setting	“系统”跟随 Windows 的浅色或深色设置
 The launcher, tool windows, chat and settings together · Ctrl+= / Ctrl+- / Ctrl+0 in the launcher	启动器、工具窗口、对话和设置一起调整 · 在启动器中按 Ctrl+= / Ctrl+- / Ctrl+0
+Animation	动画
+Reduced: fades only · Off: nothing moves	减少：仅淡入淡出 · 关闭：完全静止
+Reduced	减少
+Glass effect	玻璃效果
+Follows Windows' transparency effects. Off, the background is solid.	跟随 Windows 的透明效果。关闭时背景为纯色。
 Reset to default	恢复默认大小
 Launcher window size	启动器窗口大小
 Now {0} × {1} · default {2} × {3} · drag the launcher's edges or corners to change it	当前 {0} × {1} · 默认 {2} × {3} · 拖动启动器的边缘或角落即可调整
+Animation frames per second	每秒动画帧数
+Lower uses less GPU and CPU	越低越省 GPU 和 CPU
+30	30
+60	60
+Glass transparency	玻璃透明度
+Higher shows more of the screen behind	越高越能透出后面的画面
+Restart Bloom to apply GPU drawing.	重新启动 Bloom 以应用 GPU 绘制。
+GPU drawing (experimental)	GPU 绘制（实验性）
+Draws the screen with the GPU. Some PCs may stutter or freeze for seconds. Off: the CPU draws, with about 30 MB less memory.	用 GPU 绘制界面。部分电脑上画面可能卡顿或停住几秒。关闭后用 CPU 绘制，内存少约 30 MB。
+Changes when Bloom restarts	重启 Bloom 后生效
+Memory Bloom uses now	Bloom 当前使用的内存
+{0:0} MB · about 80 MB with everything off; each setting says what it adds	{0:0} MB · 全部关闭时约 80 MB；各项设置都注明了会增加多少
+Launcher	启动器
+The home under an empty search line, and the search results	搜索栏为空时的主页和搜索结果
+Home blocks	主页区块
+Drag, ▲▼ or Ctrl+↑↓ to order	拖动、▲▼ 或 Ctrl+↑↓ 调整顺序
+Drag to reorder	拖动排序
+Up (Ctrl+↑)	上移 (Ctrl+↑)
+Down (Ctrl+↓)	下移 (Ctrl+↓)
+Reads the logs once when first switched on	首次开启时读取一次记录
+5-hour and weekly usage · about +2 MB of memory when on	5 小时和每周用量 · 开启后内存约 +2 MB
+ — neither Claude Code nor Codex found	 — 未找到 Claude Code 和 Codex
+Search results	搜索结果
+Start Everything	启动 Everything
+Files too	也搜索文件
+Everything running · up to 5 at the top	Everything 正在运行 · 在顶部最多显示 5 个
+Everything off · recent files searched instead	Everything 未运行 · 改为在最近文件中查找
+Open windows too	也搜索打开的窗口
+Up to 3 windows whose title matches, under the results · Enter switches to it	在结果下方列出最多 3 个标题匹配的窗口 · 按 Enter 切换过去
+Prioritize selected results	优先显示选过的结果
+Typing the same again puts your last pick first (“c” → Chrome) · kept on this PC only	再次输入相同内容时，上次的选择会排在最前 (“c” → Chrome) · 只保存在本机
+Web search	网页搜索
+Browser for links	打开链接的浏览器
+From the browsers on this PC · web searches and links open in it	从本机的浏览器中选择 · 网页搜索和链接都会在其中打开
+Keyword + space + words (e.g. yt cats) · {0} · Enter manages them in the launcher	关键词 + 空格 + 搜索词 (例如 yt cats) · {0} 个 · 按 Enter 在启动器中管理
 Favorite icons	收藏图标
 Icon style	图标样式
 Picture icon background	图片图标的背景
@@ -2030,96 +2239,99 @@ Neutral	中性色
 Card	卡片
 Make picture icons	生成图案图标
 Applies matching pictures, black tiles and the accent color to {0} favorites, including folder items.	为 {0} 个收藏应用匹配的图片、黑色底色和强调色，包括文件夹内的项目。
-Draw them all with AI	用 AI 全部画出
+Draw icons with AI	用 AI 绘制图标
 Creates AI icons for {0} favorites · {1} uses.	为 {0} 个收藏生成 AI 图标 · 计入 {1} 次用量。
 Drawing…	正在画…
 Drawing… {0}/{1}	正在画… {0}/{1}
  · {0} failed	 · {0} 个失败
+Restore the original icons	恢复原图标
 Restores original app icons for {0} picture icons.	将 {0} 个图片图标恢复为原应用图标。
-The blocks under an empty search line — switch them, drag or ▲▼ / Ctrl+↑↓ to order (also ‘Edit home’ in the launcher)	空搜索栏下方的区块 — 开关，拖动或 ▲▼ / Ctrl+↑↓ 排序 (也可用启动器中的“编辑主页”)
-Blocks	区块
-Drag to reorder	拖动排序
-Up (Ctrl+↑)	上移 (Ctrl+↑)
-Down (Ctrl+↓)	下移 (Ctrl+↓)
-5-hour and weekly usage · about +2 MB of memory when on	5 小时和每周用量 · 开启后内存约 +2 MB
- — neither Claude Code nor Codex found	 — 未找到 Claude Code 和 Codex
-Hidden, only while asked: Claude ~470 MB for 4 s · Codex ~110 MB for 1 s	仅在查询时后台运行：Claude 约 470 MB 持续 4 秒 · Codex 约 110 MB 持续 1 秒
-5 min	5 分钟
-10 min	10 分钟
-What's used (32%) or what's left (68% left) · the bars follow	已用量 (32%) 或剩余量 (剩 68%) · 进度条也随之变化
-Left	剩余
-Write the usage to a file	将用量写入文件
-Writes the percentages and reset times, no e-mail, to %LOCALAPPDATA%\\Bloom\\export\\ai-usage.json for other programs to read · the lookups run even with the home block off: Claude ~470 MB for 4 s every interval	仅将已用百分比和重置时间（不含邮箱）写入 %LOCALAPPDATA%\\Bloom\\export\\ai-usage.json，供其他程序读取 · 即使主页区块关闭，查询也会运行，每个间隔 Claude 约占用 470 MB、耗时 4 秒
-Edit prices	编辑价格表
-Overrides the built-in token prices (as of {0}) · prices.json	覆盖内置的 Token 价格（截至 {0}）· prices.json
-Clear the token counts	清除 Token 统计
-Clears only what Bloom counted and counts again · logs Claude Code removed after 30 days do not come back	仅清除 Bloom 统计的数字并重新统计 · Claude Code 删除的 30 天前的记录无法恢复
-Clears the token counts Bloom made and counts again from the logs that are left. Logs Claude Code already removed after 30 days do not come back.	清除 Bloom 统计的 Token 数，并从剩下的记录重新统计。Claude Code 已删除的 30 天前的记录无法恢复。
 Clear counts	清除
 Token counts cleared	已清除 Token 统计
-What else to search besides apps as you type	输入时除了应用还要一起搜索什么
-Also search	同时搜索
-Files too	也搜索文件
-Up to 5 Everything results	最多 5 条 Everything 结果
-Everything is not running — recent files are searched instead	Everything 未运行 — 改为在最近文件中查找
-Running · finds any file on the PC by name	运行中 · 按名称查找电脑上的任意文件
-Not running — Enter starts it	未运行 — 按 Enter 启动
-Open windows too	也搜索打开的窗口
-Up to 3 windows whose title matches, under the results · Enter switches to it	在结果下方列出最多 3 个标题匹配的窗口 · 按 Enter 切换过去
-Learning	学习
-Prioritize selected results	优先显示选过的结果
-Typing the same again puts your last pick first (“c” → Chrome) · kept on this PC only	再次输入相同内容时，上次的选择会排在最前 (“c” → Chrome) · 只保存在本机
-Clear search learning history	清除搜索学习记录
-Nothing yet	尚无记录
-{0} typed lines · Enter clears them	{0} 条输入 · 按 Enter 清除
-Web search	网页搜索
-From the browsers on this PC · web searches and links open in it	从本机的浏览器中选择 · 网页搜索和链接都会在其中打开
-Keyword + space + words (e.g. yt cats) · {0} · Enter manages them in the launcher	关键词 + 空格 + 搜索词 (例如 yt cats) · {0} 个 · 按 Enter 在启动器中管理
-Names	名称
-App names changed in Bloom	在 Bloom 中更改的应用名称
-On an app: Ctrl+K → Rename (in Bloom only; the original name still finds it)	在应用上按 Ctrl+K → 重命名 (仅在 Bloom 中，原名仍可搜到)
-{0} · Enter puts all the original names back	{0} 个 · 按 Enter 全部恢复原名
-Tab opens AI chat · uses Claude, ChatGPT or omp signed in on this PC, or an API key	按 Tab 打开 AI 聊天 · 使用本机已登录的 Claude · ChatGPT · omp，或 API 密钥回答
+Saved captures deleted: {0}	已删除 {0} 张已保存的截图
+Shortcuts	快捷键
+Shortcuts that work in any app	在任何应用中都能用的快捷键
+Opens the chat window anywhere · down again when it's in front	随时打开对话窗口 · 已在最前时再按会收起
+Opens the clipboard history right away	立即打开剪贴板历史
+Opens the list of open windows	打开已打开窗口的列表
+Emoji & symbols	表情符号 · 符号
+Choose a symbol and press Enter to paste into the active window.	选择符号并按 Enter，粘贴到当前窗口。
+Select text in any app and press it: summarize, translate, polish (1 use per action · engine: AI chat › Translation · AI actions)	在任意应用中选中文字后按下：摘要 · 翻译 · 润色 (每次操作计 1 次用量 · 引擎：AI 聊天 › 翻译 · AI 快捷操作)
+Pick a colour anywhere	随处取色
+After the area: a menu of what to do	选择区域后：显示操作菜单
+Ask AI right away	直接问 AI
+After the area: a chat with that picture attached (1 use per question)	选择区域后：打开附有该图片的对话 (每次提问消耗 1 次)
+Copy text right away	直接复制文字
+After the area: reads and copies the text (on this PC, no usage)	选择区域后：识别文字并复制 (在本机完成，不消耗额度)
+Translate right away	直接翻译
+After the area: reads and translates it (1 use each)	选择区域后：识别并翻译 (每次消耗 1 次)
+Live translation right away	直接实时翻译
+Keeps reading the area and translates when it changes (ongoing usage)	持续读取区域，内容变化时翻译 (持续消耗额度)
+Capture right away	直接截图
+After the area: a pen and highlighter bar opens — Enter copies, Ctrl+V pastes	选择区域后打开笔 · 荧光笔工具栏 — Enter 复制，Ctrl+V 粘贴
+Item shortcuts	项目快捷键
+None yet	尚无项目
+Pick an app, folder, command or layout in the launcher, then Ctrl+K › Set a shortcut	在启动器中选择应用、文件夹、命令或布局，然后 Ctrl+K › 设置快捷键
+Click to change · Backspace removes it	点击更改 · Backspace 删除
+AI chat on Tab, translation and AI actions	按 Tab 打开的 AI 聊天、翻译和 AI 快捷操作
 New chats use	新对话使用
 Ctrl+Shift+M switches during a chat · Ctrl+M picks the model	对话中按 Ctrl+Shift+M 切换 · Ctrl+M 选择模型
-AI chat window shortcut	AI 对话窗口快捷键
-Opens the chat window anywhere · down again when it's in front	随时打开对话窗口 · 已在最前时再按会收起
+Claude Code installation guide	Claude Code 安装指南
+Codex installation guide	Codex 安装指南
 Tab continues the last chat	按 Tab 继续上次对话
 Picks up a chat used in the last 30 min · Shift+Tab always starts a new one	继续 30 分钟内用过的对话 · Shift+Tab 总是新建对话
 Generate chat titles with AI	用 AI 生成聊天标题
-Model, field and task, like [◆ Opus • Code ] Fix the login · changes only when a new task starts	如 [◆ Opus • Code ] 修复登录，包含模型、领域和任务 · 仅在开始新任务时更改
-Claude model	Claude 模型
-For new chats · Ctrl+M during a chat	新对话的默认值 · 对话中按 Ctrl+M
-Claude thinking level	Claude 思考级别
-Fast = thinking off · not for Haiku · Ctrl+E during a chat	快速 = 关闭思考 · Haiku 不支持 · 对话中按 Ctrl+E
+Titles a chat from what it says. It changes only when a new task starts.	根据对话内容生成标题。仅在开始新任务时更改。
+Other AIs and advanced	其他 AI 和高级设置
+ · uses your ChatGPT login	 · 使用你的 ChatGPT 登录
 ChatGPT model	ChatGPT 模型
 Codex's default model	Codex 默认模型
  · Ctrl+M during a chat	 · 对话中按 Ctrl+M
 No Codex model list yet — run Codex once to get it	还没有 Codex 的模型列表 — 运行一次 Codex 即可获取
 ChatGPT thinking level	ChatGPT 思考级别
-{0} · uses your ChatGPT login	{0} · 使用已登录的 ChatGPT 账号
 API model	API 模型
+For new chats · Ctrl+M during a chat	新对话的默认值 · 对话中按 Ctrl+M
 API thinking level	API 思考级别
 Default = the model's own · reasoning models only · Ctrl+E during a chat	默认为模型自身设置 · 仅限推理模型 · 聊天中按 Ctrl+E
-Add an API key in Settings > AI accounts to pick a model	在 设置 > AI 账户 中添加 API 密钥后即可选择模型
+Add an API key	添加 API 密钥
+No API key. Add one in AI accounts.	没有 API 密钥。请在 AI 账户中添加密钥。
+Claude model	Claude 模型
+Claude thinking level	Claude 思考级别
+Fast = thinking off · not for Haiku · Ctrl+E during a chat	快速 = 关闭思考 · Haiku 不支持 · 对话中按 Ctrl+E
+Translation · AI actions	翻译 · AI 快捷操作
+Translation engine	翻译引擎
+AI actions use this engine too · also switchable in the translation window	AI 快捷操作也使用此引擎 · 也可在翻译窗口中切换
+Haiku has no thinking level setting.	Haiku 不支持思考级别设置。
+Lighter is faster · empty = omp's own default	越轻量越快 · 留空则用 omp 自己的默认模型
+Lighter models are faster and cost less	越轻的模型越快，费用也越低
+Lighter models are faster and use less	模型越轻越快，用量也越少
+Lower is faster and uses less · also a chip in the translation window	越低越快、用量越少 · 也可通过翻译窗口中的标签更改
+Translate into	翻译成
+Auto: Korean text to English, other text to Korean	自动：韩语译为英语，其他文字译为韩语
+Live translation interval	实时翻译间隔
+How often the screen is read again (reading uses nothing · it translates only when the text changed and settled)	重新读取屏幕的间隔 (读取不消耗额度 · 仅在文字变化并稳定后翻译)
+1 s	1 秒
+1.5 s	1.5 秒
+3 s	3 秒
+5 s	5 秒
 PC actions · MCP	电脑操作 · MCP
-Use AI chat to open apps, find and move files, and set timers on this PC.	可在 AI 聊天中打开本机应用、查找和移动文件、设置计时器。
-In Claude chats	在 Claude 对话中
-In ChatGPT chats	在 ChatGPT 对话中
-In API chats	在 API 聊天中
+AI chat opens apps, tidies files and sets timers on this PC	AI 聊天可在本机打开应用、整理文件、设置计时器
+Chats that use it	使用的对话
+An approval card before each action · about +250–500 tokens per request	每次操作前显示批准卡片 · 每次请求约 +250~500 Token
 Permissions	权限
+All but PC actions apply to API chats only	除电脑操作外仅适用于 API 对话
 Ask each time	每次询问
 Always allow	始终允许
 Read files (outside the chat's folder)	读取文件（对话文件夹以外）
-API chats · asks only outside the chat's folder · also covers content search	API 对话 · 仅在对话文件夹之外询问 · 内容搜索同样适用
+Asks only outside the chat's folder. Content search applies to every chat.	仅在对话文件夹之外时询问。内容搜索适用于所有对话。
 Write files	写入文件
-API chats · make a file or replace one	API 聊天 · 新建文件、覆盖文件
+Make a file or replace one	新建或覆盖文件
 Edit files	编辑文件
-API chats · change part of a file	API 聊天 · 修改文件的一部分
+Change part of a file	修改文件的一部分
 Run commands	运行命令
-API chats · PowerShell in the chat's folder	API 聊天 · 在对话文件夹中运行 PowerShell
+PowerShell in the chat's folder	在对话文件夹中运行 PowerShell
 Other MCP tools	其他 MCP 工具
-API chats · tools of the MCP servers switched on below · Off starts none	API 聊天 · 下方已开启的 MCP 服务器工具 · 关闭后不启动服务器
+Tools of the MCP servers switched on below · Off starts none	下方已开启的 MCP 服务器的工具 · 关闭则不启动任何服务器
 PC actions (Bloom's tool)	电脑操作（Bloom 功能）
 Every chat · open, notes, timers, files, clipboard · look-ups never ask	所有对话 · 打开 · 便笺 · 计时器 · 文件整理 · 剪贴板 · 查询操作无需询问
 What it may do	可以做的事
@@ -2132,6 +2344,8 @@ Write in Bloom's notes, start its timers, put events on its calendar — asks fi
 Rename, move, copy, recycle — asks first · the Recycle Bin brings things back	重命名、移动、复制、移到回收站 — 会先询问 · 可从回收站还原
 Read and write the clipboard — asks first	读取和写入剪贴板 — 会先询问
 Other MCP servers on this PC	本机的其他 MCP 服务器
+One switched on starts with each chat. The first answer comes a little later, and usage goes up.	开启后会随每个对话一起启动。第一个回答会稍慢，用量也会增加。
+Read the list again	重新读取列表
 No servers found	未找到服务器
 MCP servers set up in Claude Code, Claude Desktop, Cursor, VS Code, Windsurf or Codex show here	在 Claude Code、Claude Desktop、Cursor、VS Code、Windsurf 或 Codex 中设置的 MCP 服务器会显示在这里
  · runs on this PC	 · 在本机运行
@@ -2139,105 +2353,35 @@ MCP servers set up in Claude Code, Claude Desktop, Cursor, VS Code, Windsurf or 
 Bring in an MCP settings file…	导入 MCP 设置文件…
 A .json with mcpServers (like a project's .mcp.json) — for servers not found above	含 mcpServers 的 .json (如项目的 .mcp.json) — 用于上方未找到的服务器
 MCP settings (*.json)|*.json	MCP 设置 (*.json)|*.json
-Before you switch one on	开启之前
-It starts with each chat (a slower first answer) and its tool list adds usage · every tool call asks in the chat	每个对话都会启动它 (首次回答会慢一些)，工具列表也会增加用量 · 每次调用工具都会在对话中询问
-Connection	连接
-How it connects	连接方式
-Used in Bloom AI chat on this PC	在本机 Bloom AI 聊天中使用
-What it costs	开销
-Per request: Claude about +500, ChatGPT about +250 tokens (less with fewer kinds on) · about 10 MB of memory while in use	每次请求 Claude 约 +500、ChatGPT 约 +250 个 token (开启的种类越少越省) · 使用时内存约 10 MB
 Features	功能
 Switch off what you don't use — it leaves the results, the command list, the home and the favorites row, and lets go of its shortcut. Nothing saved is deleted	关闭不用的功能 — 它会从搜索结果、命令列表、主页和收藏栏中移除，并释放快捷键。已保存的内容不会被删除
 In the search line	在搜索栏中
 Windows · tools	窗口 · 工具
 Make it the default app	设为默认应用
 Pick Bloom for .md files in Windows Settings, and a double-click in Explorer opens them in Bloom's document window	在 Windows 设置中将 Bloom 选为打开 .md 文件的应用后，在资源管理器中双击即可在 Bloom 文档窗口中打开
-Keeps the text, pictures and files you copy, to paste again	保存复制过的文字、图片和文件，以便再次粘贴
-History	历史
-On · {0} · from about +2 MB of memory, more with pictures · copies that password managers hide are never kept	已开启 · {0} 项 · 内存约 +2 MB 起，图片越多越大 · 不会保存密码管理器隐藏的内容
-Off · no history saved · on: from about +2 MB	已关闭 · 不保存记录 · 开启后：内存约增加 2 MB 起
+Clipboard history, Bloom Lens, timers, the colour picker and the mini player	剪贴板记录、Bloom Lens、计时器、取色器和迷你播放器
+From about +2 MB of memory, more with pictures	内存约 +2 MB 起，图片越多越大
+On: from about +2 MB of memory	开启：内存约 +2 MB 起
+On · {0} · copies that password managers hide are never kept	已开启 · {0} 项 · 不会保存密码管理器隐藏的内容
+Off · no history saved	已关闭 · 不保存记录
 Keep for	保留时间
 Kept for good	永久保留
 Kept for {0}	保留 {0}
  · 0 = for good · pinned ones always stay · 500 at most	 · 0 = 永久 · 已固定的始终保留 · 最多 500 条
-Opens the clipboard history right away	立即打开剪贴板历史
-Clean up	清理
-Clear the history	清除历史
-Pinned entries stay	已固定的会保留
-Pick a screen area, then what to do — ask AI, translate, copy text, live translation, pin, capture (1–6)	先选择屏幕区域，再选择操作 — 问 AI、翻译、复制文字、实时翻译、固定、截图 (1–6)
-After the area: a menu of what to do	选择区域后：显示操作菜单
-Ask AI right away	直接问 AI
-After the area: a chat with that picture attached (1 use per question)	选择区域后：打开附有该图片的对话 (每次提问消耗 1 次)
-Copy text right away	直接复制文字
-After the area: reads and copies the text (on this PC, no usage)	选择区域后：识别文字并复制 (在本机完成，不消耗额度)
-Translate right away	直接翻译
-After the area: reads and translates it (1 use each)	选择区域后：识别并翻译 (每次消耗 1 次)
-Live translation right away	直接实时翻译
-Keeps reading the area and translates when it changes (ongoing usage)	持续读取区域，内容变化时翻译 (持续消耗额度)
-Capture right away	直接截图
-After the area: a pen and highlighter bar opens — Enter copies, Ctrl+V pastes	选择区域后打开笔 · 荧光笔工具栏 — Enter 复制，Ctrl+V 粘贴
-Reading text	文字识别
 Copy the text at once	立即复制文字
 Off: copy it from the launcher	关闭：在启动器中复制
+Open Windows language settings	打开 Windows 语言设置
 No recognition languages installed. Add one in Windows language settings.	未安装识别语言。请在 Windows 语言设置中添加。
 Installed: {0}	已安装：{0}
-Open Windows language settings	打开 Windows 语言设置
-Translation · AI actions	翻译 · AI 快捷操作
-Translation engine	翻译引擎
-AI actions use this engine too · also switchable in the translation window	AI 快捷操作也使用此引擎 · 也可在翻译窗口中切换
-Claude model for translation	翻译用 Claude 模型
-Haiku has no thinking level setting.	Haiku 不支持思考级别设置。
-omp model for translation	翻译用的 omp 模型
-{0} · change it in Settings > AI chat > omp > Quick-job model	{0} · 在 设置 > AI 聊天 > omp 的“快速任务模型”中更改
-API model for translation	翻译用 API 模型
-Lighter models are faster and cost less	越轻的模型越快，费用也越低
-ChatGPT model for translation	翻译用 ChatGPT 模型
-Lighter models are faster and use less	模型越轻越快，用量也越少
-Thinking level for translation	翻译思考级别
-Lower is faster and uses less · also a chip in the translation window	越低越快、用量越少 · 也可通过翻译窗口中的标签更改
-Translate into	翻译成
-Auto: Korean text to English, other text to Korean	自动：韩语译为英语，其他文字译为韩语
-Live translation interval	实时翻译间隔
-How often the screen is read again (reading uses nothing · it translates only when the text changed and settled)	重新读取屏幕的间隔 (读取不消耗额度 · 仅在文字变化并稳定后翻译)
-1 s	1 秒
-1.5 s	1.5 秒
-3 s	3 秒
-5 s	5 秒
-Saved captures	已保存的截图
-Open the saved captures folder	打开已保存截图的文件夹
-Pictures: {0} · {1} · on this PC only · the last {2} kept	{0} 张 · {1} · 仅保存在此电脑 · 只保留最近 {2} 张
-Delete all saved captures	删除所有已保存的截图
-Pinned pictures stay · picture previews in AI chats go too	固定在屏幕上的图片保留 · AI 聊天中的图片预览也会删除
-Saved captures deleted: {0}	已删除 {0} 张已保存的截图
-Shortcuts and options for switching windows, emoji, AI actions, timers and the colour picker	切换窗口、表情、AI 快捷操作、计时器和取色器的快捷键与设置
-Windows · emoji · AI actions	窗口 · 表情 · AI 快捷操作
-Switch windows shortcut	切换窗口快捷键
-Opens the list of open windows	打开已打开窗口的列表
-Emoji & symbols shortcut	表情和符号快捷键
-Choose a symbol and press Enter to paste into the active window.	选择符号并按 Enter，粘贴到当前窗口。
-AI actions shortcut	AI 快捷操作快捷键
-Select text in any app and press it: summarize, translate, polish (1 use per action · engine: Bloom Lens > Translation)	在任意应用中选中文字后按下：总结、翻译、润色 (每次操作消耗 1 次 · 引擎：Bloom Lens > 翻译)
-Item shortcuts	项目快捷键
-None yet	尚无项目
-Pick an app, folder, command or layout in the launcher, then Ctrl+K › Set a shortcut	在启动器中选择应用、文件夹、命令或布局，然后 Ctrl+K › 设置快捷键
-Click to change · Backspace removes it	点击更改 · Backspace 删除
-Tool windows	工具窗口
-Sits beside the launcher and comes and goes with it · detached, it stays on its own · Enter opens it	附在启动器旁，随其显示和隐藏 · 分离后独立显示 · 按 Enter 打开
-Play a sound too	同时播放声音
+Sound at the end	结束时的声音
 With the card at the bottom right, Windows' alarm sound (up to 30 s)	右下角卡片出现时同时播放 Windows 闹钟声 (最长 30 秒)
-Open timers and reminders	打开计时器和提醒
-{0} running	{0} 个进行中
-Nothing running	没有进行中的项目
-Color picker shortcut	取色器快捷键
-Pick a colour anywhere	随处取色
 Copy the colour at once	立即复制取到的颜色
 Copies it as HEX (#ff5a8a)	以 HEX (#ff5a8a) 复制
-Clear recent colours and palettes	清除最近颜色和调色板
-{0} colours · {1} palettes	{0} 种颜色 · {1} 个调色板
-Shows Claude Code and Codex tasks and AI usage limits in a screen corner. Hidden during full-screen games and presentations.	在屏幕角落显示 Claude Code、Codex 的任务和 AI 用量上限。全屏游戏或演示期间隐藏通知。
 Work notifications	工作通知
-On · about +1 MB of memory · pick what to tell below	已开启 · 内存约 +1 MB · 在下方选择要通知的内容
+AI work starting, done or waiting for approval, as cards in a screen corner	在屏幕角落以卡片显示 AI 任务的开始、完成和等待批准
+On · about +1 MB of memory	已开启 · 内存约 +1 MB
 Off — no cards, no sounds · on: about +1 MB	已关闭 — 没有卡片和声音 · 开启后内存约 +1 MB
+Preview	预览
 Top left	左上
 Top center	顶部居中
 Top right	右上
@@ -2260,9 +2404,7 @@ Stays while hovered · approval cards stay until work resumes	鼠标悬停时保
 20 s	20 秒
 A short sound of its own for each kind	每种通知都有自己的短提示音
 Loud	响亮
-Preview	预览
-Preview enabled notifications	预览已启用的通知
-Notification types	通知类型
+What to tell	通知内容
 What a turn works on once it runs past 4 s	任务运行超过 4 秒时显示它在做什么
 When it ends, with how long it took (past 10 s)	结束时连同所用时间一起显示 (超过 10 秒)
 Shown when approval or an answer is needed · stays until work resumes	需要批准或回复时显示 · 保留到操作继续
@@ -2272,40 +2414,14 @@ Bloom · Notifications	Bloom · 通知
 Couldn't change Claude Code's settings	无法更改 Claude Code 的设置
 5-hour · weekly limit at 20% left or when used up	5 小时 · 每周额度剩余 20% 时和用完时
 When a low limit is full again after its reset	不足的额度在重置后恢复满时
-Performance	性能
-Motion and transparency	动画和透明效果
-Animation	动画
-Reduced: fades only · Off: nothing moves	减少：仅淡入淡出 · 关闭：完全静止
-Reduced	减少
-Animation frames per second	每秒动画帧数
-Lower uses less GPU and CPU	越低越省 GPU 和 CPU
-30	30
-60	60
-Glass effect	玻璃效果
-Off: a solid background, lighter on the GPU	关闭：纯色背景，减轻 GPU 负担
-Glass transparency	玻璃透明度
-Higher shows more of the screen behind. Applies while the glass effect is on.	数值越大，越能透出后面的画面。玻璃效果开启时生效。
-Restart Bloom to apply GPU drawing.	重新启动 Bloom 以应用 GPU 绘制。
-GPU drawing (experimental)	GPU 绘制（实验性）
-Draws the screen with the GPU. Some PCs may stutter or freeze for seconds. Off: the CPU draws, with about 30 MB less memory.	用 GPU 绘制界面。部分电脑上画面可能卡顿或停住几秒。关闭后用 CPU 绘制，内存少约 30 MB。
-Changes when Bloom restarts	重启 Bloom 后生效
-Memory	内存
-Memory Bloom uses now	Bloom 当前使用的内存
-{0:0} MB · about 80 MB with everything off; each setting says what it adds	{0:0} MB · 全部关闭时约 80 MB；各项设置都注明了会增加多少
-Data and version	数据和版本
-Data	数据
-Open the data folder	打开数据文件夹
-The recording's data folder	录屏用数据文件夹
-Settings, favorites, app names, browser shortcuts and recent colours in one file	把设置、收藏、应用名称、浏览器快捷方式和最近颜色存成一个文件
-Deletes all settings and history and starts from the first-run screens · asks to export first	删除所有设置和记录，从首次使用界面重新开始 · 会先询问是否导出
-Imports exported settings · backs up current settings in the data folder	导入设置 · 将当前设置备份到数据文件夹
-Removes Bloom from this PC · asks once more about your chats and settings	从本机删除 Bloom · 会再确认一次是否删除对话和设置
+Version, updates and help	版本、更新和帮助
 Version	版本
-Windows launcher	Windows 启动器
-License	许可证
-Bloom is MIT · the taskbar add-on PillTaskbar is a separate GPL-3.0 program	Bloom 采用 MIT · 任务栏插件 PillTaskbar 是采用 GPL-3.0 的独立程序
 What's new in this version	此版本的更新内容
 Also shown once at the first start after an update · Enter shows it	更新后首次启动时也会显示一次 · 按 Enter 查看
+License	许可证
+Bloom is MIT · the taskbar add-on PillTaskbar is a separate GPL-3.0 program	Bloom 采用 MIT · 任务栏插件 PillTaskbar 是采用 GPL-3.0 的独立程序
+View source	查看源代码
+Help	帮助
 Problem report	问题报告
 Copies the version, Windows and recent log (user name and e-mail addresses hidden) and opens a GitHub issue · Bloom sends nothing itself	复制版本、Windows 和最近日志（隐藏用户名和电子邮件地址），并打开 GitHub 问题页面 · Bloom 本身不发送任何内容
 Report copied	已复制诊断信息
@@ -2313,31 +2429,28 @@ Paste it into the page that opened (Ctrl+V)	粘贴到打开的页面中（Ctrl+V
 Never release · 150–300 MB per chat	不释放 · 每个聊天占用 150–300 MB
 Frees a chat's memory after {0} unused · history stays · the next first answer starts a few seconds later · 0 = never	{0} 未使用的聊天释放内存 · 保留记录 · 下一次首个回答会晚几秒 · 0 表示不释放
 Automatic updates require a setup installation · open releases	自动更新需通过安装程序安装 Bloom · 打开发布页面
-Up to date	已是最新版本
+Up to date · Enter checks for updates	已是最新版本 · 按 Enter 检查更新
 Downloading {0}…	正在下载 {0}…
 Version {0} ready · click to restart	版本 {0} 已就绪 · 点击重新启动
 Could not check for updates. Check your connection and retry.	无法检查更新。请检查网络连接后重试。
-Looks for a new version on GitHub Releases	在 GitHub Releases 上查找新版本
-Check for updates	检查更新
+Enter checks for updates · looks for a new version on GitHub Releases	按 Enter 检查更新 · 在 GitHub Releases 上查找新版本
 Check when Bloom starts	启动 Bloom 时检查
 Checks once after launch · downloads new versions for the next start	启动后检查一次 · 下载新版本并在下次启动时应用
-Ctrl+K on an audio file in the search results › ‘Play in mini player’ · a small window beside the launcher shows the song and the queue — music files are only read	在搜索结果的音频文件上按 Ctrl+K ›“用迷你播放器播放” · 启动器旁的小窗口显示当前歌曲和播放队列 — 只读取音乐文件
-How it plays	播放方式
+Ctrl+K on an audio file in the search results › ‘Play in mini player’. Music files are only read.	在搜索结果中的音频文件上按 Ctrl+K ›“用迷你播放器播放”。音乐文件只会被读取。
 Playing	播放方式
-JRiver — plays and controls through JRiver Media Center's web service (MCWS) · the queue is JRiver's	JRiver — 通过 JRiver Media Center 的网络服务 (MCWS) 播放和控制 · 播放队列由 JRiver 管理
-foobar2000 — plays through its command line, the song and the buttons through Windows' media session · playing a song follows foobar2000's own way of opening files (it may replace the active playlist)	foobar2000 — 通过命令行播放，通过 Windows 媒体会话读取当前歌曲并控制按钮 · 播放歌曲时遵循 foobar2000 自身打开文件的方式（可能替换当前活动播放列表）
-MusicBee — plays and controls through its command line · the song is read from its window title (it does not say whether it plays, so Bloom goes by the commands it sent)	MusicBee — 通过命令行播放和控制 · 从窗口标题读取当前歌曲（它不提供播放状态，因此 Bloom 根据自己发送的命令推断）
-Direct — Bloom opens the file read-only (flac, mp3, wav, m4a, aac, wma) · the queue is Bloom's own · the next song follows · missing files are skipped · ogg and opus cannot be played	直接 — Bloom 以只读方式打开文件播放（flac、mp3、wav、m4a、aac、wma）· 播放队列由 Bloom 自己管理 · 自动播放下一首 · 跳过找不到的文件 · 无法播放 ogg 和 opus
+Plays and controls through JRiver Media Center's web service (MCWS). The queue is JRiver's.	通过 JRiver Media Center 的网络服务 (MCWS) 播放和控制。播放队列使用 JRiver 自己的。
+Plays through its command line; the song and the buttons go through Windows' media session. Playing a song follows foobar2000's own way of opening files.	通过命令行播放，当前歌曲和按钮通过 Windows 媒体会话读取和控制。播放歌曲时遵循 foobar2000 自己打开文件的方式。
+Plays and controls through its command line. The song is read from its window title.	通过命令行播放和控制。当前歌曲从窗口标题读取。
+Bloom plays it itself. Opens flac, mp3, wav, m4a, aac and wma files.	由 Bloom 直接播放。可打开 flac、mp3、wav、m4a、aac 和 wma 文件。
 JRiver address	JRiver 地址
 {0} · JRiver's Media Network (the web service) must be on · click to change	{0} · 需要开启 JRiver 的 Media Network（网络服务）· 点击更改
 JRiver user	JRiver 用户
-None — only needed when JRiver was given a user name and password · click to enter	无 — 仅在 JRiver 设置了用户名和密码时需要 · 点击输入
+None · only needed when JRiver was given a user name and password · click to enter	无 · 仅在 JRiver 设置了用户名和密码时需要 · 点击输入
 {0} · click to change	{0} · 点击更改
 Saved · encrypted on this PC only · used only for requests to JRiver · click to change	已保存 · 仅加密保存在这台电脑上 · 只用于发往 JRiver 的请求 · 点击更改
 None · click to enter	无 · 点击输入
-JRiver password	JRiver 密码
 Found by itself: {0} · click if it is somewhere else	已自动找到：{0} · 如果在其他位置请点击
-Not found — click to enter the .exe path	未找到 — 点击输入 .exe 路径
+Not found · click to enter the .exe path	未找到 · 点击输入 .exe 路径
 {0} program	{0} 程序
 {0} program path	{0} 程序路径
 The full path of {0}.exe. Left empty, Bloom looks at the running one and the usual install folders.	{0}.exe 的完整路径。留空时，Bloom 会从正在运行的程序和常见安装文件夹中查找。
@@ -2346,96 +2459,8 @@ The address of the PC where JRiver runs (default {0}). Turn on JRiver's Media Ne
 Write it as http://address:port	请按 http://地址:端口 的格式填写
 Only when JRiver was given a user name and password. Leave it empty if not.	仅在 JRiver 设置了用户名和密码时填写。没有则留空。
 Stored encrypted on this PC only and used only for requests to JRiver. It is not shown while typed.	仅加密保存在这台电脑上，只用于发往 JRiver 的请求。输入时不显示。
-Another app already uses it — press another combination	已被其他应用占用 — 请按其他组合
-Off — click to set a shortcut	已关闭 — 点击设置快捷键
-Bloom already uses it	Bloom 已在使用此键
-No settings found	未找到设置
-Basics	基本
-Launcher	启动器
-Find a setting	查找设置
-Changes take effect right away	更改会立即生效
-Section	分类
-Change	更改
-Clear	清除
-Rose	玫瑰
-Lavender	薰衣草
-Sky	天空
-Tangerine	橘子
-Lemon	柠檬
-Gray	灰色
-Type a colour code (like #3A7BD5)	请输入颜色代码（例如 #3A7BD5）
-Use # and 6 hex digits (0-9, A-F), like #3A7BD5	请使用 # 加 6 位十六进制数字（0-9、A-F），例如 #3A7BD5
-12*3 · 5km to mi · 100 usd	12*3 · 5km to mi · 100 usd
-History cleared	已清除记录
-Keep typing the sum	请继续输入算式
-Enter copies the result and saves it in history	Enter 复制结果并保存到记录
-Copied · {0}	已复制 · {0}
-Click to copy	点击复制
-Find clipboard entries	查找剪贴板历史
-Click one to copy it again	点击即可再次复制
-Copied · ready to paste	已复制 · 可粘贴
-Copy failed. Try again.	复制失败。请重试。
-Picture {0}×{1}	图片 {0}×{1}
-Files: {0}	文件：{0}
-Shortcuts	快捷键
-Find by app name or shortcut	按应用名称或快捷键查找
-Assigned shortcuts · click to run	已分配的快捷键 · 点击运行
-Change or remove shortcuts	更改或删除快捷键
-No assigned shortcuts. Choose an item in the launcher and press Ctrl+K to assign one.	尚无已分配的快捷键。请在启动器中选择项目并按 Ctrl+K 分配。
-Choose an item in the launcher	在启动器中选择项目
-Another app uses these keys	其他应用正在使用这组按键
-Find a note · Enter for a new one	查找笔记 · 按 Enter 新建笔记
-All notes	全部便笺
-Delete this note (to the Recycle Bin)	删除此便笺 (移到回收站)
-Saved	已保存
-No saved notes. Type above and press Enter.	尚无已保存的笔记。请在上方输入并按 Enter。
-No note matches · Enter saves a new note	无匹配笔记 · Enter 保存新笔记
-s	秒
-What for (or ‘3pm meeting’)	内容 (或 ‘3pm meeting’)
-Started · ends {0}	已启动 · {0} 结束
-Set a time, or write ‘10 min’ or ‘3pm meeting’	设置时间，或输入 ‘10 min’、‘3pm meeting’
- min	 分钟
-Time not recognized. Set it above or enter ‘10 min’ or ‘3pm meeting’.	无法识别时间。请在上方设置或输入“10 min”“3pm meeting”。
-No timers or reminders running	无运行中的计时器或提醒
-just now	刚刚
-Detach from the launcher	从启动器分离
-Always on top	始终置顶
-Attach to the launcher	附到启动器
-{0} weekly	{0} 每周
-Turns the taskbar into a centred pill	将任务栏变为居中的药丸形状
-Turn on again	重新开启
-Clears Explorer's crash record and turns it on again	清除资源管理器的崩溃记录并重新开启
-Starts taskbar customization again	重新启动任务栏自定义
-PillTaskbar is a separate GPL-3.0 program · {0}	PillTaskbar 是采用 GPL-3.0 的独立程序 · {0}
-View source	查看源代码
-Downloading PillTaskbar	正在下载 PillTaskbar
-Download	下载
-Couldn't download PillTaskbar	无法下载 PillTaskbar
-PillTaskbar {0} update	PillTaskbar {0} 更新
-Now {0} · from PillTaskbar's GitHub release	当前 {0} · 从 PillTaskbar 的 GitHub 发布版下载
-Download PillTaskbar {0}	下载 PillTaskbar {0}
-From PillTaskbar's GitHub release, checked by Bloom before it is installed	从 PillTaskbar 的 GitHub 发布版下载，经 Bloom 校验后安装
-PillTaskbar {0} downloaded	已下载 PillTaskbar {0}
-Turn taskbar customization off and on to switch to the new version	关闭再开启任务栏自定义即可切换到新版本
-Check your connection and try again	请检查网络连接后重试
-The downloaded file isn't the one Bloom expects, so it wasn't installed	下载的文件与 Bloom 预期的不同，因此未安装
-What the download holds isn't valid, so it wasn't installed	下载的内容无效，因此未安装
-Couldn't save the download · check the free disk space	无法保存下载的文件 · 请检查可用磁盘空间
-Not turned on in a development copy	开发副本中不会开启
-Not downloaded yet	尚未下载
-The taskbar add-on's files are not valid, or it needs a newer Bloom	任务栏加载项文件无效，或需要更新版本的 Bloom
-Bloom started with Shift held, so it is off this time	启动时按住了 Shift，本次未开启
-Turning on · downloading symbol files {0}%	正在开启 · 正在下载符号文件 {0}%
-Turning on	正在开启
-Paused · Explorer kept crashing, so taskbar customization was turned off	已暂停 · 资源管理器连续崩溃，已关闭任务栏自定义
-No symbols · this Windows version lacks the taskbar symbols it needs	无符号 · 此 Windows 版本缺少所需的任务栏符号
-Blocked by a security feature · Windows Security (Smart App Control) kept it from loading	被安全功能阻止 · Windows 安全中心（智能应用控制）阻止了加载
-Could not download the symbol files · check your connection and try again	无法下载符号文件 · 请检查网络连接后重试
-Stopped · taskbar customization stopped	已停止 · 任务栏自定义已停止
-Turn on taskbar customization	开启任务栏自定义
-PillTaskbar is a program separate from Bloom. It changes how the taskbar looks by loading code into Explorer, and is licensed under GPL-3.0. The first start downloads the taskbar's symbol files (about 70 MB) from the Microsoft symbol server.	PillTaskbar 是独立于 Bloom 的程序，通过向资源管理器加载代码来改变任务栏的外观，采用 GPL-3.0 许可。首次启动时会从 Microsoft 符号服务器下载任务栏符号文件（约 70 MB）。
-File Explorer	文件资源管理器
 About PillTaskbar	关于 PillTaskbar
+PillTaskbar is a separate GPL-3.0 program · {0}	PillTaskbar 是采用 GPL-3.0 的独立程序 · {0}
 Taskbar folders	任务栏文件夹
 Dragging an app onto another on the taskbar and holding it there briefly makes a folder too	在任务栏上把应用拖到另一个应用上停留片刻，也会成为文件夹
 Off · when on, pinned apps can be grouped into folders	关闭 · 打开后可把固定的应用归入文件夹
@@ -2445,6 +2470,7 @@ The taskbar didn't answer within 5 seconds, so for now this is read only	任务�
 Taskbar folders haven't turned on yet	任务栏文件夹尚未打开
 Edit folders	编辑文件夹
 Make folders and change their names, icons and apps	创建文件夹，并更改名称、图标和其中的应用
+Taskbar look	任务栏外观
 Changes the taskbar's height and icon size together	同时更改任务栏高度和图标大小
 Blurs what is behind the pill. Lit glass adds light and a sheen at the edges	模糊显示胶囊后方。受光玻璃会在边缘加上光线和反光
 The flower button opens and closes Bloom	按下花朵按钮可打开或关闭 Bloom
@@ -2454,8 +2480,10 @@ Icons shown	显示的图标
 Only the ones on stay in the tray; the ones off leave no gap	只有打开的留在托盘中，关闭的图标不留空位
 Now playing	正在播放
 Puts the album art, the title and previous, play and next buttons before the tray	在托盘前放置专辑封面、标题以及上一首、播放、下一首按钮
+Shows one picked value per account as a bar. The auto-hide island shows the same	每个账户以条形显示所选的一个值。自动隐藏小岛也显示相同的值
 Usage file export is off	用量文件导出已关闭
 The taskbar reads the usage file Bloom exports; turn it on to see the usage	任务栏读取 Bloom 导出的用量文件，打开后才会显示用量
+The same setting as the home cards	与主页卡片相同的设置
 Other icons	其他图标
 Bell only with new notifications	仅在有新通知时显示通知铃
 Hides the bell while there are no notifications	没有通知时隐藏通知铃
@@ -2468,10 +2496,41 @@ With the pointer over it	指针悬停时
 What is below shows through while the pointer is there: 0 not at all, 100 fully	指针在上方时可透出下方内容：0 不透，100 完全透明
 More · {0}	更多 · {0} 项
 {0} to {1}	{0} 到 {1}
-Explorer needs a restart · restart Explorer, then try again	需要重启资源管理器 · 请重启资源管理器后重试
+Not downloaded yet	尚未下载
+The taskbar add-on's files are not valid, or it needs a newer Bloom	任务栏加载项文件无效，或需要更新版本的 Bloom
+Paused · Explorer kept crashing, so taskbar customization was turned off	已暂停 · 资源管理器连续崩溃，已关闭任务栏自定义
+No symbols · this Windows version lacks the taskbar symbols it needs	无符号 · 此 Windows 版本缺少所需的任务栏符号
+On in Windhawk · turn the PillTaskbar mod off in Windhawk. If you don't use Windhawk, set its service to manual start and close or uninstall Windhawk instead	已在 Windhawk 中开启 · 请在 Windhawk 中关闭 PillTaskbar 模组。如果不使用 Windhawk，也可以将其服务设为手动启动并退出或卸载 Windhawk
+Stopped · taskbar customization stopped	已停止 · 任务栏自定义已停止
+Turn on taskbar customization	开启任务栏自定义
+PillTaskbar is a program separate from Bloom. It changes how the taskbar looks by loading code into Explorer, and is licensed under GPL-3.0. The first start downloads the taskbar's symbol files (about 70 MB) from the Microsoft symbol server.	PillTaskbar 是独立于 Bloom 的程序，通过向资源管理器加载代码来改变任务栏的外观，采用 GPL-3.0 许可。首次启动时会从 Microsoft 符号服务器下载任务栏符号文件（约 70 MB）。
+Icon colour	图标颜色
+Original	原色
+Single colour	单色
+Label	名称标签
+Written beside the icon. An account without a name shows its plan; a long one is cut with …. The island shows it too	显示在图标旁。没有名称的账户显示套餐，过长时以 … 截断。小岛上也会显示
+Plan	套餐
+This plan has only the {0} limit	此套餐只有 {0} 限额
+Choose a file…	选择文件…
+Clear the icon	清除图标
+The home card and the taskbar use this picture	主页卡片和任务栏使用此图片
+None · pick a logo file (SVG, PNG, ICO) for the home card and the taskbar	无 · 选择徽标文件（SVG、PNG、ICO）后，主页卡片和任务栏将使用该图片
+Icon	图标
+Logos (*.svg;*.png;*.ico)|*.svg;*.png;*.ico	徽标 (*.svg;*.png;*.ico)|*.svg;*.png;*.ico
+That file couldn't be brought in as the icon.	无法将该文件用作图标。
+{0} changed	已更改 {0} 项
+Off · turn it on in Features	已关闭 · 在“功能”中开启
+Another app already uses it — press another combination	已被其他应用占用 — 请按其他组合
+Off — click to set a shortcut	已关闭 — 点击设置快捷键
+Bloom already uses it	Bloom 已在使用此键
+No settings found	未找到设置
+Basics	基本
+Find a setting	查找设置
+Changes take effect right away	更改会立即生效
+Section	分类
+Change	更改
 Sending to the taskbar…	正在发送到任务栏…
 Click a folder to edit it below	点击文件夹即可在下方编辑
-No folders yet	还没有文件夹
 New folder	新建文件夹
 Automatic folder	自动文件夹
 The folders pinned to the taskbar show here while taskbar customization runs.	任务栏美化运行时，固定的文件夹会显示在这里。
@@ -2493,6 +2552,7 @@ Use the running folder	使用运行中文件夹
 Gathers the apps you run without pinning that aren't in any folder. A closed app leaves it, and with none left the folder leaves the taskbar.	把未固定就运行、且不在任何文件夹中的应用收进这个文件夹。关闭应用后会移出，没有这类应用时文件夹也会从任务栏消失。
 Apps in it now	当前包含的应用
 While off, unpinned apps get their own buttons, as in Windows.	关闭后，未固定的应用会像 Windows 一样各自显示按钮。
+No folders yet	还没有文件夹
 Pick a few apps to make a folder. Dragging an app onto another on the taskbar and holding it there briefly makes one too.	选几个应用来创建文件夹。在任务栏上把应用拖到另一个应用上停留片刻也会成为文件夹。
 Start menu apps	开始菜单中的应用
 In this folder	在此文件夹中
@@ -2516,34 +2576,47 @@ Fits the content	适应内容
 Windows default	Windows 默认
 Lit glass	受光玻璃
 Borderless glass	无边框玻璃
-5 hours	5 小时
-The picked icon files in their own colours or in one · the home cards and the taskbar share it	所选图标文件使用原色或单色 · 主页卡片与任务栏共用
-Shows one picked value per account as a bar. The auto-hide island shows the same	每个账户以条形显示所选的一个值。自动隐藏小岛也显示相同的值
-The same setting as the home cards	与主页卡片相同的设置
-Icon colour	图标颜色
-Original	原色
-Single colour	单色
-Label	名称标签
-Written beside the icon. An account without a name shows its plan; a long one is cut with …. The island shows it too	显示在图标旁。没有名称的账户显示套餐，过长时以 … 截断。小岛上也会显示
-Plan	套餐
-This plan has only the {0} limit	此套餐只有 {0} 限额
-Choose a file…	选择文件…
-Clear the icon	清除图标
-The home card and the taskbar use this picture	主页卡片和任务栏使用此图片
-None · pick a logo file (SVG, PNG, ICO) for the home card and the taskbar	无 · 选择徽标文件（SVG、PNG、ICO）后，主页卡片和任务栏将使用该图片
-Icon	图标
-Logos (*.svg;*.png;*.ico)|*.svg;*.png;*.ico	徽标 (*.svg;*.png;*.ico)|*.svg;*.png;*.ico
-That file couldn't be brought in as the icon.	无法将该文件用作图标。
-Add-ons	加载项
-Add-ons are separate programs Bloom starts, each turned on and off here. One you put in the user-addons folder in Bloom's local data folder shows after Bloom restarts.	加载项是由 Bloom 启动的独立程序，在这里逐个开启和关闭。你自己放入 Bloom 本地数据文件夹中 user-addons 的加载项，在重新启动 Bloom 后显示。
-All add-ons	加载项列表
-An add-on you added	你添加的加载项
-Starts this add-on again	重新启动此加载项
-The add-on's files are not valid, or it needs a newer Bloom	加载项文件无效，或需要更新版本的 Bloom
-Paused · Explorer kept crashing, so this add-on was turned off	已暂停 · 资源管理器连续崩溃，已关闭此加载项
-No symbols · this Windows version lacks the symbols it needs	无符号 · 此 Windows 版本缺少所需的符号
-On in Windhawk · turn the same mod off in Windhawk. If you don't use Windhawk, set its service to manual start and close or uninstall Windhawk instead	已在 Windhawk 中开启 · 请在 Windhawk 中关闭同一模组。如果不使用 Windhawk，也可以将其服务设为手动启动并退出或卸载 Windhawk
-Stopped · this add-on stopped	已停止 · 此加载项已停止
-Turn on {0}	开启 {0}
-An add-on you added is a separate program that Bloom neither made nor checked. Turning it on starts that program, and it may load code into Explorer. Only turn on add-ons you trust.	你添加的加载项是 Bloom 未制作也未检查的独立程序。开启后会启动该程序，它可能会向资源管理器载入代码。请只开启你信任的加载项。
-On in Windhawk · turn the PillTaskbar mod off in Windhawk. If you don't use Windhawk, set its service to manual start and close or uninstall Windhawk instead	已在 Windhawk 中开启 · 请在 Windhawk 中关闭 PillTaskbar 模组。如果不使用 Windhawk，也可以将其服务设为手动启动并退出或卸载 Windhawk
+Rose	玫瑰
+Lavender	薰衣草
+Sky	天空
+Tangerine	橘子
+Lemon	柠檬
+Gray	灰色
+Type a colour code (like #3A7BD5)	请输入颜色代码（例如 #3A7BD5）
+Use # and 6 hex digits (0-9, A-F), like #3A7BD5	请使用 # 加 6 位十六进制数字（0-9、A-F），例如 #3A7BD5
+12*3 · 5km to mi · 100 usd	12*3 · 5km to mi · 100 usd
+Clear the history	清除历史
+History cleared	已清除记录
+Keep typing the sum	请继续输入算式
+Enter copies the result and saves it in history	Enter 复制结果并保存到记录
+Copied · {0}	已复制 · {0}
+Click to copy	点击复制
+Find clipboard entries	查找剪贴板历史
+Click one to copy it again	点击即可再次复制
+Copied · ready to paste	已复制 · 可粘贴
+Copy failed. Try again.	复制失败。请重试。
+Picture {0}×{1}	图片 {0}×{1}
+Files: {0}	文件：{0}
+Find by app name or shortcut	按应用名称或快捷键查找
+Assigned shortcuts · click to run	已分配的快捷键 · 点击运行
+Change or remove shortcuts	更改或删除快捷键
+No assigned shortcuts. Choose an item in the launcher and press Ctrl+K to assign one.	尚无已分配的快捷键。请在启动器中选择项目并按 Ctrl+K 分配。
+Choose an item in the launcher	在启动器中选择项目
+Another app uses these keys	其他应用正在使用这组按键
+Find a note · Enter for a new one	查找笔记 · 按 Enter 新建笔记
+All notes	全部便笺
+Delete this note (to the Recycle Bin)	删除此便笺 (移到回收站)
+Saved	已保存
+No saved notes. Type above and press Enter.	尚无已保存的笔记。请在上方输入并按 Enter。
+No note matches · Enter saves a new note	无匹配笔记 · Enter 保存新笔记
+s	秒
+What for (or ‘3pm meeting’)	内容 (或 ‘3pm meeting’)
+Started · ends {0}	已启动 · {0} 结束
+Set a time, or write ‘10 min’ or ‘3pm meeting’	设置时间，或输入 ‘10 min’、‘3pm meeting’
+ min	 分钟
+Time not recognized. Set it above or enter ‘10 min’ or ‘3pm meeting’.	无法识别时间。请在上方设置或输入“10 min”“3pm meeting”。
+No timers or reminders running	无运行中的计时器或提醒
+just now	刚刚
+Detach from the launcher	从启动器分离
+Always on top	始终置顶
+Attach to the launcher	附到启动器

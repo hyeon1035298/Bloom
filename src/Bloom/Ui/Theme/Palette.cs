@@ -62,6 +62,12 @@ internal sealed class Palette
         UserBubble.Color = Color.FromArgb(0x26, acc.R, acc.G, acc.B);
         Selection.Color = Color.FromArgb((byte)(dark ? 0x59 : 0x4D), acc.R, acc.G, acc.B);
         AccentText.Color = Hsl.To(0xFF, ah, asat, Math.Clamp(al + (dark ? 0.05 : -0.06), 0, 1));
+        // the text on the accent (a primary button): the theme's own ink, or the other one when a pale or deep colour
+        // leaves it under 3:1 and the other reads better
+        Color ink = dark ? Color.FromRgb(0x18, 0x18, 0x1B) : Color.FromRgb(0xFA, 0xFA, 0xFA);
+        Color other = dark ? Color.FromRgb(0xFA, 0xFA, 0xFA) : Color.FromRgb(0x18, 0x18, 0x1B);
+        double own = Accents.Contrast(ink, acc);
+        AccentInk.Color = own >= Accents.MinContrast || own >= Accents.Contrast(other, acc) ? ink : other;
     }
 
     private void Base(bool dark)

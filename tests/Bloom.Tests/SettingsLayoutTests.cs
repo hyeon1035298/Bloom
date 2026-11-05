@@ -98,7 +98,7 @@ internal static class SettingsLayoutTests
         "Everything", "조회 간격", "켜기 전에", "쓰는 양", "미리 보기", "업데이트 확인",
     };
 
-    private static readonly string[] Pages = { "general", "launcher", "features", "shortcuts", "ai", "accounts", "mcp", "notices", "tools", "addons", "about" };
+    private static readonly string[] Pages = { "general", "launcher", "features", "shortcuts", "ai", "accounts", "mcp", "notices", "tools", "addons", "data", "about" };
 
     public static void EveryLineHasAPlace()
     {
@@ -121,7 +121,9 @@ internal static class SettingsLayoutTests
                 lines.AddRange(new SettingsView(new Host(new Options())).Collect());
             }
             s.PlayerMode = "direct";
-            var titles = lines.Select(l => l.Title).ToHashSet();
+            // the lines the old pages had, wherever they are now; the 데이터 page's own lines (its clearing rows, 초기화 and
+            // 삭제) are not among them
+            var titles = lines.Where(l => l.PageKey != "data").Select(l => l.Title).ToHashSet();
             foreach (string old in Before)
             {
                 if (Gone.Contains(old)) continue;
@@ -133,7 +135,7 @@ internal static class SettingsLayoutTests
             foreach (string gone in new[] { "타이머 · 알림 열기", "연결 방식", "토큰 집계 지우기", "기록 모두 지우기", "Bloom 삭제" })
                 Check.True(!titles.Contains(gone), $"‘{gone}’ is gone from these pages");
 
-            // the pages in the sidebar's order (데이터 is a page of its own, built elsewhere)
+            // the pages in the sidebar's order
             var order = first.Select(l => l.PageKey).Distinct().ToList();
             Check.Eq(string.Join(",", order), string.Join(",", Pages), "the pages in order");
 
