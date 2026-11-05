@@ -10,7 +10,7 @@ using Bloom.Ui;
 
 namespace Bloom.App;
 
-/// `--qa-set taskbar-folders`: 설정 > 작업표시줄 whole, over a made-up taskbar (a state.json written into this dev copy's
+/// `--qa-set taskbar-folders`: 설정 > 애드온 whole, over a made-up taskbar (a state.json written into this dev copy's
 /// add-on folder, the status drawn as running): four folders, none yet, the running folder off, and a command that
 /// failed — in both themes and the run's language. Needs the add-on's addon.json and settings.schema.json next to Bloom.
 internal static partial class Captures

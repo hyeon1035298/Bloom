@@ -93,7 +93,7 @@ internal sealed partial class SettingsView : ScrollViewer
         Dispatcher.BeginInvoke(() =>
         {
             if (Keyboard.FocusedElement is TextBox box && IsAncestorOf(box)) return;
-            if (IsLoaded && IsVisible && (current is "taskbar" or "addons" || lastFilter.Length > 0)) TaskbarRebuild();
+            if (IsLoaded && IsVisible && (current is "addons" || lastFilter.Length > 0)) TaskbarRebuild();
         }, System.Windows.Threading.DispatcherPriority.Background);
     }
 
@@ -378,7 +378,6 @@ internal sealed partial class SettingsView : ScrollViewer
         PageGeneral(s, filter);
         PageFeatures(s, filter);
         PagePerformance(s, filter);
-        PageTaskbar(s, filter);
         PageAddons(s, filter);
         section = Tr("런처", "Launcher");
         PageHome(s, filter);
@@ -401,18 +400,12 @@ internal sealed partial class SettingsView : ScrollViewer
     /// the pages skip what reads the disk or the PC (MCP servers, Lens files, CLIs) while this runs.
     public List<SettingsCatalog.Line> Collect() => Collect(BuildPages);
 
-    /// The tests: 설정 > 작업표시줄's lines alone (the other pages want a started Host), for `addon` (a hand-made one) or
-    /// the shipped one.
-    internal List<SettingsCatalog.Line> CollectTaskbarForTests(Addons.Addon? addon = null)
+    /// The tests: 설정 > 애드온's lines alone (the other pages want a started Host), for `taskbar` (a hand-made one) or the
+    /// shipped one, and `users` (hand-made ones, none by default) in place of the user's.
+    internal List<SettingsCatalog.Line> CollectAddonsForTests(Addons.Addon? taskbar = null, IReadOnlyList<Addons.Addon>? users = null)
     {
-        taskbarAddon = addon;
-        return Collect(PageTaskbar);
-    }
-
-    /// The tests: 설정 > 애드온's lines for `addons` (hand-made ones) in place of the user's.
-    internal List<SettingsCatalog.Line> CollectAddonsForTests(IReadOnlyList<Addons.Addon> addons)
-    {
-        userAddons = addons;
+        taskbarAddon = taskbar;
+        userAddons = users ?? Array.Empty<Addons.Addon>();
         return Collect(PageAddons);
     }
 

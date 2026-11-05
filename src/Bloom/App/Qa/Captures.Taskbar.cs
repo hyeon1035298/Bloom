@@ -8,7 +8,7 @@ using Bloom.Ui;
 
 namespace Bloom.App;
 
-/// `--qa-set taskbar`: 설정 > 작업표시줄 as a dev copy shows it (hosts never start there), then with the switch on and
+/// `--qa-set taskbar`: 설정 > 애드온 as a dev copy shows it (hosts never start there), then with the switch on and
 /// the statuses a real host reports drawn in place of the dev one — in both themes and the run's language.
 internal static partial class Captures
 {
@@ -36,7 +36,7 @@ internal static partial class Captures
         sw.Close();
     }
 
-    private static async Task TaskbarShot(SettingsWindow sw, string file, string page = "taskbar")
+    private static async Task TaskbarShot(SettingsWindow sw, string file, string page = "addons")
     {
         sw.Page(page);
         await Task.Delay(300);
@@ -58,7 +58,7 @@ internal static partial class Captures
             foreach (var (name, status) in new (string, AddonStatus?)[] { ("dev", null), ("running", new AddonStatus(AddonState.Running)), ("windhawk", new AddonStatus(AddonState.Windhawk)), ("stopped", new AddonStatus(AddonState.Stopped)) })
             {
                 foreach (var a in list) a.QaStatus = status;
-                await TaskbarShot(sw, Path.Combine(dir, $"{l}-{theme}-addons-{name}.png"), "addons");
+                await TaskbarShot(sw, Path.Combine(dir, $"{l}-{theme}-addons-{name}.png"));
             }
         }
         foreach (var a in list) a.QaStatus = null;

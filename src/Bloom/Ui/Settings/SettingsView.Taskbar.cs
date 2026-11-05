@@ -17,10 +17,10 @@ using Section = Bloom.Ui.TaskbarMap.Section;
 
 namespace Bloom.Ui;
 
-/// 설정 > 작업표시줄: the taskbar add-on (PillTaskbar, a separate GPL-3.0 program Bloom ships and starts). Its switch with
-/// the host's status under it; its folders (TaskbarEditor), look, tray and auto-hide island, drawn from the
-/// settings.schema.json it ships (names, defaults, ranges) and laid out by TaskbarMap; and what it is (version, license,
-/// source).
+/// 설정 > 애드온's taskbar add-on (PillTaskbar, a separate GPL-3.0 program Bloom ships and starts): its status text and
+/// switch (the line itself is SettingsView.Addons'); its folders (TaskbarEditor), look, tray and auto-hide island, drawn
+/// from the settings.schema.json it ships (names, defaults, ranges) and laid out by TaskbarMap; and what it is (version,
+/// license, source).
 internal sealed partial class SettingsView
 {
     /// The folds open now (자세히 under a group), kept while Bloom runs.
@@ -32,40 +32,9 @@ internal sealed partial class SettingsView
     /// The tests: a hand-made add-on in place of the shipped one.
     private Addon? taskbarAddon;
 
-    private void PageTaskbar(Settings s, string filter)
+    /// Under the list on 설정 > 애드온 while the taskbar add-on is on: its settings and what it is.
+    private void TaskbarLines(Addon addon, AddonStatus status, string filter)
     {
-        var addon = taskbarAddon ?? AddonHub.Taskbar;
-        Page("taskbar", Tr("작업표시줄", "Taskbar"), G.App,
-            Tr("작업표시줄을 가운데 알약으로 모으고, 앱을 폴더로 묶고, 숨어 있을 때는 화면 위 가운데에 작은 아일랜드를 둡니다.",
-                "Gathers the taskbar into a centred pill, groups apps into folders, and puts a small island at the top centre while it hides."), filter);
-        Header("PillTaskbar");
-        // the status reads the host's state files: not while the launcher's search collects the lines
-        var status = collected is null ? addon.Status() : new AddonStatus(AddonState.Off);
-        bool usable = status.State is not (AddonState.Dev or AddonState.NotShipped or AddonState.Broken);
-        Switch? sw = null;
-        sw = Toggle(s.AddonsOn.Contains(addon.Id), v => SetTaskbar(addon, v, sw!), out var toggle);
-        if (!usable)
-        {
-            sw.On = false;
-            sw.Opacity = 0.45;
-            sw.IsHitTestVisible = false;
-        }
-        string sub = collected is null ? TaskbarStatusText(status) : Tr("작업표시줄을 가운데 알약 모양으로 바꿉니다", "Turns the taskbar into a centred pill");
-        Add(Tr("작업표시줄 꾸미기", "Customize the taskbar"), sub, sw, G.Screen, usable ? toggle : null, null, filter);
-
-        if (collected is null && status.State is AddonState.SafeMode or AddonState.Download or AddonState.Restart or AddonState.Stopped)
-        {
-            bool reset = status.State == AddonState.SafeMode;
-            string title = reset ? Tr("다시 켜기", "Turn on again") : Tr("다시 시도", "Try again");
-            void Again()
-            {
-                _ = AddonHub.Retry(addon, reset);
-                Build(lastFilter);
-            }
-            Add(title, reset ? Tr("탐색기가 멈춘 기록을 지우고 다시 켭니다", "Clears Explorer's crash record and turns it on again") : Tr("작업표시줄 꾸미기를 다시 시작합니다", "Starts taskbar customization again"),
-                RowButton(title, Again), G.Refresh, Again, null, filter);
-        }
-
         // the add-on's own settings: only with the schema it ships (its names and ranges are not Bloom's to guess)
         if (addon.Schema is { } schema && addon.Values is { } values)
         {
@@ -84,7 +53,7 @@ internal sealed partial class SettingsView
     // ── 폴더 ─────────────────────────────────────────────────────────────────────────────────────
     private void TaskbarFolders(Addon addon, AddonSchema schema, AddonValues v, AddonStatus status, string filter)
     {
-        Header(Tr("폴더", "Folders"));
+        Header(Tr("작업표시줄 폴더", "Taskbar folders"));
         bool on = v.Bool("folders.enabled");
         SchemaRow(schema, v, "folders.enabled", G.Folder, filter, sub: on
             ? Tr("작업표시줄에서 앱을 다른 앱 위에 끌어 잠깐 두어도 폴더가 됩니다", "Dragging an app onto another on the taskbar and holding it there briefly makes a folder too")
@@ -105,9 +74,9 @@ internal sealed partial class SettingsView
         else if (on)
         {
             // the editor isn't a line: the search finds it, and the running folder's two settings, by these
-            Add(Tr("폴더 편집", "Edit folders"), Tr("폴더를 만들고 이름, 아이콘, 안의 앱을 바꿉니다", "Make folders and change their names, icons and apps"), null, G.Folder, () => Go("taskbar"), null, filter);
+            Add(Tr("폴더 편집", "Edit folders"), Tr("폴더를 만들고 이름, 아이콘, 안의 앱을 바꿉니다", "Make folders and change their names, icons and apps"), null, G.Folder, () => Go("addons"), null, filter);
             foreach (var e in In(Section.Folders).Where(e => e.Control == Control.Running))
-                if (schema[e.Key] is { } item) Add(item.Split().name, item.About?.Shown, null, G.Folder, () => Go("taskbar"), null, filter);
+                if (schema[e.Key] is { } item) Add(item.Split().name, item.About?.Shown, null, G.Folder, () => Go("addons"), null, filter);
         }
         Fold("folders", Section.FoldersMore, schema, v, filter);
     }
@@ -115,7 +84,7 @@ internal sealed partial class SettingsView
     // ── 모양 ─────────────────────────────────────────────────────────────────────────────────────
     private void TaskbarLook(AddonSchema schema, AddonValues v, string filter)
     {
-        Header(Tr("모양", "Look"));
+        Header(Tr("작업표시줄 모양", "Taskbar look"));
         string size = SizeNow(v);
         var sizes = Sizes.Select(p => (p.key, p.key switch { "s" => Tr("작게", "Small"), "m" => Tr("보통", "Medium"), _ => Tr("크게", "Large") })).ToList();
         if (size == "custom") sizes.Add(("custom", Tr("직접", "Custom")));
@@ -145,7 +114,7 @@ internal sealed partial class SettingsView
     // ── 트레이 ───────────────────────────────────────────────────────────────────────────────────
     private void TaskbarTray(AddonSchema schema, AddonValues v, string filter)
     {
-        Header(Tr("트레이", "Tray"));
+        Header(Tr("작업표시줄 트레이", "Taskbar tray"));
         IconChips(schema, v, Section.Tray, Tr("보일 아이콘", "Icons shown"), Tr("켠 것만 트레이에 남고, 끈 아이콘은 자리도 남기지 않습니다", "Only the ones on stay in the tray; the ones off leave no gap"), filter);
         SchemaRow(schema, v, "tray.clock", G.Clock, filter);
         SchemaRow(schema, v, "media.enabled", G.Volume, filter, Tr("재생 중인 곡", "Now playing"),

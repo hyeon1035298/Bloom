@@ -2011,6 +2011,7 @@ Autostart unavailable in development runs	開発実行では自動起動設定�
 Runs in the tray at sign-in	サインイン時にトレイで起動
 Not registered	未登録
 Look	見た目
+Taskbar look	タスクバーの見た目
 Glass on (Windows transparency effects)	ガラス効果オン (Windows の透明効果)
 Windows transparency effects are off, so it is solid	Windows の透明効果がオフのため、単色になります
 Custom	カスタム
@@ -2399,7 +2400,6 @@ Always on top	常に手前に表示
 Attach to the launcher	ランチャーに付ける
 {0} weekly	{0} 週間
 Turns the taskbar into a centred pill	タスクバーを中央のピル型に変えます
-Customize the taskbar	タスクバーのカスタマイズ
 Turn on again	再びオンにする
 Clears Explorer's crash record and turns it on again	エクスプローラーの停止記録を消去して再びオンにします
 Starts taskbar customization again	タスクバーのカスタマイズを再開します
@@ -2419,9 +2419,8 @@ Stopped · taskbar customization stopped	停止 · タスクバーのカスタ�
 Turn on taskbar customization	タスクバーのカスタマイズをオンにする
 PillTaskbar is a program separate from Bloom. It changes how the taskbar looks by loading code into Explorer, and is licensed under GPL-3.0. The first start downloads the taskbar's symbol files (about 70 MB) from the Microsoft symbol server.	PillTaskbar は Bloom とは別のプログラムで、エクスプローラーにコードを読み込んでタスクバーの見た目を変えます。ライセンスは GPL-3.0 です。初回の起動時に Microsoft シンボル サーバーからタスクバーのシンボルファイル (約 70 MB) をダウンロードします。
 File Explorer	エクスプローラー
-Gathers the taskbar into a centred pill, groups apps into folders, and puts a small island at the top centre while it hides.	タスクバーを中央のピルにまとめ、アプリをフォルダーにまとめ、隠れている間は画面上部中央に小さなアイランドを置きます。
 About PillTaskbar	PillTaskbar について
-Folders	フォルダー
+Taskbar folders	タスクバーのフォルダー
 Dragging an app onto another on the taskbar and holding it there briefly makes a folder too	タスクバーでアプリを別のアプリの上にドラッグして少し置いてもフォルダーになります
 Off · when on, pinned apps can be grouped into folders	オフ · オンにするとピン留めしたアプリをフォルダーにまとめられます
 Folders can be edited while taskbar customization runs	タスクバーのカスタマイズが動作している間はフォルダーを編集できます
@@ -2434,7 +2433,7 @@ Changes the taskbar's height and icon size together	タスクバーの高さと�
 Blurs what is behind the pill. Lit glass adds light and a sheen at the edges	ピルの後ろをぼかして映します。光を受けるガラスは縁に光と反射が加わります
 The flower button opens and closes Bloom	花のボタンを押すと Bloom を開閉します
 A number changed here makes the size above ‘Custom’	ここで数値を変えると上のサイズは「カスタム」になります
-Tray	トレイ
+Taskbar tray	タスクバーのトレイ
 Icons shown	表示するアイコン
 Only the ones on stay in the tray; the ones off leave no gap	オンのものだけがトレイに残り、オフのアイコンは場所も残しません
 Now playing	再生中の曲
@@ -2520,8 +2519,8 @@ Icon	アイコン
 Logos (*.svg;*.png;*.ico)|*.svg;*.png;*.ico	ロゴ (*.svg;*.png;*.ico)|*.svg;*.png;*.ico
 That file couldn't be brought in as the icon.	そのファイルをアイコンとして読み込めませんでした。
 Add-ons	アドオン
-Add-ons you put in the user-addons folder in Bloom's local data folder yourself. One added there shows after Bloom restarts.	Bloom のローカルデータフォルダー内の user-addons に自分で入れたアドオンです。新しく入れたものは Bloom を再起動すると表示されます。
-Your add-ons	自分で入れたアドオン
+Add-ons are separate programs Bloom starts, each turned on and off here. One you put in the user-addons folder in Bloom's local data folder shows after Bloom restarts.	アドオンは Bloom が起動する別のプログラムで、ここで一つずつオン・オフします。Bloom のローカルデータフォルダー内の user-addons に自分で入れたアドオンは、Bloom を再起動すると表示されます。
+All add-ons	アドオン一覧
 An add-on you added	自分で入れたアドオン
 Starts this add-on again	このアドオンを再開します
 The add-on's files are not valid, or it needs a newer Bloom	アドオンのファイルが正しくないか、より新しい Bloom が必要です

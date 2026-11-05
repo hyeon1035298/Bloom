@@ -15,7 +15,7 @@ using Bloom.Search;
 
 namespace Bloom.Ui;
 
-/// 설정 > 작업표시줄 > 폴더: the taskbar as the mod sees it (a preview strip of the pins), the folders in a list beside
+/// 설정 > 애드온 > 작업표시줄 폴더: the taskbar as the mod sees it (a preview strip of the pins), the folders in a list beside
 /// the one being edited — its name, icon, apps (dragged into order, taken out, added from the Start menu) and 폴더 풀기 —
 /// a new folder, and the running folder. Bloom never changes the folders itself: each change is a command the mod
 /// carries out in explorer, and the state it writes back redraws this. Read only while the add-on doesn't run or the mod

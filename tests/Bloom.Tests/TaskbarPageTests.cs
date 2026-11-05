@@ -11,7 +11,7 @@ using Bloom.Ui;
 
 namespace Bloom.Tests;
 
-/// 설정 > 작업표시줄 past its switch: the add-on's settings drawn from the schema it ships (a small hand-made one here),
+/// 설정 > 애드온 past the taskbar add-on's switch: the add-on's settings drawn from the schema it ships (a small hand-made one here),
 /// the values written back, and the folder editor's two files (state.json in, commands out and their answers).
 internal static class TaskbarPageTests
 {
@@ -203,12 +203,14 @@ internal static class TaskbarPageTests
             {
                 var addon = new Addon(AddonProtocol.Id, new AddonStore(shipped, Path.Combine(Paths.Local, "addons")));
                 Check.NotNull(addon.Schema, "the schema its manifest names, hash checked");
-                var lines = new SettingsView(new Host(new Options())).CollectTaskbarForTests(addon);
-                Check.True(lines.Any(l => l.Title == "작업표시줄 높이" && l.Group == "모양"), "작업표시줄 높이 under 모양, folded or not");
-                Check.True(lines.Any(l => l.Group == "폴더" && l.Title == "작업표시줄 폴더"), "폴더");
+                Settings.Current.AddonsOn.Add(addon.Id); // its settings show only while it is on
+                var lines = new SettingsView(new Host(new Options())).CollectAddonsForTests(addon);
+                Settings.Current.AddonsOn.Remove(addon.Id);
+                Check.True(lines.Any(l => l.Title == "작업표시줄 높이" && l.Group == "작업표시줄 모양"), "작업표시줄 높이 under 작업표시줄 모양, folded or not");
+                Check.True(lines.Any(l => l.Group == "작업표시줄 폴더" && l.Title == "작업표시줄 폴더"), "작업표시줄 폴더");
                 Check.True(lines.Any(l => l.Title == "폴더 편집"), "the folder editor by a line of its own");
                 Check.True(lines.Any(l => l.Title == "보일 아이콘" && l.Sub.Contains("볼륨", StringComparison.Ordinal)), "a tray chip by its name");
-                Check.True(lines.All(l => l.PageKey == "taskbar"), "nothing else");
+                Check.True(lines.All(l => l.PageKey == "addons"), "nothing else");
                 File.WriteAllText(Path.Combine(dir, "settings.schema.json"), Fixture + " ");
                 Check.True(new Addon(AddonProtocol.Id, new AddonStore(shipped, Path.Combine(Paths.Local, "addons"))).Schema is null, "a changed schema isn't read");
             }
