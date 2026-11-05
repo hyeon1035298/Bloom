@@ -9,7 +9,7 @@ using Bloom.Search;
 
 namespace Bloom.Ui;
 
-/// 설정 › AI 채팅 › omp › 내 모델: the list the chat's model menu uses (add from `omp models` by provider or by hand,
+/// 설정 › AI 채팅 › 다른 AI와 고급 › omp 모델 목록: the list the chat's model menu uses (add from `omp models` by provider or by hand,
 /// rename, a starting thinking level per model, order, remove) and the button that reads `omp models` again.
 internal sealed partial class SettingsView
 {
@@ -33,7 +33,7 @@ internal sealed partial class SettingsView
 
     private void PageOmpModels(Settings s, string filter)
     {
-        Header(Tr("내 모델", "My models"));
+        Header(Tr("omp 모델 목록", "omp model list"));
         var items = OmpModelList.Items.ToList();
         foreach (var m in items)
         {
@@ -73,7 +73,7 @@ internal sealed partial class SettingsView
             Add(Tr("목록이 비어 있습니다", "The list is empty"), Tr("모델을 추가하기 전까지 채팅창 모델 메뉴에는 omp 기본 모델만 표시됩니다", "Until you add one, the chat's model menu shows only omp's default model"), null, G.Info, null, null, filter);
 
         Add(addOpen ? Tr("추가 화면 닫기", "Close the add screen") : Tr("모델 추가", "Add a model"),
-            Tr("omp가 아는 모델을 제공자별로 찾아 골라요", "Pick from the models omp knows, by provider"), null, G.Add, () =>
+            Tr("omp가 아는 모델을 제공자별로 찾아 고릅니다", "Pick from the models omp knows, by provider"), null, G.Add, () =>
             {
                 addOpen = !addOpen;
                 addQuery = "";
@@ -84,7 +84,7 @@ internal sealed partial class SettingsView
             v =>
             {
                 if (v.Length > 0) OmpModelList.Add(v);
-            }, filter, v => v.Contains('/') ? OmpModelList.Contains(v.Trim()) ? Tr("이미 목록에 있습니다", "Already in the list") : null : Tr("제공자/모델 모양이어야 해요", "Use provider/model"));
+            }, filter, v => v.Contains('/') ? OmpModelList.Contains(v.Trim()) ? Tr("이미 목록에 있습니다", "Already in the list") : null : Tr("제공자/모델 모양이어야 합니다", "Use provider/model"));
         string when = OmpCatalog.Read is { } t ? t.ToString("yyyy-MM-dd HH:mm") : Tr("아직 읽지 않음", "not read yet");
         Add(refreshing ? Tr("불러오는 중…", "Loading…") : Tr("omp 모델 목록 새로고침", "Refresh omp's model list"),
             Tr($"omp models를 지금 다시 읽습니다 · {OmpCatalog.All.Count}개 · 마지막 {when}", $"Reads omp models again now · {OmpCatalog.All.Count} models · last {when}") + refreshNote, null, G.Refresh, () =>

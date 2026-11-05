@@ -352,7 +352,7 @@ internal static partial class Captures
         await Shot(w, dir, "dark-b02-address", Mode.Root, "github.com", 700);
         var sw = new SettingsWindow(host) { WindowStartupLocation = WindowStartupLocation.Manual, Left = -32000, Top = -32000, ShowActivated = false };
         sw.Show();
-        foreach (var page in new[] { "general", "home", "search", "ai", "clipboard", "screen", "mcp", "tools", "about", "search" })
+        foreach (var page in new[] { "general", "launcher", "shortcuts", "ai", "mcp", "tools", "about" })
         {
             sw.Page(page);
             await Task.Delay(350);
@@ -381,7 +381,7 @@ internal static partial class Captures
         Theme.Apply("dark");
         var sw = new SettingsWindow(host) { WindowStartupLocation = WindowStartupLocation.Manual, Left = -32000, Top = -32000, ShowActivated = false };
         sw.Show();
-        sw.Page("home");
+        sw.Page("launcher");
         await Task.Delay(350);
         await sw.Dispatcher.InvokeAsync(() => sw.Capture(Path.Combine(dir, "dark-e04-settings-home-grips.png")), System.Windows.Threading.DispatcherPriority.ApplicationIdle);
         sw.DragHomeForQa("week", 0); // "이번 주" dropped before the first block
@@ -444,7 +444,7 @@ internal static partial class Captures
         Theme.Apply("dark");
         var sw = new SettingsWindow(host) { WindowStartupLocation = WindowStartupLocation.Manual, Left = -32000, Top = -32000, ShowActivated = false };
         sw.Show();
-        sw.Page("home");
+        sw.Page("launcher");
         await Task.Delay(350);
         await sw.Dispatcher.InvokeAsync(() => sw.Capture(Path.Combine(dir, "dark-x02-settings-home.png")), System.Windows.Threading.DispatcherPriority.ApplicationIdle);
         Home.Set("clipboard", true);
@@ -453,7 +453,7 @@ internal static partial class Captures
         Home.Move("week", -1);
         Home.Move("week", -1); // week first
         Home.Move("usage", 1); // usage under the favorites
-        sw.Page("home");
+        sw.Page("launcher");
         await Task.Delay(350);
         await sw.Dispatcher.InvokeAsync(() => sw.Capture(Path.Combine(dir, "dark-x03-settings-home-changed.png")), System.Windows.Threading.DispatcherPriority.ApplicationIdle);
         sw.Close();
@@ -543,7 +543,7 @@ internal static partial class Captures
             }
             var sw = new SettingsWindow(host) { WindowStartupLocation = WindowStartupLocation.Manual, Left = -32000, Top = -32000, ShowActivated = false };
             sw.Show();
-            foreach (var page in theme == "dark" ? new[] { "general", "ai", "screen" } : new[] { "general", "screen" })
+            foreach (var page in theme == "dark" ? new[] { "general", "ai", "tools" } : new[] { "general", "tools" })
             {
                 sw.Page(page);
                 await Task.Delay(350);

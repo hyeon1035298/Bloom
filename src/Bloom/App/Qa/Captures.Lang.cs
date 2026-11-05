@@ -36,7 +36,7 @@ internal static partial class Captures
 
         var sw = new SettingsWindow(host) { WindowStartupLocation = WindowStartupLocation.Manual, Left = -32000, Top = -32000, ShowActivated = false };
         sw.Show();
-        foreach (var page in new[] { "general", "home", "search", "ai", "accounts", "mcp", "features", "clipboard", "screen", "tools", "notices", "performance", "about" })
+        foreach (var page in new[] { "general", "launcher", "features", "shortcuts", "ai", "accounts", "mcp", "notices", "tools", "addons", "data", "about" })
         {
             sw.Page(page);
             await Task.Delay(350);

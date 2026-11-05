@@ -163,7 +163,7 @@ internal sealed partial class Host
         Chats.Updated += t => Window.ChatChanged(t);
         Chats.SessionsChanged += () => Window.SessionsChanged();
         // a tool call waiting while no Bloom window is in front: a card says so
-        Notices.OpenUpdates = () => OpenSettings("about", Tr("업데이트", "Update"));
+        Notices.OpenUpdates = () => OpenSettings("about"); // its first line is the version and the update
         Notices.UpdateNow = UpdateNow;
         Chats.AskWaiting += (thread, ask) =>
         {
