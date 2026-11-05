@@ -35,7 +35,8 @@ internal static class UsageSharedTests
         Check.True(root["tag"] is null, "이름표 none: left out");
         Check.Eq((string)root["accounts"]![0]!["bar"]!, "week-fable", "the picked limit, by its key");
         Check.True(root["accounts"]![1]!["bar"] is null, "a pick the account doesn't have (no session): left out");
-        Check.True(root["accounts"]![0]!["icon"] is null, "no logo: left out");
+        string official = Path.Combine(Paths.Local, "usage-icons", "official-claude.svg");
+        Check.Eq((string?)root["accounts"]![0]!["icon"], official, "none picked: the company's logo");
 
         string svg = Path.Combine(folder.Directory, "logo.svg");
         File.WriteAllText(svg, """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M2 2h20v20H2z" fill="#d97757"/></svg>""");
@@ -51,7 +52,7 @@ internal static class UsageSharedTests
 
         UsageIcons.Clear(claude);
         Check.True(claude.Icon is null && !File.Exists(copy), "cleared: the copy goes too");
-        Check.True(JsonNode.Parse(UsageExport.Build(Cards(), true, 1))!["accounts"]![0]!["icon"] is null, "and the file has none");
+        Check.Eq((string?)JsonNode.Parse(UsageExport.Build(Cards(), true, 1))!["accounts"]![0]!["icon"], official, "and the file names the company's logo again");
         bool refused = false;
         try
         {

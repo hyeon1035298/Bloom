@@ -3,62 +3,34 @@ using System.Linq;
 using System.Text.Json.Nodes;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Xml.Linq;
 using Bloom.Ai;
 using Bloom.Core;
 using Bloom.Ui;
 
 namespace Bloom.Tests;
 
-/// The companies' logos Bloom fetches for accounts with none picked: the icon link found in a page, the SVG made readable
-/// without its <style>, the one-grey test that draws such a logo in the text colour, and which picture an account shows.
+/// The companies' logos Bloom carries for accounts with none picked: written out as files Bloom's reader draws, the
+/// one-grey test that draws such a logo in the text colour, and which picture an account shows.
 internal static class OfficialLogosTests
 {
-    // chatgpt.com's favicon as it is served: no fill but the one its <style> gives, black, or white in the dark
-    private const string GptLike = """
-        <!-- a comment stays -->
-        <svg xmlns="http://www.w3.org/2000/svg" width="180" height="180" viewBox="0 0 180 180" fill="none">
-          <style>
-            :root { fill: #000; }
-            @media (prefers-color-scheme: dark) { :root { fill: #fff; } }
-          </style>
-          <path d="M20 20h140v140H20z"/>
-        </svg>
-        """;
-
-    public static void IconLinkFromThePage()
+    public static void ShippedMarksDraw()
     {
-        const string page = """
-            <html><head><meta charset="utf-8"/>
-            <link rel="apple-touch-icon" href="/a/touch.png" sizes="180x180"/>
-            <link rel="icon" href="/a/favicon-48.png" type="image/png" sizes="48x48"/>
-            <link rel="icon" href="/cdn/assets/favicon.6a33781f61.svg?v=1&amp;x=2" type="image/svg+xml"/>
-            """;
-        Check.Eq(OfficialLogos.IconHref(page), "/cdn/assets/favicon.6a33781f61.svg?v=1&x=2", "the SVG one, its &amp; read");
-        Check.Eq(OfficialLogos.IconHref("""<link href='/f.svg' rel='shortcut icon'>"""), "/f.svg", "single quotes, rel with two words, .svg by its name");
-        Check.Eq(OfficialLogos.IconHref("""<link rel="apple-touch-icon" href="/t.svg"><link rel="icon" href="/f.png" type="image/png">"""), (string?)null, "no SVG icon: none");
-    }
+        using var folder = new SettingsTransferTests.DataFolder();
+        foreach (var (kind, mark) in new[] { ("claude", "anthropic"), ("chatgpt", "openai") })
+        {
+            string file = Check.NotNull(OfficialLogos.For(kind), $"{kind}: a file");
+            Check.Eq(Path.GetDirectoryName(file), Path.Combine(Paths.Local, "usage-icons"), $"{kind}: in Local\\usage-icons");
+            Check.True(File.ReadAllBytes(file).SequenceEqual(OfficialLogos.Mark(mark)), $"{kind}: the {mark} mark as shipped");
+            var image = Check.NotNull(UsageLogo.Svg(File.ReadAllText(file)), $"{kind}: Bloom's reader draws it");
+            Check.True(UsageLogo.OneGrey(image), $"{kind}: one black, drawn in the text colour");
 
-    public static void SvgStyleBecomesTheRootFill()
-    {
-        string svg = OfficialLogos.Normalized(GptLike);
-        var root = XDocument.Parse(svg).Root!;
-        Check.Eq(root.Attribute("fill")?.Value, "#000", "the light colour, on the root");
-        Check.True(!root.Descendants().Any(e => e.Name.LocalName == "style"), "no <style> left");
-        Check.Eq(root.Descendants().Count(e => e.Name.LocalName == "path"), 1, "the shape stays");
-        var image = Check.NotNull(UsageLogo.Svg(svg), "Bloom's reader draws it");
-        Check.True(UsageLogo.Svg(GptLike) is null, "and could not before");
-        Check.True(UsageLogo.OneGrey(image), "one black: drawn in the text colour");
-        bool refused = false;
-        try
-        {
-            OfficialLogos.Normalized("""<svg xmlns="http://www.w3.org/2000/svg"><style>:root{fill:#000}</style></svg>""");
+            File.WriteAllText(file, "<svg/>");
+            Check.Eq(OfficialLogos.For(kind), file, $"{kind}: the same file");
+            File.Delete(file);
+            Check.Eq(OfficialLogos.For(kind), file, $"{kind}: written again when gone");
+            Check.True(File.ReadAllBytes(file).SequenceEqual(OfficialLogos.Mark(mark)), $"{kind}: whole again");
         }
-        catch (InvalidDataException)
-        {
-            refused = true;
-        }
-        Check.True(refused, "an SVG with no shapes is refused");
+        Check.True(OfficialLogos.For("gemini") is null, "no logo for another kind");
     }
 
     public static void OneGreyOnly()
@@ -79,7 +51,7 @@ internal static class OfficialLogosTests
         Check.True(!UsageLogo.OneGrey(Pixels(0x00000000)), "nothing there: not a grey logo");
     }
 
-    /// The user's pick first, else the company's logo, else none; the usage file and the cards say the same.
+    /// The user's pick first, else the company's logo; the usage file and the cards say the same.
     public static void PickedBeforeOfficial()
     {
         using var folder = new SettingsTransferTests.DataFolder();
@@ -87,13 +59,8 @@ internal static class OfficialLogosTests
         list.Clear();
         var claude = new AiAccount { Id = "claude", Kind = "claude" };
         list.Add(claude);
-        Check.True(UsageIcons.Shown(claude) is null, "nothing fetched, nothing picked");
-
-        string official = Path.Combine(Paths.Local, "usage-icons", "official-claude.ico");
-        Directory.CreateDirectory(Path.GetDirectoryName(official)!);
-        File.WriteAllBytes(official, new byte[] { 0, 0, 1, 0, 0, 0 });
-        Check.Eq(UsageIcons.Shown(claude), official, "the fetched logo");
-        Check.True(UsageIcons.Shown(new AiAccount { Id = "x", Kind = "chatgpt" }) is null, "another kind's is not");
+        string official = Path.Combine(Paths.Local, "usage-icons", "official-claude.svg");
+        Check.Eq(UsageIcons.Shown(claude), official, "nothing picked: the company's logo");
 
         string svg = Path.Combine(folder.Directory, "mine.svg");
         File.WriteAllText(svg, """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M2 2h20v20H2z" fill="#d97757"/></svg>""");
@@ -105,6 +72,6 @@ internal static class OfficialLogosTests
         UsageIcons.Clear(claude);
         Check.Eq(UsageIcons.Shown(claude), official, "cleared: the company's logo again");
         Check.Eq((string?)JsonNode.Parse(UsageExport.Build(cards, true, 1))!["accounts"]![0]!["icon"], official, "and the usage file names it");
-        Check.True(File.Exists(official), "clearing a pick leaves the fetched logo");
+        Check.True(File.Exists(official), "clearing a pick leaves the company's logo");
     }
 }
