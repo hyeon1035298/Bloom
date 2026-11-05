@@ -7,29 +7,56 @@ using Bloom.Core;
 
 namespace Bloom.Addons;
 
-/// Where add-ons are: the shipped folder (read only, inside Bloom's install folder) and the add-on's own folder under
-/// Paths.Local, which holds its data files and one run copy per version. The host runs from the run copy, never from the
-/// install folder: explorer keeps the add-on's DLL loaded, and a locked file in the install folder would keep Velopack
-/// from swapping it at the next update.
+/// Where add-ons are: the source folder (read only: inside Bloom's install folder, or a downloaded version's folder under
+/// <Paths.Local>\addon-downloads, AddonDownload) and the add-on's own folder under Paths.Local, which holds its data
+/// files and one run copy per version. The host runs from the run copy, never from the install folder: explorer keeps
+/// the add-on's DLL loaded, and a locked file in the install folder would keep Velopack from swapping it at the next
+/// update.
 internal sealed class AddonStore
 {
     private readonly string shippedRoot, localRoot;
 
-    public AddonStore(string shippedRoot, string localRoot)
+    public AddonStore(string shippedRoot, string localRoot, string? downloadRoot = null)
     {
         this.shippedRoot = shippedRoot;
         this.localRoot = localRoot;
+        DownloadRoot = downloadRoot;
     }
 
-    /// Bloom's own: <install folder>\addons and <Paths.Local>\addons.
-    public static AddonStore Default => new(Path.Combine(Paths.AppDir, "addons"), Path.Combine(Paths.Local, "addons"));
+    /// Bloom's own: <install folder>\addons, downloaded ones in <Paths.Local>\addon-downloads, and <Paths.Local>\addons.
+    public static AddonStore Default => new(Path.Combine(Paths.AppDir, "addons"), Path.Combine(Paths.Local, "addons"), Path.Combine(Paths.Local, "addon-downloads"));
 
     /// The user's own: add-ons they put in <Paths.Local>\user-addons\<id> themselves, none of them Bloom's. Read from
     /// there the way shipped ones are read from the install folder; their run copies and data sit beside the shipped
     /// ones in <Paths.Local>\addons.
     public static AddonStore User => new(Path.Combine(Paths.Local, "user-addons"), Path.Combine(Paths.Local, "addons"));
 
-    public string ShippedDir(string id) => Path.Combine(shippedRoot, id);
+    /// Where downloaded add-ons go (<root>\<id>\<version>); null for a store that takes no downloads (the user's).
+    public string? DownloadRoot { get; }
+
+    /// The install folder holds this add-on (a local install or a dev build): that one is used, and none is downloaded.
+    public bool Bundled(string id) => File.Exists(Path.Combine(shippedRoot, id, AddonManifest.FileName));
+
+    /// The folder the add-on is read from: the install folder's when it has one, else the downloaded version (the latest
+    /// when a clean-up that failed left two), else the install folder's path, which has none.
+    public string SourceDir(string id)
+    {
+        string shipped = Path.Combine(shippedRoot, id);
+        if (DownloadRoot is null || Bundled(id)) return shipped;
+        try
+        {
+            string dir = Path.Combine(DownloadRoot, id);
+            if (!Directory.Exists(dir)) return shipped;
+            string? latest = Directory.GetDirectories(dir).Select(Path.GetFileName).OfType<string>()
+                .Where(v => !v.StartsWith('.') && AddonManifest.IsVersion(v) && File.Exists(Path.Combine(dir, v, AddonManifest.FileName)))
+                .OrderByDescending(v => v, Comparer<string>.Create(AddonCatalog.Compare)).FirstOrDefault();
+            return latest is null ? shipped : Path.Combine(dir, latest);
+        }
+        catch (Exception e) when (e is IOException or UnauthorizedAccessException)
+        {
+            return shipped;
+        }
+    }
 
     /// The add-ons in the read-only root: each folder named like an add-on id with an addon.json in it, by name.
     public IReadOnlyList<string> Ids()
@@ -50,10 +77,11 @@ internal sealed class AddonStore
     /// The add-on's data folder (values.json, the host's and runtime's state files, its logs), with the run copies in it.
     public string DataDir(string id) => Path.Combine(localRoot, id);
 
-    /// The shipped add-on's manifest; null when Bloom came without it. InvalidDataException when it is there but wrong.
+    /// The add-on's manifest, shipped or downloaded (SourceDir); null when it is neither. InvalidDataException when it is
+    /// there but wrong.
     public AddonManifest? Shipped(string id)
     {
-        string file = Path.Combine(ShippedDir(id), AddonManifest.FileName);
+        string file = Path.Combine(SourceDir(id), AddonManifest.FileName);
         if (!File.Exists(file)) return null;
         var m = AddonManifest.Parse(File.ReadAllText(file));
         return m.Id == id ? m : throw new InvalidDataException($"addon.json: id «{m.Id}» in the folder «{id}»");
@@ -66,16 +94,17 @@ internal sealed class AddonStore
         string target = Path.Combine(DataDir(m.Id), m.Version);
         if (Matches(target, m)) return target;
         string staging = Path.Combine(DataDir(m.Id), $".{m.Version}.{Guid.NewGuid():N}.tmp");
+        string source = SourceDir(m.Id);
         try
         {
             foreach (var (name, sha) in m.Files)
             {
                 string to = Path.Combine(staging, name);
                 Directory.CreateDirectory(Path.GetDirectoryName(to)!);
-                File.Copy(Path.Combine(ShippedDir(m.Id), name), to);
+                File.Copy(Path.Combine(source, name), to);
                 if (!string.Equals(Sha256(to), sha, StringComparison.OrdinalIgnoreCase)) throw new InvalidDataException($"{name}: SHA-256 does not match addon.json");
             }
-            File.Copy(Path.Combine(ShippedDir(m.Id), AddonManifest.FileName), Path.Combine(staging, AddonManifest.FileName));
+            File.Copy(Path.Combine(source, AddonManifest.FileName), Path.Combine(staging, AddonManifest.FileName));
             if (Directory.Exists(target)) Directory.Delete(target, true); // a broken copy (throws while a file of it is still loaded)
             Directory.Move(staging, target);
             return target;
