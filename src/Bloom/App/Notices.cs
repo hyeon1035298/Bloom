@@ -188,7 +188,7 @@ internal static class Notices
         var s = Settings.Current;
         var all = AiUsage.Accounts;
         foreach (var a in all)
-            foreach (var l in a.Limits)
+            foreach (var l in a.Shown)
             {
                 string key = a.Id + "|" + l.Title;
                 double left = Math.Max(0, 100 - l.Percent);

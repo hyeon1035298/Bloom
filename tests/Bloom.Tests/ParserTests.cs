@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using Bloom.Ai;
 using Bloom.Core;
 using Bloom.Search;
@@ -62,9 +63,13 @@ internal static class ClaudeUsageTests
             Current week (Fable): 0% used · resets Oct 13, 6am (Asia/Seoul)
               92% of your usage was at >150k context
             """, Now);
-        Check.Eq(limits.Count, 2, "session + all-models week (one model's week left out)");
+        Check.Eq(limits.Count, 3, "session + all-models week + Fable's week");
         Check.Eq((limits[0].Title, limits[0].Percent, limits[0].Resets), ("5시간", 3.0, (DateTime?)new DateTime(2026, 10, 8, 12, 29, 0)), "session");
         Check.Eq((limits[1].Title, limits[1].Percent, limits[1].Resets), ("주간", 61.0, (DateTime?)new DateTime(2026, 10, 13, 5, 59, 0)), "week");
+        Check.Eq((limits[2].Title, limits[2].Model, limits[2].WindowMins, limits[2].Percent), ("Fable 주간", (string?)"Fable", (int?)UsageLimit.WeekMins, 0.0), "a model's week");
+        Check.True(limits.Take(2).All(l => l.Model is null), "the two the home shows have no model");
+        var card = new UsageAccount("Claude", null, limits, Now);
+        Check.Eq(card.Shown.Count(), 2, "the home's limits are the same two as before");
         Check.Eq(ClaudeUsage.Parse("Not logged in · Please run /login", Now).Count, 0, "signed out");
     }
 
