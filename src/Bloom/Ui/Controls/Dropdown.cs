@@ -33,14 +33,15 @@ internal sealed class Dropdown : SmoothBorder
         Background = Theme.P.Well;
         BorderBrush = Theme.P.Line;
         BorderThickness = new Thickness(1);
-        Padding = new Thickness(11, 3, 9, 4);
+        Padding = new Thickness(11, 0, 9, 0);
+        MinHeight = 24;
         Cursor = Cursors.Hand;
         VerticalAlignment = VerticalAlignment.Center;
         var sp = new StackPanel { Orientation = Orientation.Horizontal };
-        text = Theme.T(LabelOf(value), 12, Theme.P.Text, Theme.Medium, false);
+        text = Theme.Label(LabelOf(value), 12, Theme.P.Text, Theme.Medium);
         sp.Children.Add(text);
         var chevron = Theme.Glyph('\uE70D', 9, Theme.P.TextFaint);
-        chevron.Margin = new Thickness(9, 1, 0, 0);
+        chevron.Margin = new Thickness(9, 0, 0, 0);
         sp.Children.Add(chevron);
         Child = sp;
         var sv = new ScrollViewer { Content = list, MaxHeight = 360, VerticalScrollBarVisibility = ScrollBarVisibility.Auto, Focusable = false, Template = Launcher.ThinScroll() };

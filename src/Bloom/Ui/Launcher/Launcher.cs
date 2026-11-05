@@ -129,9 +129,10 @@ internal sealed partial class Launcher : Window, IChatHost
         bar.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
         lead.Margin = new Thickness(0, 0, 12, 0);
         bar.Children.Add(lead);
-        chipText = Theme.T("", 12.5, Theme.P.TextDim, Theme.Medium, false);
+        chipText = Theme.Label("", 12.5, Theme.P.TextDim, Theme.Medium);
         chip.Child = chipText;
-        chip.Padding = new Thickness(8, 2, 8, 3);
+        chip.Padding = new Thickness(8, 0, 8, 0);
+        chip.MinHeight = 22;
         chip.CornerRadius = new CornerRadius(6);
         chip.Background = Theme.P.Tile;
         chip.Margin = new Thickness(0, 0, 10, 0);

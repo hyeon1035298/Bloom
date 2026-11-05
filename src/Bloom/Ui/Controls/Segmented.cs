@@ -35,8 +35,8 @@ internal sealed class Segmented : SmoothBorder
         var sp = new StackPanel { Orientation = Orientation.Horizontal };
         foreach (var (v, label) in options)
         {
-            var t = Theme.T(label, 12, Theme.P.TextFaint, Theme.Medium, false);
-            var b = new SmoothBorder { CornerRadius = new CornerRadius(7), Padding = new Thickness(10, 2, 10, 3), Child = t, Cursor = Cursors.Hand };
+            var t = Theme.Label(label, 12, Theme.P.TextFaint, Theme.Medium);
+            var b = new SmoothBorder { CornerRadius = new CornerRadius(7), Padding = new Thickness(10, 0, 10, 0), MinHeight = 20, Child = t, Cursor = Cursors.Hand };
             string vv = v;
             b.MouseLeftButtonUp += (_, e) =>
             {
