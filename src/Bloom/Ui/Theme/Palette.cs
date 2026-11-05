@@ -45,6 +45,10 @@ internal sealed class Palette
         Tint.Color = Color.FromArgb((byte)Math.Round(2.55 * (100 - Math.Clamp(glassTransparency, 0, 100))), c.R, c.G, c.B);
     }
 
+    /// The accent alone, in the theme shown (설정 > 일반 > 직접 고른 색 while it is dragged): the brushes change in place
+    /// and nothing else is told.
+    public void Recolor(AccentPreset a) => Recolor(Dark, a);
+
     /// Another colour from the settings: the accent and its soft / text / selection shades. The grays stay as they are.
     private void Recolor(bool dark, AccentPreset a)
     {
@@ -213,10 +217,111 @@ internal static class Accents
         return new AccentPreset(CustomKey, Tr("직접", "Custom"), U(dark), U(c), s < 0.06);
     }
 
+    /// The window's ground in each theme (Palette.Solid), which an accent that is on is seen against.
+    public static readonly Color DarkGround = Color.FromRgb(0x18, 0x18, 0x1B), LightGround = Color.FromRgb(0xF4, 0xF4, 0xF5);
+
+    /// The least contrast a lit switch needs against its ground (WCAG's 3:1 for what is not text).
+    public const double MinContrast = 3;
+
+    /// The dark theme's colour for a light one: the same hue, 0.18 lighter, up to 0.86 (Custom's rule).
+    public static Color DarkOf(Color light) => Swatch(Custom(light), true);
+
+    /// The light theme's colour for a dark one: 0.18 darker, down to 0.08; one lighter than 0.86 stays as it is.
+    public static Color LightOf(Color dark)
+    {
+        var (h, s, l) = Hsl.From(dark);
+        return l > 0.86 ? Color.FromRgb(dark.R, dark.G, dark.B) : Hsl.To(0xFF, h, s, Math.Max(0.08, l - 0.18));
+    }
+
+    /// The colour kept (AccentCustom, the light theme's) for one picked while `dark` shows.
+    public static Color Stored(Color shown, bool dark) => dark ? LightOf(shown) : Color.FromRgb(shown.R, shown.G, shown.B);
+
+    /// WCAG relative luminance (0 black - 1 white).
+    public static double Luminance(Color c)
+    {
+        static double Lin(byte v)
+        {
+            double x = v / 255.0;
+            return x <= 0.03928 ? x / 12.92 : Math.Pow((x + 0.055) / 1.055, 2.4);
+        }
+        return 0.2126 * Lin(c.R) + 0.7152 * Lin(c.G) + 0.0722 * Lin(c.B);
+    }
+
+    /// WCAG contrast ratio, 1 to 21.
+    public static double Contrast(Color a, Color b)
+    {
+        double x = Luminance(a), y = Luminance(b);
+        return (Math.Max(x, y) + 0.05) / (Math.Min(x, y) + 0.05);
+    }
+
+    /// The contrast of the pair a light colour makes, each against its theme's ground.
+    public static (double dark, double light) Contrasts(Color light) => (Contrast(DarkOf(light), DarkGround), Contrast(light, LightGround));
+
+    public static bool Visible(Color light)
+    {
+        var (d, l) = Contrasts(light);
+        return d >= MinContrast && l >= MinContrast;
+    }
+
+    /// 보이게 맞추기: the nearest lightness (darker first) at which both colours of the pair stand out from their grounds;
+    /// with none, the one where the weaker of the two is strongest. Hue and saturation stay.
+    public static Color MakeVisible(Color light)
+    {
+        if (Visible(light)) return Color.FromRgb(light.R, light.G, light.B);
+        var (h, s, l0) = Hsl.From(light);
+        Color best = light;
+        double bestWeak = -1;
+        for (int k = 1; k <= 200; k++)
+            foreach (double l in new[] { l0 - k * 0.005, l0 + k * 0.005 })
+            {
+                if (l < 0 || l > 1) continue;
+                var c = Hsl.To(0xFF, h, s, l);
+                var (dc, lc) = Contrasts(c);
+                if (dc >= MinContrast && lc >= MinContrast) return c;
+                if (Math.Min(dc, lc) > bestWeak)
+                {
+                    bestWeak = Math.Min(dc, lc);
+                    best = c;
+                }
+            }
+        return best;
+    }
+
     public static Color Swatch(AccentPreset a, bool dark)
     {
         uint v = dark ? a.Dark : a.Light;
         return Color.FromArgb(0xFF, (byte)(v >> 16), (byte)(v >> 8), (byte)v);
+    }
+}
+
+/// Hue (0-360), saturation and value (0-1): the colour picker's square (s across, v up) and hue strip.
+internal static class Hsv
+{
+    public static (double h, double s, double v) From(Color c)
+    {
+        double r = c.R / 255.0, g = c.G / 255.0, b = c.B / 255.0;
+        double max = Math.Max(r, Math.Max(g, b)), min = Math.Min(r, Math.Min(g, b)), d = max - min;
+        double h = d < 1e-9 ? 0 : max == r ? (g - b) / d + (g < b ? 6 : 0) : max == g ? (b - r) / d + 2 : (r - g) / d + 4;
+        return (h * 60, max < 1e-9 ? 0 : d / max, max);
+    }
+
+    public static Color To(double h, double s, double v)
+    {
+        h = ((h % 360) + 360) % 360 / 60;
+        s = Math.Clamp(s, 0, 1);
+        v = Math.Clamp(v, 0, 1);
+        double c = v * s, x = c * (1 - Math.Abs(h % 2 - 1)), m = v - c;
+        var (r, g, b) = (int)h switch
+        {
+            0 => (c, x, 0.0),
+            1 => (x, c, 0.0),
+            2 => (0.0, c, x),
+            3 => (0.0, x, c),
+            4 => (x, 0.0, c),
+            _ => (c, 0.0, x),
+        };
+        byte B(double t) => (byte)Math.Round(Math.Clamp(t + m, 0, 1) * 255);
+        return Color.FromRgb(B(r), B(g), B(b));
     }
 }
 

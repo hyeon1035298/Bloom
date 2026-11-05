@@ -691,7 +691,7 @@ internal sealed partial class SettingsView : ScrollViewer
     public bool HandleKey(Key key)
     {
         if (dropdowns.Find(d => d.IsOpen) is { } open) return open.HandleKey(key);
-        if (Keyboard.FocusedElement is TextBox { Tag: Func<Key, bool> numberKey }) return numberKey(key); // typing in a number field
+        if (Keyboard.FocusedElement is FrameworkElement { Tag: Func<Key, bool> numberKey }) return numberKey(key); // typing in a number field, or a control that reads its own keys
         if (Keyboard.FocusedElement is KeyRecorder { IsListening: true }) return true; // a shortcut being pressed in reads its own keys
         bool ctrl = (Keyboard.Modifiers & ModifierKeys.Control) != 0, shift = (Keyboard.Modifiers & ModifierKeys.Shift) != 0;
         switch (key)
