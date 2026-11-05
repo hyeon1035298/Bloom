@@ -1,3 +1,4 @@
+using System;
 using System.Windows;
 using Bloom.Native;
 using Bloom.Ui;
@@ -91,5 +92,28 @@ internal static class NoticePlacementTests
         // turning into the taskbar the region is the whole window, down to the taskbar: only its top band counts
         var morph = NoticePlacement.Island(R(700, 0, 1860, 1440), 2, R(0, 0, 1160, 1440), monitor, 1);
         Check.Eq(morph, (Rect?)new Rect(700, 0, 1160, NoticePlacement.IslandTallest), "a morph frame: its top band");
+    }
+
+    public static void StaysUnderATaskbarAtTheTop()
+    {
+        var monitor = R(0, 0, 2560, 1440);
+        // auto-hide at the top: hidden, only its 2 px sliver on the screen
+        Check.Eq(NoticePlacement.Taskbar(R(0, -54, 2560, 2), 2, R(0, 54, 2560, 56), monitor, 1), (Rect?)null, "hidden: not in the way");
+        var shown = NoticePlacement.Taskbar(R(0, 0, 2560, 56), 2, R(0, 0, 2560, 56), monitor, 1);
+        Check.Eq(shown, (Rect?)new Rect(0, 0, 2560, 56), "shown: its box");
+        Check.Eq(NoticePlacement.Taskbar(R(0, -30, 2560, 26), 2, R(0, 0, 2560, 56), monitor, 1), (Rect?)new Rect(0, 0, 2560, 26), "sliding: the part on the screen");
+        Check.Eq(NoticePlacement.Taskbar(R(0, 1384, 2560, 1440), 0, default, monitor, 1), (Rect?)null, "at the bottom: not above anything");
+        Check.Eq(NoticePlacement.Taskbar(R(0, -1440, 2560, -1384), 0, default, monitor, 1), (Rect?)null, "another monitor's");
+        Check.Eq(NoticePlacement.Taskbar(R(0, 0, 2560, 56), 1, default, monitor, 1), (Rect?)null, "an empty region");
+
+        // the cards under the island while it rests, under the taskbar while it shows, whichever is lower
+        var island = new Rect(785, 0, 350, 35);
+        double centreX = (1920 - 350) / 2.0;
+        var top = NoticePlacement.At(Work, Window, 0.5, 0);
+        var bar = new Rect(0, 0, 1920, 56);
+        Check.Eq(NoticePlacement.AvoidAll(Work, Window, top, new[] { island }), new Point(centreX, 35 + NoticePlacement.IslandGap), "the island alone");
+        Check.Eq(NoticePlacement.AvoidAll(Work, Window, top, new[] { bar }), new Point(centreX, 56 + NoticePlacement.IslandGap), "the taskbar alone");
+        Check.Eq(NoticePlacement.AvoidAll(Work, Window, top, new[] { bar, island }), new Point(centreX, 56 + NoticePlacement.IslandGap), "both: under the lower");
+        Check.Eq(NoticePlacement.AvoidAll(Work, Window, top, Array.Empty<Rect>()), top, "nothing above");
     }
 }
