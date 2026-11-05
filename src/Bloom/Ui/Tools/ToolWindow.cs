@@ -103,6 +103,11 @@ internal sealed class ToolWindow : Window
 
     private IntPtr WndProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
     {
+        if (dock.KeepLook(hwnd, msg, wParam) is { } kept)
+        {
+            handled = true;
+            return kept;
+        }
         // a drag or a resize starts: the attached tools laid out along an edge stay where they are from now on
         if (msg == Win32.WM_ENTERSIZEMOVE)
         {
