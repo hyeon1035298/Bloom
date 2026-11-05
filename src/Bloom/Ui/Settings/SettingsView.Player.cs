@@ -70,27 +70,27 @@ internal sealed partial class SettingsView
         switch (what)
         {
             case "address":
-            {
-                string? v = ValueWindow.Ask(owner, Tr("JRiver 주소", "JRiver address"), Tr($"JRiver가 실행되는 PC의 주소입니다 (기본 {Mcws.DefaultAddress}). JRiver의 Media Network를 켜야 웹 서비스(MCWS)가 열립니다.", $"The address of the PC where JRiver runs (default {Mcws.DefaultAddress}). Turn on JRiver's Media Network to open its web service (MCWS)."), s.JriverAddress, false, s.JriverAddress.Length > 0,
-                    a => a.Length == 0 || Mcws.Base(a) is not null ? null : Tr("http://주소:포트 형식으로 적으세요", "Write it as http://address:port"));
-                if (v is null) return;
-                s.JriverAddress = v;
-                break;
-            }
+                {
+                    string? v = ValueWindow.Ask(owner, Tr("JRiver 주소", "JRiver address"), Tr($"JRiver가 실행되는 PC의 주소입니다 (기본 {Mcws.DefaultAddress}). JRiver의 Media Network를 켜야 웹 서비스(MCWS)가 열립니다.", $"The address of the PC where JRiver runs (default {Mcws.DefaultAddress}). Turn on JRiver's Media Network to open its web service (MCWS)."), s.JriverAddress, false, s.JriverAddress.Length > 0,
+                        a => a.Length == 0 || Mcws.Base(a) is not null ? null : Tr("http://주소:포트 형식으로 적으세요", "Write it as http://address:port"));
+                    if (v is null) return;
+                    s.JriverAddress = v;
+                    break;
+                }
             case "user":
-            {
-                string? v = ValueWindow.Ask(owner, Tr("JRiver 사용자", "JRiver user"), Tr("JRiver에 사용자 이름과 비밀번호를 정했을 때만 적습니다. 없으면 비워 두세요.", "Only when JRiver was given a user name and password. Leave it empty if not."), s.JriverUser, false, s.JriverUser.Length > 0);
-                if (v is null) return;
-                s.JriverUser = v;
-                break;
-            }
+                {
+                    string? v = ValueWindow.Ask(owner, Tr("JRiver 사용자", "JRiver user"), Tr("JRiver에 사용자 이름과 비밀번호를 정했을 때만 적습니다. 없으면 비워 두세요.", "Only when JRiver was given a user name and password. Leave it empty if not."), s.JriverUser, false, s.JriverUser.Length > 0);
+                    if (v is null) return;
+                    s.JriverUser = v;
+                    break;
+                }
             default:
-            {
-                string? v = ValueWindow.Ask(owner, Tr("JRiver 비밀번호", "JRiver password"), Tr("이 PC에만 암호화하여 저장하며 JRiver에 보내는 요청에만 사용합니다. 입력하는 동안 보이지 않습니다.", "Stored encrypted on this PC only and used only for requests to JRiver. It is not shown while typed."), "", true, ApiKeys.Has(MusicPlayer.JriverKey));
-                if (v is null) return;
-                _ = StoreJriverPassword(v);
-                return;
-            }
+                {
+                    string? v = ValueWindow.Ask(owner, Tr("JRiver 비밀번호", "JRiver password"), Tr("이 PC에만 암호화하여 저장하며 JRiver에 보내는 요청에만 사용합니다. 입력하는 동안 보이지 않습니다.", "Stored encrypted on this PC only and used only for requests to JRiver. It is not shown while typed."), "", true, ApiKeys.Has(MusicPlayer.JriverKey));
+                    if (v is null) return;
+                    _ = StoreJriverPassword(v);
+                    return;
+                }
         }
         Settings.Save();
         MusicPlayer.JriverChanged();

@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Windows;
 using Bloom.Native;
 
@@ -23,6 +25,9 @@ internal static class NoticePlacement
     /// The island is never taller than this (60 at most, plus room); a taller region is the island turning into or
     /// out of the taskbar, and only its top band is the island.
     public const double IslandTallest = 64;
+
+    /// A taskbar showing no more than this (DIP) at the edge is one hidden there (auto-hide leaves a sliver).
+    public const double TaskbarSliver = 8;
 
     public static readonly (string Id, double X, double Y)[] Spots =
     {
@@ -90,6 +95,37 @@ internal static class NoticePlacement
         double under = i.Bottom + IslandGap;
         double lowest = work.Bottom - Edge - window.Height;
         return new Point(at.X, Math.Max(at.Y, Math.Min(under, lowest)));
+    }
+
+    /// The corner kept under every box above it (the island, the taskbar showing at the top), each as Avoid; the lowest
+    /// last, so the corner ends under all of those it would cover.
+    public static Point AvoidAll(Rect work, Size window, Point at, IEnumerable<Rect> above)
+    {
+        foreach (var box in above.OrderBy(b => b.Bottom)) at = Avoid(work, window, at, box);
+        return at;
+    }
+
+    /// The taskbar's box in DIPs while it shows at the top of the monitor (rectangle px, at its scale): the part of its
+    /// window its region leaves (`regionKind` as GetWindowRgnBox answers) on the monitor. Null when it is hidden (an
+    /// empty region, or a sliver at the edge), on another monitor, or not against the top (a taskbar at the bottom).
+    /// While it slides in or out the box is the part on the screen, so a window kept under it follows it.
+    public static Rect? Taskbar(Win32.RECT window, int regionKind, Win32.RECT regionBox, Win32.RECT monitor, double scale)
+    {
+        if (regionKind == 1 || scale <= 0) return null;
+        int left = window.Left, top = window.Top, right = window.Right, bottom = window.Bottom;
+        if (regionKind is 2 or 3)
+        {
+            left = window.Left + regionBox.Left;
+            top = window.Top + regionBox.Top;
+            right = window.Left + regionBox.Right;
+            bottom = window.Top + regionBox.Bottom;
+        }
+        left = Math.Max(left, monitor.Left);
+        top = Math.Max(top, monitor.Top);
+        right = Math.Min(right, monitor.Right);
+        bottom = Math.Min(bottom, monitor.Bottom);
+        if (right <= left || bottom <= top || top > monitor.Top || (bottom - top) / scale <= TaskbarSliver) return null;
+        return new Rect(left / scale, top / scale, (right - left) / scale, (bottom - top) / scale);
     }
 
     /// The island's box in DIPs from its window: the window rectangle and the box of its region (relative to the

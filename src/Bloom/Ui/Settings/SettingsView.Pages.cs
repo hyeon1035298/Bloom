@@ -50,7 +50,8 @@ internal sealed partial class SettingsView
                 Switch? adminSw = null;
                 adminSw = Toggle(s.WinKeyAdmin, async v => adminSw!.On = await host.SetWinKeyAdmin(v, Window.GetWindow(this)), out var adminT);
                 Add(Tr("관리자 앱 위에서도 Win 키 사용", "Win key over admin apps"), Tr("관리자 권한 앱이 앞에 있어도 Win 키로 열립니다 · 켤 때 관리자 승인 필요", "Opens with Win even over apps run as administrator · admin approval to turn on"), adminSw, G.Shield, adminT, null, filter);
-            }));
+            }
+            ));
         More("open", filter, open);
         Header(Tr("모양", "Look"));
         Choice(Tr("테마", "Theme"), Tr("시스템은 Windows의 밝기 설정을 따릅니다", "System follows Windows' light or dark setting"), G.Palette,
@@ -112,12 +113,14 @@ internal sealed partial class SettingsView
             Add(Tr("GPU로 그리기 (실험적)", "GPU drawing (experimental)"), s.GpuDrawing == (System.Windows.Media.RenderOptions.ProcessRenderMode != System.Windows.Interop.RenderMode.SoftwareOnly)
                 ? Tr("GPU로 화면을 그립니다. 일부 PC에서는 화면이 끊기거나 몇 초 동안 멈출 수 있습니다. 끄면 CPU로 그리며 메모리를 약 30 MB 덜 씁니다.", "Draws the screen with the GPU. Some PCs may stutter or freeze for seconds. Off: the CPU draws, with about 30 MB less memory.")
                 : Tr("다시 시작하면 바뀝니다", "Changes when Bloom restarts"), gpuSw, G.Screen, gpuT, null, filter);
-        }));
+        }
+        ));
         look.Add((false, () =>
         {
             using var me = System.Diagnostics.Process.GetCurrentProcess();
             Add(Tr("지금 Bloom이 쓰는 메모리", "Memory Bloom uses now"), Tr($"{me.PrivateMemorySize64 / 1048576.0:0} MB · 모두 끈 기준 약 80 MB, 켤 때 늘어나는 양은 각 설정에 적혀 있습니다", $"{me.PrivateMemorySize64 / 1048576.0:0} MB · about 80 MB with everything off; each setting says what it adds"), null, G.Speed, () => Build(lastFilter), null, filter);
-        }));
+        }
+        ));
         More("look", filter, look);
     }
 
@@ -384,28 +387,29 @@ internal sealed partial class SettingsView
         switch (side)
         {
             case "chatgpt":
-            {
-                IReadOnlyList<GptCatalog.Model> gpts = collected is null ? GptCatalog.All : [];
-                string? gptSlug = collected is not null ? null : s.GptModel is { Length: > 0 } g && gpts.Any(m => m.Slug == g) ? g : GptCatalog.DefaultSlug();
-                string title = primary ? Tr("모델", "Model") : Tr("ChatGPT 모델", "ChatGPT model");
-                list.Add((s.GptModel != d.GptModel, () =>
                 {
-                    if (gpts.Count > 0)
-                        Menu(title, (GptCatalog.Find(gptSlug) is { } cur ? GptCatalog.About(cur) : Tr("Codex 기본 모델", "Codex's default model")) + Tr(" · 대화 중에는 Ctrl+M", " · Ctrl+M during a chat"), G.Model,
-                            gpts.Select(m => (m.Slug, m.Name, (string?)GptCatalog.About(m))).ToArray(), gptSlug ?? gpts[0].Slug, v =>
-                            {
-                                s.GptModel = v;
-                                Dispatcher.BeginInvoke(() => Build(lastFilter)); // the levels and the line under it follow the model
-                            }, filter);
-                    else
-                        Add(title, Tr("Codex의 모델 목록이 아직 없음 — Codex를 실행하여 목록을 불러오세요", "No Codex model list yet — run Codex once to get it"), null, G.Model, null, null, filter);
-                }));
-                string gptId = gptSlug is null ? "chatgpt" : AiModels.Gpt(gptSlug);
-                list.Add((s.GptEffort != d.GptEffort, () =>
-                    Choice(primary ? level : Tr("ChatGPT 생각 수준", "ChatGPT thinking level"), Tr("모델마다 단계가 다릅니다 · 대화 중 Ctrl+E", "The levels depend on the model · Ctrl+E during a chat"), G.Bulb,
-                        collected is null ? AiModels.Efforts(gptId).Select(e => (e, AiModels.EffortName(e))).ToArray() : [], collected is null ? AiModels.Fit(gptId, s.GptEffort) : "", v => s.GptEffort = v, filter))); // collecting asks no model catalog
-                break;
-            }
+                    IReadOnlyList<GptCatalog.Model> gpts = collected is null ? GptCatalog.All : [];
+                    string? gptSlug = collected is not null ? null : s.GptModel is { Length: > 0 } g && gpts.Any(m => m.Slug == g) ? g : GptCatalog.DefaultSlug();
+                    string title = primary ? Tr("모델", "Model") : Tr("ChatGPT 모델", "ChatGPT model");
+                    list.Add((s.GptModel != d.GptModel, () =>
+                    {
+                        if (gpts.Count > 0)
+                            Menu(title, (GptCatalog.Find(gptSlug) is { } cur ? GptCatalog.About(cur) : Tr("Codex 기본 모델", "Codex's default model")) + Tr(" · 대화 중에는 Ctrl+M", " · Ctrl+M during a chat"), G.Model,
+                                gpts.Select(m => (m.Slug, m.Name, (string?)GptCatalog.About(m))).ToArray(), gptSlug ?? gpts[0].Slug, v =>
+                                {
+                                    s.GptModel = v;
+                                    Dispatcher.BeginInvoke(() => Build(lastFilter)); // the levels and the line under it follow the model
+                                }, filter);
+                        else
+                            Add(title, Tr("Codex의 모델 목록이 아직 없음 — Codex를 실행하여 목록을 불러오세요", "No Codex model list yet — run Codex once to get it"), null, G.Model, null, null, filter);
+                    }
+                    ));
+                    string gptId = gptSlug is null ? "chatgpt" : AiModels.Gpt(gptSlug);
+                    list.Add((s.GptEffort != d.GptEffort, () =>
+                        Choice(primary ? level : Tr("ChatGPT 생각 수준", "ChatGPT thinking level"), Tr("모델마다 단계가 다릅니다 · 대화 중 Ctrl+E", "The levels depend on the model · Ctrl+E during a chat"), G.Bulb,
+                            collected is null ? AiModels.Efforts(gptId).Select(e => (e, AiModels.EffortName(e))).ToArray() : [], collected is null ? AiModels.Fit(gptId, s.GptEffort) : "", v => s.GptEffort = v, filter))); // collecting asks no model catalog
+                    break;
+                }
             case "omp":
                 OmpChatRows(s, primary, list, filter);
                 break;
@@ -496,7 +500,8 @@ internal sealed partial class SettingsView
             {
                 s.AiToolsOmp = v;
                 host.Chats.EndAll();
-            }));
+            }
+            ));
         chats.Add(("API", s.AiToolsApi, v => s.AiToolsApi = v));
         KeyChips(Tr("사용할 대화", "Chats that use it"), Tr("실행 전 승인 카드 · 요청마다 약 +250~500 토큰", "An approval card before each action · about +250–500 tokens per request"), chats, G.Bolt, filter);
 
@@ -539,7 +544,8 @@ internal sealed partial class SettingsView
             {
                 mcpFound = null;
                 Build(lastFilter);
-            }));
+            }
+        ));
         // read where each program keeps them (Claude Code, Claude Desktop, Cursor, VS Code, Windsurf, Codex, files
         // brought in), once per opening of this page
         mcpFound ??= collected is null ? McpCatalog.Found(s.McpFiles) : []; // collecting reads no program's settings files
