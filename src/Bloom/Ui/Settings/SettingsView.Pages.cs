@@ -42,7 +42,12 @@ internal sealed partial class SettingsView
         var altSw = Toggle(s.AltSpace, v => { s.AltSpace = v; host.ApplyHotkeys(); }, out var altT);
         string altSub = host.AltSpaceStatus switch { "taken" => Tr("다른 앱에서 사용 중", "Another app uses it"), "ok" => Tr("켜짐", "On"), _ => Tr("꺼짐", "Off") };
         Add(Tr("Alt + Space로 열기", "Open with Alt + Space"), altSub, altSw, G.Keyboard, altT, null, filter);
-        var autoSw = Toggle(s.Autostart, v => { s.Autostart = v; Autostart.Set(v); }, out var autoT);
+        var autoSw = Toggle(s.Autostart, v =>
+        {
+            s.Autostart = v;
+            Autostart.Set(v);
+            LogonTask.SyncLater(); // the earlier start at sign-in for a taskbar add-on follows this switch
+        }, out var autoT);
         Add(Tr("윈도우 시작 시 실행", "Start with Windows"), Paths.IsDev ? Tr("개발 실행에서는 자동 시작 설정 불가", "Autostart unavailable in development runs") : Autostart.IsOn() ? Tr("로그인 시 트레이에서 실행", "Runs in the tray at sign-in") : Tr("등록 안 됨", "Not registered"), autoSw, G.Power, autoT, null, filter);
         Header(Tr("모양", "Look"));
         Choice(Tr("테마", "Theme"), Theme.Acrylic ? Tr("유리 효과 켜짐 (Windows 투명 효과)", "Glass on (Windows transparency effects)") : Tr("Windows 투명 효과 꺼짐 · 단색 배경", "Windows transparency effects are off, so it is solid"), G.Palette,

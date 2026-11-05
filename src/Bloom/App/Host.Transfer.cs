@@ -93,7 +93,7 @@ internal sealed partial class Host
             Tell(owner, Tr("초기화 실패", "Reset failed"), Tr("Bloom을 다시 시작하지 못했습니다. 삭제된 데이터는 없습니다. Bloom을 다시 열고 시도하세요.", "Could not restart Bloom. No data was deleted. Reopen Bloom and try again."));
             return false;
         }
-        Log.Write("reset: quitting for the new start");
+        Log.Write("reset: quitting for the new start"); // which stops the add-on hosts before it deletes anything
         Quit(save: false);
         return true;
     }
@@ -130,6 +130,7 @@ internal sealed partial class Host
             return false;
         }
         Autostart.Set(false);
+        LogonTask.Remove(); // the new start (--uninstall-from) stops the add-on hosts before anything is deleted
         FileAssoc.Set(false); // a copy without the setup has no uninstaller to do it (Program: the setup's own step)
         if (!installed) Launch.Open("explorer.exe", $"/select,\"{Environment.ProcessPath}\"");
         Log.Write("uninstall: quitting" + (wipe ? ", the data goes too" : ""));
@@ -188,6 +189,7 @@ internal sealed partial class Host
         Settings.Current.Onboarded = true;
         Settings.Save();
         if (!Paths.IsDev) Autostart.Set(Settings.Current.Autostart);
+        LogonTask.SyncLater();
         FileAssoc.Repair(); // the 마크다운 문서 switch brought in
         Theme.Apply(Settings.Current.Theme);
         ApplyHotkeys();

@@ -61,6 +61,7 @@ internal sealed partial class SettingsView : ScrollViewer
             GptCatalog.Updated += OnCatalog;
             ApiCatalog.Updated += OnCatalog;
             OmpCatalog.Updated += OnCatalog;
+            Addons.AddonHub.Changed += OnAddons;
         };
         Unloaded += (_, _) =>
         {
@@ -69,6 +70,7 @@ internal sealed partial class SettingsView : ScrollViewer
             GptCatalog.Updated -= OnCatalog;
             ApiCatalog.Updated -= OnCatalog;
             OmpCatalog.Updated -= OnCatalog;
+            Addons.AddonHub.Changed -= OnAddons;
         };
     }
 
@@ -80,6 +82,16 @@ internal sealed partial class SettingsView : ScrollViewer
         Dispatcher.BeginInvoke(() =>
         {
             if (IsLoaded && IsVisible && (current is "ai" or "screen" or "accounts" || lastFilter.Length > 0)) Build(lastFilter);
+        }, System.Windows.Threading.DispatcherPriority.Background);
+    }
+
+    /// An add-on's status moved (the host started, the symbol files came in): its page follows while it shows.
+    private void OnAddons()
+    {
+        if (Dispatcher.HasShutdownStarted) return;
+        Dispatcher.BeginInvoke(() =>
+        {
+            if (IsLoaded && IsVisible && (current == "taskbar" || lastFilter.Length > 0)) Build(lastFilter);
         }, System.Windows.Threading.DispatcherPriority.Background);
     }
 
@@ -364,6 +376,7 @@ internal sealed partial class SettingsView : ScrollViewer
         PageGeneral(s, filter);
         PageFeatures(s, filter);
         PagePerformance(s, filter);
+        PageTaskbar(s, filter);
         section = Tr("런처", "Launcher");
         PageHome(s, filter);
         PageSearch(s, filter);
@@ -383,10 +396,15 @@ internal sealed partial class SettingsView : ScrollViewer
 
     /// Every line of every category as text, for the launcher's settings search (SettingsCatalog). Nothing is built;
     /// the pages skip what reads the disk or the PC (MCP servers, Lens files, CLIs) while this runs.
-    public List<SettingsCatalog.Line> Collect()
+    public List<SettingsCatalog.Line> Collect() => Collect(BuildPages);
+
+    /// The tests: 설정 > 작업표시줄's lines alone (the other pages want a started Host).
+    internal List<SettingsCatalog.Line> CollectTaskbarForTests() => Collect(PageTaskbar);
+
+    private List<SettingsCatalog.Line> Collect(Action<Settings, string> build)
     {
         collected = new();
-        BuildPages(Settings.Current, "");
+        build(Settings.Current, "");
         return collected;
     }
 
