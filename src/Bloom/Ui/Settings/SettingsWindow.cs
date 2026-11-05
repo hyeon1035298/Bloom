@@ -174,6 +174,8 @@ internal sealed class SettingsWindow : Window
 
     public void Page(string key) => view.GoForQa(key);
 
+    internal SettingsView ViewForQa => view;
+
     public void SelectForQa(int i) => view.SelectForQa(i);
 
     public void TaskbarForQa(string? selected, string? error) => view.TaskbarForQa(selected, error);

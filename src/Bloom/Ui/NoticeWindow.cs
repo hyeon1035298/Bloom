@@ -16,7 +16,8 @@ using Bloom.Search;
 namespace Bloom.Ui;
 
 /// The notices (App\Notices) as cards at the place picked in 설정 > 알림 (a corner, an edge or anywhere: NoticePlacement),
-/// under the island window when they would cover it (NoticeIsland), newest nearest the edge, at the size picked
+/// under the island window and a taskbar showing at the top when they would cover them (NoticeIsland; they glide
+/// along as the taskbar slides in and out), newest nearest the edge, at the size picked
 /// there. Drawn like the timer card (AlarmWindow). Never takes the focus; a click closes a card (after the card's own
 /// Click, if it has one: a turn's card goes to its session window), the mouse over one holds it, and a card with a key
 /// (승인 대기) stays until Notices takes it away.
@@ -54,16 +55,26 @@ internal sealed class NoticeWindow : Window
         SizeChanged += (_, _) => Place();
         islandWatch.Tick += (_, _) =>
         {
-            if (!Offscreen && NoticeIsland.Find() != islandSeen) Place(); // it grew, came back or went
+            if (!Offscreen && NoticeIsland.Look(true) != aboveSeen) Follow(); // the island grew, came back or went
         };
-        IsVisibleChanged += (_, _) => islandWatch.IsEnabled = IsVisible;
+        glide.Tick += (_, _) => Glide();
+        IsVisibleChanged += (_, _) => Watch(IsVisible);
     }
 
     private bool held;
     private bool topSeen = AtTop; // which edge the stack's order is for
-    private Rect? islandSeen; // the island as the cards were last placed
+    private Above aboveSeen; // the island and the taskbar as the cards were last placed
     private readonly Dictionary<FrameworkElement, DispatcherTimer> lives = new(); // the timers of the cards that expire
     private readonly DispatcherTimer islandWatch = new() { Interval = TimeSpan.FromSeconds(1) };
+
+    // Following what is above the cards: while the taskbar moves, and for a moment after (the island turns into it or
+    // back), the window steps toward its place every frame.
+    private static readonly TimeSpan FollowFor = TimeSpan.FromMilliseconds(800);
+    private readonly DispatcherTimer glide = new(DispatcherPriority.Render);
+    private DateTime followUntil, glided;
+    private bool watching;
+    private IntPtr hook, taskbar;
+    private Win32.WinEventProc? onMoved; // held here: the hook calls it
 
     /// The place picked in 설정 > 알림 as fractions (NoticePlacement).
     public static (double X, double Y) Spot => NoticePlacement.Of(Settings.Current.NoticeSpot, Settings.Current.NoticeX, Settings.Current.NoticeY);
@@ -178,13 +189,78 @@ internal sealed class NoticeWindow : Window
             return;
         }
         Orient();
+        var at = Target(NoticeIsland.Look(true));
+        Left = at.X;
+        if (!glide.IsEnabled) Top = at.Y; // while following, the glide takes it there
+    }
+
+    /// Where the cards go with this above them: the picked place, kept under the island and a taskbar showing at the top.
+    private Point Target(Above above)
+    {
         var wa = SystemParameters.WorkArea;
         var size = new Size(ActualWidth, ActualHeight);
         var (x, y) = Spot;
-        islandSeen = NoticeIsland.Find();
-        var at = NoticePlacement.Avoid(wa, size, NoticePlacement.At(wa, size, x, y), islandSeen);
-        Left = at.X;
-        Top = at.Y;
+        aboveSeen = above;
+        return NoticePlacement.AvoidAll(wa, size, NoticePlacement.At(wa, size, x, y), above.Boxes);
+    }
+
+    /// While the cards show: the island looked at once a second, the taskbar's moves as they happen (a hook on explorer's
+    /// window moves, read for its taskbar window only) and the work area's changes (a taskbar docked or let go).
+    private void Watch(bool on)
+    {
+        on &= !Offscreen;
+        islandWatch.IsEnabled = on;
+        if (on == watching) return;
+        watching = on;
+        if (on)
+        {
+            SystemParameters.StaticPropertyChanged += OnSystem;
+            taskbar = NoticeIsland.TaskbarWindow;
+            if (taskbar != IntPtr.Zero && Win32.GetWindowThreadProcessId(taskbar, out uint pid) != 0)
+            {
+                onMoved ??= (_, _, hwnd, idObject, _, _, _) =>
+                {
+                    if (idObject == 0 && hwnd == taskbar) Follow(); // the window itself, not a part of it
+                };
+                hook = Win32.SetWinEventHook(Win32.EVENT_OBJECT_LOCATIONCHANGE, Win32.EVENT_OBJECT_LOCATIONCHANGE, IntPtr.Zero, onMoved, pid, 0, Win32.WINEVENT_OUTOFCONTEXT | Win32.WINEVENT_SKIPOWNPROCESS);
+            }
+            return;
+        }
+        SystemParameters.StaticPropertyChanged -= OnSystem;
+        if (hook != IntPtr.Zero) Win32.UnhookWinEvent(hook);
+        hook = IntPtr.Zero;
+        glide.Stop();
+    }
+
+    private void OnSystem(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(SystemParameters.WorkArea)) Follow();
+    }
+
+    /// Something above the cards moved: they follow it for a while, a step every frame.
+    private void Follow()
+    {
+        if (Offscreen || !IsVisible) return;
+        followUntil = DateTime.UtcNow + FollowFor;
+        if (glide.IsEnabled) return;
+        int fps = Settings.Current.AnimationFps;
+        glide.Interval = TimeSpan.FromMilliseconds(fps > 0 ? 1000.0 / fps : 15);
+        glided = DateTime.UtcNow;
+        glide.Start();
+    }
+
+    /// One frame of following: the place under what is above now, and the window a step nearer to it (there at once when
+    /// nothing may slide); done once it is there and nothing has moved for a while.
+    private void Glide()
+    {
+        var now = DateTime.UtcNow;
+        double ms = (now - glided).TotalMilliseconds;
+        glided = now;
+        var to = Target(NoticeIsland.Look(false));
+        Left = to.X;
+        double gap = to.Y - Top;
+        Top = !Motion.Moves || Math.Abs(gap) < 0.5 ? to.Y : Top + (gap * (1 - Math.Exp(-ms / 60)));
+        if (Top == to.Y && now > followUntil) glide.Stop();
     }
 
     /// One card as this window holds it, at the picked size, without its timer or click (the place picker's card).
