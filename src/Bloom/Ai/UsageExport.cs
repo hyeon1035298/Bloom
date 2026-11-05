@@ -76,9 +76,24 @@ internal static class UsageExport
             int every = a.IsDefault ? (s.UsageMinutes == 5 ? 5 : 10) : AiUsage.ExtraMinutes;
             var taken = new HashSet<string>();
             var limits = Ordered(c.Limits).ConvertAll(l => new Cap(l.WindowMins, l.Percent, l.Resets is { } r ? Unix(r) : null, Key(l, taken), l.Title));
-            accounts.Add(new Entry(a.Id, a.Kind, c.Name, c.Plan, a.Alias is { Length: > 0 } alias ? alias : null, AiUsage.Failed(a.Id), Unix(c.Fetched), every, limits));
+            // the taskbar's pick only while the account still has that limit, the logo only while Bloom's copy is there
+            string? bar = a.Bar is { } b && limits.Exists(l => l.Key == b) ? b : null;
+            string? icon = a.Icon is { } i && File.Exists(i) ? i : null;
+            accounts.Add(new Entry(a.Id, a.Kind, c.Name, c.Plan, a.Alias is { Length: > 0 } alias ? alias : null, AiUsage.Failed(a.Id), Unix(c.Fetched), every, limits, bar, icon));
         }
-        return new Snapshot(1, "Bloom", now, online, s.UsageLeft ? "left" : "used", accounts);
+        string? tag = s.UsageTag is "name" or "plan" ? s.UsageTag : null; // none is left out
+        return new Snapshot(1, "Bloom", now, online, s.UsageLeft ? "left" : "used", accounts, tag);
+    }
+
+    /// An account's limits the taskbar can show, as the file keys them: "session", "week", "week-<model>", with names.
+    public static List<(string key, string name)> Bars(UsageAccount card)
+    {
+        var taken = new HashSet<string>();
+        var list = new List<(string, string)>();
+        foreach (var l in Ordered(card.Limits))
+            if (Key(l, taken) is { } key)
+                list.Add((key, key == "session" ? Tr("5시간", "5 hours") : l.Model is { } m ? Tr($"{m} 주간", $"{m} weekly") : Tr("주간", "Weekly")));
+        return list;
     }
 
     // A reader takes the longest window (the later one on a tie) and only the first four limits: the 5-hour session
@@ -107,7 +122,7 @@ internal static class UsageExport
     private static long Unix(DateTime t) => new DateTimeOffset(t).ToUnixTimeSeconds();
 
     // The file's shape (v 1); the names follow Json.Options (camelCase, null left out).
-    private sealed record Snapshot(int V, string App, long WrittenAt, bool Online, string Show, List<Entry> Accounts);
-    private sealed record Entry(string Id, string Kind, string Name, string? Plan, string? Label, bool SignedOut, long FetchedAt, int EveryMins, List<Cap> Limits);
+    private sealed record Snapshot(int V, string App, long WrittenAt, bool Online, string Show, List<Entry> Accounts, string? Tag);
+    private sealed record Entry(string Id, string Kind, string Name, string? Plan, string? Label, bool SignedOut, long FetchedAt, int EveryMins, List<Cap> Limits, string? Bar, string? Icon);
     private sealed record Cap(int? Mins, double Used, long? ResetsAt, string? Key, string Name);
 }

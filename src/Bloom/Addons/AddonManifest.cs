@@ -11,7 +11,7 @@ namespace Bloom.Addons;
 /// of Bloom's, so nothing that could leave that folder (a drive, a rooted path, "..") gets through; each file Bloom
 /// copies carries the SHA-256 it must have.
 internal sealed record AddonManifest(string Id, string Version, string License, string Source, System.Version MinBloom,
-    string HostExe, int HostProtocol, IReadOnlyDictionary<string, string> Files)
+    string HostExe, int HostProtocol, IReadOnlyDictionary<string, string> Files, string? Settings = null)
 {
     public const string FileName = "addon.json";
 
@@ -31,7 +31,9 @@ internal sealed record AddonManifest(string Id, string Version, string License, 
         if (!IsId(id)) throw Bad($"id «{id}»: lowercase letters, digits and '-' only");
         string version = Text(root, "version");
         if (!IsVersion(version)) throw Bad($"version «{version}»");
-        string license = Text(root, "license"), source = Text(root, "source");
+        string license = Text(root, "license");
+        // the source address may still be empty in a build not yet published; the page then offers no link
+        string source = root["source"] is JsonValue sv && sv.TryGetValue(out string? src) ? src : "";
         if (!System.Version.TryParse(Text(root, "minBloom"), out var minBloom)) throw Bad("minBloom is not a version");
         if (root["host"] is not JsonObject host) throw Bad("no host");
         string exe = SafePath(Text(host, "exe")) ?? throw Bad("host.exe is not a path inside the add-on's folder");
@@ -47,7 +49,14 @@ internal sealed record AddonManifest(string Id, string Version, string License, 
             if (!files.TryAdd(path, sha.ToLowerInvariant())) throw Bad($"file «{name}» listed twice");
         }
         if (!files.ContainsKey(exe)) throw Bad("host.exe is not among the files"); // the exe Bloom starts is hash-checked too
-        return new AddonManifest(id, version, license, source, minBloom, exe, protocol, files);
+        // the settings schema the page is drawn from: optional, and hash-checked like the rest when it is there
+        string? settings = null;
+        if (root["settings"] is JsonValue st && st.TryGetValue(out string? sp) && sp.Length > 0)
+        {
+            settings = SafePath(sp) ?? throw Bad("settings is not a path inside the add-on's folder");
+            if (!files.ContainsKey(settings)) throw Bad("settings is not among the files");
+        }
+        return new AddonManifest(id, version, license, source, minBloom, exe, protocol, files, settings);
     }
 
     /// This Bloom is new enough for it.

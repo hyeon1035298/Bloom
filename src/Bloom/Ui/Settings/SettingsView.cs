@@ -85,13 +85,15 @@ internal sealed partial class SettingsView : ScrollViewer
         }, System.Windows.Threading.DispatcherPriority.Background);
     }
 
-    /// An add-on's status moved (the host started, the symbol files came in): its page follows while it shows.
+    /// An add-on's status moved (the host started, the symbol files came in, the taskbar's folders changed): its page
+    /// follows while it shows, where it is scrolled to, and not under a field being typed in (the redraw would drop it).
     private void OnAddons()
     {
         if (Dispatcher.HasShutdownStarted) return;
         Dispatcher.BeginInvoke(() =>
         {
-            if (IsLoaded && IsVisible && (current == "taskbar" || lastFilter.Length > 0)) Build(lastFilter);
+            if (Keyboard.FocusedElement is TextBox box && IsAncestorOf(box)) return;
+            if (IsLoaded && IsVisible && (current == "taskbar" || lastFilter.Length > 0)) TaskbarRebuild();
         }, System.Windows.Threading.DispatcherPriority.Background);
     }
 
@@ -398,8 +400,13 @@ internal sealed partial class SettingsView : ScrollViewer
     /// the pages skip what reads the disk or the PC (MCP servers, Lens files, CLIs) while this runs.
     public List<SettingsCatalog.Line> Collect() => Collect(BuildPages);
 
-    /// The tests: 설정 > 작업표시줄's lines alone (the other pages want a started Host).
-    internal List<SettingsCatalog.Line> CollectTaskbarForTests() => Collect(PageTaskbar);
+    /// The tests: 설정 > 작업표시줄's lines alone (the other pages want a started Host), for `addon` (a hand-made one) or
+    /// the shipped one.
+    internal List<SettingsCatalog.Line> CollectTaskbarForTests(Addons.Addon? addon = null)
+    {
+        taskbarAddon = addon;
+        return Collect(PageTaskbar);
+    }
 
     private List<SettingsCatalog.Line> Collect(Action<Settings, string> build)
     {

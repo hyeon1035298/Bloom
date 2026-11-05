@@ -2398,14 +2398,11 @@ Detach from the launcher	ランチャーから切り離す
 Always on top	常に手前に表示
 Attach to the launcher	ランチャーに付ける
 {0} weekly	{0} 週間
-PillTaskbar, an add-on that turns the taskbar into a centred pill	タスクバーを中央のピル型に変えるアドオン PillTaskbar
 Turns the taskbar into a centred pill	タスクバーを中央のピル型に変えます
 Customize the taskbar	タスクバーのカスタマイズ
 Turn on again	再びオンにする
 Clears Explorer's crash record and turns it on again	エクスプローラーの停止記録を消去して再びオンにします
 Starts taskbar customization again	タスクバーのカスタマイズを再開します
-Import Windhawk settings	Windhawk の設定を読み込む
-Brings over the pill-taskbar mod's settings from Windhawk · applies at once while running	Windhawk の pill-taskbar Mod の設定をそのまま移します · 実行中ならすぐに反映
 PillTaskbar is a separate GPL-3.0 program · {0}	PillTaskbar は GPL-3.0 の別プログラムです · {0}
 View source	ソースを見る
 Not turned on in a development copy	開発用コピーではオンになりません
@@ -2422,6 +2419,104 @@ Could not download the symbol files · check your connection and try again	シ�
 Stopped · taskbar customization stopped	停止 · タスクバーのカスタマイズが停止しました
 Turn on taskbar customization	タスクバーのカスタマイズをオンにする
 PillTaskbar is a program separate from Bloom. It changes how the taskbar looks by loading code into Explorer, and is licensed under GPL-3.0. The first start downloads the taskbar's symbol files (about 70 MB) from the Microsoft symbol server.	PillTaskbar は Bloom とは別のプログラムで、エクスプローラーにコードを読み込んでタスクバーの見た目を変えます。ライセンスは GPL-3.0 です。初回の起動時に Microsoft シンボル サーバーからタスクバーのシンボルファイル (約 70 MB) をダウンロードします。
-Windhawk has no settings for the pill-taskbar mod.	Windhawk に pill-taskbar Mod の設定がありません。
-{0} settings imported	{0} 件の設定を読み込みました
-Could not save the settings. Check the data folder's permissions, then retry.	設定を保存できませんでした。データフォルダーの権限を確認して、もう一度お試しください。
+File Explorer	エクスプローラー
+Gathers the taskbar into a centred pill, groups apps into folders, and puts a small island at the top centre while it hides.	タスクバーを中央のピルにまとめ、アプリをフォルダーにまとめ、隠れている間は画面上部中央に小さなアイランドを置きます。
+About PillTaskbar	PillTaskbar について
+Folders	フォルダー
+Dragging an app onto another on the taskbar and holding it there briefly makes a folder too	タスクバーでアプリを別のアプリの上にドラッグして少し置いてもフォルダーになります
+Off · when on, pinned apps can be grouped into folders	オフ · オンにするとピン留めしたアプリをフォルダーにまとめられます
+Folders can be edited while taskbar customization runs	タスクバーのカスタマイズが動作している間はフォルダーを編集できます
+The taskbar hasn't sent its folders yet	タスクバーからまだフォルダー情報が届いていません
+The taskbar didn't answer within 5 seconds, so for now this is read only	タスクバーが 5 秒以内に応答しなかったため、今は表示のみです
+Taskbar folders haven't turned on yet	タスクバーのフォルダーはまだオンになっていません
+Edit folders	フォルダーの編集
+Make folders and change their names, icons and apps	フォルダーを作り、名前・アイコン・中のアプリを変えます
+Changes the taskbar's height and icon size together	タスクバーの高さとアイコンのサイズを一緒に変えます
+Blurs what is behind the pill. Lit glass adds light and a sheen at the edges	ピルの後ろをぼかして映します。光を受けるガラスは縁に光と反射が加わります
+The flower button opens and closes Bloom	花のボタンを押すと Bloom を開閉します
+A number changed here makes the size above ‘Custom’	ここで数値を変えると上のサイズは「カスタム」になります
+Tray	トレイ
+Icons shown	表示するアイコン
+Only the ones on stay in the tray; the ones off leave no gap	オンのものだけがトレイに残り、オフのアイコンは場所も残しません
+Now playing	再生中の曲
+Puts the album art, the title and previous, play and next buttons before the tray	アルバムアート、タイトル、前へ・再生・次へボタンをトレイの前に置きます
+Usage file export is off	使用量ファイルの書き出しがオフ
+The taskbar reads the usage file Bloom exports; turn it on to see the usage	タスクバーは Bloom が書き出した使用量ファイルを読みます。オンにすると使用量が表示されます
+Other icons	その他のアイコン
+Bell only with new notifications	新しい通知があるときだけ通知ベル
+Hides the bell while there are no notifications	通知がないときは通知ベルを隠します
+Auto-hide island	自動非表示アイランド
+Use the auto-hide island	自動非表示アイランドを使う
+The taskbar hides itself, and an island appears at the top centre of the screen	タスクバーが自動的に隠れ、画面上部中央にアイランドが現れます
+With click, pointing at it alone doesn't bring it out	クリックにすると、ポインターを当てるだけでは出てきません
+Shown on the island	アイランドに表示するもの
+With the pointer over it	ポインターを乗せると
+What is below shows through while the pointer is there: 0 not at all, 100 fully	ポインターがある間、下が透けて見えます。0 はそのまま、100 は完全に透けます
+More · {0}	詳細 · {0} 件
+{0} to {1}	{0}～{1}
+Explorer needs a restart · restart Explorer, then try again	エクスプローラーの再起動が必要 · エクスプローラーを再起動してからもう一度お試しください
+Sending to the taskbar…	タスクバーに送信中…
+Click a folder to edit it below	フォルダーを押すと下で編集できます
+No folders yet	まだフォルダーがありません
+New folder	新しいフォルダー
+Automatic folder	自動フォルダー
+The folders pinned to the taskbar show here while taskbar customization runs.	タスクバーのカスタマイズが動作すると、ピン留めしたフォルダーがここに表示されます。
+Take out	取り出す
+Folder name	フォルダー名
+Change icon	アイコンを変更
+{0} apps inside	中のアプリ {0} 個
+Add app	アプリを追加
+Ungroups ‘{0}’. Its {1} apps go back to the taskbar.	「{0}」フォルダーを解除します。中のアプリ {1} 個はタスクバーに戻ります。
+Ungroup	解除
+Ungroup folder	フォルダーを解除
+The apps aren't deleted; they go back to the taskbar	アプリは削除されず、タスクバーに戻ります
+Reorder	並べ替え
+Pick the apps to put in it	入れるアプリを選んでください
+{0} picked	{0} 個選択
+One or more	1 つ以上
+Pinned apps and Start menu apps can go in	ピン留めしたアプリとスタートメニューのアプリを入れられます
+Use the running folder	実行中フォルダーを使う
+Gathers the apps you run without pinning that aren't in any folder. A closed app leaves it, and with none left the folder leaves the taskbar.	ピン留めせずに起動したアプリのうち、どのフォルダーにもないアプリをこのフォルダーに集めます。アプリを閉じると外れ、そうしたアプリがなくなるとフォルダーもタスクバーから消えます。
+Apps in it now	今入っているアプリ
+While off, unpinned apps get their own buttons, as in Windows.	オフにすると、ピン留めしていないアプリは Windows と同じように個別のボタンになります。
+Pick a few apps to make a folder. Dragging an app onto another on the taskbar and holding it there briefly makes one too.	いくつかのアプリを選んでフォルダーを作ってください。タスクバーでアプリを別のアプリの上にドラッグして少し置いてもフォルダーになります。
+Start menu apps	スタートメニューのアプリ
+In this folder	このフォルダーにあり
+In {0}	{0} にあり
+No shortcut	ショートカットなし
+Shows the first four apps together. Reordering the apps changes it too.	中のアプリ 4 つをまとめて表示します。アプリの順番を変えるとアイコンも変わります。
+Use the apps	アプリをまとめて表示
+Choose a file	ファイルを選ぶ
+Uses the icon of an .ico, .png, .exe or .dll file.	.ico、.png、.exe、.dll ファイルのアイコンを使います。
+Folder icon	フォルダーのアイコン
+Icons (*.ico;*.png;*.exe;*.dll)|*.ico;*.png;*.exe;*.dll	アイコン (*.ico;*.png;*.exe;*.dll)|*.ico;*.png;*.exe;*.dll
+Taskbar folders are off	タスクバーのフォルダーがオフです
+The folder wasn't found	フォルダーが見つかりませんでした
+A folder with that name already exists	同じ名前のフォルダーがすでにあります
+The name has characters a folder can't have	フォルダー名に使えない文字があります
+The app or item wasn't found	アプリまたは項目が見つかりませんでした
+The taskbar didn't answer within 5 seconds	タスクバーが 5 秒以内に応答しませんでした
+The taskbar couldn't carry it out	タスクバーがコマンドを処理できませんでした
+{0} failed · {1}	{0} に失敗 · {1}
+Fits the content	内容に合わせる
+Windows default	Windows の既定
+Lit glass	光を受けるガラス
+Borderless glass	縁のないガラス
+5 hours	5時間
+The picked icon files in their own colours or in one · the home cards and the taskbar share it	選んだアイコンファイルを元の色か単色で · ホームのカードとタスクバーで共通です
+Shows one picked value per account as a bar. The auto-hide island shows the same	アカウントごとに選んだ値を 1 つバーで表示します。自動非表示アイランドにも同じ値が出ます
+The same setting as the home cards	ホームのカードと同じ設定です
+Icon colour	アイコンの色
+Original	元の色
+Single colour	単色
+Label	名札
+Written beside the icon. An account without a name shows its plan; a long one is cut with …. The island shows it too	アイコンの横に表示します。名前のないアカウントはプランを表示し、長いと … で省略します。アイランドにも表示されます
+Plan	プラン
+This plan has only the {0} limit	このプランには {0} の上限しかありません
+Choose a file…	ファイルを選ぶ…
+Clear the icon	アイコンを消す
+The home card and the taskbar use this picture	ホームのカードとタスクバーでこの画像を使います
+None · pick a logo file (SVG, PNG, ICO) for the home card and the taskbar	なし · ロゴファイル (SVG、PNG、ICO) を選ぶと、ホームのカードとタスクバーでその画像を使います
+Icon	アイコン
+Logos (*.svg;*.png;*.ico)|*.svg;*.png;*.ico	ロゴ (*.svg;*.png;*.ico)|*.svg;*.png;*.ico
+That file couldn't be brought in as the icon.	そのファイルをアイコンとして読み込めませんでした。

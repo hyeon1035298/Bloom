@@ -173,6 +173,8 @@ internal sealed class SettingsWindow : Window
 
     public void SelectForQa(int i) => view.SelectForQa(i);
 
+    public void TaskbarForQa(string? selected, string? error) => view.TaskbarForQa(selected, error);
+
     public void DragHomeForQa(string key, int before) => view.DragHomeForQa(key, before);
 
     public void Capture(string file) => Shots.Save(root, file);

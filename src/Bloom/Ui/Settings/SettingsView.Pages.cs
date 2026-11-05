@@ -194,6 +194,7 @@ internal sealed partial class SettingsView
                 UsageExport.Changed();
                 host.Window.Refresh(true);
             }, filter);
+        UsageLogoRow(null, Tr("고른 아이콘 파일을 원래 색 또는 단색으로 · 홈 카드와 작업표시줄에 함께 씁니다", "The picked icon files in their own colours or in one · the home cards and the taskbar share it"), filter);
         var exportSw = Toggle(s.ExportUsage, UsageExport.Set, out var exportT);
         Add(Tr("사용량 파일 내보내기", "Write the usage to a file"), Tr("다른 프로그램이 읽을 수 있게 퍼센트와 리셋 시각만 %LOCALAPPDATA%\\Bloom\\export\\ai-usage.json에 씁니다 (이메일 없음) · 홈 블록이 꺼져 있어도 조회가 돌아 Claude 약 470 MB 4초가 간격마다 듭니다", "Writes the percentages and reset times, no e-mail, to %LOCALAPPDATA%\\Bloom\\export\\ai-usage.json for other programs to read · the lookups run even with the home block off: Claude ~470 MB for 4 s every interval"), exportSw, G.Document, exportT, null, filter);
         Header(Tr("AI 토큰", "AI tokens"));

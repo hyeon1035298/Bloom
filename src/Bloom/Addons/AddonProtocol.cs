@@ -20,6 +20,12 @@ internal static class AddonProtocol
     public const string OffsetsDir = "offsets";
     public const string SymbolsDir = "symbols";
 
+    // The taskbar's pins and folders (the mod writes state.json) and the folder commands Bloom sends: inbox\<id>.json in,
+    // outbox\<id>.json back, one at a time in name order.
+    public const string StateFile = "state.json";
+    public const string InboxDir = "inbox";
+    public const string OutboxDir = "outbox";
+
     // Next to the host exe, in the run copy Bloom makes of the shipped folder.
     public const string RuntimeDll = "PillTaskbarRuntime.dll";
     public const string ModDll = "PillTaskbar.dll";
@@ -52,7 +58,8 @@ internal static class AddonProtocol
     public const int ExitWindhawk = 12; // the same mod is on in Windhawk
     public const int ExitBlocked = 13; // code integrity (Smart App Control) kept the DLL out
     public const int ExitDownload = 14; // the symbol files could not be downloaded
+    public const int ExitRestart = 15; // an earlier mod or runtime image is still in explorer: it must restart first
 
     /// A code the host ends with on purpose: starting it again would only end the same way, so Bloom waits for the user.
-    public static bool IsFinal(int code) => code is >= ExitCrashes and <= ExitDownload;
+    public static bool IsFinal(int code) => code is >= ExitCrashes and <= ExitRestart;
 }

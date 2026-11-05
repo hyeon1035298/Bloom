@@ -34,6 +34,7 @@ internal sealed partial class SettingsView
                 var chip = a.Id == chatId ? Theme.T(Tr("AI 채팅에 사용 중", "Used for AI chat"), 12, Theme.P.Accent, Theme.Medium, false) : null;
                 var account = a;
                 Add(Demo.On ? title : AiAccounts.Label(a), status, a.IsDefault ? chip : SignOutEnd(chip, account), G.Account, () => AccountMenu(account), null, filter);
+                UsageIconRow(account, filter);
             }
             Add(Tr($"{title} 계정 추가…", $"Add a {title} account…"), Tr("새 터미널에서 공식 로그인 실행 · 브라우저에서 로그인", "Runs the official sign-in in a new terminal · sign in in the browser"), null, G.Add, () =>
             {

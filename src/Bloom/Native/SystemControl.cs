@@ -67,6 +67,25 @@ internal static unsafe class SystemControl
 
     public static bool SetExtensions(bool show) => SetExplorer("HideFileExt", show ? 0 : 1);
 
+    /// The taskbar's own auto-hide, like the switch in 설정 > 개인 설정 > 작업 표시줄 > 작업 표시줄 동작.
+    public static bool TaskbarAutoHide
+    {
+        get
+        {
+            var data = new APPBARDATA { cbSize = Marshal.SizeOf<APPBARDATA>() };
+            return ((uint)SHAppBarMessage(AbmGetState, ref data) & AbsAutoHide) != 0;
+        }
+    }
+
+    public static bool SetTaskbarAutoHide(bool on)
+    {
+        var data = new APPBARDATA { cbSize = Marshal.SizeOf<APPBARDATA>() };
+        uint state = (uint)SHAppBarMessage(AbmGetState, ref data);
+        data.lParam = (IntPtr)(on ? state | AbsAutoHide : state & ~AbsAutoHide);
+        SHAppBarMessage(AbmSetState, ref data);
+        return TaskbarAutoHide == on;
+    }
+
     private static bool SetExplorer(string name, int value)
     {
         try
@@ -317,6 +336,12 @@ internal static unsafe class SystemControl
         [PreserveSig] int SetDefaultEndpoint([MarshalAs(UnmanagedType.LPWStr)] string id, int role);
     }
 
+    private const uint AbmGetState = 4, AbmSetState = 10, AbsAutoHide = 1;
+
+    [StructLayout(LayoutKind.Sequential)]
+    private struct APPBARDATA { public int cbSize; public IntPtr hWnd; public uint uCallbackMessage, uEdge; public Win32.RECT rc; public IntPtr lParam; }
+
+    [DllImport("shell32.dll")] private static extern UIntPtr SHAppBarMessage(uint message, ref APPBARDATA data);
     [DllImport("powrprof.dll")] private static extern bool SetSuspendState(bool hibernate, bool force, bool wakeupEventsDisabled);
     [DllImport("shell32.dll", CharSet = CharSet.Unicode)] private static extern int SHEmptyRecycleBin(IntPtr hwnd, string? root, uint flags);
     [DllImport("user32.dll", CharSet = CharSet.Unicode)]

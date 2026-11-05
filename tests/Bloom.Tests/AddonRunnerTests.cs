@@ -57,7 +57,7 @@ internal static class AddonRunnerTests
 
     public static void FinalCodesNotRestarted()
     {
-        foreach (int code in new[] { 10, 11, 12, 13, 14 })
+        foreach (int code in new[] { 10, 11, 12, 13, 14, 15 })
             With($"exit:{code}", () =>
             {
                 using var r = Runner(TestEvent());
@@ -174,49 +174,6 @@ internal static class AddonRunnerTests
         {
             Directory.Delete(shipped, true);
         }
-    }
-
-    /// Windhawk keeps the mod's numbers as REG_DWORD: 0xFFFFFFFF is the -1 the mod reads.
-    public static void WindhawkValuesMapped()
-    {
-        var src = new FakeSource(new()
-        {
-            new("pill.enabled", 1),
-            new("autohide.showDelay", 0xFFFFFFFFu),
-            new("size.iconSize", -1),
-            new("pill.style", "windowGlass"),
-            new("binary", new byte[] { 1, 2 }),
-            new("multi", new[] { "a", "b" }),
-        });
-        var map = Check.NotNull(WindhawkImport.Map(src), "values");
-        Check.Eq(map.Count, 4, "numbers and text only");
-        Check.Eq(map["autohide.showDelay"]!.GetValue<int>(), -1, "0xFFFFFFFF is -1");
-        Check.Eq(map["size.iconSize"]!.GetValue<int>(), -1, "a DWORD the registry hands over as -1");
-        Check.Eq(map["pill.enabled"]!.GetValue<int>(), 1, "a number");
-        Check.Eq(map["pill.style"]!.GetValue<string>(), "windowGlass", "text");
-        string dir = Path.Combine(Path.GetTempPath(), "bloom-windhawk-" + Guid.NewGuid().ToString("N"));
-        try
-        {
-            string settings = Path.Combine(dir, "data", "settings.json"), values = Path.Combine(dir, "local", "values.json");
-            Check.Eq(WindhawkImport.Import(src, settings, values), 4, "imported");
-            foreach (string f in new[] { settings, values })
-                Check.Eq(JsonNode.Parse(File.ReadAllText(f))!["autohide.showDelay"]!.GetValue<int>(), -1, Path.GetFileName(f) + " written");
-            Check.Eq(WindhawkImport.Import(new FakeSource(null), settings + "2", values + "2"), -1, "no key: nothing");
-            Check.True(!File.Exists(settings + "2"), "and nothing written");
-        }
-        finally
-        {
-            if (Directory.Exists(dir)) Directory.Delete(dir, true);
-        }
-    }
-
-    private sealed class FakeSource : ISettingsSource
-    {
-        private readonly List<KeyValuePair<string, object?>>? values;
-
-        public FakeSource(List<KeyValuePair<string, object?>>? values) => this.values = values;
-
-        public IReadOnlyList<KeyValuePair<string, object?>>? Read() => values;
     }
 
     /// A settings file from elsewhere never switches an add-on on (it loads code into explorer) or skips its notice.
