@@ -986,6 +986,8 @@ Refactor the sign-in screen, session expiry and the error wording in one go	サ�
 Tidy the build script	ビルド スクリプトを整理
 limit	limit
 Design review	デザインレビュー
+Morning Walk	夜明けの散歩
+Demo Tape	デモテープ
 Sum up my week	今週の予定をまとめて
 One event this week:\n\n- **Tomorrow 3 PM** design review	今週の予定は1件です。\n\n- **明日 15:00** デザインレビュー
 in 100 days	in 100 days
@@ -2015,7 +2017,6 @@ Deletes the {0} API key and model list from this PC.	この PC から {0} の AP
 Connected. {0} models loaded.	接続しました。モデルを {0} 個読み込みました。
 Data	データ
 What Bloom keeps on this PC, to see and delete. The sizes are measured when this page opens.	Bloom がこの PC に保存しているデータを確認して削除します。サイズはこのページを開いたときに測ります。
-The recording's data folder	録画用のデータ フォルダー
 Bloom data	Bloom のデータ
 Add-on data	アドオンのデータ
 The add-ons' settings, state and run copies	アドオンの設定、状態、実行用コピー

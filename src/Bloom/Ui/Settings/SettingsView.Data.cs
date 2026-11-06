@@ -44,7 +44,9 @@ internal sealed partial class SettingsView
         bool live = collected is null; // collecting reads no disk and no counts
 
         Header(Tr("저장 위치", "Storage"));
-        string where = Demo.On ? Tr("녹화용 데이터 폴더", "The recording's data folder") : $"{Short(Paths.Data)} · {Short(Paths.Local)}";
+        string where = Demo.On // the recording mode: an installed copy's folders, not this run's
+            ? $"{Short(Path.Combine(Paths.AppData, "Bloom"))} · {Short(Path.Combine(Paths.LocalAppData, "Bloom"))}"
+            : $"{Short(Paths.Data)} · {Short(Paths.Local)}";
         DataOpen("data", Tr("Bloom 데이터", "Bloom data"), where, Paths.Data, filter);
         if (live && filter.Length == 0 && dataSizes is { } sizes) Card(filter).Children.Add(SpaceBar(sizes));
         // the add-ons' files are in use while their hosts run (a run copy loaded in Explorer): shown, not deleted here

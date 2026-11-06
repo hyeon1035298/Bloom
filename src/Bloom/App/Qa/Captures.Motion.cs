@@ -28,7 +28,7 @@ internal static partial class Captures
         Theme.Apply("dark");
         Settings.Current.FilesInRoot = false; // no Everything results, no recent files
         Settings.Current.WindowsInRoot = false;
-        host.Apps.KeepForQa(a => a.Name is "Google Chrome" or "Microsoft Edge"); // apps every PC has, nothing of this one's
+        host.Apps.KeepForQa(a => a.Name is "Microsoft Store"); // an app every PC has (browsers can be removed), nothing of this one's
         foreach (string id in new[] { "cmd:quicklinks", "cmd:files", "cmd:clipboard", "cmd:timer", "cmd:calendar", "cmd:lens", "cmd:space" }) // a first start's own row
             if (Search.SystemItems.Find(id) is { } e) Favorites.Add(new Favorites.Entry { Id = e.Id, Kind = e.Kind, Title = e.Title, Subtitle = e.Subtitle, Target = e.Target });
         Usage.Current.Items.Clear();
@@ -39,12 +39,12 @@ internal static partial class Captures
             limits.Add(new UsageLimit(Tr("주간", "Weekly"), week, DateTime.Now.AddDays(4)));
             return new(name, plan, limits, DateTime.Now);
         }
-        AiUsage.SetForQa(Plan("Claude", "Ultra", 32, 47), Plan("ChatGPT", "Pro 20x", null, 21));
+        if (!Demo.On) AiUsage.SetForQa(Plan("Claude", "Ultra", 32, 47), Plan("ChatGPT", "Pro 20x", null, 21)); // --demo made its own per account
 
         // the launcher: home, then an app found from a name typed with the keyboard left in Korean (in English runs, from
         // its initials), then a sum key by key
         await Shot(w, dir, "L-home", Mode.Root, "", 900);
-        string[] app = En ? new[] { "g", "gc" } : new[] { "ㅊ", "초", "초ㄱ", "초개", "초개ㅡ", "초개ㅡㄷ" };
+        string[] app = En ? new[] { "m", "ms" } : new[] { "ㄴ", "ㄴㅅ", "ㄴ새", "ㄴ색", "ㄴ색ㄷ" }; // "store" with the keyboard left in Korean
         for (int i = 0; i < app.Length; i++) await Shot(w, dir, $"L-app-{i + 1:00}", Mode.Root, app[i], 150);
         string sum = "45000*1.1"; // a price with 10 % tax: short, no brackets
         for (int i = 1; i <= sum.Length; i++) await Shot(w, dir, $"L-calc-{i:00}", Mode.Root, sum[..i], 150);

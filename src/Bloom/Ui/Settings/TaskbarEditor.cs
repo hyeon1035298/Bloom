@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text.Json.Nodes;
@@ -155,7 +156,7 @@ internal sealed class TaskbarEditor : Border
             }
             pill.Children.Add(item);
         }
-        var clock = Theme.T(DateTime.Now.ToString("t"), 12, Theme.P.TextDim, Theme.Medium);
+        var clock = Theme.T(ClockText(values.Text("tray.clockFormat") == "h12"), 12, Theme.P.TextDim, Theme.Medium);
         clock.VerticalAlignment = VerticalAlignment.Center;
         clock.Margin = new Thickness(14, 0, 4, 4);
         pill.Children.Add(clock);
@@ -204,6 +205,24 @@ internal sealed class TaskbarEditor : Border
     }
 
     private string RunningName => values.Text("folders.runningName") is { Length: > 0 } n ? n : Tr("실행 중", "Running");
+
+    /// The time as the taskbar writes it (the add-on's ClockText): this PC's short time pattern, in 12 hours with its
+    /// AM/PM mark when tray.clockFormat says so, else in 24 hours without one.
+    internal static string ClockText(bool twelve)
+    {
+        var culture = CultureInfo.CurrentCulture;
+        string format = culture.DateTimeFormat.ShortTimePattern;
+        if (twelve)
+        {
+            format = format.Replace('H', 'h');
+            if (!format.Contains('t')) format = "tt " + format;
+        }
+        else
+        {
+            format = string.Join(' ', format.Replace("t", "").Replace('h', 'H').Split(' ', StringSplitOptions.RemoveEmptyEntries));
+        }
+        return DateTime.Now.ToString(format, culture);
+    }
 
     private FrameworkElement ListRow(FrameworkElement icon, string name, string end, bool on, Action? click)
     {

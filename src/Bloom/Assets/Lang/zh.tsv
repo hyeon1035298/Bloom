@@ -986,6 +986,8 @@ Refactor the sign-in screen, session expiry and the error wording in one go	一�
 Tidy the build script	整理构建脚本
 limit	limit
 Design review	设计评审
+Morning Walk	清晨散步
+Demo Tape	小样
 Sum up my week	总结一下我这周的安排
 One event this week:\n\n- **Tomorrow 3 PM** design review	本周有 1 个日程：\n\n- **明天 15:00** 设计评审
 in 100 days	in 100 days
@@ -2015,7 +2017,6 @@ Deletes the {0} API key and model list from this PC.	从这台电脑删除 {0} �
 Connected. {0} models loaded.	已连接。已加载 {0} 个模型。
 Data	数据
 What Bloom keeps on this PC, to see and delete. The sizes are measured when this page opens.	查看并删除 Bloom 在本机保存的数据。大小在打开此页面时计算。
-The recording's data folder	录屏用数据文件夹
 Bloom data	Bloom 数据
 Add-on data	加载项数据
 The add-ons' settings, state and run copies	加载项的设置、状态和运行副本

@@ -2,71 +2,93 @@
 <html lang="ko">
 <head>
 <meta charset="utf-8">
-<title>Bloom — 커뮤니티용</title>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/wanteddev/wanted-sans@v1.0.3/packages/wanted-sans/fonts/webfonts/variable/split/WantedSansVariable.min.css">
+<title>Bloom 커뮤니티용</title>
 <style>
-  /* 1080 × 1500 for a community post. Same system as github.html: Bloom's plum dark, rose only on the caret. */
+  /* 1080 × 1500 for a community post, in the README pictures' flow: the mark, a two-tone line, the real app on a dark
+     screen with one level line of light behind it and the taskbar add-on's pill under it, then what it does as
+     cards. Same tokens as github.html (zinc greys, G2 corners, Segoe UI Variable with Malgun Gothic). */
   :root {
-    --base: #1a1416;
-    --app: #0e0b0c;
-    --ink: #f1ecee;
-    --dim: #c1b8bb;
-    --faint: #8c8186;
-    --rose: #ff7a9e;
-    --hair: rgba(253, 237, 244, 0.14);
+    --ground: #0b0b0d; --win: #18181b; --pop: #27272a; --fg: #ecedee; --muted: #85858d; --faint: #6f6f77; --sq-k: 1.32; --sq-m: 1.2;
+    --sans: "Segoe UI Variable Text", "Segoe UI", "Malgun Gothic", sans-serif;
+    --display: "Segoe UI Variable Display", "Segoe UI", "Malgun Gothic", sans-serif;
+    --icons: "Segoe Fluent Icons", "Segoe MDL2 Assets";
   }
   * { margin: 0; padding: 0; box-sizing: border-box; }
-  html, body { width: 1080px; height: 1500px; overflow: hidden; background: var(--base); }
-  body {
-    position: relative;
-    font-family: "Wanted Sans Variable", "Wanted Sans", sans-serif;
-    color: var(--ink);
-    -webkit-font-smoothing: antialiased;
-    word-break: keep-all;
-    line-break: strict;
-  }
-  /* letter and word spacing of the type below: optical.js (the rules at the end of the page) */
-  .brand { position: absolute; left: 72px; top: 64px; display: flex; align-items: center; gap: 14px; font-size: 27px; font-weight: 700; }
-  .brand img { width: 46px; height: 46px; }
-  h1 { position: absolute; left: 72px; top: 150px; font-size: 96px; font-weight: 800; line-height: 1.12; }
-  .caret { display: inline-block; width: 8px; height: 0.8em; margin-left: 10px; border-radius: 4px; background: var(--rose); vertical-align: -0.04em; }
-  .app { position: absolute; left: 72px; top: 418px; width: 936px; border: 1px solid var(--hair); border-radius: 22px; overflow: hidden; background: var(--app);
-         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3), 0 40px 100px rgba(0, 0, 0, 0.5); }
-  .app img { display: block; width: 100%; }
-  .notice { position: absolute; left: 600px; top: 372px; width: 420px; height: 108px; overflow: hidden; }
-  .notice img { display: block; width: 420px; }
-  /* 할 수 있는 일: 이름과 한 줄씩, 두 줄 단, 상자 없이 */
-  .features { position: absolute; left: 72px; top: 1068px; width: 936px; list-style: none; display: grid; grid-template-columns: 1fr 1fr; column-gap: 48px; row-gap: 22px; }
-  .features li > b { display: block; font-size: 24px; font-weight: 700; }
-  .features li > span { display: block; margin-top: 4px; font-size: 18.5px; font-weight: 500; line-height: 1.4; color: var(--dim); text-wrap: balance; }
-  .foot { position: absolute; left: 72px; bottom: 44px; width: 936px; font-size: 16px; line-height: 1.55; color: var(--faint); }
+  html, body { width: 1080px; height: 1500px; overflow: hidden; background: var(--ground); }
+  body { position: relative; font-family: var(--sans); color: var(--fg); -webkit-font-smoothing: antialiased; word-break: keep-all; line-break: strict;
+         background: linear-gradient(180deg, #121215 0, var(--ground) 420px); }
+
+  .brand { position: absolute; left: 0; right: 0; top: 64px; display: flex; justify-content: center; align-items: center; gap: 14px; font: 600 28px/1 var(--display); }
+  .brand img { width: 40px; height: 40px; border-radius: 10px; }
+  .say { position: absolute; left: 50%; top: 136px; width: 960px; transform: translateX(-50%); text-align: center; font: 700 56px/1.28 var(--display); }
+  .say .s1, .say .s2 { display: block; }
+  .say .s2 { color: var(--muted); font-weight: 400; }
+
+  .screen { --r: 22px; position: absolute; left: 56px; top: 336px; width: 968px; height: 488px; overflow: hidden;
+            background: linear-gradient(180deg, #131316 0, #0d0d10 100%);
+            border-radius: calc(var(--r) * var(--sq-m)); corner-shape: superellipse(var(--sq-k)); }
+  .screen::after { content: ""; position: absolute; inset: 0; border-radius: inherit; corner-shape: inherit; box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .07); pointer-events: none; }
+  .lit { position: absolute; left: 0; right: 0; top: 210px; transform: translateY(-50%); }
+  .haze { height: 640px; background: radial-gradient(56% 50% at 50% 50%, rgba(255, 255, 255, .085), rgba(255, 255, 255, .02) 60%, rgba(255, 255, 255, 0) 80%); }
+  .glow { height: 130px; background: radial-gradient(50% 50% at 50% 50%, rgba(255, 255, 255, .2), rgba(255, 255, 255, 0) 100%); }
+  .tight { height: 20px; background: radial-gradient(52% 50% at 50% 50%, rgba(255, 255, 255, .55), rgba(255, 255, 255, 0) 100%); }
+  .line { height: 2px; background: linear-gradient(90deg, rgba(255, 255, 255, 0) 3%, rgba(255, 255, 255, .4) 18%, rgba(255, 255, 255, .95) 38%, #fff 50%, rgba(255, 255, 255, .95) 62%, rgba(255, 255, 255, .4) 82%, rgba(255, 255, 255, 0) 97%); }
+  .floor { position: absolute; left: 0; right: 0; top: 210px; bottom: 0; background: linear-gradient(180deg, rgba(8, 8, 10, .55), rgba(8, 8, 10, .85)); }
+  .win { position: absolute; left: 74px; top: 40px; width: 820px; height: 356px; overflow: hidden; background: var(--win); --r: 14px;
+         border-radius: calc(var(--r) * var(--sq-m)); corner-shape: superellipse(var(--sq-k));
+         box-shadow: 0 30px 80px rgba(0, 0, 0, .7), 0 2px 10px rgba(0, 0, 0, .45); }
+  .win::after { content: ""; position: absolute; inset: 0; border-radius: inherit; corner-shape: inherit; box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .08); }
+  .win img { display: block; width: 100%; }
+  .pill { position: absolute; left: 50%; top: 410px; height: 60px; transform: translateX(-50%); overflow: hidden; border-radius: 999px; box-shadow: 0 18px 48px rgba(0, 0, 0, .65); }
+  .pill img { display: block; height: 100%; }
+
+  /* 할 수 있는 일: 아이콘과 이름, 한 줄 설명. 두 단 네 줄 */
+  .cards { position: absolute; left: 56px; top: 852px; width: 968px; display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .card { --r: 16px; display: flex; gap: 18px; align-items: flex-start; padding: 22px 24px; background: linear-gradient(180deg, rgba(255, 255, 255, .035), rgba(255, 255, 255, .012));
+          border-radius: calc(var(--r) * var(--sq-m)); corner-shape: superellipse(var(--sq-k)); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .07); }
+  .card i { --r: 10px; flex: none; display: flex; align-items: center; justify-content: center; width: 44px; height: 44px; font: normal 400 21px/1 var(--icons);
+            background: var(--pop); border-radius: calc(var(--r) * var(--sq-m)); corner-shape: superellipse(var(--sq-k)); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .06); }
+  .card p { flex: 1; min-width: 0; }
+  .card b { display: block; font: 600 22px/1.3 var(--sans); }
+  .card span { display: block; margin-top: 4px; font: 400 18px/1.45 var(--sans); color: var(--muted); }
+  .foot { position: absolute; left: 56px; right: 56px; bottom: 56px; text-align: center; font: 400 16px/1.6 var(--sans); color: var(--faint); }
 </style>
 </head>
 <body>
   <div class="brand"><img src="assets/mark-tile.png" alt="">Bloom</div>
-  <h1>Win 키 한 번,<br>한 줄이면 끝<span class="caret"></span></h1>
-  <div class="app"><img src="assets/ko-dark-p1-home.png" alt=""></div>
-  <div class="notice"><img src="assets/ko-dark-p5-notices.png" alt=""></div>
-  <ul class="features">
-    <li><b>검색창 하나로</b><span>앱, 파일, 웹 검색, 계산까지 한 줄에서</span></li>
-    <li><b>AI 채팅</b><span>쓰던 Claude Code, Codex 로그인 그대로, API 키 없이</span></li>
-    <li><b>PC 작업 맡기기</b><span>파일 옮기기, 타이머를 말로. 하기 전에 꼭 물어봐요</span></li>
-    <li><b>작업 알림</b><span>AI 작업이 끝나거나 승인을 기다리면 알려 줘요</span></li>
-    <li><b>Bloom Lens</b><span>화면을 골라 묻고, 번역하고, 글자를 복사해요</span></li>
-    <li><b>Bloom Space Cleaner</b><span>디스크를 어디에 썼는지 지도로 보고 정리해요</span></li>
-    <li><b>옆에 붙는 도구</b><span>메모, 타이머, 계산기, 클립보드를 런처 옆에</span></li>
-    <li><b>내게 맞게</b><span>안 쓰는 기능은 끄고, 크기도 맞춰요</span></li>
-  </ul>
+  <p class="say"><span class="s1">검색과 AI를 한 줄에서.</span><span class="s2">키 하나로 여는 Windows 런처예요.</span></p>
+  <div class="screen">
+    <div class="floor"></div><div class="lit haze"></div><div class="lit glow"></div><div class="lit tight"></div><div class="lit line"></div>
+    <div class="win"><img src="assets/ko-home.png" alt=""></div>
+    <div class="pill"><img src="assets/pill.png" alt=""></div>
+  </div>
+  <div class="cards">
+    <div class="card"><i>&#xE721;</i><p><b>검색줄 하나로</b><span>앱, 파일, 웹 검색, 계산까지 한 줄에서 해요</span></p></div>
+    <div class="card"><i>&#xE945;</i><p><b>AI 채팅</b><span>쓰던 Claude Code, Codex 로그인 그대로 써요</span></p></div>
+    <div class="card"><i>&#xEA18;</i><p><b>PC 작업 맡기기</b><span>말로 맡기고, 바꾸는 일은 먼저 물어봐요</span></p></div>
+    <div class="card"><i>&#xEA8F;</i><p><b>작업 알림</b><span>AI 작업이 끝나면 카드로 알려 줘요</span></p></div>
+    <div class="card"><i>&#xE8C1;</i><p><b>Bloom Lens</b><span>화면을 골라 묻고, 번역하고, 글자를 복사해요</span></p></div>
+    <div class="card"><i>&#xE809;</i><p><b>Bloom Space Cleaner</b><span>디스크를 어디에 썼는지 지도로 보고 정리해요</span></p></div>
+    <div class="card"><i>&#xE70B;</i><p><b>옆에 붙는 도구</b><span>메모, 타이머, 계산기를 런처 옆에 붙여요</span></p></div>
+    <div class="card"><i>&#xE7F4;</i><p><b>작업표시줄 애드온</b><span>가운데 알약 작업표시줄과 앱 폴더를 써요</span></p></div>
+  </div>
   <p class="foot">WebView 없는 네이티브 앱이고, 무료 오픈소스(MIT)예요. Windows 10, 11용.<br>Anthropic, OpenAI와 관계없는 비공식 프로젝트예요.</p>
   <script>
+    // letter and word spacing: optical.js, per pair (Korean pairs halfway to the median, as the README pictures)
     window.OPTICAL = [
       { sel: '.brand', track: -0.01 },
-      { sel: 'h1', track: -0.025, space: 0.07 },
-      { sel: '.features li > b', track: -0.01, space: 0.11 },
-      { sel: '.features li > span', track: -0.005, space: 0.115, strength: 0.6 },
-      { sel: '.foot', track: 0, space: 0.125, strength: 0.5 },
+      { sel: '.say .s1', track: -0.015, space: 0.1, strength: 0.55 },
+      { sel: '.say .s2', track: -0.012, space: 0.1, strength: 0.55 },
     ];
+    Promise.all([...document.images].map(i => i.complete ? 0 : new Promise(r => { i.onload = i.onerror = r; }))).then(() => {
+      const s = document.createElement('script');
+      s.src = 'optical.js';
+      s.onload = () => {
+        const wait = () => document.documentElement.dataset.optical === 'done' ? (window.__ready = true) : setTimeout(wait, 50);
+        wait();
+      };
+      document.body.appendChild(s);
+    });
   </script>
-  <script src="optical.js"></script>
 </body>
 </html>

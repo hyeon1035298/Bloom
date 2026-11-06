@@ -33,7 +33,9 @@ internal sealed partial class SettingsView
         string winSub = Tr("Win 키만 눌렀다 떼면 열립니다 (Win+E 같은 조합은 그대로)", "Tap Win alone to open (combinations like Win+E still work)");
         Add(Tr("Win 키로 열기", "Open with the Win key"), winSub, winSw, G.Keyboard, winT, null, filter);
         var altSw = Toggle(s.AltSpace, v => { s.AltSpace = v; host.ApplyHotkeys(); }, out var altT);
-        string altSub = host.AltSpaceStatus switch { "taken" => Tr("다른 앱에서 사용 중", "Another app uses it"), "ok" => Tr("켜짐", "On"), _ => Tr("꺼짐", "Off") };
+        // the recording mode shows what an installed copy says for these switches, not this run (no hooks, maybe a dev build)
+        string altSub = Core.Demo.On ? (s.AltSpace ? Tr("켜짐", "On") : Tr("꺼짐", "Off"))
+            : host.AltSpaceStatus switch { "taken" => Tr("다른 앱에서 사용 중", "Another app uses it"), "ok" => Tr("켜짐", "On"), _ => Tr("꺼짐", "Off") };
         Add(Tr("Alt + Space로 열기", "Open with Alt + Space"), altSub, altSw, G.Keyboard, altT, null, filter);
         var autoSw = Toggle(s.Autostart, v =>
         {
@@ -41,7 +43,8 @@ internal sealed partial class SettingsView
             Autostart.Set(v);
             LogonTask.SyncLater(); // the earlier start at sign-in for a taskbar add-on follows this switch
         }, out var autoT);
-        Add(Tr("Windows 시작 시 실행", "Start with Windows"), Paths.IsDev ? Tr("개발 실행에서는 자동 시작 설정 불가", "Autostart unavailable in development runs") : Autostart.IsOn() ? Tr("로그인 시 트레이에서 실행", "Runs in the tray at sign-in") : Tr("등록 안 됨", "Not registered"), autoSw, G.Power, autoT, null, filter);
+        bool autoOn = Core.Demo.On ? s.Autostart : Autostart.IsOn();
+        Add(Tr("Windows 시작 시 실행", "Start with Windows"), Paths.IsDev && !Core.Demo.On ? Tr("개발 실행에서는 자동 시작 설정 불가", "Autostart unavailable in development runs") : autoOn ? Tr("로그인 시 트레이에서 실행", "Runs in the tray at sign-in") : Tr("등록 안 됨", "Not registered"), autoSw, G.Power, autoT, null, filter);
         var open = new List<(bool, Action)>();
         if (ElevatedWinKey.Offered)
             open.Add((s.WinKeyAdmin != Defaults.WinKeyAdmin, () =>

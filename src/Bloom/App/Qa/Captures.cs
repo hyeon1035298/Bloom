@@ -53,6 +53,7 @@ internal static partial class Captures
         ["motion"] = MotionScreens,
         ["long"] = LongScreens,
         ["readme"] = ReadmeScreens,
+        ["readme-home"] = ReadmeHomeSetScreens,
         ["new"] = NewScreens,
         ["draw"] = DrawScreens,
         ["guide"] = GuideScreens,
@@ -81,6 +82,8 @@ internal static partial class Captures
     {
         Directory.CreateDirectory(dir);
         var w = host.Window;
+        // shell icons at the pictures' resolution: a 48 px one drawn into a 2× capture is stretched without smoothing
+        if (host.Opt.QaScale is { } iconScale) Icons.Pixels = (int)Math.Ceiling(Icons.Pixels * iconScale);
         try
         {
             w.Left = -32000;
