@@ -43,7 +43,7 @@ internal static class MarkdownTests
         var code = (TextBlock)((Border)((Grid)((SmoothBorder)((BlockUIContainer)chat.Document.Blocks.FirstBlock).Child).Child).Children[0]).Child;
         Check.Eq(code.FontSize, 12.5, "code at 12.5 in a chat answer");
         var para = (Paragraph)chat.Document.Blocks.LastBlock;
-        Check.Eq(para.Inlines.OfType<Run>().First(r => r.Text.Contains("inline", System.StringComparison.Ordinal)).FontSize, 12.5, "inline code too");
+        Check.Eq(para.Inlines.OfType<Span>().First(sp => new TextRange(sp.ContentStart, sp.ContentEnd).Text.Contains("inline", System.StringComparison.Ordinal)).FontSize, 12.5, "inline code too");
         Check.True(para.Inlines.OfType<Hyperlink>().Any() && !para.Inlines.OfType<InlineUIContainer>().Any(), "a picture in chat stays \"!\" and a link");
         var big = Markdown.Render("```\ncode\n```", _ => { }, 28);
         var bigCode = (TextBlock)((Border)((Grid)((SmoothBorder)((BlockUIContainer)big.Document.Blocks.FirstBlock).Child).Child).Children[0]).Child;

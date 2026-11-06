@@ -107,7 +107,8 @@ internal sealed class MdEnv
         return p;
     }
 
-    /// Inline code's padding each side: a figure space of the code's font (what chat draws there).
+    /// Inline code's padding each side: a figure space of the code's font (chat's is narrower, Markdown.CodePadScale; here
+    /// the room keeps a line's ink off its neighbour's).
     public double Pad
     {
         get

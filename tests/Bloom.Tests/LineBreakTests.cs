@@ -12,6 +12,15 @@ namespace Bloom.Tests;
 /// letters with marks never split, styles changing inside a word, tabs, no-break spaces, hard breaks.
 internal static class LineBreakTests
 {
+    public static void ShortNamesKeepTheirWords()
+    {
+        const char J = '⁠'; // WORD JOINER
+        Check.Eq(Hangul.KeepWords("クリップボード履歴"), $"ク{J}リ{J}ッ{J}プ{J}ボ{J}ー{J}ド履{J}歴", "katakana and kanji each held; a break where the script changes");
+        Check.Eq(Hangul.KeepWords("클립보드 기록"), Hangul.KeepAll("클립보드 기록"), "Korean as KeepAll");
+        Check.Eq(Hangul.KeepWords("Bloom Space"), "Bloom Space", "Latin as it is");
+        Check.Eq(Hangul.Unjoin(Hangul.KeepWords("剪贴板历史")), "剪贴板历史", "copied without the joiners");
+    }
+
     private static MdEnv Env() => new(14, true, 1.0);
 
     private static MdText Shaped(MdEnv env, params MdSpan[] spans)

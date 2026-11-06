@@ -268,7 +268,7 @@ internal static class Markdown
         {
             System.Windows.Documents.Inline inline;
             if (s.Kind == MdSpanKind.Break) inline = new LineBreak();
-            else if ((s.Style & MdStyle.Code) != 0) inline = new Run(CodeText(s.Text)) { FontFamily = Theme.Mono, FontSize = ctx.M.CodeSize, Background = Theme.P.Code };
+            else if ((s.Style & MdStyle.Code) != 0) inline = Code(s.Text, ctx.M.CodeSize);
             else inline = new Run(Hangul.KeepAll(s.Text));
             if ((s.Style & MdStyle.Bold) != 0) inline.FontWeight = FontWeights.Bold;
             if ((s.Style & MdStyle.Italic) != 0) inline.FontStyle = FontStyles.Italic;
@@ -289,17 +289,27 @@ internal static class Markdown
         }
     }
 
-    /// Inline code as drawn: a space of padding each side that no line break parts from it, and in a long one a chance
-    /// to break where MdParser.CodeBreakAfter allows (Hangul.CodePad, BreakHint; copied as written: Hangul.Unjoin).
-    private static string CodeText(string code)
+    /// How wide inline code's padding is each side, against a figure space of the code's font: a full one read as a word
+    /// space before the text that follows ("견적서_1007.pdf 를").
+    private const double CodePadScale = 0.35;
+
+    /// Inline code as drawn: a narrow padding each side that no line break parts from it (Hangul.CodePad at a small
+    /// size), and in a long one a chance to break where MdParser.CodeBreakAfter allows (BreakHint; copied as written:
+    /// Hangul.Unjoin).
+    private static Span Code(string code, double size)
     {
-        var sb = new StringBuilder(code.Length + 8).Append(Hangul.CodePad);
+        var sb = new StringBuilder(code.Length + 8);
         for (int k = 0; k < code.Length; k++)
         {
             sb.Append(code[k]);
             if (MdParser.CodeBreakAfter(code, k)) sb.Append(Hangul.BreakHint);
         }
-        return sb.Append(Hangul.CodePad).ToString();
+        Run Pad() => new(Hangul.CodePad.ToString()) { FontSize = size * CodePadScale };
+        var span = new Span { FontFamily = Theme.Mono, FontSize = size, Background = Theme.P.Code };
+        span.Inlines.Add(Pad());
+        span.Inlines.Add(new Run(sb.ToString()));
+        span.Inlines.Add(Pad());
+        return span;
     }
 
     private static Hyperlink Link(string url, Action<string> openLink)

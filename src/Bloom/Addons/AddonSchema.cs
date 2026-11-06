@@ -8,10 +8,16 @@ using Bloom.Core;
 
 namespace Bloom.Addons;
 
-/// A text an add-on ships in Korean and English; the other languages Bloom speaks show the English one.
+/// A text an add-on ships in Korean and English; the other languages Bloom speaks take Bloom's own translation of the
+/// English one when its table has it ("Taskbar folders"), else show the English.
 internal sealed record AddonText(string Ko, string En)
 {
-    public string Shown => Lang.Code == "ko" ? Ko : En;
+    public string Shown => Lang.Code switch
+    {
+        "ko" => Ko,
+        "en" => En,
+        _ => Lang.Find(En) ?? En,
+    };
 
     public static AddonText? Of(JsonNode? node) =>
         node is JsonObject o && o["en"] is JsonValue en && en.TryGetValue(out string? e) && e.Length > 0

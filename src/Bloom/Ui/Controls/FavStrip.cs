@@ -49,7 +49,7 @@ internal sealed class FavStrip : ScrollViewer
             icon.Margin = new Thickness(0, 9, 0, 0);
             g.Children.Add(icon);
             // the name on up to two lines ("Bloom Space Cleaner" was "Bloom Spa…"), clear of the selection bar
-            var label = Theme.T(Core.Hangul.KeepAll(item.Title), 11.5, Theme.P.TextDim, Theme.Medium);
+            var label = Theme.T(Core.Hangul.KeepWords(item.Title), 11.5, Theme.P.TextDim, Theme.Medium);
             label.HorizontalAlignment = HorizontalAlignment.Center;
             label.VerticalAlignment = VerticalAlignment.Top;
             label.TextAlignment = TextAlignment.Center;

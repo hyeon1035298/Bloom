@@ -32,7 +32,7 @@ internal static class TokenViews
         var cost = Tile(Tr("환산액", "Cost"), Money(v.Cost, true),
             Tr($"API 가격으로 환산 {Money(v.Cost, false)}", $"At API prices {Money(v.Cost, false)}") + (v.Unpriced > 0 ? "\n" + UnpricedWords(v) : ""));
         var tokens = Tile(Tr("토큰", "Tokens"), Count(s.Total), Tr($"토큰 {Whole(s.Total)}", $"{Whole(s.Total)} tokens"));
-        var calls = Tile(Tr("호출", "Calls"), Count(s.Calls), Tr($"호출 {Whole(s.Calls)}", $"{Whole(s.Calls)} calls"));
+        var calls = Tile(Tr("호출", "Calls"), Count(s.Calls), (s.Calls == 1 ? Tr("호출 1", "1 call") : Tr($"호출 {Whole(s.Calls)}", $"{Whole(s.Calls)} calls")));
         var hits = Tile(Tr("캐시 적중", "Cache hits"), Percent(s.HitRate),
             Tr($"보낸 입력 {Whole(s.Prompt)} 중 캐시에서 읽음 {Whole(s.CacheRead)}", $"{Whole(s.CacheRead)} of {Whole(s.Prompt)} prompt tokens read from the cache"));
         var all = new[] { cost, tokens, calls, hits };
@@ -536,7 +536,7 @@ internal static class TokenViews
         if (b.Counts.Calls == 0) return when + Tr(" · 기록 없음", " · nothing");
         return string.Join("\n", when,
             Tr($"토큰 {Whole(b.Counts.Total)}", $"{Whole(b.Counts.Total)} tokens"),
-            Tr($"호출 {Whole(b.Counts.Calls)}", $"{Whole(b.Counts.Calls)} calls"),
+            (b.Counts.Calls == 1 ? Tr("호출 1", "1 call") : Tr($"호출 {Whole(b.Counts.Calls)}", $"{Whole(b.Counts.Calls)} calls")),
             Tr($"환산액 {Money(b.Cost, false)}", $"Cost {Money(b.Cost, false)}"));
     }
 
