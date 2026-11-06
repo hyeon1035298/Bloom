@@ -11,7 +11,7 @@ namespace Bloom.Ui;
 
 /// The home kept between openings: the blocks the list still holds stay as they are where they would show the same
 /// (rows, layout and icons included, the selection starts over), and a block that changed is drawn anew in its place.
-/// Laying the whole home out anew took most of an opening's first frame (measured 10-12: 49 ms to the screen, 33 with
+/// Laying the whole home out anew took most of an opening's first frame (measured: 49 ms to the screen, 33 with
 /// the home kept). The usage block's "1분 전" and resets change by the minute, so most openings redraw that block only.
 /// Blocks taken out and put back were slower than drawn anew (WPF lays a returned block out again, all its rows), so
 /// the kept ones never leave the list. A block's key is what it shows: its header, its items' words and icons, a

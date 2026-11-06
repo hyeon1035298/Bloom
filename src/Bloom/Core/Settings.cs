@@ -44,7 +44,7 @@ internal sealed class Settings
     public string GptEffort { get; set; } = "low"; // ChatGPT: the model's reasoning levels (low … ultra)
     public bool TabContinuesLastThread { get; set; } = true;
     public string? SeenVersion { get; set; } // the version Bloom last started as: a newer one shows 바뀐 점 once (ReleaseNotes)
-    public bool GpuDrawing { get; set; } // WPF draws with the GPU; off = software drawing, ~30 MB less (measured 10-09), read at start. Off by default since 10-14: GPU drawing froze the whole screen for seconds on one PC, software drawing kept the same fps there
+    public bool GpuDrawing { get; set; } // WPF draws with the GPU; off = software drawing, ~30 MB less, read at start. Off by default: GPU drawing froze the whole screen for seconds on one PC, software drawing kept the same fps there
     public int AiIdleMinutes { get; set; } = 10; // a chat's CLI closes after this long unused (its memory back); 0 = stays open
     public bool AiTitles { get; set; } = true; // the AI names each task "[◆ Opus • Code ] …" (ChatTitles)
     public bool AiTools { get; set; } = true; // Claude chats get Bloom's MCP tools (actions asked in the chat first)

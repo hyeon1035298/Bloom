@@ -15,7 +15,7 @@ internal sealed record UsageAccount(string Name, string? Plan, List<UsageLimit> 
     public IEnumerable<UsageLimit> Shown => Limits.Where(l => l.Model is null);
 
     /// ChatGPT's plan as Codex's app-server and wham name it, in the card's words: the three Pro tiers by their monthly
-    /// price (the user's call, 10-12), from Codex's own names (prolite, pro, promax; OpenAI publishes no table), the
+    /// price, from Codex's own names (prolite, pro, promax; OpenAI publishes no table), the
     /// rest with a capital (plus → Plus).
     public static string? ChatGptPlan(string? type) => type?.ToLowerInvariant() switch
     {

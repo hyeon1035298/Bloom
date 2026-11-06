@@ -36,7 +36,7 @@ internal static class CodexProcess
     }
 
     /// The only one that was already running when the log was made, else the only one that started just before it. A
-    /// process that started after the log can't be the one behind it (review, 10-14: a lone Codex was taken for any log).
+    /// process that started after the log can't be the one behind it (else a lone Codex is taken for any log).
     internal static int? Pick(IReadOnlyList<(int id, DateTime started)> running, DateTime logCreated)
     {
         var before = running.Where(r => r.started <= logCreated + Slack).ToList();

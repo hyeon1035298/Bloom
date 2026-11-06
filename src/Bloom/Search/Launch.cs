@@ -15,7 +15,7 @@ namespace Bloom.Search;
 internal static class Launch
 {
     /// Starts it and returns at once; a failure is logged. ShellExecuteEx returns only when the start is done (a Store
-    /// app's activation took 2.4 s on 10-12, a UAC prompt waits for its answer), so it runs on a thread of its own: on
+    /// app's activation can take seconds, a UAC prompt waits for its answer), so it runs on a thread of its own: on
     /// the UI thread Bloom stopped answering meanwhile.
     public static void Open(string target, string? args = null, string verb = "open", string? dir = null) => _ = Start(target, args, verb, dir);
 

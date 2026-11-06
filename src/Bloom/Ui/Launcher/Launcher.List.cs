@@ -128,7 +128,7 @@ internal sealed partial class Launcher
     private const int FirstRows = 24;
 
     /// The rows the list shows at once (its height as last laid out, over a row's 42 px), one more for a part shown:
-    /// the home's 명령 alone, ~20 rows below the fold, took 30 ms of the opening's first frame (measured 10-12).
+    /// the home's 명령 alone, ~20 rows below the fold, took 30 ms of the opening's first frame (measured).
     private int ScreenRows() => scroll.ActualHeight > 0 ? Math.Min(FirstRows, (int)(scroll.ActualHeight / 42) + 1) : FirstRows;
 
     private int renderVersion;

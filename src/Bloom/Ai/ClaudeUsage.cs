@@ -14,7 +14,7 @@ namespace Bloom.Ai;
 /// the plan, the login stays Claude Code's. The answer is the text /usage shows, read line by line.
 internal static partial class ClaudeUsage
 {
-    // "Current session: 3% used · resets Oct 8, 12:29pm (Asia/Seoul)"
+    // "Current session: 3% used · resets Oct 8, 12:29pm (Europe/London)"
     [GeneratedRegex(@"^(.+?):\s*(\d+(?:\.\d+)?)%\s*used(?:\s*[·•\-–]\s*resets?\s+(.+?))?\s*$", RegexOptions.IgnoreCase)]
     private static partial Regex UsageLine();
 
@@ -93,7 +93,7 @@ internal static partial class ClaudeUsage
     private static bool IsAllModelsWeek(string name) => name.Contains("week", StringComparison.OrdinalIgnoreCase)
         && (!name.Contains('(') || name.Contains("all models", StringComparison.OrdinalIgnoreCase));
 
-    /// "Oct 8, 12:29pm (Asia/Seoul)", "Oct 13, 6am", "3pm" → local time (the CLI writes the PC's own zone).
+    /// "Oct 8, 12:29pm (Europe/London)", "Oct 13, 6am", "3pm" → local time (the CLI writes the PC's own zone).
     public static DateTime? ParseReset(string? text, DateTime now)
     {
         if (string.IsNullOrWhiteSpace(text)) return null;

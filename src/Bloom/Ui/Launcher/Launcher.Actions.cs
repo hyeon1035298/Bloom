@@ -52,7 +52,7 @@ internal sealed partial class Launcher
                 StayOpen = true,
                 Run = () => ToggleFavorite(item),
             });
-            // the menu keeps what is about the item itself (user, 10-14: too long, its end was cut off): a favorite
+            // the menu keeps what is about the item itself (a longer one was cut off at its end): a favorite
             // moves with Ctrl+Shift+←→ or a drag in the row, and AI drawing and the original icon sit in 아이콘 바꾸기
             if (fav)
                 list.Add(new ActionItem { Title = Tr("아이콘 바꾸기…", "Change icon…"), Glyph = G.Palette, StayOpen = true, Run = () => PickPicture(item.Id, item.Title) });

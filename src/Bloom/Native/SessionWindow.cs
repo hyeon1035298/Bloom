@@ -53,7 +53,7 @@ internal static class SessionWindow
     }
 
     /// The console window of the process, asked of a helper run of Bloom: the process that attaches to a console gets its
-    /// Ctrl+C, Ctrl+Break and closing, which would end it — the helper, never the running Bloom (review, 10-14). A helper
+    /// Ctrl+C, Ctrl+Break and closing, which would end it — the helper, never the running Bloom. A helper
     /// ended that way leaves an exit code that is no open window, and Find drops it.
     private static IntPtr ConsoleWindowOf(int pid)
     {
