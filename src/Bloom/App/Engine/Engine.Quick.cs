@@ -13,7 +13,7 @@ internal sealed partial class Engine
     {
         var st = host.Quick;
         var sections = new List<Section>();
-        if (st.Source.Length == 0)
+        if (st.Source.Length == 0 && !st.NoSource)
         {
             sections.Add(new Section(null)
             {
@@ -41,8 +41,8 @@ internal sealed partial class Engine
                     {
                         Id = "quick:busy",
                         Kind = ItemKind.Quick,
-                        Title = Tr($"‘{st.ActionTitle}’ 하는 중…", $"‘{st.ActionTitle}’ in progress…"),
-                        Subtitle = Translator.Who(Translator.Provider()),
+                        Title = st.Progress is { } step ? Tr($"‘{st.ActionTitle}’ 하는 중… {step}단계", $"‘{st.ActionTitle}’ in progress… step {step}") : Tr($"‘{st.ActionTitle}’ 하는 중…", $"‘{st.ActionTitle}’ in progress…"),
+                        Subtitle = RunsOn(st),
                         Icon = IconSpec.Of(G.Sparkle, true),
                         PrimaryLabel = Tr("취소", "Cancel"),
                         StayOpen = true,
@@ -98,19 +98,36 @@ internal sealed partial class Engine
             string? sub = key == "translate" ? Tr($"{Translator.TargetName(Translator.TargetFor(st.Source, Settings.Current.TranslateTo))}로", $"into {Translator.TargetName(Translator.TargetFor(st.Source, Settings.Current.TranslateTo))}") : null;
             list.Items.Add(QuickRow("quick:" + key, QuickActions.Title(a), sub, a.Glyph, () => host.RunQuick(key), SourceDetail, true));
         }
+        // 내 AI 명령 that work on a text, above the built-in ones: the user made them for this
+        var mine = new Section(Tr("내 AI 명령", "My AI commands"), AiCommandRun.Who());
+        foreach (var c in Features.On("mine") ? UserCommands.Current.Items : new())
+        {
+            if (!c.IsAi || c.Input == AiInput.None || (!q.IsEmpty && Matcher.Score(q, c.Match) <= 0)) continue;
+            var command = c;
+            mine.Items.Add(QuickRow("quick:my:" + c.Id, c.Name, string.Join("  →  ", AiCommandRun.Split(c.Body)), G.Sparkle, () => host.RunMineOn(command), MineDetail, true));
+        }
+        if (mine.Items.Count > 0) sections.Add(mine);
         if (list.Items.Count > 0) sections.Add(list);
         return sections;
     }
 
-    private Detail SourceDetail()
+    private Detail SourceDetail() => SourceDetail(RunsOn(host.Quick));
+
+    /// A 내 AI 명령's row: it runs on the chat's model, whatever ran before.
+    private Detail MineDetail() => SourceDetail(AiCommandRun.Who());
+
+    private Detail SourceDetail(string engine)
     {
         var st = host.Quick;
         var d = new Detail { Text = st.Source };
         d.Add(Tr("가져온 곳", "From"), st.FromSelection ? Tr("선택한 글", "The selection") : Tr("클립보드", "The clipboard"));
         d.Add(Tr("길이", "Length"), Tr($"{st.Source.Length}자", $"{st.Source.Length} chars"));
-        d.Add(Tr("엔진", "Engine"), Translator.Who(Translator.Provider()));
+        d.Add(Tr("엔진", "Engine"), engine);
         return d;
     }
+
+    /// The model a run uses: the chat's for 내 AI 명령, the translation engine's for the rest.
+    private static string RunsOn(QuickState st) => st.Action == "mine" ? AiCommandRun.Who() : Translator.Who(Translator.Provider());
 
     private static ResultItem QuickRow(string id, string title, string? sub, char glyph, System.Action run, System.Func<Detail> detail, bool stay) => new()
     {

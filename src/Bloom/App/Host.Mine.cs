@@ -45,6 +45,9 @@ internal sealed partial class Host
             case "chain":
                 _ = RunChain(c, input, depth);
                 break;
+            case "ai":
+                StartAiCommand(c);
+                break;
             default:
                 RunScript(c, input, show ?? c.ShowWindow, admin);
                 break;

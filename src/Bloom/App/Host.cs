@@ -176,6 +176,7 @@ internal sealed partial class Host
         Clipboard.Changed += () => Later();
         Quicklinks.Changed += () => Later();
         UserCommands.Changed += () => Later();
+        NoticeLog.Changed += () => Later();
         Apps.Changed += () => ui.BeginInvoke(Later);
         Timers.Changed += Later;
         Timers.Changed += SyncAlarm;
@@ -209,6 +210,7 @@ internal sealed partial class Host
             if (!Opt.Demo) TokenStats.Start(ui); // recording mode: made-up numbers (BeginDemo), no log read
             Notices.Quiet = Opt.MeasureSeconds is not null || Opt.SummonRounds is not null;
             if (!Opt.Demo) Notices.Start(ui); // recording mode: no cards from the real Claude Code and Codex
+            if (!Opt.Demo) StartSchedule(); // 내 AI 명령's own runs
             if (!Opt.Demo) ClaudeApprovals.Start(ui);
             if (Opt.MeasureSeconds is { } measure) MeasureLater(measure);
             if (Opt.SummonRounds is { } rounds) _ = SummonBench.Run(this, ui, rounds);
@@ -633,6 +635,7 @@ internal sealed partial class Host
         AppNames.Flush();
         Quicklinks.Flush();
         UserCommands.Flush();
+        NoticeLog.Flush();
         Timers.Flush();
         Notes.Flush();
         ColorBook.Flush();
@@ -668,6 +671,7 @@ internal sealed partial class Host
     public void Quit(bool save = true)
     {
         Log.Write("quit");
+        StopSchedule();
         stalls?.Dispose(); // the saving and shutting down below may hold the UI thread on purpose
         if (save)
         {

@@ -32,6 +32,7 @@ internal enum Mode
     Commands, // 내 명령: scripts, snippets, chains
     Layout, // 창 배치: where the window in front goes
     Winget, // 앱 설치: winget's catalogue
+    Inbox, // 알림 센터: how the AI commands that ran on their own went
     Palette, // 컬러 팔레트: the colours of a picture (Bloom Lens › 7), the one picked with its gradients
 }
 

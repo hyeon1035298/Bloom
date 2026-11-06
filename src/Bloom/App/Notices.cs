@@ -235,10 +235,11 @@ internal static class Notices
 
     /// The end of something the user started in Bloom (a hidden 내 명령 script, a chain with skipped lines, a file moved
     /// or copied): shown whether or not 작업 알림 is on, as it answers the user's own action.
-    public static void Result(bool ok, string head, string title, string? detail, string? actionText = null, Action? action = null)
+    /// `click`: what a click on the card itself does (an AI command's result: its chat).
+    public static void Result(bool ok, string head, string title, string? detail, string? actionText = null, Action? action = null, Action? click = null)
     {
         QaResults?.Add((ok ? "✓ " : "✕ ") + title + (detail is null ? "" : " · " + detail));
-        Show(new Notice(ok ? "done" : "limit", head, title, detail, ActionText: actionText, Action: action));
+        Show(new Notice(ok ? "done" : "limit", head, title, detail, ActionText: actionText, Action: action, Click: click));
     }
 
     /// QA runs (`--qa-set datawipe`): the result cards' lines, in order.

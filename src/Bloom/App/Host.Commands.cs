@@ -52,6 +52,9 @@ internal sealed partial class Host
             case "cmd:commands":
                 OpenView(Mode.Commands);
                 break;
+            case "cmd:inbox":
+                OpenView(Mode.Inbox);
+                break;
             case "cmd:processes":
                 OpenProcesses();
                 break;
