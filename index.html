@@ -580,6 +580,7 @@ h1 .winkey, h2 .winkey { width: 0.7em; vertical-align: baseline; margin-right: 0
 .isle .tile {
   position: relative; flex: none; display: flex; align-items: center; justify-content: center;
   width: calc(30 * var(--u)); height: calc(30 * var(--u)); border-radius: calc(8 * var(--u));
+  padding: 0; background: none; /* the page's usage .tile has padding and a fill */
 }
 .isle .tile img { flex: none; width: calc(35 * var(--u)); height: calc(35 * var(--u)); max-width: none; border-radius: 0; filter: none; }
 .isle .tile svg { flex: none; width: calc(19 * var(--u)); height: calc(19 * var(--u)); fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
@@ -636,6 +637,73 @@ h1 .winkey, h2 .winkey { width: 0.7em; vertical-align: baseline; margin-right: 0
   .plus, .hub::before, .hub i, .mini__dot { corner-shape: round; }
 }
 </style>
+<link rel="alternate" hreflang="ko" href="https://hyeon1035298.github.io/Bloom/">
+<link rel="alternate" hreflang="en" href="https://hyeon1035298.github.io/Bloom/en/">
+<link rel="alternate" hreflang="ja" href="https://hyeon1035298.github.io/Bloom/ja/">
+<link rel="alternate" hreflang="zh-CN" href="https://hyeon1035298.github.io/Bloom/zh/">
+<link rel="alternate" hreflang="x-default" href="https://hyeon1035298.github.io/Bloom/">
+<script>try { var l = localStorage.getItem('bloom.lang'); if (l === 'en' || l === 'ja' || l === 'zh') location.replace(l + '/' + location.hash); } catch (e) {}</script>
+<style>
+/* ---------- language: a switch in the nav, a picker on the first visit, CJK type ---------- */
+:lang(ja) { --font-sans: "Wanted Sans Variable", "Wanted Sans", "Yu Gothic UI", "Yu Gothic", "Hiragino Sans", "Noto Sans JP", "Meiryo", system-ui, sans-serif; }
+:lang(zh-CN) { --font-sans: "Wanted Sans Variable", "Wanted Sans", "Microsoft YaHei UI", "Microsoft YaHei", "PingFang SC", "Noto Sans SC", system-ui, sans-serif; }
+/* Chinese and Japanese have no spaces to break at, and tight tracking crowds the ideographs */
+:lang(ja) body, :lang(zh-CN) body { word-break: normal; line-break: strict; }
+:lang(ja) :is(.head, .hero h1, .ko__out, .qa__q, .tile b, .close h2),
+:lang(zh-CN) :is(.head, .hero h1, .ko__out, .qa__q, .tile b, .close h2) { letter-spacing: 0; word-spacing: 0; }
+
+.nav__end { display: flex; align-items: center; gap: 8px; }
+.lang { position: relative; }
+.lang__btn {
+  display: inline-flex; align-items: center; gap: 6px; height: 36px; padding: 0 10px;
+  border: 1px solid var(--color-line); border-radius: var(--radius-btn); background: transparent;
+  color: var(--color-muted); font: inherit; font-size: 14px; font-weight: 500; cursor: pointer; transition: color 0.2s, border-color 0.2s;
+}
+.lang__btn:hover, .lang__btn[aria-expanded="true"] { color: var(--color-text); border-color: var(--color-line-2); }
+.lang__btn:focus-visible { outline: 2px solid var(--color-text); outline-offset: 2px; }
+.lang__btn svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; }
+.lang__menu {
+  position: absolute; right: 0; top: calc(100% + 10px); z-index: 50; min-width: 180px; padding: 6px; margin: 0; list-style: none;
+  border: 1px solid var(--color-line-2); border-radius: calc(14px * var(--k)); background: var(--color-bg-2);
+  box-shadow: 0 18px 44px var(--color-shade);
+}
+.lang__menu a, .pick__list a {
+  display: flex; align-items: center; justify-content: space-between; gap: 16px; text-decoration: none; color: var(--color-muted);
+}
+.lang__menu a { padding: 9px 12px; border-radius: calc(9px * var(--k)); font-size: 15px; }
+.lang__menu a:hover, .lang__menu a:focus-visible { background: var(--color-surface-2); color: var(--color-text); outline: none; }
+.lang__menu a[aria-current="true"] { color: var(--color-text); }
+.lang__menu small, .pick__list small { font-family: var(--font-mono); font-size: 12px; color: var(--color-faint); }
+
+.pick {
+  position: fixed; inset: 0; z-index: 100; display: grid; place-items: center; padding: var(--gutter);
+  background: rgba(7, 8, 10, 0.72); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+}
+.pick[hidden], .lang__menu[hidden] { display: none; }
+.pick__card {
+  width: min(100%, 400px); padding: 32px 24px 24px; text-align: center;
+  border: 1px solid var(--color-line-2); border-radius: var(--radius-card); background: var(--color-bg-2);
+  box-shadow: 0 30px 80px var(--color-shade), 0 0 120px var(--color-beam-soft);
+}
+.pick__card img { width: 44px; height: 44px; margin: 0 auto 18px; border-radius: calc(12px * var(--k)); }
+.pick__t { font-size: 22px; font-weight: 640; line-height: 1.3; }
+.pick__s { margin-top: 6px; font-size: 14px; color: var(--color-muted); }
+.pick__list { display: grid; gap: 8px; margin-top: 24px; }
+.pick__list a {
+  padding: 14px 16px; border: 1px solid var(--color-line); border-radius: calc(12px * var(--k));
+  background: var(--color-surface); font-size: 17px; font-weight: 560; color: var(--color-text);
+  transition: border-color 0.2s, background 0.2s;
+}
+.pick__list a:hover, .pick__list a:focus-visible { border-color: var(--color-line-2); background: var(--color-surface-2); outline: none; }
+.pick__list a.is-guess { border-color: rgba(255, 255, 255, 0.5); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.18); }
+@media (max-width: 720px) { .lang__btn span { display: none; } .lang__btn { padding: 0 9px; } }
+@media (prefers-reduced-motion: no-preference) {
+  .pick:not([hidden]) { animation: pick-in 0.35s var(--ease-out); }
+  .pick:not([hidden]) .pick__card { animation: pick-card 0.5s var(--ease-out); }
+}
+@keyframes pick-in { from { opacity: 0; } }
+@keyframes pick-card { from { opacity: 0; transform: translateY(12px) scale(0.98); } }
+</style>
 </head>
 <body>
 
@@ -651,7 +719,15 @@ h1 .winkey, h2 .winkey { width: 0.7em; vertical-align: baseline; margin-right: 0
       <a href="#addons">애드온</a>
     </nav>
     <button class="nav__menu" type="button" aria-expanded="false" aria-controls="nav-links" aria-label="메뉴"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
-    <div class="nav__end"><a class="btn btn--small" data-dl href="https://github.com/hyeon1035298/Bloom/releases/latest/download/BloomLauncher-win-Setup.exe"><span data-dl-label>받기</span></a></div>
+    <div class="nav__end"><div class="lang">
+  <button class="lang__btn" type="button" aria-expanded="false" aria-controls="lang-menu" aria-label="Language"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.6 2.6 3.8 5.6 3.8 9s-1.2 6.4-3.8 9c-2.6-2.6-3.8-5.6-3.8-9S9.4 5.6 12 3z"/></svg><span>KO</span></button>
+  <ul class="lang__menu" id="lang-menu" hidden>
+    <li><a data-lang="ko" lang="ko">한국어<small>KO</small></a></li>
+    <li><a data-lang="en" lang="en">English<small>EN</small></a></li>
+    <li><a data-lang="ja" lang="ja">日本語<small>JA</small></a></li>
+    <li><a data-lang="zh" lang="zh-CN">简体中文<small>ZH</small></a></li>
+  </ul>
+</div><a class="btn btn--small" data-dl href="https://github.com/hyeon1035298/Bloom/releases/latest/download/BloomLauncher-win-Setup.exe"><span data-dl-label>받기</span></a></div>
   </div>
 </header>
 
@@ -1055,11 +1131,86 @@ h1 .winkey, h2 .winkey { width: 0.7em; vertical-align: baseline; margin-right: 0
     <nav class="foot__links" aria-label="바깥 링크">
       <a href="https://github.com/hyeon1035298/Bloom">GitHub</a>
       <a href="https://github.com/hyeon1035298/Bloom/releases">릴리스</a>
-      <a href="https://github.com/hyeon1035298/Bloom/blob/main/README.md">English</a>
+      <a href="https://github.com/hyeon1035298/Bloom/blob/main/README.ko.md">README</a>
     </nav>
   </div>
 </footer>
 
+<div class="pick" id="lang-pick" role="dialog" aria-modal="true" aria-labelledby="pick-t" data-lenis-prevent hidden>
+  <div class="pick__card">
+    <img src="assets/mark.png" alt="" width="44" height="44">
+    <p class="pick__t" id="pick-t"></p>
+    <p class="pick__s"></p>
+    <div class="pick__list">
+      <a data-lang="ko" lang="ko">한국어<small>KO</small></a>
+      <a data-lang="en" lang="en">English<small>EN</small></a>
+      <a data-lang="ja" lang="ja">日本語<small>JA</small></a>
+      <a data-lang="zh" lang="zh-CN">简体中文<small>ZH</small></a>
+    </div>
+  </div>
+</div>
+<script>
+(function () {
+  var page = 'ko', root = '', KEY = 'bloom.lang';
+  var TEXT = {
+    ko: ['언어를 고르세요', '위쪽 메뉴에서 언제든 바꿀 수 있습니다.'],
+    en: ['Choose your language', 'You can change it anytime from the menu at the top.'],
+    ja: ['言語を選んでください', '上部のメニューからいつでも変更できます。'],
+    zh: ['选择语言', '之后可以随时在顶部菜单中更改。']
+  };
+  var get = function () { try { return localStorage.getItem(KEY); } catch (e) { return null; } };
+  var set = function (l) { try { localStorage.setItem(KEY, l); } catch (e) {} };
+  var all = function (s) { return Array.prototype.slice.call(document.querySelectorAll(s)); };
+
+  all('[data-lang]').forEach(function (a) {
+    var l = a.getAttribute('data-lang');
+    a.href = root + (l === 'ko' ? '' : l + '/') + (location.hash || '');
+    if (l === page) a.setAttribute('aria-current', 'true');
+    a.addEventListener('click', function (e) {
+      set(l);
+      if (l === page) { e.preventDefault(); close(); closeMenu(); }
+    });
+  });
+
+  // nav switch
+  var btn = document.querySelector('.lang__btn'), menu = document.getElementById('lang-menu');
+  function closeMenu() { if (!menu.hidden) { menu.hidden = true; btn.setAttribute('aria-expanded', 'false'); } }
+  btn.addEventListener('click', function (e) {
+    e.stopPropagation();
+    menu.hidden = !menu.hidden; btn.setAttribute('aria-expanded', String(!menu.hidden));
+    if (!menu.hidden) menu.querySelector('a').focus({ preventScroll: true });
+  });
+  document.addEventListener('click', function (e) { if (!menu.contains(e.target)) closeMenu(); });
+
+  // first visit: ask once, suggest the browser's language
+  var pick = document.getElementById('lang-pick');
+  function close() {
+    if (pick.hidden) return;
+    pick.hidden = true; document.documentElement.style.overflow = '';
+    if (!get()) set(page);
+  }
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') { close(); closeMenu(); }
+    if (e.key === 'Tab' && !pick.hidden) {
+      var links = all('.pick__list a'), i = links.indexOf(document.activeElement);
+      e.preventDefault(); links[(i + (e.shiftKey ? links.length - 1 : 1)) % links.length].focus();
+    }
+  });
+  pick.addEventListener('click', function (e) { if (e.target === pick) close(); });
+  if (get()) return;
+  var guess = 'en', langs = navigator.languages || [navigator.language || ''];
+  for (var i = 0; i < langs.length; i++) {
+    var m = /^(ko|en|ja|zh)/i.exec(langs[i] || '');
+    if (m) { guess = m[1].toLowerCase(); break; }
+  }
+  pick.querySelector('.pick__t').textContent = TEXT[guess][0];
+  pick.querySelector('.pick__s').textContent = TEXT[guess][1];
+  var first = pick.querySelector('[data-lang="' + guess + '"]');
+  first.classList.add('is-guess');
+  pick.hidden = false; document.documentElement.style.overflow = 'hidden';
+  first.focus({ preventScroll: true });
+})();
+</script>
 <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/ScrollTrigger.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/lenis@1.1.13/dist/lenis.min.js"></script>
