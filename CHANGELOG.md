@@ -2,41 +2,33 @@
 
 Each release on GitHub shows its section from this file (the workflow looks for `## <version>`).
 
-## 0.19.1
+## 0.19.2
 
-- Taskbar add-on: PillTaskbar turns the Windows taskbar into a centred pill. It is a separate program under GPL-3.0 with its own source repository, and the installer doesn't carry it: Settings › Add-ons downloads it with one button from its GitHub release, shows the progress, and installs it only when the zip has the SHA-256 this Bloom pins and every file matches its addon.json. A failed download leaves nothing behind and says why, with Try again. When a newer Bloom pins a newer PillTaskbar, the same line offers Update. Bloom only starts it and talks to it through files, and none of its code is in Bloom, which stays MIT. It is off at first, and downloading it doesn't turn it on. The first switch-on says what it does, and its first start downloads the taskbar's symbol files (about 70 MB) from the Microsoft symbol server. If Windhawk's own pill-taskbar mod is running, the status line says so and what to do.
-- Alt+Tab per monitor add-on: with more than one monitor, Alt+Tab opens on the monitor under the mouse cursor and lists only the windows on that monitor, and Win+Alt+Tab does the same. It is the Windhawk mod Alt+Tab per monitor running without Windhawk, a separate program under GPL-3.0 with its own source repository. Settings › Add-ons downloads it with one button and checks it the same way as the taskbar add-on, and it is off at first. If the same mod is on in Windhawk, the status line says so.
-- Settings › Add-ons: one page lists every add-on with its switch and status, the taskbar add-on first. While it is on, the same page holds its settings: taskbar folders (new folder, rename, icon, add and take out apps, order, dissolve), the look, the tray, the auto-hide island and an About line with its source. An add-on that stopped shows Try again or Turn on again.
-- Auto-hide island: one switch turns on the island at the top centre of the screen and Windows' own taskbar auto-hide together, and turns both off again. The island is black, or white if you pick it.
-- Taskbar look: the taskbar and everything in it follow Bloom's light or dark theme. The pill is glass with a faint outline, the usage bars are flat and their text takes the text colour, and the clock shows 24-hour time, or 12-hour time with AM and PM.
-- Your own add-ons: an add-on put in the user-addons folder in Bloom's local data folder shows on Settings › Add-ons after a restart, with its own switch. It is off at first, and the first switch-on says that it is a separate program Bloom did not make or check. Its files are checked against the SHA-256 in its addon.json, as the taskbar add-on's are.
-- Sign-in: while an add-on is on and Start with Windows is on, a sign-in task of your own starts Bloom earlier, so the taskbar changes soon after you sign in. Hold Shift while Bloom starts to skip add-ons for that run.
-- AI usage: each account shows its company's logo before its name on the home card and on the taskbar: the Anthropic mark for Claude and the OpenAI mark for ChatGPT, black in the light theme and white in the dark one and on the island. A logo file of your own (SVG, PNG or ICO) picked on Settings › AI accounts comes first. A logo in black or white alone takes the text colour. Icon colour (original or one colour), the name tag and the limit the taskbar shows per account are shared by the home and the taskbar, and the usage file carries them.
-- New look: zinc greys, with the accent colour only on what is on, smooth (G2) corners, and settings rows without icons, with new switches, buttons and key caps.
-- Settings: twelve pages, among them Shortcuts and Data (see and delete what Bloom keeps on this PC, or reset it all). The accent colour can be any colour from a picker that shows its contrast in the dark and light themes.
-- Home: an AI usage card shows its plan as a badge, and Sign in again when its sign-in has run out.
-- Home: the AI usage cards and the token tiles are plain fills without an outline, and the calendar shows today by its filled cell alone.
-- Tool windows attached to the launcher keep their glass together with the launcher while the focus moves between them. Before, the one without the focus turned flat.
-- Mark: Bloom's flower is now a cherry blossom with five broad notched petals, which stays one shape down to 16 px in the tray.
-- Settings › About: a License line says Bloom is MIT and that the taskbar add-on is a separate GPL-3.0 program, with a button to its source.
+- Taskbar add-on: PillTaskbar turns the taskbar into a centred pill, with folders, an auto-hide island and AI usage. Get it in Settings › Add-ons.
+- Alt+Tab per monitor add-on: Alt+Tab shows only the windows on the monitor under the cursor.
+- Settings › Add-ons: every add-on and its settings on one page. You can also add your own.
+- The taskbar follows Bloom's light or dark theme, with a 24-hour or 12-hour clock.
+- AI usage shows the Claude and ChatGPT logos on the home cards and the taskbar.
+- New look: zinc greys, smoother corners, new switches and buttons, and a new cherry blossom mark.
+- Settings: 12 pages, new Shortcuts and Data pages, and a colour picker for the accent.
+- Home: AI usage cards show the plan, and Sign in again when a sign-in runs out.
+- Fixed: the taskbar no longer stretches across a second monitor, and the island clock no longer stops.
+- Fixed: your own icon for .md files stays.
+- Fixed: no extra space after code names in chat, Japanese names on the home break between words, and smaller translation slips.
 
 ### 한국어
 
-- 작업표시줄 애드온: PillTaskbar는 작업표시줄을 가운데 알약 모양으로 바꿉니다. GPL-3.0인 별도 프로그램이고 소스 저장소도 따로 있으며, 설치 파일에는 들어 있지 않습니다. 설정 › 애드온에서 단추 하나로 GitHub 릴리스에서 받고, 받는 동안 진행률을 보여 주며, zip이 이 Bloom이 고정한 SHA-256과 같고 파일마다 addon.json과 맞을 때만 설치합니다. 받다가 실패하면 아무것도 남기지 않고 이유와 다시 받기를 보여 줍니다. 새 Bloom이 더 새 PillTaskbar를 고정하면 같은 줄에 업데이트가 나옵니다. Bloom은 실행하고 파일로 주고받기만 하며, 그 코드는 Bloom에 들어 있지 않고 Bloom은 MIT 그대로입니다. 처음에는 꺼져 있고, 받기만 해서는 켜지지 않습니다. 처음 켤 때 무엇을 하는지 알려 주고, 첫 실행 때 작업표시줄 심볼 파일(약 70 MB)을 Microsoft 심볼 서버에서 받습니다. Windhawk의 pill-taskbar 모드가 돌고 있으면 상태 줄이 그렇다고 알리고 어떻게 하면 되는지 적습니다.
-- 모니터별 Alt+Tab 애드온: 모니터가 여럿일 때 Alt+Tab이 마우스 커서가 있는 모니터에 뜨고 그 모니터의 창만 보여 주며, Win+Alt+Tab도 같습니다. Windhawk 모드 Alt+Tab per monitor를 Windhawk 없이 돌리는 GPL-3.0인 별도 프로그램이고 소스 저장소도 따로 있습니다. 설정 › 애드온에서 단추 하나로 받고 작업표시줄 애드온과 같은 방식으로 확인하며, 처음에는 꺼져 있습니다. Windhawk에서 같은 모드가 켜져 있으면 상태 줄이 그렇다고 알립니다.
-- 설정 › 애드온: 모든 애드온을 스위치와 상태와 함께 한 페이지에 보여 주고, 작업표시줄 애드온이 맨 위에 옵니다. 켜져 있는 동안 같은 페이지에 그 설정이 나옵니다. 작업표시줄 폴더(새 폴더, 이름 바꾸기, 아이콘, 앱 넣기와 빼기, 순서, 폴더 풀기), 모양, 트레이, 숨김 아일랜드, 소스로 가는 정보 줄입니다. 멈춘 애드온에는 다시 시도나 다시 켜기가 나옵니다.
-- 숨김 아일랜드: 스위치 하나로 화면 위 가운데의 아일랜드와 Windows의 작업표시줄 자동 숨기기를 함께 켜고 함께 끕니다. 아일랜드는 검정이고, 흰색으로 바꿀 수 있습니다.
-- 작업표시줄 모양: 작업표시줄과 그 안의 것이 모두 Bloom의 라이트·다크를 따릅니다. 알약은 옅은 윤곽선이 있는 유리이고, 사용량 막대는 단색에 글자는 글자색이며, 시계는 24시간 또는 오전·오후가 붙는 12시간입니다.
-- 직접 넣는 애드온: Bloom 로컬 데이터 폴더 안 user-addons에 넣은 애드온은 다시 시작하면 설정 › 애드온에 자기 스위치와 함께 나옵니다. 처음에는 꺼져 있고, 처음 켤 때 Bloom이 만들거나 검사하지 않은 별도 프로그램이라고 알려 줍니다. 파일은 작업표시줄 애드온처럼 addon.json에 적힌 SHA-256과 맞춰 봅니다.
-- 로그인: 애드온이 켜져 있고 윈도우 시작 시 실행도 켜져 있으면, 사용자 계정의 로그인 작업이 Bloom을 더 일찍 띄워 로그인 뒤 작업표시줄이 금방 바뀝니다. Bloom이 켜질 때 Shift를 누르고 있으면 그 실행에서는 애드온을 켜지 않습니다.
-- AI 사용량: 홈 카드와 작업표시줄에서 계정 이름 앞에 회사 로고가 나옵니다. Claude는 Anthropic 마크, ChatGPT는 OpenAI 마크이고, 라이트 테마에서는 검정, 다크 테마와 아일랜드에서는 흰색입니다. 설정 › AI 계정에서 직접 고른 로고 파일(SVG, PNG, ICO)이 있으면 그것을 씁니다. 검정이나 흰색 한 가지로 된 로고는 글자색을 따릅니다. 아이콘 색(원래 색 또는 단색), 이름표, 계정별로 작업표시줄에 보일 한도는 홈과 작업표시줄이 함께 쓰고, 사용량 파일에도 들어갑니다.
-- 새 모양: 아연 회색에 강조색은 켜진 것에만 쓰고, 모서리는 매끈한 G2로, 설정 줄은 아이콘 없이 새 스위치·단추·키로 바꿨습니다.
-- 설정: 12쪽으로 정리하고 단축키와 데이터 페이지를 더했습니다. 데이터에서는 Bloom이 이 PC에 저장한 것을 보고 지우거나 모두 초기화합니다. 강조색은 색 고르기 창에서 아무 색이나 고르고, 다크와 라이트에서의 대비를 함께 봅니다.
-- 홈: AI 사용량 카드에 요금제 배지가 붙고, 로그인이 끊기면 다시 로그인 단추가 나옵니다.
-- 홈: AI 사용량 카드와 토큰 타일은 테두리 없이 채움만 쓰고, 달력의 오늘은 채운 칸으로만 보여 줍니다.
-- 런처에 붙여 둔 도구 창은 포커스가 런처와 도구 사이를 오가도 런처와 함께 유리 모양을 유지합니다. 전에는 포커스가 없는 쪽이 밋밋하게 바뀌었습니다.
-- 마크: Bloom의 꽃이 끝이 파인 넓은 꽃잎 다섯 장의 벚꽃이 되어, 트레이의 16 px에서도 한 모양으로 보입니다.
-- 설정 › 정보: 라이선스 줄에 Bloom은 MIT이고 작업표시줄 애드온은 GPL-3.0인 별도 프로그램이라고 적고, 소스로 가는 단추를 둡니다.
+- 작업표시줄 애드온: PillTaskbar가 작업표시줄을 가운데 알약 모양으로 바꿉니다. 폴더, 숨김 아일랜드, AI 사용량이 함께 있습니다. 설정 › 애드온에서 받습니다.
+- 모니터별 Alt+Tab 애드온: Alt+Tab에 커서가 있는 모니터의 창만 보입니다.
+- 설정 › 애드온: 모든 애드온과 설정을 한 페이지에서 다룹니다. 직접 만든 애드온도 넣을 수 있습니다.
+- 작업표시줄이 Bloom의 라이트·다크를 따르고, 시계는 24시간이나 12시간으로 고릅니다.
+- AI 사용량에 Claude와 ChatGPT 로고가 홈 카드와 작업표시줄에 나옵니다.
+- 새 모양: 아연 회색, 더 매끈한 모서리, 새 스위치와 단추, 새 벚꽃 마크.
+- 설정: 12쪽으로 정리하고 단축키·데이터 페이지와 강조색 고르기를 더했습니다.
+- 홈: AI 사용량 카드에 요금제가 나오고, 로그인이 끊기면 다시 로그인 단추가 나옵니다.
+- 고침: 보조 모니터에서 작업표시줄이 옆으로 늘어나지 않고, 아일랜드 시계가 멈추지 않습니다.
+- 고침: 직접 고른 .md 파일 아이콘이 그대로 남습니다.
+- 고침: 채팅의 코드 모양 이름 뒤에 빈칸이 생기지 않고, 홈의 일본어 이름이 단어 사이에서 줄을 바꾸며, 작은 번역 실수를 고쳤습니다.
 
 ## 0.18.1
 
