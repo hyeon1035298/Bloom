@@ -3,10 +3,10 @@
   "addons": [
     {
       "id": "pill-taskbar",
-      "version": "0.2.4",
-      "url": "https://github.com/hyeon1035298/PillTaskbar_BloomAddon/releases/download/v0.2.4/PillTaskbar_BloomAddon-v0.2.4.zip",
-      "sha256": "f142c87222c688b5a0212a6084df2be30cb11e09a832ed19af7e5b7d0754a7da",
-      "size": 1384119
+      "version": "0.2.5",
+      "url": "https://github.com/hyeon1035298/PillTaskbar_BloomAddon/releases/download/v0.2.5/PillTaskbar_BloomAddon-v0.2.5.zip",
+      "sha256": "67269ccbb4440132043cbc7ab9d5a9c30bb370cbda0b6920ad1c98d3590559c2",
+      "size": 1384432
     },
     {
       "id": "alt-tab-per-monitor",
