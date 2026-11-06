@@ -96,7 +96,7 @@ internal sealed partial class Host
         catch (Exception e) when (e is System.ComponentModel.Win32Exception or InvalidOperationException or FileNotFoundException)
         {
             Log.Error("my command " + c.Name, e);
-            Notices.Result(false, Head(false), c.Name, Tr("명령을 실행하지 못했습니다. 파일 경로와 권한을 확인하고 다시 실행하세요.", "Could not run the command. Check the file path and permissions, then retry."), Tr("명령 동작 열기", "Open command actions"), OpenActions);
+            Notices.Result(false, Head(false), c.Name, Tr("명령을 실행하지 못했습니다. 파일 경로와 권한을 확인하고 다시 실행하세요.", "Could not run the command. Check the file path and permissions, then retry."), Tr("명령 동작 열기", "Open command actions"), OpenActions, keep: true);
             return;
         }
         if (p is null || show || admin) return;
@@ -119,9 +119,9 @@ internal sealed partial class Host
                 // what the command printed last says how it went: a success shows it (or the time it took), a failure
                 // its exit code and that line, with the command's actions (마지막 출력 복사, 명령 편집) one click away
                 string? said = UserCommands.LastLine(ok ? output : error.Trim().Length > 0 ? error : output);
-                if (ok) Notices.Result(true, Head(true), c.Name, said ?? Tr($"소요 시간 {Notices.Span(clock.Elapsed)}", $"Elapsed: {Notices.Span(clock.Elapsed)}"));
+                if (ok) Notices.Result(true, Head(true), c.Name, said ?? Tr($"소요 시간 {Notices.Span(clock.Elapsed)}", $"Elapsed: {Notices.Span(clock.Elapsed)}"), keep: true);
                 else Notices.Result(false, Head(false), c.Name, said is null ? Tr($"종료 코드 {code}", $"Exit code {code}") : Tr($"종료 코드 {code} · {said}", $"Exit code {code} · {said}"),
-                    Tr("명령 동작 열기", "Open command actions"), OpenActions);
+                    Tr("명령 동작 열기", "Open command actions"), OpenActions, keep: true);
                 Later();
             });
         });
@@ -133,7 +133,7 @@ internal sealed partial class Host
     {
         if (depth > 2)
         {
-            Notices.Result(false, Head(false), c.Name, Tr("묶음은 3단계까지 포함할 수 있습니다. 단계를 줄이세요.", "Chains can be nested up to three levels. Remove a level."));
+            Notices.Result(false, Head(false), c.Name, Tr("묶음은 3단계까지 포함할 수 있습니다. 단계를 줄이세요.", "Chains can be nested up to three levels. Remove a level."), keep: true);
             return;
         }
         await Task.Delay(150); // the launcher is out of the way first
@@ -161,7 +161,7 @@ internal sealed partial class Host
             }
             else skipped.Add(step);
         }
-        if (skipped.Count > 0) Notices.Result(false, Head(false), c.Name, Tr($"건너뛴 단계: {string.Join(", ", skipped)}", $"Skipped: {string.Join(", ", skipped)}"));
+        if (skipped.Count > 0) Notices.Result(false, Head(false), c.Name, Tr($"건너뛴 단계: {string.Join(", ", skipped)}", $"Skipped: {string.Join(", ", skipped)}"), keep: true);
     }
 
     // ── file actions (Ctrl+K on a file or folder) ─────────────────────────────────────────────

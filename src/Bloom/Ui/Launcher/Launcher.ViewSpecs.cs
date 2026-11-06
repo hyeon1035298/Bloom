@@ -96,7 +96,7 @@ internal sealed partial class Launcher
         [Mode.Inbox] = new()
         {
             Chip = () => Tr("알림 센터", "Notification center"),
-            Placeholder = () => Tr("알림 찾기 · Enter로 그 채팅 열기", "Find a notification · Enter opens its chat"),
+            Placeholder = () => Tr("알림 찾기 · Enter로 열기", "Find a notification · Enter opens it"),
             Context = () => Tr($"알림 센터 · {NoticeLog.Current.Items.Count}개", $"Notification center · {NoticeLog.Current.Items.Count}"),
             Build = Engine.InboxView,
             Split = false, // each line shows its preview and time; Enter opens the whole answer in its chat

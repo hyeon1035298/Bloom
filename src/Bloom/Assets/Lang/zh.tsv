@@ -2665,7 +2665,6 @@ What the AI should do — split steps by >>  e.g. Summarize in 3 lines >> Transl
 Enter what the AI should do	请输入要 AI 做的事
 No notifications	没有通知
 No matching notifications	没有匹配的通知
-Give an AI command a schedule; what it does on its own shows here	为 AI 命令设置定时后，自动运行的结果会显示在这里
 {0}/{1} {2:HH:mm}	{0}月{1}日 {2:HH:mm}
 Result	结果
 Copy the preview	复制预览
@@ -2691,7 +2690,14 @@ Every {0:0} d	每 {0:0} 天
 Every {0:0} h	每 {0:0} 小时
 Every {0:0} min	每 {0:0} 分钟
 Notification center	通知中心
-What AI commands did on their own · opens their chat	AI 命令自动运行的结果 · 点击打开其对话
 Find a command · scripts, snippets, chains, AI commands	查找命令 · 脚本、片段、组合、AI 命令
-Find a notification · Enter opens its chat	查找通知 · 按 Enter 打开其对话
 Notification center · {0}	通知中心 · {0} 条
+Waiting for approval	等待批准
+History	记录
+Finished tasks, limits, approvals and command results collect here	任务完成、额度、等待批准和用户命令的结果会汇集在这里
+Go to session	前往会话
+Polish the sign-in screen	完善登录界面
+Elapsed: 12 min	耗时 12 分钟
+Tidy the downloads folder	整理下载文件夹
+Finished tasks, limits, approvals and command results in one place	任务完成、额度、等待批准和用户命令的结果集中一处
+Find a notification · Enter opens it	查找通知 · 按 Enter 打开
