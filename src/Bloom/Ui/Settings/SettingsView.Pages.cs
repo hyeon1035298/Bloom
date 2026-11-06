@@ -506,7 +506,7 @@ internal sealed partial class SettingsView
             }
             ));
         chats.Add(("API", s.AiToolsApi, v => s.AiToolsApi = v));
-        KeyChips(Tr("사용할 대화", "Chats that use it"), Tr("실행 전 승인 카드 · 요청마다 약 +250~500 토큰", "An approval card before each action · about +250–500 tokens per request"), chats, G.Bolt, filter);
+        KeyChips(Tr("사용할 대화", "Chats that use it"), Tr("실행 전 승인 카드 · 요청마다 약 +250~500 토큰", "An approval card before each action · about +250–500 tokens per request"), chats, filter);
 
         Header(Tr("권한", "Permissions"), Tr("PC 조작 외에는 API 대화에만 적용", "All but PC actions apply to API chats only"));
         (string, string)[] rules = { (ToolPermissions.Ask, Tr("매번 묻기", "Ask each time")), (ToolPermissions.Allow, Tr("항상 허용", "Always allow")), (ToolPermissions.Off, Tr("사용 안 함", "Off")) };

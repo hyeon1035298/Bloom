@@ -152,6 +152,29 @@ internal static class AddonDownloadTests
         Check.Eq(new Addon(Id, store).Offer(_ => Entry(zip, "0.9.0")), null, "nothing offered over the install folder's copy");
     });
 
+    /// A Bloom that came with the add-on was replaced by one that doesn't, and nothing is downloaded: the run copy the
+    /// old one made is the source, so the add-on still starts, and a newer catalog release is still offered over it.
+    public static void RunCopyStandsIn() => Temp(root =>
+    {
+        string downloads = Path.Combine(root, "downloads");
+        byte[] zip = Zip(Manifest());
+        AddonDownload.Install(Serving(zip), Entry(zip), downloads).GetAwaiter().GetResult();
+        var store = new AddonStore(Path.Combine(root, "shipped"), Path.Combine(root, "local"), downloads);
+        string copy = store.RunCopy(Check.NotNull(store.Shipped(Id), "its manifest"));
+        Directory.Delete(downloads, true);
+
+        Check.Eq(store.SourceDir(Id), copy, "the run copy is the source");
+        var addon = new Addon(Id, store);
+        Check.True(addon.Manifest is { Version: "0.2.2" } && !addon.Broken, "the add-on reads it");
+        Check.Eq(store.RunCopy(addon.Manifest!), copy, "it runs from that copy as it is");
+        Check.Eq(addon.Offer(_ => Entry(zip)), null, "the catalog's version is there: nothing offered");
+        Check.Eq(addon.Offer(_ => Entry(zip, "0.2.3"))?.Version, "0.2.3", "a newer catalog version is offered");
+
+        // a user store takes no downloads and has no such fallback
+        var user = new AddonStore(Path.Combine(root, "user"), Path.Combine(root, "local"));
+        Check.Eq(user.Shipped(Id), null, "nothing for the user's store");
+    });
+
     public static void HashMismatchRefused() => Temp(root =>
     {
         byte[] zip = Zip(Manifest());

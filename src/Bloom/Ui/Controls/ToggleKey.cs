@@ -3,17 +3,14 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Shapes;
 
 namespace Bloom.Ui;
 
-/// A key that is on or off (the tray icons shown, what the island shows). On: a raised key, its text plain, a lit line in
-/// the accent along its foot. Off: only an outline and a dim line, its text faint. The text never takes the accent (too
-/// little contrast for text); the line says it is on.
+/// A key that is on or off (the tray icons shown, what the island shows). On: a raised key, its text plain. Off: only an
+/// outline, its text faint.
 internal sealed class ToggleKey : SmoothBorder
 {
     private readonly TextBlock text;
-    private readonly Rectangle lit;
     private bool on, hover;
 
     /// The new state, after a click.
@@ -28,12 +25,7 @@ internal sealed class ToggleKey : SmoothBorder
         BorderThickness = new Thickness(1);
         Cursor = Cursors.Hand;
         text = Theme.Label(label, 12, Theme.P.TextFaint, Theme.Medium, inBorder: true);
-        // 10 px in from the key's sides and 3 up from its foot (the border and padding taken back)
-        lit = new Rectangle { Height = 2, RadiusX = 1, RadiusY = 1, VerticalAlignment = VerticalAlignment.Bottom, Margin = new Thickness(-3, 0, -3, 2), IsHitTestVisible = false };
-        var g = new Grid();
-        g.Children.Add(text);
-        g.Children.Add(lit);
-        Child = g;
+        Child = text;
         MouseEnter += (_, _) =>
         {
             hover = true;
@@ -72,6 +64,5 @@ internal sealed class ToggleKey : SmoothBorder
             TopLine = BottomLine = null;
         }
         text.Foreground = on ? Theme.P.Text : hover ? Theme.P.TextDim : Theme.P.TextFaint;
-        lit.Fill = on ? Theme.P.Accent : Theme.P.Edge;
     }
 }

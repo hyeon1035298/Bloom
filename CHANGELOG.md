@@ -2,7 +2,7 @@
 
 Each release on GitHub shows its section from this file (the workflow looks for `## <version>`).
 
-## 0.19.2
+## 0.19.3
 
 - Taskbar add-on: PillTaskbar turns the taskbar into a centred pill, with folders, an auto-hide island and AI usage. Get it in Settings › Add-ons.
 - Alt+Tab per monitor add-on: Alt+Tab shows only the windows on the monitor under the cursor.
@@ -14,6 +14,8 @@ Each release on GitHub shows its section from this file (the workflow looks for 
 - Home: AI usage cards show the plan, and Sign in again when a sign-in runs out.
 - Fixed: the taskbar no longer stretches across a second monitor, and the island clock no longer stops.
 - Fixed: your own icon for .md files stays.
+- Fixed: add-ons you switched on start with Bloom again after an update, and switching one on or starting Bloom fetches its newer version.
+- Settings: the on and off keys (PC actions, taskbar icons) sit inside their line, without the line under each key.
 - Fixed: no extra space after code names in chat, Japanese names on the home break between words, and smaller translation slips.
 
 ### 한국어
@@ -28,6 +30,8 @@ Each release on GitHub shows its section from this file (the workflow looks for 
 - 홈: AI 사용량 카드에 요금제가 나오고, 로그인이 끊기면 다시 로그인 단추가 나옵니다.
 - 고침: 보조 모니터에서 작업표시줄이 옆으로 늘어나지 않고, 아일랜드 시계가 멈추지 않습니다.
 - 고침: 직접 고른 .md 파일 아이콘이 그대로 남습니다.
+- 고침: 켜 둔 애드온이 업데이트 뒤에도 Bloom과 함께 켜지고, 애드온을 켜거나 Bloom을 시작할 때 새 버전을 받습니다.
+- 설정: 켜고 끄는 키(PC 작업, 작업표시줄 아이콘)가 줄 안에 들어가고, 키 아래 밑줄을 뺐습니다.
 - 고침: 채팅의 코드 모양 이름 뒤에 빈칸이 생기지 않고, 홈의 일본어 이름이 단어 사이에서 줄을 바꾸며, 작은 번역 실수를 고쳤습니다.
 
 ## 0.18.1

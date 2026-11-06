@@ -169,8 +169,9 @@ internal sealed partial class SettingsView
         // searched and collected by the chips' names too ("볼륨" finds this line)
         string names = string.Join(", ", chips.Select(c => c.label));
         bool normal = collected is null && filter.Length == 0;
-        Add(title, normal ? sub : sub is null ? names : $"{sub} · {names}", null, section is Section.Island ? G.Screen : G.View, null, null, filter);
-        Block(Chips(chips), filter, false);
+        string? shown = normal ? sub : sub is null ? names : $"{sub} · {names}";
+        // while filtering the line alone is shown, as a match to open
+        Place(title, shown, () => Line(title, shown, null, folding && filter.Length > 0, filter.Length == 0 ? Chips(chips) : null), null, null, filter);
     }
 
     /// A chip's label from the setting's name: "볼륨 아이콘 숨기기" / "Hide volume icon" → 볼륨 / Volume.
@@ -184,10 +185,10 @@ internal sealed partial class SettingsView
         return n.Length > 0 ? char.ToUpper(n[0], CultureInfo.CurrentCulture) + n[1..] : n;
     }
 
-    /// The chips as keys, under their line and lined up with its title.
+    /// The chips as keys, inside their line under its title (Line's `below`).
     private static FrameworkElement Chips(List<(string label, bool on, Action<bool> set)> chips)
     {
-        var wrap = new WrapPanel { Margin = new Thickness(13, 0, 12, 10) };
+        var wrap = new WrapPanel { Margin = new Thickness(0, 8, 0, -6) };
         foreach (var (label, on, set) in chips)
         {
             var key = new ToggleKey(label, on) { Margin = new Thickness(0, 0, 6, 6) };
