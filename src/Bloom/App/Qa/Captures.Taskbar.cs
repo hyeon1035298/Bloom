@@ -30,6 +30,9 @@ internal static partial class Captures
                 addon.QaStatus = status;
                 await TaskbarShot(sw, Path.Combine(dir, $"{l}-{theme}-taskbar-{name}.png"));
             }
+            // its own page, running: the head, the keys to its groups and the first of them
+            addon.QaStatus = new AddonStatus(AddonState.Running);
+            await TaskbarShot(sw, Path.Combine(dir, $"{l}-{theme}-taskbar-page.png"), SettingsView.AddonPageKey(addon.Id));
         }
         addon.QaStatus = null;
         Settings.Current.AddonsOn.Remove(addon.Id);
