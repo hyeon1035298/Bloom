@@ -88,6 +88,35 @@ internal static class FileAssocTests
         }
     }
 
+    public static void AUserIconStays()
+    {
+        const string Icon = @"Software\Classes\Bloom.Markdown\DefaultIcon";
+        string name = @"Software\Bloom.Tests." + Guid.NewGuid().ToString("N");
+        using var root = Registry.CurrentUser.CreateSubKey(name);
+        try
+        {
+            FileAssoc.Write(root, Exe);
+            string Read() { using var k = root.OpenSubKey(Icon)!; return (string)k.GetValue("")!; }
+            Check.Eq(Read(), $"\"{Exe}\",0", "Bloom's icon at first");
+            using (var k = root.OpenSubKey(Icon, true)!) k.SetValue("", @"%USERPROFILE%\Icons\md.ico", RegistryValueKind.ExpandString);
+            Check.True(FileAssoc.IsCurrent(root, Exe), "the user's icon counts as current (no repair at the start)");
+            FileAssoc.Write(root, Exe);
+            using (var k = root.OpenSubKey(Icon)!)
+                Check.Eq(k.GetValue("", null, RegistryValueOptions.DoNotExpandEnvironmentNames), (object)@"%USERPROFILE%\Icons\md.ico", "writing again keeps it");
+            using (var k = root.OpenSubKey(Icon, true)!) k.SetValue("", "\"D:\\Old Copy\\Bloom.exe\",0");
+            Check.True(!FileAssoc.IsCurrent(root, Exe), "an older Bloom.exe's icon is not current");
+            FileAssoc.Write(root, Exe);
+            Check.Eq(Read(), $"\"{Exe}\",0", "and is brought up to date");
+            Check.Eq(FileAssoc.IconFile(@"C:\Icons\md.ico,0"), @"C:\Icons\md.ico", "an icon location's file");
+            Check.Eq(FileAssoc.IconFile(@"%SystemRoot%\x.dll,-3"), @"%SystemRoot%\x.dll", "with a resource id");
+            Check.Eq(FileAssoc.IconFile(@"C:\a,b\md.ico"), @"C:\a,b\md.ico", "a comma in the path");
+        }
+        finally
+        {
+            Registry.CurrentUser.DeleteSubKeyTree(name, false);
+        }
+    }
+
     public static void DefaultMeansThisExe()
     {
         Check.True(FileAssoc.Same(@"C:\Apps\Bloom\current\Bloom.exe", @"c:\apps\bloom\CURRENT\bloom.EXE"), "case doesn't matter");
