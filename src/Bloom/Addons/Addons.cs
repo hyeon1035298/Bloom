@@ -244,7 +244,7 @@ internal sealed class Addon
                 string dir = store.RunCopy(m);
                 store.Prune(m);
                 // from the setting, not the UI's theme: at a start from sign-in this runs before the UI has made it
-                if (this == AddonHub.Taskbar) AddonHub.FollowTheme(SystemTheme.Dark(Settings.Current.Theme));
+                AddonHub.FollowTheme(this, SystemTheme.Dark(Settings.Current.Theme));
                 AddonHub.WriteValues(this);
                 Watch();
                 // a version downloaded since the last start runs from its own copy: a runner of the old one that has
@@ -366,11 +366,17 @@ internal static class AddonHub
 
     public static Addon Taskbar => All[0];
 
-    /// The taskbar add-on draws in Bloom's theme: its pill.theme is kept to the one Bloom shows (on each theme change,
-    /// and as it starts). Nothing while the add-on has no schema or no such key.
+    /// Every add-on whose schema has pill.theme draws in Bloom's theme, the taskbar one or not (a widget add-on works on
+    /// Windows' own taskbar too): its pill.theme is kept to the one Bloom shows, on each theme change and as it starts.
     public static void FollowTheme(bool dark)
     {
-        if (Taskbar.Schema?["pill.theme"] is null || Taskbar.Values is not { } v) return;
+        foreach (var a in All) FollowTheme(a, dark);
+    }
+
+    /// Nothing while the add-on has no schema or no such key.
+    internal static void FollowTheme(Addon a, bool dark)
+    {
+        if (a.Schema?["pill.theme"] is null || a.Values is not { } v) return;
         string theme = dark ? "dark" : "light";
         if (v.Text("pill.theme") == theme) return;
         v.Set("pill.theme", theme);
