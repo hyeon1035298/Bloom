@@ -426,7 +426,7 @@ Command saved	已保存命令
 Command	命令
 Add a command	添加命令
 Every command is in this block	所有命令都在此区块中
-Click a card to add it to this block	点击卡片即可添加到此区块
+Click a card to add it to this block	点击一行即可添加到此区块
 1 command left out	已移除 1 个命令
 {0} commands left out	已移除 {0} 个命令
 Close list	收起列表
@@ -1981,7 +1981,7 @@ The downloaded file isn't the one Bloom expects, so it wasn't installed	下载�
 What the download holds isn't valid, so it wasn't installed	下载的内容无效，因此未安装
 Couldn't save the download · check the free disk space	无法保存下载的文件 · 请检查可用磁盘空间
 Add-ons	加载项
-Add-ons are separate programs Bloom starts, each turned on and off here. Click a card to open its page. One you put in the user-addons folder in Bloom's local data folder shows after Bloom restarts.	加载项是由 Bloom 启动的独立程序，在这里逐个开启和关闭。点击卡片即可打开该加载项的页面。你自己放入 Bloom 本地数据文件夹中 user-addons 的加载项，在重新启动 Bloom 后显示。
+Add-ons are separate programs Bloom starts, each turned on and off here. Click one to open its page. One you put in the user-addons folder in Bloom's local data folder shows after Bloom restarts.	加载项是由 Bloom 启动的独立程序，在这里逐个开启和关闭。点击卡片即可打开该加载项的页面。你自己放入 Bloom 本地数据文件夹中 user-addons 的加载项，在重新启动 Bloom 后显示。
 Its settings show here while it is on	开启后，此加载项的设置显示在这里
 This add-on has no settings to change in Bloom	此加载项没有可在 Bloom 中更改的设置
 All add-ons	加载项列表
@@ -2635,3 +2635,7 @@ Always on top	始终置顶
 Attach to the launcher	附到启动器
 {0} · 1 call	{0} · 调用 1 次
 1 call	调用 1
+Monitor 1	显示器 1
+Monitor 2	显示器 2
+Clean now	立即清理
+1.2 GB freed	已释放 1.2 GB
