@@ -30,9 +30,10 @@ internal sealed partial class SettingsView
         var listed = listedAddons ?? AddonHub.Listed.ToList();
         var users = userAddons ?? AddonHub.Users.ToList();
         Page("addons", Tr("애드온", "Add-ons"), G.Plug,
-            Tr("애드온은 Bloom이 함께 실행하는 별도 프로그램이며, 여기서 하나씩 켜고 끕니다. 줄을 누르면 그 애드온의 페이지가 열립니다. Bloom의 로컬 데이터 폴더 안 user-addons에 직접 넣은 애드온은 Bloom을 다시 시작하면 보입니다.",
-                "Add-ons are separate programs Bloom starts, each turned on and off here. Click one to open its page. One you put in the user-addons folder in Bloom's local data folder shows after Bloom restarts."), filter);
+            Tr("애드온은 Bloom이 함께 실행하는 별도 프로그램이며, 여기서 하나씩 켜고 끕니다. 카드를 누르면 그 애드온의 페이지가 열립니다. Bloom의 로컬 데이터 폴더 안 user-addons에 직접 넣은 애드온은 Bloom을 다시 시작하면 보입니다.",
+                "Add-ons are separate programs Bloom starts, each turned on and off here. Click a card to open its page. One you put in the user-addons folder in Bloom's local data folder shows after Bloom restarts."), filter);
         Header(Tr("애드온 목록", "All add-ons"));
+        apart = collected is null && filter.Length == 0; // a card for each add-on
         var views = new List<AddonView>();
 
         string taskbarName = Tr("작업표시줄", "Taskbar"), taskbarAbout = Tr("작업표시줄을 가운데 알약 모양으로 바꿉니다", "Turns the taskbar into a centred pill");
@@ -186,6 +187,95 @@ internal sealed partial class SettingsView
         return wrap;
     }
 
+    /// An add-on's card on 애드온: on the left, in the card's own colour, its tile and name, what it does, its status and
+    /// its switch with the › to its page; on the right, the picture of what it does (AddonArt), faded in from the left,
+    /// or its glyph large where Bloom has no picture of it.
+    private static Row AddonCard(string id, string title, string about, char glyph, AddonStatus status, string statusText, FrameworkElement end)
+    {
+        var r = new Row(null, 124) { Margin = new Thickness(0), Padding = new Thickness(0), Selectable = false };
+
+        var info = new DockPanel { Margin = new Thickness(3, 13, 18, 12), LastChildFill = true };
+        var top = new StackPanel { Orientation = Orientation.Horizontal };
+        var mark = Theme.Glyph(glyph, 15, Theme.P.TileFg);
+        mark.HorizontalAlignment = HorizontalAlignment.Center;
+        mark.VerticalAlignment = VerticalAlignment.Center;
+        top.Children.Add(new SmoothBorder { Width = 32, Height = 32, CornerRadius = new CornerRadius(9), Background = Theme.P.Tile, Child = mark });
+        var name = Theme.T(title, 14.5, Theme.P.Text, Theme.Semi);
+        name.Margin = new Thickness(10, 0, 0, 0);
+        name.VerticalAlignment = VerticalAlignment.Center;
+        top.Children.Add(name);
+        DockPanel.SetDock(top, Dock.Top);
+        info.Children.Add(top);
+
+        var bottom = new DockPanel { LastChildFill = true };
+        DockPanel.SetDock(end, Dock.Right);
+        bottom.Children.Add(end);
+        var state = Theme.T(statusText, 12, status.State == AddonState.Running ? Theme.P.Ok : Theme.P.TextDim);
+        state.VerticalAlignment = VerticalAlignment.Center;
+        state.ToolTip = statusText.Length > 30 ? statusText : null;
+        bottom.Children.Add(state);
+        DockPanel.SetDock(bottom, Dock.Bottom);
+        info.Children.Add(bottom);
+
+        if (about.Length > 0)
+        {
+            var a = Theme.T(Hangul.KeepAll(about), 12, Theme.P.TextFaint, Theme.Regular, false);
+            a.TextWrapping = TextWrapping.Wrap;
+            a.Margin = new Thickness(0, 7, 0, 0);
+            a.MaxHeight = Math.Ceiling(a.FontSize * a.FontFamily.LineSpacing * 2) + 1;
+            info.Children.Add(a);
+        }
+        r.Add(info, new GridLength(46, GridUnitType.Star));
+
+        var art = new Grid { Margin = new Thickness(0, 6, 6, 6) };
+        if (AddonArt(id) is { } pic)
+        {
+            var image = new System.Windows.Controls.Image { Source = pic, Stretch = System.Windows.Media.Stretch.UniformToFill, HorizontalAlignment = HorizontalAlignment.Right };
+            System.Windows.Media.RenderOptions.SetBitmapScalingMode(image, System.Windows.Media.BitmapScalingMode.HighQuality);
+            // the picture comes in from the card's colour, whatever the row is painted (hover, selected)
+            var fade = new System.Windows.Media.LinearGradientBrush { StartPoint = new Point(0, 0.5), EndPoint = new Point(1, 0.5) };
+            fade.GradientStops.Add(new System.Windows.Media.GradientStop(System.Windows.Media.Colors.Transparent, 0));
+            fade.GradientStops.Add(new System.Windows.Media.GradientStop(System.Windows.Media.Colors.Black, 0.3));
+            fade.Freeze();
+            image.OpacityMask = fade;
+            art.Children.Add(image);
+        }
+        else
+        {
+            var big = Theme.Glyph(glyph, 34, Theme.P.TextFaint);
+            big.Opacity = 0.5;
+            big.HorizontalAlignment = HorizontalAlignment.Center;
+            big.VerticalAlignment = VerticalAlignment.Center;
+            art.Children.Add(new SmoothBorder { CornerRadius = new CornerRadius(8), Background = Theme.P.Tile, Child = big });
+        }
+        art.SizeChanged += (_, e) => art.Clip = new System.Windows.Media.RectangleGeometry(new Rect(e.NewSize), 8, 8);
+        r.Add(art, new GridLength(54, GridUnitType.Star));
+        return r;
+    }
+
+    private static readonly Dictionary<string, System.Windows.Media.Imaging.BitmapSource?> arts = new();
+
+    /// The picture of what an add-on does in the theme's colours (Assets\Addons\<id>-light.png / -dark.png, Bloom's
+    /// own for the catalog's add-ons, there before one is downloaded); null for one Bloom has none of.
+    private static System.Windows.Media.Imaging.BitmapSource? AddonArt(string id)
+    {
+        string name = $"Bloom.Assets.Addons.{id}-{(Theme.P.Dark ? "dark" : "light")}.png";
+        if (arts.TryGetValue(name, out var cached)) return cached;
+        System.Windows.Media.Imaging.BitmapImage? pic = null;
+        using (var stream = typeof(SettingsView).Assembly.GetManifestResourceStream(name))
+            if (stream is not null)
+            {
+                pic = new System.Windows.Media.Imaging.BitmapImage();
+                pic.BeginInit();
+                pic.CacheOption = System.Windows.Media.Imaging.BitmapCacheOption.OnLoad;
+                pic.StreamSource = stream;
+                pic.EndInit();
+                pic.Freeze();
+            }
+        arts[name] = pic;
+        return pic;
+    }
+
     private static bool Flip(Action toggle)
     {
         toggle();
@@ -231,7 +321,9 @@ internal sealed partial class SettingsView
         chevron.VerticalAlignment = VerticalAlignment.Center;
         end.Children.Add(chevron);
         string page = AddonPageKey(addon.Id);
-        Add(title, collected is null ? statusText(status) : collectedSub, end, glyph, () => Go(page),
+        string sub = collected is null ? statusText(status) : collectedSub;
+        // on the page, a card with its picture; a match while filtering, a plain line
+        Place(title, sub, () => apart ? AddonCard(addon.Id, title, collectedSub, glyph, status, sub, end) : Line(title, sub, end), () => Go(page),
             d => toggle is not null && sw.On != d > 0 && Flip(toggle), filter);
 
         if (collected is null && status.State is AddonState.SafeMode or AddonState.Download or AddonState.Restart or AddonState.Stopped)
