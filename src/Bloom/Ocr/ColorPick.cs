@@ -24,7 +24,7 @@ internal static class ColorPick
     public static async Task<Color?> Pick()
     {
         int vx = Win32.GetSystemMetrics(76), vy = Win32.GetSystemMetrics(77), vw = Win32.GetSystemMetrics(78), vh = Win32.GetSystemMetrics(79);
-        // WIC's copy alone (no desktop-sized array beside it, 28 MB for two 2560 × 1440 monitors); a pixel is read from it
+        // WPF's copy alone (no desktop-sized array beside it, 28 MB for two 2560 × 1440 monitors); a pixel is read from it
         var desktop = ScreenGrab.GrabDesktop(new ScreenRect(vx, vy, vw, vh));
         if (desktop is null) return null;
         var one = new byte[4];
@@ -66,7 +66,10 @@ internal static class ColorPick
                 Win32.ForceForeground(new WindowInteropHelper(w).Handle);
             }
         var picked = await done.Task;
-        Core.MemoryTrim.AfterBigWork("colour picker"); // the desktop and the overlays wait for a GC now
+        // the closed overlays' last frame goes first, then the desktop's native buffers now rather than at a GC
+        await System.Windows.Threading.Dispatcher.Yield(System.Windows.Threading.DispatcherPriority.ContextIdle);
+        ScreenGrab.LetGo(desktop);
+        Core.MemoryTrim.AfterBigWork("colour picker"); // the overlays' managed side waits for a GC
         return picked;
     }
 
@@ -88,15 +91,16 @@ internal static class ColorPick
             Height = 100,
         };
         var root = new Grid();
-        var image = new Image { Source = new CroppedBitmap(desktop, new Int32Rect(mon.X - vx, mon.Y - vy, mon.Width, mon.Height)), Stretch = Stretch.Fill };
-        RenderOptions.SetBitmapScalingMode(image, BitmapScalingMode.NearestNeighbor);
-        root.Children.Add(image);
+        root.Children.Add(ScreenGrab.Frozen(desktop, new Int32Rect(mon.X - vx, mon.Y - vy, mon.Width, mon.Height)));
         var canvas = new Canvas();
         root.Children.Add(canvas);
 
         // the magnifier: zoomed pixels, a cross on the middle one, the colour and its hex under it
-        var zoomed = new Image { Width = Span * Zoom, Height = Span * Zoom, Stretch = Stretch.Fill };
-        RenderOptions.SetBitmapScalingMode(zoomed, BitmapScalingMode.NearestNeighbor);
+        // one brush moved over the desktop picture (a CroppedBitmap a move held the picture until a GC)
+        var zoomed = ScreenGrab.Frozen(desktop, new Int32Rect(0, 0, Span, Span));
+        zoomed.Width = Span * Zoom;
+        zoomed.Height = Span * Zoom;
+        var zoom = (ImageBrush)zoomed.Fill;
         var lens = new Grid { Width = Span * Zoom, Height = Span * Zoom, ClipToBounds = true };
         lens.Children.Add(zoomed);
         lens.Children.Add(new Rectangle { Width = Zoom + 2, Height = Zoom + 2, Stroke = Brushes.White, StrokeThickness = 1.5, HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center });
@@ -142,7 +146,7 @@ internal static class ColorPick
         void Show()
         {
             int sx = Math.Clamp(px - vx - Span / 2, 0, desktop.PixelWidth - Span), sy = Math.Clamp(py - vy - Span / 2, 0, desktop.PixelHeight - Span);
-            zoomed.Source = new CroppedBitmap(desktop, new Int32Rect(sx, sy, Span, Span));
+            zoom.Viewbox = new Rect(sx, sy, Span, Span);
             var c = at(px, py);
             swatch.Background = new SolidColorBrush(c);
             hex.Text = $"#{c.R:X2}{c.G:X2}{c.B:X2}";

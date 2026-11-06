@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
@@ -91,7 +93,10 @@ internal static class ScreenGrab
         finally
         {
             CloseWindows();
-            // the desktop and every monitor's overlay wait for a GC now, picked or cancelled
+            // the closed windows' last frame goes first, then the desktop's native buffers now rather than at a GC
+            await Dispatcher.Yield(DispatcherPriority.ContextIdle);
+            LetGo(desktop);
+            // what is left (the crop, the managed side of the windows) waits for a GC
             Core.MemoryTrim.AfterBigWork(draw ? "capture" : "Lens");
         }
     }
@@ -120,9 +125,7 @@ internal static class ScreenGrab
             Height = 100,
         };
         var root = new Grid();
-        var image = new Image { Source = new CroppedBitmap(desktop, new Int32Rect(mon.X - vx, mon.Y - vy, mon.Width, mon.Height)), Stretch = Stretch.Fill };
-        RenderOptions.SetBitmapScalingMode(image, BitmapScalingMode.NearestNeighbor);
-        root.Children.Add(image);
+        root.Children.Add(Frozen(desktop, new Int32Rect(mon.X - vx, mon.Y - vy, mon.Width, mon.Height)));
         var canvas = new Canvas();
         var dim = new Path { Fill = new SolidColorBrush(Color.FromArgb(0x70, 0, 0, 0)) };
         var frame = new Rectangle { Stroke = accent, StrokeThickness = 1.5, Visibility = Visibility.Collapsed };
@@ -257,17 +260,54 @@ internal static class ScreenGrab
         return px;
     });
 
-    /// The whole desktop for the picker, from the screen's bitmap straight into WIC's own copy: no desktop-sized array
+    /// The whole desktop for the picker, from the screen's bitmap straight into WPF's own copy: no desktop-sized array
     /// on the managed heap, whose room the GC kept long after Lens closed (28 MB for two 2560x1440 monitors).
-    internal static BitmapSource? GrabDesktop(ScreenRect r) => Capture(r, bits => FrozenPixels(bits, r.Width, r.Height));
+    internal static WriteableBitmap? GrabDesktop(ScreenRect r) => Capture(r, bits => DesktopPicture(bits, r.Width, r.Height));
 
-    /// WIC's own frozen copy of the BGRA pixels at `pixels`: that memory may go as soon as this returns.
-    internal static BitmapSource FrozenPixels(IntPtr pixels, int width, int height)
+    /// WPF's own copy of the BGRA pixels at `pixels` (that memory may go as soon as this returns), written once, never
+    /// again and never frozen; it belongs to the thread that made it. Not BitmapSource.Create: WPF holds that one's
+    /// native copy through handles it keeps nowhere (CachedBitmap.InitFromMemoryPtr, DUCECompatiblePtr), so only a GC
+    /// let it go; a WriteableBitmap keeps all of them in its fields, for LetGo (frozen, it turns into the first kind).
+    /// Pbgra32, the same bytes for opaque pixels: Bgra32 is not a format WPF's renderer draws, so it kept a converted
+    /// copy of the whole picture beside it.
+    internal static WriteableBitmap DesktopPicture(IntPtr pixels, int width, int height)
     {
-        var source = BitmapSource.Create(width, height, 96, 96, PixelFormats.Bgra32, null, pixels, width * height * 4, width * 4);
-        source.Freeze();
-        return source;
+        var picture = new WriteableBitmap(width, height, 96, 96, PixelFormats.Pbgra32, null);
+        picture.WritePixels(new Int32Rect(0, 0, width, height), pixels, width * height * 4, width * 4);
+        return picture;
     }
+
+    /// `part` of the desktop picture (its pixels), filling its parent, pixel for pixel. A brush over the picture itself,
+    /// not a CroppedBitmap: that would be one more object holding the picture's native copy, which LetGo can't reach.
+    internal static Rectangle Frozen(BitmapSource desktop, Int32Rect part)
+    {
+        var brush = new ImageBrush(desktop) { ViewboxUnits = BrushMappingMode.Absolute, Viewbox = new Rect(part.X, part.Y, part.Width, part.Height), Stretch = Stretch.Fill };
+        RenderOptions.SetBitmapScalingMode(brush, BitmapScalingMode.NearestNeighbor);
+        var fill = new Rectangle { Fill = brush };
+        RenderOptions.SetBitmapScalingMode(fill, BitmapScalingMode.NearestNeighbor);
+        return fill;
+    }
+
+    /// WPF has no Dispose for a picture: the desktop's two native buffers (56 MB for two 2560x1440 monitors) went only
+    /// when a GC ran their finalizers, minutes later or not until the next trim. Once its windows are closed, its
+    /// handles are closed here and the memory goes at once, or when the renderer lets go of its own reference (counted,
+    /// so never under its feet). The picture must not be read or drawn after this.
+    internal static void LetGo(WriteableBitmap picture)
+    {
+        foreach (var field in PictureHandles)
+            if (field.GetValue(picture) is SafeHandle h) h.Dispose();
+    }
+
+    // the back buffer (also the picture's WIC source and its lock object) and the double-buffered bitmap holding the
+    // front one; a WPF without these fields leaves them to the GC, as before
+    private static readonly FieldInfo[] PictureHandles = new[]
+        {
+            (typeof(BitmapSource), "_wicSource"), (typeof(BitmapSource), "_syncObject"),
+            (typeof(WriteableBitmap), "_pBackBuffer"), (typeof(WriteableBitmap), "_pDoubleBufferedBitmap"),
+        }
+        .Select(f => f.Item1.GetField(f.Item2, BindingFlags.NonPublic | BindingFlags.Instance))
+        .OfType<FieldInfo>()
+        .ToArray();
 
     /// The screen's pixels in `r`, made opaque, handed to `use` in GDI's bitmap, which is gone once `use` returns.
     private static T? Capture<T>(ScreenRect r, Func<IntPtr, T> use) where T : class

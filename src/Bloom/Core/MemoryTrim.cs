@@ -55,13 +55,17 @@ internal static class MemoryTrim
 
     // ── one collection after big work ───────────────────────────────────────────────────────────
     // Lens and 화면 캡처 (the desktop and an overlay per monitor), the colour picker and a clipboard picture leave tens of
-    // MB of dead pictures that wait for a GC, and the GC's emptied room stays committed. Routine idle cleanup stays off
+    // MB of dead pictures that wait for a GC, Bloom Space Cleaner's closed window its scanned tree and map, and the GC's
+    // emptied room stays committed. Routine idle cleanup stays off
     // (see Soon): a forced GC stops every thread, the Win key's hook too, and an open window's drawing. So the one
     // collection a big job asks for waits until it can't be felt: every Bloom window hidden, no input anywhere for a
-    // minute, the CPU idle, and at most one an hour. It hands the emptied GC regions back and lets the finalizers free
-    // the pictures; the working set is never trimmed (the next opening would page it back in and flicker).
+    // minute, the CPU idle, and at most one an hour. A Bloom window kept on the screen (설정 left open, a pinned chat)
+    // holds it back for ten minutes at most: after that, a minute without input and an idle CPU are enough. It hands
+    // the emptied GC regions back and lets the finalizers free the pictures; the working set is never trimmed (the
+    // next opening would page it back in and flicker).
 
     private static readonly TimeSpan CheckEvery = TimeSpan.FromMinutes(1), QuietFor = TimeSpan.FromMinutes(1), AtMostEvery = TimeSpan.FromHours(1);
+    private static readonly TimeSpan WindowHoldsAtMost = TimeSpan.FromMinutes(10);
     private static readonly TimeSpan CpuSample = TimeSpan.FromMilliseconds(500);
     private const double BusyCpu = 0.25; // the share of all cores in use above which it waits
 
@@ -71,12 +75,14 @@ internal static class MemoryTrim
     private static int jobs; // counted, so a check that overlapped a newer job leaves it to its own check
     private static readonly HashSet<string> told = new(); // what it waited for, logged once a job
     private static DateTime last = DateTime.MinValue;
+    private static DateTime waiting; // when the job now waiting first asked
 
     /// A big job is over: one collection later, when nothing would feel it.
     public static void AfterBigWork(string what)
     {
         lock (gate)
         {
+            if (asked is null) waiting = DateTime.UtcNow;
             asked = what;
             jobs++;
             check ??= new Timer(_ => Check());
@@ -88,10 +94,10 @@ internal static class MemoryTrim
     {
         string? what;
         int job;
-        DateTime lastRun;
-        lock (gate) (what, job, lastRun) = (asked, jobs, last);
+        DateTime lastRun, since;
+        lock (gate) (what, job, lastRun, since) = (asked, jobs, last, waiting);
         if (what is null) return;
-        var (wait, again) = Waits(lastRun);
+        var (wait, again) = Waits(lastRun, DateTime.UtcNow - since);
         lock (gate)
         {
             if (job != jobs) return; // a newer job set its own check meanwhile
@@ -132,13 +138,13 @@ internal static class MemoryTrim
     private static TimeSpan Max(TimeSpan a, TimeSpan b) => a > b ? a : b;
 
     /// What the collection still waits for and when to look again; null when nothing would feel it now.
-    private static (string? wait, TimeSpan again) Waits(DateTime lastRun)
+    private static (string? wait, TimeSpan again) Waits(DateTime lastRun, TimeSpan waited)
     {
         var since = DateTime.UtcNow - lastRun;
         if (since < AtMostEvery) return ("the last one within the hour", AtMostEvery - since);
         var idle = InputIdle();
         if (idle < QuietFor) return ("input", QuietFor - idle);
-        if (BloomWindowShown()) return ("a Bloom window on the screen", CheckEvery);
+        if (waited < WindowHoldsAtMost && BloomWindowShown()) return ("a Bloom window on the screen", CheckEvery);
         double busy = CpuBusy();
         if (busy > BusyCpu) return ($"CPU {busy:P0}", CheckEvery);
         return (null, TimeSpan.Zero);

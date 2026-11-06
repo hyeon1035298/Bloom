@@ -1,4 +1,5 @@
 using System;
+using System.Buffers.Binary;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Threading;
@@ -112,10 +113,41 @@ internal static class Launch
 
     private static bool PutImage(BitmapSource picture, byte[]? png)
     {
+        byte[] dib;
+        try
+        {
+            dib = Dib(picture);
+        }
+        catch (Exception e) // too big for one array, a picture WIC can't convert: said as a failed copy, as before
+        {
+            Log.Error("clipboard image", e);
+            return false;
+        }
         var obj = new DataObject();
-        obj.SetImage(picture);
+        obj.SetData(DataFormats.Dib, new MemoryStream(dib, false));
         if (png is not null) obj.SetData("PNG", new MemoryStream(png));
         return Put(obj, "clipboard image");
+    }
+
+    /// The picture as CF_DIB: a BITMAPINFOHEADER and its 32-bit BGRA rows, bottom-up. Windows makes CF_BITMAP and
+    /// CF_DIBV5 from it for the apps that ask for those. Not DataObject.SetImage: .NET 10's WPF renders that through a
+    /// GDI+ bitmap it never deletes (WpfOleServices.GetCompatibleBitmap), so every copy left a picture-sized block and
+    /// a GDI handle behind until Bloom quit.
+    internal static byte[] Dib(BitmapSource picture)
+    {
+        BitmapSource src = picture.Format == System.Windows.Media.PixelFormats.Bgra32 ? picture : new FormatConvertedBitmap(picture, System.Windows.Media.PixelFormats.Bgra32, null, 0);
+        int w = src.PixelWidth, h = src.PixelHeight, stride = w * 4;
+        const int head = 40;
+        var dib = new byte[head + stride * h];
+        var span = dib.AsSpan();
+        BinaryPrimitives.WriteInt32LittleEndian(span, head); // biSize
+        BinaryPrimitives.WriteInt32LittleEndian(span[4..], w);
+        BinaryPrimitives.WriteInt32LittleEndian(span[8..], h); // positive: bottom-up
+        BinaryPrimitives.WriteInt16LittleEndian(span[12..], 1); // biPlanes
+        BinaryPrimitives.WriteInt16LittleEndian(span[14..], 32); // biBitCount; biCompression 0 = BI_RGB
+        BinaryPrimitives.WriteInt32LittleEndian(span[20..], stride * h); // biSizeImage
+        for (int y = 0; y < h; y++) src.CopyPixels(new Int32Rect(0, h - 1 - y, w, 1), dib, stride, head + y * stride);
+        return dib;
     }
 
     /// Clipboard.SetDataObject, tried a few times while another app holds the clipboard.

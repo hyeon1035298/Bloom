@@ -128,6 +128,7 @@ internal sealed class SpaceWindow : Window
             Theme.Changed -= OnTheme;
             tick.Stop();
             scan?.Stop();
+            Core.MemoryTrim.AfterBigWork("Space"); // the scanned tree and the map wait for a GC now
         };
         Drives();
         Scan(path ?? Path.GetPathRoot(Environment.SystemDirectory) ?? @"C:\");

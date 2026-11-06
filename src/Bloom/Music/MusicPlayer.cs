@@ -422,16 +422,21 @@ internal static class MusicPlayer
     {
         if (media is not null) return media;
         media = new MediaPlayer { Volume = Volume / 100.0 };
-        media.MediaOpened += (_, _) =>
+        media.MediaOpened += (s, _) =>
         {
+            if (!ReferenceEquals(s, media)) return; // one closed by a stop, late
             opened = true;
             failedRun = 0;
             if (media!.NaturalDuration.HasTimeSpan) length = media.NaturalDuration.TimeSpan;
             Changed?.Invoke();
         };
-        media.MediaEnded += (_, _) => Ended();
-        media.MediaFailed += (_, e) =>
+        media.MediaEnded += (s, _) =>
         {
+            if (ReferenceEquals(s, media)) Ended();
+        };
+        media.MediaFailed += (s, e) =>
+        {
+            if (!ReferenceEquals(s, media)) return;
             var t = Queue.Current;
             playing = paused = false;
             if (t is not null) Skipped(new List<(Track, string)> { (t, Tr("열 수 없는 파일이에요", "The file cannot be opened") + (e.ErrorException is { } ex ? " · " + ex.Message : "")) }, true);
@@ -505,9 +510,12 @@ internal static class MusicPlayer
         }
     }
 
+    /// Stopped (the stop button, or the end of the queue): the player is closed, not kept, so Media Foundation's decoder
+    /// and audio buffers go now; the next song makes a new one. A pause keeps it (the place in the song).
     private static void StopDirect()
     {
-        media?.Stop();
+        media?.Close();
+        media = null;
         playing = paused = opened = false;
     }
 
