@@ -104,10 +104,12 @@ internal sealed partial class Engine
         }
         RootRanking.AppendTop(scored, results.Items, MaterializeRoot);
         if (results.Items.Count > 0) sections.Add(results);
+        int below = sections.Count; // what the line typed out above stays (a quicklink's "yt 고양이"); the lists below lose their hidden rows
         if (notes is not null && !sections.Contains(notes)) sections.Add(notes);
         if (Features.On("windows") && RootWindows(q) is { } windows) sections.Add(windows);
         if (RootRecent(q) is { } recent) sections.Add(recent);
         if (RootSettings(q) is { } settings) sections.Add(settings); // below apps and commands
+        HiddenResults.Strip(sections, below); // the results passed over theirs already (RootRanking)
         bool strong = sections.Count > 0; // anything answered the line: the fallbacks go last
 
         var fall = new Section(strong ? Tr("다른 곳에서 찾기", "Search elsewhere") : Tr("결과 없음 · 다른 곳에서 찾기", "No results · search elsewhere")) { Fallback = true };
@@ -176,6 +178,7 @@ internal sealed partial class Engine
         var q = new Query(text);
         var learned = QueryMemory.Boosts(text);
         var ranked = list
+            .Where(f => !HiddenResults.Has((f.IsFolder ? "folder:" : "file:") + f.FullPath.ToLowerInvariant()))
             .Select((f, i) => (f, score: Matcher.Score(q, new MatchTarget(Path.GetFileNameWithoutExtension(f.Name))) - i * 2 + (f.IsFolder ? 4 : 0)
                 + learned.GetValueOrDefault((f.IsFolder ? "folder:" : "file:") + f.FullPath.ToLowerInvariant())))
             .Where(x => x.score > 0)

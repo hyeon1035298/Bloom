@@ -39,6 +39,7 @@ internal sealed partial class Engine
     {
         var shown = new HashSet<string>();
         foreach (var e in Favorites.All()) shown.Add(e.Id); // favorites (and what sits in folders) are not "recent"
+        foreach (var e in HiddenResults.Current.Items) shown.Add(e.Id); // hidden from the search: not suggested either
         foreach (var w in Home.Order())
         {
             if (!w.On || !Features.Shows(w.Key)) continue; // a block of a feature switched off in 설정 > 기능
