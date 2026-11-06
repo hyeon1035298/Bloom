@@ -6,6 +6,7 @@ using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using Bloom.Ocr;
+using Bloom.Search;
 
 namespace Bloom.Tests;
 
@@ -41,7 +42,9 @@ internal static class ScreenGrabTests
         const int width = 17, height = 13;
         var pixels = Pixels(width, height);
         var desktop = Frozen(pixels, width, height);
-        Check.True(desktop.IsFrozen, "desktop is immutable across overlay dispatchers");
+        // not frozen (a frozen one could not be let go without a GC): the picture, its overlays and its crops all stay on
+        // the one capture thread that made it
+        Check.True(!desktop.IsFrozen && desktop.CheckAccess(), "desktop belongs to the thread that made it");
         foreach (var crop in new[]
         {
             (x: 0, y: 0, w: width, h: height),
@@ -78,13 +81,13 @@ internal static class ScreenGrabTests
         }
     }
 
-    /// The capture's GDI bitmap is deleted right after FrozenPixels: WIC holds its own copy.
+    /// The capture's GDI bitmap is deleted right after DesktopPicture: WPF holds its own copy.
     public static void FrozenDesktopOwnsPixelsAfterTheirMemoryIsGone()
     {
         var expected = Pixels(23, 19);
         IntPtr memory = Marshal.AllocHGlobal(expected.Length);
         Marshal.Copy(expected, 0, memory, expected.Length);
-        var desktop = ScreenGrab.FrozenPixels(memory, 23, 19);
+        var desktop = ScreenGrab.DesktopPicture(memory, 23, 19);
         Marshal.Copy(new byte[expected.Length], 0, memory, expected.Length);
         Marshal.FreeHGlobal(memory);
         Check.True(ScreenGrab.Crop(desktop, 0, 0, 23, 19).SequenceEqual(expected), "WIC storage does not borrow the capture's memory");
@@ -107,13 +110,90 @@ internal static class ScreenGrabTests
         Check.True(Enumerable.Range(0, width * height).All(i => px[i * 4 + 3] == 255), "every pixel opaque");
     }
 
-    /// FrozenPixels of a managed array, pinned only for the call.
-    private static BitmapSource Frozen(byte[] pixels, int width, int height)
+    /// A clipboard picture goes as CF_DIB (and its PNG), not DataObject.SetImage, whose GDI+ bitmap .NET 10 never
+    /// deletes: a 40-byte header, then the rows bottom-up, the bytes as they are.
+    public static void ClipboardPictureIsABottomUpDib()
+    {
+        const int width = 5, height = 3;
+        var pixels = Pixels(width, height);
+        var picture = BitmapSource.Create(width, height, 96, 96, PixelFormats.Bgra32, null, pixels, width * 4);
+        var prior = Launch.SetClipboard;
+        object? put = null;
+        try
+        {
+            Launch.SetClipboard = d => put = d;
+            Check.True(Launch.CopyDrawn(picture), "copied");
+        }
+        finally
+        {
+            Launch.SetClipboard = prior;
+        }
+        var obj = Check.NotNull(put as DataObject, "a data object");
+        Check.True(obj.GetDataPresent("PNG", false), "with its PNG");
+        Check.True(!obj.GetDataPresent(DataFormats.Bitmap, false), "no WPF bitmap to render through GDI+");
+        var dib = Check.NotNull(obj.GetData(DataFormats.Dib, false) as System.IO.MemoryStream, "a DIB stream").ToArray();
+        Check.Eq(dib.Length, 40 + width * height * 4, "header and pixels");
+        Check.Eq(BitConverter.ToInt32(dib, 0), 40, "BITMAPINFOHEADER");
+        Check.Eq(BitConverter.ToInt32(dib, 4), width, "width");
+        Check.Eq(BitConverter.ToInt32(dib, 8), height, "positive height: bottom-up");
+        Check.Eq(BitConverter.ToInt16(dib, 14), (short)32, "32 bits a pixel");
+        for (int y = 0; y < height; y++)
+            Check.True(dib.AsSpan(40 + y * width * 4, width * 4).SequenceEqual(pixels.AsSpan((height - 1 - y) * width * 4, width * 4)), $"row {y} is the picture's row {height - 1 - y}");
+    }
+
+    /// The overlays draw their monitor's part of the desktop through one brush (no CroppedBitmap, no converted copy):
+    /// drawn at its own size, every pixel is the desktop's, none blended with a neighbour.
+    public static void FrozenPartDrawsItsPixelsExactly()
+    {
+        const int width = 37, height = 29;
+        var pixels = Pixels(width, height);
+        for (int i = 3; i < pixels.Length; i += 4) pixels[i] = 255; // the screen is opaque
+        var desktop = Frozen(pixels, width, height);
+        var part = new Int32Rect(7, 5, 19, 13);
+        var fill = ScreenGrab.Frozen(desktop, part);
+        fill.Measure(new Size(part.Width, part.Height));
+        fill.Arrange(new Rect(0, 0, part.Width, part.Height));
+        var drawn = new RenderTargetBitmap(part.Width, part.Height, 96, 96, PixelFormats.Pbgra32);
+        drawn.Render(fill);
+        var got = new byte[part.Width * part.Height * 4];
+        drawn.CopyPixels(got, part.Width * 4, 0);
+        Check.True(got.SequenceEqual(ScreenGrab.Crop(desktop, part.X, part.Y, part.Width, part.Height)), "the part's pixels, exactly");
+        Check.Eq(desktop.Format, PixelFormats.Pbgra32, "a renderer format: WPF keeps no converted copy beside it");
+    }
+
+    /// The picker's desktop goes as soon as its windows are closed, not at a GC: LetGo closes the handles WPF holds it
+    /// by (two buffers, 32 MB for this 2048 x 2048 picture), with no collection in between.
+    public static void DesktopPictureGoesWithoutAGc()
+    {
+        const int side = 2048;
+        var pixels = new byte[side * side * 4];
+        for (int i = 3; i < pixels.Length; i += 4) pixels[i] = 255;
+        var picture = Frozen(pixels, side, side);
+        var fill = ScreenGrab.Frozen(picture, new Int32Rect(0, 0, side, side));
+        fill.Measure(new Size(64, 64));
+        fill.Arrange(new Rect(0, 0, 64, 64));
+        // drawn once; RenderTargetBitmap's synchronous channel, not the overlays' window (their release, after the
+        // renderer lets go, was measured on a running build)
+        new RenderTargetBitmap(64, 64, 96, 96, PixelFormats.Pbgra32).Render(fill);
+        using var me = System.Diagnostics.Process.GetCurrentProcess();
+        me.Refresh();
+        long before = me.PrivateMemorySize64;
+        int collections = GC.CollectionCount(0);
+        ScreenGrab.LetGo(picture);
+        me.Refresh();
+        long freed = before - me.PrivateMemorySize64;
+        Check.Eq(GC.CollectionCount(0), collections, "no collection ran");
+        Check.True(freed > 24L << 20, $"{freed >> 20} MB handed back at once");
+        GC.KeepAlive(fill);
+    }
+
+    /// DesktopPicture of a managed array, pinned only for the call.
+    private static WriteableBitmap Frozen(byte[] pixels, int width, int height)
     {
         var pin = GCHandle.Alloc(pixels, GCHandleType.Pinned);
         try
         {
-            return ScreenGrab.FrozenPixels(pin.AddrOfPinnedObject(), width, height);
+            return ScreenGrab.DesktopPicture(pin.AddrOfPinnedObject(), width, height);
         }
         finally
         {

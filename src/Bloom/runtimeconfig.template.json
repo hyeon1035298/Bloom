@@ -2,6 +2,7 @@
   "configProperties": {
     "System.GC.Concurrent": false,
     "System.GC.ConserveMemory": 5,
+    "System.GC.Gen0MaxBudget": 4194304,
     "System.GC.RetainVM": false
   }
 }

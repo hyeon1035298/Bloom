@@ -24,6 +24,9 @@
     <GenerateDocumentationFile>false</GenerateDocumentationFile>
     <!-- off: ~4 MB less private memory for a launcher that mostly waits (measured) -->
     <TieredPGO>false</TieredPGO>
+    <!-- runtimeconfig.template.json (JSON, no comments): System.GC.Gen0MaxBudget 4 MB caps the gen0 budget, which
+         otherwise follows the L3 cache (~48 MB here). Measured: private while in use ~17 MB less on average and
+         ~40 MB lower at the peak, same CPU, launcher opening no slower. System.GC.Gen0Size is ignored by .NET 10. -->
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <NoWarn>$(NoWarn);CA1416;SYSLIB1054</NoWarn>
   </PropertyGroup>
