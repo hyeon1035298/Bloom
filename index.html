@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Bloom: Windows용 네이티브 런처</title>
-<meta name="description" content="Bloom은 Windows용 네이티브 런처입니다. Win 키 하나로 열고, 앱 실행, 계산, 파일 찾기, AI 채팅을 검색줄 한 줄에서 합니다.">
+<title>Bloom: 검색줄 하나로 쓰는 Windows 런처</title>
+<meta name="description" content="Win 키 하나로 검색줄을 열어 앱 실행, 계산, 파일 찾기부터 AI 질문까지 한 줄에서 해결하는 무료 오픈 소스 Windows 런처입니다.">
 <link rel="icon" href="assets/mark.png">
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/wanteddev/wanted-sans@v1.0.3/packages/wanted-sans/fonts/webfonts/variable/split/WantedSansVariable.min.css">
@@ -475,24 +475,6 @@ h1 .winkey, h2 .winkey { width: 0.7em; vertical-align: baseline; margin-right: 0
 .acc code { font-family: var(--font-mono); font-size: 0.9em; color: var(--color-text); }
 @media (max-width: 900px) { .notes__grid { grid-template-columns: minmax(0, 1fr); } }
 
-/* ---------- road: four steps up a rail (pinned) ---------- */
-.road { padding-block: clamp(80px, 11vh, 128px); }
-.road__grid { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: clamp(32px, 5vw, 72px); }
-.steps { position: relative; padding-left: 44px; }
-.steps__list { list-style: none; margin: 0; padding: 0; }
-.steps__rail, .steps__fill { position: absolute; left: 7px; top: 12px; bottom: 12px; width: 2px; border-radius: calc(2px * var(--k)); }
-.steps__rail { background: var(--color-line-2); }
-.steps__fill { background: var(--color-text); transform-origin: 50% 0; box-shadow: 0 0 12px var(--color-glow); }
-.step { position: relative; padding: 0 0 44px; }
-.step:last-child { padding-bottom: 0; }
-.step::before { content: ""; position: absolute; left: -44px; top: 8px; width: 16px; height: 16px; border-radius: 50%; background: var(--color-bg); border: 2px solid var(--color-text); }
-.step__opt { padding: 2px 8px; border-radius: calc(6px * var(--k)); border: 1px solid var(--color-line-2); color: var(--color-muted); font-size: 13px; font-weight: 500; vertical-align: middle; }
-.step__n { font-size: 14px; color: var(--color-faint); font-variant-numeric: tabular-nums; }
-.step h3 { margin-top: 4px; font-size: clamp(24px, 2.4vw, 32px); letter-spacing: -0.025em; display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
-.step h3 .keys { font-size: 19px; }
-.step p { margin-top: 8px; color: var(--color-muted); max-width: 48ch; }
-.step code { font-family: var(--font-mono); font-size: 0.9em; color: var(--color-text); }
-@media (max-width: 900px) { .road__grid { grid-template-columns: minmax(0, 1fr); } }
 
 /* ---------- add-ons ---------- */
 .addons { padding-block: clamp(80px, 11vh, 128px); }
@@ -541,6 +523,108 @@ h1 .winkey, h2 .winkey { width: 0.7em; vertical-align: baseline; margin-right: 0
 .foot__links a { text-decoration: none; color: var(--color-muted); transition: color 0.2s; }
 .foot__links a:hover { color: var(--color-text); }
 
+/* ---------- island: the hidden taskbar's island opens into the pill, a folder opens below ---------- */
+/* Drawn in 1000 units around the screen's centre line (about 25-975 show); --open, --pop, --cx, --cy and --press are set by the island script. */
+.isle { padding: 8px; }
+.isle__screen {
+  --u: 0.105cqw; --open: 0; --pop: 0; --cx: 760; --cy: 200; --press: 0;
+  position: relative; aspect-ratio: 1000 / 250; container-type: inline-size; overflow: hidden; contain: layout paint;
+  border-radius: calc(var(--radius-card) - calc(8px * var(--k)));
+  background:
+    radial-gradient(60% 90% at 22% 110%, rgba(255, 255, 255, 0.10), transparent 70%),
+    radial-gradient(50% 80% at 85% 0%, rgba(255, 255, 255, 0.07), transparent 70%),
+    linear-gradient(160deg, #1c1c1f, #0b0b0d);
+}
+.isle__win { position: absolute; border: 1px solid var(--color-line); border-radius: calc(14 * var(--u)); background: rgba(255, 255, 255, 0.03); }
+.isle__win--a { left: calc(50% + (110 - 500) * var(--u)); top: calc(172 * var(--u)); width: calc(400 * var(--u)); height: calc(160 * var(--u)); }
+.isle__win--b { left: calc(50% + (560 - 500) * var(--u)); top: calc(150 * var(--u)); width: calc(340 * var(--u)); height: calc(160 * var(--u)); }
+
+/* One shape: the island (34 high, flat top, round bottom) grows into the pill (52 high, fully round). */
+.isle__shape {
+  position: absolute; left: 50%; z-index: 2;
+  top: calc(8 * var(--open) * var(--u));
+  width: calc((560 + 320 * var(--open)) * var(--u));
+  height: calc((34 + 18 * var(--open)) * var(--u));
+  transform: translateX(-50%);
+  border-radius: calc(26 * var(--open) * var(--u)) calc(26 * var(--open) * var(--u)) calc((17 + 9 * var(--open)) * var(--u)) calc((17 + 9 * var(--open)) * var(--u));
+}
+.isle__shape, .isle__black, .isle__glass { corner-shape: round; }
+.isle__black, .isle__glass { position: absolute; inset: 0; border-radius: inherit; }
+.isle__black { background: #000; opacity: calc(1 - var(--open)); }
+.isle__glass {
+  opacity: var(--open); background: linear-gradient(rgba(44, 42, 52, 0.82), rgba(26, 25, 32, 0.86));
+  border: 1px solid rgba(255, 255, 255, 0.12); box-shadow: 0 calc(10 * var(--u)) calc(30 * var(--u)) rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(10px);
+}
+/* the island's top corners flare out into the screen edge */
+.isle__fil { position: absolute; top: 0; width: calc(8 * var(--u)); height: calc(8 * var(--u)); opacity: clamp(0, calc(1 - var(--open) * 5), 1); }
+.isle__fil--l { right: 100%; background: radial-gradient(circle at 0 100%, transparent calc(8 * var(--u)), #000 calc(8 * var(--u) + 0.5px)); }
+.isle__fil--r { left: 100%; background: radial-gradient(circle at 100% 100%, transparent calc(8 * var(--u)), #000 calc(8 * var(--u) + 0.5px)); }
+
+.isle__island, .isle__pill { position: absolute; inset: 0; display: flex; align-items: center; white-space: nowrap; color: #fff; font-variant-numeric: tabular-nums; }
+.isle__island {
+  justify-content: center; gap: calc(16 * var(--u)); font-size: calc(13 * var(--u)); font-weight: 500;
+  opacity: clamp(0, calc(1 - var(--open) * 3), 1);
+}
+.isle__use { display: inline-flex; align-items: center; gap: calc(5 * var(--u)); }
+.isle__use svg { flex: none; width: calc(13 * var(--u)); height: calc(13 * var(--u)); fill: currentColor; }
+.isle__pill {
+  gap: calc(14 * var(--u)); padding-inline: calc(14 * var(--u)) calc(22 * var(--u));
+  opacity: clamp(0, calc((var(--open) - 0.3) * 2.2), 1);
+}
+.isle__time { font-size: calc(14 * var(--u)); color: #e4e4e7; }
+.isle__tray { margin-left: auto; display: flex; gap: calc(16 * var(--u)); color: #e4e4e7; }
+.isle__tray svg { width: calc(17 * var(--u)); height: calc(17 * var(--u)); fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+
+/* taskbar tiles: folder tiles are the add-on's own light icons */
+.isle .tile {
+  position: relative; flex: none; display: flex; align-items: center; justify-content: center;
+  width: calc(30 * var(--u)); height: calc(30 * var(--u)); border-radius: calc(8 * var(--u));
+}
+.isle .tile img { flex: none; width: calc(35 * var(--u)); height: calc(35 * var(--u)); max-width: none; border-radius: 0; filter: none; }
+.isle .tile svg { flex: none; width: calc(19 * var(--u)); height: calc(19 * var(--u)); fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.isle .tile--auto { background: rgba(255, 255, 255, 0.08); color: #a1a1aa; }
+.isle .tile--app { background: linear-gradient(135deg, #f7f7f9, #babac0); color: #18181b; }
+.isle .tile.is-run::after {
+  content: ""; position: absolute; left: 50%; bottom: calc(-7 * var(--u)); translate: -50% 0;
+  width: calc(6 * var(--u)); height: calc(3 * var(--u)); border-radius: calc(2 * var(--u)); background: rgba(255, 255, 255, 0.35);
+}
+.isle .tile.is-front::after { width: calc(18 * var(--u)); height: calc(2.5 * var(--u)); background: #fff; }
+.isle .tile--folder::before {
+  content: ""; position: absolute; inset: calc(-4 * var(--u)); border-radius: calc(11 * var(--u));
+  background: rgba(255, 255, 255, 0.16); opacity: var(--pop);
+}
+
+/* usage in the pill: logo, plan and percent over a bar, one per account */
+.isle__accts { display: flex; align-items: center; gap: calc(16 * var(--u)); padding-left: calc(6 * var(--u)); translate: 0 calc(-2 * var(--u)); line-height: 1.15; }
+.isle .pa { display: flex; flex-direction: column; gap: calc(5 * var(--u)); min-width: calc(80 * var(--u)); font-size: calc(11.5 * var(--u)); color: #e4e4e7; }
+.isle .pa__row { display: flex; align-items: center; gap: calc(4 * var(--u)); }
+.isle .pa__row b { font-weight: 500; }
+.isle .pa__row span { margin-left: auto; padding-left: calc(8 * var(--u)); }
+.isle .pa svg { flex: none; width: calc(11 * var(--u)); height: calc(11 * var(--u)); fill: currentColor; }
+.isle .pa i { display: block; height: calc(3 * var(--u)); border-radius: calc(2 * var(--u)); background: linear-gradient(90deg, #f4f4f5 calc(var(--v) * 100%), rgba(255, 255, 255, 0.16) 0); }
+
+/* folder popup: one row centred under the 4th tile (pill left 60 + 14 + 3 * 44 + 15 = 221) */
+.isle__pop {
+  position: absolute; z-index: 3; top: calc(72 * var(--u)); left: calc(50% + (90 - 500) * var(--u));
+  display: flex; gap: calc(14 * var(--u)); padding: calc(18 * var(--u));
+  border-radius: calc(20 * var(--u)); border: 1px solid rgba(255, 255, 255, 0.12);
+  background: linear-gradient(rgba(44, 42, 52, 0.86), rgba(26, 25, 32, 0.9)); backdrop-filter: blur(12px);
+  box-shadow: 0 calc(14 * var(--u)) calc(40 * var(--u)) rgba(0, 0, 0, 0.5);
+  opacity: var(--pop); transform-origin: 50% 0;
+  transform: translateY(calc((1 - var(--pop)) * -10 * var(--u))) scale(calc(0.9 + 0.1 * var(--pop)));
+}
+.isle__pop .tile { width: calc(46 * var(--u)); height: calc(46 * var(--u)); border-radius: calc(12 * var(--u)); }
+.isle__pop .tile svg { width: calc(26 * var(--u)); height: calc(26 * var(--u)); }
+
+.isle__cursor {
+  position: absolute; z-index: 4; width: calc(22 * var(--u)); height: calc(22 * var(--u));
+  left: calc(50% + (var(--cx) - 500) * var(--u)); top: calc(var(--cy) * var(--u));
+  translate: -18% -10%; scale: calc(1 - var(--press) * 0.15);
+  fill: #fafafa; stroke: #111; stroke-width: 1.4; stroke-linejoin: round; filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.5));
+}
+.isle.is-still .isle__cursor { display: none; }
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
 }
@@ -549,7 +633,7 @@ h1 .winkey, h2 .winkey { width: 0.7em; vertical-align: baseline; margin-right: 0
 @supports (corner-shape: squircle) {
   :root { --k: 1.5; }
   *, *::before, *::after { corner-shape: squircle; }
-  .plus, .step::before, .hub::before, .hub i, .mini__dot { corner-shape: round; }
+  .plus, .hub::before, .hub i, .mini__dot { corner-shape: round; }
 }
 </style>
 </head>
@@ -576,13 +660,13 @@ h1 .winkey, h2 .winkey { width: 0.7em; vertical-align: baseline; margin-right: 0
 
   <!-- pieces of the app, scattered at depth (d: 1 = near, 0 = far) -->
   <div class="scatter" aria-hidden="true">
-    <div class="float" style="--w:260px;left:6%;top:18%"><div class="float__in" style="--d:.6"><div class="float__card" style="--src:url(assets/ai.webp);--ar:404/99;--bs:396.04%;--bp:5.52% 23.1%"></div></div></div>
-    <div class="float" data-wide style="--w:300px;left:18%;top:11%"><div class="float__in" style="--d:.42"><div class="float__card" style="--src:url(assets/addons.webp);--ar:380/52;--bs:421.05%;--bp:85.74% 70.04%"></div></div></div>
+    <div class="float" style="--w:260px;left:6%;top:18%"><div class="float__in" style="--d:.6"><div class="float__card" style="--src:url(assets/hero-ai.webp);--ar:404/99;--bs:396.04%;--bp:5.52% 23.1%"></div></div></div>
+    <div class="float" data-wide style="--w:300px;left:18%;top:11%"><div class="float__in" style="--d:.42"><div class="float__card" style="--src:url(assets/hero-addons.webp);--ar:380/52;--bs:421.05%;--bp:85.74% 70.04%"></div></div></div>
     <div class="float" data-wide style="--w:220px;left:2%;top:42%"><div class="float__in" style="--d:.28"><div class="float__card" style="--src:url(assets/lens.webp);--ar:408/256;--bs:392.16%;--bp:5.37% 20.77%"></div></div></div>
-    <div class="float" data-wide style="--w:420px;left:4%;top:70%"><div class="float__in" style="--d:.82"><div class="float__card" style="--src:url(assets/ai.webp);--ar:1030/156;--bs:155.34%;--bp:97.54% 61.50%"></div></div></div>
+    <div class="float" data-wide style="--w:420px;left:4%;top:70%"><div class="float__in" style="--d:.82"><div class="float__card" style="--src:url(assets/hero-ai.webp);--ar:1030/156;--bs:155.34%;--bp:97.54% 61.50%"></div></div></div>
     <div class="float" style="--w:340px;right:3%;top:15%"><div class="float__in" style="--d:.9"><div class="float__card" style="--src:url(assets/lens.webp);--ar:720/425;--bs:222.22%;--bp:86.36% 93.07%"></div></div></div>
     <div class="float" data-wide style="--w:280px;right:8%;top:52%"><div class="float__in" style="--d:.5"><div class="float__card" style="--src:url(assets/search.webp);--ar:408/76;--bs:392.16%;--bp:5.37% 26.93%"></div></div></div>
-    <div class="float" data-wide style="--w:250px;right:1%;top:69%"><div class="float__in" style="--d:.32"><div class="float__card" style="--src:url(assets/space.webp);--ar:796/452;--bs:201.01%;--bp:9.45% 41.61%"></div></div></div>
+    <div class="float" data-wide style="--w:250px;right:1%;top:69%"><div class="float__in" style="--d:.32"><div class="float__card" style="--src:url(assets/hero-space.webp);--ar:796/452;--bs:201.01%;--bp:9.45% 41.61%"></div></div></div>
   </div>
 
   <!-- hero -->
@@ -605,8 +689,8 @@ h1 .winkey, h2 .winkey { width: 0.7em; vertical-align: baseline; margin-right: 0
         </div>
         <p class="beacon__out" data-beacon-out><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg><b>Bloom 캘린더에 저장</b></p>
       </div>
-      <p class="hero__lede">Windows용 런처입니다. 검색줄에 적고 Tab을 누르면, 이 PC에 로그인한 Claude Code나 Codex가 바로 답합니다.</p>
-      <p class="hero__note">AI가 없어도 앱 실행, 계산, 파일 찾기는 바로 됩니다. API 키로도 연결할 수 있습니다.</p>
+      <p class="hero__lede">Windows용 런처입니다. 검색줄에 적고 Tab을 누르면, 이 PC에 로그인된 Claude&nbsp;Code나 Codex가 바로 답합니다.</p>
+      <p class="hero__note">AI 없이도 앱 실행, 계산, 파일 찾기는 바로 쓸 수 있고, API 키로 연결해도 됩니다.</p>
       <div class="hero__actions">
         <a class="btn" data-dl href="https://github.com/hyeon1035298/Bloom/releases/latest/download/BloomLauncher-win-Setup.exe">
           <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M0 0h7.5v7.5H0zM8.5 0H16v7.5H8.5zM0 8.5h7.5V16H0zM8.5 8.5H16V16H8.5z"/></svg>
@@ -614,21 +698,21 @@ h1 .winkey, h2 .winkey { width: 0.7em; vertical-align: baseline; margin-right: 0
         </a>
         <a class="textlink" href="https://github.com/hyeon1035298/Bloom">GitHub</a>
       </div>
-      <p class="hero__small">무료, MIT 오픈 소스. Windows 10, 11 (64비트)</p>
+      <p class="hero__small">무료, MIT 오픈 소스 · Windows 10, 11 (64비트)</p>
     </div>
   </section>
 
   <!-- showcase -->
   <section class="show" id="screens" aria-labelledby="show-title">
     <div class="wrap">
-      <h2 id="show-title" class="head">런처 안에 다 있습니다.<span>홈, 도구 창, 디스크 지도, 창 배치, 설정을 바로 불러옵니다.</span></h2>
+      <h2 id="show-title" class="head">런처 하나에 다 담았습니다.<span>홈 화면, 도구 창, 디스크 용량 지도, 창 배치, 설정까지 한곳에서</span></h2>
       <div class="show__frame">
         <div class="screens">
           <img class="is-on" data-fill data-screen="home" src="assets/home.webp" srcset="assets/home-1000.webp 1000w, assets/home.webp 1560w" sizes="(max-width: 1100px) 92vw, 1040px" width="1560" height="975" alt="Bloom 홈 화면. 검색줄 아래에 AI 사용량 카드, 플레이어, 도구 단추, 이번 주 달력" fetchpriority="high">
           <img data-screen="tools" src="assets/tools.webp" srcset="assets/tools-1000.webp 1000w, assets/tools.webp 1600w" sizes="(max-width: 1100px) 92vw, 1040px" width="1600" height="1000" alt="런처 옆에 붙은 메모 창과 아래의 계산기 창" loading="lazy">
           <img data-screen="space" src="assets/space.webp" srcset="assets/space-1000.webp 1000w, assets/space.webp 1600w" sizes="(max-width: 1100px) 92vw, 1040px" width="1600" height="1000" alt="폴더 크기를 사각형 지도로 보여 주는 Bloom Space Cleaner와 큰 파일 목록" loading="lazy">
-          <img data-screen="more" src="assets/more.webp" srcset="assets/more-1000.webp 1000w, assets/more.webp 1600w" sizes="(max-width: 1100px) 92vw, 1040px" width="1600" height="930" alt="창 배치 목록과 경로, 날짜, 세계 시간, 앱 설치 입력 예시" loading="lazy">
-          <img data-screen="settings" src="assets/settings.webp" srcset="assets/settings-1000.webp 1000w, assets/settings.webp 1600w" sizes="(max-width: 1100px) 92vw, 1040px" width="1600" height="980" alt="설정의 일반 페이지와 데이터 페이지" loading="lazy">
+          <img data-screen="more" src="assets/more.webp" srcset="assets/more-1000.webp 1000w, assets/more.webp 1600w" sizes="(max-width: 1100px) 92vw, 1040px" width="1600" height="1000" alt="창 배치 목록과 경로, 날짜, 세계 시간, 앱 설치 입력 예시" loading="lazy">
+          <img data-screen="settings" src="assets/settings.webp" srcset="assets/settings-1000.webp 1000w, assets/settings.webp 1600w" sizes="(max-width: 1100px) 92vw, 1040px" width="1600" height="1000" alt="설정의 일반 페이지와 데이터 페이지" loading="lazy">
         </div>
         <div class="live" role="group" aria-label="검색줄 예시">
           <div class="live__item">
@@ -640,23 +724,23 @@ h1 .winkey, h2 .winkey { width: 0.7em; vertical-align: baseline; margin-right: 0
       </div>
       <div class="dock-wrap">
         <div class="dock" role="group" aria-label="화면 고르기">
-          <button type="button" aria-pressed="true" data-show="home" data-label="<b>홈.</b> AI 사용량과 토큰, 이번 주 알림, 자주 쓰는 도구를 한눈에 봅니다." aria-label="홈" title="홈">
+          <button type="button" aria-pressed="true" data-show="home" data-label="<b>홈.</b> 남은 AI 사용량과 토큰, 이번 주 일정, 자주 쓰는 도구를 한눈에" aria-label="홈" title="홈">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 11l8-7 8 7v9H4z"/><path d="M10 20v-6h4v6"/></svg>
           </button>
-          <button type="button" aria-pressed="false" data-show="tools" data-label="<b>도구 창.</b> 메모, 타이머, 계산기, 클립보드 기록이 런처 옆에 붙습니다." aria-label="도구 창" title="도구 창">
+          <button type="button" aria-pressed="false" data-show="tools" data-label="<b>도구 창.</b> 런처 옆에 자석처럼 붙어 함께 움직이는 메모, 타이머, 계산기, 클립보드 기록" aria-label="도구 창" title="도구 창">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="4" width="11" height="16" rx="2"/><rect x="16" y="4" width="5" height="9" rx="1.5"/></svg>
           </button>
-          <button type="button" aria-pressed="false" data-show="space" data-label="<b>Bloom Space Cleaner.</b> 디스크 사용량을 지도로 보고 큰 파일을 정리합니다." aria-label="Bloom Space Cleaner" title="Bloom Space Cleaner">
+          <button type="button" aria-pressed="false" data-show="space" data-label="<b>Bloom Space Cleaner.</b> 디스크 사용량을 블록 지도로 보고 큰 파일을 바로 정리" aria-label="Bloom Space Cleaner" title="Bloom Space Cleaner">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M12 3v18M12 12h9M3 14h9"/></svg>
           </button>
-          <button type="button" aria-pressed="false" data-show="more" data-label="<b>경로, 창 배치, 날짜.</b> 왼쪽 절반, 100일 뒤, 설치 vlc처럼 적어 바로 실행합니다." aria-label="경로, 창 배치, 날짜" title="경로, 창 배치, 날짜">
+          <button type="button" aria-pressed="false" data-show="more" data-label="<b>경로, 창 배치, 날짜.</b> 왼쪽 절반, 100일 뒤, 설치 vlc처럼 적어 바로 실행" aria-label="경로, 창 배치, 날짜" title="경로, 창 배치, 날짜">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M12 5v14"/></svg>
           </button>
-          <button type="button" aria-pressed="false" data-show="settings" data-label="<b>설정.</b> 강조색, 크기, 애니메이션, 데이터를 한곳에서 관리합니다." aria-label="설정" title="설정">
+          <button type="button" aria-pressed="false" data-show="settings" data-label="<b>설정.</b> 강조색, 크기, 애니메이션과 저장된 데이터를 한곳에서 관리" aria-label="설정" title="설정">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"/></svg>
           </button>
         </div>
-        <p class="dock__label" aria-live="polite" data-dock-label><b>홈.</b> AI 사용량과 토큰, 이번 주 알림, 자주 쓰는 도구를 한눈에 봅니다.</p>
+        <p class="dock__label" aria-live="polite" data-dock-label><b>홈.</b> 남은 AI 사용량과 토큰, 이번 주 일정, 자주 쓰는 도구를 한눈에</p>
       </div>
     </div>
   </section>
@@ -665,7 +749,7 @@ h1 .winkey, h2 .winkey { width: 0.7em; vertical-align: baseline; margin-right: 0
   <!-- quick AI (pinned) -->
   <section class="sec qa" id="quick" aria-labelledby="qa-title">
     <div class="wrap">
-      <h2 id="qa-title" class="head head--lg">적던 줄에서 바로 묻습니다.<span>검색줄에 적은 글을 Tab 한 번으로 AI에게 보냅니다.</span></h2>
+      <h2 id="qa-title" class="head head--lg">적던 줄에서 바로 질문.<span>검색줄에 적은 글 그대로 Tab만 눌러 AI에게 물어보세요.</span></h2>
       <div class="qa__stage win">
         <div class="qa__bar">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
@@ -682,20 +766,20 @@ h1 .winkey, h2 .winkey { width: 0.7em; vertical-align: baseline; margin-right: 0
           <span data-qa-hint><span class="keys"><kbd class="kbd">Ctrl</kbd><kbd class="kbd">.</kbd></span>멈추기</span>
         </div>
       </div>
-      <p class="sec__note">질문과 답은 데모 모드 예시입니다.</p>
+      <p class="sec__note">데모 화면의 질문과 답변 예시</p>
     </div>
   </section>
 
   <!-- AI links -->
   <section class="sec link" id="ai" aria-labelledby="link-title">
     <div class="wrap">
-      <h2 id="link-title" class="head head--lg">쓰던 AI를 그대로 연결합니다.<span>PC에 로그인한 Claude Code와 Codex, 또는 직접 넣은 API 키로 답합니다.</span></h2>
+      <h2 id="link-title" class="head head--lg">쓰던 AI를 그대로 연결합니다.<span>이 PC에 로그인된 Claude&nbsp;Code와 Codex, 또는 직접 넣은 API 키로 바로 사용</span></h2>
       <div class="link__map" data-link>
         <svg class="link__wires" aria-hidden="true"></svg>
         <div class="link__part">
           <p class="link__label">연결하는 AI<small>이미 쓰던 도구</small></p>
           <div class="link__from" data-from>
-            <div class="node"><b>Claude Code</b><small>이 PC의 claude 로그인</small></div>
+            <div class="node"><b>Claude&nbsp;Code</b><small>이 PC의 claude 로그인</small></div>
             <div class="node"><b>Codex</b><small>이 PC의 codex 로그인</small></div>
             <div class="node"><b>omp</b><small>oh-my-pi, 직접 고를 때만</small></div>
             <div class="node"><b>API 키</b><small>OpenAI, Anthropic, Gemini, OpenRouter, DeepSeek, xAI, OpenCode Go</small></div>
@@ -703,42 +787,42 @@ h1 .winkey, h2 .winkey { width: 0.7em; vertical-align: baseline; margin-right: 0
         </div>
         <div class="hub" data-hub aria-hidden="true"><i></i></div>
         <div class="link__part" data-to>
-          <p class="link__label">Bloom에서 하는 일<small>AI에게 맡기는 일</small></p>
+          <p class="link__label">Bloom에서 하는 일<small>AI에게 맡기는 작업</small></p>
           <div class="link__does">
             <div class="card does">
               <div class="mini" aria-hidden="true">
                 <p class="mini__row"><span>옮기기</span><code>견적서_1007.pdf → Documents</code></p>
                 <p class="mini__btns"><i>허용</i><i>항상 허용</i><i>거절</i></p>
               </div>
-              <b>PC 작업</b><small>파일 정리나 앱 실행, 허용한 뒤에 실행</small>
+              <b>PC 작업</b><small>파일 정리나 앱 실행, 허용 확인 후 실행</small>
             </div>
             <div class="card does">
               <div class="mini" aria-hidden="true">
                 <p class="mini__row"><span>내일 15:00</span><strong>회의</strong></p>
                 <p class="mini__row"><span>타이머</span><strong>25:00</strong></p>
               </div>
-              <b>메모, 타이머, 캘린더</b><small>AI에게 말하면 Bloom에 바로 저장</small>
+              <b>메모, 타이머, 캘린더</b><small>말로 시키면 일정과 메모를 Bloom에 바로 저장</small>
             </div>
             <div class="card does">
               <div class="mini" aria-hidden="true">
                 <p class="keys"><kbd class="kbd">Ctrl</kbd> <kbd class="kbd">Alt</kbd> <kbd class="kbd">A</kbd></p>
                 <p class="mini__chips"><i>요약</i><i>번역</i><i>다듬기</i></p>
               </div>
-              <b>AI 빠른 동작</b><small>다른 앱에서 고른 글을 요약, 번역, 다듬기</small>
+              <b>AI 빠른 동작</b><small>다른 앱에서 고른 글을 요약·번역·다듬기</small>
             </div>
             <div class="card does">
               <div class="mini" aria-hidden="true">
-                <p class="mini__row"><span class="mini__who"><i class="mini__dot"></i><strong>Claude Code</strong></span><span>승인 대기</span></p>
+                <p class="mini__row"><span class="mini__who"><i class="mini__dot"></i><strong>Claude&nbsp;Code</strong></span><span>승인 대기</span></p>
                 <p class="mini__row"><span class="mini__who"><strong>Codex</strong></span><span>완료</span></p>
               </div>
-              <b>작업 알림</b><small>Claude Code와 Codex 작업의 시작, 완료, 승인 대기, 한도 임박</small>
+              <b>작업 알림</b><small>Claude&nbsp;Code와 Codex의 시작·완료·승인 대기·한도 임박 알림</small>
             </div>
           </div>
         </div>
       </div>
       <div class="card link__shot">
-        <img src="assets/ai.webp" srcset="assets/ai-1000.webp 1000w, assets/ai.webp 1600w" sizes="(max-width: 1100px) 92vw, 1040px" width="1600" height="930" alt="견적서 PDF를 문서 폴더로 옮기기 전에 허용과 거절을 묻는 승인 카드, 왼쪽에 Claude Code와 Codex 작업 알림 카드" loading="lazy">
-        <div class="link__cap"><h3>바꾸기 전에 묻습니다</h3><p>무언가를 바꾸는 작업은 실행 전에 허용, 이 대화에서 항상 허용, 거절을 먼저 묻습니다. API 키는 Windows가 암호화해 이 PC에만 보관합니다.</p></div>
+        <img src="assets/ai.webp" srcset="assets/ai-1000.webp 1000w, assets/ai.webp 1600w" sizes="(max-width: 1100px) 92vw, 1040px" width="1600" height="1000" alt="견적서 PDF를 문서 폴더로 옮기기 전에 허용과 거절을 묻는 승인 카드, 왼쪽에 Claude&nbsp;Code와 Codex 작업 알림 카드" loading="lazy">
+        <div class="link__cap"><h3>바꾸기 전엔 먼저 물어봅니다</h3><p>무언가를 바꾸는 작업은 실행 전에 허용, 이 대화에서 항상 허용, 거절을 먼저 확인합니다. API 키는 Windows가 암호화해 이 PC에만 보관합니다.</p></div>
       </div>
     </div>
   </section>
@@ -746,7 +830,7 @@ h1 .winkey, h2 .winkey { width: 0.7em; vertical-align: baseline; margin-right: 0
   <!-- Bloom Lens -->
   <section class="sec lens" id="lens" aria-labelledby="lens-title">
     <div class="wrap">
-      <h2 id="lens-title" class="head head--left">화면 어디든 골라서.<span>그 자리에서 AI에게 묻고, 번역하고, 글자를 꺼냅니다.</span></h2>
+      <h2 id="lens-title" class="head head--left">화면 어디든 골라서 바로.<span>마우스로 고른 자리에서 AI에게 묻고, 번역하고, 글자를 꺼내 보세요.</span></h2>
       <div class="lens__grid">
         <div class="lens__screen" aria-hidden="true">
           <div class="lens__msg"></div>
@@ -782,14 +866,14 @@ h1 .winkey, h2 .winkey { width: 0.7em; vertical-align: baseline; margin-right: 0
           </ul>
         </div>
       </div>
-      <p class="sec__note">결과는 데모 모드 예시입니다.<span class="only-fine"> 숫자 키를 눌러 보세요.</span></p>
+      <p class="sec__note">데모 화면 예시입니다.<span class="only-fine"> 숫자 키를 직접 눌러 보세요.</span></p>
     </div>
   </section>
 
   <!-- usage and token cost -->
   <section class="sec usage" id="usage" aria-labelledby="usage-title">
     <div class="wrap">
-      <h2 id="usage-title" class="head head--left">남은 한도와 쓴 토큰을 한눈에.<span>계정별 남은 한도와 API 가격으로 환산한 토큰 금액을 홈 화면에서 바로 봅니다.</span></h2>
+      <h2 id="usage-title" class="head head--left">남은 한도와 쓴 토큰을 한눈에.<span>계정별 남은 한도와 API 요금 기준 토큰 환산액을 홈 화면에서 바로 확인하세요.</span></h2>
       <div class="usage__grid">
         <div class="card panel">
           <p class="panel__h">AI 사용량 <span>방금</span></p>
@@ -803,21 +887,21 @@ h1 .winkey, h2 .winkey { width: 0.7em; vertical-align: baseline; margin-right: 0
         <div class="card panel">
           <p class="panel__h">토큰 사용량 <span class="panel__tag">30일</span></p>
           <div class="tiles">
-            <div class="tile"><small>환산액</small><b data-count-to="19835" data-prefix="$">$19,835</b><em>API 가격으로 환산한 예시</em></div>
-            <div class="tile"><small>캐시 적중</small><b>98.5%</b><em>다시 읽은 입력의 비율</em></div>
+            <div class="tile"><small>환산액</small><b data-count-to="19835" data-prefix="$">$19,835</b><em>API 요금 환산 예시</em></div>
+            <div class="tile"><small>캐시 적중</small><b>98.5%</b><em>다시 읽은 입력 비율</em></div>
           </div>
           <div class="chart" data-chart aria-hidden="true"><i style="--h:60%"></i><i style="--h:55%"></i><i style="--h:35%"></i><i style="--h:25%"></i><i style="--h:55%"></i><i style="--h:70%"></i><i style="--h:60%"></i><i style="--h:60%"></i><i style="--h:62%"></i><i style="--h:32%"></i><i style="--h:28%"></i><i style="--h:60%"></i><i style="--h:75%"></i><i style="--h:55%"></i><i style="--h:70%"></i><i style="--h:65%"></i><i style="--h:30%"></i><i style="--h:30%"></i><i style="--h:48%"></i><i style="--h:50%"></i><i style="--h:42%"></i><i style="--h:50%"></i><i style="--h:52%"></i><i style="--h:25%"></i><i style="--h:28%"></i><i style="--h:55%"></i><i style="--h:48%"></i><i style="--h:55%"></i><i style="--h:85%"></i><i style="--h:8%"></i></div>
           <p class="chart__axis"><span>30일 전</span><span>오늘</span></p>
         </div>
       </div>
-      <p class="sec__note">숫자는 데모 모드 예시입니다. 환산액은 같은 토큰을 API 가격으로 계산한 금액이며, 실제로 결제한 금액이 아닙니다.<br>토큰 블록은 처음에 꺼져 있으며, 켜 두면 대화 내용은 저장하지 않고 이 PC의 Claude Code와 Codex 기록만 셉니다.</p>
+      <p class="sec__note">위 숫자는 데모 예시이며, 실제 결제 금액이 아니라 같은 토큰을 API 요금으로 계산한 참고 금액입니다.<br>토큰 블록은 기본적으로 꺼져 있고, 켜 두더라도 대화 내용은 빼고 이 PC의 Claude&nbsp;Code·Codex 기록만 셉니다.</p>
     </div>
   </section>
 
   <!-- search line -->
   <section class="sec srch" id="search" aria-labelledby="srch-title">
     <div class="wrap">
-      <h2 id="srch-title" class="head head--left">적는 대로 알아듣습니다.<span>한/영 오타, 초성, 계산식, 단위, 알림까지 한 줄에서 처리합니다.</span></h2>
+      <h2 id="srch-title" class="head head--left">적는 대로 알아듣습니다.<span>한/영 오타, 초성, 계산식, 단위 변환, 알림까지 한 줄에서 끝</span></h2>
       <div class="srch__grid">
         <div class="card ko">
           <p class="ko__label">한/영 전환 없이 친 글자</p>
@@ -831,83 +915,106 @@ h1 .winkey, h2 .winkey { width: 0.7em; vertical-align: baseline; margin-right: 0
             <span class="pair"><span class="pair__j">ㄷ</span><span class="cap">E</span></span>
           </div>
           <p class="ko__out" data-ko-out>Chrome</p>
-          <p class="ko__note">자판에서 같은 자리의 영문으로 읽어 Chrome을 찾습니다.</p>
+          <p class="ko__note">자판에서 같은 위치의 영문으로 읽어 Chrome을 찾아 줍니다.</p>
         </div>
         <div class="card">
           <ul class="lines">
             <li><code>ㅁㅁㅈ</code><span>메모장<small>초성 검색</small></span></li>
-            <li><code>gc</code><span>Google Chrome<small>영어 이름 첫 글자</small></span></li>
-            <li><code>45000*1.1</code><span>49,500<small>계산, Enter로 복사</small></span></li>
+            <li><code>gc</code><span>Google Chrome<small>영어 이름 앞글자</small></span></li>
+            <li><code>45000*1.1</code><span>49,500<small>계산 후 Enter로 복사</small></span></li>
             <li><code>30평 to m2</code><span>99.17 m²<small>단위 변환</small></span></li>
             <li><code>30분 뒤 빨래</code><span>30분 뒤 알림<small>타이머와 알림</small></span></li>
-            <li><code>yt 고양이</code><span>YouTube 검색<small>사이트 바로 가기</small></span></li>
+            <li><code>yt 고양이</code><span>YouTube 검색<small>사이트 바로 검색</small></span></li>
           </ul>
         </div>
       </div>
-      <p class="sec__note">빈 검색줄에 ?만 적으면 Bloom이 알아듣는 표현을 종류별로 보여 줍니다.</p>
+      <p class="sec__note">빈 검색줄에 ?만 적어 보세요. Bloom이 알아듣는 표현을 종류별로 보여 줍니다.</p>
     </div>
   </section>
 
   <!-- add-ons -->
   <section class="addons" id="addons" aria-labelledby="addons-title">
     <div class="wrap">
-      <h2 id="addons-title" class="head">필요한 것만 더합니다.<span>Bloom이 받아서 확인하고 실행하는 애드온.</span></h2>
-      <div class="card addons__main">
-        <img src="assets/addons.webp" srcset="assets/addons-1000.webp 1000w, assets/addons.webp 1600w" sizes="(max-width: 1100px) 92vw, 1040px" width="1600" height="1000" alt="설정 › 애드온의 애드온 목록과 작업표시줄 폴더 편집, 알약 모양 작업표시줄 미리 보기" loading="lazy">
+      <h2 id="addons-title" class="head">필요한 것만 골라 더하기.<span>Bloom이 받아서 확인하고 실행하는 공식 애드온</span></h2>
+      <div class="card addons__main isle" data-isle role="img" aria-label="화면 위 끝의 검은 섬에 포인터를 올리면 유리 알약 모양 작업표시줄로 펼쳐지고, 폴더를 누르면 안에 묶은 앱이 아래로 열립니다">
+        <div class="isle__screen" aria-hidden="true">
+          <svg width="0" height="0" style="position:absolute"><symbol id="isle-claude" viewBox="0 0 1040 1040"><path d="M286.5 161.2c-2.1 5.1 -3.8 9.8 -3.9 10.4 -0.1 0.7 -0.7 1.8 -1.3 2.5 -0.5 0.8 -1.4 2.7 -1.8 4.4 -1 3.7 -1 3.5 -2.2 6.5 -4.1 9.8 -6.3 15.5 -6.3 16.7 0 0.7 -0.3 1.3 -0.8 1.3 -0.4 0 -1.6 2.7 -2.6 6 -1.1 3.3 -2.2 6 -2.6 6 -0.4 0 -0.7 0.6 -0.7 1.2 0 1.2 -14.2 37.8 -16.3 42.3 -0.5 1.1 -4.3 10.5 -8.4 21 -14.4 37.1 -20.8 53 -22.2 55.9 -0.8 1.6 -1.4 3.3 -1.4 3.8 0 0.5 -1 3 -2.1 5.6 -1.2 2.5 -2.2 5.1 -2.4 5.7 -0.2 1 -0.6 2.1 -3.8 9.7 -0.8 2 -1.3 3.8 -1.1 4.1 0.3 0.2 -0.2 1 -1.1 1.7 -0.8 0.7 -1.5 2.1 -1.5 3.1 0 1.1 -0.4 2.7 -0.9 3.7 -2 3.5 -6.1 13.5 -6.1 14.6 0 0.6 -0.6 2.2 -1.3 3.6 -0.7 1.4 -2.4 5.4 -3.7 9 -1.3 3.6 -3 7.6 -3.7 9 -0.7 1.4 -1.3 3 -1.3 3.6 0 0.5 -0.9 2.9 -2 5.2 -1.1 2.2 -2 4.7 -2 5.5 0 0.7 -0.5 1.8 -1.1 2.4 -0.6 0.6 -1.2 1.7 -1.3 2.4 -0.2 0.8 -0.7 2.3 -1.1 3.4 -0.4 1.1 -7.3 18.4 -15.2 38.5 -7.9 20.1 -16.4 41.4 -18.9 47.5 -2.5 6 -4.7 11.7 -4.9 12.5 -0.1 0.8 -1 3.1 -1.8 5 -4 9 -8.7 21.3 -8.7 22.6 0 0.8 -0.4 1.4 -1 1.4 -0.5 0 -1 0.9 -1 1.9 0 1.1 -0.5 2.3 -1 2.6 -0.6 0.4 -0.8 1.1 -0.4 1.6 0.3 0.5 0.1 1.5 -0.4 2.2 -0.5 0.7 -4.1 9.3 -8 19.2 -3.9 9.9 -7.7 19.3 -8.3 21 -0.7 1.6 -1.3 3.2 -1.4 3.5 -0.1 0.3 -0.5 1.4 -1 2.5 -4.8 11.6 -13.5 34.2 -13.5 35.2 0 0.7 -0.5 1.3 -1.2 1.3 -0.6 0 -0.8 0.3 -0.5 0.7 0.4 0.3 0.3 1.1 -0.2 1.7 -0.5 0.6 -1.4 2.9 -2.1 5.1 -0.7 2.2 -2 5.6 -2.8 7.5 -0.9 1.9 -1.6 3.7 -1.7 4 -0.1 0.3 -0.5 1.4 -1 2.5 -0.4 1.1 -4.4 11 -8.7 22 -4.3 11 -8.2 20.9 -8.7 22 -0.5 1.1 -1.9 4.7 -3.1 8 -1.3 3.3 -2.9 7.3 -3.6 9 -1.8 4.2 -5.8 14.9 -5.9 15.7 0 0.4 -0.6 1.3 -1.2 1.9 -0.7 0.7 -1.3 2.1 -1.3 3.1 0 1 -0.4 2.6 -1 3.6 -0.5 0.9 -5.3 12.7 -10.6 26.2 -5.3 13.5 -10 25.4 -10.5 26.5 -0.4 1.1 -2.7 6.7 -4.9 12.5 -2.3 5.8 -4.7 11.8 -5.4 13.5 -0.8 1.6 -2.2 5.2 -3.1 8 -1 2.7 -2.3 5.6 -2.8 6.2 -0.5 0.7 -0.6 1.3 -0.3 1.3 0.4 0 0 1.2 -0.8 2.7 -0.8 1.6 -3.1 7.1 -5.1 12.3 -2.1 5.2 -4.6 11.6 -5.6 14.2l-1.9 4.8 81.3 0 81.2 0 3.5 -9.3c1.9 -5 3.5 -9.4 3.5 -9.7 0.1 -0.3 0.9 -2.2 1.8 -4.4 0.9 -2.1 1.7 -4.1 1.7 -4.3 0 -0.5 4.4 -11.9 6.4 -16.8 0.7 -1.7 3 -7.5 5.1 -13 2.1 -5.5 4.3 -11.4 5 -13 0.6 -1.7 1.8 -4.6 2.5 -6.5 0.6 -1.9 1.6 -4.4 2.1 -5.5 1.1 -2.6 13.9 -35.7 14.3 -37 0.2 -0.6 0.8 -2.4 1.5 -4 0.6 -1.7 1.9 -5 2.8 -7.5 0.9 -2.5 2.1 -5.1 2.6 -5.8 0.5 -0.6 0.7 -1.2 0.4 -1.2 -0.3 0 1 -3.5 2.8 -7.8l3.4 -7.7 151.7 0 151.7 0 7.4 19c4 10.4 7.6 19.7 7.9 20.5 0.3 0.8 1.9 5.1 3.6 9.5 1.6 4.4 3.4 8.9 3.9 10 0.4 1.1 3.1 8.1 5.9 15.5 2.8 7.4 5.7 15.1 6.5 17 2.5 6 3.8 9.5 3.9 10.2 0.1 0.3 0.4 1 0.9 1.4 0.4 0.4 0.7 1.4 0.7 2.1 0 0.8 1.1 3.9 2.5 6.9 1.4 3 2.5 5.8 2.5 6.2 0 0.8 6.8 18.5 9.5 24.7 0.7 1.6 1.8 4.7 2.5 6.7l1.2 3.8 81 0 81 0 -0.6 -2.6c-0.4 -1.4 -1.5 -4.5 -2.5 -6.8 -1 -2.2 -4.2 -10.2 -7.1 -17.6 -2.9 -7.4 -5.8 -14.9 -6.5 -16.5 -0.7 -1.7 -4.3 -10.7 -7.9 -20 -3.7 -9.4 -7 -17.9 -7.5 -19 -0.5 -1.1 -1.3 -3.1 -1.9 -4.5 -0.6 -1.4 -5.6 -14.2 -11.2 -28.5 -5.6 -14.3 -10.6 -26.9 -11.1 -28 -0.4 -1.1 -1.8 -4.5 -2.9 -7.5 -1.2 -3 -2.8 -7 -3.7 -8.9 -0.8 -1.8 -1.6 -3.9 -1.8 -4.5 -0.1 -0.6 -1 -2.9 -1.9 -5 -1 -2.2 -1.9 -4.8 -2.1 -5.8 -0.2 -1 -0.7 -2.4 -1.2 -3.1 -0.4 -0.6 -0.8 -1.4 -0.9 -1.7 0 -0.3 -0.4 -1.4 -0.9 -2.5 -0.4 -1.1 -1.8 -4.5 -3 -7.5 -1.2 -3 -2.6 -6.4 -3 -7.5 -0.5 -1.1 -0.9 -2.2 -1 -2.5 -0.1 -0.3 -0.5 -1.4 -1 -2.5 -6.7 -16.6 -13.5 -34.2 -13.5 -35.2 0 -0.7 -0.4 -1.3 -0.8 -1.3 -0.5 0 -0.9 -0.6 -0.9 -1.3 -0.1 -1.2 -5 -14.1 -7.9 -20.4 -0.8 -1.7 -1.4 -3.3 -1.4 -3.6 0 -0.2 -0.6 -2 -1.4 -3.8 -0.8 -1.9 -1.4 -3.6 -1.4 -3.9 -0.1 -0.3 -1.5 -3.9 -3.2 -8 -4.2 -10.2 -4.8 -11.6 -6.1 -14.3 -0.5 -1.3 -1.1 -2.9 -1.3 -3.7 -0.2 -0.8 -0.8 -2.6 -1.3 -4 -0.6 -1.4 -3.6 -9 -6.8 -17 -3.1 -8 -6 -15.4 -6.5 -16.5 -2.3 -5.1 -6.5 -15.7 -9.2 -22.9 -1.6 -4.4 -3.5 -9.4 -4.3 -11.1 -0.8 -1.6 -2.7 -6.4 -4.3 -10.5 -1.6 -4.1 -3.3 -8.4 -3.7 -9.5 -0.5 -1.1 -0.9 -2.2 -1 -2.5 -0.6 -1.6 -1.8 -4.8 -2.6 -6.5 -0.4 -1.1 -2.2 -5.6 -3.9 -10 -1.7 -4.4 -3.5 -9 -4 -10.3 -1.4 -3.1 -2.4 -5.6 -5.8 -14.2 -1.6 -4.1 -3.3 -8.4 -3.7 -9.5 -0.5 -1.1 -0.9 -2.2 -1 -2.5 -0.1 -0.3 -0.7 -1.8 -1.3 -3.3 -0.7 -1.6 -1.2 -3.4 -1.2 -4.1 0 -0.6 -0.4 -1.6 -0.8 -2.2 -0.5 -0.5 -1.5 -2.5 -2.2 -4.4 -0.7 -1.9 -2 -5.1 -2.8 -7 -0.8 -1.9 -1.8 -4.4 -2.2 -5.5 -0.5 -1.1 -5 -12.6 -10 -25.5 -10.8 -27.6 -10.2 -26.2 -12.9 -32.2 -1.2 -2.6 -2.1 -5.2 -2.1 -5.8 0 -0.6 -0.4 -1.8 -0.9 -2.8 -1.5 -2.9 -2.9 -6.3 -6.1 -14.7 -1.7 -4.4 -3.5 -9 -4 -10.3 -0.6 -1.2 -1.4 -3.2 -1.9 -4.5 -1.7 -4.3 -4 -10.3 -8.5 -21.8 -2.6 -6.4 -4.6 -12.1 -4.6 -12.7 0 -0.6 -0.3 -1.2 -0.7 -1.4 -0.5 -0.2 -1.6 -2.4 -2.5 -5.1 -1 -2.6 -2.6 -6.8 -3.5 -9.5 -1 -2.6 -2.2 -5 -2.8 -5.4 -0.5 -0.4 -0.7 -0.8 -0.3 -0.8 0.4 0 -0.5 -2.8 -1.8 -6.3 -2.3 -5.8 -3 -7.5 -5.4 -13 -0.5 -1.2 -4.4 -11 -8.5 -21.7 -4.2 -10.7 -8.2 -20.9 -8.9 -22.5 -0.7 -1.7 -5.1 -12.6 -9.7 -24.3l-8.3 -21.2 -83.2 0 -83.2 0 -3.7 9.2zm91 186.9c0.4 1.3 1.3 3.7 2 5.4 0.7 1.6 3.5 8.8 6.3 16 2.7 7.1 5.3 13.9 5.7 15 0.5 1.1 0.9 2.2 1 2.5 0.9 2.6 4.7 12.5 5.8 15 0.6 1.4 1.1 2.7 1.2 3 0.1 0.3 0.5 1.2 0.8 2 0.3 0.8 2.9 7.6 5.7 15 2.8 7.4 5.7 14.8 6.4 16.5 0.8 1.6 1.9 4.8 2.6 7 0.7 2.2 1.6 4.4 2 5 0.5 0.5 0.8 1.2 0.9 1.5 0 0.8 1.2 4.3 2.7 7.7 0.8 1.7 1.4 3.4 1.4 3.8 0 0.4 0.6 2.1 1.4 3.8 0.8 1.8 4.2 10.6 7.6 19.7 3.4 9.1 7 18.3 8 20.5 0.9 2.2 2.3 5.7 3 7.9 0.7 2.1 3 8.2 5.2 13.5 2.2 5.3 4.1 10.3 4.3 11.1 0.2 0.8 2.2 6.2 4.5 12 2.3 5.8 5 13 6.1 16 1.1 3 2.4 5.9 2.9 6.4 0.6 0.6 1 1.9 1 2.9 0 1 0.7 3.1 1.5 4.5 2.2 4.2 4.7 12.5 3.8 13.1 -0.4 0.3 -45 0.4 -98.9 0.1l-98.2 -0.5 2.4 -6c1.2 -3.3 4.7 -12.3 7.7 -20 3 -7.7 5.7 -14.9 6.2 -16 0.4 -1.1 0.9 -2.5 1 -3 0.3 -1.1 6 -15.7 7.4 -19 0.5 -1.1 2.4 -5.8 4.1 -10.5 1.8 -4.7 3.9 -10 4.7 -11.9 0.8 -1.8 1.6 -3.9 1.7 -4.5 0.4 -2.2 4.8 -13.1 5.8 -14.3 0.6 -0.7 0.8 -1.3 0.4 -1.3 -0.4 0 0 -1.3 0.9 -3 0.8 -1.6 1.5 -3.2 1.5 -3.5 0 -0.3 0.7 -2.1 1.5 -4.1 0.8 -2 1.5 -3.8 1.5 -4 0 -0.1 0.5 -1.5 1.2 -3.1 0.6 -1.5 1.2 -3 1.3 -3.3 0.5 -2 2 -6.1 3.5 -9.5 0.9 -2.2 3.3 -8.3 5.3 -13.5 2 -5.2 5.6 -14.7 8.1 -21 9.5 -24.4 30 -78 32.2 -84 0.5 -1.4 3.2 3.6 4.9 9.1z M591 153.4c0 0.8 0.4 1.7 0.9 2 0.4 0.3 1.4 2.6 2.1 5.1 0.7 2.5 1.7 4.5 2.1 4.5 0.5 0 0.9 0.9 0.9 2 0 1.1 0.4 2.8 0.9 3.8 0.5 0.9 1.7 3.7 2.7 6.2 1 2.5 2.5 6.3 3.4 8.5 3.9 9.1 9.4 24.1 9.2 24.7 -0.1 0.5 0.2 0.8 0.8 0.8 0.6 0 1 0.6 1 1.3 0 1.2 1.8 5.9 6.3 16.7 0.5 1.4 1.1 2.9 1.3 3.5 0.1 0.5 3.4 8.9 7.4 18.5 3.9 9.6 7.3 18.2 7.5 19 0.2 0.8 0.9 2.8 1.6 4.5 0.7 1.6 1.3 3.2 1.4 3.5 0.1 0.3 0.6 1.6 1.3 3 0.6 1.4 4.9 12.4 9.7 24.5 4.7 12.1 9.4 24 10.4 26.5 1.1 2.5 3.6 8.8 5.6 14 5.4 14 6.4 16.6 8.3 21 0.9 2.2 11.8 29.8 21.9 55.5 2 4.9 4.1 10.3 4.8 12 0.7 1.6 2.5 6.1 4 10 1.4 3.8 3 7.9 3.5 9 0.5 1.1 1.9 4.5 3 7.5 1.2 3 2.7 6.6 3.3 8 0.6 1.4 1.1 2.7 1.1 3 0.1 0.6 2.1 5.6 4.4 11 4.9 11.8 9.2 23.5 9.2 24.7 0 0.7 0.5 1.3 1 1.3 0.6 0 1 0.6 1 1.2 0 1.3 4.9 14.4 7.6 20.3 0.7 1.6 2.5 6.1 4 10 1.4 3.8 2.9 7.4 3.2 8 0.4 0.5 0.7 1.7 0.9 2.5 0.1 0.8 0.6 2.3 1.2 3.5 0.6 1.1 7.4 18.2 15.1 38 7.8 19.8 15 37.9 16.1 40.2 1 2.4 1.9 4.6 1.9 5.1 0 0.5 0.9 2.7 2 5 1.1 2.2 2 4.8 2 5.6 0 0.8 0.4 1.7 0.9 2 0.5 0.3 1.2 1.8 1.6 3.3 0.3 1.6 1.3 4.1 2 5.8 0.8 1.6 4.3 10.4 7.9 19.5 3.5 9.1 12.5 31.9 20 50.8 7.5 18.9 13.6 34.5 13.6 34.8 0 0.2 0.9 2.3 1.9 4.7 1 2.3 2.6 6.2 3.6 8.7 2 5.3 4.3 10.8 5.6 13.2 0.5 1 0.9 2.4 0.9 3.1 0 0.7 1.1 3.7 2.5 6.5 1.4 2.9 2.5 5.5 2.5 5.9 0 0.8 3.7 10.1 6.6 17 0.8 1.7 1.4 3.3 1.4 3.6 0 0.2 0.8 2.2 1.7 4.3 0.9 2.2 1.7 4.1 1.8 4.4 0.1 0.3 0.5 1.4 1 2.5 5.9 14.6 17.5 44.7 17.5 45.5 0 0.7 27.6 1 80 1l80 0 -1.9 -4.8c-1 -2.6 -4 -10.1 -6.6 -16.7 -2.6 -6.6 -5.5 -13.8 -6.5 -16 -0.9 -2.2 -2.3 -5.7 -3 -7.8 -0.7 -2.2 -1.8 -5.1 -2.6 -6.5 -0.8 -1.5 -1.4 -3.1 -1.4 -3.5 0 -0.5 -0.6 -2.3 -1.4 -4 -2.2 -4.9 -10.7 -26.1 -10.9 -27.2 -0.4 -1.6 -8.7 -22.8 -9.8 -24.7 -0.4 -0.9 -3.2 -7.7 -6 -15 -2.8 -7.3 -5.6 -14.4 -6.1 -15.8 -0.6 -1.4 -1.2 -3 -1.3 -3.5 -0.2 -0.6 -1.2 -3.2 -2.4 -5.7 -1.1 -2.5 -2.8 -6.8 -3.7 -9.4 -0.9 -2.7 -2.4 -6.7 -3.4 -8.9 -1.8 -4 -3.2 -7.6 -3.4 -8.5 -0.3 -1.2 -25 -63 -26.7 -66.7 -1 -2.4 -1.9 -4.9 -1.9 -5.7 0 -0.8 -0.4 -1.8 -1 -2.1 -0.5 -0.3 -1 -1.3 -1 -2.1 0 -0.8 -0.9 -3.3 -1.9 -5.7 -1.1 -2.3 -4 -9.4 -6.4 -15.7 -11.6 -29.6 -17.9 -45.7 -18.7 -47.5 -1.4 -3.2 -5.9 -14.5 -20.3 -51 -7.3 -18.7 -13.7 -34.9 -14.2 -36 -0.5 -1.1 -0.9 -2.2 -1 -2.5 -0.1 -0.3 -0.6 -1.6 -1.2 -3 -0.6 -1.4 -1.9 -4.5 -2.8 -7 -0.9 -2.5 -2.1 -5.4 -2.5 -6.5 -2.8 -6.5 -16.1 -40.3 -16.5 -41.5 -0.2 -0.8 -1.1 -3.3 -2.1 -5.5 -1 -2.2 -1.8 -4.2 -1.9 -4.5 0 -0.5 -12 -30.9 -13.5 -34.5 -0.5 -1.1 -1.9 -4.5 -3 -7.5 -3.4 -8.6 -3.7 -9.3 -5.4 -13.2 -0.9 -2 -1.6 -3.8 -1.6 -4.1 0 -0.3 -0.4 -1.6 -0.9 -2.9 -0.5 -1.3 -0.9 -2.5 -0.8 -2.8 0 -0.3 -1 -2.3 -2.2 -4.5 -1.1 -2.2 -2.1 -4.3 -2.1 -4.7 0 -0.5 -4.6 -12.2 -10.1 -26.1 -5.6 -13.8 -10.8 -27 -11.6 -29.1 -0.8 -2.2 -1.7 -4.5 -2.1 -5 -0.3 -0.6 -0.7 -1.8 -0.9 -2.6 -0.1 -0.8 -0.7 -2.6 -1.4 -4 -1.7 -3.6 -2.5 -5.5 -5.9 -14.5 -1.7 -4.4 -3.5 -8.9 -4 -10 -0.4 -1.1 -3.8 -9.7 -7.5 -19 -8.9 -22.9 -15.5 -39.6 -16.5 -42 -0.5 -1.1 -1.8 -4.3 -2.8 -7 -1.1 -2.8 -3.2 -8 -4.7 -11.8l-2.7 -6.7 -79.4 0c-68.5 0 -79.4 0.2 -79.4 1.4z"/></symbol><symbol id="isle-gpt" viewBox="15 16 150 148"><path d="M101.228 164.247C96.2776 164.247 91.5751 163.307 87.1201 161.426C82.6651 159.545 78.7051 156.921 75.2401 153.555C71.4781 154.842 67.5676 155.486 63.5086 155.486C56.8756 155.486 50.7376 153.852 45.0946 150.585C39.4516 147.318 34.8976 142.863 31.4326 137.22C28.0666 131.577 26.3836 125.291 26.3836 118.361C26.3836 115.49 26.7796 112.371 27.5716 109.005C23.6116 105.342 20.5426 101.135 18.3646 96.3828C16.1866 91.5318 15.0976 86.4828 15.0976 81.2358C15.0976 75.8898 16.2361 70.7418 18.5131 65.7918C20.7901 60.8418 23.9581 56.5848 28.0171 53.0208C32.1751 49.3578 36.9766 46.8333 42.4216 45.4473C43.5106 39.8043 45.7876 34.7553 49.2526 30.3003C52.8166 25.7463 57.1726 22.1823 62.3206 19.6083C67.4686 17.0343 72.9631 15.7473 78.8041 15.7473C83.7541 15.7473 88.4566 16.6878 92.9116 18.5688C97.3666 20.4498 101.327 23.0733 104.792 26.4393C108.554 25.1523 112.464 24.5088 116.523 24.5088C123.156 24.5088 129.294 26.1423 134.937 29.4093C140.58 32.6763 145.085 37.1313 148.451 42.7743C151.916 48.4173 153.648 54.7038 153.648 61.6338C153.648 64.5048 153.252 67.6233 152.46 70.9893C156.42 74.6523 159.489 78.9093 161.667 83.7603C163.845 88.5123 164.934 93.5118 164.934 98.7588C164.934 104.105 163.796 109.253 161.519 114.203C159.242 119.153 156.024 123.459 151.866 127.122C147.807 130.686 143.055 133.161 137.61 134.547C136.521 140.19 134.195 145.239 130.631 149.694C127.166 154.248 122.859 157.812 117.711 160.386C112.563 162.96 107.069 164.247 101.228 164.247ZM64.5481 145.685C69.4981 145.685 73.8046 144.645 77.4676 142.566L105.386 126.528C106.376 125.835 106.871 124.895 106.871 123.707V110.936L70.9336 131.577C68.7556 132.864 66.5776 132.864 64.3996 131.577L36.3331 115.391C36.3331 115.688 36.2836 116.034 36.1846 116.43C36.1846 116.826 36.1846 117.42 36.1846 118.212C36.1846 123.261 37.3726 127.914 39.7486 132.171C42.2236 136.329 45.6391 139.596 49.9951 141.972C54.3511 144.447 59.2021 145.685 64.5481 145.685ZM66.0331 121.479C66.6271 121.776 67.1716 121.925 67.6666 121.925C68.1616 121.925 68.6566 121.776 69.1516 121.479L80.2891 115.094L44.5006 94.3038C42.3226 93.0168 41.2336 91.0863 41.2336 88.5123V56.2878C36.2836 58.4658 32.3236 61.8318 29.3536 66.3858C26.3836 70.8408 24.8986 75.7908 24.8986 81.2358C24.8986 86.0868 26.1361 90.7398 28.6111 95.1948C31.0861 99.6498 34.3036 103.016 38.2636 105.293L66.0331 121.479ZM101.228 154.446C106.475 154.446 111.227 153.258 115.484 150.882C119.741 148.506 123.107 145.239 125.582 141.081C128.057 136.923 129.294 132.27 129.294 127.122V95.0463C129.294 93.8583 128.799 92.9673 127.809 92.3733L116.523 85.8393V127.271C116.523 129.845 115.434 131.775 113.256 133.062L85.1896 149.249C90.0406 152.714 95.3866 154.446 101.228 154.446ZM106.871 100.095V79.8993L90.09 70.3953L73.1611 79.8993V100.095L90.09 109.599L106.871 100.095ZM63.5086 52.7238C63.5086 50.1498 64.5976 48.2193 66.7756 46.9323L94.8421 30.7458C89.9911 27.2808 84.6451 25.5483 78.8041 25.5483C73.5571 25.5483 68.8051 26.7363 64.5481 29.1123C60.2911 31.4883 56.9251 34.7553 54.4501 38.9133C52.0741 43.0713 50.8861 47.7243 50.8861 52.8723V84.7998C50.8861 85.9878 51.3811 86.9283 52.3711 87.6213L63.5086 94.1553V52.7238ZM138.947 123.707C143.897 121.529 147.807 118.163 150.678 113.609C153.648 109.055 155.133 104.105 155.133 98.7588C155.133 93.9078 153.896 89.2548 151.421 84.7998C148.946 80.3448 145.728 76.9788 141.768 74.7018L113.999 58.6638C113.405 58.2678 112.86 58.1193 112.365 58.2183C111.87 58.2183 111.375 58.3668 110.88 58.6638L99.7426 64.9008L135.68 85.8393C136.769 86.4333 137.561 87.2253 138.056 88.2153C138.65 89.1063 138.947 90.1953 138.947 91.4823V123.707ZM109.098 48.2688C111.276 46.8828 113.454 46.8828 115.632 48.2688L143.847 64.7523C143.847 64.0593 143.847 63.1683 143.847 62.0793C143.847 57.3273 142.659 52.8228 140.283 48.5658C138.006 44.2098 134.69 40.7448 130.334 38.1708C126.077 35.5968 121.127 34.3098 115.484 34.3098C110.534 34.3098 106.227 35.3493 102.564 37.4283L74.6461 53.4663C73.6561 54.1593 73.1611 55.0998 73.1611 56.2878V69.0588L109.098 48.2688Z"/></symbol></svg>
+          <div class="isle__win isle__win--a"></div>
+          <div class="isle__win isle__win--b"></div>
+          <div class="isle__shape">
+            <i class="isle__fil isle__fil--l"></i><i class="isle__fil isle__fil--r"></i>
+            <div class="isle__black"></div>
+            <div class="isle__glass"></div>
+            <div class="isle__island">
+              <span data-isle-clock>15:00:02</span>
+              <span class="isle__use"><svg><use href="#isle-claude"/></svg>Ultra 68 %</span>
+              <span class="isle__use"><svg><use href="#isle-claude"/></svg>Ultra 36 %</span>
+              <span class="isle__use"><svg><use href="#isle-claude"/></svg>Ultra 92 %</span>
+              <span class="isle__use"><svg><use href="#isle-gpt"/></svg>Pro 100 79 %</span>
+            </div>
+            <div class="isle__pill">
+              <i class="tile"><img src="assets/tile-bloom.svg" alt=""></i>
+              <i class="tile is-run"><img src="assets/tile-system.svg" alt=""></i>
+              <i class="tile is-run"><img src="assets/tile-audio.svg" alt=""></i>
+              <i class="tile tile--folder is-run"><img src="assets/tile-ai-sparkle.svg" alt=""></i>
+              <i class="tile is-run is-front"><img src="assets/tile-design.svg" alt=""></i>
+              <i class="tile is-run"><img src="assets/tile-3d.svg" alt=""></i>
+              <i class="tile tile--auto is-run"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="6.5"/><path d="M12 8.5V12h3"/></svg></i>
+              <span class="isle__accts">
+                <span class="pa"><span class="pa__row"><svg><use href="#isle-claude"/></svg><b>Ultra</b><span>68 %</span></span><i style="--v:.68"></i></span>
+                <span class="pa"><span class="pa__row"><svg><use href="#isle-claude"/></svg><b>Ultra</b><span>36 %</span></span><i style="--v:.36"></i></span>
+                <span class="pa"><span class="pa__row"><svg><use href="#isle-claude"/></svg><b>Ultra</b><span>92 %</span></span><i style="--v:.92"></i></span>
+                <span class="pa"><span class="pa__row"><svg><use href="#isle-gpt"/></svg><b>Pro 100</b><span>79 %</span></span><i style="--v:.79"></i></span>
+              </span>
+              <span class="isle__tray"><svg viewBox="0 0 24 24"><path d="M6 9.5l6 6 6-6"/></svg><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.6"/><path d="M12 3.5v2M12 18.5v2M3.5 12h2M18.5 12h2M6 6l1.4 1.4M16.6 16.6L18 18M6 18l1.4-1.4M16.6 7.4L18 6"/></svg></span>
+              <span class="isle__time" data-isle-time>15:00:02</span>
+            </div>
+          </div>
+          <div class="isle__pop">
+            <i class="tile tile--app"><svg viewBox="0 0 24 24"><path d="M7 4h10v16H7z"/><path d="M9.5 8h5M9.5 11h5M9.5 14h3"/></svg></i>
+            <i class="tile tile--app"><svg viewBox="0 0 24 24"><path d="M6 4h12v16H6z"/><path d="M8.5 7h7v3h-7zM9 13h.01M12 13h.01M15 13h.01M9 16.5h.01M12 16.5h.01M15 16.5h.01"/></svg></i>
+            <i class="tile tile--app"><svg viewBox="0 0 24 24"><path d="M4 6h16v12H4z"/><path d="M7 10l2.5 2L7 14M11.5 14.5H15"/></svg></i>
+            <i class="tile tile--app"><svg viewBox="0 0 24 24"><path d="M4 8h3l1.5-2h7L17 8h3v10H4z"/><circle cx="12" cy="13" r="3"/></svg></i>
+          </div>
+          <svg class="isle__cursor" viewBox="0 0 24 24"><path d="M5 3l14 8.2-6.1 1.4L10 19z"/></svg>
+        </div>
       </div>
       <div class="addons__row">
         <div class="card addon">
           <h3>작업표시줄</h3>
-          <p>Windows 11 작업표시줄을 가운데 뜬 알약 모양으로 바꿉니다. 앱 아이콘을 겹쳐 끌면 폴더로 묶입니다.</p>
+          <p>Windows 11 작업표시줄을 가운데 뜬 유리 알약 모양으로 바꿉니다. 앱 아이콘을 겹쳐 끌면 폴더로 묶을 수 있습니다.</p>
           <a class="textlink" href="https://github.com/hyeon1035298/PillTaskbar_BloomAddon">PillTaskbar 소스</a>
         </div>
         <div class="card addon">
           <h3>모니터별 Alt+Tab</h3>
-          <p>Alt+Tab이 커서가 있는 모니터에 뜨고 그 모니터의 창만 보여 줍니다.</p>
+          <p>모니터가 여럿일 때 커서가 있는 모니터에 Alt+Tab을 띄우고, 그 모니터의 창만 보여 줍니다.</p>
           <a class="textlink" href="https://github.com/hyeon1035298/AltTabPerMonitor_BloomAddon">AltTabPerMonitor 소스</a>
         </div>
       </div>
-      <p class="addons__note">설정 › 애드온에서 받고, 앱에 내장된 해시와 일치할 때만 설치합니다.</p>
-    </div>
-  </section>
-
-  <!-- road (pinned) -->
-  <section class="road" aria-labelledby="road-title">
-    <div class="wrap road__grid">
-      <h2 id="road-title" class="head head--left">받아서 묻기까지.<span>네 단계면 됩니다.</span></h2>
-      <div class="steps">
-        <span class="steps__rail" aria-hidden="true"></span>
-        <span class="steps__fill" aria-hidden="true"></span>
-        <ol class="steps__list">
-          <li class="step"><span class="step__n">1</span><h3>받기</h3><p>최신 릴리스의 <code>BloomLauncher-win-Setup.exe</code>를 실행합니다.</p></li>
-          <li class="step"><span class="step__n">2</span><h3>열기 <span class="keys"><kbd class="kbd" aria-label="Win"><span class="winkey" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M0 0h7.4v7.4H0zM8.6 0H16v7.4H8.6zM0 8.6h7.4V16H0zM8.6 8.6H16V16H8.6z"/></svg></span></kbd></span></h3><p>Win 키만 눌렀다 떼면 열립니다. Win+E 같은 단축키는 원래대로 동작합니다. 시작 메뉴 앱도 이 검색줄에서 찾습니다.</p></li>
-          <li class="step"><span class="step__n">3</span><h3>적기 <span class="keys"><kbd class="kbd">↵</kbd></span></h3><p>앱 이름, 계산식, 단위, 알림을 적고 Enter를 누릅니다. 계산 결과는 바로 복사됩니다.</p></li>
-          <li class="step"><span class="step__n">4</span><h3>묻기 <small class="step__opt">선택</small> <span class="keys"><kbd class="kbd">Tab</kbd></span></h3><p>Claude Code나 Codex에 로그인돼 있거나 API 키를 넣었다면, 같은 줄에서 Tab으로 묻습니다.</p></li>
-        </ol>
-      </div>
+      <p class="addons__note">설정 › 애드온에서 버튼 하나로 받으며, 내장된 해시와 일치할 때만 설치됩니다.</p>
     </div>
   </section>
 
   <!-- notes -->
   <section class="notes" aria-labelledby="notes-title">
     <div class="wrap notes__grid">
-      <h2 id="notes-title" class="head head--left">받기 전에.<span>설치와 개인정보에 관한 네 가지.</span></h2>
+      <h2 id="notes-title" class="head head--left">받기 전에.<span>설치와 개인정보에 관한 네 가지 안내</span></h2>
       <div class="acc">
         <details open>
           <summary>SmartScreen 경고<span class="plus" aria-hidden="true">+</span></summary>
-          <div class="body"><p>아직 코드 서명이 없어서 “Windows의 PC 보호”가 뜰 수 있습니다. 추가 정보 › 실행을 누르세요.</p></div>
+          <div class="body"><p>아직 코드 서명 전이라 “Windows의 PC 보호” 창이 뜰 수 있습니다. 추가 정보 › 실행을 누르세요.</p></div>
         </details>
         <details>
           <summary>설치되는 곳<span class="plus" aria-hidden="true">+</span></summary>
-          <div class="body"><p>현재 Windows 계정의 <code>%LOCALAPPDATA%\BloomLauncher</code>에 설치되고 시작 메뉴 바로 가기가 생깁니다. .NET 10 Desktop Runtime이 없으면 자동으로 함께 설치하며, 이때 Windows가 권한 승인을 묻습니다.</p></div>
+          <div class="body"><p>현재 계정의 <code>%LOCALAPPDATA%\BloomLauncher</code>에 설치되고 시작 메뉴 바로 가기가 생깁니다. .NET 10 Desktop Runtime이 없을 때만 함께 설치하며 권한 승인을 묻습니다.</p></div>
         </details>
         <details>
-          <summary>AI에게 가는 것<span class="plus" aria-hidden="true">+</span></summary>
-          <div class="body"><p>직접 보낸 질문과 첨부 파일, Bloom Lens로 고른 화면, 번역할 글, PC 작업 도구의 결과만 전달됩니다.</p><p>API 키는 Windows가 암호화해 이 PC에만 저장하고, 각 키는 해당 서비스로만 보냅니다.</p></div>
+          <summary>AI에게 전달되는 것<span class="plus" aria-hidden="true">+</span></summary>
+          <div class="body"><p>직접 보낸 질문과 첨부 파일, Bloom Lens로 고른 화면, 번역할 글, PC 작업 도구의 결과만 전달됩니다.</p><p>API 키는 Windows가 암호화해 이 PC에만 보관하며, 해당 서비스로 요청할 때만 쓰입니다.</p></div>
         </details>
         <details>
           <summary>업데이트와 제거<span class="plus" aria-hidden="true">+</span></summary>
-          <div class="body"><p>실행 후 한 번 최신 릴리스를 확인하고, 새 버전은 다음 실행 때 적용합니다. 설정 › 정보에서 자동 확인을 끌 수 있습니다.</p><p>제거는 설정 › 데이터 › Bloom 삭제에서 하며, 대화와 설정을 함께 지울지 고를 수 있습니다. Windows 설정 › 앱에서 제거하면 데이터는 남습니다.</p></div>
+          <div class="body"><p>실행 후 한 번 새 버전을 확인해 다음 실행 때 적용합니다. 설정 › 정보에서 자동 확인을 끌 수 있습니다.</p><p>설정 › 데이터 › Bloom 삭제에서 대화와 설정까지 함께 지울지 고를 수 있습니다. Windows 설정 › 앱에서 지우면 데이터는 남습니다.</p></div>
         </details>
       </div>
     </div>
@@ -921,13 +1028,13 @@ h1 .winkey, h2 .winkey { width: 0.7em; vertical-align: baseline; margin-right: 0
       <i class="beam" style="--h:120px;--y:170px;--o:.16;--b:36px"></i>
     </div>
     <div class="wrap">
-      <h2 id="close-title"><span class="winkey" role="img" aria-label="Win"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M0 0h7.4v7.4H0zM8.6 0H16v7.4H8.6zM0 8.6h7.4V16H0zM8.6 8.6H16V16H8.6z"/></svg></span> 키 하나면<span>됩니다.</span></h2>
+      <h2 id="close-title"><span class="winkey" role="img" aria-label="Win"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M0 0h7.4v7.4H0zM8.6 0H16v7.4H8.6zM0 8.6h7.4V16H0zM8.6 8.6H16V16H8.6z"/></svg></span> 키 하나면<span>충분합니다.</span></h2>
       <div class="close__row">
         <a class="btn" data-dl href="https://github.com/hyeon1035298/Bloom/releases/latest/download/BloomLauncher-win-Setup.exe">
           <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M0 0h7.5v7.5H0zM8.5 0H16v7.5H8.5zM0 8.5h7.5V16H0zM8.5 8.5H16V16H8.5z"/></svg>
           <span data-dl-label>Windows용 받기</span>
         </a>
-        <p class="close__note"><b>BloomLauncher-win-Setup.exe</b>, 무료. 코드 서명 전이라 “Windows의 PC 보호” 창이 뜨면 추가 정보 › 실행을 누르세요. <a class="textlink" href="https://github.com/hyeon1035298/Bloom/releases/latest">버전과 변경 내용</a></p>
+        <p class="close__note"><b>BloomLauncher-win-Setup.exe</b>, 무료 오픈 소스. “Windows의 PC 보호” 창이 뜨면 추가 정보 › 실행을 누르세요. <a class="textlink" href="https://github.com/hyeon1035298/Bloom/releases/latest">버전과 변경 내용</a></p>
       </div>
       <details class="ps">
         <summary>PowerShell로 설치</summary>
@@ -935,7 +1042,7 @@ h1 .winkey, h2 .winkey { width: 0.7em; vertical-align: baseline; margin-right: 0
           <code id="cmd">irm https://raw.githubusercontent.com/hyeon1035298/Bloom/main/install.ps1 | iex</code>
           <button type="button" data-copy="cmd">복사</button>
         </div>
-        <p class="close__small">같은 설치 파일을 받아 실행합니다. <a class="textlink" href="https://github.com/hyeon1035298/Bloom/blob/main/install.ps1">스크립트 보기</a></p>
+        <p class="close__small">위 버튼과 같은 설치 파일을 받아 실행합니다. <a class="textlink" href="https://github.com/hyeon1035298/Bloom/blob/main/install.ps1">스크립트 보기</a></p>
       </details>
     </div>
   </section>
@@ -944,7 +1051,7 @@ h1 .winkey, h2 .winkey { width: 0.7em; vertical-align: baseline; margin-right: 0
 <footer class="foot">
   <div class="wrap foot__in">
     <span class="foot__brand"><img src="assets/mark.png" alt="" width="28" height="28">Bloom</span>
-    <span>MIT 라이선스. Anthropic, OpenAI와 관계없는 비공식 프로젝트입니다.</span>
+    <span>MIT 라이선스. Anthropic 및 OpenAI와 관련 없는 독립 오픈 소스 프로젝트입니다.</span>
     <nav class="foot__links" aria-label="바깥 링크">
       <a href="https://github.com/hyeon1035298/Bloom">GitHub</a>
       <a href="https://github.com/hyeon1035298/Bloom/releases">릴리스</a>
@@ -1065,7 +1172,7 @@ h1 .winkey, h2 .winkey { width: 0.7em; vertical-align: baseline; margin-right: 0
     $$('a[href^="#"]').forEach(function (a) {
       a.addEventListener('click', function (e) {
         var id = a.getAttribute('href');
-        if (id.length > 1 && document.querySelector(id)) { e.preventDefault(); lenis.scrollTo(id, { offset: $(id).matches('.qa, .road') ? 0 : -96, onComplete: function () {
+        if (id.length > 1 && document.querySelector(id)) { e.preventDefault(); lenis.scrollTo(id, { offset: $(id).matches('.qa') ? 0 : -96, onComplete: function () {
           var t = $(id); if (!t.hasAttribute('tabindex')) t.setAttribute('tabindex', '-1');
           t.focus({ preventScroll: true }); history.replaceState(null, '', id);
         } }); }
@@ -1304,16 +1411,6 @@ h1 .winkey, h2 .winkey { width: 0.7em; vertical-align: baseline; margin-right: 0
         onUpdate: function () { el.textContent = pre + Math.round(o.v).toLocaleString('en-US'); } });
     });
 
-    // Road pin: steps rise as the rail fills.
-    if (wide) {
-      var steps = $$('.step');
-      gsap.set('.steps__fill', { scaleY: 0 });
-      gsap.set(steps, { y: 40, opacity: 0 });
-      var road = gsap.timeline({ scrollTrigger: { trigger: '.road', start: pinStart('.road'), end: '+=1100', pin: true, scrub: 0.8, refreshPriority: 1 } });
-      road.to('.steps__fill', { scaleY: 1, ease: 'none', duration: 4 }, 0);
-      steps.forEach(function (s, k) { road.to(s, { y: 0, opacity: 1, duration: 0.7, ease: 'power3.out' }, k * 0.95); });
-    }
-
     introDone = true;
 
     return function () {
@@ -1339,6 +1436,43 @@ h1 .winkey, h2 .winkey { width: 0.7em; vertical-align: baseline; margin-right: 0
   });
 
   addEventListener('load', function () { ScrollTrigger.refresh(); });
+})();
+</script>
+<script>
+// Island: the pointer reaches the island, it opens into the pill taskbar, a folder opens and closes, the pill folds back.
+(function () {
+  var box = document.querySelector('[data-isle]');
+  if (!box) return;
+  var screen = box.querySelector('.isle__screen'), clocks = box.querySelectorAll('[data-isle-clock], [data-isle-time]');
+  var s = { open: 0, pop: 0, cx: 760, cy: 200, press: 0 };
+  function paint() {
+    ['open', 'pop', 'cx', 'cy', 'press'].forEach(function (k) { screen.style.setProperty('--' + k, s[k].toFixed(4)); });
+  }
+  if (!window.gsap || matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    s.open = 1; s.pop = 1; paint(); box.classList.add('is-still');
+    return;
+  }
+  var tl = gsap.timeline({ repeat: -1, paused: true, onUpdate: function () {
+    paint();
+    var sec = 2 + Math.floor(tl.time());
+    clocks.forEach(function (c) { c.textContent = '15:00:' + (sec < 10 ? '0' : '') + sec; });
+  } });
+  tl.set(s, { open: 0, pop: 0, cx: 760, cy: 200, press: 0 }, 0)
+    .to(s, { cx: 560, cy: 20, duration: 1.1, ease: 'power2.inOut' }, 0.5)
+    .to(s, { open: 1, duration: 0.75, ease: 'power3.inOut' }, 1.55)
+    .to(s, { cx: 225, cy: 32, duration: 0.8, ease: 'power2.inOut' }, 2.5)
+    .to(s, { press: 1, duration: 0.08, ease: 'none' }, 3.35)
+    .to(s, { press: 0, duration: 0.18, ease: 'power2.out' }, 3.43)
+    .to(s, { pop: 1, duration: 0.5, ease: 'expo.out' }, 3.42)
+    .to(s, { cx: 131, cy: 113, duration: 0.7, ease: 'power2.inOut' }, 4.1)
+    .to(s, { cx: 740, cy: 195, duration: 0.9, ease: 'power2.inOut' }, 5.6)
+    .to(s, { pop: 0, duration: 0.28, ease: 'power2.in' }, 5.75)
+    .to(s, { open: 0, duration: 0.6, ease: 'power3.inOut' }, 6.35)
+    .to({}, { duration: 1.4 }, 6.95);
+  paint();
+  if ('IntersectionObserver' in window) {
+    new IntersectionObserver(function (es) { es[0].isIntersecting ? tl.play() : tl.pause(); }, { threshold: 0.35 }).observe(box);
+  } else tl.play();
 })();
 </script>
 </body>
