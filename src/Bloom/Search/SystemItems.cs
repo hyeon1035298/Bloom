@@ -45,6 +45,7 @@ internal static class SystemItems
         Cmd("cmd:recent", Tr("최근 파일", "Recent files"), Tr("Windows가 기억하는 최근에 연 파일 · 폴더", "Files and folders Windows remembers you opened"), G.History, "recent files documents opened 최근 파일 최근 문서 열어본 최근 항목");
         Cmd("cmd:system", Tr("시스템", "System"), Tr("다크 모드 · 소리 · 블루투스 · Wi-Fi · 절전 …", "Dark mode · sound · Bluetooth · Wi-Fi · sleep …"), '\uE770', "system toggles quick settings 시스템 빠른 설정 토글 켜기 끄기");
         Cmd("cmd:quick", Tr("AI 빠른 동작", "AI actions"), Tr("선택하거나 복사한 글을 요약 · 번역 · 다듬기", "Summarize, translate or polish the selected or copied text"), G.Sparkle, "ai quick actions summarize translate rewrite fix grammar 빠른 동작 요약 번역 다듬기 맞춤법 교정");
+        Cmd("cmd:inbox", Tr("알림 센터", "Notification center"), Tr("AI 명령이 저절로 실행된 결과 · 누르면 그 채팅으로", "What AI commands did on their own · opens their chat"), G.Bell, "notification center inbox history results log 알림 센터 알림함 기록 결과 주기 실행");
         Cmd("cmd:welcome", Tr("Bloom 둘러보기", "Bloom tour"), Tr("처음 설정과 사용법 안내를 다시 보기", "See the first-run setup and the guide again"), G.Info, "welcome tutorial onboarding guide help 둘러보기 튜토리얼 안내 처음 사용법 도움말 시작하기");
         Cmd("cmd:export", Tr("설정 내보내기", "Export settings"), Tr("설정 · 즐겨찾기 · 앱 이름 · 브라우저 바로 가기를 파일 하나로", "Settings, favorites, app names and browser shortcuts in one file"), G.Send, "export settings backup 설정 내보내기 백업 저장 옮기기");
         Cmd("cmd:import", Tr("설정 불러오기", "Import settings"), Tr("내보낸 설정 파일에서 가져오기", "From an exported settings file"), G.Import, "import settings restore 설정 불러오기 가져오기 복원 옮기기");

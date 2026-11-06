@@ -88,9 +88,18 @@ internal sealed partial class Launcher
         [Mode.Commands] = new()
         {
             Chip = () => Tr("사용자 명령", "Custom commands"),
-            Placeholder = () => Tr("명령 찾기 · 스크립트 · 스니펫 · 묶음", "Find a command · scripts, snippets, chains"),
+            Placeholder = () => Tr("명령 찾기 · 스크립트 · 스니펫 · 묶음 · AI 명령", "Find a command · scripts, snippets, chains, AI commands"),
             Context = () => Tr($"사용자 명령 · {UserCommands.Current.Items.Count}개 · 단축어 + 스페이스 + 입력", $"Custom commands · {UserCommands.Current.Items.Count} · keyword + space + input"),
             Build = Engine.CommandsView,
+            Live = true,
+        },
+        [Mode.Inbox] = new()
+        {
+            Chip = () => Tr("알림 센터", "Notification center"),
+            Placeholder = () => Tr("알림 찾기 · Enter로 그 채팅 열기", "Find a notification · Enter opens its chat"),
+            Context = () => Tr($"알림 센터 · {NoticeLog.Current.Items.Count}개", $"Notification center · {NoticeLog.Current.Items.Count}"),
+            Build = Engine.InboxView,
+            Split = false, // each line shows its preview and time; Enter opens the whole answer in its chat
             Live = true,
         },
         [Mode.Processes] = new()

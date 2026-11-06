@@ -11,12 +11,13 @@ namespace Bloom.App;
 /// form in the search line that makes and edits them. Host.Mine runs them.
 internal sealed partial class Engine
 {
-    private static readonly string[] KindsOrder = { "script", "snippet", "chain" };
+    private static readonly string[] KindsOrder = { "ai", "script", "snippet", "chain" };
 
     private static string KindName(string kind) => kind switch
     {
         "snippet" => Tr("스니펫", "Snippet"),
         "chain" => Tr("묶음", "Chain"),
+        "ai" => Tr("AI 명령", "AI command"),
         _ => Tr("스크립트", "Script"),
     };
 
@@ -24,6 +25,7 @@ internal sealed partial class Engine
     {
         "snippet" => G.Paste,
         "chain" => G.Bolt,
+        "ai" => G.Sparkle,
         _ => G.Code,
     };
 
@@ -36,6 +38,7 @@ internal sealed partial class Engine
         {
             "snippet" => UserCommands.SnippetText(c.Body).Replace('\n', ' '),
             "chain" => string.Join("  →  ", UserCommands.Steps(c.Body)),
+            "ai" => AiInput.Name(c.Input) + (c.Every is { } every ? " · " + AiSchedule.Name(every) : "") + " · " + string.Join("  →  ", AiCommandRun.Split(c.Body)),
             _ => c.Body.Replace(Paths.Home, "~", StringComparison.OrdinalIgnoreCase),
         };
         var item = new ResultItem
@@ -69,6 +72,7 @@ internal sealed partial class Engine
             if (running) list.Insert(0, new ActionItem { Title = Tr("중지", "Stop"), Glyph = G.Stop, Danger = true, StayOpen = true, Run = () => host.StopMine(c) });
             if (host.LastOutput(c) is { Length: > 0 } output) list.Add(new ActionItem { Title = Tr("마지막 출력 복사", "Copy the last output"), Glyph = G.Copy, Run = () => Launch.Copy(output) });
             if (!needsInput && c.Kind == "snippet") list.Add(new ActionItem { Title = Tr("복사만 하기", "Copy only"), Keys = "Ctrl+Enter", Glyph = G.Copy, Run = () => Launch.Copy(UserCommands.Expand(UserCommands.SnippetText(c.Body), input ?? "", host.ClipText)) });
+            if (c.IsAi) list.AddRange(AiCommandActions(c));
             if (c.Kind == "script")
                 list.Add(new ActionItem
                 {
@@ -129,9 +133,10 @@ internal sealed partial class Engine
             {
                 Id = "my:new-" + kind,
                 Kind = ItemKind.Command,
-                Title = kind switch { "snippet" => Tr("새 스니펫", "New snippet"), "chain" => Tr("새 묶음", "New chain"), _ => Tr("새 스크립트", "New script") },
+                Title = NewTitle(kind),
                 Subtitle = kind switch
                 {
+                    "ai" => Tr("자주 쓰는 AI 지시를 이름으로 저장 · 선택한 글 · 클립보드에 실행 · >> 로 여러 단계", "Save an AI instruction you use often · run it on the selection or clipboard · >> for several steps"),
                     "snippet" => Tr("자주 쓰는 글을 단축어로 붙여넣기 · {date} {time} {clipboard} {input}", "Paste a text you use often by its keyword · {date} {time} {clipboard} {input}"),
                     "chain" => Tr("검색창에 적듯이 여러 줄을 차례로 실행 — 예) 메모장 ; 볼륨 30 ; 기다리기 2초", "Run several search lines in turn — e.g. notepad ; volume 30 ; wait 2"),
                     _ => Tr(".ps1 · .bat · 프로그램 파일, 또는 PowerShell 한 줄을 실행", "Run a .ps1, .bat or program, or one PowerShell line"),
@@ -177,9 +182,16 @@ internal sealed partial class Engine
     /// New (or changed) command, asked in the search line: what it does → name → keyword.
     public FormSpec CommandForm(string kind, UserCommand? edit, string? body)
     {
-        var f = new FormSpec { Title = edit is null ? kind switch { "snippet" => Tr("새 스니펫", "New snippet"), "chain" => Tr("새 묶음", "New chain"), _ => Tr("새 스크립트", "New script") } : Tr("명령 고치기", "Edit command"), Back = Mode.Commands };
+        var f = new FormSpec { Title = edit is null ? NewTitle(kind) : Tr("명령 고치기", "Edit command"), Back = Mode.Commands };
         f.Fields.Add(kind switch
         {
+            "ai" => new FormField
+            {
+                Label = Tr("프롬프트", "Prompt"),
+                Hint = Tr("AI에게 시킬 일 — 단계는 >> 로 나눔  예) 핵심 3줄로 요약 >> 영어로 번역", "What the AI should do — split steps by >>  e.g. Summarize in 3 lines >> Translate into Korean"),
+                Value = edit?.Body ?? body ?? "",
+                Check = v => AiCommandRun.Split(v).Count > 0 ? (string.Join(" " + AiCommandRun.StepMark + " ", AiCommandRun.Split(v)), null) : (null, Tr("AI에게 시킬 일을 입력하세요", "Enter what the AI should do")),
+            },
             "snippet" => new FormField
             {
                 Label = Tr("내용", "Text"),
@@ -234,13 +246,14 @@ internal sealed partial class Engine
             Check = v =>
             {
                 string k = v.Trim().ToLowerInvariant();
-                bool input = f[0].Contains("{input}", StringComparison.OrdinalIgnoreCase);
+                bool input = kind != "ai" && f[0].Contains("{input}", StringComparison.OrdinalIgnoreCase);
                 if (k.Length == 0) return input ? (null, Tr("{input}을 사용하려면 단축어를 입력하세요", "Enter a keyword to use {input}")) : ("", null);
                 if (k.Contains(' ')) return (null, Tr("공백 없는 단축어를 입력하세요", "Enter a keyword without spaces"));
                 if (!UserCommands.KeywordFree(k, edit?.Id)) return (null, Tr($"‘{k}’ 단축어 사용 중 · 다른 단축어를 입력하세요", $"‘{k}’ is in use. Enter another keyword."));
                 return (k, null);
             },
         });
+        if (kind == "ai") AddAiFields(f, edit);
         f.Prepare = (form, step) =>
         {
             var field = form.Fields[step];
@@ -250,7 +263,8 @@ internal sealed partial class Engine
         f.Done = form =>
         {
             var c = edit is null ? UserCommands.New(kind, form[1], form[0], form[2].Length > 0 ? form[2] : null)
-                : new UserCommand { Id = edit.Id, Kind = edit.Kind, Name = form[1], Body = form[0], Keyword = form[2].Length > 0 ? form[2] : null, ShowWindow = edit.ShowWindow };
+                : new UserCommand { Id = edit.Id, Kind = edit.Kind, Name = form[1], Body = form[0], Keyword = form[2].Length > 0 ? form[2] : null, ShowWindow = edit.ShowWindow, Thread = edit.Thread };
+            if (kind == "ai") SetAiFields(c, edit, form[3], form[4]);
             UserCommands.Upsert(c);
             host.Window.Go(Mode.Commands);
             host.Window.ShowToast(edit is null ? Tr($"‘{c.Name}’ 명령 추가 완료", $"Added ‘{c.Name}’") : Tr("명령 저장 완료", "Command saved"));
@@ -264,6 +278,7 @@ internal sealed partial class Engine
         string s = kind switch
         {
             "chain" => UserCommands.Steps(body).FirstOrDefault() ?? "",
+            "ai" => AiCommandRun.Split(body).FirstOrDefault() ?? "",
             "snippet" => UserCommands.SnippetText(body).Split('\n')[0],
             _ => UserCommands.SplitFile(body.Trim()).file is { } file ? Path.GetFileNameWithoutExtension(file) : body.Trim().Split(' ')[0],
         };

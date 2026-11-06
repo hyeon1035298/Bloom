@@ -133,15 +133,15 @@ internal static class OmpCli
     }
 
     /// `omp -p`: one answer, the question on stdin (so a text that starts with "-" or "@" is never read as an option or a file).
-    /// `model` "" = omp's own default; `effort` null = off.
-    public static List<string> OneShotArgs(string model, string? effort, string system)
+    /// `model` "" = omp's own default; `effort` null = off; `search`: web search is its one tool.
+    public static List<string> OneShotArgs(string model, string? effort, string system, bool search = false)
     {
         var a = new List<string> { "-p", "--no-session", "--no-title" };
         if (model.Length > 0) a.AddRange(new[] { "--model", model });
         a.AddRange(new[]
         {
             "--thinking=" + Level(effort), "--system-prompt=" + system,
-            "--no-tools", "--no-skills", "--no-rules", "--no-extensions", "--no-lsp", "--no-pty",
+            search ? "--tools=web_search" : "--no-tools", "--no-skills", "--no-rules", "--no-extensions", "--no-lsp", "--no-pty",
         });
         return a;
     }

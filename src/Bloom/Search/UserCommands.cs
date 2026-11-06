@@ -14,15 +14,23 @@ namespace Bloom.Search;
 internal sealed class UserCommand
 {
     public string Id { get; set; } = "";
-    public string Kind { get; set; } = "script"; // script | snippet | chain
+    public string Kind { get; set; } = "script"; // script | snippet | chain | ai
     public string Name { get; set; } = "";
     public string? Keyword { get; set; }
-    public string Body { get; set; } = ""; // script: a file or a command line · snippet: the text · chain: steps split by ';'
+    public string Body { get; set; } = ""; // script: a file or a command line · snippet: the text · chain: steps split by ';' · ai: the prompt, steps split by ">>"
     public bool ShowWindow { get; set; } // script: in a console window (else hidden; the result comes as a notice)
+    public string Input { get; set; } = AiInput.Selection; // ai: what the prompt works on (AiInput)
+    public string? Every { get; set; } // ai: how often it runs by itself (AiSchedule: "30m", "2h", "3d", "daily 09:00"); null = only when run
+    public long LastRun { get; set; } // ai, scheduled: when it last ran on its own, or when the schedule was set (unix ms)
+    public string? Thread { get; set; } // ai, scheduled: the AI chat its results go into
 
     [JsonIgnore] public MatchTarget Match = null!;
 
-    public bool TakesInput => Body.Contains("{input}", StringComparison.OrdinalIgnoreCase);
+    /// Keyword + space + input in the search line: a script, snippet or chain with {input}. An AI command takes its input
+    /// from the selection or the clipboard instead.
+    public bool TakesInput => Kind != "ai" && Body.Contains("{input}", StringComparison.OrdinalIgnoreCase);
+
+    public bool IsAi => Kind == "ai";
 }
 
 /// 내 명령 (usercommands.json): made in the launcher (내 명령 view, or 내 명령으로 등록 on a script file), found by
@@ -50,7 +58,7 @@ internal sealed partial class UserCommands
     {
         foreach (var c in Current.Items)
         {
-            var aliases = new List<string> { c.Kind switch { "snippet" => "snippet 스니펫 상용구", "chain" => "chain macro 묶음 매크로", _ => "script 스크립트 명령" } };
+            var aliases = new List<string> { c.Kind switch { "snippet" => "snippet 스니펫 상용구", "chain" => "chain macro 묶음 매크로", "ai" => "ai prompt 프롬프트 AI 명령", _ => "script 스크립트 명령" } };
             if (c.Keyword is { Length: > 0 } k) aliases.Add(k);
             c.Match = new MatchTarget(c.Name, aliases);
         }
