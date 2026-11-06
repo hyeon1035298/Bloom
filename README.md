@@ -1,6 +1,6 @@
-<p align="center"><img src="promo/bloom-github.png" alt="Bloom with its cherry-blossom mark, the line Search and AI on one line, the home with AI usage and token cost, and the pill taskbar"></p>
+<p align="center"><img src="promo/bloom-github.png" alt="The Bloom mark, the headline One key, one search line., the launcher asking AI, and pieces of the home floating behind"></p>
 
-<p align="center">Bloom is a native Windows launcher that opens apps, does sums, finds files, chats with AI and translates the screen from one search line.</p>
+<p align="center">A launcher for Windows. Type what you need in the search line and press Enter to open it, or press Tab to ask AI.</p>
 
 <p align="center">
   <a href="#download">Download</a> | <a href="#features">Features</a> | <a href="#add-ons">Add-ons</a> | <a href="#shortcuts">Shortcuts</a> | <a href="#about-the-ai-features">AI and privacy</a> | <a href="README.ko.md">한국어</a> | <a href="README.ja.md">日本語</a> | <a href="README.zh-CN.md">简体中文</a>
@@ -14,25 +14,26 @@
 
 ## Why Bloom
 
-- One key opens it, and one search line answers many things.
-- AI runs on your own Claude Code or Codex sign-in, or on API keys you add.
-- A feature you switch off leaves the menus, frees its shortcut and takes no memory.
+- Press the Win key to bring up a single search line where you can launch apps, run calculations, and find files.
+- Use AI right away through the Claude Code or Codex account already signed in on this PC, or with your own API key.
+- Turn off any feature you don't use and it disappears from menus and shortcuts without using any memory.
 
 ## Download
 
-**[Get Bloom for Windows](https://github.com/hyeon1035298/Bloom/releases/latest)** and run `BloomLauncher-win-Setup.exe` from the latest release.
+**[Get Bloom for Windows](https://github.com/hyeon1035298/Bloom/releases/latest)** Download and run `BloomLauncher-win-Setup.exe` from the latest release.
 
-Or run this in PowerShell, which downloads the same setup and starts it ([install.ps1](install.ps1)).
+You can also download and run the same installer with PowerShell.
 
 ```powershell
 irm https://raw.githubusercontent.com/hyeon1035298/Bloom/main/install.ps1 | iex
 ```
 
-- Bloom needs Windows 10 or 11, 64-bit. The setup installs the .NET 10 Desktop Runtime when the PC lacks it, and Windows asks for permission for that part.
-- Bloom installs for your account only, into `%LOCALAPPDATA%\BloomLauncher`, with a Start menu shortcut.
-- To remove it, use Settings › Data › Uninstall Bloom, which asks whether your data in `%APPDATA%\Bloom` goes too. Windows Settings › Apps also removes it and keeps the data.
-- Bloom is not code-signed, so SmartScreen may say "Windows protected your PC". Choose More info, then Run anyway.
-- Bloom checks this repository's latest release once after it starts. A new version downloads in the background and goes in at the next start, or at once with Restart to update. Settings › About has the check and the switch for it.
+- Runs on 64-bit Windows 10 and 11. If the .NET 10 Desktop Runtime isn't installed yet, the installer will get it for you automatically.
+- Installs to `%LOCALAPPDATA%\BloomLauncher` and adds a shortcut to the Start menu.
+- Because the app isn't code-signed yet, Windows may show a "Windows protected your PC" prompt during setup—click More info › Run anyway to continue.
+- After launch, Bloom checks once for a newer version and applies the update the next time you start it. You can turn this off in Settings › About.
+- To remove the app, go to Settings › Data › Uninstall Bloom, where you can also choose whether to delete your saved data.
+- AI features require a Claude Code, Codex, or omp sign-in, or an API key. If [Everything](https://www.voidtools.com/) is installed, Bloom can search files across your entire PC in an instant.
 
 ## Features
 
@@ -40,128 +41,113 @@ irm https://raw.githubusercontent.com/hyeon1035298/Bloom/main/install.ps1 | iex
 
 <img src="docs/media/en/search.webp" alt="The launcher converting 5.9 ft to cm, with cards on initials, maths and units, reminders and emoji">
 
-- Apps, Windows settings pages and Bloom commands open from part of a name or its initials (`gc` for Google Chrome). Korean initial consonants work too (`ㅁㅁㅈ` for 메모장), and so does a word typed with the keyboard left in Korean.
-- Sums, units and currencies update as you type, and Enter copies the answer. Try `45000*1.1`, `5!`, `5.9 ft to cm` or `100 usd`.
-- Timers and reminders take plain time words, as in `timer 5m`, `laundry in 30 min` or `remind me at 3pm to call`. They show on the calendar and in the home's This week.
-- Emoji and symbols come by English or Korean name (`:heart`, `arrow`, `celsius`).
-- Anything else goes to your browser as a web search, and a keyword sends it to a site (`yt cats`, `gh bloom`). You can make your own site shortcuts.
-- With [Everything](https://www.voidtools.com/) installed, files are found by name at once and can be previewed. Without it, Bloom searches Windows' recent files.
-- Open windows are found by title, and Enter switches to one.
-- Ctrl+K on any result lists what you can do with it, such as renaming, moving or copying a file the way Explorer does. Type `?` alone to see every kind of input Bloom understands.
+- Quickly find installed apps, Windows settings, and Bloom commands. You can type just the initials (`gc`), and for Korean input it also recognizes initial consonants (`ㅁㅁㅈ`) or words typed without switching the keyboard layout (`초개ㅡㄷ`).
+- Type math expressions, unit conversions, or currencies like `45000*1.1`, `5.9 ft to cm`, or `100 usd` to see the answer right away, then press Enter to copy it to the clipboard.
+- Set timers and reminders in plain words, such as `timer 5m` or `laundry in 30 min`.
+- Find emoji by name with `:heart`, or search websites directly with a prefix like `yt cats`.
+- With Everything installed, you can find any file on your PC by name right away.
+- Press Ctrl+K on any search result to see all the actions you can take on it, or type `?` in an empty search line to see examples of what you can type.
 
 ### Paths, windows, dates and installs
 
 <img src="docs/media/en/more.webp" alt="The window layout list with drawn icons for halves and quarters, with cards on paths, window layout, dates and world clock, and installing apps">
 
-- Type a path such as `C:\Users`, `~\Downloads` or `%APPDATA%` to see that folder and what is in it. Enter opens it in Explorer.
-- `left half`, `right third`, `top-left quarter`, `maximize`, `center` and `next screen` move the window in front, with the taskbar kept clear.
-- Dates and the world clock answer `in 100 days`, `days until christmas`, `2026-01-01 ~ 2026-12-25` and `tokyo 3pm`.
-- `install vlc` searches winget and the Microsoft Store, asks first, then installs in the background and shows the result on a card.
-- Ctrl+K › Set a shortcut gives an app, folder, file, site, command or window layout a global shortcut of its own.
-- Right-click an app, or press Ctrl+K, to uninstall it.
+- Type a folder path like `C:\Users` to browse its files and subfolders right inside the launcher without opening File Explorer.
+- Type commands like `left half`, `maximize`, or `next screen` to snap the active window or move it to another monitor.
+- Calculate dates and check world times by typing phrases like `in 100 days` or `tokyo 3pm`.
+- Type `install vlc` to search winget and the Microsoft Store for an app and install it after confirming.
+- Use Ctrl+K › Set a shortcut to assign your own global keyboard shortcut to any frequently used app, folder, website, or window layout.
 
 ### AI chat
 
 <img src="docs/media/en/ai.webp" alt="A chat asking Allow or Decline before it moves a PDF into Documents, and work notification cards for Claude Code and Codex">
 
-- Type a question and press Tab for the quick AI right in the launcher. Shift+Tab starts a new chat, and Esc goes back while the answer keeps going.
-- The AI chat window (Ctrl+Alt+C) keeps past chats in groups and takes attached files and pictures.
-- Answers come from the Claude Code or Codex CLI signed in on this PC, from [omp](https://github.com/can1357/oh-my-pi) when it is installed, or from an API key for OpenAI, Anthropic, Gemini, OpenRouter, DeepSeek, xAI or OpenCode Go. Keys are encrypted by Windows and go only to their own provider.
-- Hand off PC tasks such as "move the quote PDF I got yesterday into Documents". Each action that changes something waits for Allow or Decline on a card in the chat.
-- "Write my shopping list in a note", "a 25 minute timer" and "a meeting tomorrow at 3pm" go into Bloom's own notes, timers and calendar.
-- AI actions (Ctrl+Alt+A) summarize, translate, polish or rewrite the selected text in any app and paste it back.
-- Work notifications show a card and play a sound when a Claude Code or Codex task starts, finishes, waits for approval or nears its limit. A click on the card goes to the window the task runs in, and with Approve on the card turned on you can allow or decline Claude Code's requests there.
+- Type a question in the search line and press Tab to get an instant answer from quick AI. Press Shift+Tab to ask in a fresh chat without previous context.
+- Open the dedicated AI chat window (Ctrl+Alt+C) when you want to continue a longer conversation or attach files and images.
+- You can also ask AI to handle PC tasks like organizing files. Before moving files or changing anything on your PC, it shows an approval card asking you to Allow or Decline.
+- Say something like "a meeting tomorrow at 3pm" and Bloom adds it to its calendar. You can save notes and start timers the same way.
+- Select text in any app and press AI actions (Ctrl+Alt+A) to summarize, translate, or polish the writing and paste it right back in place.
+- Work notifications pop up a card when a background Claude Code or Codex task finishes, needs your approval, or is running low on usage quota.
+- Supports API keys for OpenAI, Anthropic, Gemini, OpenRouter, DeepSeek, xAI, and OpenCode Go, encrypted by Windows and stored only on this PC.
 
 ### The home
 
 <img src="docs/media/en/home.webp" alt="A wide home in two columns with usage cards for three Claude accounts and one ChatGPT account, token cost and its chart, the player, favorites and this week">
 
-The empty search line shows the home, with favorites, AI usage, this week, timers, recently used items, notes, the player and commands.
-
-- AI usage cards show Claude's and ChatGPT's 5-hour and weekly limits, plus Claude's Fable weekly line. Each card has its company's logo and a plan badge, and offers Sign in again when a sign-in has run out.
-- Several accounts of each kind can be added in Settings › AI accounts. Each signs in with the CLI's own login, and nothing switches accounts on its own.
-- Four token blocks count the tokens in the Claude Code and Codex logs on this PC, with what they would cost at API prices, a chart, and the most used models and sessions. They are off at first.
-- Favorites open with Ctrl+1 to Ctrl+9 and can be grouped in folders.
-- Ctrl+E edits the home. Drag blocks, hide them, add them back from + Add block, and use two columns in a wide launcher.
+- When the search line is empty, the home view appears below it with your favorites, AI usage, this week's schedule, timers, notes, and media player.
+- The AI usage block shows how much of your 5-hour and weekly quota is left for each Claude and ChatGPT account. You can add multiple accounts and monitor them side by side.
+- The token block counts your local Claude Code and Codex usage logs on this PC and estimates what those tokens would cost at standard API rates. It is off by default and can be turned on whenever you need it.
+- Press Ctrl+E to rearrange blocks on the home view, hide ones you don't need, or bring them back.
 
 ### Bloom Lens and the color picker
 
 <img src="docs/media/en/lens.webp" alt="A Japanese message on the screen picked with Bloom Lens and translated into English on a card">
 
-- Bloom Lens (Ctrl+Alt+L) lets you drag over part of the screen and pick what to do with keys 1 to 7.
-  - `1` ask AI, `2` translate, `3` copy the text with Windows OCR, `4` translate live as the area changes
-  - `5` pin the area on top as a picture, `6` capture it to the clipboard and your Screenshots folder, `7` make a color palette
-- Translate (Ctrl+Alt+T) and copy text (Ctrl+Alt+O) have shortcuts of their own.
-- The color picker takes a color from the screen with a magnifier and shows HEX, RGB, HSL and its contrast with white and black text.
-- The palette picks the main colors of an area, 5 by default and 3 to 10 with − and +. It is worked out on this PC with no AI usage.
+- Press Bloom Lens (Ctrl+Alt+L), drag to select a region of the screen, and press a number key to choose what to do: `1` ask, `2` translate, `3` copy text, `4` live translation, `5` pin on screen, `6` capture, or `7` color palette.
+- Frequently used actions—translate (Ctrl+Alt+T) and copy text (Ctrl+Alt+O)—also have their own direct shortcuts.
+- Use the color picker to sample any pixel on screen and see its HEX, RGB, and HSL values along with text contrast ratios.
+- The color palette extracts the dominant colors from the selected screen area, calculated locally on your PC without using AI.
 
 ### Docked tools
 
 <img src="docs/media/en/tools.webp" alt="The pinned launcher with notes attached on its right and the calculator under it">
 
-- Ctrl+J opens notes, timers, the calculator, clipboard history and shortcuts as small windows.
-- Drop a tool beside the launcher and it stays attached, moving and hiding with it. Pull it away and it floats on its own.
-- Notes are Markdown with checklists, and `note buy milk` in the search line keeps one at once.
-- Clipboard history (Ctrl+Alt+V) keeps the text, pictures and files you copied, and you can pin the ones to keep.
-- Ctrl+P keeps the launcher on top. Drag its edges to size it, and Ctrl+= or Ctrl+- scales all of Bloom from 80 to 150 %.
-- Bloom opens .md files in its own document window, which saves as you type.
+- Press Ctrl+J to open small tool windows for notes, timers, the calculator, clipboard history, and the shortcut guide.
+- Place a tool window near the launcher and it snaps to the side like a magnet to move together; pull it away to float it as an independent window.
+- Notes support Markdown, and you can also jot one down without opening the window by typing `note buy milk` in the search line.
+- Clipboard history (Ctrl+Alt+V) keeps track of text, images, and files you've copied so you can reuse them anytime.
+- Press Ctrl+P to keep the launcher pinned on top of other windows, and use Ctrl+= / Ctrl+- to scale the launcher size between 80% and 150%.
 
 ### Bloom Space Cleaner
 
 <img src="docs/media/en/space.webp" alt="A map of a folder where videos, downloads, photos and projects are blocks as big as they are, with a list of the biggest files">
 
-- Bloom Space Cleaner shows a drive or folder as a map where each block is as big as what it holds.
-- Click a block to go inside, and send big files from the list beside it to the Recycle Bin.
-- It works below drive roots and outside the Windows folder, and everything it removes can be restored from the Recycle Bin.
+- Visualizes which files and folders take up the most space on a drive or folder as a proportional block map.
+- Click blocks to drill down into subfolders, and pick large unneeded files from the list to send them straight to the Recycle Bin.
+- To prevent accidental system damage, drive roots and the Windows folder cannot be selected for deletion, and anything you remove can be restored from the Recycle Bin.
 
 ### Settings
 
 <img src="docs/media/en/settings.webp" alt="General settings with the theme and accent color, and the Data page listing what Bloom keeps by size">
 
-- Settings has 12 pages, from General and Launcher to Add-ons, Data and About. Type a setting's name in the search line to go to it.
-- The accent color can be any color. The picker shows its contrast in the dark and light themes, and the accent appears only on what is on.
-- The Data page lists what Bloom keeps on this PC with its size, and lets you delete each part or reset Bloom.
-- Features lets you switch off what you don't use, and its saved data stays.
-- Custom commands run scripts, paste snippets (`{date}`, `{clipboard}`) or run chains of search lines (`notepad ; volume 30 ; yt lofi`) by a keyword.
-- The look follows dark, light or the system theme, with animation and glass settings. GPU drawing is experimental and off at first.
-- The interface comes in English, 한국어, 日本語 and 简体中文, and following Windows is the default. Search words, times and units are typed in English or Korean in every language.
-- Export the settings to one file to move them to another PC. Settings › About › Problem report copies the version and a recent log with names and e-mail addresses hidden, then opens a GitHub issue page. Bloom sends nothing itself.
+- You don't have to hunt through menus—just type a setting's name in the search line to jump straight to that page.
+- Pick any accent color you like and preview how readable text looks against it in both dark and light themes.
+- Turning off a feature removes it cleanly from menus and shortcuts while keeping your existing saved data intact.
+- On the Data page, you can see how much space each kind of saved data uses, delete specific items, or export them as a backup.
+- With custom commands, you can bind frequently used scripts, text snippets, or chained commands (`notepad ; volume 30 ; yt lofi`) to a single keyword.
+- Choose your interface language from English, 한국어, 日本語, and 简体中文.
+- Problem report masks your username and email address in the log, copies it to the clipboard, and opens the GitHub issue page. Bloom never sends any data on its own.
 
 ## Add-ons
 
 <img src="docs/media/en/addons.webp" alt="Settings › Add-ons with the taskbar folders editor and a preview of the pill taskbar">
 
-An add-on is a separate program that Bloom downloads, checks, starts and talks to through files. None of its code is in Bloom, which stays MIT. Both add-ons below are GPL-3.0 with their own source repositories.
+Add-ons are separate programs that you can download, verify, and run from within Bloom. Their code is not built into Bloom itself, and the two official add-ons currently available are released under GPL-3.0 in their own source repositories.
 
 ### Taskbar (PillTaskbar)
 
-PillTaskbar turns the Windows 11 taskbar into a centered glass pill. While it is on, Settings › Add-ons holds its settings.
-
-- Taskbar folders let you make a folder, rename it, give it an icon, add and take out apps, order them and ungroup it. Dragging one app onto another and holding it there makes a folder too.
-- An automatic Running folder gathers the apps you run without pinning.
-- The look covers the size, the background and a Start button that is Bloom's flower and opens Bloom.
-- The tray, the clock in 24-hour or 12-hour time and the song playing now sit at the end of the pill.
-- AI usage shows one limit per account, the 5-hour, weekly or Fable weekly one, with its label and icon color.
-- The auto-hide island hides the taskbar and shows a black or white island at the top center of the screen.
-
-Its first start downloads the taskbar's symbol files (about 70 MB) from Microsoft's symbol server. If Explorer keeps crashing, Bloom turns the add-on off and says so.
+- Transforms the default Windows 11 taskbar into a translucent glass pill floating at the center of the screen.
+- Drag one app icon onto another on the taskbar to group them into a folder, and edit folder names and contents in Settings › Add-ons.
+- Replaces the Start button with Bloom's flower button and displays the currently playing song in front of the system tray.
+- Displays a remaining AI usage bar on the taskbar for each of your registered accounts.
+- Turn on the auto-hide island option to hide the taskbar when idle and show a compact island bar at the top center of the screen.
+- On first launch, it downloads the required symbol files (about 70 MB) once from Microsoft's symbol server.
 
 ### Alt+Tab per monitor
 
-With more than one monitor, Alt+Tab and Win+Alt+Tab open on the monitor under the cursor and list only its windows.
+When you use multiple monitors, pressing Alt+Tab opens the window switcher on the monitor where your mouse cursor is and shows only the windows on that monitor.
 
 ### How add-ons are installed
 
-- Settings › Add-ons downloads each one with one Download button and shows the progress.
-- Bloom installs it only when the zip has the SHA-256 this Bloom pins and every file matches its `addon.json`. A failed download leaves nothing behind and says why.
-- When a newer Bloom pins a newer version, the same line offers Update.
-- Add-ons are off at first, and the first switch-on explains what the add-on does.
-- If the same mod is running in Windhawk, the status line says so and what to do.
-- Hold Shift while Bloom starts to skip add-ons for that run. While an add-on and Start with Windows are both on, a sign-in task of your own starts Bloom earlier.
+- Download any add-on with a single button in Settings › Add-ons.
+- Bloom installs the downloaded file only if it matches the SHA-256 hash pinned in the app.
+- Newly downloaded add-ons start turned off, and turning one on first explains what the program does.
+- Bloom checks for updates to your add-ons when you turn them on and whenever Bloom starts.
+- If an add-on ever causes an issue, hold Shift while starting Bloom to skip all add-ons for that session.
 
 ### Your own add-ons
 
-An add-on put in `%LOCALAPPDATA%\Bloom\user-addons` shows on Settings › Add-ons after a restart. It is off at first, and the first switch-on warns that Bloom did not make or check it. Its files are still checked against the SHA-256 in its `addon.json`.
+Place your own add-on in `%LOCALAPPDATA%\Bloom\user-addons` and restart Bloom to see it in Settings › Add-ons. It starts turned off, and Bloom verifies that its files haven't been altered against the SHA-256 hash in `addon.json` before running it.
 
 ## Shortcuts
 

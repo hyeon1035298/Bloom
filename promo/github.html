@@ -3,93 +3,150 @@
 <head>
 <meta charset="utf-8">
 <title>Bloom GitHub preview</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/wanteddev/wanted-sans@v1.0.3/packages/wanted-sans/fonts/webfonts/variable/split/WantedSansVariable.min.css">
 <style>
   /* 1280 × 640: GitHub's social preview size and the top of each README, opened as github.html?lang=<en|ko|ja|zh>.
-     The README pictures' flow: the mark, a two-tone line (the claim in white, what it is in grey), then the real
-     app on a dark screen with one level line of light behind it and the taskbar add-on's pill under it.
-     Bloom 0.19's look: zinc greys, the white accent preset, G2 corners, the app's fonts (Segoe UI Variable with
-     Malgun Gothic, Yu Gothic UI or Microsoft YaHei UI). The pictures are the real app at 2× (QA set readme-home and
-     the taskbar editor's preview, --demo). */
+     The landing page's first screen in one frame: diagonal light, dust, pieces of the real app floating at different
+     depths, the Windows mark in the headline, and the launcher as Bloom draws it. White is the only accent; the app
+     pieces are the real home (QA set readme-home, --demo) in grey. */
   :root {
-    --ground: #0b0b0d; --win: #18181b; --fg: #ecedee; --muted: #85858d; --sq-k: 1.32; --sq-m: 1.2;
-    --sans: "Segoe UI Variable Text", "Segoe UI", "Malgun Gothic", sans-serif;
-    --display: "Segoe UI Variable Display", "Segoe UI", "Malgun Gothic", sans-serif;
+    --bg: #07080A; --surface: #111113; --surface-2: #18181B; --raised: #27272A; --raised-2: #3A3A3F;
+    --text: #F4F4F5; --muted: #A1A1AA; --faint: #8A8A93;
+    --line: rgba(255, 255, 255, .08); --line-2: rgba(255, 255, 255, .14);
+    --glow: rgba(255, 255, 255, .16); --beam: rgba(255, 255, 255, .55); --beam-soft: rgba(255, 255, 255, .10);
+    --shade: rgba(0, 0, 0, .55);
+    --sans: "Wanted Sans Variable", "Wanted Sans", "Malgun Gothic", "Segoe UI", sans-serif;
   }
-  :lang(ja) { --sans: "Segoe UI Variable Text", "Segoe UI", "Yu Gothic UI", sans-serif; --display: "Segoe UI Variable Display", "Segoe UI", "Yu Gothic UI", sans-serif; }
-  :lang(zh-CN) { --sans: "Segoe UI Variable Text", "Segoe UI", "Microsoft YaHei UI", sans-serif; --display: "Segoe UI Variable Display", "Segoe UI", "Microsoft YaHei UI", sans-serif; }
+  :lang(ja) { --sans: "Wanted Sans Variable", "Yu Gothic UI", "Segoe UI", sans-serif; }
+  :lang(zh-CN) { --sans: "Wanted Sans Variable", "Microsoft YaHei UI", "Segoe UI", sans-serif; }
   * { margin: 0; padding: 0; box-sizing: border-box; }
-  html, body { width: 1280px; height: 640px; overflow: hidden; background: var(--ground); }
-  body { position: relative; font-family: var(--sans); color: var(--fg); -webkit-font-smoothing: antialiased; word-break: keep-all; }
+  html, body { width: 1280px; height: 640px; overflow: hidden; background: var(--bg); }
+  body { position: relative; font-family: var(--sans); color: var(--text); -webkit-font-smoothing: antialiased; word-break: keep-all; }
   :lang(ja), :lang(zh-CN) { word-break: normal; line-break: strict; }
-  #art { position: absolute; inset: 0; overflow: hidden; background: linear-gradient(180deg, #121215 0, var(--ground) 300px); }
 
-  .brand { position: absolute; left: 0; right: 0; top: 44px; display: flex; justify-content: center; align-items: center; gap: 12px;
-           font: 600 25px/1 var(--display); }
-  .brand img { width: 34px; height: 34px; border-radius: 9px; }
-  .say { position: absolute; left: 50%; top: 104px; width: 1100px; transform: translateX(-50%); text-align: center;
-         font: 600 44px/1.3 var(--display); }
-  .say .s1, .say .s2 { display: block; }
-  .say .s2 { color: var(--muted); font-weight: 400; }
+  #art { position: absolute; inset: 0; overflow: hidden; isolation: isolate; }
+  .beams { position: absolute; inset: 0 -10%; z-index: -2;
+           mask-image: radial-gradient(closest-side, #fff 30%, transparent); }
+  .beam { position: absolute; top: 50%; left: 50%; width: 140%; height: var(--h); translate: -50% -50%; rotate: 42deg;
+          margin-top: var(--y); opacity: var(--o); filter: blur(var(--b));
+          background: linear-gradient(90deg, transparent, var(--beam) 40%, var(--beam) 60%, transparent); }
+  .dust { position: absolute; inset: 0; z-index: -1; }
 
-  /* the screen runs off the bottom edge; the light, in layers on one level line, sits behind the app, and the app's
-     window ends above the pill, which sits on the dark floor like a taskbar */
-  .screen { --r: 22px; position: absolute; left: 64px; top: 268px; width: 1152px; height: 420px; overflow: hidden;
-            background: linear-gradient(180deg, #131316 0, #0d0d10 100%);
-            border-radius: calc(var(--r) * var(--sq-m)); corner-shape: superellipse(var(--sq-k)); }
-  .screen::after { content: ""; position: absolute; inset: 0; border-radius: inherit; corner-shape: inherit; box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .07); pointer-events: none; }
-  .lit { position: absolute; left: 0; right: 0; top: 150px; transform: translateY(-50%); }
-  .haze { height: 600px; background: radial-gradient(56% 50% at 50% 50%, rgba(255, 255, 255, .085), rgba(255, 255, 255, .02) 60%, rgba(255, 255, 255, 0) 80%); }
-  .glow { height: 120px; background: radial-gradient(50% 50% at 50% 50%, rgba(255, 255, 255, .2), rgba(255, 255, 255, 0) 100%); }
-  .tight { height: 18px; background: radial-gradient(52% 50% at 50% 50%, rgba(255, 255, 255, .55), rgba(255, 255, 255, 0) 100%); }
-  .line { height: 2px; background: linear-gradient(90deg, rgba(255, 255, 255, 0) 3%, rgba(255, 255, 255, .4) 18%, rgba(255, 255, 255, .95) 38%, #fff 50%, rgba(255, 255, 255, .95) 62%, rgba(255, 255, 255, .4) 82%, rgba(255, 255, 255, 0) 97%); }
-  .floor { position: absolute; left: 0; right: 0; top: 150px; bottom: 0; background: linear-gradient(180deg, rgba(8, 8, 10, .55), rgba(8, 8, 10, .85)); }
-  .win { position: absolute; left: 156px; top: 40px; width: 840px; height: 242px; overflow: hidden; background: var(--win); --r: 14px;
-         border-radius: calc(var(--r) * var(--sq-m)); corner-shape: superellipse(var(--sq-k));
-         box-shadow: 0 30px 80px rgba(0, 0, 0, .7), 0 2px 10px rgba(0, 0, 0, .45); }
-  .win::after { content: ""; position: absolute; inset: 0; border-radius: inherit; corner-shape: inherit; box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .08); }
-  .win img { display: block; width: 100%; }
-  .pill { position: absolute; left: 50%; top: 296px; height: 58px; transform: translateX(-50%); overflow: hidden; border-radius: 999px;
-          box-shadow: 0 18px 48px rgba(0, 0, 0, .65); }
-  .pill img { display: block; height: 100%; }
+  /* a piece is a crop of the real home; nearer pieces (d → 1) are brighter and sharper */
+  .piece { position: absolute; overflow: hidden; background: var(--surface); border-radius: 12px;
+           box-shadow: 0 0 0 1px var(--line-2), 0 24px 48px -16px var(--shade);
+           filter: grayscale(1) brightness(calc(.5 + var(--d) * .5)) blur(calc((1 - var(--d)) * 1.6px));
+           opacity: calc(.45 + var(--d) * .55); }
+  .piece img { position: absolute; display: block; }
+
+  .center { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+  .brand { display: flex; align-items: center; gap: 10px; font-weight: 640; font-size: 22px; letter-spacing: -.01em; color: var(--muted); }
+  .brand img { width: 26px; height: 26px; border-radius: 7px; filter: grayscale(1); }
+  h1 { margin-top: 26px; font-size: 66px; line-height: 1.08; font-weight: 680; letter-spacing: -.03em; word-spacing: -.04em; text-shadow: 0 2px 30px var(--shade); }
+  :lang(ja) h1, :lang(zh-CN) h1 { letter-spacing: 0; word-spacing: 0; font-size: 62px; }
+  h1 span { display: block; }
+  .winkey { display: inline-block; width: .7em; margin-right: .04em; }
+  .winkey svg { display: block; width: .7em; height: .7em; fill: currentColor; }
+
+  .launcher { margin-top: 34px; width: 600px; text-align: left; overflow: hidden; border-radius: 16px; background: var(--surface-2);
+              box-shadow: 0 0 0 1px var(--line-2), 0 0 60px 8px var(--glow), 0 0 180px 48px var(--beam-soft); }
+  .launcher__search { display: flex; align-items: center; gap: 16px; padding: 18px 22px; border-bottom: 1px solid var(--line); font-size: 19px; }
+  .launcher__search svg { flex: none; color: var(--muted); }
+  .caret { width: 2px; height: 22px; margin-left: auto; background: var(--text); }
+  .launcher__list { padding: 8px; }
+  .row { display: flex; align-items: center; gap: 12px; padding: 8px 12px; border-radius: 10px; background: var(--raised); font-size: 16px; }
+  .row b { font-weight: 600; }
+  .row small { color: var(--muted); font-size: 14px; }
+  .ico { flex: none; display: grid; place-items: center; width: 30px; height: 30px; border-radius: 8px; background: var(--raised-2); }
+  .foot { display: flex; align-items: center; justify-content: space-between; padding: 11px 16px; border-top: 1px solid var(--line); color: var(--muted); font-size: 14px; }
+  .foot__brand { display: inline-flex; align-items: center; gap: 8px; }
+  .foot__brand img { width: 16px; height: 16px; filter: grayscale(1); }
+  .keys { display: inline-flex; align-items: center; gap: 8px; }
+  .cap { display: inline-grid; place-items: center; min-width: 26px; height: 24px; padding: 0 7px; border-radius: 6px; background: var(--raised); color: var(--text); font-weight: 600; font-size: 12px; }
+  .small { margin-top: 26px; font-size: 16px; color: var(--faint); }
 </style>
 </head>
 <body>
 <div id="art">
-  <div class="brand"><img src="assets/mark-tile.png" alt="">Bloom</div>
-  <p class="say"></p>
-  <div class="screen">
-    <div class="floor"></div><div class="lit haze"></div><div class="lit glow"></div><div class="lit tight"></div><div class="lit line"></div>
-    <div class="win"><img data-img="home"></div>
-    <div class="pill"><img src="assets/pill.png" alt=""></div>
+  <div class="beams">
+    <i class="beam" style="--h:90px;--y:-260px;--o:.14;--b:34px"></i>
+    <i class="beam" style="--h:120px;--y:-110px;--o:.26;--b:30px"></i>
+    <i class="beam" style="--h:70px;--y:20px;--o:.32;--b:22px"></i>
+    <i class="beam" style="--h:140px;--y:170px;--o:.2;--b:36px"></i>
+    <i class="beam" style="--h:60px;--y:320px;--o:.12;--b:24px"></i>
+  </div>
+  <canvas class="dust" width="1280" height="640"></canvas>
+  <div class="pieces"></div>
+  <div class="center">
+    <div class="brand"><img src="assets/mark-tile.png" alt="">Bloom</div>
+    <h1></h1>
+    <div class="launcher">
+      <div class="launcher__search"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><span class="q"></span><span class="caret"></span></div>
+      <div class="launcher__list"><div class="row"><span class="ico"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 7.6L22 12l-7.6 2.4L12 22l-2.4-7.6L2 12l7.6-2.4z"/></svg></span><b class="ask"></b><small>Claude · Sonnet</small></div></div>
+      <div class="foot"><span class="foot__brand"><img src="assets/mark-tile.png" alt="">Bloom</span><span class="keys"><span class="cap">Tab</span><span class="k1"></span><span class="cap">↵</span><span class="k2"></span></span></div>
+    </div>
+    <p class="small"></p>
   </div>
 </div>
 <script>
-  // Words per language: what Bloom is, then how it opens. Labels are the app's own (docs/COPY.md glossary).
+  // Words per language. Labels in the launcher are the app's own (its language tables).
   const T = {
-    en: ["Search and AI on one line.", "A native Windows launcher that opens with one key."],
-    ko: ["검색과 AI를 한 줄에서.", "키 하나로 여는 Windows 네이티브 런처입니다."],
-    ja: ["検索と AI を 1 行で。", "キー 1 つで開く Windows のネイティブランチャーです。"],
-    zh: ["一行搞定搜索和 AI。", "一个键就能打开的 Windows 原生启动器。"],
+    en: { h: ["One key,", "one search line."], q: "Sort out three things to do before I leave", ask: "Ask AI", k: ["Ask", "Open"],
+          s: "A launcher for Windows · free, MIT open source" },
+    ko: { h: ["키 하나,", "검색줄 한 줄."], q: "퇴근 전에 할 일 세 개 정리해 줘", ask: "AI에게 묻기", k: ["묻기", "열기"],
+          s: "Windows용 런처 · 무료, MIT 오픈 소스" },
+    ja: { h: ["キーひとつ、", "検索欄ひとつ。"], q: "帰る前にやることを 3 つにまとめて", ask: "AI に聞く", k: ["聞く", "開く"],
+          s: "Windows 用ランチャー · 無料、MIT オープンソース" },
+    zh: { h: ["一个键，", "一行搜索栏。"], q: "帮我整理下班前要做的三件事", ask: "问 AI", k: ["提问", "打开"],
+          s: "Windows 启动器 · 免费，MIT 开源" },
   };
   const lang = new URLSearchParams(location.search).get("lang") || "en";
+  const t = T[lang];
   document.documentElement.lang = lang === "zh" ? "zh-CN" : lang;
   const esc = s => s.replace(/&/g, "&amp;").replace(/</g, "&lt;");
-  document.querySelector(".say").innerHTML = `<span class="s1">${esc(T[lang][0])}</span><span class="s2">${esc(T[lang][1])}</span>`;
-  for (const img of document.querySelectorAll("[data-img]")) img.src = `assets/${lang}-${img.dataset.img}.png`;
-  // letter and word spacing: optical.js, per pair. Korean pairs move halfway to the median, Japanese and Chinese keep
-  // most of their full-width punctuation's white, English word spaces count more of a letter's open side
-  const OPT = { ko: { track: -0.012, space: 0.1, strength: 0.55 }, ja: { track: 0, space: 0.1, strength: 0.15 },
-                zh: { track: 0, space: 0.1, strength: 0.15 }, en: { track: -0.01, space: 0.25, strength: 0.7, spaceDepth: 0.09 } }[lang];
-  window.OPTICAL = [{ sel: ".brand", track: -0.01 }, ...[".say .s1", ".say .s2"].map(sel => ({ sel, ...OPT }))];
-  Promise.all([...document.images].map(i => i.complete ? 0 : new Promise(r => { i.onload = i.onerror = r; }))).then(() => {
-    const s = document.createElement("script");
-    s.src = "optical.js";
-    s.onload = () => {
-      const wait = () => document.documentElement.dataset.optical === "done" ? (window.__ready = true) : setTimeout(wait, 50);
-      wait();
-    };
-    document.body.appendChild(s);
-  });
+  const mark = '<span class="winkey"><svg viewBox="0 0 16 16"><path d="M0 0h7.4v7.4H0zM8.6 0H16v7.4H8.6zM0 8.6h7.4V16H0zM8.6 8.6H16V16H8.6z"/></svg></span>';
+  document.querySelector("h1").innerHTML = `<span>${mark} ${esc(t.h[0])}</span><span>${esc(t.h[1])}</span>`;
+  document.querySelector(".q").textContent = t.q;
+  document.querySelector(".ask").textContent = t.ask;
+  document.querySelector(".k1").textContent = t.k[0];
+  document.querySelector(".k2").textContent = t.k[1];
+  document.querySelector(".small").textContent = t.s;
+
+  // pieces of the language's home picture (1400 × 900): [x, y, w, h] of the crop, where it floats, its width, its depth
+  const PIECES = [
+    [[8, 80, 770, 150], 22, 44, 300, .55],
+    [[8, 310, 770, 92], 60, 196, 250, .3],
+    [[790, 240, 602, 140], 30, 300, 290, .82],
+    [[8, 520, 770, 140], 52, 470, 270, .42],
+    [[790, 70, 602, 140], 978, 56, 280, .7],
+    [[790, 400, 602, 165], 1004, 210, 256, .36],
+    [[8, 412, 770, 66], 958, 380, 300, .86],
+    [[790, 630, 602, 150], 996, 488, 252, .48],
+  ];
+  const host = document.querySelector(".pieces");
+  for (const [[x, y, w, h], left, top, dw, d] of PIECES) {
+    const s = dw / w, el = document.createElement("div");
+    el.className = "piece";
+    el.style.cssText = `left:${left}px;top:${top}px;width:${dw}px;height:${Math.round(h * s)}px;--d:${d}`;
+    const img = new Image();
+    img.src = `assets/${lang}-home.png`;
+    img.style.cssText = `width:${1400 * s}px;left:${-x * s}px;top:${-y * s}px`;
+    el.appendChild(img);
+    host.appendChild(el);
+  }
+
+  // dust: fixed points, fainter toward the bottom
+  const c = document.querySelector(".dust").getContext("2d");
+  let seed = 7;
+  const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+  for (let i = 0; i < 140; i++) {
+    const x = rnd() * 1280, y = rnd() * 640, r = rnd() * 1.1 + .3;
+    c.fillStyle = `rgba(250,250,250,${(.08 + rnd() * .35) * (1 - y / 900)})`;
+    c.beginPath(); c.arc(x, y, r, 0, Math.PI * 2); c.fill();
+  }
+
+  Promise.all([document.fonts.ready, ...[...document.images].map(i => i.complete ? 0 : new Promise(r => { i.onload = i.onerror = r; }))])
+    .then(() => { window.__ready = true; });
 </script>
 </body>
 </html>
