@@ -41,8 +41,6 @@
     <EmbeddedResource Include="..\..\addons\catalog.json" LogicalName="Bloom.addons.catalog.json" />
     <!-- the OpenAI and Anthropic marks for AI usage accounts (Ai\OfficialLogos.cs); trademarks of their owners, not MIT -->
     <EmbeddedResource Include="Assets\Logos\*.svg" LogicalName="Bloom.Assets.Logos.%(Filename).svg" />
-    <!-- what each catalog add-on does, in the light and dark themes (SettingsView.Addons' cards) -->
-    <EmbeddedResource Include="Assets\Addons\*.png" LogicalName="Bloom.Assets.Addons.%(Filename).png" />
     <!-- tests\Bloom.Tests checks the internal parsers and rankers directly -->
     <InternalsVisibleTo Include="Bloom.Tests" />
     <!-- what Bloom and its elevated Win-key helper (src\WinKeyHelper, issue #3) share: names, tag, task, the tap rule -->

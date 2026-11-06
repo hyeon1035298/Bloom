@@ -157,7 +157,6 @@ internal sealed partial class SettingsView : ScrollViewer
         pageTitle = title;
         groupTitle = "";
         card = null;
-        apart = false;
         pageShown = false;
         groupShown = false;
         if (collected is null && filter.Length == 0 && key == current)
@@ -234,12 +233,7 @@ internal sealed partial class SettingsView : ScrollViewer
         groupNote = note;
         groupButton = button;
         card = null;
-        apart = false;
     }
-
-    /// The group's lines each in a card of its own, apart from the others (애드온's add-on cards), not one card with
-    /// hairlines between them. Set after Header; the next Header or Page ends it.
-    private bool apart;
 
     /// The card the next line goes into (made on the first line, so empty groups leave nothing).
     private StackPanel Card(string filter)
@@ -281,9 +275,9 @@ internal sealed partial class SettingsView : ScrollViewer
         card = new StackPanel();
         stack.Children.Add(new SmoothBorder
         {
-            Background = apart ? System.Windows.Media.Brushes.Transparent : Theme.P.Card,
+            Background = Theme.P.Card,
             CornerRadius = new CornerRadius(12),
-            Padding = new Thickness(apart ? 0 : 4),
+            Padding = new Thickness(4),
             Margin = new Thickness(32, groupTitle.Length > 0 ? 0 : top, 32, 0),
             Child = card,
         });
@@ -394,20 +388,8 @@ internal sealed partial class SettingsView : ScrollViewer
         };
         rows.Add((r, toggle, step));
         var into = Card(filter);
-        if (apart)
-            into.Children.Add(new SmoothBorder
-            {
-                Background = Theme.P.Card,
-                CornerRadius = new CornerRadius(12),
-                Padding = new Thickness(4),
-                Margin = new Thickness(0, into.Children.Count > 0 ? 10 : 0, 0, 0),
-                Child = r,
-            });
-        else
-        {
-            if (into.Children.Count > 0) into.Children.Add(new SmoothBorder { Height = 1, Background = Theme.P.Rule });
-            into.Children.Add(r);
-        }
+        if (into.Children.Count > 0) into.Children.Add(new SmoothBorder { Height = 1, Background = Theme.P.Rule });
+        into.Children.Add(r);
         return r;
     }
 
