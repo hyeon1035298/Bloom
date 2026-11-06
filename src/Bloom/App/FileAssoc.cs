@@ -12,7 +12,7 @@ namespace Bloom.App;
 /// `"<exe>" --open "%1"`, .md's OpenWithProgids entry, Applications\Bloom.exe, and Bloom's Capabilities under
 /// RegisteredApplications for Windows' default-apps page — all in HKCU, no admin rights. Only the user can make Bloom
 /// the default (Windows' rule; 기본 앱으로 정하기 opens that page): UserChoice and .md's own default value are never
-/// written. Kept while the feature is on, in every copy but a dev one (like Autostart); removed when it goes off and
+/// written; an icon the user gave .md files stays (UserIcon). Kept while the feature is on, in every copy but a dev one (like Autostart); removed when it goes off and
 /// when Bloom is uninstalled.
 internal static class FileAssoc
 {
@@ -100,8 +100,10 @@ internal static class FileAssoc
 
     internal static void Write(RegistryKey root, string exe)
     {
+        bool ownIcon = UserIcon(root, exe);
         foreach (var v in Plan(exe))
         {
+            if (ownIcon && v.Key == IconKey) continue;
             using var k = root.CreateSubKey(v.Key);
             k.SetValue(v.Name, v.Data, v.Kind);
         }
@@ -130,6 +132,31 @@ internal static class FileAssoc
 
     private static string AppKey(string exe) => @"Software\Classes\Applications\" + Path.GetFileName(exe);
 
+    private const string IconKey = @"Software\Classes\" + ProgId + @"\DefaultIcon";
+
+    /// The .md icon is one the user picked (their own .ico in the ProgID's DefaultIcon), which stays: Bloom writes its
+    /// own only where there is none or it is a Bloom.exe's (an older copy's path is brought up to date).
+    internal static bool UserIcon(RegistryKey root, string exe)
+    {
+        using var k = root.OpenSubKey(IconKey);
+        if (k?.GetValue("", null, RegistryValueOptions.DoNotExpandEnvironmentNames) is not string { Length: > 0 } icon) return false;
+        string file = IconFile(icon);
+        return file.Length > 0 && !string.Equals(Path.GetFileName(file), Path.GetFileName(exe), StringComparison.OrdinalIgnoreCase);
+    }
+
+    /// The file of an icon location: `"C:\a b\x.exe",0`, `C:\x.ico`, `%SystemRoot%\x.dll,-3`.
+    internal static string IconFile(string icon)
+    {
+        string s = icon.Trim();
+        if (s.StartsWith('"'))
+        {
+            int end = s.IndexOf('"', 1);
+            return end > 0 ? s[1..end] : s[1..];
+        }
+        int comma = s.LastIndexOf(',');
+        return comma > 0 && int.TryParse(s.AsSpan(comma + 1).Trim(), out _) ? s[..comma].TrimEnd() : s;
+    }
+
     /// `key`'s open command starts this exe; `missing`: what a key without one counts as.
     private static bool Ours(RegistryKey root, string key, string exe, bool missing)
     {
@@ -152,8 +179,10 @@ internal static class FileAssoc
 
     internal static bool IsCurrent(RegistryKey root, string exe)
     {
+        bool ownIcon = UserIcon(root, exe);
         foreach (var v in Plan(exe))
         {
+            if (ownIcon && v.Key == IconKey) continue;
             using var k = root.OpenSubKey(v.Key);
             if (k is null || !k.GetValueNames().Contains(v.Name, StringComparer.OrdinalIgnoreCase) || k.GetValueKind(v.Name) != v.Kind) return false;
             if (v.Data is string s && k.GetValue(v.Name) as string != s) return false;
