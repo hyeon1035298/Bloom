@@ -2,9 +2,11 @@ using System;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using Bloom.Native;
 using Bloom.Ocr;
 using Bloom.Search;
 
@@ -35,6 +37,64 @@ internal static class ScreenGrabTests
             overlay.Close();
             ordinary.Close();
         }
+    }
+
+    /// A drag from the lower monitor onto the one above it shows on both: the area is shared in physical pixels and
+    /// each overlay draws its own part (it showed only on the monitor it began on, clipped at its top edge).
+    public static void DragAcrossStackedMonitorsShowsOnBoth()
+    {
+        var desktop = Frozen(Pixels(128, 192), 128, 192);
+        var upper = new ScreenRect(-32000, -32096, 128, 96);
+        var lower = new ScreenRect(-32000, -32000, 128, 96);
+        var board = new PickBoard();
+        var overlays = new[] { upper, lower }.Select(mon => ScreenGrab.Overlay(desktop, mon, -32000, -32096,
+            "Synthetic capture", _ => { }, null, () => null, Brushes.White, board)).ToArray();
+        try
+        {
+            foreach (var o in overlays) new WindowInteropHelper(o).EnsureHandle(); // real windows, never shown
+            var area = new ScreenRect(-31990, -32050, 40, 80); // 46 px on the upper monitor, 34 on the lower
+            board.Show(area, lower);
+            var (upperFrame, upperSize) = Parts(overlays[0]);
+            var (lowerFrame, lowerSize) = Parts(overlays[1]);
+            Check.Eq(upperFrame.Visibility, Visibility.Visible, "the upper monitor shows its part");
+            Check.Eq(lowerFrame.Visibility, Visibility.Visible, "the lower monitor shows its part");
+            double s = VisualTreeHelper.GetDpi(overlays[0]).DpiScaleX;
+            Check.Near(Canvas.GetTop(upperFrame), 46 / s, 0.01, "the upper part starts 46 px down its monitor");
+            Check.Near(Canvas.GetTop(lowerFrame), -50 / s, 0.01, "the lower part runs on from above its top edge");
+            Check.Eq(lowerSize.Visibility, Visibility.Visible, "the size shows under the area, on the lower monitor");
+            Check.Eq(upperSize.Visibility, Visibility.Collapsed, "and only there");
+            board.Show(null, lower);
+            Check.Eq(upperFrame.Visibility, Visibility.Collapsed, "a cleared area goes from every monitor");
+        }
+        finally
+        {
+            foreach (var o in overlays) o.Close();
+        }
+    }
+
+    /// Physical pixels into an overlay's DIPs, per monitor and scale; the size label goes to the monitor holding the
+    /// area's bottom-left corner, or to the one the drag began on when no monitor does.
+    public static void SharedAreaMapsToEachMonitor()
+    {
+        var upper = new ScreenRect(0, -1440, 2560, 1440);
+        var lower = new ScreenRect(0, 0, 1920, 1080);
+        var area = ScreenGrab.Between(new Win32.POINT { X = 300, Y = 200 }, new Win32.POINT { X = 100, Y = -400 });
+        Check.Eq(area, new ScreenRect(100, -400, 200, 600), "either corner first");
+        var onUpper = ScreenGrab.ToLocal(area, upper, 1.5);
+        Check.Near(onUpper.Y, 1040 / 1.5, 0.001, "upper monitor: from 1040 px down");
+        Check.Near(onUpper.Height, 400, 0.001, "600 physical px at 150 %");
+        Check.Near(ScreenGrab.ToLocal(area, lower, 1).Y, -400, 0.001, "lower monitor: from above its top");
+        var board = new PickBoard();
+        board.Join(upper, (_, _) => { });
+        board.Join(lower, (_, _) => { });
+        Check.Eq(board.LabelMonitor(area, upper), lower, "bottom-left on the lower monitor");
+        Check.Eq(board.LabelMonitor(new ScreenRect(2000, -300, 400, 400), upper), upper, "a corner in no monitor: the drag's own");
+    }
+
+    private static (FrameworkElement frame, FrameworkElement size) Parts(Window overlay)
+    {
+        var canvas = ((Grid)overlay.Content).Children.OfType<Canvas>().Single();
+        return ((FrameworkElement)canvas.Children[1], (FrameworkElement)canvas.Children[2]);
     }
 
     public static void BitmapCropMatchesRawBgraAtEveryEdge()

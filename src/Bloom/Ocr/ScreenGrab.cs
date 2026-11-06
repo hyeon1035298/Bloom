@@ -48,6 +48,7 @@ internal static class ScreenGrab
         if (desktop is null) return null;
         var done = new TaskCompletionSource<(ScreenRect rect, string? then)?>(TaskCreationOptions.RunContinuationsAsynchronously);
         var windows = new List<Window>();
+        var board = new PickBoard();
         DrawLayer? layer = null;
         void CloseWindows()
         {
@@ -72,7 +73,7 @@ internal static class ScreenGrab
                 var m = info.rcMonitor;
                 windows.Add(Overlay(desktop, new ScreenRect(m.Left, m.Top, m.Right - m.Left, m.Bottom - m.Top), vx, vy, hint, r => Finish(r),
                     !draw ? null : (canvas, sel, room, r) => layer = new DrawLayer(canvas, sel, room, then => Finish(r, then), preferences, theme, persist), () => layer,
-                    DrawTheme.Brush(theme.Accent)));
+                    DrawTheme.Brush(theme.Accent), board));
             }
             if (windows.Count == 0) return null;
             foreach (var w in windows) w.Show();
@@ -102,10 +103,12 @@ internal static class ScreenGrab
     }
 
     /// One monitor's frozen picture. `startDraw` (화면 캡처) turns a finished drag into the drawing layer instead of
-    /// the answer; `drawing` is that layer once any monitor has it (the other monitors then stay still).
+    /// the answer; `drawing` is that layer once any monitor has it (the other monitors then stay still). `board` is
+    /// shared by every monitor's overlay: a drag from one onto another shows on both.
     internal static Window Overlay(BitmapSource desktop, ScreenRect mon, int vx, int vy, string hint, Action<ScreenRect?> finish,
-        Func<Canvas, Rect, Size, ScreenRect, DrawLayer>? startDraw, Func<DrawLayer?> drawing, Brush accent)
+        Func<Canvas, Rect, Size, ScreenRect, DrawLayer>? startDraw, Func<DrawLayer?> drawing, Brush accent, PickBoard? board = null)
     {
+        board ??= new PickBoard();
         var w = new Window
         {
             WindowStyle = WindowStyle.None,
@@ -157,26 +160,44 @@ internal static class ScreenGrab
         root.Children.Add(tip);
         w.Content = root;
 
-        double scale = 1;
-        Point? from = null;
-        void Paint(Rect sel)
+        Win32.POINT? from = null; // where the drag began, in physical pixels
+        ScreenRect? shown = null; // the shared selection as this overlay draws it
+        bool labelled = false;
+        double Scale() => VisualTreeHelper.GetDpi(w).DpiScaleX;
+        void Paint(ScreenRect? picked, bool label)
         {
+            shown = picked;
+            labelled = label;
+            Draw();
+        }
+        // the shared selection, this monitor's part of it (the window clips the rest); the size beside it on one monitor
+        void Draw()
+        {
+            var picked = shown;
+            var sel = picked is { Width: > 0 } p ? ToLocal(p, mon, Scale()) : Rect.Empty;
             var g = new GeometryGroup { FillRule = FillRule.EvenOdd };
             g.Children.Add(new RectangleGeometry(new Rect(0, 0, w.ActualWidth, w.ActualHeight)));
-            if (sel.Width > 0) g.Children.Add(new RectangleGeometry(sel));
+            if (!sel.IsEmpty) g.Children.Add(new RectangleGeometry(sel));
             dim.Data = g;
-            bool any = sel.Width > 0;
-            frame.Visibility = size.Visibility = any ? Visibility.Visible : Visibility.Collapsed;
-            if (!any) return;
+            frame.Visibility = sel.IsEmpty ? Visibility.Collapsed : Visibility.Visible;
+            size.Visibility = sel.IsEmpty || !labelled ? Visibility.Collapsed : Visibility.Visible;
+            if (sel.IsEmpty) return;
             Canvas.SetLeft(frame, sel.X);
             Canvas.SetTop(frame, sel.Y);
             frame.Width = sel.Width;
             frame.Height = sel.Height;
-            ((TextBlock)size.Child).Text = $"{Math.Round(sel.Width * scale)} × {Math.Round(sel.Height * scale)}";
-            Canvas.SetLeft(size, sel.X);
-            Canvas.SetTop(size, sel.Y + sel.Height + 6 > w.ActualHeight - 24 ? sel.Y - 26 : sel.Y + sel.Height + 6);
+            ((TextBlock)size.Child).Text = $"{picked!.Value.Width} × {picked.Value.Height}";
+            Canvas.SetLeft(size, Math.Max(0, sel.X));
+            // below the area; above it when the screen ends; inside its bottom when its top is on another monitor
+            Canvas.SetTop(size, sel.Bottom + 6 <= w.ActualHeight - 24 ? sel.Bottom + 6 : sel.Y - 26 >= 0 ? sel.Y - 26 : Math.Max(0, sel.Bottom - 30));
         }
-        Rect Sel(Point a, Point b) => new(Math.Min(a.X, b.X), Math.Min(a.Y, b.Y), Math.Abs(a.X - b.X), Math.Abs(a.Y - b.Y));
+        board.Join(mon, Paint);
+        // the pointer in physical pixels: off this window (on a monitor with another scale) its DIPs don't map back
+        static Win32.POINT Pointer()
+        {
+            Win32.GetCursorPos(out var p);
+            return p;
+        }
         w.SourceInitialized += (_, _) =>
         {
             IntPtr h = new WindowInteropHelper(w).Handle;
@@ -193,40 +214,34 @@ internal static class ScreenGrab
         // moved onto a monitor with another scale, WPF resizes the window by the scale ratio (a 100 % monitor beside a
         // 150 % one got a 1280x720 overlay on its 1920x1080): cover the monitor again
         w.DpiChanged += (_, _) => Win32.SetWindowPos(new WindowInteropHelper(w).Handle, Win32.HWND_TOPMOST, mon.X, mon.Y, mon.Width, mon.Height, Win32.SWP_NOACTIVATE);
-        w.Loaded += (_, _) =>
-        {
-            scale = VisualTreeHelper.GetDpi(w).DpiScaleX;
-            Paint(new Rect());
-        };
-        w.SizeChanged += (_, _) => Paint(new Rect());
+        w.Loaded += (_, _) => Draw();
+        w.SizeChanged += (_, _) => Draw();
         w.MouseLeftButtonDown += (_, e) =>
         {
             if (drawing() is not null) return;
-            from = e.GetPosition(root);
+            from = Pointer();
             w.CaptureMouse();
             tip.Visibility = Visibility.Collapsed;
         };
         w.MouseMove += (_, e) =>
         {
-            if (from is { } a) Paint(Sel(a, e.GetPosition(root)));
+            if (from is { } a) board.Show(Between(a, Pointer()), mon);
         };
         w.MouseLeftButtonUp += (_, e) =>
         {
             if (from is not { } a) return;
             w.ReleaseMouseCapture();
-            var r = Sel(a, e.GetPosition(root));
+            var picked = Between(a, Pointer());
             from = null;
-            double s = VisualTreeHelper.GetDpi(w).DpiScaleX;
-            var picked = new ScreenRect(mon.X + (int)Math.Round(r.X * s), mon.Y + (int)Math.Round(r.Y * s), (int)Math.Round(r.Width * s), (int)Math.Round(r.Height * s));
             if (startDraw is null || picked.IsEmpty)
             {
                 finish(picked);
                 return;
             }
-            size.Visibility = Visibility.Collapsed; // the bar takes its place
+            board.Settle(picked); // without the size: the bar takes its place
             ((TextBlock)tip.Child).Text = DrawLayer.Hint;
             tip.Visibility = Visibility.Visible;
-            startDraw(canvas, r, new Size(w.ActualWidth, w.ActualHeight), picked);
+            startDraw(canvas, ToLocal(picked, mon, Scale()), new Size(w.ActualWidth, w.ActualHeight), picked);
         };
         w.MouseRightButtonUp += (_, _) =>
         {
@@ -244,6 +259,14 @@ internal static class ScreenGrab
         };
         return w;
     }
+
+    /// The rectangle between two physical points.
+    internal static ScreenRect Between(Win32.POINT a, Win32.POINT b) =>
+        new(Math.Min(a.X, b.X), Math.Min(a.Y, b.Y), Math.Abs(a.X - b.X), Math.Abs(a.Y - b.Y));
+
+    /// `r` (physical, virtual-screen) in the DIPs of the overlay on `mon` at `scale`; off that monitor where `r` is.
+    internal static Rect ToLocal(ScreenRect r, ScreenRect mon, double scale) =>
+        new((r.X - mon.X) / scale, (r.Y - mon.Y) / scale, r.Width / scale, r.Height / scale);
 
     private static bool IsOurs(IntPtr hwnd)
     {
@@ -372,4 +395,40 @@ internal static class ScreenGrab
     [DllImport("gdi32.dll")] private static extern IntPtr SelectObject(IntPtr dc, IntPtr obj);
     [DllImport("gdi32.dll")] private static extern bool BitBlt(IntPtr dst, int x, int y, int w, int h, IntPtr src, int sx, int sy, uint rop);
     [DllImport("gdi32.dll")] private static extern bool DeleteDC(IntPtr dc);
+}
+
+/// The area being dragged, in physical pixels, shared by every monitor's overlay: each draws its own part of it, so a
+/// drag from one monitor onto another shows on both (it showed only on the one it began on, clipped at its edge).
+internal sealed class PickBoard
+{
+    private readonly List<(ScreenRect mon, Action<ScreenRect?, bool> paint)> overlays = new();
+    private bool settled;
+
+    /// An overlay on `mon`; `paint` draws the area (null: none) and, when told, its size.
+    public void Join(ScreenRect mon, Action<ScreenRect?, bool> paint) => overlays.Add((mon, paint));
+
+    /// The area on every monitor, its size on the one holding its bottom-left corner (`from`'s when none does: a gap
+    /// between monitors of different sizes). Nothing once the area is settled.
+    public void Show(ScreenRect? area, ScreenRect from)
+    {
+        if (settled) return;
+        var label = area is { } a ? LabelMonitor(a, from) : from;
+        foreach (var (mon, paint) in overlays) paint(area, mon == label);
+    }
+
+    /// The area picked for drawing on: shown on every monitor without its size, and kept.
+    public void Settle(ScreenRect area)
+    {
+        if (settled) return;
+        foreach (var (_, paint) in overlays) paint(area, false);
+        settled = true;
+    }
+
+    internal ScreenRect LabelMonitor(ScreenRect area, ScreenRect from)
+    {
+        int x = area.X, y = area.Y + Math.Max(0, area.Height - 1);
+        foreach (var (mon, _) in overlays)
+            if (x >= mon.X && x < mon.X + mon.Width && y >= mon.Y && y < mon.Y + mon.Height) return mon;
+        return from;
+    }
 }
