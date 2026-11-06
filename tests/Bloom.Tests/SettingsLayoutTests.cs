@@ -124,9 +124,12 @@ internal static class SettingsLayoutTests
             // the lines the old pages had, wherever they are now; the 데이터 page's own lines (its clearing rows, 초기화 and
             // 삭제) are not among them
             var titles = lines.Where(l => l.PageKey != "data").Select(l => l.Title).ToHashSet();
+            // 기본 앱으로 정하기 is there only while Bloom is among Windows' registered apps (a PC with Bloom installed, never
+            // a fresh build machine)
+            bool registered = FileAssoc.IsRegistered();
             foreach (string old in Before)
             {
-                if (Gone.Contains(old)) continue;
+                if (Gone.Contains(old) || (old == "기본 앱으로 정하기" && !registered)) continue;
                 string now = Renamed.GetValueOrDefault(old, old);
                 Check.True(titles.Contains(now), $"‘{old}’ is on a page (as ‘{now}’)");
             }
