@@ -126,6 +126,8 @@ irm https://raw.githubusercontent.com/hyeon1035298/Bloom/main/install.ps1 | iex
 
 ### 任务栏（PillTaskbar）
 
+<img src="docs/media/island.webp" alt="开启自动隐藏岛后，平时任务栏会自动收起，并在屏幕顶部中央显示一个小巧的岛条。">
+
 - 将 Windows 11 默认任务栏变成悬浮在屏幕中央的半透明玻璃胶囊造型。
 - 在任务栏上把一个应用图标拖到另一个图标上就能建好文件夹，并可在 设置 › 加载项 中编辑文件夹名称和内容。
 - 开始按钮会变成 Bloom 的花朵按钮，系统托盘前方则会显示当前正在播放的音乐。

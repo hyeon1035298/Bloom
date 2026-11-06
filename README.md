@@ -126,6 +126,8 @@ Add-ons are separate programs that you can download, verify, and run from within
 
 ### Taskbar (PillTaskbar)
 
+<img src="docs/media/island.webp" alt="Turn on the auto-hide island option to hide the taskbar when idle and show a compact island bar at the top center of the screen.">
+
 - Transforms the default Windows 11 taskbar into a translucent glass pill floating at the center of the screen.
 - Drag one app icon onto another on the taskbar to group them into a folder, and edit folder names and contents in Settings › Add-ons.
 - Replaces the Start button with Bloom's flower button and displays the currently playing song in front of the system tray.
