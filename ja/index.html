@@ -249,7 +249,7 @@ h1 .winkey, h2 .winkey { width: 0.7em; vertical-align: baseline; margin-right: 0
 .screens { position: relative; aspect-ratio: 16 / 10; border-radius: var(--radius-frame); overflow: hidden; background: var(--color-surface); }
 .screens img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; opacity: 0; transition: opacity 0.5s var(--ease-out); }
 .screens img.is-on { opacity: 1; }
-.screens img, .link__shot img, .addons__main img { filter: grayscale(1); }
+.screens img, .ask__shot img, .addons__main img { filter: grayscale(1); }
 .screens img[data-fill] { object-fit: cover; object-position: top left; }
 
 @media (max-width: 640px) { .show .live { position: relative; left: auto; bottom: auto; width: auto; margin-top: 8px; } }
@@ -322,7 +322,7 @@ h1 .winkey, h2 .winkey { width: 0.7em; vertical-align: baseline; margin-right: 0
 .qa__q { flex: 1; min-width: 0; font-size: clamp(20px, 2.4vw, 28px); letter-spacing: -0.01em; white-space: nowrap; overflow: hidden; }
 .qa__caret { display: inline-block; width: 2px; height: 1.1em; background: var(--color-text); vertical-align: -0.16em; margin-left: 2px; }
 .has-motion .qa__caret { animation: blink 1s steps(1) infinite; }
-.qa__body { padding: 28px 28px 32px; min-height: 220px; }
+.qa__body { padding: 28px 28px 32px; }
 .qa__who { display: flex; align-items: center; gap: 8px; color: var(--color-muted); font-size: 15px; }
 .qa__who svg { color: var(--color-text); }
 .qa__a { margin-top: 16px; font-size: clamp(18px, 1.8vw, 22px); line-height: 1.6; }
@@ -373,16 +373,29 @@ h1 .winkey, h2 .winkey { width: 0.7em; vertical-align: baseline; margin-right: 0
 .mini__dot { width: 8px; height: 8px; border-radius: 50%; background: var(--color-text); box-shadow: 0 0 10px 2px var(--color-glow); flex: none; }
 .mini__who { display: flex; align-items: center; gap: 8px; }
 @media (max-width: 960px) { .link__from { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-.link__shot { margin-top: 64px; padding: 8px 8px 32px; }
-.link__shot img { border-radius: calc(var(--radius-card) - calc(8px * var(--k))); }
-.link__cap { padding: 24px 24px 0; max-width: 64ch; }
-.link__cap h3 { font-size: 19px; }
-.link__cap p { color: var(--color-muted); margin-top: 4px; }
 @media (max-width: 960px) {
   .link__wires, .hub { display: none; }
   .link__part[data-to] { margin-top: 64px; }
 }
 @media (max-width: 640px) { .link__does { grid-template-columns: minmax(0, 1fr); } }
+
+/* ---------- asks before changing: its own section after the links, laid out like the showcase and the add-ons ---------- */
+.ask__shot { margin-top: 48px; padding: 8px; }
+/* The approval at about its real size: the conversation window from its top bar down to the pending line, cut out of the
+   full capture, with the window running on past the bottom edge. The crop box is in capture pixels (1600 × 1000);
+   every language's capture puts the window in the same place. */
+.ask__view {
+  --cx: 518; --cy: 178; --cw: 1024; --ch: 500;
+  position: relative; overflow: hidden; aspect-ratio: var(--cw) / var(--ch);
+  border-radius: calc(var(--radius-card) - calc(8px * var(--k)));
+}
+.ask__view img {
+  position: absolute; top: 0; left: 0; max-width: none;
+  width: calc(1600 / var(--cw) * 100%);
+  transform: translate(calc(var(--cx) / -16 * 1%), calc(var(--cy) / -10 * 1%));
+}
+/* phones: only the reply, the approval card and the pending line, so the buttons stay readable */
+@media (max-width: 640px) { .ask__view { --cx: 548; --cy: 366; --cw: 520; --ch: 290; } }
 
 /* ---------- Bloom Lens ---------- */
 .lens__grid { margin-top: 56px; display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: clamp(32px, 5vw, 72px); align-items: center; }
@@ -437,6 +450,9 @@ h1 .winkey, h2 .winkey { width: 0.7em; vertical-align: baseline; margin-right: 0
 .panel { padding: 28px; }
 .panel__h { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; font-size: 15px; color: var(--color-muted); font-weight: 600; }
 .acct + .acct { margin-top: 24px; padding-top: 24px; border-top: 1px solid var(--color-line); }
+/* Side by side the two panels share a height: the meters spread down the shorter one so it does not end half empty. */
+.usage .panel:first-child { display: flex; flex-direction: column; }
+.usage .panel:first-child .acct { flex: 1; display: flex; flex-direction: column; justify-content: space-between; }
 .acct__name { margin-top: 16px; font-size: 18px; font-weight: 640; display: flex; justify-content: space-between; gap: 12px; }
 .acct__name small { color: var(--color-muted); font-size: 13px; font-weight: 600; padding: 2px 8px; border-radius: calc(6px * var(--k)); background: var(--color-raised); }
 .meter { margin-top: 16px; }
@@ -882,10 +898,19 @@ h1 .winkey, h2 .winkey { width: 0.7em; vertical-align: baseline; margin-right: 0
           </div>
         </div>
       </div>
-      <div class="card link__shot">
-        <img src="../assets/ja/ai.webp" srcset="../assets/ja/ai-1000.webp 1000w, ../assets/ja/ai.webp 1600w" sizes="(max-width: 1100px) 92vw, 1040px" width="1600" height="1000" alt="見積書 PDF をドキュメントフォルダーに移す前に許可と拒否を尋ねる承認カードと、左側の Claude Code・Codex 作業通知カード" loading="lazy">
-        <div class="link__cap"><h3>何かを変える前にまず確認します</h3><p>何かを変更する操作は、実行前に「許可」「このチャットでは常に許可」「拒否」を必ず確認します。API キーは Windows が暗号化し、この PC 内にのみ保管されます。</p></div>
+    </div>
+  </section>
+
+  <!-- asks before changing -->
+  <section class="sec ask" id="ask" aria-labelledby="ask-title">
+    <div class="wrap">
+      <h2 id="ask-title" class="head">何かを変える前にまず確認します。<span>何かを変更する操作は、実行前に「許可」「このチャットでは常に許可」「拒否」を必ず確認します。</span></h2>
+      <div class="card ask__shot">
+        <div class="ask__view">
+          <img src="../assets/ja/ai.webp" srcset="../assets/ja/ai-1000.webp 1000w, ../assets/ja/ai.webp 1600w" sizes="(max-width: 640px) 270vw, (max-width: 1100px) 141vw, 1600px" width="1600" height="1000" alt="見積書 PDF をドキュメントフォルダーに移す前に許可と拒否を尋ねる承認カード" loading="lazy">
+        </div>
       </div>
+      <p class="sec__note">API キーは Windows が暗号化し、この PC 内にのみ保管されます。</p>
     </div>
   </section>
 
@@ -1291,7 +1316,7 @@ h1 .winkey, h2 .winkey { width: 0.7em; vertical-align: baseline; margin-right: 0
     $$('a[href^="#"]').forEach(function (a) {
       a.addEventListener('click', function (e) {
         var id = a.getAttribute('href');
-        if (id.length > 1 && document.querySelector(id)) { e.preventDefault(); lenis.scrollTo(id, { offset: $(id).matches('.qa') ? 0 : -96, onComplete: function () {
+        if (id.length > 1 && document.querySelector(id)) { e.preventDefault(); lenis.scrollTo(id, { offset: -96, onComplete: function () {
           var t = $(id); if (!t.hasAttribute('tabindex')) t.setAttribute('tabindex', '-1');
           t.focus({ preventScroll: true }); history.replaceState(null, '', id);
         } }); }
@@ -1300,7 +1325,6 @@ h1 .winkey, h2 .winkey { width: 0.7em; vertical-align: baseline; margin-right: 0
   }
 
   var introDone = false;
-  var pinStart = function (sel) { return function () { return $(sel).offsetHeight > innerHeight ? 'bottom bottom' : 'top top'; }; };
   var mm = gsap.matchMedia();
   mm.add({ motion: '(prefers-reduced-motion: no-preference)', wide: '(min-width: 768px)' }, function (ctx) {
     if (!ctx.conditions.motion) return;
@@ -1426,7 +1450,7 @@ h1 .winkey, h2 .winkey { width: 0.7em; vertical-align: baseline; margin-right: 0
     ko.to({}, { duration: 1.2 });
     ScrollTrigger.create({ trigger: '.ko', start: 'top 80%', end: 'bottom 10%', onToggle: function (s) { s.isActive ? ko.play() : ko.pause(); } });
 
-    // Quick AI pin: the question types, Tab goes down, the answer streams in.
+    // Quick AI: the question types, Tab goes down, the answer streams in.
     var qaQ = $('[data-qa-q]'), qaText = Array.from(qaQ.textContent), aEl = $('[data-qa-a]'), tabCap = $('[data-qa-tab]');
     var hints = $$('[data-qa-hint]'), bar = $('.qa__bar');
     // Wrap the answer's words so they can arrive one by one.
@@ -1450,19 +1474,22 @@ h1 .winkey, h2 .winkey { width: 0.7em; vertical-align: baseline; margin-right: 0
       gsap.set(words, { opacity: 0.08 });
       gsap.set(who, { opacity: 0 });
       qaQ.textContent = '';
-      var qa = gsap.timeline({ scrollTrigger: { trigger: '.qa', start: pinStart('.qa'), end: '+=900', pin: true, scrub: 0.6, refreshPriority: 2 } });
-      qa.to(q, { n: qaText.length, duration: 3, ease: 'none', onUpdate: function () { qaQ.textContent = qaText.slice(0, Math.round(q.n)).join(''); } }, 0)
-        .to(who, { opacity: 1, duration: 0.4 }, 3.5)
-        .to(words, { opacity: 1, duration: 0.3, stagger: 0.18, ease: 'none' }, 3.7);
-      var aEnd = 3.7 + words.length * 0.18;
-      hints.forEach(function (h, k) { qa.to(h, { duration: 0.01, onStart: function () { h.classList.add('is-lit'); }, onReverseComplete: function () { h.classList.remove('is-lit'); } }, aEnd + 0.3 + k * 0.5); });
-      qa.to({}, { duration: 0.6 });
+      // Plays on its own once the window is in view and pauses when it leaves, like the search-line demo; no pin, so the section flows like the rest.
+      // Longer translations type and stream faster, so every language finishes in about the same time.
+      var typed = 0.4 + Math.min(qaText.length * 0.1, 1.8), tabAt = typed + 0.35, step = Math.min(0.16, 3.2 / words.length);
+      var qa = gsap.timeline({ paused: true });
+      qa.to(q, { n: qaText.length, duration: typed - 0.4, ease: 'none', onUpdate: function () { qaQ.textContent = qaText.slice(0, Math.round(q.n)).join(''); } }, 0.4)
+        .to(who, { opacity: 1, duration: 0.4 }, tabAt + 0.5)
+        .to(words, { opacity: 1, duration: 0.3, stagger: step, ease: 'none' }, tabAt + 0.7);
+      var aEnd = tabAt + 0.7 + words.length * step;
+      hints.forEach(function (h, k) { qa.add(function () { h.classList.add('is-lit'); }, aEnd + 0.3 + k * 0.4); });
       // Tab is held down for a moment between the question and the answer.
       qa.eventCallback('onUpdate', function () {
-        var t = qa.time(), down = t > 3.15 && t < 3.6;
-        tabCap.classList.toggle('is-down', down);
-        bar.classList.toggle('is-sent', t > 3.15);
+        var t = qa.time();
+        tabCap.classList.toggle('is-down', t > tabAt && t < tabAt + 0.45);
+        bar.classList.toggle('is-sent', t > tabAt);
       });
+      ScrollTrigger.create({ trigger: '.qa__stage', start: 'top 75%', end: 'bottom 15%', onToggle: function (s) { s.isActive ? qa.play() : qa.pause(); } });
     }
 
     // AI links: wires from each source to Bloom and from Bloom to each use, with light running along them.
