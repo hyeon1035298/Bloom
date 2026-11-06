@@ -426,7 +426,7 @@ Command saved	コマンドの保存完了
 Command	コマンド
 Add a command	コマンドを追加
 Every command is in this block	すべてのコマンドがこのブロックにあります
-Click a card to add it to this block	カードをクリックするとこのブロックに追加
+Click a card to add it to this block	行をクリックするとこのブロックに追加
 1 command left out	外したコマンド 1 件
 {0} commands left out	外したコマンド {0} 件
 Close list	一覧を閉じる
@@ -1981,7 +1981,9 @@ The downloaded file isn't the one Bloom expects, so it wasn't installed	ダウ�
 What the download holds isn't valid, so it wasn't installed	ダウンロードした内容が正しくないため、インストールしませんでした
 Couldn't save the download · check the free disk space	ダウンロードを保存できませんでした · ディスクの空き容量を確認してください
 Add-ons	アドオン
-Add-ons are separate programs Bloom starts, each turned on and off here. One you put in the user-addons folder in Bloom's local data folder shows after Bloom restarts.	アドオンは Bloom が起動する別のプログラムで、ここで一つずつオン・オフします。Bloom のローカルデータフォルダー内の user-addons に自分で入れたアドオンは、Bloom を再起動すると表示されます。
+Add-ons are separate programs Bloom starts, each turned on and off here. Click one to open its page. One you put in the user-addons folder in Bloom's local data folder shows after Bloom restarts.	アドオンは Bloom が起動する別のプログラムで、ここで一つずつオン・オフします。カードをクリックすると、そのアドオンのページが開きます。Bloom のローカルデータフォルダー内の user-addons に自分で入れたアドオンは、Bloom を再起動すると表示されます。
+Its settings show here while it is on	オンにすると、このアドオンの設定がここに表示されます
+This add-on has no settings to change in Bloom	このアドオンには Bloom で変更できる設定がありません
 All add-ons	アドオン一覧
 Turns the taskbar into a centred pill	タスクバーを中央のピル型に変えます
 Starts taskbar customization again	タスクバーのカスタマイズを再開します
@@ -2633,3 +2635,7 @@ Always on top	常に手前に表示
 Attach to the launcher	ランチャーに付ける
 {0} · 1 call	{0} · 1 回呼び出し
 1 call	呼び出し 1
+Monitor 1	モニター 1
+Monitor 2	モニター 2
+Clean now	今すぐ解放
+1.2 GB freed	1.2 GB 解放

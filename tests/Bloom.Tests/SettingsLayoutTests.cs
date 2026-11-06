@@ -162,7 +162,7 @@ internal static class SettingsLayoutTests
     /// The page keys of the fourteen-page layout (a search line, a notice, a QA list) open their new pages.
     public static void OldPageKeys()
     {
-        foreach (var (old, now) in new[] { ("performance", "general"), ("home", "launcher"), ("search", "launcher"), ("clipboard", "tools"), ("screen", "tools"), ("lens", "tools"), ("player", "tools"), ("taskbar", "addons"), ("ai", "ai") })
+        foreach (var (old, now) in new[] { ("performance", "general"), ("home", "launcher"), ("search", "launcher"), ("clipboard", "tools"), ("screen", "tools"), ("lens", "tools"), ("player", "tools"), ("taskbar", "addon:pill-taskbar"), ("ai", "ai") })
             Check.Eq(SettingsView.PageOf(old), now, $"‘{old}’ opens");
     }
 }

@@ -21,8 +21,11 @@ internal sealed partial class SettingsView : ScrollViewer
     public readonly StackPanel Nav = new() { Margin = new Thickness(0, 2, 0, 12) };
     private readonly List<(Row row, Action? toggle, Func<int, bool>? step)> rows = new();
     private readonly List<Dropdown> dropdowns = new();
-    private readonly List<(string key, string title, char glyph, string section)> pages = new();
+    /// The categories; `parent` names the one a sub-page sits under (an add-on's under 애드온), `mark` its dot in the list.
+    private readonly List<(string key, string title, char glyph, string section, string? parent, System.Windows.Media.Brush? mark)> pages = new();
     private readonly Dictionary<string, int> hits = new();
+    /// The open page's group titles as drawn, for the keys that jump to them (an add-on's page).
+    private readonly List<(string title, FrameworkElement head)> heads = new();
     private readonly Dictionary<int, string> homeKeys = new(); // row index → home block (Ctrl+↑↓ moves it)
     private int sel;
     private static string? drawing; // "AI로 전부 그리기" while it runs
@@ -94,7 +97,7 @@ internal sealed partial class SettingsView : ScrollViewer
         Dispatcher.BeginInvoke(() =>
         {
             if (Keyboard.FocusedElement is TextBox box && IsAncestorOf(box)) return;
-            if (IsLoaded && IsVisible && (current is "addons" || lastFilter.Length > 0)) TaskbarRebuild();
+            if (IsLoaded && IsVisible && (current == "addons" || current.StartsWith("addon:", StringComparison.Ordinal) || lastFilter.Length > 0)) TaskbarRebuild();
         }, System.Windows.Threading.DispatcherPriority.Background);
     }
 
@@ -145,10 +148,11 @@ internal sealed partial class SettingsView : ScrollViewer
         return r;
     }
 
-    /// A category: a title and one line under it on its page, an entry in the list on the left.
-    private void Page(string key, string title, char glyph, string blurb, string filter)
+    /// A category: a title and one line under it on its page, an entry in the list on the left. A sub-page (`parent`)
+    /// shows the way back (애드온 › 작업표시줄) in place of its title, and sits indented under its parent in the list.
+    private void Page(string key, string title, char glyph, string blurb, string filter, string? parent = null, System.Windows.Media.Brush? mark = null)
     {
-        pages.Add((key, title, glyph, section));
+        pages.Add((key, title, glyph, section, parent, mark));
         pageKey = key;
         pageTitle = title;
         groupTitle = "";
@@ -157,17 +161,64 @@ internal sealed partial class SettingsView : ScrollViewer
         groupShown = false;
         if (collected is null && filter.Length == 0 && key == current)
         {
-            var t = Theme.T(title, 15, Theme.P.Text, Theme.Semi);
-            t.Margin = new Thickness(32, 24, 32, 0);
-            stack.Children.Add(t);
-            var b = Theme.T(Hangul.KeepAll(blurb), 13, Theme.P.TextDim, Theme.Regular, false);
-            b.TextWrapping = TextWrapping.Wrap;
-            b.MaxWidth = 600; // a readable measure on a wide window
-            b.HorizontalAlignment = HorizontalAlignment.Left;
-            b.Margin = new Thickness(32, 4, 32, 0);
-            stack.Children.Add(b);
+            if (parent is not null) stack.Children.Add(Crumb(parent, title));
+            else
+            {
+                var t = Theme.T(title, 15, Theme.P.Text, Theme.Semi);
+                t.Margin = new Thickness(32, 24, 32, 0);
+                stack.Children.Add(t);
+            }
+            if (blurb.Length > 0)
+            {
+                var b = Theme.T(Hangul.KeepAll(blurb), 13, Theme.P.TextDim, Theme.Regular, false);
+                b.TextWrapping = TextWrapping.Wrap;
+                b.MaxWidth = 600; // a readable measure on a wide window
+                b.HorizontalAlignment = HorizontalAlignment.Left;
+                b.Margin = new Thickness(32, 4, 32, 0);
+                stack.Children.Add(b);
+            }
             pageShown = true;
         }
+    }
+
+    /// ← 애드온 › 작업표시줄: a sub-page's top line; the arrow and the parent's name open the parent.
+    private FrameworkElement Crumb(string parent, string title)
+    {
+        string up = pages.FirstOrDefault(p => p.key == parent).title ?? parent;
+        var line = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(32, 20, 32, 0) };
+        var arrow = Theme.Glyph(G.Back, 11, Theme.P.TextDim);
+        arrow.HorizontalAlignment = HorizontalAlignment.Center;
+        arrow.VerticalAlignment = VerticalAlignment.Center;
+        var back = new SmoothBorder
+        {
+            Width = 26,
+            Height = 26,
+            CornerRadius = new CornerRadius(7),
+            Background = Theme.P.Key,
+            Cursor = Cursors.Hand,
+            ToolTip = up,
+            Child = arrow,
+        };
+        var name = Theme.T(up, 13, Theme.P.TextDim);
+        name.Cursor = Cursors.Hand;
+        name.Margin = new Thickness(10, 0, 0, 0);
+        name.VerticalAlignment = VerticalAlignment.Center;
+        foreach (var e in new FrameworkElement[] { back, name })
+            e.MouseLeftButtonUp += (_, a) =>
+            {
+                Go(parent);
+                a.Handled = true;
+            };
+        var chevron = Theme.Glyph(G.Right, 9, Theme.P.TextFaint);
+        chevron.Margin = new Thickness(8, 1, 8, 0);
+        chevron.VerticalAlignment = VerticalAlignment.Center;
+        var t = Theme.T(title, 13, Theme.P.Text, Theme.Semi);
+        t.VerticalAlignment = VerticalAlignment.Center;
+        line.Children.Add(back);
+        line.Children.Add(name);
+        line.Children.Add(chevron);
+        line.Children.Add(t);
+        return line;
     }
 
     private bool groupShown; // the page has a group on it already (the first sits closer to the page's title)
@@ -211,6 +262,7 @@ internal sealed partial class SettingsView : ScrollViewer
             }
             head.Children.Add(g);
             stack.Children.Add(head);
+            if (filter.Length == 0) heads.Add((groupTitle, head));
             if (groupNote is not null)
             {
                 var n = Theme.T(Hangul.KeepAll(groupNote), 12, Theme.P.TextFaint);
@@ -487,7 +539,14 @@ internal sealed partial class SettingsView : ScrollViewer
         homeRows.Clear();
         pages.Clear();
         hits.Clear();
+        heads.Clear();
         BuildPages(Settings.Current, filter);
+        if (filter.Length == 0 && current.StartsWith("addon:", StringComparison.Ordinal) && !pages.Any(p => p.key == current))
+        {
+            current = "addons"; // an add-on gone since (one taken out of user-addons)
+            Build(filter);
+            return;
+        }
 
         if (filter.Length > 0 && rows.Count == 0)
         {
@@ -528,9 +587,12 @@ internal sealed partial class SettingsView : ScrollViewer
         "performance" => "general",
         "home" or "search" => "launcher",
         "clipboard" or "screen" or "lens" or "player" => "tools",
-        "taskbar" => "addons",
+        "taskbar" => AddonPageKey(Addons.AddonProtocol.Id),
         _ => key,
     };
+
+    /// An add-on's own page under 애드온.
+    internal static string AddonPageKey(string id) => "addon:" + id;
 
     /// Every line of every category as text, for the launcher's settings search (SettingsCatalog). Nothing is built;
     /// the pages skip what reads the disk or the PC (MCP servers, Lens files, CLIs) while this runs.
@@ -560,8 +622,13 @@ internal sealed partial class SettingsView : ScrollViewer
     {
         Nav.Children.Clear();
         string? last = null;
-        foreach (var (key, title, glyph, sec) in pages)
+        foreach (var (key, title, glyph, sec, parent, mark) in pages)
         {
+            if (parent is not null)
+            {
+                Nav.Children.Add(SubNav(key, title, mark, filter));
+                continue;
+            }
             if (sec != last)
             {
                 if (sec.Length == 0) Nav.Children.Add(new SmoothBorder { Height = 1, Background = Theme.P.Line, Margin = new Thickness(20, 8, 20, 8) });
@@ -625,6 +692,57 @@ internal sealed partial class SettingsView : ScrollViewer
             };
             Nav.Children.Add(item);
         }
+    }
+
+    /// A sub-page in the list: indented under its parent with no icon, smaller, and its dot (an add-on running) at the end
+    /// — or, while filtering, how many lines it has.
+    private FrameworkElement SubNav(string key, string title, System.Windows.Media.Brush? mark, string filter)
+    {
+        bool on = filter.Length == 0 && key == current;
+        int count = hits.GetValueOrDefault(key);
+        var g = new Grid();
+        g.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+        g.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+        var t = Theme.Label(title, 12.5, on ? Theme.P.Text : Theme.P.TextDim, on ? Theme.Semi : Theme.Regular, true);
+        g.Children.Add(t);
+        FrameworkElement? end = filter.Length > 0
+            ? count > 0 ? Theme.Label(count.ToString(), 12, Theme.P.TextFaint, Theme.Medium) : null
+            : mark is null ? null : new SmoothBorder { Width = 6, Height = 6, CornerRadius = new CornerRadius(3), Background = mark, VerticalAlignment = VerticalAlignment.Center };
+        if (end is not null)
+        {
+            Grid.SetColumn(end, 1);
+            g.Children.Add(end);
+        }
+        var item = new SmoothBorder
+        {
+            Height = 28,
+            CornerRadius = new CornerRadius(7),
+            Margin = new Thickness(8, 0, 8, 1),
+            Padding = new Thickness(36, 0, 14, 0),
+            Background = on ? Theme.P.Selected : System.Windows.Media.Brushes.Transparent,
+            Opacity = filter.Length > 0 && count == 0 ? 0.45 : 1,
+            Cursor = Cursors.Hand,
+            Child = g,
+        };
+        if (!on)
+        {
+            item.MouseEnter += (_, _) =>
+            {
+                item.Background = Theme.P.Hover;
+                t.Foreground = Theme.P.Text;
+            };
+            item.MouseLeave += (_, _) =>
+            {
+                item.Background = System.Windows.Media.Brushes.Transparent;
+                t.Foreground = Theme.P.TextDim;
+            };
+        }
+        item.MouseLeftButtonUp += (_, e) =>
+        {
+            Go(key);
+            e.Handled = true;
+        };
+        return item;
     }
 
     /// Opens a category (clears the filter first).
