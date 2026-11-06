@@ -30,10 +30,10 @@ internal sealed class NoticeLog
         }
     }
 
-    /// The whole text in one line, cut to a preview.
+    /// The whole text in one line as plain words (an AI answer's Markdown marks taken off), cut to a preview.
     public static string Preview(string text)
     {
-        string one = string.Join(' ', text.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries));
+        string one = string.Join(' ', MarkdownText.Plain(text).Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries));
         return one.Length > PreviewLength ? one[..PreviewLength] + "…" : one;
     }
 
