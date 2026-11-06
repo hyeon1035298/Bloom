@@ -9,27 +9,27 @@ namespace Bloom.Tests;
 /// 문제 보고: who the user is stays out of the text that goes to GitHub.
 internal static class ProblemReportTests
 {
-    private const string Profile = @"C:\Users\hyeon";
+    private const string Profile = @"C:\Users\alex";
 
     public static void MaskHidesProfileNamesAndMail()
     {
         string masked = ProblemReport.Mask(
-            @"open C:\Users\hyeon\AppData\a.json by hyeon on DESKTOP-ABC; mail Hyeon.K+x@gmail.com; esc C:\\Users\\hyeon\\b; url c:/users/HYEON/c",
-            Profile, "hyeon", "DESKTOP-ABC");
+            @"open C:\Users\alex\AppData\a.json by alex on DESKTOP-ABC; mail Alex.K+x@example.com; esc C:\\Users\\alex\\b; url c:/users/ALEX/c",
+            Profile, "alex", "DESKTOP-ABC");
         Check.Eq(masked, @"open %USERPROFILE%\AppData\a.json by <user> on <pc>; mail <email>; esc %USERPROFILE%\\b; url %USERPROFILE%/c", "masked");
     }
 
     public static void MaskHidesWholeUnusualMail()
     {
-        Check.Eq(ProblemReport.Mask("from jane.o'connor@example.org", Profile, "hyeon", "DESKTOP-ABC"), "from <email>", "an apostrophe in the name");
-        Check.Eq(ProblemReport.Mask("to \"jane doe\"@example.org.", Profile, "hyeon", "DESKTOP-ABC"), "to <email>.", "a quoted name");
-        Check.Eq(ProblemReport.Mask("cc a!b#c%d&e*f/g=h?i^j`k{l|m}n~o@x.co", Profile, "hyeon", "DESKTOP-ABC"), "cc <email>", "the other characters mail allows");
+        Check.Eq(ProblemReport.Mask("from jane.o'connor@example.org", Profile, "alex", "DESKTOP-ABC"), "from <email>", "an apostrophe in the name");
+        Check.Eq(ProblemReport.Mask("to \"jane doe\"@example.org.", Profile, "alex", "DESKTOP-ABC"), "to <email>.", "a quoted name");
+        Check.Eq(ProblemReport.Mask("cc a!b#c%d&e*f/g=h?i^j`k{l|m}n~o@x.co", Profile, "alex", "DESKTOP-ABC"), "cc <email>", "the other characters mail allows");
     }
 
     public static void MaskKeepsOtherWordsAndFolders()
     {
-        string text = @"hyeonwoo wrote C:\Users\hyeon2\x and pc DESKTOP-ABCD, 2 users@home";
-        Check.Eq(ProblemReport.Mask(text, Profile, "hyeon", "DESKTOP-ABC"), text, "a name inside a longer word or folder name is not the user");
+        string text = @"alexwoo wrote C:\Users\alex2\x and pc DESKTOP-ABCD, 2 users@home";
+        Check.Eq(ProblemReport.Mask(text, Profile, "alex", "DESKTOP-ABC"), text, "a name inside a longer word or folder name is not the user");
     }
 
     public static void MaskDoesNotMatchItsOwnPlaceholders()

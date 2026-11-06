@@ -3,5 +3,3 @@ obj/
 dist/
 .vs/
 *.user
-# the maintainer's local work log
-docs/TASK.md

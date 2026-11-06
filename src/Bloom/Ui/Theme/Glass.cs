@@ -80,7 +80,7 @@ internal static class Glass
     /// `step` hears "fresh", "frame", "flush" (the wait for DWM starts), "flushed" (on the pool), "guard" and "revealed"
     /// (SummonTrace).
     /// WPF tells nobody when its render thread has put a frame on screen (its present interlock is off here), so the
-    /// waits are measured ones (10-12, the launcher at 240 Hz, a screen grab at the uncloak against one later): a drawn
+    /// waits are measured ones (the launcher at 240 Hz, a screen grab at the uncloak against one later): a drawn
     /// window's frame was there after one DWM pass, a fresh one's (Fresh) after 12–26 ms, blank grey before. Waiting at
     /// Background instead had given 25–60 ms by chance: WPF runs Background on the system's 15.6 ms timer ticks while
     /// messages are posted, as drawing posts them, and late rows queued there ran first.

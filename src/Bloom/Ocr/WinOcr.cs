@@ -22,7 +22,7 @@ internal static unsafe class WinOcr
     private static readonly Guid IID_ILanguageFactory = new("9b0252ac-0c27-44f8-b792-9793fb66c63e");
     private const int First = WinRt.First;
 
-    /// The language tag, or null = the user's profile languages (Korean here).
+    /// The language tag, or null = the user's profile languages.
     public static Task<OcrOutput?> Recognize(byte[] bgra, int width, int height, string? language) =>
         WinRt.OnMta(() => Run(bgra, width, height, language), null, "ocr");
 

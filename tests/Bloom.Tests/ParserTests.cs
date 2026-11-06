@@ -58,9 +58,9 @@ internal static class ClaudeUsageTests
     public static void UsageText()
     {
         var limits = ClaudeUsage.Parse("""
-            Current session: 3% used · resets Oct 8, 12:29pm (Asia/Seoul)
-            Current week (all models): 61% used · resets Oct 13, 5:59am (Asia/Seoul)
-            Current week (Fable): 0% used · resets Oct 13, 6am (Asia/Seoul)
+            Current session: 3% used · resets Oct 8, 12:29pm (Europe/London)
+            Current week (all models): 61% used · resets Oct 13, 5:59am (Europe/London)
+            Current week (Fable): 0% used · resets Oct 13, 6am (Europe/London)
               92% of your usage was at >150k context
             """, Now);
         Check.Eq(limits.Count, 3, "session + all-models week + Fable's week");
