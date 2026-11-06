@@ -126,6 +126,8 @@ irm https://raw.githubusercontent.com/hyeon1035298/Bloom/main/install.ps1 | iex
 
 ### 작업표시줄 (PillTaskbar)
 
+<img src="docs/media/island.webp" alt="숨김 아일랜드 옵션을 켜면 평소에는 작업표시줄이 숨고, 화면 맨 위 가운데에 작은 아일랜드 바가 생깁니다.">
+
 - Windows 11 기본 작업표시줄을 화면 가운데에 떠 있는 반투명 유리 알약 모양으로 바꿔 줍니다.
 - 작업표시줄의 앱 아이콘을 다른 아이콘 위로 끌어다 놓으면 폴더로 묶이고, 설정 › 애드온에서 폴더 이름과 구성을 편집할 수 있습니다.
 - 시작 단추는 Bloom 꽃 모양 버튼으로 바뀌고, 시스템 트레이 앞쪽에 지금 재생 중인 음악 정보가 표시됩니다.
