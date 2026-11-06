@@ -1,0 +1,1345 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bloom: Windows용 네이티브 런처</title>
+<meta name="description" content="Bloom은 Windows용 네이티브 런처입니다. Win 키 하나로 열고, 앱 실행, 계산, 파일 찾기, AI 채팅을 검색줄 한 줄에서 합니다.">
+<link rel="icon" href="assets/mark.png">
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/wanteddev/wanted-sans@v1.0.3/packages/wanted-sans/fonts/webfonts/variable/split/WantedSansVariable.min.css">
+<script>
+  document.documentElement.classList.add('js');
+  if (matchMedia('(prefers-reduced-motion: no-preference)').matches) document.documentElement.classList.add('has-motion');
+</script>
+<style>
+
+:root {
+  --color-bg: #07080A;
+  --color-bg-2: #0E0E10;
+  --color-surface: #111113;
+  --color-surface-2: #18181B;
+  --color-raised: #27272A;
+  --color-raised-2: #3A3A3F;
+  --color-text: #F4F4F5;
+  --color-muted: #A1A1AA;
+  --color-faint: #8A8A93;
+  --color-line: rgba(255, 255, 255, 0.08);
+  --color-line-2: rgba(255, 255, 255, 0.14);
+  --color-glow: rgba(255, 255, 255, 0.16);
+  --color-beam: rgba(255, 255, 255, 0.55);
+  --color-beam-soft: rgba(255, 255, 255, 0.10);
+  --color-dust: rgba(250, 250, 250, 1);
+  --color-shade: rgba(0, 0, 0, 0.55);
+  --color-shade-2: rgba(0, 0, 0, 0.35);
+  --color-btn: #E6E6E6;
+  --color-btn-hover: #FAFAFA;
+  --color-btn-text: #18181B;
+  --color-btn-ring: rgba(0, 0, 0, 0.5);
+  --color-btn-halo: rgba(255, 255, 255, 0.19);
+  --color-btn-in-dark: rgba(0, 0, 0, 0.2);
+  --color-btn-in-light: #FAFAFA;
+  --color-cap-edge: rgba(255, 255, 255, 0.16);
+  --color-transparent: rgba(0, 0, 0, 0);
+  --font-sans: "Wanted Sans Variable", "Wanted Sans", "Pretendard", "Malgun Gothic", system-ui, sans-serif;
+  --font-mono: "Cascadia Mono", "Cascadia Code", ui-monospace, "Wanted Sans Variable", Consolas, monospace;
+
+  --wrap: 1200px;
+  --gutter: clamp(20px, 4vw, 48px);
+  --gap: clamp(16px, 2vw, 24px);
+  --radius-card: calc(24px * var(--k));
+  --radius-frame: calc(20px * var(--k));
+  --radius-btn: calc(10px * var(--k));
+  --k: 1;
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html, body { overflow-x: clip; }
+html { -webkit-text-size-adjust: 100%; background: var(--color-bg); }
+body {
+  margin: 0;
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-sans);
+  font-size: 17px;
+  line-height: 1.6;
+  word-break: keep-all;
+  -webkit-font-smoothing: antialiased;
+}
+img { display: block; max-width: 100%; height: auto; }
+a { color: inherit; }
+h1, h2, h3, p { margin: 0; }
+h1, h2, h3 { overflow-wrap: break-word; min-width: 0; font-weight: 640; text-wrap: balance; }
+html { scrollbar-color: var(--color-raised-2) var(--color-bg); caret-color: var(--color-text); }
+a { text-underline-offset: 0.2em; }
+::selection { background: var(--color-text); color: var(--color-bg); }
+section[tabindex="-1"]:focus { outline: none; }
+:focus-visible { outline: 2px solid var(--color-text); outline-offset: 3px; transition: none; }
+
+.wrap { width: min(100%, var(--wrap)); margin-inline: auto; padding-inline: var(--gutter); }
+
+/* Section heads: a white line, then a grey line at the same size. */
+.head { text-align: center; font-size: clamp(22px, 2.2vw, 28px); line-height: 1.3; letter-spacing: -0.02em; font-weight: 640; }
+.head span { display: block; color: var(--color-muted); font-weight: 500; }
+.head--left { text-align: left; }
+.head--lg { font-size: clamp(28px, 3.4vw, 42px); line-height: 1.2; }
+/* Key notation that is not a control: flat, so it never looks pressable. */
+.kbd {
+  display: inline-grid; place-items: center; min-width: 1.9em; height: 1.9em; padding: 0 0.5em;
+  border-radius: calc(6px * var(--k)); background: var(--color-raised);
+  color: var(--color-muted); font: 600 max(12px, 0.8em)/1 var(--font-sans);
+}
+@media (pointer: coarse) { .only-fine { display: none; } }
+/* The Win key as the Windows mark: four squares, cap height, sitting on the baseline. */
+.winkey { display: inline-block; }
+.winkey svg { display: block; width: 0.7em; height: 0.7em; fill: currentColor; }
+h1 .winkey, h2 .winkey { width: 0.7em; vertical-align: baseline; margin-right: 0.04em; }
+.kbd .winkey svg { width: 1.05em; height: 1.05em; }
+
+/* Keys as Bloom draws its own hints: a small flat grey box. A pressed key lightens. */
+.cap {
+  display: inline-grid; place-items: center; min-width: 2em; height: 2em; padding: 0 0.55em;
+  border-radius: calc(6px * var(--k)); background: var(--color-raised); color: var(--color-text);
+  font: 600 max(12px, 0.8em)/1 var(--font-sans); vertical-align: middle;
+  transition: background-color 0.12s, transform 0.12s;
+}
+.cap.is-down { background: var(--color-raised-2); transform: scale(0.94); }
+.keys { display: inline-flex; gap: 0.36em; align-items: center; }
+
+/* One button style: light, glossy, ringed. */
+.btn {
+  display: inline-flex; align-items: center; gap: 12px;
+  padding: 12px 20px; border: 0; border-radius: var(--radius-btn);
+  background: var(--color-btn); color: var(--color-btn-text);
+  font: 600 15px/1 var(--font-sans); text-decoration: none; cursor: pointer;
+  box-shadow: 0 0 0 2px var(--color-btn-ring), 0 0 14px 0 var(--color-btn-halo), inset 0 -1px 0.4px 0 var(--color-btn-in-dark), inset 0 1px 0.4px 0 var(--color-btn-in-light);
+  transition: background-color 0.2s, transform 0.2s var(--ease-out), box-shadow 0.3s;
+}
+.btn:hover { background: var(--color-btn-hover); box-shadow: 0 0 0 2px var(--color-btn-ring), 0 0 24px 2px var(--color-btn-halo), inset 0 -1px 0.4px 0 var(--color-btn-in-dark), inset 0 1px 0.4px 0 var(--color-btn-in-light); }
+.btn:disabled, .dock button:disabled { opacity: 0.4; cursor: default; transform: none; }
+.btn:active { transform: scale(0.97); }
+.btn svg { flex: none; }
+.btn--small { padding: 8px 16px; font-size: 14px; }
+
+.textlink { color: var(--color-muted); text-decoration: none; font-weight: 560; transition: color 0.2s; }
+.textlink:hover { color: var(--color-text); }
+.textlink::after { content: " ›"; content: " ›" / ""; }
+
+/* Cards: hairline edge, a faint top light. */
+.card {
+  border: 1px solid var(--color-line); border-radius: var(--radius-card);
+  background: linear-gradient(var(--color-surface), var(--color-bg-2));
+  box-shadow: inset 0 1px 0 var(--color-line);
+}
+
+/* ---------- nav ---------- */
+.nav { position: fixed; top: 16px; left: 0; right: 0; z-index: 40; padding-inline: var(--gutter); }
+.nav__bar {
+  width: min(100%, calc(var(--wrap) - 2 * var(--gutter)) ); margin-inline: auto;
+  display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: center; gap: 24px;
+  height: 64px; padding: 0 12px 0 20px;
+  border: 1px solid var(--color-line); border-radius: calc(16px * var(--k));
+  background: var(--color-bg-2);
+}
+.brand { display: inline-flex; align-items: center; gap: 12px; text-decoration: none; font-weight: 640; font-size: 17px; }
+.brand img { width: 28px; height: 28px; border-radius: calc(8px * var(--k)); }
+.nav__links { display: flex; gap: clamp(16px, 2.4vw, 32px); }
+.nav__links a { text-decoration: none; font-size: 15px; color: var(--color-muted); font-weight: 500; transition: color 0.2s; }
+.nav__links a:hover, .nav__links a[aria-current="true"] { color: var(--color-text); }
+.nav__menu { display: none; }
+.nav__end { justify-self: end; }
+@media (max-width: 720px) {
+  .nav__bar { grid-template-columns: minmax(0, 1fr) auto auto; position: relative; }
+  .nav__links {
+    display: none; position: absolute; top: 72px; left: 0; right: 0; flex-direction: column; gap: 4px; padding: 12px;
+    background: var(--color-bg-2); border: 1px solid var(--color-line); border-radius: calc(16px * var(--k));
+  }
+  .nav__links a { padding: 12px; }
+  .nav.is-open .nav__links { display: flex; }
+  html:not(.js) .nav__menu { display: none; }
+  html:not(.js) .nav__links { display: flex; position: static; grid-column: 1 / -1; flex-direction: row; flex-wrap: wrap; padding: 0; border: 0; background: var(--color-transparent); }
+  .nav__menu {
+    display: inline-grid; place-items: center; width: 40px; height: 40px; cursor: pointer;
+    border: 1px solid var(--color-line-2); border-radius: calc(10px * var(--k)); background: transparent; color: var(--color-text); transition: background-color 0.2s;
+  }
+  .nav__menu:hover, .nav__menu[aria-expanded="true"] { background: var(--color-raised); }
+  .nav__menu:active { transform: scale(0.96); }
+  html:not(.js) .nav__bar { height: auto; padding-block: 12px; row-gap: 8px; }
+}
+
+/* ---------- hero ---------- */
+.hero { position: relative; z-index: 2; min-height: max(640px, 100svh); display: grid; place-items: center; overflow: clip; isolation: isolate; }
+/* The light fades to nothing at the section edge, so the clip never cuts a lit band. */
+.beams { position: absolute; inset: 0 -10%; z-index: -1; pointer-events: none;
+  -webkit-mask-image: radial-gradient(closest-side, var(--color-dust) 30%, var(--color-transparent));
+  mask-image: radial-gradient(closest-side, var(--color-dust) 30%, var(--color-transparent)); }
+.beam {
+  position: absolute; top: 50%; left: 50%; width: 140%; height: var(--h, 64px);
+  translate: -50% -50%; rotate: 42deg;
+  background: linear-gradient(90deg, var(--color-transparent), var(--color-beam) 40%, var(--color-beam) 60%, var(--color-transparent));
+  filter: blur(var(--b, 26px)); opacity: var(--o, 0.4);
+  margin-top: var(--y, 0px);
+}
+.dust { position: absolute; inset: 0; width: 100%; height: 100%; z-index: -1; pointer-events: none;
+  -webkit-mask-image: linear-gradient(var(--color-dust) 70%, var(--color-transparent));
+  mask-image: linear-gradient(var(--color-dust) 70%, var(--color-transparent)); }
+.hero__in { text-align: center; padding-block: 120px 80px; position: relative; }
+.hero h1 {
+  font-size: clamp(2.8rem, 6.4vw, 5.4rem); line-height: 1.06; letter-spacing: -0.03em; word-spacing: -0.04em; font-weight: 680;
+  text-shadow: 0 2px 30px var(--color-shade);
+}
+.hero h1 .line { display: block; overflow: hidden; padding-bottom: 0.06em; }
+.hero h1 .line > span { display: inline-block; }
+.hero__lede { margin: 24px auto 0; font-size: clamp(17px, 1.5vw, 20px); color: var(--color-text); max-width: 40ch; text-shadow: 0 1px 16px var(--color-shade); }
+.hero__note { margin: 12px auto 0; max-width: 44ch; font-size: 15px; color: var(--color-muted); }
+.hero__actions { margin-top: 40px; display: flex; justify-content: center; align-items: center; gap: 24px; flex-wrap: wrap; }
+.hero__small { margin-top: 20px; font-size: 14px; line-height: 1.8; color: var(--color-faint); }
+.beacon { position: relative; width: min(640px, 100%); margin: 40px auto 0; text-align: left; }
+/* The launcher as Bloom draws it: search row, a result, a footer with the key hints. */
+.launcher {
+  overflow: hidden; border-radius: calc(16px * var(--k)); background: var(--color-surface-2);
+  box-shadow: 0 0 0 1px var(--color-line-2), 0 0 60px 8px var(--color-glow), 0 0 180px 48px var(--color-beam-soft);
+  transition: box-shadow 0.4s var(--ease-out);
+}
+.launcher.is-sent { box-shadow: 0 0 0 1px var(--color-line-2), 0 0 80px 16px var(--color-glow), 0 0 220px 64px var(--color-beam-soft); }
+.launcher__search { display: flex; align-items: center; gap: 16px; padding: 20px 24px; border-bottom: 1px solid var(--color-line); }
+.launcher__search svg { flex: none; color: var(--color-muted); }
+.launcher__list { padding: 8px; }
+.launcher__row { display: flex; align-items: center; gap: 12px; padding: 8px 12px; border-radius: calc(10px * var(--k)); }
+.launcher__row.is-on { background: var(--color-raised); }
+.launcher__ico { flex: none; display: grid; place-items: center; width: 32px; height: 32px; border-radius: calc(8px * var(--k)); background: var(--color-raised-2); color: var(--color-text); }
+.launcher__row b { font-weight: 600; }
+.launcher__row small { color: var(--color-muted); font-size: 14px; }
+.launcher__foot { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 16px; border-top: 1px solid var(--color-line); color: var(--color-muted); font-size: 14px; }
+.launcher__brand { display: inline-flex; align-items: center; gap: 8px; }
+.launcher__brand img { width: 16px; height: 16px; filter: grayscale(1); }
+.launcher__keys { display: inline-flex; align-items: center; gap: 8px; }
+.beacon__q { flex: 1; min-width: 0; font-size: clamp(17px, 1.8vw, 20px); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.beacon__out { margin-top: 16px; display: flex; justify-content: center; align-items: center; gap: 8px; min-height: 1.6em; color: var(--color-muted); font-size: 15px; }
+@media (max-width: 560px) { .beacon__q { white-space: normal; line-height: 1.4; min-height: 2.8em; display: flex; align-items: center; } }
+.beacon__out b { color: var(--color-text); font-weight: 600; }
+
+/* ---------- scattered windows: pieces of the app floating at different depths ---------- */
+.opening { position: relative; }
+.scatter { position: absolute; left: 0; right: 0; top: 0; height: max(640px, 100svh); z-index: 1; pointer-events: none; }
+.float { position: absolute; width: min(var(--w), 26vw); }
+.float__in { --d: 0.5; }
+/* A piece is a crop of a real app board: size and position place the crop window. */
+.float__card {
+  aspect-ratio: var(--ar);
+  background: var(--color-surface) var(--src) no-repeat;
+  background-size: var(--bs) auto; background-position: var(--bp);
+  border-radius: calc(12px * var(--k));
+  box-shadow: 0 0 0 1px var(--color-line-2), 0 24px 48px -16px var(--color-shade);
+  filter: grayscale(1) brightness(calc(0.5 + var(--d) * 0.5)) blur(calc((1 - var(--d)) * 1.6px));
+  opacity: calc(0.45 + var(--d) * 0.55);
+}
+@media (max-width: 900px) { .float[data-wide] { display: none; } }
+@media (max-width: 560px) { .float { display: none; } }
+
+/* ---------- showcase: the real screen + a dock ---------- */
+.show { position: relative; z-index: 3; padding-block: clamp(80px, 11vh, 128px); }
+.show .head { margin-bottom: 48px; }
+.show__frame {
+  position: relative;
+  border-radius: calc(var(--radius-frame) + calc(8px * var(--k))); padding: 8px;
+  background: var(--color-bg-2);
+  box-shadow: 0 0 0 1px var(--color-line-2), 0 0 80px -10px var(--color-glow), 0 40px 120px -40px var(--color-shade);
+}
+.screens { position: relative; aspect-ratio: 16 / 10; border-radius: var(--radius-frame); overflow: hidden; background: var(--color-surface); }
+.screens img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; opacity: 0; transition: opacity 0.5s var(--ease-out); }
+.screens img.is-on { opacity: 1; }
+.screens img, .link__shot img, .addons__main img { filter: grayscale(1); }
+.screens img[data-fill] { object-fit: cover; object-position: top left; }
+
+@media (max-width: 640px) { .show .live { position: relative; left: auto; bottom: auto; width: auto; margin-top: 8px; } }
+.live {
+  position: absolute; left: clamp(-40px, -3vw, -12px); bottom: clamp(-40px, -3vw, -20px); width: min(440px, 76%);
+  background: var(--color-surface-2); color: var(--color-text);
+  border-radius: calc(16px * var(--k)); font-size: 15px;
+  box-shadow: 0 0 0 1px var(--color-line-2), 0 32px 60px -20px var(--color-shade);
+}
+.live__item { display: flex; align-items: center; gap: 12px; padding: 16px 20px; }
+.live__item > svg { flex: none; color: var(--color-muted); }
+.live__q { flex: 1; min-width: 0; font-size: 17px; font-weight: 600; min-height: 1.4em; white-space: pre; }
+.live__caret { display: inline-block; width: 1.5px; height: 1.15em; background: var(--color-text); vertical-align: -0.2em; margin-left: 1px; }
+.has-motion .live__caret { animation: blink 1s steps(1) infinite; }
+@keyframes blink { 50% { opacity: 0; } }
+.live__row { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; text-align: right; }
+.live__res { font-size: 17px; font-weight: 640; }
+.live__kind { color: var(--color-muted); font-size: 13px; }
+
+.dock-wrap { display: flex; flex-direction: column; align-items: center; margin-top: 56px; }
+.dock { display: flex; gap: 8px; padding: 8px; border-radius: calc(20px * var(--k)); border: 1px solid var(--color-line); background: var(--color-bg-2); }
+.dock button {
+  width: 56px; height: 56px; border-radius: calc(14px * var(--k)); display: grid; place-items: center; cursor: pointer;
+  border: 1px solid var(--color-line); color: var(--color-muted);
+  background: linear-gradient(var(--color-surface-2), var(--color-surface));
+  transition: transform 0.3s var(--ease-out), color 0.2s, background-color 0.2s, box-shadow 0.3s;
+}
+.dock button:hover { color: var(--color-text); transform: translateY(-2px); }
+.dock button:active { transform: translateY(0) scale(0.96); }
+.dock button[aria-pressed="true"] {
+  color: var(--color-text); background: linear-gradient(var(--color-raised-2), var(--color-raised));
+  box-shadow: inset 0 1px 0 var(--color-cap-edge), 0 8px 24px -8px var(--color-glow);
+  transform: translateY(-4px);
+}
+.dock__label { margin-top: 24px; text-align: center; font-size: 17px; color: var(--color-muted); min-height: 3.2em; max-width: 46ch; }
+.dock__label b { color: var(--color-text); font-weight: 640; }
+
+/* ---------- search line ---------- */
+.srch__grid { margin-top: 56px; display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: var(--gap); align-items: stretch; }
+.ko { padding: 40px 32px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: 24px; }
+.ko__label { color: var(--color-muted); font-size: 14px; }
+.ko__in code { font-family: var(--font-mono); font-size: clamp(36px, 5vw, 56px); }
+.ko__pairs { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; }
+.pair { display: flex; flex-direction: column; align-items: center; gap: 12px; }
+.pair__j { font-size: 22px; color: var(--color-muted); }
+.pair .cap { font-size: 20px; }
+.ko__out { font-size: clamp(40px, 5.6vw, 64px); font-weight: 680; letter-spacing: -0.03em; line-height: 1.1; }
+.ko__out .l { display: inline-block; }
+.ko__note { color: var(--color-muted); font-size: 15px; max-width: 36ch; }
+.lines { list-style: none; margin: 0; padding: 8px; }
+.lines li { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 16px; border-bottom: 1px solid var(--color-line); }
+.lines li:last-child { border-bottom: 0; }
+.lines code { font-family: var(--font-mono); font-size: 16px; }
+.lines span { text-align: right; font-size: 16px; font-weight: 600; }
+.lines small { display: block; color: var(--color-muted); font-size: 13px; font-weight: 400; }
+@media (max-width: 900px) { .srch__grid { grid-template-columns: minmax(0, 1fr); } }
+
+/* ---------- shared for the four feature sections ---------- */
+.sec { padding-block: clamp(80px, 11vh, 128px); position: relative; }
+.sec__note { margin-top: 24px; text-align: center; color: var(--color-faint); font-size: 14px; }
+.win {
+  background: var(--color-surface-2); border-radius: var(--radius-frame);
+  box-shadow: 0 0 0 1px var(--color-line-2), 0 0 80px -20px var(--color-glow), 0 40px 100px -40px var(--color-shade);
+}
+
+/* ---------- quick AI (pinned) ---------- */
+.qa__stage { max-width: 880px; margin: 48px auto 0; }
+.qa__bar { display: flex; align-items: center; gap: 16px; padding: 24px 28px; border-bottom: 1px solid var(--color-line); }
+.qa__bar svg { flex: none; color: var(--color-muted); }
+.qa__q { flex: 1; min-width: 0; font-size: clamp(20px, 2.4vw, 28px); letter-spacing: -0.01em; white-space: nowrap; overflow: hidden; }
+.qa__caret { display: inline-block; width: 2px; height: 1.1em; background: var(--color-text); vertical-align: -0.16em; margin-left: 2px; }
+.has-motion .qa__caret { animation: blink 1s steps(1) infinite; }
+.qa__body { padding: 28px 28px 32px; min-height: 220px; }
+.qa__who { display: flex; align-items: center; gap: 8px; color: var(--color-muted); font-size: 15px; }
+.qa__who svg { color: var(--color-text); }
+.qa__a { margin-top: 16px; font-size: clamp(18px, 1.8vw, 22px); line-height: 1.6; }
+@media (max-width: 767px) { .qa__q { white-space: normal; } .qa__bar { padding: 20px; } }
+.qa__a em { font-style: normal; font-family: var(--font-mono); font-size: 0.92em; }
+.qa__foot { display: flex; flex-wrap: wrap; gap: 8px 24px; padding: 16px 28px; border-top: 1px solid var(--color-line); color: var(--color-muted); font-size: 14px; }
+.qa__foot span { display: inline-flex; align-items: center; gap: 8px; transition: color 0.3s; }
+.qa__foot .keys { font-size: 13px; }
+.qa__foot span.is-lit { color: var(--color-text); }
+
+/* ---------- AI links ---------- */
+.link__map { position: relative; margin-top: 48px; }
+.link__wires { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; overflow: visible; }
+.link__wires path { fill: none; stroke: var(--color-line-2); stroke-width: 1.5; }
+.link__wires circle { fill: var(--color-text); }
+.link__part { position: relative; z-index: 1; }
+.link__label { margin-bottom: 16px; font-size: 15px; font-weight: 640; color: var(--color-text); text-align: left; }
+.link__label small { margin-left: 8px; color: var(--color-muted); font-size: 14px; font-weight: 500; }
+/* Sources: small outlined chips in one row. */
+.link__from { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; text-align: left; }
+.node { padding: 16px; border-radius: calc(14px * var(--k)); border: 1px solid var(--color-line-2); }
+.node b { display: block; font-weight: 640; }
+.node small { display: block; color: var(--color-muted); font-size: 13px; margin-top: 2px; }
+/* Where the wires meet: one point of light, not a logo. */
+.hub { position: relative; z-index: 1; width: 48px; height: 48px; margin: 72px auto; display: grid; place-items: center; }
+.hub i { width: 12px; height: 12px; border-radius: 50%; background: var(--color-text); box-shadow: 0 0 24px 6px var(--color-glow); }
+.hub::before { content: ""; position: absolute; inset: 0; border-radius: 50%; border: 1px solid var(--color-line-2); }
+.has-motion .hub::before { animation: ring 2.8s var(--ease-out) infinite; }
+@keyframes ring { from { transform: scale(0.7); opacity: 1; } to { transform: scale(1.6); opacity: 0; } }
+/* What Bloom does: bigger panels, each with a piece of the real UI on top. */
+.link__does { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; text-align: left; }
+.does { padding: 8px 8px 24px; }
+.does b { display: block; margin: 20px 16px 0; font-size: 19px; font-weight: 640; }
+.does > small { display: block; margin: 4px 16px 0; color: var(--color-muted); font-size: 15px; }
+.mini {
+  height: 112px; padding: 16px; border-radius: calc(var(--radius-card) - calc(8px * var(--k)));
+  background: var(--color-bg-2); box-shadow: inset 0 0 0 1px var(--color-line);
+  display: flex; flex-direction: column; justify-content: center; gap: 8px; font-size: 14px; color: var(--color-muted);
+}
+.mini__row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.mini__row strong { color: var(--color-text); font-weight: 600; }
+.mini code { font-family: var(--font-mono); font-size: 13px; color: var(--color-text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mini__btns { display: flex; gap: 8px; }
+.mini__btns i { font-style: normal; padding: 4px 12px; border-radius: calc(8px * var(--k)); border: 1px solid var(--color-line-2); font-size: 13px; }
+.mini__btns i:first-child { background: var(--color-text); border-color: var(--color-text); color: var(--color-bg); font-weight: 600; }
+.mini__chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.mini__chips i { font-style: normal; padding: 4px 12px; border-radius: calc(999px * var(--k)); background: var(--color-raised); color: var(--color-text); font-size: 13px; }
+.mini__dot { width: 8px; height: 8px; border-radius: 50%; background: var(--color-text); box-shadow: 0 0 10px 2px var(--color-glow); flex: none; }
+.mini__who { display: flex; align-items: center; gap: 8px; }
+@media (max-width: 960px) { .link__from { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.link__shot { margin-top: 64px; padding: 8px 8px 32px; }
+.link__shot img { border-radius: calc(var(--radius-card) - calc(8px * var(--k))); }
+.link__cap { padding: 24px 24px 0; max-width: 64ch; }
+.link__cap h3 { font-size: 19px; }
+.link__cap p { color: var(--color-muted); margin-top: 4px; }
+@media (max-width: 960px) {
+  .link__wires, .hub { display: none; }
+  .link__part[data-to] { margin-top: 64px; }
+}
+@media (max-width: 640px) { .link__does { grid-template-columns: minmax(0, 1fr); } }
+
+/* ---------- Bloom Lens ---------- */
+.lens__grid { margin-top: 56px; display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: clamp(32px, 5vw, 72px); align-items: center; }
+.lens__screen { position: relative; aspect-ratio: 16 / 10; border-radius: var(--radius-frame); overflow: hidden; background: var(--color-surface); box-shadow: 0 0 0 1px var(--color-line-2); }
+.lens__screen::before { content: ""; position: absolute; inset: 0; background: linear-gradient(var(--color-bg-2), var(--color-surface)); }
+.lens__msg {
+  position: absolute; left: 10%; top: 30%; width: 80%; aspect-ratio: 900 / 283; border-radius: calc(16px * var(--k));
+  background: var(--color-surface) url(assets/lens.webp) no-repeat; background-size: 177.78% auto; background-position: 73.14% 21.64%;
+  filter: grayscale(1);
+}
+.lens__sel {
+  position: absolute; left: 11.4%; top: 40.5%; width: 57.6%; height: 20.1%;
+  outline: 1.5px dashed var(--color-text); outline-offset: 0;
+  box-shadow: 0 0 0 9999px var(--color-shade-2);
+  transform-origin: 0 0;
+}
+.lens__sel i { position: absolute; width: 10px; height: 10px; background: var(--color-text); border-radius: calc(2px * var(--k)); }
+.lens__sel i:nth-child(1) { left: -5px; top: -5px; } .lens__sel i:nth-child(2) { right: -5px; top: -5px; }
+.lens__sel i:nth-child(3) { left: -5px; bottom: -5px; } .lens__sel i:nth-child(4) { right: -5px; bottom: -5px; }
+.lens__tag { position: absolute; left: 0; top: -34px; padding: 4px 12px; border-radius: calc(8px * var(--k)); background: var(--color-text); color: var(--color-bg); font-size: 13px; font-weight: 600; white-space: nowrap; }
+.tabs { display: flex; gap: 4px; padding: 4px; border-radius: calc(14px * var(--k)); border: 1px solid var(--color-line); background: var(--color-bg-2); width: max-content; max-width: 100%; }
+.tabs button {
+  border: 0; background: transparent; color: var(--color-muted); cursor: pointer;
+  padding: 12px 16px; border-radius: calc(10px * var(--k)); font: 600 15px/1 var(--font-sans);
+  transition: background-color 0.2s, color 0.2s;
+}
+.tabs button:hover { color: var(--color-text); }
+.tabs button:active { transform: scale(0.97); }
+.tabs button { white-space: nowrap; }
+@media (max-width: 400px) { .tabs button { padding-inline: 12px; } .tabs button .cap { margin-right: 4px; } }
+.tabs button[aria-selected="true"] { background: var(--color-raised); color: var(--color-text); box-shadow: inset 0 1px 0 var(--color-cap-edge); }
+.lens__panels { position: relative; margin-top: 20px; min-height: 260px; }
+.lens__panel { padding: 24px 28px; }
+.lens__panel[hidden] { display: none; }
+.lens__panel h3 { font-size: 15px; color: var(--color-muted); font-weight: 600; display: flex; align-items: center; gap: 8px; }
+.lens__panel p { margin-top: 12px; font-size: 19px; line-height: 1.55; }
+.lens__panel p.en { color: var(--color-muted); font-size: 16px; }
+.lens__panel .status { margin-top: 16px; font-size: 14px; color: var(--color-muted); display: flex; align-items: center; gap: 8px; }
+.tabs button .cap { font-size: 12px; margin-right: 8px; }
+.tabs button[aria-selected="true"] .cap { background: var(--color-raised-2); }
+.lens__more { margin-top: 16px; display: flex; flex-wrap: wrap; gap: 8px 16px; font-size: 14px; color: var(--color-muted); }
+.lens__more span[data-n] { display: inline-flex; align-items: center; gap: 8px; transition: color 0.2s; }
+.lens__more .cap { font-size: 12px; }
+.lens__more span.is-lit { color: var(--color-text); }
+.lens__keys { list-style: none; margin: 24px 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 12px 24px; color: var(--color-muted); font-size: 14px; }
+.lens__keys li { display: inline-flex; align-items: center; gap: 8px; }
+.lens__keys .keys { font-size: 12px; }
+@media (max-width: 900px) { .lens__grid { grid-template-columns: minmax(0, 1fr); } }
+
+/* ---------- usage and token cost ---------- */
+.usage__grid { margin-top: 56px; display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: var(--gap); }
+.panel { padding: 28px; }
+.panel__h { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; font-size: 15px; color: var(--color-muted); font-weight: 600; }
+.acct + .acct { margin-top: 24px; padding-top: 24px; border-top: 1px solid var(--color-line); }
+.acct__name { margin-top: 16px; font-size: 18px; font-weight: 640; display: flex; justify-content: space-between; gap: 12px; }
+.acct__name small { color: var(--color-muted); font-size: 13px; font-weight: 600; padding: 2px 8px; border-radius: calc(6px * var(--k)); background: var(--color-raised); }
+.meter { margin-top: 16px; }
+.meter__row { display: flex; justify-content: space-between; gap: 12px; font-size: 14px; color: var(--color-muted); }
+.meter__row b { color: var(--color-text); font-weight: 640; font-variant-numeric: tabular-nums; }
+.meter__track { margin-top: 8px; height: 6px; border-radius: calc(6px * var(--k)); background: var(--color-raised); overflow: hidden; }
+.meter__fill { height: 100%; border-radius: inherit; background: var(--color-text); transform-origin: 0 50%; transform: scaleX(var(--v)); }
+.tiles { margin-top: 16px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.tile em { display: block; margin-top: 4px; font-style: normal; font-size: 12px; color: var(--color-muted); }
+.panel__tag { padding: 2px 8px; border-radius: calc(6px * var(--k)); background: var(--color-raised); color: var(--color-text); font-size: 13px; }
+.tile { padding: 16px; border-radius: calc(14px * var(--k)); background: var(--color-raised); }
+.tile small { display: block; color: var(--color-muted); font-size: 13px; }
+.tile b { display: block; margin-top: 4px; font-size: clamp(18px, 1.9vw, 24px); font-weight: 680; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+.chart { margin-top: 24px; display: flex; align-items: flex-end; gap: 4px; height: 120px; }
+.chart i { flex: 1; height: var(--h); background: var(--color-text); border-radius: calc(3px * var(--k)) calc(3px * var(--k)) 0 0; transform-origin: 50% 100%; opacity: 0.88; }
+.chart__axis { display: flex; justify-content: space-between; margin-top: 8px; font-size: 13px; color: var(--color-faint); }
+@media (max-width: 900px) { .usage__grid { grid-template-columns: minmax(0, 1fr); } }
+
+/* ---------- notes ---------- */
+.notes { padding-block: clamp(64px, 9vh, 104px); }
+.notes__grid { display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 7fr); gap: clamp(32px, 5vw, 72px); }
+.acc details { border-bottom: 1px solid var(--color-line); }
+.acc details:first-child { border-top: 1px solid var(--color-line); }
+.acc summary {
+  list-style: none; cursor: pointer; display: flex; justify-content: space-between; align-items: center; gap: 16px;
+  padding: 20px 0; font-size: 19px; font-weight: 600; transition: color 0.2s;
+}
+.acc summary::-webkit-details-marker { display: none; }
+.acc summary:hover { color: var(--color-btn-hover); }
+.plus { flex: none; width: 32px; height: 32px; border-radius: 50%; border: 1px solid var(--color-line-2); display: grid; place-items: center; color: var(--color-muted); transition: transform 0.4s var(--ease-out), border-color 0.2s; }
+.acc summary:hover .plus { border-color: var(--color-text); color: var(--color-text); }
+.acc details[open] .plus { transform: rotate(45deg); }
+.acc .body { padding: 0 0 24px; color: var(--color-muted); max-width: 62ch; }
+.acc .body p + p { margin-top: 12px; }
+.acc code { font-family: var(--font-mono); font-size: 0.9em; color: var(--color-text); }
+@media (max-width: 900px) { .notes__grid { grid-template-columns: minmax(0, 1fr); } }
+
+/* ---------- road: four steps up a rail (pinned) ---------- */
+.road { padding-block: clamp(80px, 11vh, 128px); }
+.road__grid { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: clamp(32px, 5vw, 72px); }
+.steps { position: relative; padding-left: 44px; }
+.steps__list { list-style: none; margin: 0; padding: 0; }
+.steps__rail, .steps__fill { position: absolute; left: 7px; top: 12px; bottom: 12px; width: 2px; border-radius: calc(2px * var(--k)); }
+.steps__rail { background: var(--color-line-2); }
+.steps__fill { background: var(--color-text); transform-origin: 50% 0; box-shadow: 0 0 12px var(--color-glow); }
+.step { position: relative; padding: 0 0 44px; }
+.step:last-child { padding-bottom: 0; }
+.step::before { content: ""; position: absolute; left: -44px; top: 8px; width: 16px; height: 16px; border-radius: 50%; background: var(--color-bg); border: 2px solid var(--color-text); }
+.step__opt { padding: 2px 8px; border-radius: calc(6px * var(--k)); border: 1px solid var(--color-line-2); color: var(--color-muted); font-size: 13px; font-weight: 500; vertical-align: middle; }
+.step__n { font-size: 14px; color: var(--color-faint); font-variant-numeric: tabular-nums; }
+.step h3 { margin-top: 4px; font-size: clamp(24px, 2.4vw, 32px); letter-spacing: -0.025em; display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+.step h3 .keys { font-size: 19px; }
+.step p { margin-top: 8px; color: var(--color-muted); max-width: 48ch; }
+.step code { font-family: var(--font-mono); font-size: 0.9em; color: var(--color-text); }
+@media (max-width: 900px) { .road__grid { grid-template-columns: minmax(0, 1fr); } }
+
+/* ---------- add-ons ---------- */
+.addons { padding-block: clamp(80px, 11vh, 128px); }
+.addons__main { margin-top: 48px; padding: 8px; }
+.addons__main img { border-radius: calc(var(--radius-card) - calc(8px * var(--k))); }
+.addons__row { margin-top: var(--gap); display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--gap); }
+.addon { padding: 32px; }
+.addon h3 { font-size: 19px; }
+.addon p { margin-top: 8px; color: var(--color-muted); }
+.addon a { display: inline-block; margin-top: 16px; font-size: 15px; }
+.addons__note { margin-top: 24px; text-align: center; font-size: 14px; color: var(--color-faint); }
+@media (max-width: 760px) { .addons__row { grid-template-columns: minmax(0, 1fr); } }
+
+/* ---------- close ---------- */
+.close { position: relative; overflow: clip; isolation: isolate; padding-block: clamp(120px, 18vh, 200px); text-align: center; }
+.close h2 { font-size: clamp(2.6rem, 6vw, 5rem); line-height: 1.06; letter-spacing: -0.03em; word-spacing: -0.04em; font-weight: 680; }
+.close h2 > span:not(.winkey) { display: block; }
+.close__row { margin-top: 40px; display: flex; flex-direction: column; align-items: center; gap: 16px; }
+.close .ps { margin-top: 32px; display: flex; flex-direction: column; align-items: center; }
+.cmd {
+  display: flex; align-items: center; gap: 4px; max-width: 100%;
+  border: 1px solid var(--color-line-2); background: var(--color-surface); border-radius: calc(12px * var(--k)); padding: 4px 4px 4px 16px;
+}
+.cmd code { font-family: var(--font-mono); font-size: 13px; color: var(--color-muted); white-space: nowrap; overflow-x: auto; scrollbar-width: none; }
+.cmd button {
+  flex: none; border: 0; border-radius: calc(8px * var(--k)); padding: 8px 12px; cursor: pointer;
+  background: var(--color-raised); color: var(--color-text); font: 600 13px/1 var(--font-sans);
+  transition: background-color 0.2s, transform 0.2s var(--ease-out);
+}
+.cmd button:hover { background: var(--color-raised-2); }
+.cmd button:active { transform: scale(0.95); }
+.close__small { margin-top: 24px; font-size: 14px; color: var(--color-faint); }
+.close__note { font-size: 15px; color: var(--color-muted); max-width: 48ch; }
+.close__note b { color: var(--color-text); font-weight: 600; }
+.ps summary { cursor: pointer; list-style: none; color: var(--color-muted); font-size: 14px; transition: color 0.2s; }
+.ps summary::-webkit-details-marker { display: none; }
+.ps summary:hover { color: var(--color-text); }
+.ps[open] summary { margin-bottom: 12px; }
+
+/* ---------- footer ---------- */
+.foot { padding-block: 40px 48px; }
+.foot__in { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 16px 32px; font-size: 14px; color: var(--color-faint); }
+.foot__brand { display: flex; align-items: center; gap: 12px; color: var(--color-text); font-weight: 600; font-size: 15px; }
+.foot__brand img { width: 28px; border-radius: calc(8px * var(--k)); }
+.foot__links { display: flex; flex-wrap: wrap; gap: 8px 24px; }
+.foot__links a { text-decoration: none; color: var(--color-muted); transition: color 0.2s; }
+.foot__links a:hover { color: var(--color-text); }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
+}
+
+/* G2 corners: continuous curvature (superellipse) as in the app; plain round corners where unsupported. */
+@supports (corner-shape: squircle) {
+  :root { --k: 1.5; }
+  *, *::before, *::after { corner-shape: squircle; }
+  .plus, .step::before, .hub::before, .hub i, .mini__dot { corner-shape: round; }
+}
+</style>
+</head>
+<body>
+
+<header class="nav">
+  <div class="nav__bar">
+    <a class="brand" href="#top" aria-label="Bloom 처음으로"><img src="assets/mark.png" alt="" width="28" height="28">Bloom</a>
+    <nav class="nav__links" id="nav-links" aria-label="페이지 안">
+      <a href="#quick">빠른 AI</a>
+      <a href="#ai">AI 연동</a>
+      <a href="#lens">Bloom Lens</a>
+      <a href="#usage">사용량</a>
+      <a href="#search">검색줄</a>
+      <a href="#addons">애드온</a>
+    </nav>
+    <button class="nav__menu" type="button" aria-expanded="false" aria-controls="nav-links" aria-label="메뉴"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+    <div class="nav__end"><a class="btn btn--small" data-dl href="https://github.com/hyeon1035298/Bloom/releases/latest/download/BloomLauncher-win-Setup.exe"><span data-dl-label>받기</span></a></div>
+  </div>
+</header>
+
+<main id="top">
+ <div class="opening">
+
+  <!-- pieces of the app, scattered at depth (d: 1 = near, 0 = far) -->
+  <div class="scatter" aria-hidden="true">
+    <div class="float" style="--w:260px;left:6%;top:18%"><div class="float__in" style="--d:.6"><div class="float__card" style="--src:url(assets/ai.webp);--ar:404/99;--bs:396.04%;--bp:5.52% 23.1%"></div></div></div>
+    <div class="float" data-wide style="--w:300px;left:18%;top:11%"><div class="float__in" style="--d:.42"><div class="float__card" style="--src:url(assets/addons.webp);--ar:380/52;--bs:421.05%;--bp:85.74% 70.04%"></div></div></div>
+    <div class="float" data-wide style="--w:220px;left:2%;top:42%"><div class="float__in" style="--d:.28"><div class="float__card" style="--src:url(assets/lens.webp);--ar:408/256;--bs:392.16%;--bp:5.37% 20.77%"></div></div></div>
+    <div class="float" data-wide style="--w:420px;left:4%;top:70%"><div class="float__in" style="--d:.82"><div class="float__card" style="--src:url(assets/ai.webp);--ar:1038/164;--bs:154.14%;--bp:98.22% 61.62%"></div></div></div>
+    <div class="float" style="--w:340px;right:3%;top:15%"><div class="float__in" style="--d:.9"><div class="float__card" style="--src:url(assets/lens.webp);--ar:720/425;--bs:222.22%;--bp:86.36% 93.07%"></div></div></div>
+    <div class="float" data-wide style="--w:280px;right:8%;top:52%"><div class="float__in" style="--d:.5"><div class="float__card" style="--src:url(assets/search.webp);--ar:408/76;--bs:392.16%;--bp:5.37% 26.93%"></div></div></div>
+    <div class="float" data-wide style="--w:250px;right:1%;top:69%"><div class="float__in" style="--d:.32"><div class="float__card" style="--src:url(assets/space.webp);--ar:796/452;--bs:201.01%;--bp:9.45% 41.61%"></div></div></div>
+  </div>
+
+  <!-- hero -->
+  <section class="hero" aria-labelledby="hero-title">
+    <div class="beams" aria-hidden="true">
+      <i class="beam" style="--h:90px;--y:-260px;--o:.14;--b:34px"></i>
+      <i class="beam" style="--h:120px;--y:-110px;--o:.26;--b:30px"></i>
+      <i class="beam" style="--h:70px;--y:20px;--o:.32;--b:22px"></i>
+      <i class="beam" style="--h:140px;--y:170px;--o:.2;--b:36px"></i>
+      <i class="beam" style="--h:60px;--y:320px;--o:.12;--b:24px"></i>
+    </div>
+    <canvas class="dust" aria-hidden="true"></canvas>
+    <div class="wrap hero__in">
+      <h1 id="hero-title"><span class="line"><span><span class="winkey" role="img" aria-label="Win"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M0 0h7.4v7.4H0zM8.6 0H16v7.4H8.6zM0 8.6h7.4V16H0zM8.6 8.6H16V16H8.6z"/></svg></span> 키 하나,</span></span><span class="line"><span>검색줄 한 줄.</span></span></h1>
+      <div class="beacon" role="group" aria-label="검색줄 예시: 빠른 AI">
+        <div class="launcher" data-beacon>
+          <div class="launcher__search"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><span class="beacon__q" data-beacon-q>내일 오후 3시 회의 잡아 줘</span><span class="live__caret" aria-hidden="true"></span></div>
+          <div class="launcher__list"><div class="launcher__row is-on"><span class="launcher__ico"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2l2.4 7.6L22 12l-7.6 2.4L12 22l-2.4-7.6L2 12l7.6-2.4z"/></svg></span><b>AI에게 묻기</b><small>Claude · Sonnet</small></div></div>
+          <div class="launcher__foot"><span class="launcher__brand"><img src="assets/mark.png" alt="" width="16" height="16">Bloom</span><span class="launcher__keys"><span class="cap" data-beacon-tab>Tab</span>묻기<kbd class="kbd">↵</kbd>열기</span></div>
+        </div>
+        <p class="beacon__out" data-beacon-out><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg><b>Bloom 캘린더에 저장</b></p>
+      </div>
+      <p class="hero__lede">Windows용 런처입니다. 검색줄에 적고 Tab을 누르면, 이 PC에 로그인한 Claude Code나 Codex가 바로 답합니다.</p>
+      <p class="hero__note">AI가 없어도 앱 실행, 계산, 파일 찾기는 바로 됩니다. API 키로도 연결할 수 있습니다.</p>
+      <div class="hero__actions">
+        <a class="btn" data-dl href="https://github.com/hyeon1035298/Bloom/releases/latest/download/BloomLauncher-win-Setup.exe">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M0 0h7.5v7.5H0zM8.5 0H16v7.5H8.5zM0 8.5h7.5V16H0zM8.5 8.5H16V16H8.5z"/></svg>
+          <span data-dl-label>Windows용 받기</span>
+        </a>
+        <a class="textlink" href="https://github.com/hyeon1035298/Bloom">GitHub</a>
+      </div>
+      <p class="hero__small">무료, MIT 오픈 소스. Windows 10, 11 (64비트)</p>
+    </div>
+  </section>
+
+  <!-- showcase -->
+  <section class="show" id="screens" aria-labelledby="show-title">
+    <div class="wrap">
+      <h2 id="show-title" class="head">런처 안에 다 있습니다.<span>홈, 도구 창, 디스크 지도, 창 배치, 설정을 바로 불러옵니다.</span></h2>
+      <div class="show__frame">
+        <div class="screens">
+          <img class="is-on" data-fill data-screen="home" src="assets/home.webp" srcset="assets/home-1000.webp 1000w, assets/home.webp 1560w" sizes="(max-width: 1100px) 92vw, 1040px" width="1560" height="975" alt="Bloom 홈 화면. 검색줄 아래에 AI 사용량 카드, 플레이어, 도구 단추, 이번 주 달력" fetchpriority="high">
+          <img data-screen="tools" src="assets/tools.webp" srcset="assets/tools-1000.webp 1000w, assets/tools.webp 1600w" sizes="(max-width: 1100px) 92vw, 1040px" width="1600" height="1000" alt="런처 옆에 붙은 메모 창과 아래의 계산기 창" loading="lazy">
+          <img data-screen="space" src="assets/space.webp" srcset="assets/space-1000.webp 1000w, assets/space.webp 1600w" sizes="(max-width: 1100px) 92vw, 1040px" width="1600" height="1000" alt="폴더 크기를 사각형 지도로 보여 주는 Bloom Space Cleaner와 큰 파일 목록" loading="lazy">
+          <img data-screen="more" src="assets/more.webp" srcset="assets/more-1000.webp 1000w, assets/more.webp 1600w" sizes="(max-width: 1100px) 92vw, 1040px" width="1600" height="930" alt="창 배치 목록과 경로, 날짜, 세계 시간, 앱 설치 입력 예시" loading="lazy">
+          <img data-screen="settings" src="assets/settings.webp" srcset="assets/settings-1000.webp 1000w, assets/settings.webp 1600w" sizes="(max-width: 1100px) 92vw, 1040px" width="1600" height="980" alt="설정의 일반 페이지와 데이터 페이지" loading="lazy">
+        </div>
+        <div class="live" role="group" aria-label="검색줄 예시">
+          <div class="live__item">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+            <span class="live__q"><span data-q>5km to mi</span><span class="live__caret" aria-hidden="true"></span></span>
+            <span class="live__row"><b class="live__res" data-res>3.11 mi</b><small class="live__kind" data-kind>단위</small></span>
+          </div>
+        </div>
+      </div>
+      <div class="dock-wrap">
+        <div class="dock" role="group" aria-label="화면 고르기">
+          <button type="button" aria-pressed="true" data-show="home" data-label="<b>홈.</b> AI 사용량과 토큰, 이번 주 알림, 자주 쓰는 도구를 한눈에 봅니다." aria-label="홈" title="홈">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 11l8-7 8 7v9H4z"/><path d="M10 20v-6h4v6"/></svg>
+          </button>
+          <button type="button" aria-pressed="false" data-show="tools" data-label="<b>도구 창.</b> 메모, 타이머, 계산기, 클립보드 기록이 런처 옆에 붙습니다." aria-label="도구 창" title="도구 창">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="4" width="11" height="16" rx="2"/><rect x="16" y="4" width="5" height="9" rx="1.5"/></svg>
+          </button>
+          <button type="button" aria-pressed="false" data-show="space" data-label="<b>Bloom Space Cleaner.</b> 디스크 사용량을 지도로 보고 큰 파일을 정리합니다." aria-label="Bloom Space Cleaner" title="Bloom Space Cleaner">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M12 3v18M12 12h9M3 14h9"/></svg>
+          </button>
+          <button type="button" aria-pressed="false" data-show="more" data-label="<b>경로, 창 배치, 날짜.</b> 왼쪽 절반, 100일 뒤, 설치 vlc처럼 적어 바로 실행합니다." aria-label="경로, 창 배치, 날짜" title="경로, 창 배치, 날짜">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M12 5v14"/></svg>
+          </button>
+          <button type="button" aria-pressed="false" data-show="settings" data-label="<b>설정.</b> 강조색, 크기, 애니메이션, 데이터를 한곳에서 관리합니다." aria-label="설정" title="설정">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"/></svg>
+          </button>
+        </div>
+        <p class="dock__label" aria-live="polite" data-dock-label><b>홈.</b> AI 사용량과 토큰, 이번 주 알림, 자주 쓰는 도구를 한눈에 봅니다.</p>
+      </div>
+    </div>
+  </section>
+ </div>
+
+  <!-- quick AI (pinned) -->
+  <section class="sec qa" id="quick" aria-labelledby="qa-title">
+    <div class="wrap">
+      <h2 id="qa-title" class="head head--lg">적던 줄에서 바로 묻습니다.<span>검색줄에 적은 글을 Tab 한 번으로 AI에게 보냅니다.</span></h2>
+      <div class="qa__stage win">
+        <div class="qa__bar">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+          <span class="qa__q"><span data-qa-q>deadline 뜻이랑 예문 하나</span><span class="qa__caret" aria-hidden="true"></span></span>
+        </div>
+        <div class="qa__body">
+          <p class="qa__who"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2l2.4 7.6L22 12l-7.6 2.4L12 22l-2.4-7.6L2 12l7.6-2.4z"/></svg>빠른 AI, Claude Sonnet</p>
+          <p class="qa__a" data-qa-a>deadline은 마감 기한을 뜻합니다. <em>The report deadline is Friday at 3 PM.</em>처럼 쓰며, 보고서 마감은 금요일 오후 3시라는 의미입니다.</p>
+        </div>
+        <div class="qa__foot">
+          <span data-qa-hint><span class="keys"><span class="cap" data-qa-tab>Tab</span></span>묻기</span>
+          <span data-qa-hint><span class="keys"><kbd class="kbd">Shift</kbd><kbd class="kbd">Tab</kbd></span>새 대화로 묻기</span>
+          <span data-qa-hint><span class="keys"><kbd class="kbd">Esc</kbd></span>홈으로, 뒤에서 계속 답변</span>
+          <span data-qa-hint><span class="keys"><kbd class="kbd">Ctrl</kbd><kbd class="kbd">.</kbd></span>멈추기</span>
+        </div>
+      </div>
+      <p class="sec__note">질문과 답은 데모 모드 예시입니다.</p>
+    </div>
+  </section>
+
+  <!-- AI links -->
+  <section class="sec link" id="ai" aria-labelledby="link-title">
+    <div class="wrap">
+      <h2 id="link-title" class="head head--lg">쓰던 AI를 그대로 연결합니다.<span>PC에 로그인한 Claude Code와 Codex, 또는 직접 넣은 API 키로 답합니다.</span></h2>
+      <div class="link__map" data-link>
+        <svg class="link__wires" aria-hidden="true"></svg>
+        <div class="link__part">
+          <p class="link__label">연결하는 AI<small>이미 쓰던 도구</small></p>
+          <div class="link__from" data-from>
+            <div class="node"><b>Claude Code</b><small>이 PC의 claude 로그인</small></div>
+            <div class="node"><b>Codex</b><small>이 PC의 codex 로그인</small></div>
+            <div class="node"><b>omp</b><small>oh-my-pi, 직접 고를 때만</small></div>
+            <div class="node"><b>API 키</b><small>OpenAI, Anthropic, Gemini, OpenRouter, DeepSeek, xAI, OpenCode Go</small></div>
+          </div>
+        </div>
+        <div class="hub" data-hub aria-hidden="true"><i></i></div>
+        <div class="link__part" data-to>
+          <p class="link__label">Bloom에서 하는 일<small>AI에게 맡기는 일</small></p>
+          <div class="link__does">
+            <div class="card does">
+              <div class="mini" aria-hidden="true">
+                <p class="mini__row"><span>옮기기</span><code>견적서_1007.pdf → Documents</code></p>
+                <p class="mini__btns"><i>허용</i><i>항상 허용</i><i>거절</i></p>
+              </div>
+              <b>PC 작업</b><small>파일 정리나 앱 실행, 허용한 뒤에 실행</small>
+            </div>
+            <div class="card does">
+              <div class="mini" aria-hidden="true">
+                <p class="mini__row"><span>내일 15:00</span><strong>회의</strong></p>
+                <p class="mini__row"><span>타이머</span><strong>25:00</strong></p>
+              </div>
+              <b>메모, 타이머, 캘린더</b><small>AI에게 말하면 Bloom에 바로 저장</small>
+            </div>
+            <div class="card does">
+              <div class="mini" aria-hidden="true">
+                <p class="keys"><kbd class="kbd">Ctrl</kbd> <kbd class="kbd">Alt</kbd> <kbd class="kbd">A</kbd></p>
+                <p class="mini__chips"><i>요약</i><i>번역</i><i>다듬기</i></p>
+              </div>
+              <b>AI 빠른 동작</b><small>다른 앱에서 고른 글을 요약, 번역, 다듬기</small>
+            </div>
+            <div class="card does">
+              <div class="mini" aria-hidden="true">
+                <p class="mini__row"><span class="mini__who"><i class="mini__dot"></i><strong>Claude Code</strong></span><span>승인 대기</span></p>
+                <p class="mini__row"><span class="mini__who"><strong>Codex</strong></span><span>완료</span></p>
+              </div>
+              <b>작업 알림</b><small>Claude Code와 Codex 작업의 시작, 완료, 승인 대기, 한도 임박</small>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="card link__shot">
+        <img src="assets/ai.webp" srcset="assets/ai-1000.webp 1000w, assets/ai.webp 1600w" sizes="(max-width: 1100px) 92vw, 1040px" width="1600" height="930" alt="견적서 PDF를 문서 폴더로 옮기기 전에 허용과 거절을 묻는 승인 카드, 왼쪽에 Claude Code와 Codex 작업 알림 카드" loading="lazy">
+        <div class="link__cap"><h3>바꾸기 전에 묻습니다</h3><p>무언가를 바꾸는 작업은 실행 전에 허용, 이 대화에서 항상 허용, 거절을 먼저 묻습니다. API 키는 Windows가 암호화해 이 PC에만 보관합니다.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Bloom Lens -->
+  <section class="sec lens" id="lens" aria-labelledby="lens-title">
+    <div class="wrap">
+      <h2 id="lens-title" class="head head--left">화면 어디든 골라서.<span>그 자리에서 AI에게 묻고, 번역하고, 글자를 꺼냅니다.</span></h2>
+      <div class="lens__grid">
+        <div class="lens__screen" aria-hidden="true">
+          <div class="lens__msg"></div>
+          <div class="lens__sel" data-lens-sel><span class="lens__tag">고른 영역</span><i></i><i></i><i></i><i></i></div>
+        </div>
+        <div>
+          <div class="tabs" role="tablist" aria-label="영역을 고른 뒤 번호로 할 일">
+            <button type="button" role="tab" id="lt-1" aria-controls="lp-1" aria-selected="false" tabindex="-1" data-n="1" aria-keyshortcuts="1"><span class="cap" aria-hidden="true">1</span>묻기</button>
+            <button type="button" role="tab" id="lt-2" aria-controls="lp-2" aria-selected="true" data-n="2" aria-keyshortcuts="2"><span class="cap" aria-hidden="true">2</span>번역</button>
+            <button type="button" role="tab" id="lt-3" aria-controls="lp-3" aria-selected="false" tabindex="-1" data-n="3" aria-keyshortcuts="3"><span class="cap" aria-hidden="true">3</span>글자 복사</button>
+          </div>
+          <div class="lens__panels">
+            <div class="card lens__panel" role="tabpanel" tabindex="0" id="lp-1" aria-labelledby="lt-1" hidden>
+              <h3>AI에게 묻기: 이 메시지에서 할 일</h3>
+              <p>금요일 오후 3시 회의 전에 수정한 슬라이드를 준비합니다.</p>
+            </div>
+            <div class="card lens__panel" role="tabpanel" tabindex="0" id="lp-2" aria-labelledby="lt-2">
+              <h3>번역, Claude Haiku</h3>
+              <p>회의가 금요일 오후 3시로 변경되었습니다. 수정한 슬라이드를 가져와 주세요.</p>
+              <p class="en">The meeting has moved to Friday at 3 PM. Please bring the updated slides.</p>
+            </div>
+            <div class="card lens__panel" role="tabpanel" tabindex="0" id="lp-3" aria-labelledby="lt-3" hidden>
+              <h3>글자 복사, Windows OCR</h3>
+              <p>The meeting has moved to Friday at 3 PM.<br>Please bring the updated slides.</p>
+              <p class="status">클립보드에 복사됨</p>
+            </div>
+          </div>
+          <p class="lens__more"><span data-n="4"><span class="cap">4</span>실시간 번역</span><span data-n="5"><span class="cap">5</span>화면에 고정</span><span data-n="6"><span class="cap">6</span>캡처</span><span data-n="7"><span class="cap">7</span>컬러 팔레트</span></p>
+          <ul class="lens__keys">
+            <li><span class="keys"><kbd class="kbd">Ctrl</kbd><kbd class="kbd">Alt</kbd><kbd class="kbd">L</kbd></span>영역 고르기</li>
+            <li><span class="keys"><kbd class="kbd">Ctrl</kbd><kbd class="kbd">Alt</kbd><kbd class="kbd">T</kbd></span>바로 번역</li>
+            <li><span class="keys"><kbd class="kbd">Ctrl</kbd><kbd class="kbd">Alt</kbd><kbd class="kbd">O</kbd></span>바로 글자 복사</li>
+          </ul>
+        </div>
+      </div>
+      <p class="sec__note">결과는 데모 모드 예시입니다.<span class="only-fine"> 숫자 키를 눌러 보세요.</span></p>
+    </div>
+  </section>
+
+  <!-- usage and token cost -->
+  <section class="sec usage" id="usage" aria-labelledby="usage-title">
+    <div class="wrap">
+      <h2 id="usage-title" class="head head--left">남은 한도와 쓴 토큰을 한눈에.<span>계정별 남은 한도와 API 가격으로 환산한 토큰 금액을 홈 화면에서 바로 봅니다.</span></h2>
+      <div class="usage__grid">
+        <div class="card panel">
+          <p class="panel__h">AI 사용량 <span>방금</span></p>
+          <div class="acct">
+            <p class="acct__name">Claude <small>Ultra</small></p>
+            <div class="meter"><p class="meter__row"><span>5시간</span><span><b>68%</b> 남음, 3시간</span></p><div class="meter__track"><div class="meter__fill" style="--v:.68"></div></div></div>
+            <div class="meter"><p class="meter__row"><span>주간</span><span><b>53%</b> 남음, 3일</span></p><div class="meter__track"><div class="meter__fill" style="--v:.53"></div></div></div>
+            <div class="meter"><p class="meter__row"><span>Fable 주간</span><span><b>82%</b> 남음, 3일</span></p><div class="meter__track"><div class="meter__fill" style="--v:.82"></div></div></div>
+          </div>
+        </div>
+        <div class="card panel">
+          <p class="panel__h">토큰 사용량 <span class="panel__tag">30일</span></p>
+          <div class="tiles">
+            <div class="tile"><small>환산액</small><b data-count-to="19835" data-prefix="$">$19,835</b><em>API 가격으로 환산한 예시</em></div>
+            <div class="tile"><small>캐시 적중</small><b>98.5%</b><em>다시 읽은 입력의 비율</em></div>
+          </div>
+          <div class="chart" data-chart aria-hidden="true"><i style="--h:60%"></i><i style="--h:55%"></i><i style="--h:35%"></i><i style="--h:25%"></i><i style="--h:55%"></i><i style="--h:70%"></i><i style="--h:60%"></i><i style="--h:60%"></i><i style="--h:62%"></i><i style="--h:32%"></i><i style="--h:28%"></i><i style="--h:60%"></i><i style="--h:75%"></i><i style="--h:55%"></i><i style="--h:70%"></i><i style="--h:65%"></i><i style="--h:30%"></i><i style="--h:30%"></i><i style="--h:48%"></i><i style="--h:50%"></i><i style="--h:42%"></i><i style="--h:50%"></i><i style="--h:52%"></i><i style="--h:25%"></i><i style="--h:28%"></i><i style="--h:55%"></i><i style="--h:48%"></i><i style="--h:55%"></i><i style="--h:85%"></i><i style="--h:8%"></i></div>
+          <p class="chart__axis"><span>30일 전</span><span>오늘</span></p>
+        </div>
+      </div>
+      <p class="sec__note">숫자는 데모 모드 예시입니다. 환산액은 같은 토큰을 API 가격으로 계산한 금액이며, 실제로 결제한 금액이 아닙니다.<br>토큰 블록은 처음에 꺼져 있으며, 켜 두면 대화 내용은 저장하지 않고 이 PC의 Claude Code와 Codex 기록만 셉니다.</p>
+    </div>
+  </section>
+
+  <!-- search line -->
+  <section class="sec srch" id="search" aria-labelledby="srch-title">
+    <div class="wrap">
+      <h2 id="srch-title" class="head head--left">적는 대로 알아듣습니다.<span>한/영 오타, 초성, 계산식, 단위, 알림까지 한 줄에서 처리합니다.</span></h2>
+      <div class="srch__grid">
+        <div class="card ko">
+          <p class="ko__label">한/영 전환 없이 친 글자</p>
+          <p class="ko__in"><code>초개ㅡㄷ</code></p>
+          <div class="ko__pairs" aria-hidden="true">
+            <span class="pair"><span class="pair__j">ㅊ</span><span class="cap">C</span></span>
+            <span class="pair"><span class="pair__j">ㅗ</span><span class="cap">H</span></span>
+            <span class="pair"><span class="pair__j">ㄱ</span><span class="cap">R</span></span>
+            <span class="pair"><span class="pair__j">ㅐ</span><span class="cap">O</span></span>
+            <span class="pair"><span class="pair__j">ㅡ</span><span class="cap">M</span></span>
+            <span class="pair"><span class="pair__j">ㄷ</span><span class="cap">E</span></span>
+          </div>
+          <p class="ko__out" data-ko-out>Chrome</p>
+          <p class="ko__note">자판에서 같은 자리의 영문으로 읽어 Chrome을 찾습니다.</p>
+        </div>
+        <div class="card">
+          <ul class="lines">
+            <li><code>ㅁㅁㅈ</code><span>메모장<small>초성 검색</small></span></li>
+            <li><code>gc</code><span>Google Chrome<small>영어 이름 첫 글자</small></span></li>
+            <li><code>45000*1.1</code><span>49,500<small>계산, Enter로 복사</small></span></li>
+            <li><code>30평 to m2</code><span>99.17 m²<small>단위 변환</small></span></li>
+            <li><code>30분 뒤 빨래</code><span>30분 뒤 알림<small>타이머와 알림</small></span></li>
+            <li><code>yt 고양이</code><span>YouTube 검색<small>사이트 바로 가기</small></span></li>
+          </ul>
+        </div>
+      </div>
+      <p class="sec__note">빈 검색줄에 ?만 적으면 Bloom이 알아듣는 표현을 종류별로 보여 줍니다.</p>
+    </div>
+  </section>
+
+  <!-- add-ons -->
+  <section class="addons" id="addons" aria-labelledby="addons-title">
+    <div class="wrap">
+      <h2 id="addons-title" class="head">필요한 것만 더합니다.<span>Bloom이 받아서 확인하고 실행하는 애드온.</span></h2>
+      <div class="card addons__main">
+        <img src="assets/addons.webp" srcset="assets/addons-1000.webp 1000w, assets/addons.webp 1600w" sizes="(max-width: 1100px) 92vw, 1040px" width="1600" height="1000" alt="설정 › 애드온의 애드온 목록과 작업표시줄 폴더 편집, 알약 모양 작업표시줄 미리 보기" loading="lazy">
+      </div>
+      <div class="addons__row">
+        <div class="card addon">
+          <h3>작업표시줄</h3>
+          <p>Windows 11 작업표시줄을 가운데 뜬 알약 모양으로 바꿉니다. 앱 아이콘을 겹쳐 끌면 폴더로 묶입니다.</p>
+          <a class="textlink" href="https://github.com/hyeon1035298/PillTaskbar_BloomAddon">PillTaskbar 소스</a>
+        </div>
+        <div class="card addon">
+          <h3>모니터별 Alt+Tab</h3>
+          <p>Alt+Tab이 커서가 있는 모니터에 뜨고 그 모니터의 창만 보여 줍니다.</p>
+          <a class="textlink" href="https://github.com/hyeon1035298/AltTabPerMonitor_BloomAddon">AltTabPerMonitor 소스</a>
+        </div>
+      </div>
+      <p class="addons__note">설정 › 애드온에서 받고, 앱에 내장된 해시와 일치할 때만 설치합니다.</p>
+    </div>
+  </section>
+
+  <!-- road (pinned) -->
+  <section class="road" aria-labelledby="road-title">
+    <div class="wrap road__grid">
+      <h2 id="road-title" class="head head--left">받아서 묻기까지.<span>네 단계면 됩니다.</span></h2>
+      <div class="steps">
+        <span class="steps__rail" aria-hidden="true"></span>
+        <span class="steps__fill" aria-hidden="true"></span>
+        <ol class="steps__list">
+          <li class="step"><span class="step__n">1</span><h3>받기</h3><p>최신 릴리스의 <code>BloomLauncher-win-Setup.exe</code>를 실행합니다.</p></li>
+          <li class="step"><span class="step__n">2</span><h3>열기 <span class="keys"><kbd class="kbd" aria-label="Win"><span class="winkey" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M0 0h7.4v7.4H0zM8.6 0H16v7.4H8.6zM0 8.6h7.4V16H0zM8.6 8.6H16V16H8.6z"/></svg></span></kbd></span></h3><p>Win 키만 눌렀다 떼면 열립니다. Win+E 같은 단축키는 원래대로 동작합니다. 시작 메뉴 앱도 이 검색줄에서 찾습니다.</p></li>
+          <li class="step"><span class="step__n">3</span><h3>적기 <span class="keys"><kbd class="kbd">↵</kbd></span></h3><p>앱 이름, 계산식, 단위, 알림을 적고 Enter를 누릅니다. 계산 결과는 바로 복사됩니다.</p></li>
+          <li class="step"><span class="step__n">4</span><h3>묻기 <small class="step__opt">선택</small> <span class="keys"><kbd class="kbd">Tab</kbd></span></h3><p>Claude Code나 Codex에 로그인돼 있거나 API 키를 넣었다면, 같은 줄에서 Tab으로 묻습니다.</p></li>
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <!-- notes -->
+  <section class="notes" aria-labelledby="notes-title">
+    <div class="wrap notes__grid">
+      <h2 id="notes-title" class="head head--left">받기 전에.<span>설치와 개인정보에 관한 네 가지.</span></h2>
+      <div class="acc">
+        <details open>
+          <summary>SmartScreen 경고<span class="plus" aria-hidden="true">+</span></summary>
+          <div class="body"><p>아직 코드 서명이 없어서 “Windows의 PC 보호”가 뜰 수 있습니다. 추가 정보 › 실행을 누르세요.</p></div>
+        </details>
+        <details>
+          <summary>설치되는 곳<span class="plus" aria-hidden="true">+</span></summary>
+          <div class="body"><p>현재 Windows 계정의 <code>%LOCALAPPDATA%\BloomLauncher</code>에 설치되고 시작 메뉴 바로 가기가 생깁니다. .NET 10 Desktop Runtime이 없으면 자동으로 함께 설치하며, 이때 Windows가 권한 승인을 묻습니다.</p></div>
+        </details>
+        <details>
+          <summary>AI에게 가는 것<span class="plus" aria-hidden="true">+</span></summary>
+          <div class="body"><p>직접 보낸 질문과 첨부 파일, Bloom Lens로 고른 화면, 번역할 글, PC 작업 도구의 결과만 전달됩니다.</p><p>API 키는 Windows가 암호화해 이 PC에만 저장하고, 각 키는 해당 서비스로만 보냅니다.</p></div>
+        </details>
+        <details>
+          <summary>업데이트와 제거<span class="plus" aria-hidden="true">+</span></summary>
+          <div class="body"><p>실행 후 한 번 최신 릴리스를 확인하고, 새 버전은 다음 실행 때 적용합니다. 설정 › 정보에서 자동 확인을 끌 수 있습니다.</p><p>제거는 설정 › 데이터 › Bloom 삭제에서 하며, 대화와 설정을 함께 지울지 고를 수 있습니다. Windows 설정 › 앱에서 제거하면 데이터는 남습니다.</p></div>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <!-- close -->
+  <section class="close" aria-labelledby="close-title">
+    <div class="beams" aria-hidden="true">
+      <i class="beam" style="--h:110px;--y:-120px;--o:.18;--b:36px"></i>
+      <i class="beam" style="--h:70px;--y:20px;--o:.3;--b:26px"></i>
+      <i class="beam" style="--h:120px;--y:170px;--o:.16;--b:36px"></i>
+    </div>
+    <div class="wrap">
+      <h2 id="close-title"><span class="winkey" role="img" aria-label="Win"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M0 0h7.4v7.4H0zM8.6 0H16v7.4H8.6zM0 8.6h7.4V16H0zM8.6 8.6H16V16H8.6z"/></svg></span> 키 하나면<span>됩니다.</span></h2>
+      <div class="close__row">
+        <a class="btn" data-dl href="https://github.com/hyeon1035298/Bloom/releases/latest/download/BloomLauncher-win-Setup.exe">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M0 0h7.5v7.5H0zM8.5 0H16v7.5H8.5zM0 8.5h7.5V16H0zM8.5 8.5H16V16H8.5z"/></svg>
+          <span data-dl-label>Windows용 받기</span>
+        </a>
+        <p class="close__note"><b>BloomLauncher-win-Setup.exe</b>, 무료. 코드 서명 전이라 “Windows의 PC 보호” 창이 뜨면 추가 정보 › 실행을 누르세요. <a class="textlink" href="https://github.com/hyeon1035298/Bloom/releases/latest">버전과 변경 내용</a></p>
+      </div>
+      <details class="ps">
+        <summary>PowerShell로 설치</summary>
+        <div class="cmd">
+          <code id="cmd">irm https://raw.githubusercontent.com/hyeon1035298/Bloom/main/install.ps1 | iex</code>
+          <button type="button" data-copy="cmd">복사</button>
+        </div>
+        <p class="close__small">같은 설치 파일을 받아 실행합니다. <a class="textlink" href="https://github.com/hyeon1035298/Bloom/blob/main/install.ps1">스크립트 보기</a></p>
+      </details>
+    </div>
+  </section>
+</main>
+
+<footer class="foot">
+  <div class="wrap foot__in">
+    <span class="foot__brand"><img src="assets/mark.png" alt="" width="28" height="28">Bloom</span>
+    <span>MIT 라이선스. Anthropic, OpenAI와 관계없는 비공식 프로젝트입니다.</span>
+    <nav class="foot__links" aria-label="바깥 링크">
+      <a href="https://github.com/hyeon1035298/Bloom">GitHub</a>
+      <a href="https://github.com/hyeon1035298/Bloom/releases">릴리스</a>
+      <a href="https://github.com/hyeon1035298/Bloom/blob/main/README.md">English</a>
+    </nav>
+  </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/ScrollTrigger.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/lenis@1.1.13/dist/lenis.min.js"></script>
+<script>
+(function () {
+  var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var $ = function (s, el) { return (el || document).querySelector(s); };
+  var $$ = function (s, el) { return Array.prototype.slice.call((el || document).querySelectorAll(s)); };
+
+  // Copy button.
+  $$('[data-copy]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var text = document.getElementById(btn.dataset.copy).textContent;
+      var done = function (msg) { btn.textContent = msg; setTimeout(function () { btn.textContent = '복사'; }, 1800); };
+      (navigator.clipboard ? navigator.clipboard.writeText(text) : Promise.reject()).then(function () { done('복사됨'); }, function () {
+        var r = document.createRange(); r.selectNodeContents(document.getElementById(btn.dataset.copy));
+        getSelection().removeAllRanges(); getSelection().addRange(r);
+        done('선택됨, Ctrl+C');
+      });
+    });
+  });
+
+  // Nav: a menu on narrow screens, and the section in view marked.
+  var nav = $('.nav'), menu = $('.nav__menu');
+  menu.addEventListener('click', function () { var open = nav.classList.toggle('is-open'); menu.setAttribute('aria-expanded', String(open)); });
+  var closeMenu = function () { nav.classList.remove('is-open'); menu.setAttribute('aria-expanded', 'false'); };
+  $$('.nav__links a').forEach(function (a) { a.addEventListener('click', closeMenu); });
+  addEventListener('keydown', function (e) { if (e.key === 'Escape' && nav.classList.contains('is-open')) { closeMenu(); menu.focus(); } });
+  document.addEventListener('click', function (e) { if (nav.classList.contains('is-open') && !nav.contains(e.target)) closeMenu(); });
+  if ('IntersectionObserver' in window) {
+    var navLinks = $$('.nav__links a');
+    var spy = new IntersectionObserver(function (es) {
+      es.forEach(function (e) {
+        if (!e.isIntersecting) return;
+        navLinks.forEach(function (a) { a.setAttribute('aria-current', String(a.getAttribute('href') === '#' + e.target.id)); });
+      });
+    }, { rootMargin: '-45% 0px -50% 0px' });
+    $$('main section').forEach(function (t) { spy.observe(t); });
+  }
+
+  // Phones and Macs cannot run the installer: the buttons share or copy the page link instead.
+  if (!/Windows NT/i.test(navigator.userAgent)) {
+    $$('[data-dl]').forEach(function (a) {
+      var label = $('[data-dl-label]', a), small = a.classList.contains('btn--small');
+      var idle = small ? '링크 복사' : '링크 복사해 PC에서 받기';
+      var flash = function (msg) { label.textContent = msg; setTimeout(function () { label.textContent = idle; }, 2400); };
+      label.textContent = idle;
+      a.addEventListener('click', function (e) {
+        e.preventDefault();
+        var url = location.href.split('#')[0];
+        if (navigator.share) { navigator.share({ title: document.title, url: url }).catch(function () {}); return; }
+        (navigator.clipboard ? navigator.clipboard.writeText(url) : Promise.reject()).then(function () {
+          flash(small ? '복사됨' : '복사됨, PC에서 여세요');
+        }, function () { flash(small ? '복사 안 됨' : '주소창의 링크를 복사하세요'); });
+      });
+    });
+  }
+
+  // Dock: switch the screen in the frame.
+  var label = $('[data-dock-label]');
+  $$('.dock button').forEach(function (b) {
+    b.addEventListener('click', function () {
+      $$('.dock button').forEach(function (o) { o.setAttribute('aria-pressed', String(o === b)); });
+      $$('.screens img').forEach(function (img) { img.classList.toggle('is-on', img.dataset.screen === b.dataset.show); });
+      label.innerHTML = b.dataset.label;
+    });
+  });
+
+  // Bloom Lens tabs: click or arrow keys; autoplay (motion only) stops once a tab is chosen.
+  var tabs = $$('.lens [role="tab"]'), lensAuto = true, lensTurns = 0;
+  function pick(t, focus) {
+    tabs.forEach(function (o) {
+      var on = o === t;
+      o.setAttribute('aria-selected', String(on));
+      o.tabIndex = on ? 0 : -1;
+      document.getElementById(o.getAttribute('aria-controls')).hidden = !on;
+    });
+    if (focus) t.focus();
+  }
+  tabs.forEach(function (t, i) {
+    t.addEventListener('click', function () { lensAuto = false; pick(t); });
+    t.addEventListener('keydown', function (e) {
+      var d = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0;
+      if (d) { e.preventDefault(); lensAuto = false; pick(tabs[(i + d + tabs.length) % tabs.length], true); }
+    });
+  });
+  tabs[0].parentNode.addEventListener('focusin', function () { lensAuto = false; });
+  // As in Bloom Lens, the number keys pick what to do while the section is on screen.
+  var lensSeen = false;
+  if ('IntersectionObserver' in window) {
+    new IntersectionObserver(function (es) { lensSeen = es[0].isIntersecting; }, { threshold: 0.4 }).observe($('.lens__grid'));
+  }
+  addEventListener('keydown', function (e) {
+    if (!lensSeen || e.ctrlKey || e.altKey || e.metaKey || /^(INPUT|TEXTAREA)$/.test(document.activeElement.tagName) || document.activeElement.isContentEditable || !/^[1-7]$/.test(e.key)) return;
+    var t = $('.lens [role="tab"][data-n="' + e.key + '"]');
+    if (t) { lensAuto = false; pick(t); return; }
+    var more = $('.lens__more [data-n="' + e.key + '"]');
+    if (more) { more.classList.add('is-lit'); setTimeout(function () { more.classList.remove('is-lit'); }, 700); }
+  });
+
+  if (!window.gsap || reduce) { document.documentElement.classList.remove('has-motion'); return; }
+  gsap.registerPlugin(ScrollTrigger);
+
+  // Smooth scroll on GSAP's ticker.
+  if (window.Lenis) {
+    var lenis = new Lenis({ lerp: 0.1 });
+    lenis.on('scroll', ScrollTrigger.update);
+    gsap.ticker.add(function (t) { lenis.raf(t * 1000); });
+    gsap.ticker.lagSmoothing(0);
+    $$('a[href^="#"]').forEach(function (a) {
+      a.addEventListener('click', function (e) {
+        var id = a.getAttribute('href');
+        if (id.length > 1 && document.querySelector(id)) { e.preventDefault(); lenis.scrollTo(id, { offset: $(id).matches('.qa, .road') ? 0 : -96, onComplete: function () {
+          var t = $(id); if (!t.hasAttribute('tabindex')) t.setAttribute('tabindex', '-1');
+          t.focus({ preventScroll: true }); history.replaceState(null, '', id);
+        } }); }
+      });
+    });
+  }
+
+  var introDone = false;
+  var pinStart = function (sel) { return function () { return $(sel).offsetHeight > innerHeight ? 'bottom bottom' : 'top top'; }; };
+  var mm = gsap.matchMedia();
+  mm.add({ motion: '(prefers-reduced-motion: no-preference)', wide: '(min-width: 768px)' }, function (ctx) {
+    if (!ctx.conditions.motion) return;
+    var wide = ctx.conditions.wide;
+
+    // Opening titles.
+    if (!introDone) gsap.timeline({ defaults: { ease: 'expo.out' } })
+      .from('.beam', { opacity: 0, xPercent: -12, duration: 2, stagger: 0.12 }, 0)
+      .from('.hero h1 .line > span', { yPercent: 110, duration: 1.2, stagger: 0.1 }, 0.15)
+      .from('.beacon, .hero__lede, .hero__note, .hero__actions, .hero__small', { y: 16, opacity: 0, duration: 1, stagger: 0.08 }, 0.4)
+      .from('.nav__bar', { y: -24, opacity: 0, duration: 1 }, 0.3);
+
+    // Hero beacon: the search line is the light source.
+    var bBar = $('[data-beacon]'), bQ = $('[data-beacon-q]'), bTab = $('[data-beacon-tab]'), bOut = $('[data-beacon-out] b'), bRow = $('[data-beacon-out]');
+    var asks = [
+      ['내일 오후 3시 회의 잡아 줘', 'Bloom 캘린더에 저장'],
+      ['견적서 PDF 문서 폴더로 옮겨 줘', '허용 후 파일 이동'],
+      ['퇴근 전에 할 일 세 개 정리해 줘', 'Claude Sonnet이 답함']
+    ];
+    var beacon = gsap.timeline({ repeat: 1, delay: 1.4 });
+    asks.forEach(function (a) {
+      var o = { n: 0 }, chars = Array.from(a[0]);
+      beacon
+        .to(bRow, { opacity: 0, duration: 0.25 })
+        .add(function () { bBar.classList.remove('is-sent'); bQ.textContent = ''; })
+        .to(o, { n: chars.length, duration: chars.length * 0.07, ease: 'none', onUpdate: function () { bQ.textContent = chars.slice(0, Math.round(o.n)).join(''); } })
+        .add(function () { bTab.classList.add('is-down'); }, '+=0.35')
+        .add(function () { bTab.classList.remove('is-down'); bBar.classList.add('is-sent'); bOut.textContent = a[1]; }, '+=0.22')
+        .to(bRow, { opacity: 1, duration: 0.4 })
+        .to({}, { duration: 2.2 });
+    });
+
+    // Light beams drift along their own angle.
+    $$('.beam').forEach(function (b, i) {
+      gsap.to(b, { x: (i % 2 ? -1 : 1) * 60, y: (i % 2 ? -1 : 1) * 54, duration: 7 + i * 1.3, ease: 'sine.inOut', yoyo: true, repeat: -1 });
+    });
+    gsap.to('.hero .beams', { opacity: 0.3, ease: 'none', scrollTrigger: { trigger: '.hero', start: 'top top', end: 'bottom top', scrub: true } });
+
+    // Dust: white specks drifting up.
+    var cv = $('.dust'), c2 = cv.getContext('2d'), dots = [], dpr = Math.min(devicePixelRatio || 1, 2);
+    function size() { cv.width = cv.offsetWidth * dpr; cv.height = cv.offsetHeight * dpr; }
+    size(); addEventListener('resize', size);
+    for (var i = 0; i < 70; i++) dots.push({ x: Math.random(), y: Math.random(), r: 0.5 + Math.random() * 1.3, s: 0.0001 + Math.random() * 0.0003, a: 0.08 + Math.random() * 0.3 });
+    var dustFill = getComputedStyle(document.documentElement).getPropertyValue('--color-dust').trim();
+    var heroOn = true;
+    ScrollTrigger.create({ trigger: '.hero', start: 'top bottom', end: 'bottom top', onToggle: function (s) { heroOn = s.isActive; } });
+    function drawDots() {
+      if (!heroOn) return;
+      c2.clearRect(0, 0, cv.width, cv.height);
+      c2.fillStyle = dustFill;
+      dots.forEach(function (d) {
+        d.y -= d.s; if (d.y < -0.02) { d.y = 1.02; d.x = Math.random(); }
+        c2.globalAlpha = d.a;
+        c2.beginPath(); c2.arc(d.x * cv.width, d.y * cv.height, d.r * dpr, 0, Math.PI * 2); c2.fill();
+      });
+    }
+    if (wide) gsap.ticker.add(drawDots);
+
+    // The live search line types real inputs.
+    var demo = [
+      ['5km to mi', '3.11 mi', '단위'],
+      ['견적서', '견적서_1007.pdf', '파일'],
+      ['설치 vlc', 'winget', '앱 설치']
+    ];
+    var qEl = $('[data-q]'), rEl = $('[data-res]'), kEl = $('[data-kind]');
+    var typing = gsap.timeline({ repeat: 1, delay: 1.6, paused: true });
+    demo.forEach(function (d) {
+      var o = { n: 0 }, chars = Array.from(d[0]);
+      typing
+        .to('.live__row', { opacity: 0, duration: 0.2 })
+        .to(o, { n: chars.length, duration: chars.length * 0.08, ease: 'none', onStart: function () { qEl.textContent = ''; },
+          onUpdate: function () { qEl.textContent = chars.slice(0, Math.round(o.n)).join(''); } })
+        .add(function () { rEl.textContent = d[1]; kEl.textContent = d[2]; })
+        .to('.live__row', { opacity: 1, duration: 0.35 })
+        .to({}, { duration: 1.8 });
+    });
+    ScrollTrigger.create({ trigger: '.show', start: 'top bottom', end: 'bottom top', onToggle: function (s) { s.isActive ? typing.play() : typing.pause(); } });
+
+    // Scattered windows: arrive by depth, bob, follow the pointer, scatter on scroll.
+    var floats = $$('.float'), depth = function (f) { return parseFloat(f.firstElementChild.style.getPropertyValue('--d')) || 0.5; };
+    floats.forEach(function (f, i) {
+      var d = depth(f), card = f.querySelector('.float__card'), side = f.style.left ? -1 : 1;
+      if (!introDone) gsap.from(card, { opacity: 0, scale: 0.86, y: 40 * d, duration: 1.6, ease: 'expo.out', delay: 0.5 + (1 - d) * 0.6 });
+      if (d >= 0.5) gsap.to(card, { y: '+=' + (6 + d * 8), duration: 3 + i * 0.4, ease: 'sine.inOut', yoyo: true, repeat: -1, delay: 2 });
+      gsap.to(f, { x: side * 160 * d, y: -220 * d, opacity: 0, ease: 'none',
+        scrollTrigger: { trigger: '.hero', start: 'top top', end: 'bottom 30%', scrub: 0.6 } });
+    });
+    if (matchMedia('(pointer: fine)').matches) {
+      var movers = floats.map(function (f) {
+        var d = depth(f), inner = f.firstElementChild;
+        return { d: d, x: gsap.quickTo(inner, 'x', { duration: 0.9, ease: 'power3' }), y: gsap.quickTo(inner, 'y', { duration: 0.9, ease: 'power3' }) };
+      });
+      var onMove = function (e) {
+        var px = e.clientX / innerWidth - 0.5, py = e.clientY / innerHeight - 0.5;
+        movers.forEach(function (m) { m.x(-px * 50 * m.d); m.y(-py * 36 * m.d); });
+      };
+      addEventListener('pointermove', onMove);
+    }
+
+    // The heading rises first; the app frame then grows into place as it scrolls in.
+    gsap.fromTo('.show__frame', { opacity: 0, y: 80, scale: 0.94 }, { opacity: 1, y: 0, scale: 1, ease: 'power2.out',
+      scrollTrigger: { trigger: '.show__frame', start: 'top 95%', end: 'top 40%', scrub: 0.6 } });
+
+    // Text and cards rise once on entry.
+    $$('.head, .card, .acc details, .dock-wrap, .close h2, .close__row').forEach(function (el) {
+      gsap.from(el, { y: 32, opacity: 0, duration: 1, ease: 'power3.out', scrollTrigger: { trigger: el, start: 'top 90%', once: true } });
+    });
+
+    // Search line: each jamo presses the key it sits on, and the letters rise into Chrome.
+    var koOut = $('[data-ko-out]');
+    koOut.innerHTML = Array.from(koOut.textContent).map(function (ch) { return '<span class="l">' + ch + '</span>'; }).join('');
+    var koCaps = $$('.ko .pair .cap'), koJamo = $$('.ko .pair__j'), koLetters = $$('.l', koOut);
+    var ko = gsap.timeline({ paused: true, repeat: 2, repeatDelay: 2.2 });
+    ko.set(koLetters, { yPercent: 60, opacity: 0 })
+      .set(koJamo, { opacity: 0.25 });
+    koCaps.forEach(function (c, i) {
+      var t = 0.3 + i * 0.32;
+      ko.to(koJamo[i], { opacity: 1, duration: 0.2 }, t)
+        .add(function () { c.classList.add('is-down'); }, t + 0.05)
+        .add(function () { c.classList.remove('is-down'); }, t + 0.3)
+        .to(koLetters[i], { yPercent: 0, opacity: 1, duration: 0.5, ease: 'expo.out' }, t + 0.1);
+    });
+    ko.to({}, { duration: 1.2 });
+    ScrollTrigger.create({ trigger: '.ko', start: 'top 80%', end: 'bottom 10%', onToggle: function (s) { s.isActive ? ko.play() : ko.pause(); } });
+
+    // Quick AI pin: the question types, Tab goes down, the answer streams in.
+    var qaQ = $('[data-qa-q]'), qaText = Array.from(qaQ.textContent), aEl = $('[data-qa-a]'), tabCap = $('[data-qa-tab]');
+    var hints = $$('[data-qa-hint]'), bar = $('.qa__bar');
+    // Wrap the answer's words so they can arrive one by one.
+    if (!aEl.querySelector('.w')) (function wrap(node) {
+      Array.prototype.slice.call(node.childNodes).forEach(function (n) {
+        if (n.nodeType === 3) {
+          var frag = document.createDocumentFragment();
+          n.textContent.split(/(\s+)/).forEach(function (part) {
+            if (!part) return;
+            if (/^\s+$/.test(part)) { frag.appendChild(document.createTextNode(part)); return; }
+            var s = document.createElement('span'); s.className = 'w'; s.textContent = part; frag.appendChild(s);
+          });
+          node.replaceChild(frag, n);
+        } else wrap(n);
+      });
+    })(aEl);
+    var words = $$('.w', aEl);
+    var who = $('.qa__who');
+    if (wide) {
+      var q = { n: 0 };
+      gsap.set(words, { opacity: 0.08 });
+      gsap.set(who, { opacity: 0 });
+      qaQ.textContent = '';
+      var qa = gsap.timeline({ scrollTrigger: { trigger: '.qa', start: pinStart('.qa'), end: '+=900', pin: true, scrub: 0.6, refreshPriority: 2 } });
+      qa.to(q, { n: qaText.length, duration: 3, ease: 'none', onUpdate: function () { qaQ.textContent = qaText.slice(0, Math.round(q.n)).join(''); } }, 0)
+        .to(who, { opacity: 1, duration: 0.4 }, 3.5)
+        .to(words, { opacity: 1, duration: 0.3, stagger: 0.18, ease: 'none' }, 3.7);
+      var aEnd = 3.7 + words.length * 0.18;
+      hints.forEach(function (h, k) { qa.to(h, { duration: 0.01, onStart: function () { h.classList.add('is-lit'); }, onReverseComplete: function () { h.classList.remove('is-lit'); } }, aEnd + 0.3 + k * 0.5); });
+      qa.to({}, { duration: 0.6 });
+      // Tab is held down for a moment between the question and the answer.
+      qa.eventCallback('onUpdate', function () {
+        var t = qa.time(), down = t > 3.15 && t < 3.6;
+        tabCap.classList.toggle('is-down', down);
+        bar.classList.toggle('is-sent', t > 3.15);
+      });
+    }
+
+    // AI links: wires from each source to Bloom and from Bloom to each use, with light running along them.
+    var map = $('[data-link]'), svg = $('.link__wires'), hub = $('[data-hub]'), paths = [], runners = [];
+    var NS = 'http://www.w3.org/2000/svg';
+    function wire() {
+      svg.textContent = ''; paths = []; runners = [];
+      if (getComputedStyle(svg).display === 'none') return;
+      var m = map.getBoundingClientRect(), h = hub.getBoundingClientRect();
+      var hx = h.left - m.left + h.width / 2, hy1 = h.top - m.top + 8, hy2 = h.bottom - m.top - 8;
+      function add(x1, y1, x2, y2) {
+        var p = document.createElementNS(NS, 'path'), my = (y1 + y2) / 2;
+        p.setAttribute('d', 'M' + x1 + ' ' + y1 + ' C' + x1 + ' ' + my + ' ' + x2 + ' ' + my + ' ' + x2 + ' ' + y2);
+        svg.appendChild(p); paths.push(p);
+        var c = document.createElementNS(NS, 'circle'); c.setAttribute('r', '2.5'); svg.appendChild(c);
+        runners.push({ p: p, c: c, len: p.getTotalLength(), t: Math.random() });
+      }
+      $$('[data-from] .node').forEach(function (n) { var r = n.getBoundingClientRect(); add(r.left - m.left + r.width / 2, r.bottom - m.top, hx, hy1); });
+      var to = $('[data-to]').getBoundingClientRect();
+      add(hx, hy2, hx, to.top - m.top - 8);
+    }
+    wire();
+    addEventListener('resize', wire);
+    ScrollTrigger.addEventListener('refresh', wire);
+    ScrollTrigger.create({ trigger: map, start: 'top 75%', once: true, onEnter: function () {
+      wire();
+      paths.forEach(function (p, i) { var l = p.getTotalLength(); gsap.fromTo(p, { strokeDasharray: l, strokeDashoffset: l }, { strokeDashoffset: 0, duration: 1.2, delay: i * 0.08, ease: 'power2.inOut' }); });
+    } });
+    var linkOn = false;
+    ScrollTrigger.create({ trigger: map, start: 'top bottom', end: 'bottom top', onToggle: function (s) { linkOn = s.isActive; } });
+    function run() {
+      if (!linkOn) return;
+      runners.forEach(function (r) {
+        r.t = (r.t + 0.006) % 1;
+        var pt = r.p.getPointAtLength(r.t * r.len);
+        r.c.setAttribute('cx', pt.x); r.c.setAttribute('cy', pt.y);
+        r.c.setAttribute('opacity', String(Math.sin(r.t * Math.PI)));
+      });
+    }
+    gsap.ticker.add(run);
+
+    // Bloom Lens: the selection is drawn, then the result cards take turns.
+    gsap.from('[data-lens-sel]', { scaleX: 0.05, scaleY: 0.05, opacity: 0, duration: 1.1, ease: 'expo.out',
+      scrollTrigger: { trigger: '.lens__screen', start: 'top 70%', once: true } });
+    var lensTimer = null;
+    ScrollTrigger.create({ trigger: '.lens', start: 'top 60%', end: 'bottom 30%',
+      onToggle: function (s) {
+        clearInterval(lensTimer);
+        if (s.isActive) lensTimer = setInterval(function () {
+          if (!lensAuto || ++lensTurns > 3) return clearInterval(lensTimer);
+          var i = tabs.findIndex(function (t) { return t.getAttribute('aria-selected') === 'true'; });
+          pick(tabs[(i + 1) % tabs.length]);
+        }, 3800);
+      } });
+
+    // Usage: meters fill, the cost counts up, the chart grows.
+    gsap.from('.usage .meter__fill', { scaleX: 0, duration: 1.4, ease: 'power3.out', stagger: 0.08,
+      scrollTrigger: { trigger: '.usage__grid', start: 'top 75%', once: true } });
+    gsap.from('.chart i', { scaleY: 0, duration: 1, ease: 'power3.out', stagger: 0.025,
+      scrollTrigger: { trigger: '.chart', start: 'top 85%', once: true } });
+    $$('[data-count-to]').forEach(function (el) {
+      var o = { v: 0 }, to = +el.dataset.countTo, pre = el.dataset.prefix || '';
+      el.textContent = pre + '0';
+      gsap.to(o, { v: to, duration: 1.8, ease: 'power2.out', scrollTrigger: { trigger: el, start: 'top 85%', once: true },
+        onUpdate: function () { el.textContent = pre + Math.round(o.v).toLocaleString('en-US'); } });
+    });
+
+    // Road pin: steps rise as the rail fills.
+    if (wide) {
+      var steps = $$('.step');
+      gsap.set('.steps__fill', { scaleY: 0 });
+      gsap.set(steps, { y: 40, opacity: 0 });
+      var road = gsap.timeline({ scrollTrigger: { trigger: '.road', start: pinStart('.road'), end: '+=1100', pin: true, scrub: 0.8, refreshPriority: 1 } });
+      road.to('.steps__fill', { scaleY: 1, ease: 'none', duration: 4 }, 0);
+      steps.forEach(function (s, k) { road.to(s, { y: 0, opacity: 1, duration: 0.7, ease: 'power3.out' }, k * 0.95); });
+    }
+
+    introDone = true;
+
+    return function () {
+      gsap.ticker.remove(drawDots);
+      if (onMove) removeEventListener('pointermove', onMove);
+      typing.kill();
+      beacon.kill();
+      ko.kill();
+      koOut.textContent = 'Chrome';
+      gsap.ticker.remove(run);
+      removeEventListener('resize', wire);
+      removeEventListener('resize', size);
+      ScrollTrigger.removeEventListener('refresh', wire);
+      bQ.textContent = asks[0][0]; bOut.textContent = asks[0][1];
+      qEl.textContent = demo[0][0]; rEl.textContent = demo[0][1]; kEl.textContent = demo[0][2];
+      gsap.set([bRow, '.live__row'], { clearProps: 'opacity' });
+      [bTab, tabCap].forEach(function (c) { c.classList.remove('is-down'); });
+      [bBar, bar].forEach(function (b) { b.classList.remove('is-sent'); });
+      clearInterval(lensTimer);
+      qaQ.textContent = qaText.join('');
+      gsap.set(words, { clearProps: 'opacity' });
+    };
+  });
+
+  addEventListener('load', function () { ScrollTrigger.refresh(); });
+})();
+</script>
+</body>
+</html>
