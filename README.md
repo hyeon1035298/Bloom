@@ -7,7 +7,7 @@
 </p>
 
 <p align="center">
-  <img src="docs/media/en/loop.webp" alt="Bloom demo showing finding an app, maths, a unit, a reminder, emoji, clipboard history, the color picker, asking AI, a PC task approved on its card, notes attached beside the launcher, a work notification, screen translation and Space Cleaner">
+  <img src="docs/media/en/loop.webp" alt="Bloom demo: AI chat, One search line, The home, Bloom Lens, Docked tools">
 </p>
 
 <p align="center"><sub>Native WPF on .NET 10, no WebView, in English, 한국어, 日本語 and 简体中文, MIT license</sub></p>
