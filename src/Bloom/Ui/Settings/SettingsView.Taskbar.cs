@@ -17,10 +17,10 @@ using Section = Bloom.Ui.TaskbarMap.Section;
 
 namespace Bloom.Ui;
 
-/// 설정 > 애드온's taskbar add-on (PillTaskbar, a separate GPL-3.0 program Bloom downloads and starts): its status text and
-/// switch (the line itself is SettingsView.Addons'); its folders (TaskbarEditor), look, tray and auto-hide island, drawn
-/// from the settings.schema.json it ships (names, defaults, ranges) and laid out by TaskbarMap; and what it is (version,
-/// license, source).
+/// 설정 > 애드온 > 작업표시줄, the taskbar add-on's page (PillTaskbar, a separate GPL-3.0 program Bloom downloads and
+/// starts): its status text and switch (the line and the page's head are SettingsView.Addons'); its folders
+/// (TaskbarEditor), look, tray and auto-hide island, drawn from the settings.schema.json it ships (names, defaults,
+/// ranges) and laid out by TaskbarMap; and what it is (version, license, source).
 internal sealed partial class SettingsView
 {
     /// The folds open now (자세히 under a group), kept while Bloom runs.
@@ -32,7 +32,7 @@ internal sealed partial class SettingsView
     /// The tests: a hand-made add-on in place of the shipped one.
     private Addon? taskbarAddon;
 
-    /// Under the list on 설정 > 애드온 while the taskbar add-on is on: its settings and what it is.
+    /// On the taskbar add-on's page while it is on: its settings and what it is.
     private void TaskbarLines(Addon addon, AddonStatus status, string filter)
     {
         // the add-on's own settings: only with the schema it ships (its names and ranges are not Bloom's to guess)
@@ -74,9 +74,9 @@ internal sealed partial class SettingsView
         else if (on)
         {
             // the editor isn't a line: the search finds it, and the running folder's two settings, by these
-            Add(Tr("폴더 편집", "Edit folders"), Tr("폴더를 만들고 이름, 아이콘, 안의 앱을 바꿉니다", "Make folders and change their names, icons and apps"), null, G.Folder, () => Go("addons"), null, filter);
+            Add(Tr("폴더 편집", "Edit folders"), Tr("폴더를 만들고 이름, 아이콘, 안의 앱을 바꿉니다", "Make folders and change their names, icons and apps"), null, G.Folder, () => Go(AddonPageKey(addon.Id)), null, filter);
             foreach (var e in In(Section.Folders).Where(e => e.Control == Control.Running))
-                if (schema[e.Key] is { } item) Add(item.Split().name, item.About?.Shown, null, G.Folder, () => Go("addons"), null, filter);
+                if (schema[e.Key] is { } item) Add(item.Split().name, item.About?.Shown, null, G.Folder, () => Go(AddonPageKey(addon.Id)), null, filter);
         }
         Fold("folders", Section.FoldersMore, schema, v, filter);
     }
