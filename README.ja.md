@@ -7,7 +7,7 @@
 </p>
 
 <p align="center">
-  <img src="docs/media/ja/loop.webp" alt="Bloom のデモ。アプリを探す、計算、単位、リマインダー、絵文字、クリップボード履歴、カラーピッカー、AI への質問、カードで承認する PC の操作、ランチャーの横に付けたメモ、作業の通知、画面の翻訳、Bloom Space Cleaner">
+  <img src="docs/media/ja/loop.webp" alt="Bloom のデモ。AI チャット、1 本の検索欄、ホーム、Bloom Lens、横に付くツール">
 </p>
 
 <p align="center"><sub>.NET 10 のネイティブ WPF アプリ、WebView なし、English と 한국어 と 日本語 と 简体中文 に対応、MIT ライセンス</sub></p>

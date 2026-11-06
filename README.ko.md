@@ -7,7 +7,7 @@
 </p>
 
 <p align="center">
-  <img src="docs/media/ko/loop.webp" alt="Bloom 데모. 앱 찾기, 계산, 단위 변환, 알림 맞추기, 이모지, 클립보드 기록, 컬러 피커, AI에게 묻기, 승인 카드에서 허용한 PC 작업, 런처 옆에 붙인 메모, 작업 알림, 화면 번역, Bloom Space Cleaner">
+  <img src="docs/media/ko/loop.webp" alt="Bloom 데모. AI 채팅, 검색줄 하나로, 홈, Bloom Lens, 옆에 붙는 도구">
 </p>
 
 <p align="center"><sub>네이티브 WPF (.NET 10), WebView 없음, 한국어와 English, 日本語, 简体中文, MIT</sub></p>

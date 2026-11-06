@@ -7,7 +7,7 @@
 </p>
 
 <p align="center">
-  <img src="docs/media/zh/loop.webp" alt="Bloom 演示，依次是查找应用、计算、换算单位、提醒、表情符号、剪贴板记录、取色器、问 AI、在卡片上批准电脑操作、附着在启动器旁的笔记、工作通知、屏幕翻译和 Bloom Space Cleaner">
+  <img src="docs/media/zh/loop.webp" alt="Bloom 演示：AI 聊天、一个搜索栏、主页、Bloom Lens、附着的工具">
 </p>
 
 <p align="center"><sub>基于 .NET 10 的原生 WPF，不使用 WebView，支持 English、한국어、日本語 和简体中文，MIT 许可证</sub></p>
