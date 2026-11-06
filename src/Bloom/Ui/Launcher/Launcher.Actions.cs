@@ -66,7 +66,17 @@ internal sealed partial class Launcher
             if (Usage.Current.Items.ContainsKey(item.Id) && Mode == Mode.Root && box.Text.Length == 0 && !fav)
                 list.Add(new ActionItem { Title = Tr("최근 사용에서 지우기", "Remove from recent"), Glyph = G.Delete, StayOpen = true, Run = () => { Usage.Forget(item.Id); Refresh(false); } });
         }
+        if (Mode == Mode.Root && HiddenResults.CanHide(item) && !(box.Text.Length == 0 && Favorites.Has(item.Id))) // a favorite stays on the home
+            list.Add(new ActionItem { Title = Tr("검색에서 숨기기", "Hide from search"), Glyph = G.Hide, StayOpen = true, Run = () => HideResult(item) });
         return list;
+    }
+
+    /// Ctrl+K › 검색에서 숨기기: the row leaves the search and the home's suggestions until 설정 › 런처 › 숨긴 항목 brings it back.
+    private void HideResult(ResultItem item)
+    {
+        HiddenResults.Add(item);
+        ShowToast(Tr($"‘{ClipText(item.Title, 16)}’ 숨김 · 설정 › 런처 › 숨긴 항목에서 되돌리기", $"‘{ClipText(item.Title, 16)}’ hidden · bring it back in Settings › Launcher › Hidden items"));
+        Refresh(false);
     }
 
     /// The symbols a favorite (or folder) can wear on its black tile; ticked = the one it has.

@@ -60,6 +60,7 @@ internal sealed partial class Host
         QueryMemory.Load();
         Favorites.Load();
         AppNames.Load();
+        HiddenResults.Load();
         Quicklinks.Load();
         UserCommands.Load();
         Rates.Load();
@@ -631,6 +632,7 @@ internal sealed partial class Host
         QueryMemory.Flush();
         Favorites.Flush();
         AppNames.Flush();
+        HiddenResults.Flush();
         Quicklinks.Flush();
         UserCommands.Flush();
         Timers.Flush();

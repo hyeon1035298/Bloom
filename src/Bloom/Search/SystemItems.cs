@@ -170,7 +170,7 @@ internal static class G
     public const char Restart = '', Calendar = '', Bulb = '', Palette = '', Import = '', Tag = '';
     public const char Search = '', Settings = '', Globe = '', History = '', Refresh = '',
         Lock = '', Power = '', Calculator = '', Folder = '', Document = '', Link = '',
-        Copy = '', Star = '', StarFill = '', Unstar = '', Delete = '', NewWindow = '',
+        Copy = '', Star = '', StarFill = '', Unstar = '', Hide = '', Delete = '', NewWindow = '',
         Back = '', Send = '', Close = '', Tab = '', Bookmark = '', Shield = '',
         Up = '', Down = '', Left = '', Right = '', Add = '', Check = '', Info = '', Chat = '', Plug = '',
         Stop = '', Page = '', Keyboard = '', App = '', Paste = '', Model = '';

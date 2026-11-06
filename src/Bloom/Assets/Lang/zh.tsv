@@ -2639,3 +2639,14 @@ Monitor 1	显示器 1
 Monitor 2	显示器 2
 Clean now	立即清理
 1.2 GB freed	已释放 1.2 GB
+Hide from search	从搜索中隐藏
+‘{0}’ hidden · bring it back in Settings › Launcher › Hidden items	已隐藏“{0}” · 可在 设置 › 启动器 › 已隐藏的项目 中恢复
+Hidden items	已隐藏的项目
+Results taken out of the search and the home, and bringing them back	从搜索和主页中隐藏的结果，以及恢复显示
+None · Ctrl+K on a result › Hide from search	无 · 在结果上按 Ctrl+K › 从搜索中隐藏
+{0} · not shown in the search or on the home	{0} 项 · 不在搜索和主页中显示
+Hidden search results	已隐藏的搜索结果
+Show all again	全部恢复显示
+Show again	恢复显示
+Site shortcut	网站快捷方式
+System switch	系统开关
