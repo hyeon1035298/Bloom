@@ -212,7 +212,7 @@ internal static class TaskbarPageTests
                 Check.True(lines.Any(l => l.Group == "작업표시줄 폴더" && l.Title == "작업표시줄 폴더"), "작업표시줄 폴더");
                 Check.True(lines.Any(l => l.Title == "폴더 편집"), "the folder editor by a line of its own");
                 Check.True(lines.Any(l => l.Title == "보일 아이콘" && l.Sub.Contains("볼륨", StringComparison.Ordinal)), "a tray chip by its name");
-                Check.True(lines.All(l => l.PageKey == "addons"), "nothing else");
+                Check.True(lines.All(l => l.PageKey == (l.Group == "애드온 목록" ? "addons" : "addon:pill-taskbar")), "its line on 애드온, its settings on its own page");
                 File.WriteAllText(Path.Combine(dir, "settings.schema.json"), Fixture + " ");
                 Check.True(new Addon(AddonProtocol.Id, new AddonStore(shipped, Path.Combine(Paths.Local, "addons"))).Schema is null, "a changed schema isn't read");
             }
