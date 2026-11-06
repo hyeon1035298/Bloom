@@ -87,11 +87,13 @@ internal static class DocMarkdownTests
     public static void CodeCopiesAsWritten()
     {
         var answer = Markdown.Render("값은 `Contoso.WeatherService.Runtime`에 있어요 `a-b/c_d\\e`", _ => { });
-        var code = ((Paragraph)answer.Document.Blocks.FirstBlock).Inlines.OfType<Run>().First(r => r.Text.Contains("Contoso", System.StringComparison.Ordinal)).Text;
-        Check.Eq(code, $"{Hangul.CodePad}Contoso.{Hangul.BreakHint}WeatherService.{Hangul.BreakHint}Runtime{Hangul.CodePad}", "drawn: padding that holds on, break chances after the dots");
+        var span = ((Paragraph)answer.Document.Blocks.FirstBlock).Inlines.OfType<Span>().First(sp => new TextRange(sp.ContentStart, sp.ContentEnd).Text.Contains("Contoso", System.StringComparison.Ordinal));
+        var runs = span.Inlines.OfType<Run>().ToList();
+        Check.Eq(string.Concat(runs.Select(r => r.Text)), $"{Hangul.CodePad}Contoso.{Hangul.BreakHint}WeatherService.{Hangul.BreakHint}Runtime{Hangul.CodePad}", "drawn: padding that holds on, break chances after the dots");
+        Check.True(runs[0].FontSize < runs[1].FontSize * 0.5 && runs[^1].FontSize == runs[0].FontSize, "the padding narrower than a space");
         answer.SelectAll();
-        Check.Eq(answer.SelectedText, "값은  Contoso.WeatherService.Runtime 에 있어요  a-b/c_d\\e ", "copied as before: spaces round the code, nothing put in");
-        Check.Eq(Hangul.Unjoin("가\u2060나 \u2007x.\u200By\u2007"), "가나  x.y ", "Unjoin: joiners and break chances out, padding a space");
+        Check.Eq(answer.SelectedText, "값은 Contoso.WeatherService.Runtime에 있어요 a-b/c_d\\e", "copied as written: no space put round the code");
+        Check.Eq(Hangul.Unjoin("가\u2060나 \u2007x.\u200By\u2007"), "가나 x.y", "Unjoin: joiners, break chances and padding out");
         Check.Eq(Hangul.Unjoin("plain"), "plain", "plain text as it is");
     }
 

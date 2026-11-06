@@ -105,19 +105,49 @@ internal static class Hangul
         return sb?.ToString() ?? s;
     }
 
+    /// Short names under icons (the home's favourites): KeepAll, and a run of kanji, of katakana or of hiragana kept
+    /// together too, so Japanese and Chinese names break where the script changes ("クリップボード|履歴"), not inside a
+    /// word. A run longer than the line still breaks (TextWrapping.Wrap).
+    public static string KeepWords(string s)
+    {
+        if (s.Length < 2) return s;
+        StringBuilder? sb = null;
+        for (int i = 0; i < s.Length; i++)
+        {
+            char c = s[i];
+            if (i > 0 && Script(c) is int k and > 0 && k == Script(s[i - 1]))
+            {
+                sb ??= new StringBuilder(s, 0, i, s.Length + 16);
+                sb.Append(Joiner);
+            }
+            sb?.Append(c);
+        }
+        return sb?.ToString() ?? s;
+    }
+
+    /// 1 Hangul syllables, 2 kanji (with 々), 3 katakana (with ー and half-width), 4 hiragana; 0 anything else.
+    private static int Script(char c) => c switch
+    {
+        _ when IsSyllable(c) => 1,
+        (>= '一' and <= '鿿') or (>= '㐀' and <= '䶿') or (>= '豈' and <= '﫿') or '々' => 2,
+        (>= '゠' and <= 'ヿ') or (>= 'ㇰ' and <= 'ㇿ') or (>= 'ｦ' and <= 'ﾟ') => 3,
+        >= 'ぁ' and <= 'ゟ' => 4,
+        _ => 0,
+    };
+
     /// What Ui\Markdown.cs draws inline code with: its padding, a space no line break comes off (FIGURE SPACE; the
     /// Markdown view's MdText holds it as drawn room, not shaped), and after . / \ _ - in it a chance to break a long one
     /// there (ZERO WIDTH SPACE). Display only, as KeepAll's joiners.
     public const char CodePad = '\u2007', BreakHint = '\u200B';
 
     /// The display-only characters undone: shown text back to what was written (a selection copied from the screen) —
-    /// KeepAll's joiners and code's break chances out, code's padding back to the spaces it was.
+    /// KeepAll's joiners, code's break chances and code's padding out ("`a.pdf`를" copies as "a.pdf를", no space put in).
     public static string Unjoin(string s)
     {
         if (s.AsSpan().IndexOfAny(Joiner, BreakHint, CodePad) < 0) return s;
         var sb = new StringBuilder(s.Length);
         foreach (char c in s)
-            if (c is not Joiner and not BreakHint) sb.Append(c == CodePad ? ' ' : c);
+            if (c is not Joiner and not BreakHint and not CodePad) sb.Append(c);
         return sb.ToString();
     }
 }

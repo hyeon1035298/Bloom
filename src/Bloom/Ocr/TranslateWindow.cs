@@ -282,7 +282,7 @@ internal sealed class TranslateWindow : Window
     private void Status(string? note = null)
     {
         string who = Translator.Who(Translator.Provider());
-        status.Text = note ?? Tr($"{who} · 호출 {calls}회", $"{who} · {calls} calls") + (live ? paused ? Tr(" · 멈춤", " · paused") : Tr($" · {tick.Interval.TotalSeconds:0.#}초마다 읽기", $" · reading every {tick.Interval.TotalSeconds:0.#} s") : "");
+        status.Text = note ?? (calls == 1 ? Tr($"{who} · 호출 1회", $"{who} · 1 call") : Tr($"{who} · 호출 {calls}회", $"{who} · {calls} calls")) + (live ? paused ? Tr(" · 멈춤", " · paused") : Tr($" · {tick.Interval.TotalSeconds:0.#}초마다 읽기", $" · reading every {tick.Interval.TotalSeconds:0.#} s") : "");
     }
 
     // ── work ────────────────────────────────────────────────────────────────────────────────────
