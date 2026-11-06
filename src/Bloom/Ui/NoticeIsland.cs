@@ -23,6 +23,17 @@ internal static class NoticeIsland
     /// The island alone, looked for through the windows.
     public static Rect? Find() => Look(true).Island;
 
+    /// The island in physical pixels (it is on the primary monitor, whose DIPs start at 0,0), for windows placed by
+    /// monitor pixels: the capture's overlays keep their hint and bar off it.
+    public static Rect? FindPixels()
+    {
+        if (Find() is not { } r) return null;
+        IntPtr primary = Win32.MonitorFromPoint(new Win32.POINT { X = 0, Y = 0 }, Win32.MONITOR_DEFAULTTOPRIMARY);
+        if (Win32.GetDpiForMonitor(primary, 0, out uint dpi, out _) != 0 || dpi == 0) dpi = 96;
+        double s = dpi / 96.0;
+        return new Rect(r.X * s, r.Y * s, r.Width * s, r.Height * s);
+    }
+
     /// The island and the taskbar as they show now. `search`: look through the windows for the island (once a second);
     /// else the window found last is read again (every frame while the taskbar moves).
     public static Above Look(bool search)

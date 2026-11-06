@@ -66,14 +66,16 @@ internal static class ScreenGrab
         using var cancellation = abort.Register(() => Finish(null));
         try
         {
+            var island = NoticeIsland.FindPixels(); // in the frozen picture too: the hint and the bar keep off it
             foreach (IntPtr mon in Launcher.Monitors())
             {
                 var info = new Win32.MONITORINFO { cbSize = Marshal.SizeOf<Win32.MONITORINFO>() };
                 if (!Win32.GetMonitorInfo(mon, ref info)) continue;
                 var m = info.rcMonitor;
+                var wa = info.rcWork;
                 windows.Add(Overlay(desktop, new ScreenRect(m.Left, m.Top, m.Right - m.Left, m.Bottom - m.Top), vx, vy, hint, r => Finish(r),
-                    !draw ? null : (canvas, sel, room, r) => layer = new DrawLayer(canvas, sel, room, then => Finish(r, then), preferences, theme, persist), () => layer,
-                    DrawTheme.Brush(theme.Accent), board));
+                    !draw ? null : (canvas, sel, room, r, keepOff) => layer = new DrawLayer(canvas, sel, room, then => Finish(r, then), preferences, theme, persist, keepOff), () => layer,
+                    DrawTheme.Brush(theme.Accent), board, new ScreenRect(wa.Left, wa.Top, wa.Right - wa.Left, wa.Bottom - wa.Top), island));
             }
             if (windows.Count == 0) return null;
             foreach (var w in windows) w.Show();
@@ -104,9 +106,12 @@ internal static class ScreenGrab
 
     /// One monitor's frozen picture. `startDraw` (화면 캡처) turns a finished drag into the drawing layer instead of
     /// the answer; `drawing` is that layer once any monitor has it (the other monitors then stay still). `board` is
-    /// shared by every monitor's overlay: a drag from one onto another shows on both.
+    /// shared by every monitor's overlay: a drag from one onto another shows on both. The hint keeps inside `work` (the
+    /// monitor's work area: off the taskbar's picture) and off `island` and the picked area; `startDraw` is told what its
+    /// bar keeps off (in the overlay's DIPs). Both are physical pixels.
     internal static Window Overlay(BitmapSource desktop, ScreenRect mon, int vx, int vy, string hint, Action<ScreenRect?> finish,
-        Func<Canvas, Rect, Size, ScreenRect, DrawLayer>? startDraw, Func<DrawLayer?> drawing, Brush accent, PickBoard? board = null)
+        Func<Canvas, Rect, Size, ScreenRect, IReadOnlyList<Rect>, DrawLayer>? startDraw, Func<DrawLayer?> drawing, Brush accent,
+        PickBoard? board = null, ScreenRect? work = null, Rect? island = null)
     {
         board ??= new PickBoard();
         var w = new Window
@@ -168,7 +173,18 @@ internal static class ScreenGrab
         {
             shown = picked;
             labelled = label;
+            if (picked is { Width: > 0 }) tip.Visibility = Visibility.Collapsed; // a drag began, on any monitor
             Draw();
+        }
+        Rect? Local(Rect? r) => r is { } x ? new Rect((x.X - mon.X) / Scale(), (x.Y - mon.Y) / Scale(), x.Width / Scale(), x.Height / Scale()) : null;
+        // the hint where it covers neither the island nor the area (null: none yet), inside the work area; its box
+        Rect PlaceTip(Rect? area)
+        {
+            tip.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
+            var room = new Size(w.ActualWidth, w.ActualHeight);
+            double top = TipTop(tip.DesiredSize, room, ToLocal(work ?? mon, mon, Scale()), Local(island), area);
+            tip.Margin = new Thickness(0, top, 0, 0);
+            return new Rect((room.Width - tip.DesiredSize.Width) / 2, top, tip.DesiredSize.Width, tip.DesiredSize.Height);
         }
         // the shared selection, this monitor's part of it (the window clips the rest); the size beside it on one monitor
         void Draw()
@@ -214,8 +230,16 @@ internal static class ScreenGrab
         // moved onto a monitor with another scale, WPF resizes the window by the scale ratio (a 100 % monitor beside a
         // 150 % one got a 1280x720 overlay on its 1920x1080): cover the monitor again
         w.DpiChanged += (_, _) => Win32.SetWindowPos(new WindowInteropHelper(w).Handle, Win32.HWND_TOPMOST, mon.X, mon.Y, mon.Width, mon.Height, Win32.SWP_NOACTIVATE);
-        w.Loaded += (_, _) => Draw();
-        w.SizeChanged += (_, _) => Draw();
+        w.Loaded += (_, _) =>
+        {
+            Draw();
+            if (drawing() is null) PlaceTip(null);
+        };
+        w.SizeChanged += (_, _) =>
+        {
+            Draw();
+            if (drawing() is null) PlaceTip(null);
+        };
         w.MouseLeftButtonDown += (_, e) =>
         {
             if (drawing() is not null) return;
@@ -241,7 +265,10 @@ internal static class ScreenGrab
             board.Settle(picked); // without the size: the bar takes its place
             ((TextBlock)tip.Child).Text = DrawLayer.Hint;
             tip.Visibility = Visibility.Visible;
-            startDraw(canvas, ToLocal(picked, mon, Scale()), new Size(w.ActualWidth, w.ActualHeight), picked);
+            var area = ToLocal(picked, mon, Scale());
+            var hintBox = PlaceTip(area);
+            var keepOff = Local(island) is { } isl ? new[] { hintBox, isl } : new[] { hintBox };
+            startDraw(canvas, area, new Size(w.ActualWidth, w.ActualHeight), picked, keepOff);
         };
         w.MouseRightButtonUp += (_, _) =>
         {
@@ -258,6 +285,24 @@ internal static class ScreenGrab
             if (from is null && !w.IsMouseOver && Win32.GetForegroundWindow() is var fg && !IsOurs(fg)) finish(null);
         };
         return w;
+    }
+
+    private const double TipGap = 28;
+
+    /// The hint's top (DIPs) in a `room` overlay: `TipGap` under the work area's top, or under the island when it would
+    /// sit on it; at the work area's bottom instead when the picked `area` is under it at the top (and not there).
+    internal static double TipTop(Size tip, Size room, Rect work, Rect? island, Rect? area)
+    {
+        double x = (room.Width - tip.Width) / 2;
+        Rect At(double y) => new(x, y, tip.Width, tip.Height);
+        double top = work.Top + TipGap;
+        if (island is { } i && i.IntersectsWith(At(top))) top = i.Bottom + 12;
+        if (area is { } a && a.IntersectsWith(At(top)))
+        {
+            double bottom = work.Bottom - TipGap - tip.Height;
+            if (!a.IntersectsWith(At(bottom)) && !(island?.IntersectsWith(At(bottom)) ?? false)) return bottom;
+        }
+        return top;
     }
 
     /// The rectangle between two physical points.

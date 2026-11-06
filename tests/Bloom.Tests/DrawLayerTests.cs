@@ -11,6 +11,21 @@ namespace Bloom.Tests;
 
 internal static class DrawLayerTests
 {
+    /// The bar goes below the area, above it, or inside its bottom, skipping a place the hint or the island covers.
+    public static void BarKeepsOffTheHintAndTheIsland()
+    {
+        var room = new Size(1000, 600);
+        var bar = new Size(500, 42);
+        var sel = new Rect(100, 300, 400, 200); // room below (510) and above (248)
+        Check.Eq(DrawLayer.BarAt(sel, room, bar, []), (100.0, 510.0), "below the area when nothing is in the way");
+        var island = new Rect(300, 520, 300, 40); // over the place below
+        Check.Eq(DrawLayer.BarAt(sel, room, bar, [island]), (100.0, 248.0), "above the area when the place below is covered");
+        var hint = new Rect(250, 240, 500, 40); // and over the place above
+        Check.Eq(DrawLayer.BarAt(sel, room, bar, [island, hint]), (100.0, 448.0), "inside the area's bottom when both are covered");
+        var low = new Rect(100, 20, 400, 560); // no room below or above: inside, covered or not
+        Check.Eq(DrawLayer.BarAt(low, room, bar, [new Rect(0, 500, 1000, 100)]), (100.0, 528.0), "inside when nothing else fits");
+    }
+
     public static void PreferencesStayLocalAndUndoRedoKeepExportPixels()
     {
         var initial = new DrawPreferences("pen", 0, 1, 1, 1);

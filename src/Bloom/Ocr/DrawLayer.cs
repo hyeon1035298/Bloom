@@ -39,10 +39,12 @@ internal sealed class DrawLayer
     private readonly List<SmoothBorder> swatches = new(), sizes = new();
     private bool replaying;
 
-    /// Ink over `sel` (DIPs on `canvas`), the bar below it (above, or inside, when the screen ends). `done` gets
-    /// what to do with the picture: capture (copy) · pin · ask · palette · save.
+    /// Ink over `sel` (DIPs on `canvas`), the bar below it (above, or inside, when the screen ends), off the boxes in
+    /// `keepOff` (the hint, the island) where one of those places is clear of them. `done` gets what to do with the
+    /// picture: capture (copy) · pin · ask · palette · save.
     public DrawLayer(Canvas canvas, Rect sel, Size room, Action<string> done,
-        DrawPreferences? preferences = null, DrawTheme? theme = null, Action<DrawPreferences>? persist = null)
+        DrawPreferences? preferences = null, DrawTheme? theme = null, Action<DrawPreferences>? persist = null,
+        IReadOnlyList<Rect>? keepOff = null)
     {
         area = sel.Size;
         this.done = done;
@@ -66,13 +68,32 @@ internal sealed class DrawLayer
         var bar = Bar();
         canvas.Children.Add(bar);
         bar.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
-        var b = bar.DesiredSize;
-        double y = sel.Bottom + 10 + b.Height <= room.Height - 8 ? sel.Bottom + 10
-            : sel.Top - 10 - b.Height >= 8 ? sel.Top - 10 - b.Height
-            : Math.Max(8, sel.Bottom - 10 - b.Height);
-        Canvas.SetLeft(bar, Math.Clamp(sel.X, 8, Math.Max(8, room.Width - b.Width - 8)));
+        var (x, y) = BarAt(sel, room, bar.DesiredSize, keepOff ?? []);
+        Canvas.SetLeft(bar, x);
         Canvas.SetTop(bar, y);
         Use(Marking ? "mark" : "pen");
+    }
+
+    /// The bar's place: below the area, above it, or inside its bottom, the first that fits the room and is clear of
+    /// `keepOff`; when none is clear, the first that fits, as before there was anything to keep off.
+    internal static (double x, double y) BarAt(Rect sel, Size room, Size bar, IReadOnlyList<Rect> keepOff)
+    {
+        double x = Math.Clamp(sel.X, 8, Math.Max(8, room.Width - bar.Width - 8));
+        double inside = Math.Max(8, sel.Bottom - 10 - bar.Height);
+        var places = new[] { sel.Bottom + 10, sel.Top - 10 - bar.Height, inside };
+        bool Fits(double y) => y == inside || (y >= 8 && y + bar.Height <= room.Height - 8);
+        bool Clear(double y)
+        {
+            var box = new Rect(x, y, bar.Width, bar.Height);
+            foreach (var k in keepOff)
+                if (k.IntersectsWith(box)) return false;
+            return true;
+        }
+        foreach (double y in places)
+            if (Fits(y) && Clear(y)) return (x, y);
+        foreach (double y in places)
+            if (Fits(y)) return (x, y);
+        return (x, inside);
     }
 
     /// The overlay's keys while drawing (Esc stays with the overlay: it cancels).

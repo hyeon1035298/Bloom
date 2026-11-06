@@ -91,6 +91,23 @@ internal static class ScreenGrabTests
         Check.Eq(board.LabelMonitor(new ScreenRect(2000, -300, 400, 400), upper), upper, "a corner in no monitor: the drag's own");
     }
 
+    /// The hint sits under the island when the island is over its place, and goes to the work area's bottom when the
+    /// picked area is under it at the top.
+    public static void HintKeepsOffTheIslandAndTheArea()
+    {
+        var room = new Size(1280, 720);
+        var work = new Rect(0, 0, 1280, 672); // a 48-DIP taskbar at the bottom
+        var tip = new Size(300, 34);
+        Check.Eq(ScreenGrab.TipTop(tip, room, work, null, null), 28.0, "28 under the top");
+        var island = new Rect(540, 8, 200, 35);
+        Check.Eq(ScreenGrab.TipTop(tip, room, work, island, null), 55.0, "under the island");
+        Check.Eq(ScreenGrab.TipTop(tip, room, work, new Rect(40, 8, 200, 35), null), 28.0, "an island off to the side stays where it is");
+        var area = new Rect(400, 20, 500, 300);
+        Check.Eq(ScreenGrab.TipTop(tip, room, work, island, area), 672.0 - 28 - 34, "to the bottom of the work area, off the area");
+        var tall = new Rect(400, 20, 500, 640);
+        Check.Eq(ScreenGrab.TipTop(tip, room, work, island, tall), 55.0, "the area covers both: the top");
+    }
+
     private static (FrameworkElement frame, FrameworkElement size) Parts(Window overlay)
     {
         var canvas = ((Grid)overlay.Content).Children.OfType<Canvas>().Single();
