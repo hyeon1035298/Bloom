@@ -82,5 +82,8 @@ internal static class AiCommandTests
     {
         Check.Eq(NoticeLog.Preview("첫 줄\n\n  둘째   줄 "), "첫 줄 둘째 줄", "one line, spaces folded");
         Check.Eq(NoticeLog.Preview(new string('가', 400)).Length, 301, "cut at 300 with an ellipsis");
+        Check.Eq(NoticeLog.Preview("## 오늘\n**놓치다(miss)** — 버스를 *놓쳤어요*.\n1. 기차를 ~~놓칠~~ 뻔했어요.\n- [x] `miss` 복습\n> [사전](https://example.com) 참고"),
+            "오늘 놓치다(miss) — 버스를 놓쳤어요. 기차를 놓칠 뻔했어요. miss 복습 사전 참고", "Markdown marks off: heading, bold, italic, list, box, code, quote, link");
+        Check.Eq(NoticeLog.Preview("```\nvar a = 2*3*4;\n```"), "var a = 2*3*4;", "fences dropped, a lone * kept");
     }
 }
