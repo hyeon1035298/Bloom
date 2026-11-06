@@ -359,7 +359,7 @@ internal sealed class AccentPicker : Grid
 
     private static string Code(Color c) => $"#{c.R:X2}{c.G:X2}{c.B:X2}";
 
-    /// One theme's colour on that theme's own ground: its name and code, a switch and a key that are on, the contrast.
+    /// One theme's colour on that theme's own ground: its name and code, a switch that is on, the contrast.
     private sealed class Pair
     {
         public readonly SmoothBorder Root;
@@ -390,15 +390,8 @@ internal sealed class AccentPicker : Grid
             inside.Children.Add(lit);
             inside.Children.Add(knob);
             track.Child = inside;
-            // a key that is on: plain text over a lit line
-            var key = new Grid { Margin = new Thickness(10, 0, 0, 0), VerticalAlignment = VerticalAlignment.Center };
-            var word = Theme.T(Tr("켬", "On"), 12, p.Text, Theme.Medium);
-            word.Margin = new Thickness(0, 0, 0, 4);
-            key.Children.Add(word);
-            key.Children.Add(new Rectangle { Height = 2, RadiusX = 1, RadiusY = 1, Fill = accent, VerticalAlignment = VerticalAlignment.Bottom });
             var demo = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(0, 10, 0, 0) };
             demo.Children.Add(track);
-            demo.Children.Add(key);
             // the contrast on a line of its own, as the cells are narrow beside the square
             contrast = Theme.T("", 12, p.TextFaint, Theme.Regular, false);
             contrast.TextWrapping = TextWrapping.Wrap;

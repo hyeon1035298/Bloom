@@ -100,7 +100,8 @@ internal sealed partial class SettingsView : ScrollViewer
 
     /// A line: its title, a faint line under it, its control at the end, and no icon (the sidebar carries the page's).
     /// Its height grows with a second line under it. `folded`: a match from under a 자세히 fold, marked so after its title.
-    private static Row Line(string title, string? sub, FrameworkElement? control, bool folded = false)
+    /// `below`: a row of keys under the title and its line, inside the line, so its highlight takes them in too.
+    private static Row Line(string title, string? sub, FrameworkElement? control, bool folded = false, FrameworkElement? below = null)
     {
         var r = new Row(null) { Height = double.NaN, MinHeight = 56, Margin = new Thickness(0), Padding = new Thickness(0, 9, 12, 9), Selectable = false };
         FrameworkElement Title()
@@ -115,7 +116,7 @@ internal sealed partial class SettingsView : ScrollViewer
             line.Children.Add(more);
             return line;
         }
-        if (sub is null)
+        if (sub is null && below is null)
         {
             r.Add(folded ? Title() : Theme.Label(title, 13, Theme.P.Text, Theme.Medium, true), new GridLength(1, GridUnitType.Star));
         }
@@ -123,13 +124,17 @@ internal sealed partial class SettingsView : ScrollViewer
         {
             var text = new StackPanel { VerticalAlignment = VerticalAlignment.Center };
             text.Children.Add(Title());
-            // up to two lines next to a wide control (a long line was cut at one), Korean words kept whole
-            var s = Theme.T(Hangul.KeepAll(sub), 12, Theme.P.TextFaint);
-            s.TextWrapping = TextWrapping.Wrap;
-            s.MaxHeight = Math.Ceiling(s.FontSize * s.FontFamily.LineSpacing * 2) + 1;
-            s.Margin = new Thickness(0, 2, 0, 0);
-            s.ToolTip = sub.Length > 40 ? sub : null;
-            text.Children.Add(s);
+            if (sub is not null)
+            {
+                // up to two lines next to a wide control (a long line was cut at one), Korean words kept whole
+                var s = Theme.T(Hangul.KeepAll(sub), 12, Theme.P.TextFaint);
+                s.TextWrapping = TextWrapping.Wrap;
+                s.MaxHeight = Math.Ceiling(s.FontSize * s.FontFamily.LineSpacing * 2) + 1;
+                s.Margin = new Thickness(0, 2, 0, 0);
+                s.ToolTip = sub.Length > 40 ? sub : null;
+                text.Children.Add(s);
+            }
+            if (below is not null) text.Children.Add(below);
             r.Add(text, new GridLength(1, GridUnitType.Star));
         }
         if (control is not null)
@@ -280,11 +285,11 @@ internal sealed partial class SettingsView : ScrollViewer
 
     /// A line and a row of keys under it (사용할 대화), each on or off on its own; while filtering or collecting, the line
     /// under the title names the keys too, so a key's name finds it.
-    private void KeyChips(string title, string sub, List<(string label, bool on, Action<bool> set)> chips, char glyph, string filter)
+    private void KeyChips(string title, string sub, List<(string label, bool on, Action<bool> set)> chips, string filter)
     {
         string names = string.Join(", ", chips.Select(c => c.label));
-        if (Add(title, collected is null && filter.Length == 0 ? sub : $"{sub} · {names}", null, glyph, null, null, filter) is null) return;
-        card?.Children.Add(Chips(chips));
+        string shown = collected is null && filter.Length == 0 ? sub : $"{sub} · {names}";
+        Place(title, shown, () => Line(title, shown, null, folding && filter.Length > 0, Chips(chips)), null, null, filter);
     }
 
     /// 자세히 · N개: a card's last line, opening the lines folded under it (`flip`): a chevron (turned down when open), the

@@ -134,7 +134,8 @@ internal sealed class Addon
     }
 
     /// Downloads the catalog's release, checks it and puts it in as this add-on's source: Fetch shows it busy at once,
-    /// the rest runs on a worker thread. Never starts the host: a running one keeps its version until it starts again.
+    /// the rest runs on a worker thread. A host that started this run keeps its version until it starts again; one that is
+    /// switched on but had nothing to start from starts with it.
     public Task Download(HttpClient http, AddonCatalog.Entry e)
     {
         if (store.DownloadRoot is not { } root || !Fetch.Begin()) return Task.CompletedTask;
@@ -164,6 +165,7 @@ internal sealed class Addon
                 if (Directory.Exists(staging)) Directory.Delete(staging, true);
             }
             Log.Write($"add-on {Id}: {e.Version} downloaded");
+            if (On && StartedVersion is null && !AddonHub.SkippedByShift) Start();
         }
         catch (AddonDownloadException x)
         {
@@ -405,17 +407,15 @@ internal static class AddonHub
             Log.Write("add-ons: Shift held at start, none started");
             return;
         }
-        _ = Task.Run(() =>
+        _ = Task.Run(() => Task.WhenAll(All.Where(a => a.On).Select(async a =>
         {
-            foreach (var a in All.Where(a => a.On))
-            {
-                a.Start();
-                if (autostart) Log.Write($"add-on {a.Id}: started from --autostart, {LogonTask.SinceSignIn()} after sign-in");
-            }
-        });
+            await Bring(a, fresh: false).ConfigureAwait(false);
+            if (autostart) Log.Write($"add-on {a.Id}: started from --autostart, {LogonTask.SinceSignIn()} after sign-in");
+        })));
     }
 
-    /// The switch on the settings page: saved at once, the host started or stopped on a worker thread.
+    /// The switch on the settings page: saved at once, the host started (with the catalog's release when one is
+    /// offered, Bring) or stopped on a worker thread.
     public static Task Set(Addon a, bool on)
     {
         var list = Settings.Current.AddonsOn;
@@ -424,11 +424,21 @@ internal static class AddonHub
         Settings.Save();
         LogonTask.SyncLater();
         Notify();
-        return Task.Run(() =>
+        return on ? Task.Run(() => Bring(a, fresh: true)) : Task.Run(a.Stop);
+    }
+
+    /// Starts the add-on, checking the catalog for a newer release first. The release is waited for when the add-on has
+    /// nothing to run yet or was just switched on (`fresh`: no host of it runs); at Bloom's start the copy it has starts
+    /// at once and the download is for the next start, so the taskbar isn't held up or reloaded. A download that fails
+    /// leaves the copy it has, which starts as before.
+    private static async Task Bring(Addon a, bool fresh)
+    {
+        if (a.Offer() is { } e)
         {
-            if (on) a.Start();
-            else a.Stop();
-        });
+            var fetch = Download(a, e);
+            if (fresh || a.Manifest is null || a.Broken) await fetch.ConfigureAwait(false);
+        }
+        a.Start();
     }
 
     /// 다시 켜기 (safe mode cleared) and 다시 시도.

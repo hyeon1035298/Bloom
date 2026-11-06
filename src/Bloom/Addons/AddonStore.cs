@@ -38,23 +38,30 @@ internal sealed class AddonStore
     public bool Bundled(string id) => File.Exists(Path.Combine(shippedRoot, id, AddonManifest.FileName));
 
     /// The folder the add-on is read from: the install folder's when it has one, else the downloaded version (the latest
-    /// when a clean-up that failed left two), else the install folder's path, which has none.
+    /// when a clean-up that failed left two), else the newest run copy (a Bloom that came with the add-on was replaced by
+    /// one that doesn't, and nothing is downloaded yet: the copy that ran keeps running), else the install folder's path,
+    /// which has none.
     public string SourceDir(string id)
     {
         string shipped = Path.Combine(shippedRoot, id);
         if (DownloadRoot is null || Bundled(id)) return shipped;
+        return Newest(Path.Combine(DownloadRoot, id)) ?? Newest(DataDir(id)) ?? shipped;
+    }
+
+    /// The highest version folder in dir with an addon.json in it; null when there is none.
+    private static string? Newest(string dir)
+    {
         try
         {
-            string dir = Path.Combine(DownloadRoot, id);
-            if (!Directory.Exists(dir)) return shipped;
+            if (!Directory.Exists(dir)) return null;
             string? latest = Directory.GetDirectories(dir).Select(Path.GetFileName).OfType<string>()
                 .Where(v => !v.StartsWith('.') && AddonManifest.IsVersion(v) && File.Exists(Path.Combine(dir, v, AddonManifest.FileName)))
                 .OrderByDescending(v => v, Comparer<string>.Create(AddonCatalog.Compare)).FirstOrDefault();
-            return latest is null ? shipped : Path.Combine(dir, latest);
+            return latest is null ? null : Path.Combine(dir, latest);
         }
         catch (Exception e) when (e is IOException or UnauthorizedAccessException)
         {
-            return shipped;
+            return null;
         }
     }
 
