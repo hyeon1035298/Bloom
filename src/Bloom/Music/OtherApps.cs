@@ -38,7 +38,7 @@ internal static class OtherApps
 
     public static async Task Poll()
     {
-        if (polling) return;
+        if (polling || Core.Demo.On) return; // recording mode: no song of this PC (SetForQa's, if any, stays)
         polling = true;
         try
         {
@@ -56,6 +56,9 @@ internal static class OtherApps
             polling = false;
         }
     }
+
+    /// QA pictures in the recording mode: one made-up app's song, which Poll leaves in place.
+    public static void SetForQa(MediaNow song) => Sessions = new[] { song };
 
     /// The mini player closed: nothing is held (the pictures neither).
     public static void Forget()

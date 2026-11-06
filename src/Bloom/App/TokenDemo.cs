@@ -16,15 +16,17 @@ internal static class TokenDemo
     private sealed record Kind(string Provider, string Model, int Calls, TokenCounts PerCall, (double input, double write, double writeLong, double read, double output)? Price,
         int[] Lanes, (TokenEffort effort, double weight)[] Efforts);
 
+    // sized for the recording's accounts (three Claude Ultra and one ChatGPT Pro, agents keeping long sessions): about
+    // $20k and 30B tokens a month at API prices, mostly Opus reading its cache
     private static readonly Kind[] Kinds =
     [
-        new("claude", "claude-opus-5-5", 46, new(1, 6, 640, 58_000, 300, 1_400), (5, 6.25, 10, 0.5, 25),
+        new("claude", "claude-opus-5-5", 450, new(1, 6, 640, 190_000, 300, 1_400), (5, 6.25, 10, 0.5, 25),
             [0, 1], [(TokenEffort.Max, 0.3), (TokenEffort.XHigh, 0.4), (TokenEffort.High, 0.28), (TokenEffort.Unknown, 0.02)]),
-        new("claude", "claude-sonnet-5-5", 18, new(1, 5, 420, 31_000, 200, 900), (3, 3.75, 6, 0.1, 15),
+        new("claude", "claude-sonnet-5-5", 180, new(1, 5, 420, 31_000, 200, 900), (3, 3.75, 6, 0.1, 15),
             [2, 1], [(TokenEffort.High, 0.6), (TokenEffort.Medium, 0.4)]),
-        new("codex", "gpt-6.1-sol", 14, new(1, 2_100, 820, 21_000, 0, 0), (1.25, 0, 0, 0.125, 10),
+        new("codex", "gpt-6.1-sol", 170, new(1, 2_100, 820, 21_000, 0, 0), (1.25, 0, 0, 0.125, 10),
             [3], [(TokenEffort.Medium, 0.8), (TokenEffort.High, 0.2)]),
-        new("codex", "codex-auto-review", 3, new(1, 4_800, 260, 5_200, 0, 0), null,
+        new("codex", "codex-auto-review", 20, new(1, 4_800, 260, 5_200, 0, 0), null,
             [4], []),
     ];
 

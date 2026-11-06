@@ -46,15 +46,28 @@ internal static partial class Captures
         var sw = new SettingsWindow(host) { WindowStartupLocation = WindowStartupLocation.Manual, Left = -32000, Top = -32000, ShowActivated = false, Height = 2300 };
         sw.Show();
         var folders = new (string ko, string en, int[] apps)[] { ("작업", "Work", new[] { 0, 1, 2, 3 }), ("관리", "Manage", new[] { 4, 5 }), ("미디어", "Media", new[] { 6, 7, 3 }), ("도구", "Tools", new[] { 8, 9, 10 }) };
+        // a recording may seed its own folders for the folders shot: qa-folders.json next to state.json, in its shape,
+        // with the folder to open as qaSelect
+        string seeded = Path.Combine(addon.DataDir, "qa-folders.json");
+        var mine = File.Exists(seeded) ? JsonNode.Parse(File.ReadAllText(seeded)) as JsonObject : null;
+        string? pick = mine?["qaSelect"]?.GetValue<string>();
+        mine?.Remove("qaSelect");
+        var others = mine is null ? [] : AddonHub.Listed.ToList(); // a seeded page draws the catalog's add-ons on too
+        foreach (var a in others)
+        {
+            a.QaStatus = new AddonStatus(AddonState.Running);
+            Settings.Current.AddonsOn.Add(a.Id);
+        }
         foreach (string theme in new[] { "light", "dark" })
         {
             Theme.Apply(theme);
             foreach (string name in new[] { "folders", "empty", "running-off", "failed" })
             {
-                File.WriteAllText(stateFile, QaState(name == "empty" ? [] : folders, name != "running-off").ToJsonString());
+                var state = name == "folders" && mine is not null ? mine : QaState(name == "empty" ? [] : folders, name != "running-off");
+                File.WriteAllText(stateFile, state.ToJsonString());
                 values.Set("folders.autoRunning", name != "running-off");
                 values.Flush();
-                sw.TaskbarForQa(name == "running-off" ? TaskbarEditor.Running : null,
+                sw.TaskbarForQa(name == "running-off" ? TaskbarEditor.Running : name == "folders" ? pick : null,
                     name == "failed" ? TaskbarEditor.ErrorText(Tr("이름 바꾸기", "Rename"), "exists") : null);
                 await TaskbarShot(sw, Path.Combine(dir, $"{l}-{theme}-taskbar-{name}.png"));
             }
@@ -64,6 +77,11 @@ internal static partial class Captures
         File.Delete(stateFile);
         addon.QaStatus = null;
         Settings.Current.AddonsOn.Remove(addon.Id);
+        foreach (var a in others)
+        {
+            a.QaStatus = null;
+            Settings.Current.AddonsOn.Remove(a.Id);
+        }
         sw.Close();
     }
 

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Bloom.Ai;
 using Bloom.Core;
 using Bloom.Ui;
@@ -10,8 +11,11 @@ internal sealed partial class Host
 {
     private DemoBackdrop? backdrop;
 
+    /// The recording mode's Claude cards, one per Claude account in turn: percent used of 5 hours, the week and Fable's week.
+    private static readonly (double Hour, double Week, double Fable)[] DemoClaude = { (32, 47, 18), (64, 71, 40), (8, 22, 5) };
+
     /// The apps the recording mode and the README pictures search: the browsers and the tools Windows comes with.
-    public static bool WindowsOwn(Search.AppEntry a) => a.Name is "Google Chrome" or "Microsoft Edge" or "메모장" or "Notepad" or "계산기" or "Calculator" or "그림판" or "Paint" or "캡처 도구" or "Snipping Tool" or "파일 탐색기" or "File Explorer";
+    public static bool WindowsOwn(Search.AppEntry a) => a.Name is "Google Chrome" or "Microsoft Edge" or "Microsoft Store" or "메모장" or "Notepad" or "계산기" or "Calculator" or "그림판" or "Paint" or "캡처 도구" or "Snipping Tool" or "파일 탐색기" or "File Explorer";
 
     /// `--demo` (Core.Demo): the recording mode, set up once the services exist. The settings that would show this PC
     /// go off, a first start's favourites and a few sample clipboard entries come in (only while the data folder has
@@ -35,14 +39,24 @@ internal sealed partial class Host
             Clipboard.Add(new Clip.ClipEntry { Id = "clip:demo2", Kind = "text", Text = "https://github.com", Source = "Google Chrome", Copied = now - (3600_000L * 3) });
             Clipboard.Add(new Clip.ClipEntry { Id = "clip:demo3", Kind = "text", Text = Tr("오늘 저녁 7시에 만나요. 늦으면 연락 주세요.", "See you at 7 tonight. Text me if you're running late."), Source = Tr("메모장", "Notepad"), Copied = now - (60_000L * 12) });
         }
-        static UsageAccount Plan(string name, string plan, double? fiveHour, double week)
+        // one made-up card per account the data folder's settings list (the two defaults on a fresh one), under the
+        // account's own id, so each wears its company's logo and its alias as a signed-in PC's cards do
+        static UsageAccount Plan(AiAccount a, int nth)
         {
-            var limits = new List<UsageLimit>();
-            if (fiveHour is { } h) limits.Add(new UsageLimit(Tr("5시간", "5h"), h, DateTime.Now.AddHours(3).AddMinutes(12)));
-            limits.Add(new UsageLimit(Tr("주간", "Weekly"), week, DateTime.Now.AddDays(4)));
-            return new(name, plan, limits, DateTime.Now);
+            if (a.Kind == "chatgpt") // ChatGPT Pro has a weekly limit only
+                return new("ChatGPT", "Pro 100", new() { new(Tr("주간", "Weekly"), 21 + (nth * 17), DateTime.Now.AddDays(4), UsageLimit.WeekMins) }, DateTime.Now) { Id = a.Id };
+            var (hour, week, fable) = DemoClaude[nth % DemoClaude.Length];
+            string model = "Fable"; // a hole, as ClaudeUsage writes it, so the tables' "{0} weekly" translates it
+            return new("Claude", "Ultra", new()
+            {
+                new(Tr("5시간", "5h"), hour, DateTime.Now.AddHours(3).AddMinutes(12 + (nth * 41)), UsageLimit.SessionMins),
+                new(Tr("주간", "Weekly"), week, DateTime.Now.AddDays(4 - nth), UsageLimit.WeekMins),
+                new(Tr($"{model} 주간", $"{model} weekly"), fable, DateTime.Now.AddDays(4 - nth), UsageLimit.WeekMins, model),
+            }, DateTime.Now)
+            { Id = a.Id };
         }
-        AiUsage.SetForQa(Plan("Claude", "Ultra", 32, 47), Plan("ChatGPT", "Pro 20x", null, 21)); // ChatGPT Pro has a weekly limit only
+        var shown = AiAccounts.All.Where(a => !a.Hidden).ToList();
+        AiUsage.SetForQa(shown.Select(a => Plan(a, shown.Where(o => o.Kind == a.Kind).ToList().IndexOf(a))).ToArray());
         TokenStats.SetForQa(TokenDemo.View);
         if (Opt.CaptureDir is null) // QA pictures are taken off-screen: no backdrop over the user's screen
         {

@@ -335,7 +335,7 @@ internal static partial class Captures
             limits.Add(new UsageLimit(Tr("주간", "Weekly"), week, DateTime.Now.AddDays(4)));
             return new(name, plan, limits, DateTime.Now);
         }
-        AiUsage.SetForQa(Plan("Claude", "Ultra", 32, 47), Plan("ChatGPT", "Pro 20x", null, 21)); // Pro has a weekly limit only
+        if (!Demo.On) AiUsage.SetForQa(Plan("Claude", "Ultra", 32, 47), Plan("ChatGPT", "Pro 20x", null, 21)); // Pro has a weekly limit only; --demo made its own per account
         foreach (string theme in new[] { "dark", "light" })
         {
             Theme.Apply(theme);
