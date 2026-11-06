@@ -101,9 +101,8 @@ internal sealed partial class Host
     private void AiCommandDone(bool ok, string name, string answer, string? thread)
     {
         string head = ok ? Tr("AI 명령 · 완료", "AI command · Done") : Tr("AI 명령 · 실패", "AI command · Failed");
-        NoticeLog.Add(ok, head, name, answer, thread);
         Action? open = thread is null ? null : () => OpenThread(thread);
-        Notices.Result(ok, head, name, NoticeLog.Preview(answer), open is null ? null : Tr("채팅 열기", "Open chat"), open, open);
+        Notices.Result(ok, head, name, NoticeLog.Preview(answer), open is null ? null : Tr("채팅 열기", "Open chat"), open, open, keep: true, thread: thread);
     }
 
     /// 알림 센터's click: the AI chat window on that conversation (a deleted one says so).

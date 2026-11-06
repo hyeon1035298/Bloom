@@ -2665,7 +2665,6 @@ What the AI should do — split steps by >>  e.g. Summarize in 3 lines >> Transl
 Enter what the AI should do	AIにさせることを入力してください
 No notifications	通知なし
 No matching notifications	該当する通知なし
-Give an AI command a schedule; what it does on its own shows here	AIコマンドにスケジュールを設定すると、自動で実行された結果がここにたまります
 {0}/{1} {2:HH:mm}	{0}月{1}日 {2:HH:mm}
 Result	結果
 Copy the preview	プレビューをコピー
@@ -2691,7 +2690,14 @@ Every {0:0} d	{0:0}日ごと
 Every {0:0} h	{0:0}時間ごと
 Every {0:0} min	{0:0}分ごと
 Notification center	通知センター
-What AI commands did on their own · opens their chat	AIコマンドが自動で実行した結果 · クリックでそのチャットへ
 Find a command · scripts, snippets, chains, AI commands	コマンドを探す · スクリプト、スニペット、チェーン、AIコマンド
-Find a notification · Enter opens its chat	通知を検索 · Enterでそのチャットを開く
 Notification center · {0}	通知センター · {0}件
+Waiting for approval	承認待ち
+History	履歴
+Finished tasks, limits, approvals and command results collect here	作業完了 · 上限 · 承認待ち · ユーザーコマンドの結果がここにたまります
+Go to session	セッションへ移動
+Polish the sign-in screen	ログイン画面の調整
+Elapsed: 12 min	所要時間 12分
+Tidy the downloads folder	ダウンロードフォルダーの整理
+Finished tasks, limits, approvals and command results in one place	作業完了 · 上限 · 承認待ち · ユーザーコマンドの結果をひとまとめに
+Find a notification · Enter opens it	通知を検索 · Enterで開く

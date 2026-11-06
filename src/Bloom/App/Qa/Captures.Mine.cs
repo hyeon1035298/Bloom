@@ -62,12 +62,16 @@ internal static partial class Captures
         long now = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
         NoticeLog.Add(false, Tr("AI 명령 · 실패", "AI command · Failed"), daily.Name, Tr("Claude 답변이 없습니다. 다시 시도하세요.", "No answer from Claude. Try again."), null, now - 26 * 3600 * 1000L);
         NoticeLog.Add(true, Tr("AI 명령 · 완료", "AI command · Done"), daily.Name, Tr("**놓치다(miss)** — 버스를 놓쳤어요.\n1. 기차를 놓칠 뻔했어요.\n2. 그 기회는 놓치지 마세요.", "**I'm swamped** — I have too much to do.\n1. I'm swamped this week.\n2. Sorry, I was swamped yesterday."), "qa-none", now - 3600 * 1000L);
+        NoticeLog.Add(true, Tr("Codex · 작업 완료", "Codex · Done"), Tr("로그인 화면 다듬기", "Polish the sign-in screen"), Tr("소요 시간 12분", "Elapsed: 12 min"), null, now - 20 * 60 * 1000L);
+        NoticeLog.Add(false, Tr("Claude · 한도 임박", "Claude · Limit near"), Tr("주간 한도 18% 남음", "18% of the weekly limit left"), Tr("2일 뒤 초기화", "Resets in 2 d"), null, now - 5 * 60 * 1000L);
+        NoticeLog.Wait("qa-wait", Tr("Claude Code · 승인 대기", "Claude Code · Needs approval"), Tr("다운로드 폴더 정리", "Tidy the downloads folder"), Tr("승인 대기", "Approval pending"), null);
         foreach (string theme in new[] { "dark", "light" })
         {
             Theme.Apply(theme);
             await Shot(w, dir, $"{l}-{theme}-m10-inbox", Mode.Inbox, "", 700);
         }
         Theme.Apply("dark");
+        NoticeLog.Settle("qa-wait");
         NoticeLog.Clear();
 
         var sw = new SettingsWindow(host) { WindowStartupLocation = System.Windows.WindowStartupLocation.Manual, Left = -32000, Top = -32000, ShowActivated = false };
