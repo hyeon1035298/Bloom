@@ -146,4 +146,42 @@ internal static class UserAddonTests
             Directory.Delete(root, true);
         }
     }
+
+    /// A widget add-on (not the taskbar one) whose schema has pill.theme gets Bloom's light or dark too, so it looks
+    /// right on Windows' own taskbar without PillTaskbar.
+    public static void ThemeReachesEveryAddon()
+    {
+        string root = Path.Combine(Path.GetTempPath(), "bloom-user-addons-" + Guid.NewGuid().ToString("N"));
+        try
+        {
+            const string schema = """
+                { "groups": [ { "id": "pill", "name": { "ko": "테마", "en": "Theme" }, "items": [
+                  { "key": "pill.theme", "type": "choice", "default": "system", "name": { "ko": "테마", "en": "Theme" },
+                    "options": [ { "value": "system", "name": { "ko": "시스템", "en": "System" } }, { "value": "dark", "name": { "ko": "다크", "en": "Dark" } },
+                      { "value": "light", "name": { "ko": "라이트", "en": "Light" } } ] } ] } ] }
+                """;
+            var m = Manifest("my-widget");
+            Put(root, "my-widget", null);
+            string file = Path.Combine(root, "my-widget", "settings.schema.json");
+            File.WriteAllText(file, schema);
+            m["settings"] = "settings.schema.json";
+            ((JsonObject)m["files"]!)["settings.schema.json"] = AddonStore.Sha256(file);
+            Put(root, "my-widget", m);
+            using (new SettingsTransferTests.DataFolder())
+            {
+                var addon = new Addon("my-widget", new AddonStore(root, Path.Combine(Paths.Local, "addons")), user: true);
+                AddonHub.FollowTheme(addon, true);
+                Check.Eq(addon.Values!.Text("pill.theme"), "dark", "dark");
+                AddonHub.FollowTheme(addon, false);
+                Check.Eq(addon.Values!.Text("pill.theme"), "light", "and light");
+                var bare = new Addon("my-addon", new AddonStore(root, Path.Combine(Paths.Local, "addons")), user: true);
+                AddonHub.FollowTheme(bare, true); // no schema: nothing to write, nothing thrown
+                Check.True(bare.Values is null, "an add-on without the key is left alone");
+            }
+        }
+        finally
+        {
+            Directory.Delete(root, true);
+        }
+    }
 }

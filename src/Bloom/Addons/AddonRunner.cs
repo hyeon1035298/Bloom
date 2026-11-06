@@ -107,7 +107,8 @@ internal sealed class AddonRunner : IDisposable
             var psi = new ProcessStartInfo(exe) { UseShellExecute = false, CreateNoWindow = true, WorkingDirectory = Path.GetDirectoryName(exe)! };
             foreach (string a in lead) psi.ArgumentList.Add(a);
             foreach (string a in Arguments(Environment.ProcessId, Environment.ProcessPath ?? "", Paths.Local, resetSafeMode)) psi.ArgumentList.Add(a);
-            var p = Ai.ChildProcess.Spawn(psi) ?? throw new InvalidOperationException("not started");
+            // under the shell, so Task Manager shows the host as a program of its own and not inside Bloom's memory and CPU
+            var p = ShellChild.Start(exe, psi.ArgumentList, psi.WorkingDirectory) ?? Ai.ChildProcess.Spawn(psi) ?? throw new InvalidOperationException("not started");
             Spawns++;
             process = p;
             p.EnableRaisingEvents = true; // an exit before this line is still raised
