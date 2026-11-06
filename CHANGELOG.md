@@ -2,7 +2,7 @@
 
 Each release on GitHub shows its section from this file (the workflow looks for `## <version>`).
 
-## 0.19.0
+## 0.19.1
 
 - Taskbar add-on: PillTaskbar turns the Windows taskbar into a centred pill. It is a separate program under GPL-3.0 with its own source repository, and the installer doesn't carry it: Settings › Add-ons downloads it with one button from its GitHub release, shows the progress, and installs it only when the zip has the SHA-256 this Bloom pins and every file matches its addon.json. A failed download leaves nothing behind and says why, with Try again. When a newer Bloom pins a newer PillTaskbar, the same line offers Update. Bloom only starts it and talks to it through files, and none of its code is in Bloom, which stays MIT. It is off at first, and downloading it doesn't turn it on. The first switch-on says what it does, and its first start downloads the taskbar's symbol files (about 70 MB) from the Microsoft symbol server. If Windhawk's own pill-taskbar mod is running, the status line says so and what to do.
 - Alt+Tab per monitor add-on: with more than one monitor, Alt+Tab opens on the monitor under the mouse cursor and lists only the windows on that monitor, and Win+Alt+Tab does the same. It is the Windhawk mod Alt+Tab per monitor running without Windhawk, a separate program under GPL-3.0 with its own source repository. Settings › Add-ons downloads it with one button and checks it the same way as the taskbar add-on, and it is off at first. If the same mod is on in Windhawk, the status line says so.
@@ -15,6 +15,8 @@ Each release on GitHub shows its section from this file (the workflow looks for 
 - New look: zinc greys, with the accent colour only on what is on, smooth (G2) corners, and settings rows without icons, with new switches, buttons and key caps.
 - Settings: twelve pages, among them Shortcuts and Data (see and delete what Bloom keeps on this PC, or reset it all). The accent colour can be any colour from a picker that shows its contrast in the dark and light themes.
 - Home: an AI usage card shows its plan as a badge, and Sign in again when its sign-in has run out.
+- Home: the AI usage cards and the token tiles are plain fills without an outline, and the calendar shows today by its filled cell alone.
+- Tool windows attached to the launcher keep their glass together with the launcher while the focus moves between them. Before, the one without the focus turned flat.
 - Mark: Bloom's flower is now a cherry blossom with five broad notched petals, which stays one shape down to 16 px in the tray.
 - Settings › About: a License line says Bloom is MIT and that the taskbar add-on is a separate GPL-3.0 program, with a button to its source.
 
@@ -31,6 +33,8 @@ Each release on GitHub shows its section from this file (the workflow looks for 
 - 새 모양: 아연 회색에 강조색은 켜진 것에만 쓰고, 모서리는 매끈한 G2로, 설정 줄은 아이콘 없이 새 스위치·단추·키로 바꿨습니다.
 - 설정: 12쪽으로 정리하고 단축키와 데이터 페이지를 더했습니다. 데이터에서는 Bloom이 이 PC에 저장한 것을 보고 지우거나 모두 초기화합니다. 강조색은 색 고르기 창에서 아무 색이나 고르고, 다크와 라이트에서의 대비를 함께 봅니다.
 - 홈: AI 사용량 카드에 요금제 배지가 붙고, 로그인이 끊기면 다시 로그인 단추가 나옵니다.
+- 홈: AI 사용량 카드와 토큰 타일은 테두리 없이 채움만 쓰고, 달력의 오늘은 채운 칸으로만 보여 줍니다.
+- 런처에 붙여 둔 도구 창은 포커스가 런처와 도구 사이를 오가도 런처와 함께 유리 모양을 유지합니다. 전에는 포커스가 없는 쪽이 밋밋하게 바뀌었습니다.
 - 마크: Bloom의 꽃이 끝이 파인 넓은 꽃잎 다섯 장의 벚꽃이 되어, 트레이의 16 px에서도 한 모양으로 보입니다.
 - 설정 › 정보: 라이선스 줄에 Bloom은 MIT이고 작업표시줄 애드온은 GPL-3.0인 별도 프로그램이라고 적고, 소스로 가는 단추를 둡니다.
 
