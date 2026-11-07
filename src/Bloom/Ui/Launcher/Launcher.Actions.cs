@@ -264,4 +264,7 @@ internal sealed partial class Launcher
     public void ActionsClosed() => FocusBox();
 
     public void CloseActionsForQa() => actions.Close();
+
+    /// QA (popup-perf): a key as the open panel takes it.
+    public bool ActionKeyForQa(System.Windows.Input.Key key) => actions.HandleKey(key);
 }

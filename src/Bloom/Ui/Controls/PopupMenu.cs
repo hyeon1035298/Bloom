@@ -3,7 +3,6 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
-using System.Windows.Media;
 using Bloom.Search;
 
 namespace Bloom.Ui;
@@ -33,8 +32,8 @@ internal sealed class PopupMenu
             MinWidth = 220,
             Margin = new Thickness(14, 4, 14, 20), // room for the shadow inside the popup
             Child = list,
-            Effect = new System.Windows.Media.Effects.DropShadowEffect { BlurRadius = 26, ShadowDepth = 6, Direction = 270, Opacity = 0.3, Color = Colors.Black },
         };
+        card.LiftMenu();
         card.LayoutTransform = Theme.Zoom; // a popup is a window of its own: Bloom's scale reaches it this way
         popup = new Popup { Child = card, AllowsTransparency = true, StaysOpen = false, PopupAnimation = PopupAnimation.None };
     }

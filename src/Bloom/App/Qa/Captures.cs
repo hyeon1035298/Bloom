@@ -65,6 +65,7 @@ internal static partial class Captures
         ["omp-missing"] = OmpMissingScreens,
         ["palette"] = PaletteScreens,
         ["palette-perf"] = PalettePerf,
+        ["popup-perf"] = PopupPerf,
         ["ram-copies"] = RamCopies,
         ["providers"] = ProviderScreens,
         ["tokens"] = TokenScreens,
