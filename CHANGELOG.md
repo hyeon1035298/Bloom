@@ -16,6 +16,10 @@ Each release on GitHub shows its section from this file (the workflow looks for 
 
 - Monitor Brightness add-on: a monitor next to the clock shows the brightness. One slider moves every monitor, and the wheel over the icon changes it too.
 
+[![With the cup off, ten minutes without input turn the screen off; with the cup on for an hour, the same ten minutes leave it on](https://raw.githubusercontent.com/hyeon1035298/Bloom/main/docs/media/whatsnew/1.0.0/coffee-en.webp)](bloom://settings/addon:keep-awake)
+
+- Coffee add-on: a coffee cup next to the clock keeps the computer and the screen awake, until turned off or for a set time. Right-click the cup to turn it on or off.
+
 [![Alt+Tab opens on the monitor with the cursor and lists only its windows](https://raw.githubusercontent.com/hyeon1035298/Bloom/main/docs/media/whatsnew/1.0.0/alttab.webp)](bloom://settings/addon:alt-tab-per-monitor)
 
 - Alt+Tab per monitor add-on: Alt+Tab opens on the monitor under the cursor, with only that monitor's windows.
@@ -39,6 +43,10 @@ Each release on GitHub shows its section from this file (the workflow looks for 
 [![시계 옆 모니터를 누르면 창이 열리고, 슬라이더 하나로 두 모니터가 함께 밝아지며, 휠로 다시 어둡게 합니다](https://raw.githubusercontent.com/hyeon1035298/Bloom/main/docs/media/whatsnew/1.0.0/brightness-ko.webp)](bloom://settings/addon:brightness)
 
 - 모니터 밝기 애드온: 시계 옆 모니터 모양에 밝기가 나옵니다. 슬라이더 하나로 모든 모니터를 함께 바꾸고, 아이콘 위에서 휠을 돌려도 바뀝니다.
+
+[![커피가 꺼져 있으면 입력 없이 10분 뒤 화면이 꺼지고, 커피를 1시간 켜 두면 같은 10분이 지나도 화면이 켜져 있습니다](https://raw.githubusercontent.com/hyeon1035298/Bloom/main/docs/media/whatsnew/1.0.0/coffee-ko.webp)](bloom://settings/addon:keep-awake)
+
+- 커피 애드온: 시계 옆 커피잔으로 PC와 화면이 잠들지 않게 합니다. 끌 때까지나 정한 시간 동안 깨어 있고, 컵을 오른쪽 클릭하면 켜고 끕니다.
 
 [![커서가 있는 모니터에 Alt+Tab이 뜨고 그 모니터의 창만 보입니다](https://raw.githubusercontent.com/hyeon1035298/Bloom/main/docs/media/whatsnew/1.0.0/alttab.webp)](bloom://settings/addon:alt-tab-per-monitor)
 

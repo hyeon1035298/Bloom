@@ -10,4 +10,5 @@ node "$here/capture.mjs" alttab "$out/alttab.webp"
 for lang in ko en; do
   node "$here/capture.mjs" memory "$out/memory-$lang.webp" --lang $lang
   node "$here/capture.mjs" brightness "$out/brightness-$lang.webp" --lang $lang
+  node "$here/capture.mjs" coffee "$out/coffee-$lang.webp" --lang $lang
 done

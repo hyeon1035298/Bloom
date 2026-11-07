@@ -21,6 +21,48 @@
         "ja": "Alt+Tab にカーソルのあるモニターのウィンドウだけが表示されます",
         "zh": "Alt+Tab 只显示光标所在显示器上的窗口"
       }
+    },
+    {
+      "id": "memory-clean",
+      "version": "0.1.4",
+      "url": "https://github.com/hyeon1035298/MemoryClean_BloomAddon/releases/download/v0.1.4/MemoryClean_BloomAddon-v0.1.4.zip",
+      "sha256": "68768b43cacb9771b09081c5c9d63d8bad7f84e19b815a6f5cbf0feca127d6a3",
+      "size": 1016189,
+      "name": { "ko": "메모리 정리", "en": "Memory Clean", "ja": "メモリ整理", "zh": "内存清理" },
+      "about": {
+        "ko": "작업표시줄 시계 옆에서 메모리 사용률을 보고 비우고, 프로그램을 끝냅니다",
+        "en": "Shows memory use next to the taskbar clock, frees memory and ends programs",
+        "ja": "タスクバーの時計の横でメモリ使用率を表示し、メモリを空けて、プログラムを終了します",
+        "zh": "在任务栏时钟旁显示内存使用率，释放内存并结束程序"
+      }
+    },
+    {
+      "id": "brightness",
+      "version": "0.1.3",
+      "url": "https://github.com/hyeon1035298/MonitorBrightness_BloomAddon/releases/download/v0.1.3/MonitorBrightness_BloomAddon-v0.1.3.zip",
+      "sha256": "e989d22711f9da238c54cb7837b16d379447e5b1e4a68a706a9a21d9b895cebc",
+      "size": 897904,
+      "name": { "ko": "모니터 밝기 조정", "en": "Monitor Brightness", "ja": "モニターの明るさ調整", "zh": "显示器亮度调节" },
+      "about": {
+        "ko": "작업표시줄에서 모니터마다 밝기를 맞추고, 단축키와 유휴 시 어둡게를 씁니다",
+        "en": "Sets each monitor's brightness from the taskbar, with hotkeys and dimming when idle",
+        "ja": "タスクバーからモニターごとに明るさを合わせ、ショートカットと待機時の減光も使えます",
+        "zh": "在任务栏为每台显示器调节亮度，支持快捷键和空闲时调暗"
+      }
+    },
+    {
+      "id": "keep-awake",
+      "version": "0.1.4",
+      "url": "https://github.com/hyeon1035298/KeepAwake_BloomAddon/releases/download/v0.1.4/KeepAwake_BloomAddon-v0.1.4.zip",
+      "sha256": "41160a9c357c02ef1b5174bced5789c2f431edadfa0ca65e5a8cf1649ab77e5e",
+      "size": 831773,
+      "name": { "ko": "커피", "en": "Coffee", "ja": "コーヒー", "zh": "咖啡" },
+      "about": {
+        "ko": "작업표시줄의 커피잔을 눌러 PC와 화면이 잠들지 않게 붙잡아 둡니다",
+        "en": "A coffee cup on the taskbar keeps the computer and the screen awake",
+        "ja": "タスクバーのコーヒーカップで PC と画面がスリープしないように保ちます",
+        "zh": "任务栏上的咖啡杯让电脑和屏幕保持唤醒"
+      }
     }
   ]
 }
