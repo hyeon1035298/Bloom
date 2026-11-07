@@ -8,24 +8,25 @@ using Bloom.Core;
 
 namespace Bloom.Addons;
 
-/// The add-ons this Bloom can download (addons\catalog.json, built into Bloom.dll): for each its id, version, the
-/// address of its release zip and that zip's SHA-256. Never fetched at run time, so the only code that can reach
-/// explorer through a download is the zip whose hash this build pins.
+/// The add-ons this Bloom can download (addons\catalog.json, built into Bloom.dll): for each its id, the GitHub repository
+/// whose latest release it is downloaded from (AddonLatest), and the oldest version it may be. The release itself is not
+/// pinned here, so a new release of an add-on reaches Bloom without a new Bloom.
 internal static class AddonCatalog
 {
-    /// One add-on's release. `Size`: the zip's length in bytes, 0 while not known. `Names`, `Abouts`: its name and a line
-    /// about it by language, which the page shows before and after its addon.json is here (in Bloom's languages).
-    internal sealed record Entry(string Id, string Version, string Url, string Sha256, long Size,
+    /// One add-on. `Repo`: owner/name on GitHub. `MinVersion`: a release before it is never taken (an older release served
+    /// as the latest can't take the add-on back below it). `Names`, `Abouts`: its name and a line about it by language,
+    /// which the page shows before and after its addon.json is here (in Bloom's languages).
+    internal sealed record Entry(string Id, string Repo, string MinVersion,
         IReadOnlyDictionary<string, string>? Names = null, IReadOnlyDictionary<string, string>? Abouts = null)
     {
-        /// Downloadable: its hash is filled in (an entry without one waits for its release).
-        public bool Offered => Sha256.Length == 64;
-
         /// Its name in a language: that language's, else the English one; null when the catalog names it in neither.
         public string? Title(string lang) => AddonManifest.Pick(Names, lang);
 
         /// What it does, in a language; empty when the catalog says nothing.
         public string About(string lang) => AddonManifest.Pick(Abouts, lang) ?? "";
+
+        /// Its repository's page.
+        public string Page => "https://github.com/" + Repo;
     }
 
     /// The longest line about an add-on.
@@ -36,8 +37,8 @@ internal static class AddonCatalog
     /// The catalog built into this Bloom (read once; empty when it can't be read).
     public static IReadOnlyList<Entry> BuiltIn => builtIn ??= Load();
 
-    /// The entry for an add-on when it can be downloaded; null otherwise.
-    public static Entry? Find(string id) => BuiltIn.FirstOrDefault(e => e.Id == id && e.Offered);
+    /// The entry for an add-on; null when the catalog doesn't have it.
+    public static Entry? Find(string id) => BuiltIn.FirstOrDefault(e => e.Id == id);
 
     private static IReadOnlyList<Entry> Load()
     {
@@ -55,9 +56,18 @@ internal static class AddonCatalog
         }
     }
 
-    /// {"addons": [{id, version, url, sha256, size?, name?, about?}]}, name and about as {"ko": …, "en": …}. An entry with
-    /// a wrong field is left out (logged); an empty sha256 is kept, as an entry that is not offered. InvalidDataException
-    /// when the file itself isn't such a list.
+    /// owner/name as GitHub allows them: letters, digits, '-' (the owner), also '.' and '_' (the name).
+    public static bool IsRepo(string repo)
+    {
+        int slash = repo.IndexOf('/');
+        if (slash <= 0 || slash != repo.LastIndexOf('/') || repo.Length > 140) return false;
+        string owner = repo[..slash], name = repo[(slash + 1)..];
+        return owner.All(c => char.IsAsciiLetterOrDigit(c) || c == '-')
+            && name.Length > 0 && name.Trim('.').Length > 0 && name.All(c => char.IsAsciiLetterOrDigit(c) || c is '-' or '.' or '_');
+    }
+
+    /// {"addons": [{id, repo, minVersion, name?, about?}]}, name and about as {"ko": …, "en": …}. An entry with a wrong field
+    /// is left out (logged). InvalidDataException when the file itself isn't such a list.
     public static IReadOnlyList<Entry> Parse(string json)
     {
         JsonArray list;
@@ -73,18 +83,14 @@ internal static class AddonCatalog
         foreach (var node in list)
         {
             if (node is not JsonObject o) continue;
-            string id = Text(o, "id"), version = Text(o, "version"), url = Text(o, "url"), sha = Text(o, "sha256").ToLowerInvariant();
-            long size = o["size"] is JsonValue sv && sv.TryGetValue(out long n) && n > 0 ? n : 0;
-            bool ok = AddonManifest.IsId(id) && AddonManifest.IsVersion(version)
-                && Uri.TryCreate(url, UriKind.Absolute, out var u) && u.Scheme == Uri.UriSchemeHttps
-                && (sha.Length == 0 || sha.Length == 64 && sha.All(char.IsAsciiHexDigit));
+            string id = Text(o, "id"), repo = Text(o, "repo"), min = Text(o, "minVersion");
+            bool ok = AddonManifest.IsId(id) && IsRepo(repo) && AddonManifest.IsVersion(min);
             if (!ok || entries.Any(e => e.Id == id))
             {
                 Log.Write($"add-on catalog: entry «{id}» left out");
                 continue;
             }
-            entries.Add(new Entry(id, version, url, sha, size,
-                AddonManifest.LangTexts(o["name"], AddonManifest.MaxName), AddonManifest.LangTexts(o["about"], MaxAbout)));
+            entries.Add(new Entry(id, repo, min, AddonManifest.LangTexts(o["name"], AddonManifest.MaxName), AddonManifest.LangTexts(o["about"], MaxAbout)));
         }
         return entries;
     }
