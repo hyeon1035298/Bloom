@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
@@ -8,21 +9,25 @@ using Bloom.Core;
 
 namespace Bloom.Addons;
 
-/// A text an add-on ships in Korean and English; the other languages Bloom speaks take Bloom's own translation of the
-/// English one when its table has it ("Taskbar folders"), else show the English.
-internal sealed record AddonText(string Ko, string En)
+/// A text an add-on ships in Korean and English, and in Japanese and Chinese when it has them; a language it lacks takes
+/// Bloom's own translation of the English one when its table has it ("Taskbar folders"), else shows the English.
+internal sealed record AddonText(string Ko, string En, string? Ja = null, string? Zh = null)
 {
     public string Shown => Lang.Code switch
     {
         "ko" => Ko,
         "en" => En,
+        "ja" when Ja is not null => Ja,
+        "zh" when Zh is not null => Zh,
         _ => Lang.Find(En) ?? En,
     };
 
     public static AddonText? Of(JsonNode? node) =>
-        node is JsonObject o && o["en"] is JsonValue en && en.TryGetValue(out string? e) && e.Length > 0
-            ? new AddonText(o["ko"] is JsonValue ko && ko.TryGetValue(out string? k) && k.Length > 0 ? k : e, e)
+        node is JsonObject o && Text(o, "en") is { } e
+            ? new AddonText(Text(o, "ko") ?? e, e, Text(o, "ja"), Text(o, "zh"))
             : null;
+
+    private static string? Text(JsonObject o, string code) => o[code] is JsonValue v && v.TryGetValue(out string? s) && s.Length > 0 ? s : null;
 }
 
 internal sealed record AddonOption(string Value, AddonText Name);
@@ -31,12 +36,32 @@ internal sealed record AddonOption(string Value, AddonText Name);
 /// range for a number and options for a choice.
 internal sealed record AddonSetting(string Key, string Type, JsonNode Default, int? Min, int? Max, IReadOnlyList<AddonOption> Options, AddonText Name, AddonText? About)
 {
-    /// The number's unit when the name ends with it ("Icon size (px)"): the slider shows it with the value instead.
+    /// Where the value lives when not in values.json: a JSON file in the add-on's data folder that the add-on writes too
+    /// (its window's own settings), and the top-level field in it.
+    public string? File { get; init; }
+    public string? Field { get; init; }
+
+    /// A choice whose options are numbers (written as numbers).
+    public bool Numeric { get; init; }
+
+    /// What a list's entries end with (".exe"; kept lower-case), and the record field that names a record on its line.
+    public string? Suffix { get; init; }
+    public string? Label { get; init; }
+
+    /// A record's fields (records only).
+    public IReadOnlyList<AddonSetting> Fields { get; init; } = [];
+
+    private static readonly string[] Units = ["px", "%", "ms", "s", "min", "초", "분"];
+
+    /// The number's unit when the name ends with it ("Icon size (px)", "간격(분)"): the slider shows it with the value instead.
     public (string name, string unit) Split()
     {
         string n = Name.Shown;
-        foreach (string u in new[] { "px", "%", "ms" })
+        foreach (string u in Units)
+        {
             if (n.EndsWith($" ({u})", StringComparison.Ordinal)) return (n[..^(u.Length + 3)], u);
+            if (n.EndsWith($"({u})", StringComparison.Ordinal)) return (n[..^(u.Length + 2)].TrimEnd(), u);
+        }
         return (n, "");
     }
 }
@@ -112,7 +137,10 @@ internal sealed class AddonSchema
         return new AddonSchema(list);
     }
 
-    private static AddonSetting Setting(JsonObject i)
+    /// Files a setting can't live in: the runtime's values and the host's and runtime's own.
+    private static readonly string[] Reserved = [AddonProtocol.ValuesFile, AddonProtocol.HostStateFile, AddonProtocol.RuntimeStateFile, AddonProtocol.StateFile];
+
+    private static AddonSetting Setting(JsonObject i, bool inRecord = false)
     {
         string key = Str(i, "key") ?? throw Bad("a setting without a key");
         string type = Str(i, "type") ?? "";
@@ -120,6 +148,20 @@ internal sealed class AddonSchema
         var def = i["default"]?.DeepClone() ?? throw Bad($"{key}: no default");
         int? min = Int(i["min"]), max = Int(i["max"]);
         var options = new List<AddonOption>();
+        string? file = Str(i, "file"), field = Str(i, "field");
+        if (file is not null || field is not null)
+        {
+            if (inRecord) throw Bad($"{key}: a record's field with a file");
+            if (file is null || field is not { Length: > 0 }) throw Bad($"{key}: a file needs a field, a field a file");
+            if (file != Path.GetFileName(file) || !file.EndsWith(".json", StringComparison.OrdinalIgnoreCase) || file.StartsWith('.')
+                || Reserved.Contains(file, StringComparer.OrdinalIgnoreCase))
+                throw Bad($"{key}: file «{file}»");
+        }
+        if (inRecord && type is not ("int" or "bool")) throw Bad($"{key}: a record's field is a number or a switch");
+        if (type is "flags" or "list" or "hotkey" or "records" && file is null) throw Bad($"{key}: kind «{type}» needs a file");
+        bool numeric = false;
+        string? suffix = null, label = null;
+        var fields = new List<AddonSetting>();
         switch (type)
         {
             case "bool":
@@ -130,9 +172,35 @@ internal sealed class AddonSchema
                 if (min > max || d < min || d > max) throw Bad($"{key}: default outside its range");
                 break;
             case "choice":
+                numeric = Int(def) is not null;
+                if (numeric && file is null) throw Bad($"{key}: numbered options need a file");
                 foreach (var o in (i["options"] as JsonArray ?? throw Bad($"{key}: no options")).OfType<JsonObject>())
-                    options.Add(new AddonOption(Str(o, "value") ?? throw Bad($"{key}: an option without a value"), AddonText.Of(o["name"]) ?? throw Bad($"{key}: an option without a name")));
-                if (options.Count == 0 || !options.Any(o => o.Value == Str(i, "default"))) throw Bad($"{key}: default is not one of its options");
+                    options.Add(new AddonOption(OptionValue(o, numeric) ?? throw Bad($"{key}: an option without a value"), AddonText.Of(o["name"]) ?? throw Bad($"{key}: an option without a name")));
+                string? shown = numeric ? Int(def)?.ToString(CultureInfo.InvariantCulture) : Str(i, "default");
+                if (options.Count == 0 || !options.Any(o => o.Value == shown)) throw Bad($"{key}: default is not one of its options");
+                break;
+            case "flags":
+                if (Int(def) is null) throw Bad($"{key}: default is not a number");
+                foreach (var o in (i["options"] as JsonArray ?? throw Bad($"{key}: no options")).OfType<JsonObject>())
+                {
+                    if (Int(o["value"]) is not (> 0 and var bit)) throw Bad($"{key}: an option's bit");
+                    options.Add(new AddonOption(bit.ToString(CultureInfo.InvariantCulture), AddonText.Of(o["name"]) ?? throw Bad($"{key}: an option without a name")));
+                }
+                if (options.Count == 0) throw Bad($"{key}: no options");
+                break;
+            case "list":
+                if (def is not JsonArray a || a.Any(e => e is not JsonValue v || !v.TryGetValue(out string? _))) throw Bad($"{key}: default is not a list of text");
+                suffix = Str(i, "suffix");
+                break;
+            case "hotkey":
+                if (def is not JsonObject h || Int(h["mods"]) is null || Int(h["vk"]) is null) throw Bad($"{key}: default is not a key");
+                break;
+            case "records":
+                if (def is not JsonObject) throw Bad($"{key}: default is not an object");
+                label = Str(i, "label");
+                foreach (var f in (i["fields"] as JsonArray ?? throw Bad($"{key}: no fields")).OfType<JsonObject>())
+                    fields.Add(Setting(f, true));
+                if (fields.Count == 0) throw Bad($"{key}: no fields");
                 break;
             case "text":
                 if (Str(i, "default") is null && def.GetValueKind() != JsonValueKind.String) throw Bad($"{key}: default is not text");
@@ -140,8 +208,20 @@ internal sealed class AddonSchema
             default:
                 throw Bad($"{key}: kind «{type}»");
         }
-        return new AddonSetting(key, type, def, min, max, options, name, AddonText.Of(i["about"]));
+        return new AddonSetting(key, type, def, min, max, options, name, AddonText.Of(i["about"]))
+        {
+            File = file,
+            Field = field,
+            Numeric = numeric,
+            Suffix = suffix,
+            Label = label,
+            Fields = fields,
+        };
     }
+
+    /// An option's value as text: a numbered choice's in invariant digits.
+    private static string? OptionValue(JsonObject o, bool numeric) =>
+        numeric ? Int(o["value"])?.ToString(CultureInfo.InvariantCulture) : Str(o, "value");
 
     internal static int? Int(JsonNode? n) => n is JsonValue v && v.TryGetValue(out int x) ? x : n is JsonValue d && d.TryGetValue(out double y) && y == Math.Floor(y) ? (int)y : null;
 

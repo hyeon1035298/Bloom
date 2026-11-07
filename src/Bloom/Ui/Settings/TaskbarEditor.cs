@@ -107,7 +107,8 @@ internal sealed class TaskbarEditor : Border
 
     private FrameworkElement FolderIcon(string? name, double size)
     {
-        if (name == Running) return Icons.Tile(G.Clock, false, size);
+        // the add-on's clock tile in this theme's look: silver on a dark taskbar
+        if (name == Running) return new Image { Source = FolderIconSet.Clock(Theme.P.Dark), Width = size, Height = size, VerticalAlignment = VerticalAlignment.Center };
         var f = name is null ? null : state?.Items.GetValueOrDefault(name);
         if (f?.Icon is { Kind: "file", Path: { Length: > 0 } p }) return Icons.Build(IconSpec.Shell(p), size);
         // 앱 모음: the first four apps together on one tile, as the mod draws it
@@ -402,8 +403,9 @@ internal sealed class TaskbarEditor : Border
         {
             if (v.Length > 0 && v != folder) Send(TaskbarCommands.Rename(folder, v), Tr("이름 바꾸기", "Rename"), v);
         };
-        var iconButton = ToolUi.TextButton(Tr("아이콘 바꾸기", "Change icon"), () => { });
-        iconButton.MouseLeftButtonUp += (_, _) => IconPopup(folder, iconButton);
+        // the button's own click marks the press handled, so the popup opens from it (a second handler never hears it)
+        SmoothBorder? iconButton = null;
+        iconButton = ToolUi.TextButton(Tr("아이콘 바꾸기", "Change icon"), () => IconPopup(folder, iconButton!));
         sp.Children.Add(Head(FolderIcon(folder, 48), name, iconButton));
         sp.Children.Add(SubLine(Tr($"안의 앱 {f.Apps.Count}개", $"{f.Apps.Count} apps inside"), Tr("끌어서 순서를 바꿉니다", "Drag to reorder")));
         var apps = new WrapPanel();
@@ -702,12 +704,13 @@ internal sealed class TaskbarEditor : Border
         search.Focus();
     }
 
-    /// 아이콘 바꾸기: 앱 모음 (the apps drawn together), 기호 (a symbol on a light or dark tile, made into an .ico here),
-    /// 파일 (an .ico, .png, .exe or .dll of the user's).
+    /// 아이콘 바꾸기: 앱 모음 (the apps drawn together), 아이콘 (the set, in the look of Bloom's theme here and in both
+    /// looks on the taskbar), 기호 (a symbol on a light or dark tile, made into an .ico here), 파일 (an .ico, .png, .exe or
+    /// .dll of the user's).
     private void IconPopup(string folder, FrameworkElement under)
     {
         var (popup, body) = Pop(under, 330);
-        var tabs = new Segmented(new[] { ("auto", Tr("앱 모음", "Apps")), ("glyph", Tr("기호", "Symbol")), ("file", Tr("파일", "File")) }, edit.IconTab) { HorizontalAlignment = HorizontalAlignment.Left };
+        var tabs = new Segmented(new[] { ("auto", Tr("앱 모음", "Apps")), ("set", Tr("아이콘", "Icons")), ("glyph", Tr("기호", "Symbol")), ("file", Tr("파일", "File")) }, edit.IconTab) { HorizontalAlignment = HorizontalAlignment.Left };
         body.Children.Add(tabs);
         var inner = new StackPanel { Margin = new Thickness(0, 12, 0, 0) };
         body.Children.Add(inner);
@@ -727,6 +730,26 @@ internal sealed class TaskbarEditor : Border
                     use.HorizontalAlignment = HorizontalAlignment.Left;
                     use.Margin = new Thickness(0, 10, 0, 0);
                     inner.Children.Add(use);
+                    break;
+                case "set":
+                    var set = new WrapPanel();
+                    foreach (string name in FolderIconSet.Names)
+                    {
+                        // the look this theme's taskbar gets: silver on a dark one
+                        var b = new Border { Width = 40, Height = 40, Margin = new Thickness(0, 0, 4, 4), Background = Brushes.Transparent, Cursor = Cursors.Hand, Child = new Image { Source = FolderIconSet.Image(name, Theme.P.Dark), Width = 38, Height = 38 } };
+                        string picked = name;
+                        b.MouseLeftButtonUp += (_, e) =>
+                        {
+                            popup.IsOpen = false;
+                            UseSet(folder, picked);
+                            e.Handled = true;
+                        };
+                        set.Children.Add(b);
+                    }
+                    inner.Children.Add(set);
+                    var s = Faint(Tr("작업표시줄 테마에 따라 밝은 판과 어두운 판이 바뀝니다.", "Switches between its light and dark look with the taskbar's theme."));
+                    s.Margin = new Thickness(0, 6, 0, 0);
+                    inner.Children.Add(s);
                     break;
                 case "glyph":
                     var grid = new WrapPanel();
@@ -773,6 +796,21 @@ internal sealed class TaskbarEditor : Border
     }
 
     private string IconDir => Path.Combine(addon.DataDir, "icons");
+
+    /// Both looks of the set's icon `name`: silver for a dark taskbar, graphite for a light one.
+    private void UseSet(string folder, string name)
+    {
+        try
+        {
+            string dark = IconFile.Save(IconDir, "set", IconFile.SetIcon(name, true));
+            string light = IconFile.Save(IconDir, "set", IconFile.SetIcon(name, false));
+            Send(TaskbarCommands.IconThemed(folder, dark, light), Tr("아이콘 바꾸기", "Change icon"), folder);
+        }
+        catch (Exception e) when (e is IOException or UnauthorizedAccessException)
+        {
+            Fail(Tr("아이콘 바꾸기", "Change icon"), "failed", e);
+        }
+    }
 
     private void UseGlyph(string folder, char glyph)
     {

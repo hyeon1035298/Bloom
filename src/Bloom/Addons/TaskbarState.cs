@@ -122,6 +122,8 @@ internal sealed class TaskbarCommands
     public static (string, JsonObject) Rename(string folder, string name) => ("rename", new() { ["folder"] = folder, ["name"] = name });
     public static (string, JsonObject) IconAuto(string folder) => ("icon", new() { ["folder"] = folder, ["kind"] = "auto" });
     public static (string, JsonObject) IconFile(string folder, string path, int index) => ("icon", new() { ["folder"] = folder, ["kind"] = "file", ["path"] = path, ["index"] = index });
+    /// An icon in two looks: `dark` for a dark taskbar, `light` for a light one; the mod switches them with its theme.
+    public static (string, JsonObject) IconThemed(string folder, string dark, string light) => ("icon", new() { ["folder"] = folder, ["kind"] = "themed", ["dark"] = dark, ["light"] = light });
     public static (string, JsonObject) Add(string folder, string app) => ("add", new() { ["folder"] = folder, ["app"] = app });
     public static (string, JsonObject) TakeOut(string folder, string item) => ("takeOut", new() { ["folder"] = folder, ["item"] = item });
     public static (string, JsonObject) Order(string folder, IEnumerable<string> names) => ("order", new() { ["folder"] = folder, ["names"] = Strings(names) });

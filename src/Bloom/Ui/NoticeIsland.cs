@@ -44,6 +44,14 @@ internal static class NoticeIsland
         return box is { } r ? new Rect(r.X * s, r.Y * s, r.Width * s, r.Height * s) : null;
     }
 
+    /// The island window on `monitor`, zero when there is none (or in QA). Its window spans the taskbar pill the island
+    /// opens into.
+    public static IntPtr WindowOn(IntPtr monitor)
+    {
+        var info = new Win32.MONITORINFO { cbSize = Marshal.SizeOf<Win32.MONITORINFO>() };
+        return Fake is null && Win32.GetMonitorInfo(monitor, ref info) ? Search(info.rcMonitor) : IntPtr.Zero;
+    }
+
     /// The island and the taskbar as they show now. `search`: look through the windows for the island (once a second);
     /// else the window found last is read again (every frame while the taskbar moves).
     public static Above Look(bool search)

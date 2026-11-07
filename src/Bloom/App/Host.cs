@@ -261,7 +261,7 @@ internal sealed partial class Host
     public void ShowWhatsNew(bool quiet = false)
     {
         string v = ReleaseNotes.Current;
-        var w = new WhatsNewWindow(v, ReleaseNotes.For(v) ?? Tr("이번 버전의 변경 기록 없음", "No release notes for this version")) { ShowActivated = !quiet };
+        var w = new WhatsNewWindow(v, ReleaseNotes.For(v) ?? Tr("이번 버전의 변경 기록 없음", "No release notes for this version"), OpenSettings) { ShowActivated = !quiet };
         w.Closed += (_, _) => Window.TrimSoon();
         w.Show();
     }

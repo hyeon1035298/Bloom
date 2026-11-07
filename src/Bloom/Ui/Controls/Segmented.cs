@@ -26,6 +26,7 @@ internal sealed class Segmented : SmoothBorder
         foreach (var (v, label) in options)
         {
             var t = Theme.Label(label, 12, Theme.P.TextFaint, Theme.Medium, inBorder: true);
+            if (t is InkText ink) ink.TieDown = true;
             var b = new SmoothBorder { CornerRadius = new CornerRadius(6), Height = 24, Padding = new Thickness(10, 0, 10, 0), Margin = new Thickness(items.Count > 0 ? 2 : 0, 0, 0, 0), Child = t, Cursor = Cursors.Hand };
             string vv = v;
             b.MouseLeftButtonUp += (_, e) =>

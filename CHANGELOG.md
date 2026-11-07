@@ -2,6 +2,62 @@
 
 Each release on GitHub shows its section from this file (the workflow looks for `## <version>`).
 
+## 1.0.0
+
+[![The island at the top opens into the pill taskbar, a folder opens and the app in it starts](https://raw.githubusercontent.com/hyeon1035298/Bloom/main/docs/media/whatsnew/1.0.0/taskbar.webp)](bloom://settings/addon:pill-taskbar)
+
+- Taskbar add-on: point at the island to open the pill taskbar. Folders get fourteen icons that follow the taskbar's light or dark look.
+
+[![The RAM module next to the clock opens its window, and Clean now frees memory](https://raw.githubusercontent.com/hyeon1035298/Bloom/main/docs/media/whatsnew/1.0.0/memory-en.webp)](bloom://settings/addon:memory-clean)
+
+- Memory Clean add-on: a RAM module next to the clock shows the use. Click it and Clean now frees memory.
+
+[![The monitor next to the clock opens its window, one slider moves both monitors, and the wheel over it turns them down](https://raw.githubusercontent.com/hyeon1035298/Bloom/main/docs/media/whatsnew/1.0.0/brightness-en.webp)](bloom://settings/addon:brightness)
+
+- Monitor Brightness add-on: a monitor next to the clock shows the brightness. One slider moves every monitor, and the wheel over the icon changes it too.
+
+[![With the cup off, ten minutes without input turn the screen off; with the cup on for an hour, the same ten minutes leave it on](https://raw.githubusercontent.com/hyeon1035298/Bloom/main/docs/media/whatsnew/1.0.0/coffee-en.webp)](bloom://settings/addon:keep-awake)
+
+- Coffee add-on: a coffee cup next to the clock keeps the computer and the screen awake, until turned off or for a set time. Right-click the cup to turn it on or off.
+
+[![Alt+Tab opens on the monitor with the cursor and lists only its windows](https://raw.githubusercontent.com/hyeon1035298/Bloom/main/docs/media/whatsnew/1.0.0/alttab.webp)](bloom://settings/addon:alt-tab-per-monitor)
+
+- Alt+Tab per monitor add-on: Alt+Tab opens on the monitor under the cursor, with only that monitor's windows.
+- In Bloom, click a picture to open that add-on in Settings › Add-ons.
+- Screen recording: pick an area with Bloom Lens and record it to MP4, with system sound and the microphone.
+- Settings › Add-ons: an overview with a moving picture of each add-on, and a page for each.
+- Add-ons run as programs of their own and follow Bloom's theme and glass setting.
+- Bloom uses less memory.
+- Fixed: Bloom Lens draws the picked area and its bar on every monitor, clear of the island.
+
+### 한국어
+
+[![위 끝의 아일랜드가 알약 작업표시줄로 펼쳐지고, 폴더를 열어 안의 앱을 켭니다](https://raw.githubusercontent.com/hyeon1035298/Bloom/main/docs/media/whatsnew/1.0.0/taskbar.webp)](bloom://settings/addon:pill-taskbar)
+
+- 작업표시줄 애드온: 아일랜드에 포인터를 올리면 알약 작업표시줄이 펼쳐집니다. 폴더 아이콘 14종이 생겼고, 작업표시줄의 라이트·다크에 맞춰 바뀝니다.
+
+[![시계 옆 램 모듈을 누르면 창이 열리고, 지금 정리로 메모리를 비웁니다](https://raw.githubusercontent.com/hyeon1035298/Bloom/main/docs/media/whatsnew/1.0.0/memory-ko.webp)](bloom://settings/addon:memory-clean)
+
+- 메모리 정리 애드온: 시계 옆 램 모듈에 사용량이 나옵니다. 누르고 지금 정리를 누르면 메모리를 비웁니다.
+
+[![시계 옆 모니터를 누르면 창이 열리고, 슬라이더 하나로 두 모니터가 함께 밝아지며, 휠로 다시 어둡게 합니다](https://raw.githubusercontent.com/hyeon1035298/Bloom/main/docs/media/whatsnew/1.0.0/brightness-ko.webp)](bloom://settings/addon:brightness)
+
+- 모니터 밝기 애드온: 시계 옆 모니터 모양에 밝기가 나옵니다. 슬라이더 하나로 모든 모니터를 함께 바꾸고, 아이콘 위에서 휠을 돌려도 바뀝니다.
+
+[![커피가 꺼져 있으면 입력 없이 10분 뒤 화면이 꺼지고, 커피를 1시간 켜 두면 같은 10분이 지나도 화면이 켜져 있습니다](https://raw.githubusercontent.com/hyeon1035298/Bloom/main/docs/media/whatsnew/1.0.0/coffee-ko.webp)](bloom://settings/addon:keep-awake)
+
+- 커피 애드온: 시계 옆 커피잔으로 PC와 화면이 잠들지 않게 합니다. 끌 때까지나 정한 시간 동안 깨어 있고, 컵을 오른쪽 클릭하면 켜고 끕니다.
+
+[![커서가 있는 모니터에 Alt+Tab이 뜨고 그 모니터의 창만 보입니다](https://raw.githubusercontent.com/hyeon1035298/Bloom/main/docs/media/whatsnew/1.0.0/alttab.webp)](bloom://settings/addon:alt-tab-per-monitor)
+
+- 모니터별 Alt+Tab 애드온: Alt+Tab이 커서가 있는 모니터에 뜨고 그 모니터의 창만 보입니다.
+- Bloom에서 그림을 누르면 설정 › 애드온의 그 애드온으로 갑니다.
+- 화면 녹화: Bloom Lens로 범위를 골라 시스템 소리, 마이크와 함께 MP4로 녹화합니다.
+- 설정 › 애드온: 애드온마다 움직이는 그림이 있는 개요와 애드온별 페이지가 생겼습니다.
+- 애드온이 따로 된 프로그램으로 돌고, Bloom의 테마와 유리 효과를 따릅니다.
+- Bloom이 메모리를 덜 씁니다.
+- 고침: Bloom Lens가 고른 범위와 막대를 모든 모니터에, 아일랜드를 피해 그립니다.
+
 ## 0.19.3
 
 - Taskbar add-on: PillTaskbar turns the taskbar into a centred pill, with folders, an auto-hide island and AI usage. Get it in Settings › Add-ons.

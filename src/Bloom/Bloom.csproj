@@ -15,7 +15,7 @@
     <RootNamespace>Bloom</RootNamespace>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <ApplicationIcon>Assets\icon.ico</ApplicationIcon>
-    <Version>0.19.3</Version>
+    <Version>1.0.0</Version>
     <Product>Bloom</Product>
     <AssemblyTitle>Bloom</AssemblyTitle>
     <Company>Hyeon</Company>
@@ -34,9 +34,13 @@
   <ItemGroup>
     <!-- the emoji / symbol search (tools\make_symbols.py) -->
     <EmbeddedResource Include="Assets\symbols.tsv" LogicalName="Bloom.Assets.symbols.tsv" />
+    <!-- the taskbar folders' icon set (tools\folder-icons.py, Ui\FolderIconSet.cs) -->
+    <EmbeddedResource Include="Assets\folder-icons.json" LogicalName="Bloom.Assets.folder-icons.json" />
     <!-- Japanese and Chinese, keyed by the English text (tools\lang.py) -->
     <EmbeddedResource Include="Assets\Lang\*.tsv" LogicalName="Bloom.Assets.Lang.%(Filename).tsv" />
     <EmbeddedResource Include="..\..\CHANGELOG.md" LogicalName="Bloom.CHANGELOG.md" />
+    <!-- this version's pictures in 바뀐 점 (WhatsNewWindow); the ones of earlier versions stay in docs only -->
+    <EmbeddedResource Include="..\..\docs\media\whatsnew\$(Version)\*.webp" LogicalName="Bloom.WhatsNew.%(Filename)%(Extension)" />
     <!-- the add-ons Settings > Add-ons can download, each pinned to its release zip's SHA-256 (Addons\AddonCatalog.cs) -->
     <EmbeddedResource Include="..\..\addons\catalog.json" LogicalName="Bloom.addons.catalog.json" />
     <!-- the OpenAI and Anthropic marks for AI usage accounts (Ai\OfficialLogos.cs); trademarks of their owners, not MIT -->
