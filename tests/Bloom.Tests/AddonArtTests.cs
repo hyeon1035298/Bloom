@@ -10,7 +10,7 @@ namespace Bloom.Tests;
 /// The moving pictures on 설정 > 애드온's lines (AddonArt).
 internal static class AddonArtTests
 {
-    private static readonly string[] Ids = ["pill-taskbar", "alt-tab-per-monitor", "brightness", "memory-clean"];
+    private static readonly string[] Ids = ["pill-taskbar", "alt-tab-per-monitor", "brightness", "memory-clean", "keep-awake"];
 
     public static void EachKnownAddonHasAPicture()
     {
