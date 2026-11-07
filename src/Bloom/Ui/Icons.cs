@@ -228,10 +228,30 @@ internal static class Icons
             }
         if (!anyAlpha)
             for (int i = 3; i < px.Length; i += 4) px[i] = 255;
-        else tone = ToneOf(px);
+        else
+        {
+            Premultiply(px);
+            tone = ToneOf(px);
+        }
         var src = BitmapSource.Create(w, h, 96, 96, PixelFormats.Pbgra32, null, px, w * 4);
         src.Freeze();
         return src;
+    }
+
+    /// The shell hands many icons over with straight alpha (seen as a colour channel above its pixel's alpha, which
+    /// premultiplied pixels can't have); drawn as premultiplied, their soft edges come out as a light fringe. Such a
+    /// picture is premultiplied here; one that already is stays as it is.
+    internal static void Premultiply(byte[] px)
+    {
+        bool straight = false;
+        for (int i = 0; i < px.Length && !straight; i += 4)
+            straight = px[i] > px[i + 3] || px[i + 1] > px[i + 3] || px[i + 2] > px[i + 3];
+        if (!straight) return;
+        for (int i = 0; i < px.Length; i += 4)
+        {
+            int a = px[i + 3];
+            for (int c = 0; c < 3; c++) px[i + c] = (byte)((px[i + c] * a + 127) / 255);
+        }
     }
 
     /// Store-app glyphs are often pure white (or black) on transparency, made for a coloured tile;
