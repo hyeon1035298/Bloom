@@ -24,6 +24,11 @@ internal sealed partial class Host
     /// Bloom Lens: pick an area, then "menu" shows what to do with it; ask / text / translate / live do that at once.
     public async void StartLens(string kind)
     {
+        if (kind == "record" && IsRecording)
+        {
+            StopRecording(); // the shortcut or the command again: stop
+            return;
+        }
         if (ocrBusy) return;
         ocrBusy = true;
         try
@@ -38,11 +43,17 @@ internal sealed partial class Host
                 "text" => Tr("글자를 읽을 영역을 끌어서 고르세요", "Drag over the area to read"),
                 "pin" => Tr("화면에 고정할 영역을 끌어서 고르세요", "Drag over the area to pin"),
                 "capture" => Tr("캡처할 영역을 끌어서 고르세요", "Drag over the area to capture"),
+                "record" => Tr("녹화할 영역을 끌어서 고르세요", "Drag over the area to record"),
                 "palette" => Tr("팔레트를 만들 영역을 끌어서 고르세요", "Drag over the area to make a palette of"),
                 _ => Tr("영역을 끌어서 고르세요 — 고른 뒤 할 일을 선택하세요", "Drag over an area — then pick what to do"),
             };
             var pick = await Ocr.ScreenGrab.Pick(hint, kind == "capture"); // 화면 캡처 draws on the area before it goes anywhere
             if (pick is not { } p) return;
+            if ((p.then ?? kind) == "record")
+            {
+                Record(p.rect); // 화면 녹화, or 녹화 on the capture's drawing bar: the live screen, not this picture
+                return;
+            }
             var shot = new LensShot(p.rect, p.bgra, SaveLens(p.rect, p.bgra), DateTime.Now);
             LastLens = shot;
             kind = p.then ?? kind;
@@ -87,6 +98,10 @@ internal sealed partial class Host
                 case "capture":
                     Window.Dismiss(); // back to the app it is pasted into
                     Capture(l);
+                    return;
+                case "record":
+                    Window.Dismiss();
+                    Record(l.Rect);
                     return;
                 case "save":
                     Window.Dismiss();

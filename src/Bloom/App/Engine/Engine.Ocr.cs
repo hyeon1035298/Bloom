@@ -30,7 +30,7 @@ internal sealed partial class Engine
             Run = () => _ = host.LensDo(kind),
             Detail = Preview,
         };
-        var s = new Section("Bloom Lens", Tr("1~7로 바로", "1–7 right away"));
+        var s = new Section("Bloom Lens", Tr("1~8로 바로", "1–8 right away"));
         s.Items.Add(Item("lens:ask", Tr("1  AI에게 묻기", "1  Ask AI"), Tr("고른 화면을 AI에 전송하여 질문 · 사용량 1회", "Ask AI about the selected screen area · 1 use"), G.Sparkle, true, Tr("묻기", "Ask"), true, "ask"));
         s.Items.Add(Item("lens:translate", Tr("2  번역", "2  Translate"), Tr("글자를 읽어 번역합니다 · 사용량 1회", "Reads the text and translates it · 1 use"), G.Globe, false, Tr("번역", "Translate"), false, "translate"));
         s.Items.Add(Item("lens:text", Tr("3  글자 복사", "3  Copy text"), Tr("글자를 복사합니다. 이 PC에서 인식하며 AI 사용량은 없습니다.", "Copies text recognized on this PC · no AI usage"), G.Copy, false, Tr("복사", "Copy"), true, "text"));
@@ -38,6 +38,7 @@ internal sealed partial class Engine
         s.Items.Add(Item("lens:pin", Tr("5  화면에 고정", "5  Pin to the screen"), Tr("영역을 그림으로 맨 위에 표시 · 끌어서 이동, 휠로 크기 조절", "Pins the area as a picture · drag to move, scroll to resize"), G.Pin, false, Tr("고정", "Pin"), false, "pin"));
         s.Items.Add(Item("lens:capture", Tr("6  캡처", "6  Capture"), Tr("이 영역을 그림으로 복사합니다 · Ctrl+V로 어디든 붙여넣기", "Copies this area as a picture · paste it anywhere with Ctrl+V"), G.Camera, false, Tr("복사", "Copy"), false, "capture"));
         s.Items.Add(Item("lens:palette", Tr("7  컬러 팔레트", "7  Color palette"), Tr("이 영역의 색을 뽑아 팔레트로 만듭니다 · PC 안에서 처리하며 AI 사용량은 없습니다.", "Makes a palette of this area's colours · done on this PC · no AI usage"), G.Palette, false, Tr("만들기", "Make"), true, "palette"));
+        s.Items.Add(Item("lens:record", Tr("8  화면 녹화", "8  Screen recording"), Tr("이 영역을 영상으로 녹화합니다 · 동영상 › Screen Recordings에 저장", "Records this area as a video · saved in Videos › Screen Recordings"), G.Video, false, Tr("녹화", "Record"), false, "record"));
         var again = new Section(null);
         again.Items.Add(new ResultItem { Id = "lens:again", Kind = ItemKind.Lens, Title = Tr("다른 영역 고르기", "Pick another area"), Icon = IconSpec.Of(G.Page), PrimaryLabel = Tr("고르기", "Pick"), Run = () => host.StartLens("menu"), Detail = Preview });
         return new List<Section> { s, again };

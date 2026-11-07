@@ -47,7 +47,7 @@ internal static class Features
     public static string? Of(string id) => id switch
     {
         "cmd:ai" or "cmd:threads" or "threads" => "chat",
-        "cmd:lens" or "cmd:pin" or "cmd:capture" => "lens",
+        "cmd:lens" or "cmd:pin" or "cmd:capture" or "cmd:record" => "lens",
         "cmd:quick" => "quick",
         "cmd:timer" or "timers" => "timers",
         "cmd:calendar" or "week" => "calendar",

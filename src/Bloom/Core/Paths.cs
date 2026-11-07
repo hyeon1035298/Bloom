@@ -97,6 +97,26 @@ internal static class Paths
         }
     }
 
+    /// Videos\Screen Recordings, where Windows' Snipping Tool keeps its recordings: the Videos folder asked of Windows
+    /// (FOLDERID_Videos), so a moved one is followed.
+    public static string ScreenRecordings
+    {
+        get
+        {
+            string videos = Environment.GetFolderPath(Environment.SpecialFolder.MyVideos);
+            if (SHGetKnownFolderPath(new Guid("18989b1d-99b5-455b-841c-ab7c74e4ddfc"), 0, IntPtr.Zero, out IntPtr p) == 0)
+                try
+                {
+                    if (Marshal.PtrToStringUni(p) is { Length: > 0 } dir) videos = dir;
+                }
+                finally
+                {
+                    Marshal.FreeCoTaskMem(p);
+                }
+            return Path.Combine(videos, "Screen Recordings");
+        }
+    }
+
     [DllImport("shell32.dll")] private static extern int SHGetKnownFolderPath([MarshalAs(UnmanagedType.LPStruct)] Guid id, uint flags, IntPtr token, out IntPtr path);
 }
 

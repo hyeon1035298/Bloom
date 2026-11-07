@@ -334,6 +334,7 @@ internal sealed partial class Host
         Shortcuts?.Set("translate", F("lens", s.TranslateHotkey), () => StartLens("translate"));
         Shortcuts?.Set("live", F("lens", s.LiveHotkey), () => StartLens("live"));
         Shortcuts?.Set("capture", F("lens", s.CaptureHotkey), () => StartLens("capture"));
+        Shortcuts?.Set("record", F("lens", s.RecordHotkey), () => StartLens("record"));
         Shortcuts?.Set("windows", F("windows", s.WindowsHotkey), () =>
         {
             OpenWindows.Invalidate();

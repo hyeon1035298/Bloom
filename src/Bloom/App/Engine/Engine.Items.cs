@@ -129,7 +129,7 @@ internal sealed partial class Engine
         {
             item.PrimaryLabel = Tr("실행", "Run");
             item.Run = () => host.RunCommand(e.Id);
-            item.StayOpen = e.Id is "cmd:ai" or "cmd:layout" or "cmd:winget" or "cmd:threads" or "cmd:files" or "cmd:clipboard" or "cmd:calendar" or "cmd:quicklinks" or "cmd:commands" or "cmd:processes" or "cmd:lens" or "cmd:pin" or "cmd:capture" or "cmd:timer" or "cmd:color" or "cmd:space" or "cmd:settings" or "cmd:welcome" or "cmd:export" or "cmd:import" or "cmd:reindex" or "cmd:restart" or "cmd:shutdown"
+            item.StayOpen = e.Id is "cmd:ai" or "cmd:layout" or "cmd:winget" or "cmd:threads" or "cmd:files" or "cmd:clipboard" or "cmd:calendar" or "cmd:quicklinks" or "cmd:commands" or "cmd:processes" or "cmd:lens" or "cmd:pin" or "cmd:capture" or "cmd:record" or "cmd:timer" or "cmd:color" or "cmd:space" or "cmd:settings" or "cmd:welcome" or "cmd:export" or "cmd:import" or "cmd:reindex" or "cmd:restart" or "cmd:shutdown"
                 or "cmd:windows" or "cmd:emoji" or "cmd:recent" or "cmd:system" or "cmd:quick" or "cmd:notes" or "cmd:player" or "cmd:tools";
         }
         else

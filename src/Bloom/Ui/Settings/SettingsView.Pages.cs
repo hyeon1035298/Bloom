@@ -309,6 +309,7 @@ internal sealed partial class SettingsView
             Shortcut("translate", Tr("바로 번역", "Translate right away"), Tr("영역을 고르면 읽어서 번역합니다 (번역마다 사용량 1회)", "After the area: reads and translates it (1 use each)"), G.Globe, s.TranslateHotkey, v => s.TranslateHotkey = v, filter);
             Shortcut("live", Tr("바로 실시간 번역", "Live translation right away"), Tr("영역을 계속 읽어 바뀔 때만 번역합니다 (사용량 계속)", "Keeps reading the area and translates when it changes (ongoing usage)"), G.Refresh, s.LiveHotkey, v => s.LiveHotkey = v, filter);
             Shortcut("capture", Tr("바로 캡처", "Capture right away"), Tr("영역을 고르면 펜 · 형광펜 막대가 열립니다 — Enter로 복사, Ctrl+V로 붙여넣기", "After the area: a pen and highlighter bar opens — Enter copies, Ctrl+V pastes"), G.Camera, s.CaptureHotkey, v => s.CaptureHotkey = v, filter);
+            Shortcut("record", Tr("화면 녹화", "Screen recording"), Tr("영역을 고르면 녹화 막대가 열립니다 · 녹화 중에 다시 누르면 멈춤", "After the area: the recording bar opens · press it again while recording to stop"), G.Video, s.RecordHotkey, v => s.RecordHotkey = v, filter);
         }
         Header(Tr("항목 단축키", "Item shortcuts"));
         if (ItemKeys.All.Count == 0 && collected is null)

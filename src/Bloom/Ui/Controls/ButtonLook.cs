@@ -7,17 +7,20 @@ namespace Bloom.Ui;
 /// card needs an edge). The brushes change with the theme, so one look serves both.
 internal static class ButtonLook
 {
-    public static T Apply<T>(T b, bool hover = true) where T : SmoothBorder
+    public static T Apply<T>(T b, bool hover = true) where T : SmoothBorder => Apply(b, Theme.P, hover);
+
+    /// In another palette's colours (the island keeps its own black or white, whatever Bloom's theme).
+    public static T Apply<T>(T b, Palette p, bool hover = true) where T : SmoothBorder
     {
-        b.Background = Theme.P.Btn;
-        b.BorderBrush = Theme.P.BtnEdge;
+        b.Background = p.Btn;
+        b.BorderBrush = p.BtnEdge;
         b.BorderThickness = new Thickness(1);
-        b.TopLine = Theme.P.BtnTop;
-        b.BottomLine = Theme.P.BtnBottom;
+        b.TopLine = p.BtnTop;
+        b.BottomLine = p.BtnBottom;
         if (hover)
         {
-            b.MouseEnter += (_, _) => b.Background = Theme.P.BtnHover;
-            b.MouseLeave += (_, _) => b.Background = Theme.P.Btn;
+            b.MouseEnter += (_, _) => b.Background = p.BtnHover;
+            b.MouseLeave += (_, _) => b.Background = p.Btn;
         }
         return b;
     }

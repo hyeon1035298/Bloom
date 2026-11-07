@@ -16,7 +16,7 @@ using Change = (System.Windows.Ink.StrokeCollection added, System.Windows.Ink.St
 
 /// 화면 캡처's pen and highlighter: ink over the picked area on the frozen screen, with a bar of tools beside it
 /// (펜 P · 형광펜 H · 지우개 E · colours 1–4 · three sizes · Ctrl+Z / Ctrl+Y) and where the picture goes next
-/// (고정 · AI · 팔레트 · 저장 · 복사 Enter). The tool, colour and size last used are kept in the settings.
+/// (고정 · AI · 팔레트 · 저장 · 녹화 · 복사 Enter). The tool, colour and size last used are kept in the settings.
 internal sealed class DrawLayer
 {
     private static readonly Color[] Inks = { Color.FromRgb(0xFF, 0x4D, 0x4F), Color.FromRgb(0xFF, 0xD4, 0x3B), Color.FromRgb(0x3B, 0x82, 0xF6), Color.FromRgb(0x22, 0xC5, 0x5E) };
@@ -270,6 +270,7 @@ internal sealed class DrawLayer
         Hit(row, Theme.Sparkle(15, Dim), null, Tr("AI에게 묻기", "Ask AI"), () => done("ask")); // Bloom Lens' own words
         Button(row, G.Palette, null, Tr("컬러 팔레트 만들기 · 그린 것까지", "Make a color palette · the drawing included"), () => done("palette"));
         Button(row, G.Save, null, Tr("그림 저장…", "Save the picture…") + " (Ctrl+S)", () => done("save"));
+        Button(row, G.Video, null, Tr("화면 녹화 · 이 영역을 영상으로 녹화합니다", "Screen recording · records this area as a video"), () => done("record"));
         var copy = new SmoothBorder
         {
             Background = accent,
