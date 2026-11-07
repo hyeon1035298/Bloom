@@ -16,20 +16,24 @@ namespace Bloom.Ai;
 /// user's own login, or an API model with the user's key (ApiClient). Every call counts against the user's plan.
 internal static class OneShot
 {
-    /// → (answer, null) or (null, error); (null, null) when cancelled. `name` names the Codex instructions file.
-    public static async Task<(string? text, string? error)> Ask(string system, string text, string provider, string model, string? effort, string name, CancellationToken ct)
+    /// A web search can take a while: a call with it waits this long, one without it 90 s.
+    private static readonly TimeSpan WebTimeout = TimeSpan.FromSeconds(180), PlainTimeout = TimeSpan.FromSeconds(90);
+
+    /// → (answer, null) or (null, error); (null, null) when cancelled. `name` names the Codex instructions file. `web`: the
+    /// model may search and read the web (read-only, nothing asks; 내 AI 명령) — the API models have no tools either way.
+    public static async Task<(string? text, string? error)> Ask(string system, string text, string provider, string model, string? effort, string name, CancellationToken ct, bool web = false)
     {
         text = text.Trim();
         if (text.Length == 0) return ("", null);
         if (Demo.On) return await DemoAnswers.Ask(name, text, ct); // recording mode: nothing is asked
         if (text.Length > 12000) text = text[..12000];
         if (provider == "api") return await ApiClient.AskAsync(model, effort, system, text, ct);
-        if (provider == "omp") return await Omp(system, text, model, effort, ct);
+        if (provider == "omp") return await Omp(system, text, model, effort, web, ct);
         string? accountHome = AiAccounts.ChatHome(provider);
-        return provider == "chatgpt" ? await Codex(system, text, model, effort, name, accountHome, ct) : await Claude(system, text, model, effort, accountHome, ct);
+        return provider == "chatgpt" ? await Codex(system, text, model, effort, name, accountHome, web, ct) : await Claude(system, text, model, effort, accountHome, web, ct);
     }
 
-    private static async Task<(string? text, string? error)> Claude(string system, string text, string model, string? effort, string? accountHome, CancellationToken ct)
+    private static async Task<(string? text, string? error)> Claude(string system, string text, string model, string? effort, string? accountHome, bool web, CancellationToken ct)
     {
         string? cli = ClaudeSession.FindCli(Settings.Current.ClaudePath);
         if (cli is null) return (null, AiErrors.ClaudeMissing);
@@ -39,15 +43,20 @@ internal static class OneShot
         foreach (string a in new[]
         {
             "-p", "--model", model, "--output-format", "text", "--system-prompt", system,
-            "--tools", "", "--strict-mcp-config", "--disable-slash-commands", "--name", "Bloom",
+            "--tools", web ? "WebSearch,WebFetch" : "", "--strict-mcp-config", "--disable-slash-commands", "--name", "Bloom",
             "--settings", fast ? "{\"disableAllHooks\":true,\"alwaysThinkingEnabled\":false}" : "{\"disableAllHooks\":true}",
         }) psi.ArgumentList.Add(a);
+        if (web)
+        {
+            psi.ArgumentList.Add("--allowedTools");
+            psi.ArgumentList.Add("WebSearch,WebFetch");
+        }
         if (!fast)
         {
             psi.ArgumentList.Add("--effort");
             psi.ArgumentList.Add(effort!);
         }
-        var (code, output, error) = await RunCli(psi, text, ct);
+        var (code, output, error) = await RunCli(psi, text, ct, web ? WebTimeout : PlainTimeout);
         if (ct.IsCancellationRequested) return (null, null);
         if (code != 0 || output.Trim().Length == 0) return (null, Tail(error, output, Tr("Claude 답변이 없습니다. 다시 시도하세요.", "No answer from Claude. Try again.")));
         return (output.Trim(), null);
@@ -55,13 +64,13 @@ internal static class OneShot
 
     /// `omp -p`: no tools, nothing saved, an empty folder, Bloom's system prompt instead of omp's (OmpCli.OneShotArgs); the
     /// question goes in on stdin. `model` is Bloom's id ("omp:provider/model"); `effort` null = thinking off.
-    private static async Task<(string? text, string? error)> Omp(string system, string text, string model, string? effort, CancellationToken ct)
+    private static async Task<(string? text, string? error)> Omp(string system, string text, string model, string? effort, bool web, CancellationToken ct)
     {
         string? exe = OmpCli.FindCli();
         if (exe is null) return (null, AiErrors.OmpMissing);
         var psi = OmpCli.Psi(exe);
-        foreach (string a in OmpCli.OneShotArgs(AiModels.OmpSlug(model) ?? model, effort, system)) psi.ArgumentList.Add(a);
-        var (code, output, error) = await RunCli(psi, text, ct);
+        foreach (string a in OmpCli.OneShotArgs(AiModels.OmpSlug(model) ?? model, effort, system, web)) psi.ArgumentList.Add(a);
+        var (code, output, error) = await RunCli(psi, text, ct, web ? WebTimeout : PlainTimeout);
         if (ct.IsCancellationRequested) return (null, null);
         if (code != 0 || output.Trim().Length == 0) return (null, OmpTail(error, output));
         return (output.Trim(), null);
@@ -76,7 +85,7 @@ internal static class OneShot
         return e.Length > 0 ? AiErrors.Omp(e) : output.Trim().Length > 0 ? AiErrors.Omp(output.Trim()) : AiErrors.OmpNoAnswer;
     }
 
-    private static async Task<(string? text, string? error)> Codex(string system, string text, string model, string? effort, string name, string? accountHome, CancellationToken ct)
+    private static async Task<(string? text, string? error)> Codex(string system, string text, string model, string? effort, string name, string? accountHome, bool web, CancellationToken ct)
     {
         string? exe = CodexSession.FindCli(Settings.Current.CodexPath);
         if (exe is null) return (null, AiErrors.CodexMissing);
@@ -103,9 +112,14 @@ internal static class OneShot
             args.Add("-c");
             args.Add(c);
         }
+        if (web)
+        {
+            args.Add("-c");
+            args.Add("web_search=\"live\"");
+        }
         args.Add("-");
         foreach (string a in args) psi.ArgumentList.Add(a);
-        var (code, output, error) = await RunCli(psi, text, ct);
+        var (code, output, error) = await RunCli(psi, text, ct, web ? WebTimeout : PlainTimeout);
         if (ct.IsCancellationRequested) return (null, null);
         string? answer = null, failure = null;
         foreach (string line in output.Split('\n'))
@@ -169,8 +183,8 @@ internal static class OneShot
         return psi;
     }
 
-    /// Runs the CLI with `input` on stdin; 90 s at most.
-    public static async Task<(int code, string output, string error)> RunCli(ProcessStartInfo psi, string input, CancellationToken ct)
+    /// Runs the CLI with `input` on stdin; `limit` (90 s when not given) at most.
+    public static async Task<(int code, string output, string error)> RunCli(ProcessStartInfo psi, string input, CancellationToken ct, TimeSpan? limit = null)
     {
         Process? p = null;
         try
@@ -182,7 +196,7 @@ internal static class OneShot
             await p.StandardInput.WriteAsync(input);
             p.StandardInput.Close();
             using var timeout = CancellationTokenSource.CreateLinkedTokenSource(ct);
-            timeout.CancelAfter(TimeSpan.FromSeconds(90));
+            timeout.CancelAfter(limit ?? PlainTimeout);
             try
             {
                 await p.WaitForExitAsync(timeout.Token);

@@ -26,7 +26,12 @@ internal static partial class Captures
         var line = UserCommands.New("script", Tr("오늘 날짜", "Today's date"), "Get-Date -Format \"yyyy-MM-dd (ddd)\"", "td");
         var snippet = UserCommands.New("snippet", Tr("메일 인사", "Mail greeting"), Tr("안녕하세요, {date} 회의 자료 보내드립니다.\\n감사합니다.", "Hello, here are the notes for {date}.\\nThanks."), "hi");
         var chain = UserCommands.New("chain", Tr("백업 후 확인", "Back up, then check"), Tr("bk D:\\사진 ; 기다리기 1초 ; td", "bk D:\\photos ; wait 1 ; td"), "bc");
-        foreach (var c in new[] { script, line, snippet, chain }) UserCommands.Upsert(c);
+        var notes = UserCommands.New("ai", Tr("회의록 정리", "Tidy meeting notes"), Tr("결정한 것과 할 일만 목록으로 >> 영어로 번역", "Only the decisions and to-dos as a list >> Translate into Korean"), "mm");
+        var daily = UserCommands.New("ai", Tr("오늘의 영어 표현", "Phrase of the day"), Tr("오늘 써먹을 영어 표현 하나와 예문 두 개", "One useful Korean phrase for today with two examples"), null);
+        daily.Input = AiInput.None;
+        daily.Every = "daily 09:00";
+        daily.LastRun = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+        foreach (var c in new[] { script, line, snippet, chain, notes, daily }) UserCommands.Upsert(c);
 
         foreach (string theme in new[] { "dark", "light" })
         {
@@ -41,6 +46,33 @@ internal static partial class Captures
         w.StartForm(host.Engine.CommandForm("chain", null, null));
         w.SetTextForQa(Tr("메모장 ; 볼륨 30 ; 없는단계xyz", "notepad ; volume 30 ; nosuchstepxyz"));
         await Snap(w, dir, $"{l}-dark-m4-chain-form");
+
+        // 내 AI 명령: its form, its actions, the AI 빠른 동작 list with it, 알림 센터 (nothing is asked of an AI)
+        w.StartForm(host.Engine.CommandForm("ai", null, null));
+        w.SetTextForQa(Tr("핵심 3줄로 요약 >> 영어로 번역", "Summarize in 3 lines >> Translate into Korean"));
+        await Snap(w, dir, $"{l}-dark-m6-ai-form");
+        await Shot(w, dir, $"{l}-dark-m7-ai-search", Mode.Root, Tr("오늘의 영어", "phrase of the"), 700);
+        w.OpenActions();
+        await Snap(w, dir, $"{l}-dark-m8-ai-actions");
+        w.CloseActionsForQa();
+        host.Quick.Source = Tr("내일 3시 회의는 4시로 미룹니다. 민수는 자료를, 지은은 예약을 맡기로 했습니다.", "Tomorrow's 3 pm meeting moves to 4. Min brings the slides, Ji books the room.");
+        host.Quick.FromSelection = true;
+        host.Quick.Action = host.Quick.Result = host.Quick.Error = null;
+        await Shot(w, dir, $"{l}-dark-m9-quick-mine", Mode.Quick, "", 700);
+        long now = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+        NoticeLog.Add(false, Tr("AI 명령 · 실패", "AI command · Failed"), daily.Name, Tr("Claude 답변이 없습니다. 다시 시도하세요.", "No answer from Claude. Try again."), null, now - 26 * 3600 * 1000L);
+        NoticeLog.Add(true, Tr("AI 명령 · 완료", "AI command · Done"), daily.Name, Tr("**놓치다(miss)** — 버스를 놓쳤어요.\n1. 기차를 놓칠 뻔했어요.\n2. 그 기회는 놓치지 마세요.", "**I'm swamped** — I have too much to do.\n1. I'm swamped this week.\n2. Sorry, I was swamped yesterday."), "qa-none", now - 3600 * 1000L);
+        NoticeLog.Add(true, Tr("Codex · 작업 완료", "Codex · Done"), Tr("로그인 화면 다듬기", "Polish the sign-in screen"), Tr("소요 시간 12분", "Elapsed: 12 min"), null, now - 20 * 60 * 1000L);
+        NoticeLog.Add(false, Tr("Claude · 한도 임박", "Claude · Limit near"), Tr("주간 한도 18% 남음", "18% of the weekly limit left"), Tr("2일 뒤 초기화", "Resets in 2 d"), null, now - 5 * 60 * 1000L);
+        NoticeLog.Wait("qa-wait", Tr("Claude Code · 승인 대기", "Claude Code · Needs approval"), Tr("다운로드 폴더 정리", "Tidy the downloads folder"), Tr("승인 대기", "Approval pending"), null);
+        foreach (string theme in new[] { "dark", "light" })
+        {
+            Theme.Apply(theme);
+            await Shot(w, dir, $"{l}-{theme}-m10-inbox", Mode.Inbox, "", 700);
+        }
+        Theme.Apply("dark");
+        NoticeLog.Settle("qa-wait");
+        NoticeLog.Clear();
 
         var sw = new SettingsWindow(host) { WindowStartupLocation = System.Windows.WindowStartupLocation.Manual, Left = -32000, Top = -32000, ShowActivated = false };
         sw.Show();
@@ -68,7 +100,7 @@ internal static partial class Captures
         log.AppendLine($"chain step 'notepad'-like '{Tr("메모장", "notepad")}' → {(host.Engine.StepAction(Tr("메모장", "notepad"), 0) is null ? "nothing" : "runs (not run here)")}");
         log.AppendLine("snippet text: " + UserCommands.Expand(UserCommands.SnippetText(snippet.Body), "", null).Replace("\n", "⏎"));
         await File.WriteAllTextAsync(Path.Combine(dir, "mine.txt"), log.ToString());
-        foreach (var c in new[] { script, line, snippet, chain }) UserCommands.Remove(c);
+        foreach (var c in new[] { script, line, snippet, chain, notes, daily }) UserCommands.Remove(c);
         Notices.Quiet = false;
     }
 
