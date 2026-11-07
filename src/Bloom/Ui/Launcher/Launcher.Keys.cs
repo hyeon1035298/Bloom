@@ -140,8 +140,8 @@ internal sealed partial class Launcher
             }
             return;
         }
-        // Bloom Lens: 1–7 pick the action right away
-        if (Mode == Mode.Lens && box.Text.Length == 0 && !ctrl && key is >= Key.D1 and <= Key.D7 && rows.Count >= key - Key.D1 + 1)
+        // Bloom Lens: 1–8 pick the action right away
+        if (Mode == Mode.Lens && box.Text.Length == 0 && !ctrl && key is >= Key.D1 and <= Key.D8 && rows.Count >= key - Key.D1 + 1)
         {
             Select(key - Key.D1, false);
             RunSelected(null);

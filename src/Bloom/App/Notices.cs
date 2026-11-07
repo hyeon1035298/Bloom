@@ -256,6 +256,13 @@ internal static class Notices
     }
 
     /// A Bloom chat's AI waits for a yes or no while no Bloom window is in front.
+    /// Something finished, with buttons under it (화면 녹화: 열기 · 폴더에서 보기).
+    public static void Done(string head, string title, string? detail, IReadOnlyList<(string Text, Action Run)> buttons)
+    {
+        QaResults?.Add("✓ " + title + (detail is null ? "" : " · " + detail));
+        Show(new Notice("done", head, title, detail, Buttons: buttons));
+    }
+
     public static void Ask(string what, Action? action = null) => Show(new Notice("waiting", Tr("Bloom AI · 승인 대기", "Bloom AI · Approval pending"), what, Tr("허용 또는 거절을 선택하세요", "Choose Allow or Decline"), ActionText: Tr("AI 채팅 열기", "Open AI chat"), Action: action));
 
     /// Claude Code asks through Bloom's hook (ClaudeApprovals): its card, in place of the session's 승인 대기 card. False

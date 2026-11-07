@@ -196,6 +196,7 @@ Drag over the area to translate	翻訳する範囲をドラッグして選んで
 Drag over the area to read	文字を読み取る範囲をドラッグして選んでください
 Drag over the area to pin	画面に固定する範囲をドラッグして選んでください
 Drag over the area to capture	キャプチャする範囲をドラッグして選んでください
+Drag over the area to record	録画する範囲をドラッグして選んでください
 Drag over the area to make a palette of	パレットを作る範囲をドラッグして選んでください
 Drag over an area — then pick what to do	範囲をドラッグして選び、それから操作を選んでください
 Text recognition failed	文字認識失敗
@@ -231,6 +232,17 @@ The picture is gone, so it can't be made again	元の画像が削除されたた
 Copied {0}	{0} のコピー完了
 No response. Try again.	応答なし。再試行してください。
 I ran ‘{0}’ on the text below; this was the result. Let's continue.\n\n[Text]\n{1}\n\n[Result]\n{2}	下の文章に「{0}」を実行し、結果はこうでした。続けましょう。\n\n[文章]\n{1}\n\n[結果]\n{2}
+Recording saved	録画を保存済み
+{0} · file copied to the clipboard · Screen Recordings	{0} · ファイルをクリップボードにコピー済み · Screen Recordings
+{0} · {1} · Screen Recordings	{0} · {1} · Screen Recordings
+Open	開く
+Show in folder	フォルダーで表示
+Could not record the sound	音声を録音できませんでした
+Could not read the screen	画面を読み取れませんでした
+Could not save the file	ファイルを保存できませんでした
+Could not make the video	動画を作成できませんでした
+Check the sound devices, or record again without sound	サウンドデバイスを確認するか、音声なしでもう一度録画してください
+Try again	再試行してください
 Export Bloom settings	Bloom の設定をエクスポート
 Bloom settings (*.zip)|*.zip	Bloom の設定 (*.zip)|*.zip
 Settings export failed	設定のエクスポート失敗
@@ -350,7 +362,6 @@ Paste	貼り付け
 Copy only	コピーのみ
 Open in the browser	ブラウザーで開く
 Open the image	画像を開く
-Show in folder	フォルダーで表示
 Ask AI about this text	このテキストについて AI に聞く
 Copied text	コピーしたテキスト
 Unpin	固定を解除
@@ -575,7 +586,6 @@ Enter keeps it · it goes into Notes	Enter で保存 · メモに入ります
 Keep	保存
 Kept as a note	メモの保存完了
 Note · {0}	メモ · {0}
-Open	開く
 {0} notes	{0} 件
 New note	新しいメモ
 No area picked	選択領域なし
@@ -583,7 +593,7 @@ Enter picks an area	Enter で範囲を選ぶ
 Pick	選ぶ
 Area	範囲
 Picked at	選んだ時刻
-1–7 right away	1–7 ですぐに
+1–8 right away	1–8 ですぐに
 1  Ask AI	1  AI に聞く
 Ask AI about the selected screen area · 1 use	選んだ画面の領域を AI に送って質問 · 利用 1 回
 2  Translate	2  翻訳
@@ -602,6 +612,9 @@ Copies this area as a picture · paste it anywhere with Ctrl+V	この範囲を�
 7  Color palette	7  カラーパレット
 Makes a palette of this area's colours · done on this PC · no AI usage	この範囲の色からパレットを作成 · この PC で処理 · AI 使用量なし
 Make	作成
+8  Screen recording	8  画面録画
+Records this area as a video · saved in Videos › Screen Recordings	この範囲を動画として録画します · ビデオ › Screen Recordings に保存
+Record	録画
 Pick another area	別の範囲を選ぶ
 Text read	読み取った文字
 {0} lines · Windows OCR · read on this PC	{0} 行 · Windows OCR · この PC で読み取り
@@ -673,7 +686,6 @@ Replace the selection	選択範囲を置き換える
 Paste into the window	ウィンドウに貼り付け
 Pastes back into the app (Ctrl+V)	元のアプリに貼り付け (Ctrl+V)
 Continue in a chat	チャットで続ける
-Try again	再試行してください
 Pick another action	別の操作を選ぶ
 Enter tries again	Enter でもう一度
 Actions	操作
@@ -963,6 +975,9 @@ Mini player	ミニプレーヤー
 Dawn Walk	夜明けの散歩
 ntpd	ntpd
 chrom	chrom
+Design review	デザインレビュー
+Morning Walk	夜明けの散歩
+Demo Tape	デモテープ
 Rename	名前を変更
 File Explorer	エクスプローラー
 AI tokens	AI トークン
@@ -985,9 +1000,6 @@ Refactor the sign-in screen, session expiry and the error wording in one go	サ�
 “Also fix signing in again after the session drops, and add tests”	「セッションが切れたあとの再サインインも直して、テストも追加して」
 Tidy the build script	ビルド スクリプトを整理
 limit	limit
-Design review	デザインレビュー
-Morning Walk	夜明けの散歩
-Demo Tape	デモテープ
 Sum up my week	今週の予定をまとめて
 One event this week:\n\n- **Tomorrow 3 PM** design review	今週の予定は1件です。\n\n- **明日 15:00** デザインレビュー
 in 100 days	in 100 days
@@ -1204,6 +1216,7 @@ Pin to the screen	画面に固定
 Ask AI	AI に聞く
 Make a color palette · the drawing included	カラーパレットを作成 · 描いた線も含む
 Save the picture…	画像を保存…
+Screen recording · records this area as a video	画面録画 · この範囲を動画として録画します
 Cancel (Esc)	キャンセル (Esc)
 Bloom pinned picture	Bloom 固定画像
 Drag to move · wheel to size · Ctrl+wheel to fade · 0 back to size · double click · Esc closes · right click for more	ドラッグで移動 · ホイールでサイズ · Ctrl+ホイールで透明度 · 0 で元のサイズ · ダブルクリック · Esc で閉じる · 右クリックでその他
@@ -1211,6 +1224,12 @@ Copy the picture	画像をコピー
 Read and copy the text	文字を読み取ってコピー
 Back to its size	元のサイズに戻す
 Close	閉じる
+System sound	システム音
+In 3 s	3秒後
+Recording system sound	システム音を録音中
+Recording the microphone	マイクを録音中
+Start recording	録画開始
+Start (Enter) · records in 3 s	開始 (Enter) · 3秒後に録画します
 {0}  ·  Esc cancels	{0}  ·  Esc でキャンセル
 Bloom live translation	Bloom リアルタイム翻訳
 Bloom translation	Bloom 翻訳
@@ -1225,6 +1244,7 @@ Thinking level (higher is slower and uses more · saved in Settings too)	思考�
 Resume	再開
 Pause	一時停止
 Translate again	もう一度翻訳
+{0} · 1 call	{0} · 1 回呼び出し
 {0} · {1} calls	{0} · {1} 回呼び出し
  · paused	 · 一時停止中
  · reading every {0:0.#} s	 · {0:0.#} 秒ごとに読み取り
@@ -1284,6 +1304,8 @@ Pick an area of the screen: ask AI, translate, copy text, live translation, capt
 Screen capture	画面キャプチャ
 Mark up an area with a pen or highlighter, then copy it · paste with Ctrl+V (Bloom Lens)	選んだ範囲にペン · 蛍光ペンで書き込んでコピー · Ctrl+V で貼り付け (Bloom Lens)
 Keep an area of the screen on top as a picture (Bloom Lens)	画面の範囲を画像として最前面に表示 (Bloom Lens)
+Screen recording	画面録画
+Records an area as a video · system sound and microphone optional · saved in Videos › Screen Recordings (Bloom Lens)	選んだ範囲を動画として録画します · システム音・マイクを選択可 · ビデオ › Screen Recordings に保存 (Bloom Lens)
 Or type "10 min timer", "remind me at 3:30pm meeting"	または "10 min timer"、"remind me at 3:30pm meeting" のように入力
 Pick colours from the screen · HEX · RGB · gradient ideas	画面から色を取る · HEX · RGB · グラデーションの提案
 Notes kept as you type · use them beside the launcher	入力するそばから保存されるメモ · ランチャーの横で使う
@@ -1633,6 +1655,7 @@ At API prices {0}	API 価格で換算 {0}
 Tokens	トークン
 {0} tokens	トークン {0}
 Calls	呼び出し
+1 call	呼び出し 1
 {0} calls	呼び出し {0}
 Cache hits	キャッシュヒット
 {0} of {1} prompt tokens read from the cache	送信した入力 {1} のうちキャッシュから読み込み {0}
@@ -1918,6 +1941,10 @@ Saved ‘{0}’ · {1} songs	「{0}」を保存 · {1} 曲
 Added ‘{0}’ · {1} songs to the queue	「{0}」の {1} 曲をキューに追加
 ‘{0}’ moved to the Recycle Bin	「{0}」をごみ箱に移動
 Not deleted	削除できませんでした
+Monitor 1	モニター 1
+Monitor 2	モニター 2
+Clean now	今すぐ解放
+1.2 GB freed	1.2 GB 解放
 {0} API key	{0} API キー
 The key is stored encrypted on this PC only and used only for requests to {0}. Usage is billed to your {1} account.	キーはこの PC にのみ暗号化して保存し、{0} へのリクエストにだけ使います。利用料金は {1} アカウントに請求されます。
 Open the key page	キー発行ページを開く
@@ -1973,25 +2000,26 @@ Update	更新
 Download {0} {1}	{0} {1} をダウンロード
 From its GitHub release, checked by Bloom before it is installed	GitHub リリースから取得し、Bloom が確認してからインストールします
 {0} {1} downloaded	{0} {1} をダウンロードしました
-Turn taskbar customization off and on to switch to the new version	タスクバーのカスタマイズをオフにしてからオンにすると新しいバージョンに切り替わります
-Turn this add-on off and on to switch to the new version	このアドオンをオフにしてからオンにすると新しいバージョンに切り替わります
-This add-on is a program separate from Bloom. It works by loading code into Explorer, and is licensed under {0}. The first start downloads the symbol files it needs from the Microsoft symbol server.	このアドオンは Bloom とは別のプログラムで、エクスプローラーにコードを読み込んで動作します。ライセンスは {0} です。初回の起動時に Microsoft シンボル サーバーから必要なシンボルファイルをダウンロードします。
 Check your connection and try again	接続を確認してもう一度お試しください
 The downloaded file isn't the one Bloom expects, so it wasn't installed	ダウンロードしたファイルが Bloom の想定と異なるため、インストールしませんでした
 What the download holds isn't valid, so it wasn't installed	ダウンロードした内容が正しくないため、インストールしませんでした
 Couldn't save the download · check the free disk space	ダウンロードを保存できませんでした · ディスクの空き容量を確認してください
 Add-ons	アドオン
 Add-ons are separate programs Bloom starts, each turned on and off here. Click one to open its page. One you put in the user-addons folder in Bloom's local data folder shows after Bloom restarts.	アドオンは Bloom が起動する別のプログラムで、ここで一つずつオン・オフします。カードをクリックすると、そのアドオンのページが開きます。Bloom のローカルデータフォルダー内の user-addons に自分で入れたアドオンは、Bloom を再起動すると表示されます。
-Its settings show here while it is on	オンにすると、このアドオンの設定がここに表示されます
-This add-on has no settings to change in Bloom	このアドオンには Bloom で変更できる設定がありません
 All add-ons	アドオン一覧
 Turns the taskbar into a centred pill	タスクバーを中央のピル型に変えます
 Starts taskbar customization again	タスクバーのカスタマイズを再開します
-An add-on you added	自分で入れたアドオン
+Turn taskbar customization off and on to switch to the new version	タスクバーのカスタマイズをオフにしてからオンにすると新しいバージョンに切り替わります
+Its settings show here while it is on	オンにすると、このアドオンの設定がここに表示されます
 Starts this add-on again	このアドオンを再開します
+Turn this add-on off and on to switch to the new version	このアドオンをオフにしてからオンにすると新しいバージョンに切り替わります
+An add-on you added	自分で入れたアドオン
+This add-on has no settings to change in Bloom	このアドオンには Bloom で変更できる設定がありません
+View source	ソースを見る
 Turn on again	再びオンにする
 Clears Explorer's crash record and turns it on again	エクスプローラーの停止記録を消去して再びオンにします
 Not turned on in a development copy	開発用コピーではオンになりません
+Not downloaded yet	まだダウンロードしていません
 The add-on's files are not valid, or it needs a newer Bloom	アドオンのファイルが正しくないか、より新しい Bloom が必要です
 Bloom started with Shift held, so it is off this time	Shift を押したまま起動したため、今回はオンになっていません
 Turning on · downloading symbol files {0}%	オンにしています · シンボルファイルをダウンロード中 {0}%
@@ -2004,6 +2032,7 @@ Could not download the symbol files · check your connection and try again	シ�
 Explorer needs a restart · restart Explorer, then try again	エクスプローラーの再起動が必要 · エクスプローラーを再起動してからもう一度お試しください
 Stopped · this add-on stopped	停止 · このアドオンが停止しました
 Turn on {0}	{0} をオンにする
+This add-on is a program separate from Bloom. It works by loading code into Explorer, and is licensed under {0}. The first start downloads the symbol files it needs from the Microsoft symbol server.	このアドオンは Bloom とは別のプログラムで、エクスプローラーにコードを読み込んで動作します。ライセンスは {0} です。初回の起動時に Microsoft シンボル サーバーから必要なシンボルファイルをダウンロードします。
 An add-on you added is a separate program that Bloom neither made nor checked. Turning it on starts that program, and it may load code into Explorer. Only turn on add-ons you trust.	自分で入れたアドオンは、Bloom が作成も確認もしていない別のプログラムです。オンにするとそのプログラムが起動し、エクスプローラーにコードを読み込むことがあります。信頼できるアドオンだけをオンにしてください。
 API keys	API キー
 Loading the model list…	モデル一覧を読み込み中…
@@ -2274,6 +2303,7 @@ Live translation right away	すぐにリアルタイム翻訳
 Keeps reading the area and translates when it changes (ongoing usage)	範囲を読み続け、変わったときに翻訳します (継続して使用)
 Capture right away	すぐにキャプチャ
 After the area: a pen and highlighter bar opens — Enter copies, Ctrl+V pastes	範囲を選ぶとペン · 蛍光ペンのバーが開きます — Enter でコピー、Ctrl+V で貼り付け
+After the area: the recording bar opens · press it again while recording to stop	範囲を選ぶと録画バーが開きます · 録画中にもう一度押すと停止
 Item shortcuts	項目のショートカット
 None yet	設定済み項目なし
 Pick an app, folder, command or layout in the launcher, then Ctrl+K › Set a shortcut	ランチャーでアプリ、フォルダー、コマンド、配置を選び、Ctrl+K › ショートカットを設定
@@ -2425,7 +2455,6 @@ What's new in this version	このバージョンの新機能
 Also shown once at the first start after an update · Enter shows it	アップデート後の最初の起動時にも一度表示されます · Enter で表示
 License	ライセンス
 Bloom is MIT · the taskbar add-on PillTaskbar is a separate GPL-3.0 program	Bloom は MIT です · タスクバーアドオン PillTaskbar は GPL-3.0 の別プログラムです
-View source	ソースを見る
 Help	ヘルプ
 Problem report	問題の報告
 Copies the version, Windows and recent log (user name and e-mail addresses hidden) and opens a GitHub issue · Bloom sends nothing itself	バージョン · Windows · 最近のログをコピーし、GitHub の Issue 作成ページを開きます (ユーザー名とメールアドレスは伏せます) · Bloom からは何も送信しません
@@ -2503,7 +2532,6 @@ With the pointer over it	ポインターを乗せると
 What is below shows through while the pointer is there: 0 not at all, 100 fully	ポインターがある間、下が透けて見えます。0 はそのまま、100 は完全に透けます
 More · {0}	詳細 · {0} 件
 {0} to {1}	{0}～{1}
-Not downloaded yet	まだダウンロードしていません
 The taskbar add-on's files are not valid, or it needs a newer Bloom	タスクバーアドオンのファイルが正しくないか、より新しい Bloom が必要です
 Paused · Explorer kept crashing, so taskbar customization was turned off	停止中 · エクスプローラーが続けて停止したため、タスクバーのカスタマイズをオフにしました
 No symbols · this Windows version lacks the taskbar symbols it needs	シンボルなし · この Windows のバージョンには必要なタスクバーのシンボルがありません
@@ -2633,9 +2661,3 @@ just now	たった今
 Detach from the launcher	ランチャーから切り離す
 Always on top	常に手前に表示
 Attach to the launcher	ランチャーに付ける
-{0} · 1 call	{0} · 1 回呼び出し
-1 call	呼び出し 1
-Monitor 1	モニター 1
-Monitor 2	モニター 2
-Clean now	今すぐ解放
-1.2 GB freed	1.2 GB 解放

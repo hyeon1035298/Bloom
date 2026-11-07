@@ -76,6 +76,9 @@ internal sealed partial class Host
             case "cmd:capture":
                 StartLens("capture");
                 break;
+            case "cmd:record":
+                StartLens("record");
+                break;
             case "cmd:windows":
                 OpenWindows.Invalidate();
                 OpenView(Mode.Windows);

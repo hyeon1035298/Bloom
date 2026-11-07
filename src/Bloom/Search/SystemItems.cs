@@ -33,6 +33,7 @@ internal static class SystemItems
         Cmd("cmd:lens", "Bloom Lens", Tr("화면 영역을 골라 AI에게 묻기 · 번역 · 글자 복사 · 실시간 번역 · 캡처", "Pick an area of the screen: ask AI, translate, copy text, live translation, capture"), G.Page, "lens bloom lens 렌즈 블룸 렌즈 screen capture screenshot 캡처 스크린샷 화면 ai 질문 묻기 ocr 텍스트 추출 글자 읽기 번역 translate 실시간 번역 live");
         Cmd("cmd:capture", Tr("화면 캡처", "Screen capture"), Tr("고른 영역에 펜 · 형광펜으로 표시한 뒤 복사 · Ctrl+V로 붙여넣기 (Bloom Lens)", "Mark up an area with a pen or highlighter, then copy it · paste with Ctrl+V (Bloom Lens)"), G.Camera, "capture screenshot snip screen copy picture print screen annotate draw pen highlighter markup 캡처 캡쳐 스크린샷 화면 캡처 복사 그림 붙여넣기 스샷 펜 형광펜 그리기 표시");
         Cmd("cmd:pin", Tr("화면 고정", "Pin to the screen"), Tr("화면 영역을 그림으로 맨 위에 띄워 두기 (Bloom Lens)", "Keep an area of the screen on top as a picture (Bloom Lens)"), G.Pin, "pin screen capture screenshot float on top sticky picture snip 화면 고정 캡처 스크린샷 띄우기 맨 위 그림 고정 핀 붙이기");
+        Cmd("cmd:record", Tr("화면 녹화", "Screen recording"), Tr("고른 영역을 영상으로 녹화합니다 · 시스템 소리 · 마이크 선택 · 동영상 › Screen Recordings에 저장 (Bloom Lens)", "Records an area as a video · system sound and microphone optional · saved in Videos › Screen Recordings (Bloom Lens)"), G.Video, "record recording screen recorder video capture mp4 screencast clip 녹화 화면 녹화 영상 녹화 동영상 화면 영상 캡처 녹음 스크린 레코더");
         Cmd("cmd:timer", Tr("타이머 · 알림", "Timers · reminders"), Tr("예: \"10분 타이머\", \"3시 반에 회의 알림\"", "Or type \"10 min timer\", \"remind me at 3:30pm meeting\""), G.Stopwatch, "timer reminder alarm countdown pomodoro 타이머 알림 리마인더 알람 스톱워치 뽀모도로 카운트다운 시간 재기");
         Cmd("cmd:color", Tr("컬러 피커", "Color picker"), Tr("화면에서 색 찍기 · HEX · RGB · 그라데이션 추천", "Pick colours from the screen · HEX · RGB · gradient ideas"), G.Eyedrop, "color colour picker eyedropper hex rgb hsl gradient palette 컬러 피커 색 스포이드 색상 색깔 그라데이션 팔레트 색 추출");
         Cmd("cmd:notes", Tr("메모", "Notes"), Tr("여러 메모 · 적는 대로 저장 · 런처 옆에 붙여 쓰기", "Notes kept as you type · use them beside the launcher"), G.Document, "notes memo notepad sticky jot 메모 메모장 노트 적기 포스트잇");
@@ -163,6 +164,7 @@ internal static class G
     public const char Bell = '', Speed = '', Warning = '', Done = '', Code = '', Volume = '',
         Sync = '', Sliders = '', Gears = '', Clock = '', Screen = '', Bolt = '';
     public const char Stopwatch = '', Eyedrop = '', Pin = '', Camera = '', Attach = '';
+    public const char Video = ''; // 화면 녹화
     public const char Download = '';
     public const char Move = '\uE7C2'; // 설정 > 알림: 직접 옮기기
     public const char Account = ''; // 설정 > AI 계정 (Contact)

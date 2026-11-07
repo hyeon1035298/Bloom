@@ -31,6 +31,8 @@ internal static class Program
     ///       card, its answer as the hook's JSON; nothing starts).
     ///       --open <file> (Explorer's 연결 프로그램: a .md or other text file in its document window, an audio file in the
     ///       mini player — handed to the running Bloom, else Bloom starts in the tray with it open, without the launcher).
+    ///       --record <x> <y> <w> <h> <file.mp4> <-|sys|mic|sys+mic> (started by a Bloom that records the screen: the
+    ///       recording in a process of its own, driven over stdin/stdout; nothing else starts).
     [STAThread]
     private static int Main(string[] args)
     {
@@ -43,6 +45,8 @@ internal static class Program
         // Claude Code's PermissionRequest hook (설정 > 알림 > 알림 카드에서 승인): carries the request to the running Bloom's card
         // and prints its answer; no answer (Bloom not running, 터미널에서 답하기) leaves the terminal's own question
         if (args.Length >= 1 && args[0] == App.ClaudeApprovalHook.Arg) return App.ClaudeApprovalHook.Run(args);
+        // a screen recording (Ocr\ScreenRecorder.cs): its frames, encoder and sound live and die with this process
+        if (args.Length >= 1 && args[0] == Ocr.ScreenRecorder.Arg) return Ocr.ScreenRecorder.Run(args);
         // the setup's install / update / uninstall steps start Bloom with their own arguments and end in Run. A downloaded
         // update never goes in at a start of Velopack's choosing (a second Bloom started only to signal the first would
         // close it): Updates.ApplyAtStart and Updates.ApplyOnQuit do that.

@@ -196,6 +196,7 @@ Drag over the area to translate	拖动选择要翻译的区域
 Drag over the area to read	拖动选择要识别文字的区域
 Drag over the area to pin	拖动选择要固定在屏幕上的区域
 Drag over the area to capture	拖动选择要截图的区域
+Drag over the area to record	拖动选择要录制的区域
 Drag over the area to make a palette of	拖动选择要生成调色板的区域
 Drag over an area — then pick what to do	拖动选择区域，再选择要做的事
 Text recognition failed	文字识别失败
@@ -231,6 +232,17 @@ The picture is gone, so it can't be made again	原图已删除，无法重新生
 Copied {0}	已复制 {0}
 No response. Try again.	无响应。请重试。
 I ran ‘{0}’ on the text below; this was the result. Let's continue.\n\n[Text]\n{1}\n\n[Result]\n{2}	我对下面的文字执行了“{0}”，结果如下。我们继续吧。\n\n[原文]\n{1}\n\n[结果]\n{2}
+Recording saved	录屏已保存
+{0} · file copied to the clipboard · Screen Recordings	{0} · 文件已复制到剪贴板 · Screen Recordings
+{0} · {1} · Screen Recordings	{0} · {1} · Screen Recordings
+Open	打开
+Show in folder	在文件夹中显示
+Could not record the sound	无法录制声音
+Could not read the screen	无法读取屏幕
+Could not save the file	无法保存文件
+Could not make the video	无法生成视频
+Check the sound devices, or record again without sound	请检查声音设备，或不录声音再录一次
+Try again	请重试
 Export Bloom settings	导出 Bloom 设置
 Bloom settings (*.zip)|*.zip	Bloom 设置 (*.zip)|*.zip
 Settings export failed	设置导出失败
@@ -350,7 +362,6 @@ Paste	粘贴
 Copy only	仅复制
 Open in the browser	在浏览器中打开
 Open the image	打开图片
-Show in folder	在文件夹中显示
 Ask AI about this text	就这段文字问 AI
 Copied text	复制的文字
 Unpin	取消固定
@@ -575,7 +586,6 @@ Enter keeps it · it goes into Notes	按 Enter 保存 · 会存入便笺
 Keep	保存
 Kept as a note	已保存为笔记
 Note · {0}	便笺 · {0}
-Open	打开
 {0} notes	{0} 条
 New note	新便笺
 No area picked	未选择区域
@@ -583,7 +593,7 @@ Enter picks an area	按 Enter 选择区域
 Pick	选择
 Area	区域
 Picked at	选择时间
-1–7 right away	用 1–7 直接选
+1–8 right away	用 1–8 直接选
 1  Ask AI	1  问 AI
 Ask AI about the selected screen area · 1 use	将所选屏幕区域发送给 AI 提问 · 计入 1 次用量
 2  Translate	2  翻译
@@ -602,6 +612,9 @@ Copies this area as a picture · paste it anywhere with Ctrl+V	把此区域复�
 7  Color palette	7  调色板
 Makes a palette of this area's colours · done on this PC · no AI usage	用此区域的颜色生成调色板 · 在本机处理 · 不消耗 AI 用量
 Make	生成
+8  Screen recording	8  屏幕录制
+Records this area as a video · saved in Videos › Screen Recordings	将此区域录制为视频 · 保存到 视频 › Screen Recordings
+Record	录制
 Pick another area	选择其他区域
 Text read	识别的文字
 {0} lines · Windows OCR · read on this PC	{0} 行 · Windows OCR · 在本机识别
@@ -673,7 +686,6 @@ Replace the selection	替换选中的文字
 Paste into the window	粘贴到窗口
 Pastes back into the app (Ctrl+V)	粘贴回原应用（Ctrl+V）
 Continue in a chat	在对话中继续
-Try again	请重试
 Pick another action	选择其他操作
 Enter tries again	按 Enter 再试一次
 Actions	操作
@@ -963,6 +975,9 @@ Mini player	迷你播放器
 Dawn Walk	黎明散步
 ntpd	ntpd
 chrom	chrom
+Design review	设计评审
+Morning Walk	清晨散步
+Demo Tape	小样
 Rename	重命名
 File Explorer	文件资源管理器
 AI tokens	AI Token
@@ -985,9 +1000,6 @@ Refactor the sign-in screen, session expiry and the error wording in one go	一�
 “Also fix signing in again after the session drops, and add tests”	“会话断开后重新登录的流程也一起修好，再加上测试”
 Tidy the build script	整理构建脚本
 limit	limit
-Design review	设计评审
-Morning Walk	清晨散步
-Demo Tape	小样
 Sum up my week	总结一下我这周的安排
 One event this week:\n\n- **Tomorrow 3 PM** design review	本周有 1 个日程：\n\n- **明天 15:00** 设计评审
 in 100 days	in 100 days
@@ -1204,6 +1216,7 @@ Pin to the screen	固定到屏幕
 Ask AI	问 AI
 Make a color palette · the drawing included	生成调色板 · 包括画的内容
 Save the picture…	保存图片…
+Screen recording · records this area as a video	屏幕录制 · 将此区域录制为视频
 Cancel (Esc)	取消 (Esc)
 Bloom pinned picture	Bloom 固定图片
 Drag to move · wheel to size · Ctrl+wheel to fade · 0 back to size · double click · Esc closes · right click for more	拖动移动 · 滚轮调整大小 · Ctrl+滚轮调整透明度 · 0 恢复原大小 · 双击 · Esc 关闭 · 右键查看更多
@@ -1211,6 +1224,12 @@ Copy the picture	复制图片
 Read and copy the text	识别文字并复制
 Back to its size	恢复原大小
 Close	关闭
+System sound	系统声音
+In 3 s	3 秒后
+Recording system sound	正在录制系统声音
+Recording the microphone	正在录制麦克风
+Start recording	开始录制
+Start (Enter) · records in 3 s	开始 (Enter) · 3 秒后录制
 {0}  ·  Esc cancels	{0}  ·  Esc 取消
 Bloom live translation	Bloom 实时翻译
 Bloom translation	Bloom 翻译
@@ -1225,6 +1244,7 @@ Thinking level (higher is slower and uses more · saved in Settings too)	思考�
 Resume	继续
 Pause	暂停
 Translate again	重新翻译
+{0} · 1 call	{0} · 调用 1 次
 {0} · {1} calls	{0} · 调用 {1} 次
  · paused	 · 已暂停
  · reading every {0:0.#} s	 · 每 {0:0.#} 秒读取一次
@@ -1284,6 +1304,8 @@ Pick an area of the screen: ask AI, translate, copy text, live translation, capt
 Screen capture	屏幕截图
 Mark up an area with a pen or highlighter, then copy it · paste with Ctrl+V (Bloom Lens)	用笔 · 荧光笔在所选区域上标注后复制 · 用 Ctrl+V 粘贴 (Bloom Lens)
 Keep an area of the screen on top as a picture (Bloom Lens)	把屏幕区域作为图片置顶显示 (Bloom Lens)
+Screen recording	屏幕录制
+Records an area as a video · system sound and microphone optional · saved in Videos › Screen Recordings (Bloom Lens)	将所选区域录制为视频 · 可选系统声音和麦克风 · 保存到 视频 › Screen Recordings (Bloom Lens)
 Or type "10 min timer", "remind me at 3:30pm meeting"	或输入 "10 min timer"、"remind me at 3:30pm meeting"
 Pick colours from the screen · HEX · RGB · gradient ideas	从屏幕取色 · HEX · RGB · 渐变推荐
 Notes kept as you type · use them beside the launcher	边写边保存的便笺 · 放在启动器旁使用
@@ -1633,6 +1655,7 @@ At API prices {0}	按 API 价格折算 {0}
 Tokens	Token
 {0} tokens	Token {0}
 Calls	调用
+1 call	调用 1
 {0} calls	调用 {0}
 Cache hits	缓存命中
 {0} of {1} prompt tokens read from the cache	发送的输入 {1} 中从缓存读取 {0}
@@ -1918,6 +1941,10 @@ Saved ‘{0}’ · {1} songs	已保存“{0}” · {1} 首
 Added ‘{0}’ · {1} songs to the queue	已将“{0}”的 {1} 首加入播放队列
 ‘{0}’ moved to the Recycle Bin	已将“{0}”移到回收站
 Not deleted	未删除
+Monitor 1	显示器 1
+Monitor 2	显示器 2
+Clean now	立即清理
+1.2 GB freed	已释放 1.2 GB
 {0} API key	{0} API 密钥
 The key is stored encrypted on this PC only and used only for requests to {0}. Usage is billed to your {1} account.	密钥仅加密保存在这台电脑上，只用于发往 {0} 的请求。使用费用计入你的 {1} 账户。
 Open the key page	打开密钥页面
@@ -1973,25 +2000,26 @@ Update	更新
 Download {0} {1}	下载 {0} {1}
 From its GitHub release, checked by Bloom before it is installed	从其 GitHub 发布版下载，经 Bloom 校验后安装
 {0} {1} downloaded	已下载 {0} {1}
-Turn taskbar customization off and on to switch to the new version	关闭再开启任务栏自定义即可切换到新版本
-Turn this add-on off and on to switch to the new version	关闭再开启此加载项即可切换到新版本
-This add-on is a program separate from Bloom. It works by loading code into Explorer, and is licensed under {0}. The first start downloads the symbol files it needs from the Microsoft symbol server.	此加载项是独立于 Bloom 的程序，通过向资源管理器加载代码来运行，采用 {0} 许可。首次启动时会从 Microsoft 符号服务器下载所需的符号文件。
 Check your connection and try again	请检查网络连接后重试
 The downloaded file isn't the one Bloom expects, so it wasn't installed	下载的文件与 Bloom 预期的不同，因此未安装
 What the download holds isn't valid, so it wasn't installed	下载的内容无效，因此未安装
 Couldn't save the download · check the free disk space	无法保存下载的文件 · 请检查可用磁盘空间
 Add-ons	加载项
 Add-ons are separate programs Bloom starts, each turned on and off here. Click one to open its page. One you put in the user-addons folder in Bloom's local data folder shows after Bloom restarts.	加载项是由 Bloom 启动的独立程序，在这里逐个开启和关闭。点击卡片即可打开该加载项的页面。你自己放入 Bloom 本地数据文件夹中 user-addons 的加载项，在重新启动 Bloom 后显示。
-Its settings show here while it is on	开启后，此加载项的设置显示在这里
-This add-on has no settings to change in Bloom	此加载项没有可在 Bloom 中更改的设置
 All add-ons	加载项列表
 Turns the taskbar into a centred pill	将任务栏变为居中的药丸形状
 Starts taskbar customization again	重新启动任务栏自定义
-An add-on you added	你添加的加载项
+Turn taskbar customization off and on to switch to the new version	关闭再开启任务栏自定义即可切换到新版本
+Its settings show here while it is on	开启后，此加载项的设置显示在这里
 Starts this add-on again	重新启动此加载项
+Turn this add-on off and on to switch to the new version	关闭再开启此加载项即可切换到新版本
+An add-on you added	你添加的加载项
+This add-on has no settings to change in Bloom	此加载项没有可在 Bloom 中更改的设置
+View source	查看源代码
 Turn on again	重新开启
 Clears Explorer's crash record and turns it on again	清除资源管理器的崩溃记录并重新开启
 Not turned on in a development copy	开发副本中不会开启
+Not downloaded yet	尚未下载
 The add-on's files are not valid, or it needs a newer Bloom	加载项文件无效，或需要更新版本的 Bloom
 Bloom started with Shift held, so it is off this time	启动时按住了 Shift，本次未开启
 Turning on · downloading symbol files {0}%	正在开启 · 正在下载符号文件 {0}%
@@ -2004,6 +2032,7 @@ Could not download the symbol files · check your connection and try again	无�
 Explorer needs a restart · restart Explorer, then try again	需要重启资源管理器 · 请重启资源管理器后重试
 Stopped · this add-on stopped	已停止 · 此加载项已停止
 Turn on {0}	开启 {0}
+This add-on is a program separate from Bloom. It works by loading code into Explorer, and is licensed under {0}. The first start downloads the symbol files it needs from the Microsoft symbol server.	此加载项是独立于 Bloom 的程序，通过向资源管理器加载代码来运行，采用 {0} 许可。首次启动时会从 Microsoft 符号服务器下载所需的符号文件。
 An add-on you added is a separate program that Bloom neither made nor checked. Turning it on starts that program, and it may load code into Explorer. Only turn on add-ons you trust.	你添加的加载项是 Bloom 未制作也未检查的独立程序。开启后会启动该程序，它可能会向资源管理器载入代码。请只开启你信任的加载项。
 API keys	API 密钥
 Loading the model list…	正在加载模型列表…
@@ -2274,6 +2303,7 @@ Live translation right away	直接实时翻译
 Keeps reading the area and translates when it changes (ongoing usage)	持续读取区域，内容变化时翻译 (持续消耗额度)
 Capture right away	直接截图
 After the area: a pen and highlighter bar opens — Enter copies, Ctrl+V pastes	选择区域后打开笔 · 荧光笔工具栏 — Enter 复制，Ctrl+V 粘贴
+After the area: the recording bar opens · press it again while recording to stop	选好区域后打开录制栏 · 录制中再按一次即停止
 Item shortcuts	项目快捷键
 None yet	尚无项目
 Pick an app, folder, command or layout in the launcher, then Ctrl+K › Set a shortcut	在启动器中选择应用、文件夹、命令或布局，然后 Ctrl+K › 设置快捷键
@@ -2425,7 +2455,6 @@ What's new in this version	此版本的更新内容
 Also shown once at the first start after an update · Enter shows it	更新后首次启动时也会显示一次 · 按 Enter 查看
 License	许可证
 Bloom is MIT · the taskbar add-on PillTaskbar is a separate GPL-3.0 program	Bloom 采用 MIT · 任务栏插件 PillTaskbar 是采用 GPL-3.0 的独立程序
-View source	查看源代码
 Help	帮助
 Problem report	问题报告
 Copies the version, Windows and recent log (user name and e-mail addresses hidden) and opens a GitHub issue · Bloom sends nothing itself	复制版本、Windows 和最近日志（隐藏用户名和电子邮件地址），并打开 GitHub 问题页面 · Bloom 本身不发送任何内容
@@ -2503,7 +2532,6 @@ With the pointer over it	指针悬停时
 What is below shows through while the pointer is there: 0 not at all, 100 fully	指针在上方时可透出下方内容：0 不透，100 完全透明
 More · {0}	更多 · {0} 项
 {0} to {1}	{0} 到 {1}
-Not downloaded yet	尚未下载
 The taskbar add-on's files are not valid, or it needs a newer Bloom	任务栏加载项文件无效，或需要更新版本的 Bloom
 Paused · Explorer kept crashing, so taskbar customization was turned off	已暂停 · 资源管理器连续崩溃，已关闭任务栏自定义
 No symbols · this Windows version lacks the taskbar symbols it needs	无符号 · 此 Windows 版本缺少所需的任务栏符号
@@ -2633,9 +2661,3 @@ just now	刚刚
 Detach from the launcher	从启动器分离
 Always on top	始终置顶
 Attach to the launcher	附到启动器
-{0} · 1 call	{0} · 调用 1 次
-1 call	调用 1
-Monitor 1	显示器 1
-Monitor 2	显示器 2
-Clean now	立即清理
-1.2 GB freed	已释放 1.2 GB
