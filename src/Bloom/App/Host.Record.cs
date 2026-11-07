@@ -59,7 +59,7 @@ internal sealed partial class Host
             var s = Settings.Current;
             frame = new RecordingFrame(area);
             frame.Show(Theme.P.Accent.Color);
-            var surface = RecordSurface.Find();
+            var surface = RecordSurface.Find(area);
             bar = new RecordBar(surface, area, surface.Kind == RecordSurfaceKind.Island ? IslandInk() : Theme.P, s.RecordSystemAudio, s.RecordMic);
             bar.StartClicked += () => _ = Start();
             bar.CancelClicked += Finish;
