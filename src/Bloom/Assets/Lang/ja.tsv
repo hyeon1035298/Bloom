@@ -1862,7 +1862,6 @@ Calendar · {0} reminders	カレンダー · リマインダー {0} 件
 Calendar · reminders	カレンダー · リマインダー
 Find a shortcut · type an address and Enter to add one	ショートカットを探す · アドレスを入力して Enter で追加
 Browser · {0} · keyword + space + search	ブラウザー · {0} · キーワード + スペース + 検索語
-Find a command · scripts, snippets, chains	コマンドを探す · スクリプト、スニペット、チェーン
 Custom commands · {0} · keyword + space + input	カスタムコマンド · {0}件 · キーワード + スペース + 入力
 Apps	アプリ
 Find a program · Enter quits it · Ctrl+Enter closes its windows	プログラムを探す · Enter で強制終了 · Ctrl+Enter でウィンドウを閉じる
@@ -2683,3 +2682,66 @@ Show again	再表示
 Site shortcut	サイトショートカット
 System switch	システムスイッチ
 hidden	非表示
+The prompt is empty. Edit the command.	プロンプトが空です。コマンドを編集してください。
+Step {0} failed · {1}	ステップ {0} 失敗 · {1}
+I ran ‘{0}’; this was the result. Let's continue.\n\n[Result]\n{1}	‘{0}’を実行した結果です。続けて話しましょう。\n\n[結果]\n{1}
+AI command · Done	AIコマンド · 完了
+AI command · Failed	AIコマンド · 失敗
+Open chat	チャットを開く
+The chat was deleted	チャットは削除されました
+New AI command	新しいAIコマンド
+selection · clipboard · none — Enter alone takes the selection	選択 · クリップボード · なし — Enterだけで選択テキスト
+Enter selection, clipboard or none	選択、クリップボード、なしのいずれかを入力してください
+Schedule	スケジュール
+Schedule (optional) — e.g. 30m, 2h, 3d, daily 09:00 · only with no input	スケジュール（任意）— 例: 30分, 2時間, 3日, 毎日 09:00 · 入力が「なし」の場合のみ
+Only a command with no input can run on a schedule	スケジュールは入力が「なし」のコマンドにのみ設定できます
+Next run {0}	次回実行 {0}
+Open the results chat	結果のチャットを開く
+Set a schedule	スケジュールを設定
+Change the schedule	スケジュールを変更
+Stop the schedule	スケジュール実行をオフ
+Schedule off	スケジュール実行オフ
+‘{0}’ schedule	‘{0}’ のスケジュール
+AI command	AIコマンド
+Save an AI instruction you use often · run it on the selection or clipboard · >> for several steps	よく使うAIへの指示を名前を付けて保存 · 選択テキストやクリップボードに実行 · >> で複数ステップ
+Prompt	プロンプト
+What the AI should do — split steps by >>  e.g. Summarize in 3 lines >> Translate into Korean	AIにさせること — ステップは >> で区切る  例) 3行に要約 >> 英語に翻訳
+Enter what the AI should do	AIにさせることを入力してください
+No notifications	通知なし
+No matching notifications	該当する通知なし
+{0}/{1} {2:HH:mm}	{0}月{1}日 {2:HH:mm}
+Result	結果
+Copy the preview	プレビューをコピー
+Delete this notification	この通知を削除
+Deletes all {0} notifications.	通知 {0} 件をすべて削除します。
+‘{0}’ in progress… step {1}	‘{0}’ 実行中… ステップ {1}
+My AI commands	マイAIコマンド
+Tidy meeting notes	議事録の整理
+Only the decisions and to-dos as a list >> Translate into Korean	決定事項とやることだけをリストに >> 英語に翻訳
+Phrase of the day	今日の英語フレーズ
+One useful Korean phrase for today with two examples	今日使える英語フレーズ1つと例文2つ
+Summarize in 3 lines >> Translate into Korean	3行に要約 >> 英語に翻訳
+phrase of the	今日の英語
+Tomorrow's 3 pm meeting moves to 4. Min brings the slides, Ji books the room.	明日15時の会議は16時に変更します。資料は佐藤さん、会議室の予約は鈴木さんが担当します。
+**I'm swamped** — I have too much to do.\n1. I'm swamped this week.\n2. Sorry, I was swamped yesterday.	**I'm swamped** — やることが多すぎて手一杯。\n1. I'm swamped this week.（今週は手一杯です）\n2. Sorry, I was swamped yesterday.（昨日は忙しくてすみません）
+No input	入力なし
+Selected text	選択テキスト
+The shortest interval is 30 minutes	最短の間隔は30分です
+The interval can be at most 365 days	間隔は最長365日です
+e.g. 30m, 2h, 3d, daily 09:00	例: 30分, 2時間, 3日, 毎日 09:00
+Daily at {0}	毎日 {0}
+Every {0:0} d	{0:0}日ごと
+Every {0:0} h	{0:0}時間ごと
+Every {0:0} min	{0:0}分ごと
+Notification center	通知センター
+Find a command · scripts, snippets, chains, AI commands	コマンドを探す · スクリプト、スニペット、チェーン、AIコマンド
+Notification center · {0}	通知センター · {0}件
+Waiting for approval	承認待ち
+History	履歴
+Finished tasks, limits, approvals and command results collect here	作業完了 · 上限 · 承認待ち · ユーザーコマンドの結果がここにたまります
+Go to session	セッションへ移動
+Polish the sign-in screen	ログイン画面の調整
+Elapsed: 12 min	所要時間 12分
+Tidy the downloads folder	ダウンロードフォルダーの整理
+Finished tasks, limits, approvals and command results in one place	作業完了 · 上限 · 承認待ち · ユーザーコマンドの結果をひとまとめに
+Find a notification · Enter opens it	通知を検索 · Enterで開く

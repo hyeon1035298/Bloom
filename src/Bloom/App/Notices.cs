@@ -65,6 +65,7 @@ internal static class Notices
         last = new();
         first = true;
         window?.Clear();
+        NoticeLog.SettleAll();
     }
 
     /// 미리 보기 (설정 > 알림, and after a position or size change): a made-up card of each kind switched on, in place of
@@ -142,17 +143,29 @@ internal static class Notices
             if (t.Waiting && before?.Waiting != true)
             {
                 Cancel(t.Key);
-                if (!first && Settings.Current.NoticeWaiting && !approving.ContainsKey(t.Key)) Show(new Notice("waiting", Head(t.Tool, Tr("승인 대기", "Needs approval")), t.Title, Tr("승인 대기", "Approval pending"), t.Key, Click: Jump(t)));
+                if (!first && !approving.ContainsKey(t.Key))
+                {
+                    var n = new Notice("waiting", Head(t.Tool, Tr("승인 대기", "Needs approval")), t.Title, Tr("승인 대기", "Approval pending"), t.Key, Click: Jump(t));
+                    NoticeLog.Wait(t.Key, n.Head, n.Title, n.Detail, n.Click);
+                    if (Settings.Current.NoticeWaiting) Show(n);
+                }
             }
-            else if (!t.Waiting && before?.Waiting == true) window?.Remove(t.Key);
+            else if (!t.Waiting && before?.Waiting == true) Settled(t.Key);
         }
         foreach (var key in last.Keys.Where(k => !now.ContainsKey(k)))
         {
             Cancel(key);
-            window?.Remove(key);
+            Settled(key);
         }
         last = now;
         first = false;
+    }
+
+    /// A wait (or the turn) ended: its card goes, and 알림 센터's waiting line with it.
+    private static void Settled(string key)
+    {
+        window?.Remove(key);
+        NoticeLog.Settle(key);
     }
 
     private static void Starting(AgentTask t)
@@ -178,8 +191,8 @@ internal static class Notices
     {
         Cancel(t.Key);
         window?.Remove(t.Key);
-        if (!Settings.Current.Notices || !Settings.Current.NoticeDone || took < ShortestDone) return;
-        Show(new Notice("done", Head(t.Tool, Tr("작업 완료", "Done")), t.Title, Tr($"소요 시간 {Span(took)}", $"Elapsed: {Span(took)}"), Click: Jump(t)));
+        if (!Settings.Current.Notices || took < ShortestDone) return;
+        Card(Settings.Current.NoticeDone, new Notice("done", Head(t.Tool, Tr("작업 완료", "Done")), t.Title, Tr($"소요 시간 {Span(took)}", $"Elapsed: {Span(took)}"), Click: Jump(t)), true);
     }
 
     /// The click of a turn's card: to the window its CLI runs in. A headless run (a program's `claude -p`, `codex exec`)
@@ -216,15 +229,22 @@ internal static class Notices
                 string who = Who(a, all);
                 if (level == 0)
                 {
-                    if (s.NoticeRecover && before.resets is { } r && DateTime.Now >= r.AddMinutes(-1))
-                        Show(new Notice("recover", Head(who, Tr("한도 복구", "Limit reset")), Tr($"{l.Title} 한도 초기화 완료", $"{l.Title} limit reset"), null));
+                    if (before.resets is { } r && DateTime.Now >= r.AddMinutes(-1))
+                        Card(s.NoticeRecover, new Notice("recover", Head(who, Tr("한도 복구", "Limit reset")), Tr($"{l.Title} 한도 초기화 완료", $"{l.Title} limit reset"), null), true);
                     continue;
                 }
-                if (level < before.level || !s.NoticeLimit) continue;
-                Show(level == 2
+                if (level < before.level) continue;
+                Card(s.NoticeLimit, level == 2
                     ? new Notice("limit", Head(who, Tr("한도 소진", "Limit used up")), Tr($"{l.Title} 한도 소진", $"{l.Title} limit used up"), ResetsIn(l))
-                    : new Notice("limit", Head(who, Tr("한도 임박", "Limit near")), Tr($"{l.Title} 한도 {Math.Round(left)}% 남음", $"{l.Title} limit · {Math.Round(left)}% left"), ResetsIn(l)));
+                    : new Notice("limit", Head(who, Tr("한도 임박", "Limit near")), Tr($"{l.Title} 한도 {Math.Round(left)}% 남음", $"{l.Title} limit · {Math.Round(left)}% left"), ResetsIn(l)), false);
             }
+    }
+
+    /// A card of a kind with its own switch in 설정 > 알림 (`on`); 알림 센터 keeps it either way (`ok`: how it reads there).
+    private static void Card(bool on, Notice n, bool ok)
+    {
+        NoticeLog.Add(ok, n.Head, n.Title, n.Detail, null, open: n.Click);
+        if (on) Show(n);
     }
 
     /// "40분 뒤 초기화" for a limit whose reset is ahead.
@@ -235,10 +255,13 @@ internal static class Notices
 
     /// The end of something the user started in Bloom (a hidden 내 명령 script, a chain with skipped lines, a file moved
     /// or copied): shown whether or not 작업 알림 is on, as it answers the user's own action.
-    public static void Result(bool ok, string head, string title, string? detail, string? actionText = null, Action? action = null)
+    /// `click`: what a click on the card itself does (an AI command's result: its chat). `keep`: 알림 센터 keeps it too
+    /// (내 명령's results, with the chat `thread` an AI command's answer went into).
+    public static void Result(bool ok, string head, string title, string? detail, string? actionText = null, Action? action = null, Action? click = null, bool keep = false, string? thread = null)
     {
         QaResults?.Add((ok ? "✓ " : "✕ ") + title + (detail is null ? "" : " · " + detail));
-        Show(new Notice(ok ? "done" : "limit", head, title, detail, ActionText: actionText, Action: action));
+        if (keep) NoticeLog.Add(ok, head, title, detail, thread, open: thread is null ? action : null);
+        Show(new Notice(ok ? "done" : "limit", head, title, detail, ActionText: actionText, Action: action, Click: click));
     }
 
     /// QA runs (`--qa-set datawipe`): the result cards' lines, in order.
@@ -271,7 +294,8 @@ internal static class Notices
     {
         if (!Settings.Current.Notices || (!Quiet && UserBusy())) return false;
         approving[session] = approving.GetValueOrDefault(session) + 1;
-        window?.Remove(session);
+        Settled(session); // this card takes the session's 승인 대기 place
+        if (n.Key is { } key) NoticeLog.Wait(key, n.Head, n.Title, n.Detail ?? n.Body, n.Click);
         Show(n, asked: true);
         return true;
     }
@@ -281,7 +305,7 @@ internal static class Notices
     {
         if (approving.TryGetValue(session, out int open) && open > 1) approving[session] = open - 1;
         else approving.Remove(session);
-        window?.Remove(key);
+        Settled(key);
     }
 
     /// A card (and its sound) — not over a full-screen game or presentation, unless asked for (미리 보기).

@@ -1862,7 +1862,6 @@ Calendar · {0} reminders	日历 · {0} 个提醒
 Calendar · reminders	日历 · 提醒
 Find a shortcut · type an address and Enter to add one	查找快捷方式 · 输入网址后按 Enter 添加
 Browser · {0} · keyword + space + search	浏览器 · {0} · 关键词 + 空格 + 搜索词
-Find a command · scripts, snippets, chains	查找命令 · 脚本、片段、组合
 Custom commands · {0} · keyword + space + input	自定义命令 · {0} 个 · 关键词 + 空格 + 输入
 Apps	应用
 Find a program · Enter quits it · Ctrl+Enter closes its windows	查找程序 · Enter 强制结束 · Ctrl+Enter 关闭其窗口
@@ -2683,3 +2682,66 @@ Show again	恢复显示
 Site shortcut	网站快捷方式
 System switch	系统开关
 hidden	已隐藏
+The prompt is empty. Edit the command.	提示词为空。请编辑命令。
+Step {0} failed · {1}	第 {0} 步失败 · {1}
+I ran ‘{0}’; this was the result. Let's continue.\n\n[Result]\n{1}	我运行了‘{0}’，结果如下。我们接着聊。\n\n[结果]\n{1}
+AI command · Done	AI 命令 · 完成
+AI command · Failed	AI 命令 · 失败
+Open chat	打开对话
+The chat was deleted	对话已删除
+New AI command	新建 AI 命令
+selection · clipboard · none — Enter alone takes the selection	选中 · 剪贴板 · 无 — 直接按 Enter 即为选中文本
+Enter selection, clipboard or none	请输入选中、剪贴板或无
+Schedule	定时
+Schedule (optional) — e.g. 30m, 2h, 3d, daily 09:00 · only with no input	定时（可选）— 例：30分钟、2小时、3天、每天 09:00 · 仅限输入为“无”
+Only a command with no input can run on a schedule	只有输入为“无”的命令才能定时运行
+Next run {0}	下次运行 {0}
+Open the results chat	打开结果对话
+Set a schedule	设置定时
+Change the schedule	更改定时
+Stop the schedule	关闭定时运行
+Schedule off	定时运行已关闭
+‘{0}’ schedule	‘{0}’ 的定时
+AI command	AI 命令
+Save an AI instruction you use often · run it on the selection or clipboard · >> for several steps	用名称保存常用的 AI 指令 · 对选中文本或剪贴板运行 · 用 >> 分多步
+Prompt	提示词
+What the AI should do — split steps by >>  e.g. Summarize in 3 lines >> Translate into Korean	要 AI 做的事 — 用 >> 分隔步骤  例）概括为 3 行 >> 翻译成英语
+Enter what the AI should do	请输入要 AI 做的事
+No notifications	没有通知
+No matching notifications	没有匹配的通知
+{0}/{1} {2:HH:mm}	{0}月{1}日 {2:HH:mm}
+Result	结果
+Copy the preview	复制预览
+Delete this notification	删除此通知
+Deletes all {0} notifications.	将删除全部 {0} 条通知。
+‘{0}’ in progress… step {1}	‘{0}’ 进行中… 第 {1} 步
+My AI commands	我的 AI 命令
+Tidy meeting notes	整理会议记录
+Only the decisions and to-dos as a list >> Translate into Korean	只把决定和待办列成清单 >> 翻译成英语
+Phrase of the day	今日英语表达
+One useful Korean phrase for today with two examples	一个今天用得上的英语表达和两个例句
+Summarize in 3 lines >> Translate into Korean	概括为 3 行 >> 翻译成英语
+phrase of the	今日英语
+Tomorrow's 3 pm meeting moves to 4. Min brings the slides, Ji books the room.	明天下午 3 点的会议改到 4 点。小明准备资料，小丽负责订会议室。
+**I'm swamped** — I have too much to do.\n1. I'm swamped this week.\n2. Sorry, I was swamped yesterday.	**I'm swamped** — 事情多到忙不过来。\n1. I'm swamped this week.（这周忙不过来）\n2. Sorry, I was swamped yesterday.（抱歉，昨天太忙了）
+No input	无输入
+Selected text	选中的文本
+The shortest interval is 30 minutes	最短间隔为 30 分钟
+The interval can be at most 365 days	间隔最长为 365 天
+e.g. 30m, 2h, 3d, daily 09:00	例：30分钟、2小时、3天、每天 09:00
+Daily at {0}	每天 {0}
+Every {0:0} d	每 {0:0} 天
+Every {0:0} h	每 {0:0} 小时
+Every {0:0} min	每 {0:0} 分钟
+Notification center	通知中心
+Find a command · scripts, snippets, chains, AI commands	查找命令 · 脚本、片段、组合、AI 命令
+Notification center · {0}	通知中心 · {0} 条
+Waiting for approval	等待批准
+History	记录
+Finished tasks, limits, approvals and command results collect here	任务完成、额度、等待批准和用户命令的结果会汇集在这里
+Go to session	前往会话
+Polish the sign-in screen	完善登录界面
+Elapsed: 12 min	耗时 12 分钟
+Tidy the downloads folder	整理下载文件夹
+Finished tasks, limits, approvals and command results in one place	任务完成、额度、等待批准和用户命令的结果集中一处
+Find a notification · Enter opens it	查找通知 · 按 Enter 打开

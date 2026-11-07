@@ -18,6 +18,33 @@ internal static class MarkdownText
     /// A line's quote marks (">", "> >", ">>" …), as Ui\Markdown.cs takes them off: each > and one space after it.
     private static readonly Regex QuoteMarks = new(@"^(\s*>\s?)*");
 
+    private static readonly Regex Heading = new(@"^#{1,6}\s+");
+    private static readonly Regex Link = new(@"!?\[([^\]]*)\]\([^)]*\)"); // [text](url) and ![alt](url) → the words
+    private static readonly Regex Strong = new(@"(\*\*|__|~~)(.+?)\1");
+    private static readonly Regex Emphasis = new(@"(?<![\w*])\*(?=\S)([^*]+?)(?<=\S)\*(?![\w*])"); // *word*, not 2*3*4
+
+    /// The text without its Markdown marks, for a one-line look (알림 센터, result cards): headings, quote marks, list
+    /// markers and checklist boxes off each line, code fences dropped, **bold**, *italic*, ~~struck~~, `code` and links
+    /// as their plain words.
+    public static string Plain(string text)
+    {
+        var sb = new System.Text.StringBuilder(text.Length);
+        foreach (string raw in text.Split('\n'))
+        {
+            string line = raw.TrimEnd('\r');
+            if (Fence(line) is not null) continue;
+            line = line[QuoteMarks.Match(line).Length..];
+            line = Heading.Replace(line, "");
+            if (ListItem.Match(line) is { Success: true } item) line = TaskBox.Replace(item.Groups[3].Value, "");
+            line = Link.Replace(line, "$1");
+            line = Strong.Replace(line, "$2");
+            line = Emphasis.Replace(line, "$1");
+            line = line.Replace("`", "", StringComparison.Ordinal);
+            sb.Append(line).Append('\n');
+        }
+        return sb.ToString().TrimEnd('\n');
+    }
+
     /// The fence a line opens or closes code with (``` or ~~~, at any indent, in a list item too), or null:
     /// Ui\Markdown.cs draws code by the same rule.
     public static string? Fence(string line)

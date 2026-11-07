@@ -837,6 +837,29 @@ internal sealed partial class Chats
         if (sessions.TryGetValue(t.Id, out var s)) s.Interrupt();
     }
 
+    /// A question and its answer that ran without a session (a scheduled 내 AI 명령), added to the conversation `id`, or to
+    /// a new one (`title`, `model`) when that is gone or busy. Its session is forgotten, so the next message starts a fresh
+    /// one that is given the conversation so far, this answer included.
+    public ChatThread Record(string? id, string title, string model, string asked, string answer, bool error)
+    {
+        var t = id is null ? null : Threads.Find(x => x.Id == id);
+        if (t is null || t.Busy || preparing.ContainsKey(t.Id) || finishing.ContainsKey(t.Id))
+        {
+            t = New();
+            t.Model = model;
+            t.Effort = AiModels.DefaultEffort(model);
+            t.Title = title;
+        }
+        else if (sessions.ContainsKey(t.Id)) EndSession(t);
+        t.SessionId = t.SessionProvider = t.SessionAccount = null;
+        long now = Now;
+        t.Messages.Add(new ChatMessage { Role = "user", Text = asked, Sent = asked, At = now });
+        t.Messages.Add(new ChatMessage { Role = "assistant", Text = answer, Error = error, At = now });
+        Touch(t);
+        Updated?.Invoke(t);
+        return t;
+    }
+
     public void Delete(ChatThread t)
     {
         Task previousDelete = WhenDeleted(t);
