@@ -360,6 +360,7 @@ internal sealed partial class Launcher
             Select(rows.IndexOf(r), false);
             RunAction(act);
         };
+        if (item.MoveTo is not null) RowReorder.Attach(r, RefreshTo);
         rows.Add(r);
         return r;
     }

@@ -55,6 +55,8 @@ internal sealed partial class Engine
         item.Accessory = c.Keyword;
         string text = UserCommands.SnippetText(c.Body);
         item.Detail = () => TextDetail(text, Tr("상용구", "Snippet")).Add(Tr("단축어", "Keyword"), c.Keyword);
+        // the list keeps the file's order: a row dragged to another place stays there (row ids are "my:" + the command's)
+        item.MoveTo = (target, after) => UserCommands.Move(c.Id, target[(target.IndexOf(':') + 1)..], after);
         return item;
     }
 

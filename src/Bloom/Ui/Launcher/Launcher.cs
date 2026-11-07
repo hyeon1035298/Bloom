@@ -730,6 +730,9 @@ internal sealed partial class Launcher : Window, IChatHost
     // ── QA hooks (Captures) ─────────────────────────────────────────────────────────────────────
     public void MoveForQa(int delta) => Move(delta);
 
+    /// The list row `index` dragged `dy` down (RowReorder); with `drop`, released there.
+    public void DragRowForQa(int index, double dy, bool drop) => RowReorder.DragForQa(rows[index], dy, drop, RefreshTo);
+
     public FavStrip? StripForQa => strip;
 
     public void FormNextForQa() => FormNext();

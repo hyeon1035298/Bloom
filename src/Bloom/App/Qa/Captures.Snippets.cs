@@ -71,6 +71,16 @@ internal static partial class Captures
         w.OpenActions();
         await Snap(w, dir, "dark-s6-snippet-actions");
         w.CloseActionsForQa();
+
+        // the last snippet dragged above the first: its line on the way, the new order after the drop
+        string Order() => string.Join(" · ", UserCommands.Current.Items.Where(c => c.Kind == "snippet").Select(c => c.Name));
+        log.AppendLine($"order before the drag: {Order()}");
+        w.DragRowForQa(2, -100, false);
+        await Snap(w, dir, "dark-s6b-snippet-drag");
+        w.DragRowForQa(2, -100, true);
+        await Task.Delay(300);
+        log.AppendLine($"order after the drag: {Order()} · selected {w.Selected?.Title}");
+        await Snap(w, dir, "dark-s6c-snippet-dropped");
         await Shot(w, dir, "dark-s7-snippets-search", Mode.Clipboard, Tr("입금", "payment"), 500);
         log.AppendLine($"search keeps the tab: {w.ClipTab}");
         await Shot(w, dir, "dark-s8-snippets-new", Mode.Clipboard, Tr("오늘은 휴무입니다", "Closed today"), 500);

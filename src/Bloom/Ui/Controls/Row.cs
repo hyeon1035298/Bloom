@@ -14,7 +14,7 @@ internal sealed class Row : SmoothBorder
 {
     public ResultItem? Item { get; private set; } // this opening's (Reuse puts the new one in)
     public bool Selectable = true;
-    private bool selected, hover;
+    private bool selected, hover, lifted;
     public Action? Clicked, RightClicked;
     public Action? Tick; // once a second while shown (a live accessory)
     public Action<ActionItem>? SideClicked; // the item's side button (관리자로 실행) was pressed
@@ -94,6 +94,17 @@ internal sealed class Row : SmoothBorder
         }
     }
 
+    /// Being dragged to another place (RowReorder): a solid fill, over the rows it passes.
+    public bool Lifted
+    {
+        get => lifted;
+        set
+        {
+            lifted = value;
+            Paint();
+        }
+    }
+
     /// Shown again as it was (the launcher's kept home): no hover or selection left from before (a hidden window's rows
     /// may never hear the mouse leave), a live accessory up to date. `fresh` is this opening's item, shown alike: what
     /// the row runs is that one (the old one's actions may hang on what is gone, a clip copied again).
@@ -115,7 +126,7 @@ internal sealed class Row : SmoothBorder
             return;
         }
         // the chosen row by its fill alone (no mark in the accent: that is for what is on)
-        Background = selected ? Theme.P.Selected : hover && Selectable ? Theme.P.Hover : Brushes.Transparent;
+        Background = lifted ? Theme.P.Popup : selected ? Theme.P.Selected : hover && Selectable ? Theme.P.Hover : Brushes.Transparent;
         if (side is not null) side.Visibility = selected ? Visibility.Visible : Visibility.Collapsed;
         if (enter is not null) enter.Visibility = selected ? Visibility.Visible : Visibility.Collapsed;
     }

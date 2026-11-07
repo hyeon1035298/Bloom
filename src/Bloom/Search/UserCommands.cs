@@ -79,6 +79,18 @@ internal sealed partial class UserCommands
         Touch();
     }
 
+    /// Dragged in a list (상용구): `id` put just before, or after, `target`; the other commands keep their order.
+    public static void Move(string id, string target, bool after)
+    {
+        var items = Current.Items;
+        int from = items.FindIndex(x => x.Id == id);
+        if (from < 0 || id == target || !items.Exists(x => x.Id == target)) return;
+        var c = items[from];
+        items.RemoveAt(from);
+        items.Insert(items.FindIndex(x => x.Id == target) + (after ? 1 : 0), c);
+        Touch();
+    }
+
     public static void Remove(UserCommand c)
     {
         if (Current.Items.RemoveAll(x => x.Id == c.Id) > 0) Touch();

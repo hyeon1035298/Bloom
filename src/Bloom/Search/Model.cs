@@ -85,6 +85,7 @@ internal sealed class ResultItem
     public Func<string>? Live; // an accessory that changes every second (a timer's time left)
     public ActionItem? Side; // a button on the row while it is selected (관리자로 실행); also in the 더보기 menu
     public Action? Remove; // 홈 편집: a ✕ at the row's end that takes it off its block (the 명령 block's commands)
+    public Action<string, bool>? MoveTo; // dragged in its list (RowReorder): put before, or after (true), the item with that id
     public IconSpec Icon = new();
     public int Score;
     public object? Data;

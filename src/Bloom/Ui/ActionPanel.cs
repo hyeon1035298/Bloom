@@ -146,7 +146,10 @@ internal sealed class ActionPanel : SmoothBorder
             RenderTransformOrigin = new Point(1, 0.5);
         }
         VerticalAlignment = VerticalAlignment.Top;
-        Margin = new Thickness(0, top, Math.Max(12, body.ActualWidth - a.Right + 10), 0);
+        // its right edge meets the row's, but a row in a split view's left column ends near the middle: kept inside the
+        // body's left edge there, where the panel was cut off (more so at a larger size, the body being fewer dips wide)
+        double right = Math.Max(12, body.ActualWidth - a.Right + 10);
+        Margin = new Thickness(0, top, Math.Max(0, Math.Min(right, body.ActualWidth - Width - Edge)), 0);
     }
 
     /// The panel's height once it fits the body. A long list scrolls inside the panel instead of running past the
