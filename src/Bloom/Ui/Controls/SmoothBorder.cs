@@ -37,12 +37,41 @@ internal class SmoothBorder : Border
     private CornerRadius builtRadius;
     private double builtThickness = -1;
 
+    // Lift drawn in software: the shadow's blur, drop and darkness, and its rings for the size built
+    private (double blur, double depth, double opacity)? soft;
+    private Geometry[]? rings;
+    private const int RingCount = 14;
+
+    /// A floating card's shadow (menus, the 더보기 panel), black, `depth` below it. With the GPU it is a
+    /// DropShadowEffect. Drawn in software (GPU로 그리기 off, the default) that blur is worked out again on the CPU for
+    /// any change inside the card, a row lit under the pointer too, and for each frame of its growth: about 13 ms a
+    /// step and 190 ms an opening in the launcher (popup-perf), the menus lagging behind the pointer. There the card
+    /// draws a soft shadow itself instead, rings around its shape fading out, which only a changed part redraws.
+    public void Lift(double blur, double depth, double opacity)
+    {
+        bool software = RenderOptions.ProcessRenderMode == System.Windows.Interop.RenderMode.SoftwareOnly || RenderCapability.Tier >> 16 == 0;
+        if (software)
+        {
+            soft = (blur, depth, opacity);
+            rings = null;
+            InvalidateVisual();
+        }
+        else Effect = new System.Windows.Media.Effects.DropShadowEffect { BlurRadius = blur, ShadowDepth = depth, Direction = 270, Opacity = opacity, Color = Colors.Black };
+    }
+
+    /// The shadow every popup menu and dropdown list has.
+    public void LiftMenu() => Lift(26, 6, 0.3);
+
+    /// The drawn shadow is not part of the card: a click on it goes to whatever is under it (outside a popup: closes it).
+    protected override HitTestResult? HitTestCore(PointHitTestParameters hit) =>
+        soft is not null && !new Rect(RenderSize).Contains(hit.HitPoint) ? null : base.HitTestCore(hit);
+
     protected override void OnRender(DrawingContext dc)
     {
         var size = new Size(ActualWidth, ActualHeight);
         if (size.Width <= 0 || size.Height <= 0) return;
         var cr = CornerRadius;
-        if (cr.TopLeft + cr.TopRight + cr.BottomRight + cr.BottomLeft <= 0 && TopLine is null && BottomLine is null)
+        if (cr.TopLeft + cr.TopRight + cr.BottomRight + cr.BottomLeft <= 0 && TopLine is null && BottomLine is null && soft is null)
         {
             base.OnRender(dc);
             return;
@@ -55,7 +84,9 @@ internal class SmoothBorder : Border
             builtFor = size;
             builtRadius = CornerRadius;
             builtThickness = t;
+            rings = null;
         }
+        if (soft is { } s) DrawSoftShadow(dc, size, s);
         if (Background is { } bg) dc.DrawGeometry(bg, null, fill);
         if (TopLine is not null || BottomLine is not null)
         {
@@ -65,6 +96,44 @@ internal class SmoothBorder : Border
             dc.Pop();
         }
         if (stroke is not null && BorderBrush is { } line) dc.DrawGeometry(null, new Pen(line, t), stroke);
+    }
+
+    /// RingCount copies of the shape, `depth` lower, from half the blur narrower to half the blur wider, laid over one
+    /// another with the same faint black: where they all overlap it is about `opacity` dark, half that at the card's
+    /// edge, fading to nothing at the widest, as a blur would. The card's own background covers the part under it.
+    private void DrawSoftShadow(DrawingContext dc, Size size, (double blur, double depth, double opacity) s)
+    {
+        if (rings is null)
+        {
+            rings = new Geometry[RingCount];
+            double reach = s.blur / 2;
+            for (int i = 0; i < RingCount; i++)
+            {
+                double grow = reach * (1 - 2.0 * i / (RingCount - 1)); // +reach … −reach
+                var cr = CornerRadius;
+                var r = new Rect(-grow, s.depth - grow, Math.Max(0, size.Width + 2 * grow), Math.Max(0, size.Height + 2 * grow));
+                rings[i] = Shape(r, new CornerRadius(cr.TopLeft + grow, cr.TopRight + grow, cr.BottomRight + grow, cr.BottomLeft + grow));
+            }
+        }
+        // each layer's alpha so that RingCount of them come to `opacity`: 1 - (1 - a)^n = opacity
+        double a = 1 - Math.Pow(1 - s.opacity, 1.0 / RingCount);
+        var ink = RingInk(a);
+        foreach (var g in rings) dc.DrawGeometry(ink, null, g);
+    }
+
+    private static readonly Dictionary<byte, SolidColorBrush> RingInks = new();
+
+    private static SolidColorBrush RingInk(double alpha)
+    {
+        byte key = (byte)Math.Round(alpha * 255);
+        lock (RingInks)
+        {
+            if (RingInks.TryGetValue(key, out var hit)) return hit;
+            var b = new SolidColorBrush(Color.FromArgb(key, 0, 0, 0));
+            b.Freeze();
+            RingInks[key] = b;
+            return b;
+        }
     }
 
     private static readonly Dictionary<(double w, double h, double tl, double tr, double br, double bl), Geometry> Cache = new();

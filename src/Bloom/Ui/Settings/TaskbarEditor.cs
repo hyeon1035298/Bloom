@@ -633,9 +633,9 @@ internal sealed class TaskbarEditor : Border
             Width = width,
             Margin = new Thickness(14, 4, 14, 20),
             Child = body,
-            Effect = new System.Windows.Media.Effects.DropShadowEffect { BlurRadius = 26, ShadowDepth = 6, Direction = 270, Opacity = 0.3, Color = Colors.Black },
             LayoutTransform = Theme.Zoom,
         };
+        card.LiftMenu();
         var popup = new Popup { Child = card, AllowsTransparency = true, StaysOpen = false, PlacementTarget = under, Placement = PlacementMode.Bottom, HorizontalOffset = -14 };
         return (popup, body);
     }

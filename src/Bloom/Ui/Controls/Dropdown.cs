@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using System.Windows.Media;
 using Bloom.Search;
 
 namespace Bloom.Ui;
@@ -16,7 +15,7 @@ internal sealed class Dropdown : SmoothBorder
     private readonly (string value, string label, string? sub)[] options;
     private readonly TextBlock text;
     private readonly System.Windows.Controls.Primitives.Popup popup;
-    private readonly Border card;
+    private readonly SmoothBorder card;
     private readonly StackPanel list = new();
     private readonly List<Row> rows = new();
     private int sel;
@@ -54,8 +53,8 @@ internal sealed class Dropdown : SmoothBorder
             MinWidth = 280,
             Margin = new Thickness(14, 4, 14, 20), // room for the shadow inside the popup
             Child = sv,
-            Effect = new System.Windows.Media.Effects.DropShadowEffect { BlurRadius = 26, ShadowDepth = 6, Direction = 270, Opacity = 0.3, Color = Colors.Black },
         };
+        card.LiftMenu();
         card.LayoutTransform = Theme.Zoom; // a popup is a window of its own: Bloom's scale reaches it this way
         popup = new System.Windows.Controls.Primitives.Popup
         {

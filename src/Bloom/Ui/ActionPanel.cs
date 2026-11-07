@@ -43,7 +43,7 @@ internal sealed class ActionPanel : SmoothBorder
         BorderThickness = new Thickness(1);
         CornerRadius = new CornerRadius(12);
         Padding = new Thickness(0, 8, 0, 0);
-        Effect = new System.Windows.Media.Effects.DropShadowEffect { BlurRadius = 28, ShadowDepth = 6, Opacity = 0.28, Color = Colors.Black, Direction = 270 };
+        Lift(28, 6, 0.28);
         RenderTransformOrigin = new Point(1, 1);
         RenderTransform = scale;
         Padding = new Thickness(0);
