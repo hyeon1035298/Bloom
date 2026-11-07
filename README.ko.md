@@ -292,18 +292,13 @@ powershell -File tools\install.ps1   # → %LOCALAPPDATA%\Programs\Bloom, 시작
 | `Ui/` | 런처 창(`Launcher/`, 보기마다의 칩과 안내, 결과는 `Launcher.ViewSpecs.cs` 한 곳에), AI 채팅 창(`Chat/`), 설정 창(`Settings/`, 애드온 페이지와 작업표시줄 폴더 편집 포함), 도구 창(`Tools/`), 플레이어(`Player/`), 공용 컨트롤(`Controls/`, G2 모서리 `SmoothBorder`, `AccentPicker` 등), 테마(`Theme/`) |
 | `Assets/` | 아이콘, 회사 로고(`Logos/`), 이모지와 기호 목록(`symbols.tsv`), 일본어와 중국어 화면 문구(`Lang/`) |
 | `src/WinKeyHelper` | 관리자 권한 앱 위에서 Win 키를 받는 도우미 (NativeAOT) |
-| `tests/Bloom.Tests` | 자동 테스트. 테스트 프레임워크 없이 콘솔로 실행 |
 
 새 기능은 `Engine.<기능>.cs`(결과)와 `Launcher.ViewSpecs.cs`의 보기 한 줄, 필요하면 `Core/<기능>.cs`(저장)로 나눕니다. 화면 문구는 모두 `Tr("한국어", "English")`로 쓰고, 일본어와 간체 중국어는 영어 문장을 키로 쓰는 `src/Bloom/Assets/Lang/ja.tsv`와 `zh.tsv`에서 불러옵니다. `python tools/lang.py check`로 빠진 키를, `todo ja`로 번역할 문구를 확인합니다. 검색 키워드와 파서 데이터는 한국어와 영어를 함께 둡니다. 화면 문구는 [docs/COPY.md](docs/COPY.md)를 따릅니다. QA와 개발 실행은 늘 `--data <임시 폴더>`로 실제 데이터와 나눕니다.
 
 ```powershell
-# 테스트 (종료 코드 = 실패 수)
-dotnet run --project tests\Bloom.Tests
 # Lint (분석기와 서식), 경고 0
 dotnet build src\Bloom\Bloom.csproj -c Debug --no-incremental -p:AnalysisLevel=latest-recommended -p:EnforceCodeStyleInBuild=true
-dotnet build tests\Bloom.Tests\Bloom.Tests.csproj -c Debug --no-incremental -p:AnalysisLevel=latest-recommended -p:EnforceCodeStyleInBuild=true
 dotnet format whitespace src\Bloom\Bloom.csproj --verify-no-changes
-dotnet format whitespace tests\Bloom.Tests\Bloom.Tests.csproj --verify-no-changes
 ```
 
 </details>

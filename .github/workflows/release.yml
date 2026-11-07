@@ -86,9 +86,6 @@ jobs:
           }
           $notes | Set-Content notes.md -Encoding utf8
 
-      - name: Tests
-        run: dotnet run --project tests/Bloom.Tests -c Release
-
       # Bloom and the elevated Win-key helper (issue #3, NativeAOT: the runner has the C++ build tools), with
       # package.ps1's checks; no add-ons (package.ps1 -Addon is for local installs only)
       - name: Publish

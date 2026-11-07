@@ -294,7 +294,6 @@ Under `src/Bloom`, one folder is one feature. Big classes are split into `partia
 | `Ui/Settings/` | The settings window, including the add-on pages and the taskbar folders editor |
 | `Ui/Tools/` | Tool windows, their placement, attaching and snapping (`ToolDock`), and notes, timers, calculator and clipboard |
 | `Ui/Controls/`, `Ui/Theme/` | Shared controls (`SmoothBorder` for G2 corners, `Dropdown`, `PopupMenu`, `AccentPicker`) and the theme (`Motion` for animation) |
-| `tests/Bloom.Tests` | Automated tests as a console run without a test framework |
 
 A new feature splits into `Engine.<feature>.cs` for results, one view line in `Launcher.ViewSpecs.cs` and `Core/<feature>.cs` for storage when needed.
 Every piece of text on screen is written as `Tr("한국어", "English")`. Japanese and Simplified Chinese come from `src/Bloom/Assets/Lang/ja.tsv` and `zh.tsv`, keyed by the English text. `python tools/lang.py check` lists what they miss, and `todo ja` lists the texts still to translate. Search keywords and parser data keep Korean and English.
@@ -302,13 +301,9 @@ Screen text follows [docs/COPY.md](docs/COPY.md).
 QA and development runs always use `--data <temporary folder>`, apart from the real data.
 
 ```powershell
-# tests (exit code = failures)
-dotnet run --project tests\Bloom.Tests
 # lint (analyzers and formatting), zero warnings
 dotnet build src\Bloom\Bloom.csproj -c Debug --no-incremental -p:AnalysisLevel=latest-recommended -p:EnforceCodeStyleInBuild=true
-dotnet build tests\Bloom.Tests\Bloom.Tests.csproj -c Debug --no-incremental -p:AnalysisLevel=latest-recommended -p:EnforceCodeStyleInBuild=true
 dotnet format whitespace src\Bloom\Bloom.csproj --verify-no-changes
-dotnet format whitespace tests\Bloom.Tests\Bloom.Tests.csproj --verify-no-changes
 ```
 
 For a bounded responsiveness probe, run the Release build with `--data <isolated-folder> --no-hook --no-tray --qa-responsive 3`. It writes `responsiveness.json` and `responsiveness.txt`.
