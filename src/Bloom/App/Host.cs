@@ -329,7 +329,8 @@ internal sealed partial class Host
         static string F(string feature, string keys) => Features.On(feature) ? keys : "off"; // 설정 > 기능 lets go of an off feature's keys
         Clipboard.Apply();
         Shortcuts?.Set("altspace", s.AltSpace ? "alt+space" : "off", SummonByKey);
-        Shortcuts?.Set("clipboard", s.ClipHistory ? s.ClipHotkey : "off", () => ToggleView(Mode.Clipboard));
+        Shortcuts?.Set("clipboard", s.ClipHistory ? s.ClipHotkey : "off", () => ToggleClipTab(Launcher.ClipHistoryTab));
+        Shortcuts?.Set("snippets", s.SnippetHotkey, () => ToggleClipTab(Launcher.ClipSnippetsTab)); // snippets need no history
         Shortcuts?.Set("color", F("color", s.ColorHotkey), StartColor);
         Shortcuts?.Set("lens", F("lens", s.LensHotkey), () => StartLens("menu"));
         Shortcuts?.Set("ask", F("lens", s.AskHotkey), () => StartLens("ask"));
@@ -517,6 +518,18 @@ internal sealed partial class Host
             return;
         }
         OpenView(mode);
+    }
+
+    /// The clipboard hotkeys (기록 · 상용구): open the view on that tab, or hide the launcher when that tab is in front.
+    public void ToggleClipTab(string tab)
+    {
+        if (Window.IsVisible && Window.IsActive && Window.Mode == Mode.Clipboard && Window.ClipTab == tab)
+        {
+            Window.Dismiss();
+            return;
+        }
+        Window.PickClipTab(tab);
+        OpenView(Mode.Clipboard);
     }
 
     /// Settings live in their own window; a second call brings it back to the front.

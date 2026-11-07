@@ -80,6 +80,7 @@ internal sealed class Settings
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public int? ClipKeepDays { get; set; } // a settings file from before minutes: read once into ClipKeepMinutes
     public string ClipHotkey { get; set; } = "ctrl+alt+v"; // off | ctrl+alt+v | ctrl+shift+v
+    public string SnippetHotkey { get; set; } = "off"; // the clipboard view's 상용구 tab straight from anywhere (off at first: no keys taken from other apps unasked)
     public bool TimerSound { get; set; } = true; // a due timer / reminder rings (Windows Alarm01) besides the card
     public string ColorHotkey { get; set; } = "off"; // the colour picker straight from anywhere
     public bool ColorCopy { get; set; } = true; // a picked colour's HEX goes to the clipboard at once

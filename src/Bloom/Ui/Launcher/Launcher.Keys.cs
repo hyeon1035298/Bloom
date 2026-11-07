@@ -167,6 +167,12 @@ internal sealed partial class Launcher
             e.Handled = true;
             return;
         }
+        if (Mode == Mode.Clipboard && ctrl && key == Key.Tab)
+        {
+            StepClipTab(); // two tabs: either way is the other one
+            e.Handled = true;
+            return;
+        }
         if (Mode == Mode.Calendar && box.Text.Length == 0 && !shift)
         {
             DateTime? to = key switch

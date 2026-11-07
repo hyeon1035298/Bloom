@@ -384,7 +384,7 @@ Characters	字数
 From	来源
 Copied at	复制时间
 Yes	是
-Snippet	片段
+Snippet	常用语
 Chain	操作链
 Script	脚本
 Running… · stop it from Ctrl+K	运行中… · 可在 Ctrl+K 中停止
@@ -406,7 +406,7 @@ Delete command	删除命令
 Deletes the command ‘{0}’.	删除命令“{0}”。
 Delete	删除
 Custom commands	自定义命令
-New snippet	新建片段
+New snippet	新建常用语
 New chain	新建组合
 New script	新建脚本
 Paste a text you use often by its keyword · {date} {time} {clipboard} {input}	用关键词粘贴常用文字 · {date} {time} {clipboard} {input}
@@ -1133,7 +1133,7 @@ Find ‘heart’ or ‘arrow’ and paste it, and its shortcut	用 “heart”�
 Volume & system	音量和系统
 ‘volume 30’, dark mode, Bluetooth and other switches	“volume 30”、深色模式、蓝牙等开关
 Search a site by keyword, like ‘yt cats’	用关键词搜索网站，如 “yt cats”
-Your own scripts, snippets and chains	自己写的脚本、片段和组合
+Your own scripts, snippets and chains	自己写的脚本、常用语和组合
 Notes & tool windows	便笺和工具窗口
 Notes, timers, calculator and clipboard in windows beside the launcher · notes in the search line	便笺、计时器、计算器、剪贴板以窗口形式放在启动器旁 · 在搜索栏查找便笺
 Play audio files yourself or through JRiver, foobar2000 or MusicBee · a small window beside the launcher · a queue · ‘Play in mini player’ on file results	直接播放音频文件，或通过 JRiver · foobar2000 · MusicBee 播放 · 启动器旁的小窗口 · 播放队列 · 文件搜索结果中的“用迷你播放器播放”
@@ -1298,7 +1298,7 @@ Reminders on a calendar	在日历中查看提醒
 End apps	结束应用
 See CPU and memory, end programs	查看 CPU 和内存，结束程序
 A map of disk space · find and clear big files	磁盘空间地图 · 查找并清理大文件
-Make and run scripts, snippets and chains of actions	创建并运行脚本、片段和操作组合
+Make and run scripts, snippets and chains of actions	创建并运行脚本、常用语和操作组合
 Site shortcuts · keyword + words searches right away	网站快捷方式 · 关键词 + 搜索词直接搜索
 Pick an area of the screen: ask AI, translate, copy text, live translation, capture	选择屏幕区域：问 AI、翻译、复制文字、实时翻译、截图
 Screen capture	屏幕截图
@@ -2102,9 +2102,9 @@ Deletes {0} favorites, their folders and picture icons. Item shortcuts stay. Thi
 {0} shortcuts	{0} 个快捷方式
 Shortcuts you made	自己创建的快捷方式
 Deletes the shortcuts you made and brings back the built-in ones. This can't be undone.	删除自己创建的快捷方式，并恢复内置快捷方式。此操作无法撤销。
-{0} scripts, snippets and chains	{0} 个脚本、片段和操作链
-Scripts, snippets and chains	脚本、片段和操作链
-Deletes {0} scripts, snippets and chains and their shortcuts. This can't be undone.	删除 {0} 个脚本、片段和操作链及其快捷键。此操作无法撤销。
+{0} scripts, snippets and chains	{0} 个脚本、常用语和操作链
+Scripts, snippets and chains	脚本、常用语和操作链
+Deletes {0} scripts, snippets and chains and their shortcuts. This can't be undone.	删除 {0} 个脚本、常用语和操作链及其快捷键。此操作无法撤销。
 Changed app names	修改过的应用名称
 {0} app names	{0} 个应用名称
 App names changed in Bloom	在 Bloom 中更改的应用名称
@@ -2738,7 +2738,7 @@ Every {0:0} d	每 {0:0} 天
 Every {0:0} h	每 {0:0} 小时
 Every {0:0} min	每 {0:0} 分钟
 Notification center	通知中心
-Find a command · scripts, snippets, chains, AI commands	查找命令 · 脚本、片段、组合、AI 命令
+Find a command · scripts, snippets, chains, AI commands	查找命令 · 脚本、常用语、组合、AI 命令
 Notification center · {0}	通知中心 · {0} 条
 Waiting for approval	等待批准
 History	记录
@@ -2756,3 +2756,20 @@ Always	一直
 30 min	30 分钟
 1 h	1 小时
 2 h	2 小时
+Save as a snippet	保存为常用语
+Delete snippet	删除常用语
+Edit snippet	编辑常用语
+Snippets	常用语
+Save ‘{0}’ as a snippet	将‘{0}’保存为常用语
+A text you use often · Enter pastes it into the window in front · {date} {time} {clipboard} {input}	经常使用的文字 · 按 Enter 粘贴到前面的窗口 · {date} {time} {clipboard} {input}
+Already a snippet: ‘{0}’	‘{0}’ 已在常用语中
+Saved ‘{0}’ as a snippet	已将‘{0}’保存为常用语
+110 Main Street\n3rd floor, design team	北京市朝阳区建国路 88 号\n3 层 设计组
+Payment details	付款说明
+It ships as soon as the payment arrives.	确认收款后立即发货。
+payment	收款
+Closed today	今天休息
+Ctrl+Tab switches	Ctrl+Tab 切换
+Find a snippet · type a text and Enter to add it	查找常用语 · 输入文字后按 Enter 新建
+Snippets · {0}	常用语 · {0} 条
+Opens the clipboard's snippets tab. Enter pastes into the window in front.	打开剪贴板的常用语标签页。按 Enter 粘贴到前面的窗口。

@@ -15,7 +15,7 @@ internal sealed partial class Engine
 
     private static string KindName(string kind) => kind switch
     {
-        "snippet" => Tr("스니펫", "Snippet"),
+        "snippet" => Tr("상용구", "Snippet"), // the clipboard view's 상용구 tab is the same list
         "chain" => Tr("묶음", "Chain"),
         "ai" => Tr("AI 명령", "AI command"),
         _ => Tr("스크립트", "Script"),
@@ -86,10 +86,10 @@ internal sealed partial class Engine
                         host.Window.ShowToast(c.ShowWindow ? Tr("창에서 실행", "Runs in a window") : Tr("창 없이 실행 · 결과는 알림으로 표시", "Runs without a window · results appear as notifications"));
                     },
                 });
-            list.Add(new ActionItem { Title = Tr("명령 고치기", "Edit command"), Glyph = G.Settings, StayOpen = true, Run = () => host.Window.StartForm(CommandForm(c.Kind, c, null)) });
+            list.Add(new ActionItem { Title = EditTitle(c.Kind), Glyph = G.Settings, StayOpen = true, Run = () => host.Window.StartForm(CommandForm(c.Kind, c, null)) });
             list.Add(new ActionItem
             {
-                Title = Tr("명령 지우기", "Delete command"),
+                Title = c.Kind == "snippet" ? Tr("상용구 지우기", "Delete snippet") : Tr("명령 지우기", "Delete command"),
                 Glyph = G.Delete,
                 Danger = true,
                 StayOpen = true,
@@ -182,7 +182,9 @@ internal sealed partial class Engine
     /// New (or changed) command, asked in the search line: what it does → name → keyword.
     public FormSpec CommandForm(string kind, UserCommand? edit, string? body)
     {
-        var f = new FormSpec { Title = edit is null ? NewTitle(kind) : Tr("명령 고치기", "Edit command"), Back = Mode.Commands };
+        // started from the clipboard view (its 상용구 tab, the history's 상용구로 저장) it goes back there
+        var back = host.Window.Mode == Mode.Clipboard ? Mode.Clipboard : Mode.Commands;
+        var f = new FormSpec { Title = edit is null ? NewTitle(kind) : EditTitle(kind), Back = back };
         f.Fields.Add(kind switch
         {
             "ai" => new FormField
@@ -266,11 +268,13 @@ internal sealed partial class Engine
                 : new UserCommand { Id = edit.Id, Kind = edit.Kind, Name = form[1], Body = form[0], Keyword = form[2].Length > 0 ? form[2] : null, ShowWindow = edit.ShowWindow, Thread = edit.Thread };
             if (kind == "ai") SetAiFields(c, edit, form[3], form[4]);
             UserCommands.Upsert(c);
-            host.Window.Go(Mode.Commands);
+            host.Window.Go(form.Back);
             host.Window.ShowToast(edit is null ? Tr($"‘{c.Name}’ 명령 추가 완료", $"Added ‘{c.Name}’") : Tr("명령 저장 완료", "Command saved"));
         };
         return f;
     }
+
+    private static string EditTitle(string kind) => kind == "snippet" ? Tr("상용구 고치기", "Edit snippet") : Tr("명령 고치기", "Edit command");
 
     /// A name to start from: the script's file name, the chain's first step, the snippet's first words.
     private static string SuggestCommandName(string kind, string body)

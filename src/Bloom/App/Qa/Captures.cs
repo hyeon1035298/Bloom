@@ -43,6 +43,7 @@ internal static partial class Captures
         ["chat"] = ChatScreens,
         ["chatwin"] = ChatWindowScreens,
         ["mine"] = MineScreens,
+        ["snippets"] = SnippetScreens,
         ["mcp"] = McpScreens,
         ["tools"] = ToolsScreens,
         ["notesmd"] = NotesMdScreens,

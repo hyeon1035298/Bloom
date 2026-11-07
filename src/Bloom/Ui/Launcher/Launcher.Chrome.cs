@@ -86,6 +86,7 @@ internal sealed partial class Launcher
                 ph = spec.Placeholder();
                 if (Mode == Mode.Files)
                     hint.Children.Add(HeadChip(Engine.FileKind(fileKind).name + "  ▾", PickFileKind));
+                if (Mode == Mode.Clipboard) hint.Children.Add(ClipTabs());
                 if (Mode == Mode.Root && QuickPending)
                 {
                     var t = thread!;
