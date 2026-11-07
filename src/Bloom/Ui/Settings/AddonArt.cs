@@ -20,7 +20,7 @@ internal sealed class AddonArt : FrameworkElement
     public const double W = 232, H = 84;
     private const double Loop = 8;
 
-    private enum Kind { Taskbar, AltTab, Brightness, Memory }
+    private enum Kind { Taskbar, AltTab, Brightness, Memory, Coffee }
 
     private readonly Kind kind;
     private readonly double still;
@@ -48,6 +48,7 @@ internal sealed class AddonArt : FrameworkElement
         "alt-tab-per-monitor" => new(Kind.AltTab, 0.25),
         "brightness" => new(Kind.Brightness, 0.6),
         "memory-clean" => new(Kind.Memory, 0.6),
+        "keep-awake" => new(Kind.Coffee, 0.62),
         _ => null,
     };
 
@@ -100,10 +101,11 @@ internal sealed class AddonArt : FrameworkElement
             case Kind.AltTab: AltTab(dc, p); break;
             case Kind.Brightness: Brightness(dc, p); break;
             case Kind.Memory: Memory(dc, p); break;
+            case Kind.Coffee: Coffee(dc, p); break;
         }
     }
 
-    // ---- the four pictures. p: the share of the loop (0–1)
+    // ---- the pictures. p: the share of the loop (0–1)
 
     /// The auto-hide island at the top of the screen; pointed at, it opens into the pill where it is, and closes again.
     private void Taskbar(DrawingContext dc, double p)
@@ -256,6 +258,80 @@ internal sealed class AddonArt : FrameworkElement
 
         Pointer(dc, K(p, (.04, 120), (.10, 178), (.18, 178), (.26, 124), (.66, 124), (.80, 120)),
             K(p, (.04, 60), (.10, 18), (.18, 18), (.26, 68), (.66, 68), (.80, 60)));
+    }
+
+    /// The cup next to the clock opens its window; the switch fills the cup with the accent and keeps the computer
+    /// awake until turned off, then 1시간 is picked and the time left counts down. The add-on's own words.
+    private void Coffee(DrawingContext dc, double p)
+    {
+        double fill = K(p, (.32, 0), (.42, 1), (.84, 1), (.94, 0));
+        Window(dc, new Rect(14, 12, 84, 58));
+
+        var clk = Text("2:37", 8, FontWeights.SemiBold, ink.Text);
+        double w = 4 + 27 + 4 + 3 + clk.Width + 9, x = 224 - w;
+        var seg = new Rect(x, 6, w, 22);
+        Shadow(dc, seg, 11);
+        dc.DrawRoundedRectangle(B(ink.Pill), P(ink.PillEdge, 1), seg, 11, 11);
+        if (p >= .12 && p < .76) dc.DrawRoundedRectangle(B(ink.Hover), null, new Rect(x + 4, 8, 27, 18), 5, 5);
+        Cup(dc, x + 4 + 13.5, 17, fill);
+        dc.DrawText(clk, new Point(x + 4 + 31 + 3, 17 - clk.Height / 2));
+
+        Fly(dc, p, 46, top =>
+        {
+            dc.DrawText(Text(Lang.Tr("커피", "Coffee"), 8, FontWeights.SemiBold, ink.Text), new Point(103, top));
+
+            double on = K(p, (.30, 0), (.35, 1));
+            var track = new Rect(201, top + 1, 16, 9);
+            dc.DrawRoundedRectangle(B(Mix(ink.Track, Accent, on)), null, track, 4.5, 4.5);
+            dc.DrawEllipse(B(0xFFFFFFFF), null, new Point(track.Left + 4.5 + 7 * on, track.Top + 4.5), 3.5, 3.5);
+
+            double left = Math.Max(0, 3600 - Math.Floor((p - .58) * Loop));
+            string big = p < .32 ? Lang.Tr("잠들 수 있음", "Free to sleep")
+                : p < .58 ? Lang.Tr("끌 때까지 깨어 있음", "Awake until turned off")
+                : string.Format(Lang.Tr("{0} 남음", "{0} left"), left >= 3600 ? "1:00:00" : $"{left / 60 % 60:0}:{left % 60:00}");
+            dc.DrawText(Text(big, 9, FontWeights.SemiBold, ink.Text), new Point(103, top + 12));
+
+            var row = new Rect(103, top + 26, 114, 11);
+            dc.DrawRoundedRectangle(B(ink.Hover), null, row, 4, 4);
+            double cw = row.Width / 4;
+            double at = K(p, (.54, 0), (.60, 2));
+            var pick = new Rect(row.Left + 1 + at * cw, row.Top + 1, cw - 2, row.Height - 2);
+            dc.DrawRoundedRectangle(B(ink.Icon), P(ink.PillEdge, 1), pick, 3.5, 3.5);
+            string[] times = [Lang.Tr("계속", "Always"), Lang.Tr("30분", "30 min"), Lang.Tr("1시간", "1 h"), Lang.Tr("2시간", "2 h")];
+            for (int i = 0; i < times.Length; i++)
+            {
+                var t = Text(times[i], 6.5, FontWeights.Normal, ink.Text);
+                dc.DrawText(t, new Point(row.Left + i * cw + (cw - t.Width) / 2, row.Top + (row.Height - t.Height) / 2));
+            }
+        });
+
+        Pointer(dc, K(p, (.04, 120), (.10, x + 16), (.18, x + 16), (.27, 208), (.40, 208), (.50, 175), (.66, 175), (.80, 120)),
+            K(p, (.04, 60), (.10, 18), (.18, 18), (.27, 45), (.40, 45), (.50, 71), (.66, 71), (.80, 60)));
+    }
+
+    /// The coffee cup (open at the top, a handle on the right), filled from the bottom with the accent by `fill` (0–1).
+    private void Cup(DrawingContext dc, double cx, double cy, double fill)
+    {
+        double l = cx - 7, t = cy - 5, r = l + 11, b = t + 10;
+        var body = new StreamGeometry();
+        using (var g = body.Open())
+        {
+            g.BeginFigure(new Point(l, t), true, true);
+            g.LineTo(new Point(l, b - 3), true, false);
+            g.QuadraticBezierTo(new Point(l, b), new Point(l + 3, b), true, false);
+            g.LineTo(new Point(r - 3, b), true, false);
+            g.QuadraticBezierTo(new Point(r, b), new Point(r, b - 3), true, false);
+            g.LineTo(new Point(r, t), true, false);
+        }
+        body.Freeze();
+        if (fill > 0)
+        {
+            dc.PushClip(body);
+            dc.DrawRectangle(B(Accent), null, new Rect(l, b - 10 * fill, 11, 10 * fill));
+            dc.Pop();
+        }
+        dc.DrawGeometry(null, P(ink.Text, 1.1), body);
+        dc.DrawRoundedRectangle(null, P(ink.Text, 1.1), new Rect(r - .5, t + 2, 4, 4.5), 2, 2);
     }
 
     /// The right end of the pill at the top: the brightness widget (a monitor with its number), the RAM widget (a memory
