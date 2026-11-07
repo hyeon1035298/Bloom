@@ -496,12 +496,14 @@ h1 .winkey, h2 .winkey { width: 0.7em; vertical-align: baseline; margin-right: 0
 .addons { padding-block: clamp(80px, 11vh, 128px); }
 .addons__main { margin-top: 48px; padding: 8px; }
 .addons__main img { border-radius: calc(var(--radius-card) - calc(8px * var(--k))); }
-.addons__row { margin-top: var(--gap); display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--gap); }
-.addon { padding: 32px; }
+.addons__row { margin-top: var(--gap); display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: var(--gap); }
+.addon { padding: 32px; grid-column: span 2; }
+.addon:nth-child(-n+2) { grid-column: span 3; }
 .addon h3 { font-size: 19px; }
 .addon p { margin-top: 8px; color: var(--color-muted); }
 .addon a { display: inline-block; margin-top: 16px; font-size: 15px; }
 .addons__note { margin-top: 24px; text-align: center; font-size: 14px; color: var(--color-faint); }
+@media (max-width: 1000px) { .addons__row { grid-template-columns: repeat(2, minmax(0, 1fr)); } .addon, .addon:nth-child(-n+2) { grid-column: auto; } .addon:last-child { grid-column: 1 / -1; } }
 @media (max-width: 760px) { .addons__row { grid-template-columns: minmax(0, 1fr); } }
 
 /* ---------- close ---------- */
@@ -1090,6 +1092,21 @@ h1 .winkey, h2 .winkey { width: 0.7em; vertical-align: baseline; margin-right: 0
           <h3>모니터별 Alt+Tab</h3>
           <p>모니터가 여럿일 때 커서가 있는 모니터에 Alt+Tab을 띄우고, 그 모니터의 창만 보여 줍니다.</p>
           <a class="textlink" href="https://github.com/hyeon1035298/AltTabPerMonitor_BloomAddon">AltTabPerMonitor 소스</a>
+        </div>
+        <div class="card addon">
+          <h3>메모리 정리</h3>
+          <p>작업표시줄 시계 옆에 메모리 사용량이 보입니다. 누르면 메모리를 비우고 프로그램을 끝낼 수 있습니다.</p>
+          <a class="textlink" href="https://github.com/hyeon1035298/MemoryClean_BloomAddon">MemoryClean 소스</a>
+        </div>
+        <div class="card addon">
+          <h3>모니터 밝기 조정</h3>
+          <p>시계 옆에서 모니터마다 밝기를 맞춥니다. 슬라이더 하나로 모든 모니터를 바꾸고, 휠로도 바꿀 수 있습니다.</p>
+          <a class="textlink" href="https://github.com/hyeon1035298/MonitorBrightness_BloomAddon">MonitorBrightness 소스</a>
+        </div>
+        <div class="card addon">
+          <h3>커피</h3>
+          <p>시계 옆 커피잔을 켜 두면 PC와 화면이 잠들지 않습니다. 끌 때까지 또는 정한 시간만큼 켜 둡니다.</p>
+          <a class="textlink" href="https://github.com/hyeon1035298/KeepAwake_BloomAddon">KeepAwake 소스</a>
         </div>
       </div>
       <p class="addons__note">설정 › 애드온에서 버튼 하나로 받으며, 내장된 해시와 일치할 때만 설치됩니다.</p>
