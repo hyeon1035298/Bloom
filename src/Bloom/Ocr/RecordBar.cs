@@ -51,6 +51,10 @@ internal sealed class RecordBar : Window
     private readonly Stopwatch clock = new();
     private readonly List<FrameworkElement> dots = new(); // the recording rows' dots, which beat
     private readonly DispatcherTimer tick = new() { Interval = TimeSpan.FromMilliseconds(250) };
+    private readonly DispatcherTimer raise = new() { Interval = TimeSpan.FromSeconds(1) };
+
+    /// The window property Pill taskbar reads (PointerOnHolder in its mod).
+    private const string HoldRevealProp = "PillTaskbar.HoldReveal";
 
     public RecordBar(RecordSurface surface, ScreenRect area, Palette ink, bool systemAudio, bool mic)
     {
@@ -164,8 +168,17 @@ internal sealed class RecordBar : Window
             IntPtr h = new WindowInteropHelper(this).Handle;
             Glass.ToolWindow(this);
             SetWindowDisplayAffinity(h, 0x11 /* WDA_EXCLUDEFROMCAPTURE */);
+            // Pill taskbar: the pointer on the bar doesn't bring the hidden taskbar out over it (the island and the
+            // edge stay as they are); gone with the window
+            SetPropW(h, HoldRevealProp, new IntPtr(1));
             Place();
+            raise.Start();
         };
+        // the taskbar and its island come to the front as they change: the bar keeps above them
+        raise.Tick += (_, _) => Win32.SetWindowPos(new WindowInteropHelper(this).Handle, Win32.HWND_TOPMOST, 0, 0, 0, 0,
+            Win32.SWP_NOMOVE | Win32.SWP_NOSIZE | Win32.SWP_NOACTIVATE);
+        Closing += (_, _) => RemovePropW(new WindowInteropHelper(this).Handle, HoldRevealProp);
+        Closed += (_, _) => raise.Stop();
         // moved onto a monitor of another scale, WPF resizes it by the ratio: put it back where it belongs
         DpiChanged += (_, _) => Place();
         Loaded += (_, _) => ShowMenu();
@@ -524,4 +537,6 @@ internal sealed class RecordBar : Window
     private const char Microphone = '';
 
     [DllImport("user32.dll")] private static extern bool SetWindowDisplayAffinity(IntPtr hwnd, uint affinity);
+    [DllImport("user32.dll", CharSet = CharSet.Unicode)] private static extern bool SetPropW(IntPtr hwnd, string name, IntPtr data);
+    [DllImport("user32.dll", CharSet = CharSet.Unicode)] private static extern IntPtr RemovePropW(IntPtr hwnd, string name);
 }
