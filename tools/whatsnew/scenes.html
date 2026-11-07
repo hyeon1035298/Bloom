@@ -176,6 +176,30 @@ body { font-family: "Wanted Sans Variable", "Wanted Sans", "Pretendard", "Malgun
   box-shadow: 0 calc((3 - 2.5 * var(--down, 0)) * var(--u)) 0 #141416; translate: 0 calc(2.5 * var(--down, 0) * var(--u));
 }
 .cap.is-down { background: linear-gradient(#f4f4f5, #d4d4d8); color: #18181b; }
+/* ---------- coffee: the cup by the clock keeps the computer awake ---------- */
+.wid--cup { width: calc(22 * var(--u)); height: calc(20 * var(--u)); }
+.wid--cup svg { position: relative; width: 100%; height: 100%; overflow: visible; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.wid--cup .fill { fill: var(--pink); stroke: var(--pink); opacity: var(--cup, 0); }
+.tog { position: relative; flex: none; width: calc(30 * var(--u)); height: calc(16 * var(--u)); border-radius: calc(8 * var(--u)); corner-shape: round; background: color-mix(in srgb, var(--pink) calc(var(--on, 0) * 100%), rgba(255, 255, 255, 0.16)); }
+.tog i { position: absolute; top: calc(2 * var(--u)); left: calc((2 + 14 * var(--on, 0)) * var(--u)); width: calc(12 * var(--u)); height: calc(12 * var(--u)); border-radius: 50%; corner-shape: round; background: #fafafa; }
+.state { position: relative; height: calc(34 * var(--u)); border-radius: calc(9 * var(--u)); background: rgba(255, 255, 255, 0.06); }
+.state span { position: absolute; left: calc(10 * var(--u)); top: 50%; translate: 0 -50%; font-size: calc(14 * var(--u)); font-weight: 600; color: #f4f4f5; white-space: nowrap; }
+.label { font-size: calc(9 * var(--u)); color: #a1a1aa; margin-bottom: calc(-4 * var(--u)); }
+.seg span { position: relative; white-space: nowrap; font-size: calc(9 * var(--u)); }
+.seg span.pick { background: rgba(255, 255, 255, 0.12); color: #f4f4f5; }
+/* the screen asleep, the idle time running fast, the cup holding the screen on */
+.sleep { position: absolute; inset: 0; z-index: 50; background: #000; opacity: var(--sleep, 0); display: grid; place-items: center; }
+.sleep svg { width: calc(28 * var(--u)); height: calc(28 * var(--u)); fill: none; stroke: #52525b; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+.idle {
+  position: absolute; z-index: 60; left: 50%; top: calc(222 * var(--u)); translate: -50% 0; display: flex; align-items: center; gap: calc(6 * var(--u));
+  padding: calc(6 * var(--u)) calc(12 * var(--u)); border-radius: calc(14 * var(--u)); corner-shape: round; white-space: nowrap;
+  font-size: calc(11 * var(--u)); font-weight: 500; color: #f4f4f5; background: rgba(36, 36, 40, 0.94); border: 1px solid rgba(255, 255, 255, 0.12);
+  opacity: var(--idle, 0); transform: translateY(calc((1 - var(--idle, 0)) * 6 * var(--u)));
+}
+.idle svg { width: calc(13 * var(--u)); height: calc(13 * var(--u)); fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.idle .ff { color: #a1a1aa; letter-spacing: -0.1em; }
+.idle .ok { color: var(--pink); font-weight: 600; }
+.wid--cup::after { content: ""; position: absolute; inset: calc(-5 * var(--u)); border-radius: 50%; corner-shape: round; border: calc(2 * var(--u)) solid var(--pink); opacity: calc((1 - var(--pulse, 0)) * var(--ring, 0)); transform: scale(calc(0.7 + 0.8 * var(--pulse, 0))); }
 </style>
 </head>
 <body>
@@ -467,6 +491,75 @@ scenes.alttab = {
       set(alt, { down: altDown });
       set(tab, { down: tabDown });
       point(cur, at(cx, t), at(cy, t));
+    };
+  },
+};
+
+// Coffee off: ten idle minutes run by and the screen goes dark; the mouse wakes it. The cup turns it on for an hour,
+// the same ten minutes run by and the screen stays on while the cup holds it; a right-click turns it off.
+const LC = {
+  ko: { name: '커피', free: '잠들 수 있음', kept: '화면도 켜 둠', off: '꺼짐', left: t => `${t} 남음`, h1: '1시간', how: '시간',
+    times: ['계속', '30분', '1시간', '2시간', '직접'], mode: '깨우기 방식', modes: ['화면도 켜 두기', '시스템만'],
+    away: m => `입력 없이 ${m}분`, on: '화면 켜짐', slept: '화면 꺼짐' },
+  en: { name: 'Coffee', free: 'Free to sleep', kept: 'screen kept on', off: 'Off', left: t => `${t} left`, h1: '1 h', how: 'How long',
+    times: ['Always', '30 min', '1 h', '2 h', 'Custom'], mode: 'Keep awake', modes: ['Screen too', 'System only'],
+    away: m => `${m} min without input`, on: 'Screen on', slept: 'Screen off' },
+}[LANG];
+const CUP = '<svg viewBox="0 0 24 24"><path class="fill" d="M4.5 7.5h11v5.5a4.5 4.5 0 0 1-4.5 4.5H9a4.5 4.5 0 0 1-4.5-4.5z"/><path d="M4.5 7.5h11v5.5a4.5 4.5 0 0 1-4.5 4.5H9a4.5 4.5 0 0 1-4.5-4.5z"/><path d="M15.5 9.5h1.3a2.6 2.6 0 0 1 0 5.2h-1.6"/><path d="M3.5 21h14"/></svg>';
+scenes.coffee = {
+  dur: 14,
+  build(s) {
+    s.style.setProperty('--pink', '#FF7A9E');
+    s.innerHTML = `<div class="desk">${WINS}</div>${restPill().replace('<span class="wid wid--bri"', `<span class="wid wid--cup" data-cup>${CUP}</span><span class="wid wid--bri"`)}
+      <div class="fly glass" style="--r:30;--w:250">
+        <div class="row"><span class="wid--cup" style="width:calc(16*var(--u));height:calc(15*var(--u));color:#e4e4e7;display:grid">${CUP}</span>
+          <span style="display:flex;flex-direction:column;gap:calc(1*var(--u))"><b style="font-size:calc(11*var(--u));font-weight:600;color:#f4f4f5">${LC.name}</b><span class="faint" style="font-size:calc(9*var(--u))" data-sub>${LC.free}</span></span>
+          <span class="end tog" data-tog><i></i></span></div>
+        <div class="state"><span data-off>${LC.off}</span><span data-on>${LC.left(LC.h1)}</span></div>
+        <div class="label">${LC.how}</div>
+        <div class="seg" data-times>${LC.times.map(t => `<span>${t}</span>`).join('')}</div>
+        <div class="label">${LC.mode}</div>
+        <div class="seg">${LC.modes.map((t, i) => `<span class="${i ? '' : 'pick'}">${t}</span>`).join('')}</div>
+      </div>
+      <div class="sleep"><svg viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></svg></div>
+      <div class="idle"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 7.5V12l3 2"/></svg><span data-away></span><span class="ff">▶▶</span><span data-verdict></span></div>
+      ${CURSOR}`;
+    const q = sel => s.querySelector(sel);
+    const cur = q('.cursor'), cup = q('[data-cup]'), tog = q('[data-tog]'), away = q('[data-away]'), verdict = q('[data-verdict]'), ff = q('.ff');
+    const times = [...q('[data-times]').children];
+    let P;
+    // two runs of ten idle minutes: one with the cup off (1.8–3.6), one with it on (8.2–10.0)
+    const runs = [[1.8, 3.6], [8.2, 10.0]];
+    const idle = [[0, 0], [1.5, 0], [1.75, 1, 'out2'], [4.4, 1], [4.6, 0], [7.9, 0], [8.15, 1, 'out2'], [11.6, 1], [11.85, 0]];
+    const sleep = [[0, 0], [3.3, 0], [3.9, 0.94, 'io2'], [4.5, 0.94], [4.75, 0, 'out2']];
+    const fly = [[0, 0], [5.75, 0], [6.15, 1, 'outExpo'], [7.45, 1], [7.75, 0, 'in2']];
+    const on = [[0, 0], [6.85, 0], [7.1, 1, 'out2'], [12.55, 1], [12.75, 0, 'out2']];
+    const ring = [[0, 0], [9.6, 0], [9.7, 1], [11.4, 1], [11.6, 0]];
+    const press = [[0, 0], [5.7, 0], [5.76, 1, 'none'], [5.94, 0, 'out2'], [6.78, 0], [6.84, 1, 'none'], [7.02, 0, 'out2'], [7.39, 0], [7.45, 1, 'none'], [7.63, 0, 'out2'], [12.48, 0], [12.54, 1, 'none'], [12.72, 0, 'out2']];
+    return t => {
+      P ??= { cup: unitsOf(cup, s), h1: unitsOf(times[2], s) };
+      const cx = [[0, 330], [4.45, 330], [4.65, 352, 'out2'], [4.85, 340], [5.65, P.cup.cx + 2], [5.9, P.cup.cx + 2], [6.7, P.h1.cx], [6.95, P.h1.cx], [7.4, 250], [12.0, 250], [12.45, P.cup.cx + 3], [12.9, P.cup.cx + 3], [13.7, 330]];
+      const cy = [[0, 200], [4.45, 200], [4.65, 188, 'out2'], [4.85, 196], [5.65, P.cup.cy], [5.9, P.cup.cy], [6.7, P.h1.cy], [6.95, P.h1.cy], [7.4, 190], [12.0, 190], [12.45, P.cup.cy + 1], [12.9, P.cup.cy + 1], [13.7, 200]];
+      const f = at(fly, t), o = at(on, t), awake = t >= 6.85 && t < 12.55;
+      // the idle minutes of the run under way (or the last one), 0–10
+      const first = t < 6, run = first ? runs[0] : runs[1], m = Math.round(10 * Math.min(1, Math.max(0, (t - run[0]) / (run[1] - run[0]))));
+      const done = t >= run[1];
+      away.textContent = LC.away(m);
+      ff.style.display = done ? 'none' : '';
+      verdict.textContent = done ? '· ' + (first ? LC.slept : LC.on) : '';
+      verdict.className = done && !first ? 'ok' : '';
+      const pulse = t >= 9.6 && t < 11.6 ? ((t - 9.6) % 0.9) / 0.9 : 0;
+      set(s, { fly: f, idle: at(idle, t), sleep: at(sleep, t) });
+      set(cup, { on: f, cup: o, ring: at(ring, t), pulse });
+      set(tog, { on: o });
+      times.forEach((el, i) => el.classList.toggle('pick', i === (awake ? 2 : 0)));
+      q('[data-sub]').textContent = awake ? LC.kept : LC.free;
+      q('[data-off]').style.opacity = 1 - o;
+      q('[data-on]').style.opacity = o;
+      point(cur, at(cx, t), at(cy, t), at(press, t));
+      // the clock jumps the idle minutes with the counter
+      const mins = Math.round(10 * Math.min(1, Math.max(0, (t - 1.8) / 1.8))) + Math.round(10 * Math.min(1, Math.max(0, (t - 8.2) / 1.8)));
+      s.querySelectorAll('[data-clock]').forEach(c => c.textContent = `15:${two(mins)}:${two(2 + Math.floor(t))}`);
     };
   },
 };
