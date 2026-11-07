@@ -34,6 +34,7 @@ internal static partial class Captures
         ["v13"] = V13Screens,
         ["v14"] = V14Screens,
         ["v15"] = V15Screens,
+        ["whatsnew"] = WhatsNewScreens,
         ["v16"] = V16Screens,
         ["v17"] = V17Screens,
         ["lang"] = LangScreens,
