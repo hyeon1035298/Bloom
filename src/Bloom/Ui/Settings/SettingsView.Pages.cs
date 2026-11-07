@@ -184,6 +184,7 @@ internal sealed partial class SettingsView
         }
         var learnSw = Toggle(s.LearnQueries, v => s.LearnQueries = v, out var learnT);
         Add(Tr("선택한 결과 우선 표시", "Prioritize selected results"), Tr("같은 말을 다시 적으면 지난번에 고른 걸 맨 위로 (“c” → Chrome) · 이 PC에만 저장", "Typing the same again puts your last pick first (“c” → Chrome) · kept on this PC only"), learnSw, G.Bulb, learnT, null, filter);
+        PageHidden(filter);
 
         Header(Tr("웹 검색", "Web search"));
         Choice(Tr("검색 엔진", "Search engine"), null, G.Search, Web.Engines.Select(e => (e.key, e.name)).ToArray(), s.SearchEngine, v => s.SearchEngine = v, filter);
@@ -227,6 +228,44 @@ internal sealed partial class SettingsView
                 Build(lastFilter);
             }, null, filter);
     }
+
+    /// 설정 › 런처 › 숨긴 항목: what Ctrl+K › 검색에서 숨기기 took out of the search and the home, newest first, each with
+    /// 되돌리기. The settings search finds the first line (collecting lists no items: their names change without a save).
+    private void PageHidden(string filter)
+    {
+        Header(Tr("숨긴 항목", "Hidden items"));
+        bool live = collected is null;
+        var hidden = live ? HiddenResults.List() : [];
+        void Changed()
+        {
+            host.Window.Refresh(true);
+            Build(lastFilter);
+        }
+        string sub = !live ? Tr("검색과 홈에서 뺀 결과와 되돌리기", "Results taken out of the search and the home, and bringing them back")
+            : hidden.Count == 0 ? Tr("없음 · 결과에서 Ctrl+K › 검색에서 숨기기", "None · Ctrl+K on a result › Hide from search")
+            : Tr($"{hidden.Count}개 · 검색과 홈에 나오지 않음", $"{hidden.Count} · not shown in the search or on the home");
+        Add(Tr("숨긴 검색 결과", "Hidden search results"), sub, hidden.Count > 1 ? RowButton(Tr("모두 되돌리기", "Show all again"), () => { HiddenResults.Clear(); Changed(); }) : null, G.Hide, null, null, filter);
+        foreach (var e in hidden)
+        {
+            string id = e.Id;
+            Add(e.Title.Length > 0 ? e.Title : id, HiddenSub(HiddenKind(e.Kind), e.Sub), RowButton(Tr("되돌리기", "Show again"), () => { HiddenResults.Remove(id); Changed(); }), G.Hide, null, null, filter);
+        }
+    }
+
+    /// A hidden item's kind in the line under its name.
+    private static string HiddenKind(string kind) => kind switch
+    {
+        nameof(ItemKind.App) => Tr("앱", "App"),
+        nameof(ItemKind.Command) => Tr("명령", "Command"),
+        nameof(ItemKind.Setting) => Tr("설정", "Setting"),
+        nameof(ItemKind.File) => Tr("파일", "File"),
+        nameof(ItemKind.Folder) => Tr("폴더", "Folder"),
+        nameof(ItemKind.Quicklink) => Tr("사이트 바로 가기", "Site shortcut"),
+        nameof(ItemKind.Toggle) => Tr("시스템 스위치", "System switch"),
+        _ => "",
+    };
+
+    private static string HiddenSub(string a, string? b) => a.Length == 0 ? b ?? "" : string.IsNullOrEmpty(b) ? a : $"{a} · {b}";
 
     /// 토큰 집계 지우기 (설정 > 데이터): asked first (what Claude Code already removed does not come back), then said done;
     /// the recording mode's numbers are made up, so there it does nothing.

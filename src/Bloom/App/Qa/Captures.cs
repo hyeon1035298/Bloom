@@ -78,6 +78,7 @@ internal static partial class Captures
         ["datawipe"] = DataWipeScreens,
         ["datadefaults"] = DataDefaultsScreens,
         ["datareset"] = DataResetScreens,
+        ["hidden"] = HiddenScreens,
     };
 
     public static async Task Run(Host host, string dir)
