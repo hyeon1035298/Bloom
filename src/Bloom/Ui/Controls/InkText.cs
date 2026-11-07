@@ -17,7 +17,8 @@ namespace Bloom.Ui;
 /// the outlines alone (BuildGeometry) put some labels a pixel off. It stretches to its container's height and centres in
 /// its own box, or with InBorder in the nearest Border's box inside its border lines, padding and all: that Border keeps
 /// its padding, even or not, and so its height. The move puts the label's top on a whole device pixel and the ink's
-/// middle as near the box's as that allows, a tie going up. Not for paragraphs, wrapped text or icon glyphs.
+/// middle as near the box's as that allows, a tie going up (down with TieDown). Not for paragraphs, wrapped text or
+/// icon glyphs.
 internal sealed class InkText : TextBlock
 {
     private static readonly Dictionary<(string font, FontWeight weight, FontStyle style, FontStretch stretch, double size, string probe, double ppd, double k, TextFormattingMode mode, string culture), (int top, int bottom)> Ink = new();
@@ -28,6 +29,10 @@ internal sealed class InkText : TextBlock
     /// The ink centres in the nearest Border above the label (a button, chip or segment around it) rather than in the
     /// label's own box.
     public bool InBorder { get; init; }
+
+    /// A pixel the box can't split evenly goes above the ink instead of below it (Segmented's options, whose Hangul
+    /// looked high a pixel up).
+    public bool TieDown { get; set; }
 
     static InkText()
     {
@@ -93,9 +98,10 @@ internal sealed class InkText : TextBlock
             if (bottom > top)
             {
                 // the label's top onto a whole pixel (its glyphs are drawn from there), the ink's middle as near the box's
-                // as that allows, a tie going up
+                // as that allows, a tie going up (or down)
                 double at = Math.Round(placedTop * ppd, 4), middle = at + (y + h / 2) * k - (top + bottom) / 2.0;
-                dy = (Math.Ceiling(Math.Round(middle - 0.5, 4)) - at) / k;
+                double row = TieDown ? Math.Floor(Math.Round(middle + 0.5, 4)) : Math.Ceiling(Math.Round(middle - 0.5, 4));
+                dy = (row - at) / k;
             }
         }
         if (shift.Y != dy) shift.Y = dy;

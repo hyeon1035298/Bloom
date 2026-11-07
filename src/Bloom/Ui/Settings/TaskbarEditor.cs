@@ -402,8 +402,9 @@ internal sealed class TaskbarEditor : Border
         {
             if (v.Length > 0 && v != folder) Send(TaskbarCommands.Rename(folder, v), Tr("이름 바꾸기", "Rename"), v);
         };
-        var iconButton = ToolUi.TextButton(Tr("아이콘 바꾸기", "Change icon"), () => { });
-        iconButton.MouseLeftButtonUp += (_, _) => IconPopup(folder, iconButton);
+        // the button's own click marks the press handled, so the popup opens from it (a second handler never hears it)
+        SmoothBorder? iconButton = null;
+        iconButton = ToolUi.TextButton(Tr("아이콘 바꾸기", "Change icon"), () => IconPopup(folder, iconButton!));
         sp.Children.Add(Head(FolderIcon(folder, 48), name, iconButton));
         sp.Children.Add(SubLine(Tr($"안의 앱 {f.Apps.Count}개", $"{f.Apps.Count} apps inside"), Tr("끌어서 순서를 바꿉니다", "Drag to reorder")));
         var apps = new WrapPanel();
