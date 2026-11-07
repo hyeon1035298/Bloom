@@ -33,6 +33,7 @@ internal sealed partial class Launcher
 
     private void SetMode(Mode mode)
     {
+        if (mode == Mode.Clipboard) EnterClipTab(Mode);
         Mode = mode;
         scroll.Visibility = mode is Mode.Chat ? Visibility.Collapsed : Visibility.Visible;
         bool split = Split, cal = mode == Mode.Calendar;

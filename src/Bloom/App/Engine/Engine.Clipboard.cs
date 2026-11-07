@@ -119,6 +119,11 @@ internal sealed partial class Engine
                     StayOpen = true,
                     Run = () => host.Window.ShowChat(host.Chats.New(), null, (Tr("복사한 텍스트", "Copied text"), "", e.Text ?? "")),
                 });
+            if (e.Kind == "text" && !string.IsNullOrWhiteSpace(e.Text))
+            {
+                string text = e.Text;
+                list.Add(new ActionItem { Title = Tr("상용구로 저장", "Save as a snippet"), Glyph = KindGlyph("snippet"), StayOpen = true, Run = () => SaveSnippet(text) });
+            }
             list.Add(new ActionItem
             {
                 Title = e.Pinned ? Tr("고정 해제", "Unpin") : Tr("위에 고정", "Pin to the top"),
@@ -199,14 +204,19 @@ internal sealed partial class Engine
                 d.Add(Tr("종류", "Kind"), Tr($"파일 {e.Files.Length}개", $"{e.Files.Length} files"));
                 break;
             default:
-                string text = e.Text ?? "";
-                d = new Search.Detail { Text = text };
-                int lines = text.TrimEnd('\r', '\n').Split('\n').Length;
-                d.Add(Tr("종류", "Kind"), e.IsLink ? Tr("링크", "Link") : Tr("텍스트", "Text")).Add(Tr("글자 수", "Characters"), Tr($"{text.Length:#,0}자", $"{text.Length:#,0}") + (lines > 1 ? Tr($" · {lines}줄", $" · {lines} lines") : ""));
+                d = TextDetail(e.Text ?? "", e.IsLink ? Tr("링크", "Link") : Tr("텍스트", "Text"));
                 break;
         }
         d.Add(Tr("가져온 곳", "From"), e.Source).Add(Tr("복사한 시각", "Copied at"), e.CopiedAt.ToString("yyyy. M. d. HH:mm:ss"));
         if (e.Pinned) d.Add(Tr("고정", "Pinned"), Tr("예", "Yes"));
         return d;
+    }
+
+    /// A text's preview: the text, its kind, how long it is (copied text, a snippet).
+    private static Search.Detail TextDetail(string text, string kind)
+    {
+        var d = new Search.Detail { Text = text };
+        int lines = text.TrimEnd('\r', '\n').Split('\n').Length;
+        return d.Add(Tr("종류", "Kind"), kind).Add(Tr("글자 수", "Characters"), Tr($"{text.Length:#,0}자", $"{text.Length:#,0}") + (lines > 1 ? Tr($" · {lines}줄", $" · {lines} lines") : ""));
     }
 }

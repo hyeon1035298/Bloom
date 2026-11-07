@@ -9,7 +9,7 @@ internal sealed partial class Engine
 {
     private static string NewTitle(string kind) => kind switch
     {
-        "snippet" => Tr("새 스니펫", "New snippet"),
+        "snippet" => Tr("새 상용구", "New snippet"),
         "chain" => Tr("새 묶음", "New chain"),
         "ai" => Tr("새 AI 명령", "New AI command"),
         _ => Tr("새 스크립트", "New script"),

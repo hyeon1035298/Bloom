@@ -384,7 +384,7 @@ Characters	文字数
 From	コピー元
 Copied at	コピーした時刻
 Yes	はい
-Snippet	スニペット
+Snippet	定型文
 Chain	連続操作
 Script	スクリプト
 Running… · stop it from Ctrl+K	実行中… · Ctrl+K から停止
@@ -406,7 +406,7 @@ Delete command	コマンドを削除
 Deletes the command ‘{0}’.	コマンド「{0}」を削除します。
 Delete	削除
 Custom commands	カスタムコマンド
-New snippet	新しいスニペット
+New snippet	新しい定型文
 New chain	新しいチェーン
 New script	新しいスクリプト
 Paste a text you use often by its keyword · {date} {time} {clipboard} {input}	よく使う文をキーワードで貼り付け · {date} {time} {clipboard} {input}
@@ -1133,7 +1133,7 @@ Find ‘heart’ or ‘arrow’ and paste it, and its shortcut	「heart」「arr
 Volume & system	音量とシステム
 ‘volume 30’, dark mode, Bluetooth and other switches	「volume 30」、ダークモード、Bluetooth などのスイッチ
 Search a site by keyword, like ‘yt cats’	「yt cats」のようにキーワードでサイトを検索
-Your own scripts, snippets and chains	自作のスクリプト、スニペット、チェーン
+Your own scripts, snippets and chains	自作のスクリプト、定型文、チェーン
 Notes & tool windows	メモとツール ウィンドウ
 Notes, timers, calculator and clipboard in windows beside the launcher · notes in the search line	メモ、タイマー、電卓、クリップボードをランチャーの横のウィンドウに · 検索欄でメモを探す
 Play audio files yourself or through JRiver, foobar2000 or MusicBee · a small window beside the launcher · a queue · ‘Play in mini player’ on file results	オーディオファイルを直接、または JRiver · foobar2000 · MusicBee で再生 · ランチャーの横の小さなウィンドウ · キュー · ファイル検索結果の「ミニプレーヤーで再生」
@@ -1298,7 +1298,7 @@ Reminders on a calendar	カレンダーでリマインダーを見る
 End apps	アプリを終了
 See CPU and memory, end programs	CPU とメモリを見て、プログラムを終了
 A map of disk space · find and clear big files	ディスク容量の地図 · 大きなファイルを探して片付ける
-Make and run scripts, snippets and chains of actions	スクリプト、スニペット、操作のチェーンを作って実行
+Make and run scripts, snippets and chains of actions	スクリプト、定型文、操作のチェーンを作って実行
 Site shortcuts · keyword + words searches right away	サイトのショートカット · キーワード + 語ですぐに検索
 Pick an area of the screen: ask AI, translate, copy text, live translation, capture	画面の範囲を選ぶ: AI に聞く、翻訳、テキストのコピー、リアルタイム翻訳、キャプチャ
 Screen capture	画面キャプチャ
@@ -2102,9 +2102,9 @@ Deletes {0} favorites, their folders and picture icons. Item shortcuts stay. Thi
 {0} shortcuts	ショートカット {0} 件
 Shortcuts you made	自分で作ったショートカット
 Deletes the shortcuts you made and brings back the built-in ones. This can't be undone.	自分で作ったショートカットを削除し、組み込みのショートカットに戻します。元に戻せません。
-{0} scripts, snippets and chains	スクリプト、スニペット、チェーン {0} 件
-Scripts, snippets and chains	スクリプト、スニペット、チェーン
-Deletes {0} scripts, snippets and chains and their shortcuts. This can't be undone.	スクリプト、スニペット、チェーン {0} 件とそのショートカットキーを削除します。元に戻せません。
+{0} scripts, snippets and chains	スクリプト、定型文、チェーン {0} 件
+Scripts, snippets and chains	スクリプト、定型文、チェーン
+Deletes {0} scripts, snippets and chains and their shortcuts. This can't be undone.	スクリプト、定型文、チェーン {0} 件とそのショートカットキーを削除します。元に戻せません。
 Changed app names	変更したアプリ名
 {0} app names	アプリ名 {0} 件
 App names changed in Bloom	Bloom で変更したアプリ名
@@ -2738,7 +2738,7 @@ Every {0:0} d	{0:0}日ごと
 Every {0:0} h	{0:0}時間ごと
 Every {0:0} min	{0:0}分ごと
 Notification center	通知センター
-Find a command · scripts, snippets, chains, AI commands	コマンドを探す · スクリプト、スニペット、チェーン、AIコマンド
+Find a command · scripts, snippets, chains, AI commands	コマンドを探す · スクリプト、定型文、チェーン、AIコマンド
 Notification center · {0}	通知センター · {0}件
 Waiting for approval	承認待ち
 History	履歴
@@ -2756,3 +2756,20 @@ Always	ずっと
 30 min	30 分
 1 h	1 時間
 2 h	2 時間
+Save as a snippet	定型文として保存
+Delete snippet	定型文を削除
+Edit snippet	定型文を編集
+Snippets	定型文
+Save ‘{0}’ as a snippet	‘{0}’ を定型文として保存
+A text you use often · Enter pastes it into the window in front · {date} {time} {clipboard} {input}	よく使う文章 · Enter で前面のウィンドウに貼り付け · {date} {time} {clipboard} {input}
+Already a snippet: ‘{0}’	‘{0}’ は定型文に登録済み
+Saved ‘{0}’ as a snippet	‘{0}’ を定型文として保存しました
+110 Main Street\n3rd floor, design team	東京都千代田区丸の内1-1\n3階 デザインチーム
+Payment details	振込のご案内
+It ships as soon as the payment arrives.	入金を確認しだい発送いたします。
+payment	入金
+Closed today	本日は休業です
+Ctrl+Tab switches	Ctrl+Tab で切り替え
+Find a snippet · type a text and Enter to add it	定型文を探す · 文章を入れて Enter で新規作成
+Snippets · {0}	定型文 · {0} 件
+Opens the clipboard's snippets tab. Enter pastes into the window in front.	クリップボードの定型文タブを開きます。Enter で前面のウィンドウに貼り付けます。

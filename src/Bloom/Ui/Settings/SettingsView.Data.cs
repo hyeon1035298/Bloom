@@ -115,8 +115,8 @@ internal sealed partial class SettingsView
             Tr("직접 만든 바로 가기를 지우고 기본 바로 가기로 되돌립니다. 되돌릴 수 없습니다.", "Deletes the shortcuts you made and brings back the built-in ones. This can't be undone."),
             Done(Quicklinks.Reset), filter);
         int commands = UserCommands.Current.Items.Count;
-        Clearable("commands", Tr("사용자 명령", "Custom commands"), live ? Tr($"스크립트, 스니펫, 묶음 {commands}개", $"{commands} scripts, snippets and chains") : Tr("스크립트, 스니펫, 묶음", "Scripts, snippets and chains"), commands == 0,
-            Tr($"스크립트, 스니펫, 묶음 {commands}개와 그 단축키를 지웁니다. 되돌릴 수 없습니다.", $"Deletes {commands} scripts, snippets and chains and their shortcuts. This can't be undone."),
+        Clearable("commands", Tr("사용자 명령", "Custom commands"), live ? Tr($"스크립트, 상용구, 묶음 {commands}개", $"{commands} scripts, snippets and chains") : Tr("스크립트, 상용구, 묶음", "Scripts, snippets and chains"), commands == 0,
+            Tr($"스크립트, 상용구, 묶음 {commands}개와 그 단축키를 지웁니다. 되돌릴 수 없습니다.", $"Deletes {commands} scripts, snippets and chains and their shortcuts. This can't be undone."),
             Done(() =>
             {
                 UserCommands.Clear();

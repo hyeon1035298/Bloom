@@ -331,6 +331,7 @@ internal sealed partial class SettingsView
         if (!FeatureOff(filter, "chat"))
             Shortcut("chat", Tr("AI 채팅 창", "AI chat window"), Tr("AI 채팅 창 열기 · 앞에 있으면 최소화", "Opens the chat window anywhere · down again when it's in front"), G.Chat, s.ChatHotkey, v => s.ChatHotkey = v, filter);
         Shortcut("clipboard", Tr("클립보드 기록", "Clipboard history"), Tr("누르면 클립보드 기록이 바로 열립니다", "Opens the clipboard history right away"), G.Paste, s.ClipHotkey, v => s.ClipHotkey = v, filter);
+        Shortcut("snippets", Tr("상용구", "Snippets"), Tr("누르면 클립보드의 상용구 탭이 열립니다. Enter로 앞의 창에 붙여넣습니다.", "Opens the clipboard's snippets tab. Enter pastes into the window in front."), G.Bookmark, s.SnippetHotkey, v => s.SnippetHotkey = v, filter);
         if (!FeatureOff(filter, "windows"))
             Shortcut("windows", Tr("창 전환", "Switch windows"), Tr("열린 창 목록이 바로 표시됩니다", "Opens the list of open windows"), G.NewWindow, s.WindowsHotkey, v => s.WindowsHotkey = v, filter);
         if (!FeatureOff(filter, "emoji"))

@@ -54,11 +54,13 @@ internal sealed partial class Launcher
         [Mode.Clipboard] = new()
         {
             Chip = () => Tr("클립보드", "Clipboard"),
-            Placeholder = () => Tr("복사한 내용 찾기", "Find something you copied"),
-            Context = () => Settings.Current.ClipHistory
+            // 기록 | 상용구 (Launcher.ClipTabs)
+            Placeholder = () => OnSnippets ? Tr("상용구 찾기 · 글을 넣고 Enter로 새로 만들기", "Find a snippet · type a text and Enter to add it") : Tr("복사한 내용 찾기", "Find something you copied"),
+            Context = () => OnSnippets ? Tr($"상용구 · {Engine.SnippetCount}개", $"Snippets · {Engine.SnippetCount}")
+                : Settings.Current.ClipHistory
                 ? Tr($"클립보드 기록 · {host.Clipboard.Items.Count}개", $"Clipboard history · {host.Clipboard.Items.Count}")
                 : Tr("클립보드 기록 · 꺼짐", "Clipboard history · off"),
-            Build = Engine.ClipboardView,
+            Build = text => OnSnippets ? Engine.SnippetsView(text) : Engine.ClipboardView(text),
             Split = true,
             Live = true,
         },
@@ -88,7 +90,7 @@ internal sealed partial class Launcher
         [Mode.Commands] = new()
         {
             Chip = () => Tr("사용자 명령", "Custom commands"),
-            Placeholder = () => Tr("명령 찾기 · 스크립트 · 스니펫 · 묶음 · AI 명령", "Find a command · scripts, snippets, chains, AI commands"),
+            Placeholder = () => Tr("명령 찾기 · 스크립트 · 상용구 · 묶음 · AI 명령", "Find a command · scripts, snippets, chains, AI commands"),
             Context = () => Tr($"사용자 명령 · {UserCommands.Current.Items.Count}개 · 단축어 + 스페이스 + 입력", $"Custom commands · {UserCommands.Current.Items.Count} · keyword + space + input"),
             Build = Engine.CommandsView,
             Live = true,
