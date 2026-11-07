@@ -18,7 +18,8 @@ internal static class FolderIconSetTests
         foreach (string name in FolderIconSet.Names)
             foreach (bool silver in new[] { true, false })
             {
-                byte[] ico = IconFile.SetIcon(name, silver);                int count = BitConverter.ToUInt16(ico, 4);
+                byte[] ico = IconFile.SetIcon(name, silver);
+                int count = BitConverter.ToUInt16(ico, 4);
                 Check.Eq(count, 9, $"{name}: sizes");
                 var sides = Enumerable.Range(0, count).Select(i => ico[6 + 16 * i] == 0 ? 256 : ico[6 + 16 * i]).ToArray();
                 Check.Eq(string.Join(",", sides), "16,20,24,32,40,48,64,96,256", $"{name}: the sizes in order");
