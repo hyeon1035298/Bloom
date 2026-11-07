@@ -505,6 +505,9 @@ h1 .winkey, h2 .winkey { width: 0.7em; vertical-align: baseline; margin-right: 0
 .addon h3 { font-size: 19px; }
 .addon p { margin-top: 8px; color: var(--color-muted); }
 .addon a { display: inline-block; margin-top: 16px; font-size: 15px; }
+/* the moving picture from the 1.0.0 notes on top of each card, edge to edge inside the card's padding */
+.addon__pic { margin: -16px -16px 24px; aspect-ratio: 960 / 400; overflow: hidden; border-radius: calc(var(--radius-card) - 16px); background: var(--color-bg-2); box-shadow: 0 0 0 1px var(--color-line); }
+.addon__pic img { display: block; width: 100%; height: 100%; object-fit: cover; filter: grayscale(1); }
 .addons__note { margin-top: 24px; text-align: center; font-size: 14px; color: var(--color-faint); }
 @media (max-width: 1000px) { .addons__row { grid-template-columns: repeat(2, minmax(0, 1fr)); } .addon, .addon:nth-child(-n+2) { grid-column: auto; } .addon:last-child { grid-column: 1 / -1; } }
 @media (max-width: 760px) { .addons__row { grid-template-columns: minmax(0, 1fr); } }
@@ -999,7 +1002,7 @@ h1 .winkey, h2 .winkey { width: 0.7em; vertical-align: baseline; margin-right: 0
   <!-- search line -->
   <section class="sec srch" id="search" aria-labelledby="srch-title">
     <div class="wrap">
-      <h2 id="srch-title" class="head head--left">随手输入，立刻心领神会。<span>韩英输入法错打、初声、算式、单位换算、定时提醒，一行全搞定</span></h2>
+      <h2 id="srch-title" class="head head--left">在输入框里写下就行。<span>韩英输入法错打、初声、算式、单位换算、定时提醒，一行全搞定</span></h2>
       <div class="srch__grid">
         <div class="card ko">
           <p class="ko__label">未切换韩/英输入法打出的字符</p>
@@ -1072,26 +1075,31 @@ h1 .winkey, h2 .winkey { width: 0.7em; vertical-align: baseline; margin-right: 0
       </div>
       <div class="addons__row">
         <div class="card addon">
+          <div class="addon__pic"><img src="../assets/addons/taskbar.webp" width="960" height="400" alt="顶部的岛展开成胶囊任务栏，打开文件夹并启动里面的应用" loading="lazy"></div>
           <h3>任务栏</h3>
           <p>将 Windows 11 任务栏变成悬浮在屏幕中央的玻璃胶囊造型。把应用图标重叠拖拽即可归入文件夹。</p>
           <a class="textlink" href="https://github.com/hyeon1035298/PillTaskbar_BloomAddon">PillTaskbar 源代码</a>
         </div>
         <div class="card addon">
+          <div class="addon__pic"><img src="../assets/addons/alttab.webp" width="960" height="400" alt="Alt+Tab 出现在光标所在的显示器上，只列出那台显示器的窗口" loading="lazy"></div>
           <h3>按显示器 Alt+Tab</h3>
           <p>使用多台显示器时，在光标所在的显示器上弹出 Alt+Tab，并只显示该显示器上的窗口。</p>
           <a class="textlink" href="https://github.com/hyeon1035298/AltTabPerMonitor_BloomAddon">AltTabPerMonitor 源代码</a>
         </div>
         <div class="card addon">
+          <div class="addon__pic"><img src="../assets/addons/memory-en.webp" width="960" height="400" alt="点时钟旁的内存条会打开窗口，按立即清理释放内存" loading="lazy"></div>
           <h3>内存清理</h3>
           <p>任务栏时钟旁会显示内存使用量。点一下就能释放内存，也能结束程序。</p>
           <a class="textlink" href="https://github.com/hyeon1035298/MemoryClean_BloomAddon">MemoryClean 源代码</a>
         </div>
         <div class="card addon">
+          <div class="addon__pic"><img src="../assets/addons/brightness-en.webp" width="960" height="400" alt="点时钟旁的显示器会打开窗口，一个滑块让两台显示器一起变亮，再用滚轮调暗" loading="lazy"></div>
           <h3>显示器亮度调节</h3>
           <p>在时钟旁为每台显示器调节亮度。一个滑块就能调所有显示器，滚轮也可以调。</p>
           <a class="textlink" href="https://github.com/hyeon1035298/MonitorBrightness_BloomAddon">MonitorBrightness 源代码</a>
         </div>
         <div class="card addon">
+          <div class="addon__pic"><img src="../assets/addons/coffee-en.webp" width="960" height="400" alt="咖啡关着时，10 分钟没有输入屏幕就会关闭；把咖啡开 1 小时，过了同样的 10 分钟屏幕仍亮着" loading="lazy"></div>
           <h3>咖啡</h3>
           <p>打开时钟旁的咖啡杯，电脑和屏幕就不会休眠。可以一直开着，也可以设定时间。</p>
           <a class="textlink" href="https://github.com/hyeon1035298/KeepAwake_BloomAddon">KeepAwake 源代码</a>

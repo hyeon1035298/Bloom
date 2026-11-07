@@ -506,6 +506,9 @@ h1 .winkey, h2 .winkey { width: 0.7em; vertical-align: baseline; margin-right: 0
 .addon h3 { font-size: 19px; }
 .addon p { margin-top: 8px; color: var(--color-muted); }
 .addon a { display: inline-block; margin-top: 16px; font-size: 15px; }
+/* the moving picture from the 1.0.0 notes on top of each card, edge to edge inside the card's padding */
+.addon__pic { margin: -16px -16px 24px; aspect-ratio: 960 / 400; overflow: hidden; border-radius: calc(var(--radius-card) - 16px); background: var(--color-bg-2); box-shadow: 0 0 0 1px var(--color-line); }
+.addon__pic img { display: block; width: 100%; height: 100%; object-fit: cover; filter: grayscale(1); }
 .addons__note { margin-top: 24px; text-align: center; font-size: 14px; color: var(--color-faint); }
 @media (max-width: 1000px) { .addons__row { grid-template-columns: repeat(2, minmax(0, 1fr)); } .addon, .addon:nth-child(-n+2) { grid-column: auto; } .addon:last-child { grid-column: 1 / -1; } }
 @media (max-width: 760px) { .addons__row { grid-template-columns: minmax(0, 1fr); } }
@@ -1017,7 +1020,7 @@ h1 .winkey, h2 .winkey { width: 0.7em; vertical-align: baseline; margin-right: 0
   <!-- search line -->
   <section class="sec srch" id="search" aria-labelledby="srch-title">
     <div class="wrap">
-      <h2 id="srch-title" class="head head--left">적는 대로 알아듣습니다.<span>한/영 오타, 초성, 계산식, 단위 변환, 알림까지 한 줄에서 끝</span></h2>
+      <h2 id="srch-title" class="head head--left">입력창에 쓰기만 하면 됩니다.<span>한/영 오타, 초성, 계산식, 단위 변환, 알림까지 한 줄에서 끝</span></h2>
       <div class="srch__grid">
         <div class="card ko">
           <p class="ko__label">한/영 전환 없이 친 글자</p>
@@ -1097,26 +1100,31 @@ h1 .winkey, h2 .winkey { width: 0.7em; vertical-align: baseline; margin-right: 0
       </div>
       <div class="addons__row">
         <div class="card addon">
+          <div class="addon__pic"><img src="assets/addons/taskbar.webp" width="960" height="400" alt="위 끝의 아일랜드가 알약 작업표시줄로 펼쳐지고, 폴더를 열어 안의 앱을 켭니다" loading="lazy"></div>
           <h3>작업표시줄</h3>
           <p>Windows 11 작업표시줄을 가운데 뜬 유리 알약 모양으로 바꿉니다. 앱 아이콘을 겹쳐 끌면 폴더로 묶을 수 있습니다.</p>
           <a class="textlink" href="https://github.com/hyeon1035298/PillTaskbar_BloomAddon">PillTaskbar 소스</a>
         </div>
         <div class="card addon">
+          <div class="addon__pic"><img src="assets/addons/alttab.webp" width="960" height="400" alt="커서가 있는 모니터에 Alt+Tab이 뜨고 그 모니터의 창만 보입니다" loading="lazy"></div>
           <h3>모니터별 Alt+Tab</h3>
           <p>모니터가 여럿일 때 커서가 있는 모니터에 Alt+Tab을 띄우고, 그 모니터의 창만 보여 줍니다.</p>
           <a class="textlink" href="https://github.com/hyeon1035298/AltTabPerMonitor_BloomAddon">AltTabPerMonitor 소스</a>
         </div>
         <div class="card addon">
+          <div class="addon__pic"><img src="assets/addons/memory-ko.webp" width="960" height="400" alt="시계 옆 램 모듈을 누르면 창이 열리고, 지금 정리로 메모리를 비웁니다" loading="lazy"></div>
           <h3>메모리 정리</h3>
           <p>작업표시줄 시계 옆에 메모리 사용량이 보입니다. 누르면 메모리를 비우고 프로그램을 끝낼 수 있습니다.</p>
           <a class="textlink" href="https://github.com/hyeon1035298/MemoryClean_BloomAddon">MemoryClean 소스</a>
         </div>
         <div class="card addon">
+          <div class="addon__pic"><img src="assets/addons/brightness-ko.webp" width="960" height="400" alt="시계 옆 모니터를 누르면 창이 열리고, 슬라이더 하나로 두 모니터가 함께 밝아지며, 휠로 다시 어둡게 합니다" loading="lazy"></div>
           <h3>모니터 밝기 조정</h3>
           <p>시계 옆에서 모니터마다 밝기를 맞춥니다. 슬라이더 하나로 모든 모니터를 바꾸고, 휠로도 바꿀 수 있습니다.</p>
           <a class="textlink" href="https://github.com/hyeon1035298/MonitorBrightness_BloomAddon">MonitorBrightness 소스</a>
         </div>
         <div class="card addon">
+          <div class="addon__pic"><img src="assets/addons/coffee-ko.webp" width="960" height="400" alt="커피가 꺼져 있으면 입력 없이 10분 뒤 화면이 꺼지고, 커피를 1시간 켜 두면 같은 10분이 지나도 화면이 켜져 있습니다" loading="lazy"></div>
           <h3>커피</h3>
           <p>시계 옆 커피잔을 켜 두면 PC와 화면이 잠들지 않습니다. 끌 때까지 또는 정한 시간만큼 켜 둡니다.</p>
           <a class="textlink" href="https://github.com/hyeon1035298/KeepAwake_BloomAddon">KeepAwake 소스</a>

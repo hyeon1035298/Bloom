@@ -505,6 +505,9 @@ h1 .winkey, h2 .winkey { width: 0.7em; vertical-align: baseline; margin-right: 0
 .addon h3 { font-size: 19px; }
 .addon p { margin-top: 8px; color: var(--color-muted); }
 .addon a { display: inline-block; margin-top: 16px; font-size: 15px; }
+/* the moving picture from the 1.0.0 notes on top of each card, edge to edge inside the card's padding */
+.addon__pic { margin: -16px -16px 24px; aspect-ratio: 960 / 400; overflow: hidden; border-radius: calc(var(--radius-card) - 16px); background: var(--color-bg-2); box-shadow: 0 0 0 1px var(--color-line); }
+.addon__pic img { display: block; width: 100%; height: 100%; object-fit: cover; filter: grayscale(1); }
 .addons__note { margin-top: 24px; text-align: center; font-size: 14px; color: var(--color-faint); }
 @media (max-width: 1000px) { .addons__row { grid-template-columns: repeat(2, minmax(0, 1fr)); } .addon, .addon:nth-child(-n+2) { grid-column: auto; } .addon:last-child { grid-column: 1 / -1; } }
 @media (max-width: 760px) { .addons__row { grid-template-columns: minmax(0, 1fr); } }
@@ -999,7 +1002,7 @@ h1 .winkey, h2 .winkey { width: 0.7em; vertical-align: baseline; margin-right: 0
   <!-- search line -->
   <section class="sec srch" id="search" aria-labelledby="srch-title">
     <div class="wrap">
-      <h2 id="srch-title" class="head head--left">Understands what you type as you type it.<span>Korean/English layout typos, initial consonants, math, unit conversions, and reminders all in one line</span></h2>
+      <h2 id="srch-title" class="head head--left">Just type it in.<span>Korean/English layout typos, initial consonants, math, unit conversions, and reminders all in one line</span></h2>
       <div class="srch__grid">
         <div class="card ko">
           <p class="ko__label">Typed without switching Korean/English</p>
@@ -1072,26 +1075,31 @@ h1 .winkey, h2 .winkey { width: 0.7em; vertical-align: baseline; margin-right: 0
       </div>
       <div class="addons__row">
         <div class="card addon">
+          <div class="addon__pic"><img src="../assets/addons/taskbar.webp" width="960" height="400" alt="The island at the top opens into the pill taskbar, a folder opens and the app in it starts" loading="lazy"></div>
           <h3>Taskbar</h3>
           <p>Turns the Windows 11 taskbar into a glass pill floating at the center. Drag one app icon onto another to group them into a folder.</p>
           <a class="textlink" href="https://github.com/hyeon1035298/PillTaskbar_BloomAddon">PillTaskbar source</a>
         </div>
         <div class="card addon">
+          <div class="addon__pic"><img src="../assets/addons/alttab.webp" width="960" height="400" alt="Alt+Tab opens on the monitor with the cursor and lists only its windows" loading="lazy"></div>
           <h3>Alt+Tab per monitor</h3>
           <p>When using multiple monitors, opens Alt+Tab on the monitor where your cursor is and shows only the windows on that monitor.</p>
           <a class="textlink" href="https://github.com/hyeon1035298/AltTabPerMonitor_BloomAddon">AltTabPerMonitor source</a>
         </div>
         <div class="card addon">
+          <div class="addon__pic"><img src="../assets/addons/memory-en.webp" width="960" height="400" alt="The RAM module next to the clock opens its window, and Clean now frees memory" loading="lazy"></div>
           <h3>Memory Clean</h3>
           <p>Memory use shows next to the taskbar clock. Click it to free memory and end programs.</p>
           <a class="textlink" href="https://github.com/hyeon1035298/MemoryClean_BloomAddon">MemoryClean source</a>
         </div>
         <div class="card addon">
+          <div class="addon__pic"><img src="../assets/addons/brightness-en.webp" width="960" height="400" alt="The monitor next to the clock opens its window, one slider moves both monitors, and the wheel over it turns them down" loading="lazy"></div>
           <h3>Monitor Brightness</h3>
           <p>Set each monitor's brightness next to the clock. One slider changes every monitor, and the wheel works too.</p>
           <a class="textlink" href="https://github.com/hyeon1035298/MonitorBrightness_BloomAddon">MonitorBrightness source</a>
         </div>
         <div class="card addon">
+          <div class="addon__pic"><img src="../assets/addons/coffee-en.webp" width="960" height="400" alt="With the cup off, ten minutes without input turn the screen off; with the cup on for an hour, the same ten minutes leave it on" loading="lazy"></div>
           <h3>Coffee</h3>
           <p>Turn on the cup next to the clock and the PC and screen stay awake, until you turn it off or for a set time.</p>
           <a class="textlink" href="https://github.com/hyeon1035298/KeepAwake_BloomAddon">KeepAwake source</a>
