@@ -381,6 +381,10 @@ h1 .winkey, h2 .winkey { width: 0.7em; vertical-align: baseline; margin-right: 0
 
 /* ---------- asks before changing: its own section after the links, laid out like the showcase and the add-ons ---------- */
 .ask__shot { margin-top: 48px; padding: 8px; }
+/* Bloom Space Cleaner: its own section after Lens, the whole capture in the showcase's frame */
+.space__shot { margin-top: 48px; }
+.space__screen { aspect-ratio: 16 / 10; border-radius: var(--radius-frame); overflow: hidden; background: var(--color-surface); }
+.space__screen img { display: block; width: 100%; height: 100%; object-fit: contain; filter: grayscale(1); }
 /* The approval at about its real size: the conversation window from its top bar down to the pending line, cut out of the
    full capture, with the window running on past the bottom edge. The crop box is in capture pixels (1600 × 1000);
    every language's capture puts the window in the same place. */
@@ -790,12 +794,11 @@ h1 .winkey, h2 .winkey { width: 0.7em; vertical-align: baseline; margin-right: 0
   <!-- showcase -->
   <section class="show" id="screens" aria-labelledby="show-title">
     <div class="wrap">
-      <h2 id="show-title" class="head">一个启动器，一应俱全。<span>主页、工具窗口、磁盘空间地图、窗口布局与设置尽在一处</span></h2>
+      <h2 id="show-title" class="head">一个启动器，一应俱全。<span>主页、工具窗口、窗口布局与设置尽在一处</span></h2>
       <div class="show__frame">
         <div class="screens">
           <img class="is-on" data-fill="" data-screen="home" src="../assets/zh/home.webp" srcset="../assets/zh/home-1000.webp 1000w, ../assets/zh/home.webp 1560w" sizes="(max-width: 1100px) 92vw, 1040px" width="1560" height="975" alt="Bloom 主页画面，搜索栏下方依次为 AI 用量卡片、播放器、工具按钮和本周日历" fetchpriority="high">
           <img data-screen="tools" src="../assets/zh/tools.webp" srcset="../assets/zh/tools-1000.webp 1000w, ../assets/zh/tools.webp 1600w" sizes="(max-width: 1100px) 92vw, 1040px" width="1600" height="1000" alt="贴在启动器旁边的笔记窗口与下方的计算器窗口" loading="lazy">
-          <img data-screen="space" src="../assets/zh/space.webp" srcset="../assets/zh/space-1000.webp 1000w, ../assets/zh/space.webp 1600w" sizes="(max-width: 1100px) 92vw, 1040px" width="1600" height="1000" alt="用方块地图显示文件夹大小的 Bloom Space Cleaner 与大文件列表" loading="lazy">
           <img data-screen="more" src="../assets/zh/more.webp" srcset="../assets/zh/more-1000.webp 1000w, ../assets/zh/more.webp 1600w" sizes="(max-width: 1100px) 92vw, 1040px" width="1600" height="1000" alt="窗口布局列表，以及路径、日期、世界时间和应用安装的输入示例" loading="lazy">
           <img data-screen="settings" src="../assets/zh/settings.webp" srcset="../assets/zh/settings-1000.webp 1000w, ../assets/zh/settings.webp 1600w" sizes="(max-width: 1100px) 92vw, 1040px" width="1600" height="1000" alt="设置中的常规页面与数据页面" loading="lazy">
         </div>
@@ -814,9 +817,6 @@ h1 .winkey, h2 .winkey { width: 0.7em; vertical-align: baseline; margin-right: 0
           </button>
           <button type="button" aria-pressed="false" data-show="tools" data-label="&lt;b&gt;工具窗口。&lt;/b&gt;像磁铁一样吸附在启动器旁并一起移动的笔记、计时器、计算器和剪贴板历史" aria-label="工具窗口" title="工具窗口">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="4" width="11" height="16" rx="2"></rect><rect x="16" y="4" width="5" height="9" rx="1.5"></rect></svg>
-          </button>
-          <button type="button" aria-pressed="false" data-show="space" data-label="&lt;b&gt;Bloom Space Cleaner。&lt;/b&gt;以方块地图查看磁盘占用，直接清理大文件" aria-label="Bloom Space Cleaner" title="Bloom Space Cleaner">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"></rect><path d="M12 3v18M12 12h9M3 14h9"></path></svg>
           </button>
           <button type="button" aria-pressed="false" data-show="more" data-label="&lt;b&gt;路径、窗口布局、日期。&lt;/b&gt;像 left half、in 100 days、install vlc 这样输入即可直接执行" aria-label="路径、窗口布局、日期" title="路径、窗口布局、日期">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"></rect><path d="M12 5v14"></path></svg>
@@ -952,6 +952,19 @@ h1 .winkey, h2 .winkey { width: 0.7em; vertical-align: baseline; margin-right: 0
         </div>
       </div>
       <p class="sec__note">以上为演示画面示例。<span class="only-fine"> 不妨直接按数字键试试。</span></p>
+    </div>
+  </section>
+
+  <!-- Bloom Space Cleaner -->
+  <section class="sec space" id="space" aria-labelledby="space-title">
+    <div class="wrap">
+      <h2 id="space-title" class="head">大文件，用地图找。<span>把磁盘按大小分成方块来看，不用的大文件直接送进回收站。</span></h2>
+      <div class="show__frame space__shot">
+        <div class="space__screen">
+          <img src="../assets/zh/space.webp" srcset="../assets/zh/space-1000.webp 1000w, ../assets/zh/space.webp 1600w" sizes="(max-width: 1100px) 92vw, 1040px" width="1600" height="1000" alt="用方块地图显示文件夹大小的 Bloom Space Cleaner 与大文件列表" loading="lazy">
+        </div>
+      </div>
+      <p class="sec__note">在搜索栏输入 space 并按 Enter，即可打开 Bloom Space Cleaner。</p>
     </div>
   </section>
 

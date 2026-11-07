@@ -382,6 +382,10 @@ h1 .winkey, h2 .winkey { width: 0.7em; vertical-align: baseline; margin-right: 0
 
 /* ---------- asks before changing: its own section after the links, laid out like the showcase and the add-ons ---------- */
 .ask__shot { margin-top: 48px; padding: 8px; }
+/* Bloom Space Cleaner: its own section after Lens, the whole capture in the showcase's frame */
+.space__shot { margin-top: 48px; }
+.space__screen { aspect-ratio: 16 / 10; border-radius: var(--radius-frame); overflow: hidden; background: var(--color-surface); }
+.space__screen img { display: block; width: 100%; height: 100%; object-fit: contain; filter: grayscale(1); }
 /* The approval at about its real size: the conversation window from its top bar down to the pending line, cut out of the
    full capture, with the window running on past the bottom edge. The crop box is in capture pixels (1600 × 1000);
    every language's capture puts the window in the same place. */
@@ -799,12 +803,11 @@ h1 .winkey, h2 .winkey { width: 0.7em; vertical-align: baseline; margin-right: 0
   <!-- showcase -->
   <section class="show" id="screens" aria-labelledby="show-title">
     <div class="wrap">
-      <h2 id="show-title" class="head">런처 하나에 다 담았습니다.<span>홈 화면, 도구 창, 디스크 용량 지도, 창 배치, 설정까지 한곳에서</span></h2>
+      <h2 id="show-title" class="head">런처 하나에 다 담았습니다.<span>홈 화면, 도구 창, 창 배치, 설정까지 한곳에서</span></h2>
       <div class="show__frame">
         <div class="screens">
           <img class="is-on" data-fill data-screen="home" src="assets/home.webp" srcset="assets/home-1000.webp 1000w, assets/home.webp 1560w" sizes="(max-width: 1100px) 92vw, 1040px" width="1560" height="975" alt="Bloom 홈 화면. 검색줄 아래에 AI 사용량 카드, 플레이어, 도구 단추, 이번 주 달력" fetchpriority="high">
           <img data-screen="tools" src="assets/tools.webp" srcset="assets/tools-1000.webp 1000w, assets/tools.webp 1600w" sizes="(max-width: 1100px) 92vw, 1040px" width="1600" height="1000" alt="런처 옆에 붙은 메모 창과 아래의 계산기 창" loading="lazy">
-          <img data-screen="space" src="assets/space.webp" srcset="assets/space-1000.webp 1000w, assets/space.webp 1600w" sizes="(max-width: 1100px) 92vw, 1040px" width="1600" height="1000" alt="폴더 크기를 사각형 지도로 보여 주는 Bloom Space Cleaner와 큰 파일 목록" loading="lazy">
           <img data-screen="more" src="assets/more.webp" srcset="assets/more-1000.webp 1000w, assets/more.webp 1600w" sizes="(max-width: 1100px) 92vw, 1040px" width="1600" height="1000" alt="창 배치 목록과 경로, 날짜, 세계 시간, 앱 설치 입력 예시" loading="lazy">
           <img data-screen="settings" src="assets/settings.webp" srcset="assets/settings-1000.webp 1000w, assets/settings.webp 1600w" sizes="(max-width: 1100px) 92vw, 1040px" width="1600" height="1000" alt="설정의 일반 페이지와 데이터 페이지" loading="lazy">
         </div>
@@ -823,9 +826,6 @@ h1 .winkey, h2 .winkey { width: 0.7em; vertical-align: baseline; margin-right: 0
           </button>
           <button type="button" aria-pressed="false" data-show="tools" data-label="<b>도구 창.</b> 런처 옆에 자석처럼 붙어 함께 움직이는 메모, 타이머, 계산기, 클립보드 기록" aria-label="도구 창" title="도구 창">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="4" width="11" height="16" rx="2"/><rect x="16" y="4" width="5" height="9" rx="1.5"/></svg>
-          </button>
-          <button type="button" aria-pressed="false" data-show="space" data-label="<b>Bloom Space Cleaner.</b> 디스크 사용량을 블록 지도로 보고 큰 파일을 바로 정리" aria-label="Bloom Space Cleaner" title="Bloom Space Cleaner">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M12 3v18M12 12h9M3 14h9"/></svg>
           </button>
           <button type="button" aria-pressed="false" data-show="more" data-label="<b>경로, 창 배치, 날짜.</b> 왼쪽 절반, 100일 뒤, 설치 vlc처럼 적어 바로 실행" aria-label="경로, 창 배치, 날짜" title="경로, 창 배치, 날짜">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M12 5v14"/></svg>
@@ -970,6 +970,19 @@ h1 .winkey, h2 .winkey { width: 0.7em; vertical-align: baseline; margin-right: 0
         </div>
       </div>
       <p class="sec__note">데모 화면 예시입니다.<span class="only-fine"> 숫자 키를 직접 눌러 보세요.</span></p>
+    </div>
+  </section>
+
+  <!-- Bloom Space Cleaner -->
+  <section class="sec space" id="space" aria-labelledby="space-title">
+    <div class="wrap">
+      <h2 id="space-title" class="head">큰 파일은 지도로 찾기.<span>디스크를 크기만큼의 블록으로 나눠 보고, 안 쓰는 큰 파일은 바로 휴지통으로 보내세요.</span></h2>
+      <div class="show__frame space__shot">
+        <div class="space__screen">
+          <img src="assets/space.webp" srcset="assets/space-1000.webp 1000w, assets/space.webp 1600w" sizes="(max-width: 1100px) 92vw, 1040px" width="1600" height="1000" alt="폴더 크기를 사각형 지도로 보여 주는 Bloom Space Cleaner와 큰 파일 목록" loading="lazy">
+        </div>
+      </div>
+      <p class="sec__note">Bloom Space Cleaner는 검색줄에 space를 적고 Enter를 누르면 열립니다.</p>
     </div>
   </section>
 

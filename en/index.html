@@ -381,6 +381,10 @@ h1 .winkey, h2 .winkey { width: 0.7em; vertical-align: baseline; margin-right: 0
 
 /* ---------- asks before changing: its own section after the links, laid out like the showcase and the add-ons ---------- */
 .ask__shot { margin-top: 48px; padding: 8px; }
+/* Bloom Space Cleaner: its own section after Lens, the whole capture in the showcase's frame */
+.space__shot { margin-top: 48px; }
+.space__screen { aspect-ratio: 16 / 10; border-radius: var(--radius-frame); overflow: hidden; background: var(--color-surface); }
+.space__screen img { display: block; width: 100%; height: 100%; object-fit: contain; filter: grayscale(1); }
 /* The approval at about its real size: the conversation window from its top bar down to the pending line, cut out of the
    full capture, with the window running on past the bottom edge. The crop box is in capture pixels (1600 × 1000);
    every language's capture puts the window in the same place. */
@@ -790,12 +794,11 @@ h1 .winkey, h2 .winkey { width: 0.7em; vertical-align: baseline; margin-right: 0
   <!-- showcase -->
   <section class="show" id="screens" aria-labelledby="show-title">
     <div class="wrap">
-      <h2 id="show-title" class="head">Everything packed into one launcher.<span>Home view, tool windows, disk space map, window layouts, and settings all in one place</span></h2>
+      <h2 id="show-title" class="head">Everything packed into one launcher.<span>Home view, tool windows, window layouts, and settings all in one place</span></h2>
       <div class="show__frame">
         <div class="screens">
           <img class="is-on" data-fill="" data-screen="home" src="../assets/en/home.webp" srcset="../assets/en/home-1000.webp 1000w, ../assets/en/home.webp 1560w" sizes="(max-width: 1100px) 92vw, 1040px" width="1560" height="975" alt="Bloom home view with AI usage cards, media player, tool buttons, and this week's calendar below the search line" fetchpriority="high">
           <img data-screen="tools" src="../assets/en/tools.webp" srcset="../assets/en/tools-1000.webp 1000w, ../assets/en/tools.webp 1600w" sizes="(max-width: 1100px) 92vw, 1040px" width="1600" height="1000" alt="Notes window snapped beside the launcher with the calculator window below it" loading="lazy">
-          <img data-screen="space" src="../assets/en/space.webp" srcset="../assets/en/space-1000.webp 1000w, ../assets/en/space.webp 1600w" sizes="(max-width: 1100px) 92vw, 1040px" width="1600" height="1000" alt="Bloom Space Cleaner showing folder sizes as a block map alongside a list of large files" loading="lazy">
           <img data-screen="more" src="../assets/en/more.webp" srcset="../assets/en/more-1000.webp 1000w, ../assets/en/more.webp 1600w" sizes="(max-width: 1100px) 92vw, 1040px" width="1600" height="1000" alt="Window layout list and input examples for paths, dates, world time, and app installation" loading="lazy">
           <img data-screen="settings" src="../assets/en/settings.webp" srcset="../assets/en/settings-1000.webp 1000w, ../assets/en/settings.webp 1600w" sizes="(max-width: 1100px) 92vw, 1040px" width="1600" height="1000" alt="General and Data pages in Settings" loading="lazy">
         </div>
@@ -814,9 +817,6 @@ h1 .winkey, h2 .winkey { width: 0.7em; vertical-align: baseline; margin-right: 0
           </button>
           <button type="button" aria-pressed="false" data-show="tools" data-label="&lt;b&gt;Tool windows.&lt;/b&gt; Notes, timers, calculator, and clipboard history that snap beside the launcher like a magnet and move together" aria-label="Tool windows" title="Tool windows">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="4" width="11" height="16" rx="2"></rect><rect x="16" y="4" width="5" height="9" rx="1.5"></rect></svg>
-          </button>
-          <button type="button" aria-pressed="false" data-show="space" data-label="&lt;b&gt;Bloom Space Cleaner.&lt;/b&gt; View disk usage as a block map and clean up large files right away" aria-label="Bloom Space Cleaner" title="Bloom Space Cleaner">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"></rect><path d="M12 3v18M12 12h9M3 14h9"></path></svg>
           </button>
           <button type="button" aria-pressed="false" data-show="more" data-label="&lt;b&gt;Paths, window layouts, dates.&lt;/b&gt; Type commands like left half, in 100 days, or install vlc to run them right away" aria-label="Paths, window layouts, dates" title="Paths, window layouts, dates">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"></rect><path d="M12 5v14"></path></svg>
@@ -952,6 +952,19 @@ h1 .winkey, h2 .winkey { width: 0.7em; vertical-align: baseline; margin-right: 0
         </div>
       </div>
       <p class="sec__note">Sample demo view.<span class="only-fine"> Try pressing the number keys yourself.</span></p>
+    </div>
+  </section>
+
+  <!-- Bloom Space Cleaner -->
+  <section class="sec space" id="space" aria-labelledby="space-title">
+    <div class="wrap">
+      <h2 id="space-title" class="head">Find big files on a map.<span>See your disk split into blocks by size, and send big files you no longer use straight to the Recycle Bin.</span></h2>
+      <div class="show__frame space__shot">
+        <div class="space__screen">
+          <img src="../assets/en/space.webp" srcset="../assets/en/space-1000.webp 1000w, ../assets/en/space.webp 1600w" sizes="(max-width: 1100px) 92vw, 1040px" width="1600" height="1000" alt="Bloom Space Cleaner showing folder sizes as a block map alongside a list of large files" loading="lazy">
+        </div>
+      </div>
+      <p class="sec__note">Open Bloom Space Cleaner by typing space in the search line and pressing Enter.</p>
     </div>
   </section>
 
