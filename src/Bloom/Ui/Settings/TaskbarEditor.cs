@@ -107,7 +107,8 @@ internal sealed class TaskbarEditor : Border
 
     private FrameworkElement FolderIcon(string? name, double size)
     {
-        if (name == Running) return Icons.Tile(G.Clock, false, size);
+        // the add-on's clock tile in this theme's look: silver on a dark taskbar
+        if (name == Running) return new Image { Source = FolderIconSet.Clock(Theme.P.Dark), Width = size, Height = size, VerticalAlignment = VerticalAlignment.Center };
         var f = name is null ? null : state?.Items.GetValueOrDefault(name);
         if (f?.Icon is { Kind: "file", Path: { Length: > 0 } p }) return Icons.Build(IconSpec.Shell(p), size);
         // 앱 모음: the first four apps together on one tile, as the mod draws it

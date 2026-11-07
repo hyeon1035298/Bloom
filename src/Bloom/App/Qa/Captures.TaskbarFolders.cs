@@ -69,7 +69,7 @@ internal static partial class Captures
                 values.Flush();
                 sw.TaskbarForQa(name == "running-off" ? TaskbarEditor.Running : name == "folders" ? pick : null,
                     name == "failed" ? TaskbarEditor.ErrorText(Tr("이름 바꾸기", "Rename"), "exists") : null);
-                await TaskbarShot(sw, Path.Combine(dir, $"{l}-{theme}-taskbar-{name}.png"));
+                await TaskbarShot(sw, Path.Combine(dir, $"{l}-{theme}-taskbar-{name}.png"), SettingsView.AddonPageKey(addon.Id));
             }
         }
         values.Set("folders.autoRunning", true);
@@ -104,7 +104,7 @@ internal static partial class Captures
         foreach (string theme in new[] { "light", "dark" })
         {
             Theme.Apply(theme);
-            await TaskbarShot(sw, Path.Combine(dir, $"{l}-{theme}-taskbar-usage.png"));
+            await TaskbarShot(sw, Path.Combine(dir, $"{l}-{theme}-taskbar-usage.png"), SettingsView.AddonPageKey(addon.Id));
         }
         addon.QaStatus = null;
         Settings.Current.AddonsOn.Remove(addon.Id);
