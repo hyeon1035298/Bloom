@@ -274,7 +274,7 @@ internal sealed class RecordBar : Window
     /// the top, or that much over one at the bottom; `height` is the window's, shadow room and all.
     internal static int FloatTop(bool bottom, double edge, double scale, int height) => bottom
         ? (int)Math.Round(edge + (Below - Clear) * scale) - height
-        :(int)Math.Round(edge + (Clear - Above) * scale);
+        : (int)Math.Round(edge + (Clear - Above) * scale);
 
     /// The plain bar's top (physical): under the area, else over it, else inside its bottom, inside the work area.
     internal static int PlainTop(ScreenRect area, ScreenRect work, int bar, int gap)

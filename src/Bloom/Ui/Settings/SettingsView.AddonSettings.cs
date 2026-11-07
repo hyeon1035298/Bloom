@@ -67,7 +67,7 @@ internal sealed partial class SettingsView
         foreach (var o in item.Options)
         {
             int bit = int.Parse(o.Value, CultureInfo.InvariantCulture);
-            chips.Add((o.Name.Shown, (bits & bit) != 0, on =>
+            Action<bool> set = on =>
             {
                 int now = v.Int(key), next = on ? now | bit : now & ~bit;
                 if (next == 0 && item.Min >= 1)
@@ -76,7 +76,8 @@ internal sealed partial class SettingsView
                     return;
                 }
                 v.Set(key, next);
-            }));
+            };
+            chips.Add((o.Name.Shown, (bits & bit) != 0, set));
         }
         string names = string.Join(", ", chips.Select(c => c.label));
         string? shown = collected is null && filter.Length == 0 ? sub : sub is null ? names : $"{sub} · {names}";

@@ -27,6 +27,8 @@ Each release on GitHub shows its section from this file (the workflow looks for 
 - Screen recording: pick an area with Bloom Lens and record it to MP4, with system sound and the microphone.
 - Settings › Add-ons: an overview with a moving picture of each add-on, and a page for each.
 - Add-ons run as programs of their own and follow Bloom's theme and glass setting.
+- Hide a result from search and home with Ctrl+K › Hide from search. Settings › Hidden items brings it back.
+- My AI commands: saved prompts with steps and schedules. The notification center keeps finished tasks, limits, approvals and command results in one place.
 - Bloom uses less memory.
 - Fixed: Bloom Lens draws the picked area and its bar on every monitor, clear of the island.
 
@@ -55,6 +57,8 @@ Each release on GitHub shows its section from this file (the workflow looks for 
 - 화면 녹화: Bloom Lens로 범위를 골라 시스템 소리, 마이크와 함께 MP4로 녹화합니다.
 - 설정 › 애드온: 애드온마다 움직이는 그림이 있는 개요와 애드온별 페이지가 생겼습니다.
 - 애드온이 따로 된 프로그램으로 돌고, Bloom의 테마와 유리 효과를 따릅니다.
+- Ctrl+K › 검색에서 숨기기로 결과를 검색과 홈에서 숨깁니다. 설정 › 숨긴 항목에서 되돌립니다.
+- 내 AI 명령: 자주 쓰는 프롬프트를 단계와 일정과 함께 저장합니다. 알림 센터가 작업 완료, 한도, 승인 대기, 명령 결과를 한곳에 모읍니다.
 - Bloom이 메모리를 덜 씁니다.
 - 고침: Bloom Lens가 고른 범위와 막대를 모든 모니터에, 아일랜드를 피해 그립니다.
 
