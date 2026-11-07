@@ -19,19 +19,22 @@ namespace Bloom.Ui;
 internal static class Markdown
 {
     /// One rendering's settings, handed down the blocks.
-    private sealed class Ctx(Action<string> openLink, MdMetrics m)
+    private sealed class Ctx(Action<string> openLink, MdMetrics m, Func<MdSpan, FrameworkElement?>? picture)
     {
         public readonly Action<string> OpenLink = openLink;
         public readonly MdMetrics M = m;
+        public readonly Func<MdSpan, FrameworkElement?>? Picture = picture;
         public double Size => M.Size;
     }
 
-    /// The whole answer as one selectable document: drag across paragraphs, lists and tables to copy.
-    public static ReadText Render(string md, Action<string> openLink, double size = 14)
+    /// The whole answer as one selectable document: drag across paragraphs, lists and tables to copy. With `picture`
+    /// (바뀐 점), ![alt](src) is a picture: a paragraph that is one picture alone is the element `picture` makes of it (its
+    /// link, [![alt](src)](url), in the span), and any other picture, or one it makes nothing of, its alt text.
+    public static ReadText Render(string md, Action<string> openLink, double size = 14, Func<MdSpan, FrameworkElement?>? picture = null)
     {
-        var ctx = new Ctx(openLink, new MdMetrics(size, false));
+        var ctx = new Ctx(openLink, new MdMetrics(size, false), picture);
         var doc = ReadText.Doc(size);
-        Blocks(MdParser.Parse(md, false, false), ctx, doc.Blocks);
+        Blocks(MdParser.Parse(md, false, picture is not null), ctx, doc.Blocks);
         if (doc.Blocks.LastBlock is { } last) last.Margin = new Thickness(last.Margin.Left, last.Margin.Top, last.Margin.Right, 0);
         return new ReadText(doc);
     }
@@ -81,6 +84,9 @@ internal static class Markdown
                     item.Margin = new Thickness(item.Margin.Left, 0, 0, m.ItemAfter(b.ListEnd));
                     Inline(b.Spans, item.Inlines, ctx);
                     into.Add(item);
+                    break;
+                case MdKind.Paragraph when b.Spans is [{ Kind: MdSpanKind.Picture } only] && ctx.Picture?.Invoke(only) is { } shown:
+                    into.Add(new BlockUIContainer(shown) { Margin = new Thickness(0, m.After / 2, 0, m.After * 1.5) });
                     break;
                 default:
                     var para = ReadText.Paragraph(ctx.Size, Theme.Regular);
@@ -268,6 +274,7 @@ internal static class Markdown
         {
             System.Windows.Documents.Inline inline;
             if (s.Kind == MdSpanKind.Break) inline = new LineBreak();
+            else if (s.Kind == MdSpanKind.Picture) inline = new Run(Hangul.KeepAll(s.Text)); // one not drawn: its alt text
             else if ((s.Style & MdStyle.Code) != 0) inline = Code(s.Text, ctx.M.CodeSize);
             else inline = new Run(Hangul.KeepAll(s.Text));
             if ((s.Style & MdStyle.Bold) != 0) inline.FontWeight = FontWeights.Bold;
