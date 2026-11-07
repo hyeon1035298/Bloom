@@ -200,6 +200,36 @@ body { font-family: "Wanted Sans Variable", "Wanted Sans", "Pretendard", "Malgun
 .idle .ff { color: #a1a1aa; letter-spacing: -0.1em; }
 .idle .ok { color: var(--pink); font-weight: 600; }
 .wid--cup::after { content: ""; position: absolute; inset: calc(-5 * var(--u)); border-radius: 50%; corner-shape: round; border: calc(2 * var(--u)) solid var(--pink); opacity: calc((1 - var(--pulse, 0)) * var(--ring, 0)); transform: scale(calc(0.7 + 0.8 * var(--pulse, 0))); }
+/* ---------- snippets: the clipboard view's 상용구 tab pastes into the window in front ---------- */
+.doc { position: absolute; border-radius: calc(10 * var(--u)); background: #232327; border: 1px solid rgba(255, 255, 255, 0.09); box-shadow: 0 calc(8 * var(--u)) calc(20 * var(--u)) rgba(0, 0, 0, 0.45); overflow: hidden; }
+.doc .w__bar { height: calc(22 * var(--u)); padding: 0 calc(9 * var(--u)); background: rgba(255, 255, 255, 0.06); }
+.doc .w__bar i { width: 30%; }
+.doc__body { padding: calc(12 * var(--u)) calc(14 * var(--u)); display: flex; flex-direction: column; gap: calc(7 * var(--u)); }
+.doc__body > i { height: calc(5 * var(--u)); border-radius: calc(3 * var(--u)); background: rgba(255, 255, 255, 0.08); }
+.paste { position: relative; font-size: calc(11 * var(--u)); line-height: 1.55; color: #f4f4f5; white-space: pre-line; margin-top: calc(4 * var(--u)); }
+.paste span { border-radius: calc(3 * var(--u)); background: rgba(255, 122, 158, calc(0.32 * var(--flash, 0))); opacity: var(--pasted, 0); }
+.caret { display: inline-block; width: calc(1.5 * var(--u)); height: calc(13 * var(--u)); margin-left: calc(1 * var(--u)); vertical-align: calc(-2.5 * var(--u)); background: #f4f4f5; opacity: var(--blink, 1); }
+.lch {
+  position: absolute; z-index: 5; border-radius: calc(16 * var(--u)); padding: calc(10 * var(--u)); display: flex; flex-direction: column; gap: calc(6 * var(--u));
+  opacity: var(--card, 0); transform-origin: 50% 30%; transform: scale(calc(0.96 + 0.04 * var(--card, 0)));
+  font-size: calc(10.5 * var(--u)); color: #e4e4e7;
+}
+.lch__search { display: flex; align-items: center; gap: calc(7 * var(--u)); height: calc(30 * var(--u)); padding: 0 calc(4 * var(--u)) 0 calc(8 * var(--u)); border-radius: calc(10 * var(--u)); background: rgba(255, 255, 255, 0.06); }
+.lch__search .ico { width: calc(13 * var(--u)); height: calc(13 * var(--u)); color: #a1a1aa; }
+.lch__search .seg { flex: none; margin-left: auto; }
+.lch__search .seg span { padding: calc(3 * var(--u)) calc(9 * var(--u)); font-size: calc(9.5 * var(--u)); }
+.lch__lists { position: relative; flex: 1; }
+.lch__list { position: absolute; inset: 0; display: flex; flex-direction: column; gap: calc(2 * var(--u)); }
+.lch__head { display: flex; padding: calc(4 * var(--u)) calc(8 * var(--u)) calc(2 * var(--u)); font-size: calc(9 * var(--u)); color: #a1a1aa; }
+.lch__head span { margin-left: auto; }
+.lrow { position: relative; display: flex; align-items: center; gap: calc(8 * var(--u)); height: calc(27 * var(--u)); padding: 0 calc(8 * var(--u)); border-radius: calc(8 * var(--u)); white-space: nowrap; }
+.lrow::before { content: ""; position: absolute; inset: 0; border-radius: inherit; background: rgba(255, 255, 255, 0.08); opacity: var(--sel, 0); }
+.lrow::after { content: ""; position: absolute; left: 0; top: 50%; translate: 0 -50%; width: calc(3 * var(--u)); height: calc(15 * var(--u)); border-radius: calc(2 * var(--u)); background: #f4f4f5; opacity: var(--sel, 0); }
+.lrow > * { position: relative; }
+.lrow .ico { width: calc(13 * var(--u)); height: calc(13 * var(--u)); color: #a1a1aa; }
+.lrow b { font-weight: 500; color: #f4f4f5; }
+.lrow .faint { overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+.lrow .end { margin-left: auto; flex: none; }
 </style>
 </head>
 <body>
@@ -327,6 +357,10 @@ const ICON = {
   spark: '<path d="M12 3.5l1.8 5.2 5.2 1.8-5.2 1.8L12 17.5l-1.8-5.2L5 10.5l5.2-1.8z"/>',
   down: '<path d="M6 9.5l6 6 6-6"/>',
   check: '<path d="M5 12.5l4.5 4.5L19 7.5"/>',
+  search: '<circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/>',
+  text: '<path d="M5 6.5h14M5 11h14M5 15.5h9"/>',
+  mark: '<path d="M7 3.5h10v17l-5-3.6-5 3.6z"/>',
+  add: '<path d="M12 5v14M5 12h14"/>',
 };
 const ico = (name, cls = 'ico') => `<svg class="${cls}" viewBox="0 0 24 24">${ICON[name]}</svg>`;
 const WINS = `<div class="u win" ${box(40, 128, 250, 160)}></div><div class="u win" ${box(330, 112, 200, 170)}></div>`;
@@ -560,6 +594,76 @@ scenes.coffee = {
       // the clock jumps the idle minutes with the counter
       const mins = Math.round(10 * Math.min(1, Math.max(0, (t - 1.8) / 1.8))) + Math.round(10 * Math.min(1, Math.max(0, (t - 8.2) / 1.8)));
       s.querySelectorAll('[data-clock]').forEach(c => c.textContent = `15:${two(mins)}:${two(2 + Math.floor(t))}`);
+    };
+  },
+};
+
+// Ctrl+Alt+V opens the clipboard on its 기록 tab; a click on 상용구 lists the saved texts, a click on one pastes it
+// into the mail in front, where the caret was.
+const LS = {
+  ko: { findHist: '복사한 내용 찾기', find: '상용구 찾기', hist: '기록', snip: '상용구', today: '오늘', count: '3개', newOne: '새 상용구',
+    history: ['회의 자료 공유드립니다', 'example.com/report', '3분기 매출 요약'],
+    snippets: [['인사 회신', '안녕하세요. 자료 잘 받았습니다…', 'hi'], ['회사 주소', '서울시 중구 세종대로 110', 'addr'], ['회의 링크', 'meet.example.com/team', 'meet']],
+    paste: '안녕하세요. 자료 잘 받았습니다.\n확인 후 오늘 안에 회신드리겠습니다.' },
+  en: { findHist: 'Find something you copied', find: 'Find a snippet', hist: 'History', snip: 'Snippets', today: 'Today', count: '3', newOne: 'New snippet',
+    history: ['Sharing the meeting notes', 'example.com/report', 'Q3 sales summary'],
+    snippets: [['Thanks reply', 'Hi, thanks for the files…', 'hi'], ['Office address', '110 Main Street, Springfield', 'addr'], ['Meeting link', 'meet.example.com/team', 'meet']],
+    paste: 'Hi, thanks for the files.\nI\'ll look them over and reply today.' },
+}[LANG];
+scenes.snippets = {
+  dur: 9.6,
+  build(s) {
+    s.style.setProperty('--pink', '#FF7A9E');
+    const row = (icon, title, sub, end) => `<div class="lrow">${ico(icon)}<b>${title}</b><span class="faint">${sub}</span>${end ? `<span class="end key">${end}</span>` : ''}</div>`;
+    s.innerHTML = `<div class="desk"><div class="u win" ${box(430, 150, 190, 100)}></div></div>
+      <div class="doc" style="left:calc(28*var(--u));top:calc(26*var(--u));width:calc(300*var(--u));height:calc(196*var(--u))">
+        <div class="w__bar"><img src="assets/document.svg" alt=""><i></i></div>
+        <div class="doc__body"><i style="width:40%"></i><i style="width:62%"></i>
+          <div class="paste"><span data-paste>${LS.paste}</span><i class="caret"></i></div></div>
+      </div>
+      <div class="lch glass" style="left:calc(292*var(--u));top:calc(20*var(--u));width:calc(318*var(--u));height:calc(200*var(--u))">
+        <div class="lch__search">${ico('search')}<span class="faint" style="position:relative;flex:1;height:1.3em"><span data-ph style="position:absolute;left:0">${LS.findHist}</span><span data-ph style="position:absolute;left:0">${LS.find}</span></span>
+          <div class="seg"><span data-tab>${LS.hist}</span><span data-tab>${LS.snip}</span></div></div>
+        <div class="lch__lists">
+          <div class="lch__list" data-list><div class="lch__head">${LS.today}</div>${LS.history.map(h => row('text', h, '')).join('')}</div>
+          <div class="lch__list" data-list><div class="lch__head">${LS.snip}<span>${LS.count}</span></div>
+            ${LS.snippets.map(([n, t, k]) => row('mark', n, t, k)).join('')}${row('add', LS.newOne, '')}</div>
+        </div>
+      </div>
+      <div class="keys" style="top:calc(234*var(--u))"><span class="cap" data-k>Ctrl</span><span class="cap" data-k>Alt</span><span class="cap" data-k style="min-width:calc(28*var(--u))">V</span></div>
+      ${CURSOR}`;
+    const q = sel => s.querySelector(sel);
+    const cur = q('.cursor'), card = q('.lch'), paste = q('.paste'), caret = q('.caret');
+    const tabs = [...s.querySelectorAll('[data-tab]')], lists = [...s.querySelectorAll('[data-list]')], keys = [...s.querySelectorAll('[data-k]')];
+    const histRows = [...lists[0].querySelectorAll('.lrow')], snipRows = [...lists[1].querySelectorAll('.lrow')];
+    let P;
+    const cardOn = [[0, 0], [1.0, 0], [1.3, 1, 'outExpo'], [4.15, 1], [4.4, 0, 'in2']];
+    const tab = [[0, 0], [2.45, 0], [2.65, 1, 'out2'], [4.4, 1], [4.45, 0, 'none']];
+    const pasted = [[0, 0], [4.35, 0], [4.45, 1, 'out2'], [8.7, 1], [9.1, 0, 'io2']];
+    const flash = [[0, 0], [4.35, 0], [4.45, 1, 'out2'], [5.3, 0, 'io2']];
+    // keys down one after another, up together
+    const downs = [0.45, 0.62, 0.8], up = 1.25;
+    const press = [[0, 0], [2.36, 0], [2.42, 1, 'none'], [2.6, 0, 'out2'], [3.98, 0], [4.04, 1, 'none'], [4.22, 0, 'out2']];
+    return t => {
+      P ??= { tab: unitsOf(tabs[1], s), first: unitsOf(snipRows[0], s) };
+      const cx = [[0, 210], [1.5, 210], [2.3, P.tab.cx], [2.6, P.tab.cx], [3.4, P.first.x + 70], [4.3, P.first.x + 70], [5.4, 230], [9.6, 210]];
+      const cy = [[0, 186], [1.5, 186], [2.3, P.tab.cy + 1], [2.6, P.tab.cy + 1], [3.4, P.first.cy], [4.3, P.first.cy], [5.4, 196], [9.6, 186]];
+      const tb = at(tab, t), pa = at(pasted, t);
+      set(card, { card: at(cardOn, t) });
+      tabs.forEach((el, i) => el.classList.toggle('on', i === (tb > 0.5 ? 1 : 0)));
+      lists[0].style.opacity = 1 - tb;
+      lists[1].style.opacity = tb;
+      s.querySelectorAll('[data-ph]').forEach((el, i) => el.style.opacity = i ? tb : 1 - tb);
+      // the first row is picked as the view opens; the pointer over a row picks that one
+      histRows.forEach((r, i) => set(r, { sel: i === 0 ? 1 : 0 }));
+      snipRows.forEach((r, i) => set(r, { sel: i === 0 ? 1 : 0 }));
+      keys.forEach((k, i) => { const d = t >= downs[i] && t < up ? 1 : 0; k.classList.toggle('is-down', !!d); set(k, { down: d }); });
+      set(paste, { pasted: pa, flash: at(flash, t) });
+      // the caret blinks where the text goes, then after it; the clipboard window has the focus meanwhile
+      const focus = t < 1.0 || t >= 4.4;
+      set(caret, { blink: focus && Math.floor(t / 0.5) % 2 === 0 ? 1 : 0 });
+      paste.querySelector('span').style.display = pa > 0 ? '' : 'none';
+      point(cur, at(cx, t), at(cy, t), at(press, t));
     };
   },
 };
