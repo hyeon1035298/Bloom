@@ -2004,6 +2004,17 @@ Check your connection and try again	请检查网络连接后重试
 The downloaded file isn't the one Bloom expects, so it wasn't installed	下载的文件与 Bloom 预期的不同，因此未安装
 What the download holds isn't valid, so it wasn't installed	下载的内容无效，因此未安装
 Couldn't save the download · check the free disk space	无法保存下载的文件 · 请检查可用磁盘空间
+Add: {0}	添加{0}
+Up to {0} can be added	最多可添加 {0} 个
+Type a name and press Enter	输入名称后按 Enter
+Type a file name ending in {0} and press Enter	输入以 {0} 结尾的文件名后按 Enter
+That name can't be used	不能使用此名称
+Only a file name ending in {0}	只能是以 {0} 结尾的文件名
+Already in the list	已在列表中
+Off — click to set a shortcut	已关闭 — 点击设置快捷键
+Click and press another combination; Delete clears it	点击后按下其他组合键，按 Delete 清除
+Bloom already uses it	Bloom 已在使用此键
+They show here once the add-on has run	加载项运行过一次后会显示在这里
 Add-ons	加载项
 Add-ons are separate programs Bloom starts, each turned on and off here. Click one to open its page. One you put in the user-addons folder in Bloom's local data folder shows after Bloom restarts.	加载项是由 Bloom 启动的独立程序，在这里逐个开启和关闭。点击卡片即可打开该加载项的页面。你自己放入 Bloom 本地数据文件夹中 user-addons 的加载项，在重新启动 Bloom 后显示。
 All add-ons	加载项列表
@@ -2189,7 +2200,6 @@ Add a model	添加模型
 Pick from the models omp knows, by provider	按提供方查找并选择 omp 已知的模型
 Add by hand	手动添加
 provider/model, then Enter (e.g. anthropic/claude-sonnet-5-5)	按 提供方/模型 的格式输入后按 Enter（例如 anthropic/claude-sonnet-5-5）
-Already in the list	已在列表中
 not read yet	尚未读取
 Refresh omp's model list	刷新 omp 的模型列表
 Reads omp models again now · {0} models · last {1}	立即重新读取 omp models · {0} 个 · 上次 {1}
@@ -2557,8 +2567,6 @@ That file couldn't be brought in as the icon.	无法将该文件用作图标。
 {0} changed	已更改 {0} 项
 Off · turn it on in Features	已关闭 · 在“功能”中开启
 Another app already uses it — press another combination	已被其他应用占用 — 请按其他组合
-Off — click to set a shortcut	已关闭 — 点击设置快捷键
-Bloom already uses it	Bloom 已在使用此键
 No settings found	未找到设置
 Basics	基本
 Find a setting	查找设置
@@ -2598,8 +2606,10 @@ Start menu apps	开始菜单中的应用
 In this folder	在此文件夹中
 In {0}	在 {0} 中
 No shortcut	无快捷方式
+Icons	图标
 Shows the first four apps together. Reordering the apps changes it too.	将其中前四个应用合在一起显示。调整应用顺序，图标也会随之改变。
 Use the apps	使用应用组合
+Switches between its light and dark look with the taskbar's theme.	随任务栏主题在浅色版和深色版之间切换。
 Choose a file	选择文件
 Uses the icon of an .ico, .png, .exe or .dll file.	使用 .ico、.png、.exe 或 .dll 文件的图标。
 Folder icon	文件夹图标
@@ -2661,5 +2671,3 @@ just now	刚刚
 Detach from the launcher	从启动器分离
 Always on top	始终置顶
 Attach to the launcher	附到启动器
-Icons	图标
-Switches between its light and dark look with the taskbar's theme.	随任务栏主题在浅色版和深色版之间切换。
