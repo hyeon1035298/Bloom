@@ -60,6 +60,8 @@ irm https://raw.githubusercontent.com/hyeon1035298/Bloom/main/install.ps1 | iex
 
 ### AI 聊天
 
+<img src="docs/media/zh/link.webp" alt="Claude Code、Codex、omp 和 API 密钥汇入 Bloom，再分到电脑操作、备忘与计时器和日历、AI 操作、任务通知">
+
 <img src="docs/media/zh/ai.webp" alt="在把 PDF 移到“文档”之前询问允许或拒绝的聊天，以及 Claude Code 和 Codex 的工作通知卡片">
 
 - 在搜索栏输入问题并按 Tab，快速 AI 就会当场作答；按 Shift+Tab 则是不带上下文开启一段新对话。

@@ -60,6 +60,8 @@ irm https://raw.githubusercontent.com/hyeon1035298/Bloom/main/install.ps1 | iex
 
 ### AI チャット
 
+<img src="docs/media/ja/link.webp" alt="Claude Code、Codex、omp、API キーが Bloom ひとつにつながり、PC の操作、メモとタイマーとカレンダー、AI アクション、作業の通知に分かれる図">
+
 <img src="docs/media/ja/ai.webp" alt="PDF をドキュメントに移す前に許可か拒否かを尋ねるチャットと、Claude Code と Codex の作業の通知カード">
 
 - 検索欄に聞きたいことを書いて Tab を押すと、クイック AI がその場ですぐに答えます。Shift+Tab を押せば、前の文脈を引きずらずに新しいチャットで質問できます。
