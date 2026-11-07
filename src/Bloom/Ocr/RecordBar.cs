@@ -19,11 +19,11 @@ using Bloom.Ui;
 namespace Bloom.Ocr;
 
 /// 화면 녹화's bar. Before it starts: 녹화 시작, the two sounds (시스템 소리 · 마이크, kept for next time) and cancel;
-/// while it records: a red dot, the time and 멈춤. It grows out of what is there (RecordSurface): the island turns
-/// into it at the top and shrinks back to an island that shows the time; the taskbar's pill turns into it at the
-/// bottom and, once recording, gives the taskbar back with a small recording pill above it; with Windows' own taskbar
-/// it is a bar under the area. One transparent window holds the shape, which changes size inside it; the window is
-/// kept out of screen captures, so it is never in the video.
+/// while it records: a red dot, the time and 멈춤. With the island or Pill taskbar (RecordSurface) it is a pill that
+/// floats clear of the taskbar as it is once all the way out: under it at the top, a little over it at the bottom, so
+/// the taskbar coming out never covers it; with Windows' own taskbar it is a bar under the area. One transparent window
+/// holds the shape, which changes size inside it; the window is kept out of screen captures, so it is never in the
+/// video.
 internal sealed class RecordBar : Window
 {
     public event Action? StartClicked, CancelClicked, StopClicked;
@@ -37,19 +37,25 @@ internal sealed class RecordBar : Window
     private static readonly Duration Open = TimeSpan.FromMilliseconds(200), Fast = TimeSpan.FromMilliseconds(160);
     private static readonly IEasingFunction Ease = new ExponentialEase { EasingMode = EasingMode.EaseOut, Exponent = 6 }; // close to the design's cubic-bezier(0.22, 1, 0.36, 1)
 
+    /// Between the taskbar's edge and the pill (DIP).
+    private const double Clear = 8;
+
+    /// The window's room around the shape for its shadow (DIP): above, and below where the shadow falls.
+    private const double Above = 4, Below = 32;
+
     private readonly RecordSurface surface;
     private readonly ScreenRect area;
     private readonly Palette ink;
-    private readonly bool capsule; // the island and the pill are round at the ends; the plain bar is a 12-DIP card
+    private readonly bool capsule; // the island's and the pill's bar is round at the ends; the plain bar is a 12-DIP card
+    private readonly bool bottom; // the pill over a taskbar at the bottom: it keeps its bottom edge as it changes size
     private readonly double scale;
-    private readonly Size from; // the island's or pill's own size (DIPs), where the shape starts and ends
-    private readonly SmoothBorder shape, chip;
-    private readonly Grid menu, rec, chipRec;
+    private readonly SmoothBorder shape;
+    private readonly Grid menu, rec;
     private readonly SmoothBorder systemKey, micKey;
-    private readonly TextBlock time, chipTime;
+    private readonly TextBlock time;
     private readonly Size menuSize, recSize;
     private readonly Stopwatch clock = new();
-    private readonly List<FrameworkElement> dots = new(); // the recording rows' dots, which beat
+    private readonly List<FrameworkElement> dots = new(); // the recording row's dot, which beats
     private readonly DispatcherTimer tick = new() { Interval = TimeSpan.FromMilliseconds(250) };
     private readonly DispatcherTimer raise = new() { Interval = TimeSpan.FromSeconds(1) };
 
@@ -64,8 +70,8 @@ internal sealed class RecordBar : Window
         SystemAudio = systemAudio;
         Mic = mic;
         capsule = surface.Kind != RecordSurfaceKind.Plain;
+        bottom = surface.Kind == RecordSurfaceKind.Pill;
         scale = ScaleAt(Anchor(surface, area));
-        from = capsule ? new Size(surface.Box.Width / scale, surface.Box.Height / scale) : new Size(0, 42);
 
         WindowStyle = WindowStyle.None;
         ResizeMode = ResizeMode.NoResize;
@@ -84,92 +90,48 @@ internal sealed class RecordBar : Window
             IconButton(G.Close, Tr("취소 (Esc)", "Cancel (Esc)"), () => CancelClicked?.Invoke()));
         time = Time();
         rec = RecordingRow(time, !capsule);
-        chipTime = Time();
-        chipRec = RecordingRow(chipTime, false);
 
         var layers = new Grid { Margin = new Thickness(capsule ? 8 : 5, 0, capsule ? 8 : 5, 0) };
         layers.Children.Add(menu);
         layers.Children.Add(rec);
         shape = new SmoothBorder
         {
-            Background = surface.Kind == RecordSurfaceKind.Island ? IslandFill(ink) : ink.Popup,
-            BorderBrush = surface.Kind == RecordSurfaceKind.Island ? Brushes.Transparent : ink.PopupLine,
+            Background = ink.Popup,
+            BorderBrush = ink.PopupLine,
             BorderThickness = new Thickness(1),
             CornerRadius = new CornerRadius(12),
             ClipToBounds = true,
             Child = layers,
             HorizontalAlignment = HorizontalAlignment.Center,
+            VerticalAlignment = bottom ? VerticalAlignment.Bottom : VerticalAlignment.Top,
+            Margin = bottom ? new Thickness(0, 0, 0, Below) : new Thickness(0, Above, 0, 0),
             Effect = Shadow(ink.Dark),
         };
         if (capsule) shape.SizeChanged += (_, _) => shape.CornerRadius = new CornerRadius(shape.ActualHeight / 2);
 
-        // the pill's recording chip, above the taskbar it gave back
-        chip = new SmoothBorder
-        {
-            Background = ink.Popup,
-            BorderBrush = ink.PopupLine,
-            BorderThickness = new Thickness(1),
-            CornerRadius = new CornerRadius(18),
-            Height = 36,
-            Padding = new Thickness(4, 0, 4, 0),
-            HorizontalAlignment = HorizontalAlignment.Center,
-            VerticalAlignment = VerticalAlignment.Bottom,
-            Child = chipRec,
-            Opacity = 0,
-            IsHitTestVisible = false,
-            Effect = Shadow(ink.Dark),
-            RenderTransform = new TranslateTransform(0, 6),
-        };
-
-        menuSize = Measure(menu, capsule ? (surface.Kind == RecordSurfaceKind.Island ? 48 : 52) : 42);
-        recSize = Measure(rec, capsule ? Math.Max(from.Height, 35) : 42);
-        var chipSize = Measure(chipRec, 36);
-
-        var root = new Grid();
-        root.Children.Add(shape);
-        if (surface.Kind == RecordSurfaceKind.Pill) root.Children.Add(chip);
-        Content = root;
+        menuSize = Measure(menu, capsule ? 48 : 42);
+        recSize = Measure(rec, capsule ? 40 : 42);
+        Content = shape;
 
         // the window: wide and tall enough for every shape it takes, with room for the shadow
-        double width = Math.Max(Math.Max(menuSize.Width, recSize.Width), Math.Max(from.Width, chipSize.Width)) + 48;
-        double height = surface.Kind switch
-        {
-            RecordSurfaceKind.Pill => Math.Max(menuSize.Height, from.Height) + 8 + chipSize.Height + 24,
-            RecordSurfaceKind.Island => Math.Max(menuSize.Height, from.Height) + 28,
-            _ => menuSize.Height + 36,
-        };
-        Width = width;
-        Height = height;
-        switch (surface.Kind)
-        {
-            case RecordSurfaceKind.Pill:
-                shape.VerticalAlignment = VerticalAlignment.Bottom;
-                chip.Margin = new Thickness(0, 0, 0, from.Height + 8);
-                break;
-            case RecordSurfaceKind.Island:
-                shape.VerticalAlignment = VerticalAlignment.Top;
-                break;
-            default:
-                shape.VerticalAlignment = VerticalAlignment.Top;
-                shape.Margin = new Thickness(0, 4, 0, 0);
-                break;
-        }
+        Width = Math.Max(menuSize.Width, recSize.Width) + 48;
+        Height = menuSize.Height + Above + Below;
 
-        // where it starts: the island's or pill's own shape and colour, nothing in it yet; the plain bar fades in
-        shape.Width = capsule ? from.Width : menuSize.Width;
-        shape.Height = capsule ? from.Height : menuSize.Height;
+        // where it starts: nothing shown yet, the menu's size; it fades in
+        shape.Width = menuSize.Width;
+        shape.Height = menuSize.Height;
+        shape.Opacity = 0;
         menu.Opacity = 0;
         rec.Opacity = 0;
         rec.IsHitTestVisible = false;
-        if (!capsule) shape.Opacity = 0;
 
         SourceInitialized += (_, _) =>
         {
             IntPtr h = new WindowInteropHelper(this).Handle;
             Glass.ToolWindow(this);
             SetWindowDisplayAffinity(h, 0x11 /* WDA_EXCLUDEFROMCAPTURE */);
-            // Pill taskbar: the pointer on the bar doesn't bring the hidden taskbar out over it (the island and the
-            // edge stay as they are); gone with the window
+            // Pill taskbar: the pointer on the bar doesn't bring the hidden taskbar out (the island and the edge stay as
+            // they are); gone with the window
             SetPropW(h, HoldRevealProp, new IntPtr(1));
             Place();
             raise.Start();
@@ -186,7 +148,7 @@ internal sealed class RecordBar : Window
         {
             if (e.Key == System.Windows.Input.Key.Escape)
             {
-                if (rec.IsHitTestVisible || chip.IsHitTestVisible) StopClicked?.Invoke();
+                if (rec.IsHitTestVisible) StopClicked?.Invoke();
                 else CancelClicked?.Invoke();
                 e.Handled = true;
             }
@@ -200,34 +162,22 @@ internal sealed class RecordBar : Window
         Closed += (_, _) => tick.Stop();
     }
 
-    /// The countdown: the shape takes its recording look (the time at 00:00, faint), the pill gives the taskbar back.
+    /// The countdown: the shape takes its recording look, the time at 00:00, faint.
     public void Counting()
     {
         menu.IsHitTestVisible = false;
         Fade(menu, 0);
-        time.Opacity = chipTime.Opacity = 0.5;
-        if (surface.Kind == RecordSurfaceKind.Pill)
-        {
-            Grow(from);
-            Fade(shape, 0);
-            shape.IsHitTestVisible = false;
-            chip.IsHitTestVisible = true;
-            Fade(chip, 1);
-            ((TranslateTransform)chip.RenderTransform).BeginAnimation(TranslateTransform.YProperty, new DoubleAnimation(0, Open) { EasingFunction = Ease });
-        }
-        else
-        {
-            Grow(recSize);
-            rec.IsHitTestVisible = true;
-            Fade(rec, 1);
-        }
+        time.Opacity = 0.5;
+        Grow(recSize);
+        rec.IsHitTestVisible = true;
+        Fade(rec, 1);
     }
 
     /// Recording from now: the time runs, the dot beats.
     public void Recording()
     {
         clock.Restart();
-        time.Opacity = chipTime.Opacity = 1;
+        time.Opacity = 1;
         ShowTime();
         tick.Start();
         foreach (var dot in dots)
@@ -240,30 +190,27 @@ internal sealed class RecordBar : Window
     public void Saving()
     {
         tick.Stop();
-        rec.IsHitTestVisible = chip.IsHitTestVisible = false;
+        rec.IsHitTestVisible = false;
         foreach (var dot in dots) dot.BeginAnimation(OpacityProperty, null);
     }
 
     public TimeSpan Elapsed => clock.Elapsed;
 
-    /// Back into what it came from (the island shrinks to its own size) and gone.
+    /// Fades out and is gone.
     public async Task Leave()
     {
         tick.Stop();
-        menu.IsHitTestVisible = rec.IsHitTestVisible = chip.IsHitTestVisible = false;
+        menu.IsHitTestVisible = rec.IsHitTestVisible = false;
         Fade(menu, 0);
         Fade(rec, 0);
-        Fade(chip, 0);
-        if (capsule && surface.Kind == RecordSurfaceKind.Island) Grow(from);
-        else Fade(shape, 0);
+        Fade(shape, 0);
         await Task.Delay(Open.TimeSpan + TimeSpan.FromMilliseconds(40));
         Close();
     }
 
     private void ShowMenu()
     {
-        if (!capsule) Fade(shape, 1);
-        else shape.Opacity = 1;
+        Fade(shape, 1);
         Grow(menuSize);
         menu.IsHitTestVisible = true;
         Fade(menu, 1);
@@ -272,8 +219,7 @@ internal sealed class RecordBar : Window
     private void ShowTime()
     {
         var t = clock.Elapsed;
-        string text = t.TotalHours >= 1 ? t.ToString(@"h\:mm\:ss", System.Globalization.CultureInfo.InvariantCulture) : t.ToString(@"mm\:ss", System.Globalization.CultureInfo.InvariantCulture);
-        time.Text = chipTime.Text = text;
+        time.Text = t.TotalHours >= 1 ? t.ToString(@"h\:mm\:ss", System.Globalization.CultureInfo.InvariantCulture) : t.ToString(@"mm\:ss", System.Globalization.CultureInfo.InvariantCulture);
     }
 
     private void Grow(Size to)
@@ -299,12 +245,11 @@ internal sealed class RecordBar : Window
 
     // ── where it goes ──────────────────────────────────────────────────────────────────────────
 
-    /// The point the window is placed by (physical): the island's top middle, the pill's bottom middle, the area's bottom
-    /// middle for the plain bar.
+    /// The point the window is placed by (physical): the middle of the island or pill at the taskbar's edge once it is
+    /// out, the area's bottom middle for the plain bar.
     private static Point Anchor(RecordSurface s, ScreenRect area) => s.Kind switch
     {
-        RecordSurfaceKind.Island => new Point(s.Box.X + s.Box.Width / 2, s.Box.Y),
-        RecordSurfaceKind.Pill => new Point(s.Box.X + s.Box.Width / 2, s.Box.Bottom),
+        RecordSurfaceKind.Island or RecordSurfaceKind.Pill => new Point(s.Box.X + s.Box.Width / 2, s.Edge),
         _ => new Point(area.X + area.Width / 2.0, area.Y + area.Height),
     };
 
@@ -314,23 +259,22 @@ internal sealed class RecordBar : Window
         int w = (int)Math.Round(Width * scale), hgt = (int)Math.Round(Height * scale);
         var at = Anchor(surface, area);
         int x = (int)Math.Round(at.X - w / 2.0), y;
-        switch (surface.Kind)
+        if (capsule) y = FloatTop(bottom, at.Y, scale, hgt);
+        else
         {
-            case RecordSurfaceKind.Island:
-                y = (int)Math.Round(at.Y);
-                break;
-            case RecordSurfaceKind.Pill:
-                y = (int)Math.Round(at.Y) - hgt;
-                break;
-            default:
-                var work = WorkArea(at);
-                int bar = (int)Math.Round((menuSize.Height + 8) * scale), gap = (int)Math.Round(6 * scale);
-                y = PlainTop(area, work, bar, gap) - (int)Math.Round(4 * scale);
-                x = Math.Clamp(x, work.X, Math.Max(work.X, work.X + work.Width - w));
-                break;
+            var work = WorkArea(at);
+            int bar = (int)Math.Round((menuSize.Height + 8) * scale), gap = (int)Math.Round(6 * scale);
+            y = PlainTop(area, work, bar, gap) - (int)Math.Round(Above * scale);
+            x = Math.Clamp(x, work.X, Math.Max(work.X, work.X + work.Width - w));
         }
         Win32.SetWindowPos(h, Win32.HWND_TOPMOST, x, y, w, hgt, Win32.SWP_NOACTIVATE);
     }
+
+    /// The floating pill's window top (physical) for a taskbar edge at `edge`: the shape `Clear` DIPs under a taskbar at
+    /// the top, or that much over one at the bottom; `height` is the window's, shadow room and all.
+    internal static int FloatTop(bool bottom, double edge, double scale, int height) => bottom
+        ? (int)Math.Round(edge + (Below - Clear) * scale) - height
+        :(int)Math.Round(edge + (Clear - Above) * scale);
 
     /// The plain bar's top (physical): under the area, else over it, else inside its bottom, inside the work area.
     internal static int PlainTop(ScreenRect area, ScreenRect work, int bar, int gap)
@@ -522,8 +466,6 @@ internal sealed class RecordBar : Window
     private Border Separator() => new() { Width = 1, Height = 20, Margin = new Thickness(6, 0, 6, 0), Background = ink.Line };
 
     private static Border Gap(double w) => new() { Width = w };
-
-    private static Brush IslandFill(Palette p) => p.Dark ? Brushes.Black : Brushes.White;
 
     private static DropShadowEffect Shadow(bool dark) => new()
     {
