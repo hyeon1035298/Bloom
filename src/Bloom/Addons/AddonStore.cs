@@ -35,18 +35,34 @@ internal sealed class AddonStore
     /// Where downloaded add-ons go (<root>\<id>\<version>); null for a store that takes no downloads (the user's).
     public string? DownloadRoot { get; }
 
-    /// The install folder holds this add-on (a local install or a dev build): that one is used, and none is downloaded.
+    /// The install folder holds this add-on (a local install or a dev build).
     public bool Bundled(string id) => File.Exists(Path.Combine(shippedRoot, id, AddonManifest.FileName));
 
-    /// The folder the add-on is read from: the install folder's when it has one, else the downloaded version (the latest
-    /// when a clean-up that failed left two), else the newest run copy (a Bloom that came with the add-on was replaced by
-    /// one that doesn't, and nothing is downloaded yet: the copy that ran keeps running), else the install folder's path,
-    /// which has none.
+    /// The folder the add-on is read from: the downloaded version (the latest when a clean-up that failed left two) when
+    /// the install folder has none or an earlier version (or one it can't read), else the install folder's; with neither,
+    /// the newest run copy (a Bloom that came with the add-on was replaced by one that doesn't, and nothing is downloaded
+    /// yet: the copy that ran keeps running), else the install folder's path, which has none.
     public string SourceDir(string id)
     {
         string shipped = Path.Combine(shippedRoot, id);
-        if (DownloadRoot is null || Bundled(id)) return shipped;
-        return Newest(Path.Combine(DownloadRoot, id)) ?? Newest(DataDir(id)) ?? shipped;
+        if (DownloadRoot is null) return shipped;
+        string? downloaded = Newest(Path.Combine(DownloadRoot, id));
+        if (Bundled(id))
+            return downloaded is not null && (VersionIn(shipped) is not { } bundled || AddonCatalog.Newer(Path.GetFileName(downloaded), bundled)) ? downloaded : shipped;
+        return downloaded ?? Newest(DataDir(id)) ?? shipped;
+    }
+
+    /// The version the addon.json in dir gives; null when it can't be read.
+    private static string? VersionIn(string dir)
+    {
+        try
+        {
+            return AddonManifest.Parse(File.ReadAllText(Path.Combine(dir, AddonManifest.FileName))).Version;
+        }
+        catch (Exception e) when (e is InvalidDataException or IOException or UnauthorizedAccessException)
+        {
+            return null;
+        }
     }
 
     /// The highest version folder in dir with an addon.json in it; null when there is none.

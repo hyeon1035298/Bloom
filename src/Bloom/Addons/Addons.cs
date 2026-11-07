@@ -79,7 +79,18 @@ internal sealed class Addon
         Id = id;
         User = user;
         this.store = store;
+        Catalog = user ? null : AddonCatalog.Find(id);
         Load();
+    }
+
+    /// The Bloom this is, as an add-on's minBloom is compared with it.
+    internal static Version Bloom
+    {
+        get
+        {
+            var v = typeof(Addon).Assembly.GetName().Version ?? new Version(0, 0);
+            return new Version(v.Major, v.Minor, Math.Max(0, v.Build));
+        }
     }
 
     /// The manifest from the source folder (again after a download), and whether this Bloom can use it.
@@ -90,8 +101,7 @@ internal sealed class Addon
         try
         {
             m = store.Shipped(Id);
-            var v = typeof(Addon).Assembly.GetName().Version ?? new Version(0, 0);
-            if (m is not null && !m.Fits(new Version(v.Major, v.Minor, Math.Max(0, v.Build))))
+            if (m is not null && !m.Fits(Bloom))
             {
                 Log.Write($"add-on {Id}: needs Bloom {m.MinBloom}");
                 broken = true;
@@ -121,55 +131,58 @@ internal sealed class Addon
     /// The download on the page: how far it is, or why the last one failed.
     public AddonFetch Fetch { get; } = new();
 
-    /// The version the host was last started from this run (an update downloaded since applies at the next start).
+    /// The version the host was last started from this run.
     public string? StartedVersion { get; private set; }
 
-    /// The catalog's release to download for this add-on: when the install folder doesn't hold it and it is missing,
-    /// broken or older than the catalog's. Null otherwise, and for the user's own add-ons.
-    public AddonCatalog.Entry? Offer(Func<string, AddonCatalog.Entry?>? catalog = null)
+    /// Its line in Bloom's catalog (where its releases come from); null for the user's own add-ons. The tests set one.
+    public AddonCatalog.Entry? Catalog { get; internal set; }
+
+    /// Its latest release as last read from its repository; null while none was read. The tests set one.
+    public AddonRelease? Latest { get; internal set; }
+
+    private long lookedAt = long.MinValue;
+
+    /// The last read of its latest release began within `age` (on the clock Environment.TickCount64 keeps), and a new one
+    /// is marked as begun now when it didn't: the settings page reads it once in that time, however often it is drawn.
+    internal bool LookedWithin(TimeSpan age)
     {
-        if (User || store.DownloadRoot is null || store.Bundled(Id)) return null;
-        if ((catalog ?? AddonCatalog.Find)(Id) is not { Offered: true } e) return null;
-        return Manifest is not { } m || Broken || AddonCatalog.Newer(e.Version, m.Version) ? e : null;
+        long now = Environment.TickCount64, was = Interlocked.Read(ref lookedAt);
+        if (was != long.MinValue && now - was < (long)age.TotalMilliseconds) return true;
+        return Interlocked.CompareExchange(ref lookedAt, now, was) != was;
     }
 
-    /// Downloads the catalog's release, checks it and puts it in as this add-on's source: Fetch shows it busy at once,
-    /// the rest runs on a worker thread. A host that started this run keeps its version until it starts again; one that is
-    /// switched on but had nothing to start from starts with it.
-    public Task Download(HttpClient http, AddonCatalog.Entry e)
+    /// The release to download: the latest one when it is later than the version here (a downloaded or bundled one; any
+    /// when it has none or a broken one), not before the catalog's minVersion and not needing a newer Bloom. Null
+    /// otherwise, and for the user's own add-ons.
+    public AddonRelease? Offer() => User || store.DownloadRoot is null || Catalog is not { } c ? null : Pick(Latest, c, Broken ? null : Manifest?.Version, Bloom);
+
+    /// Offer's rule: a release is never one before what is here (a downgrade) or before the catalog's floor.
+    internal static AddonRelease? Pick(AddonRelease? latest, AddonCatalog.Entry catalog, string? have, Version bloom) =>
+        latest is { } r && r.Id == catalog.Id && r.Fits(bloom) && AddonCatalog.Compare(r.Version, catalog.MinVersion) >= 0
+            && (have is null || AddonCatalog.Newer(r.Version, have)) ? r : null;
+
+    /// Reads its latest release and, when that is one to download (Offer), downloads it, checks it and puts it in as this
+    /// add-on's source: Fetch shows it busy at once, the rest runs on a worker thread. A new version is put to work at once
+    /// while the add-on is on: its host, when one runs, is stopped and started again from it.
+    public Task Update(HttpClient http)
     {
-        if (store.DownloadRoot is not { } root || !Fetch.Begin()) return Task.CompletedTask;
+        if (Catalog is not { } c || store.DownloadRoot is not { } root || !Fetch.Begin()) return Task.CompletedTask;
         AddonHub.Notify();
-        return Task.Run(() => Fetched(http, e, root));
+        return Task.Run(() => Updated(http, c, root));
     }
 
-    private async Task Fetched(HttpClient http, AddonCatalog.Entry e, string root)
+    private async Task Updated(HttpClient http, AddonCatalog.Entry c, string root)
     {
         AddonFailure? failed = null;
         try
         {
-            string staging = await AddonDownload.Prepare(http, e, root, (done, total) =>
-            {
-                if (Fetch.Report(done, total)) AddonHub.Notify();
-            }, CancellationToken.None).ConfigureAwait(false);
-            try
-            {
-                lock (gate)
-                {
-                    AddonDownload.Commit(staging, e, root);
-                    Load();
-                }
-            }
-            finally
-            {
-                if (Directory.Exists(staging)) Directory.Delete(staging, true);
-            }
-            Log.Write($"add-on {Id}: {e.Version} downloaded");
-            if (On && StartedVersion is null && !AddonHub.SkippedByShift) Start();
+            LookedWithin(TimeSpan.Zero);
+            Latest = await AddonLatest.Fetch(http, c).ConfigureAwait(false);
+            if (Offer() is { } e) await Fetched(http, e, root).ConfigureAwait(false);
         }
         catch (AddonDownloadException x)
         {
-            Log.Write($"add-on {Id}: download of {e.Version} failed ({x.Reason}): {x.Message}");
+            Log.Write($"add-on {Id}: update failed ({x.Reason}): {x.Message}");
             failed = x.Reason;
         }
         catch (Exception x) when (x is IOException or UnauthorizedAccessException)
@@ -187,6 +200,55 @@ internal sealed class Addon
             Fetch.End(failed);
             AddonHub.Notify();
         }
+    }
+
+    /// Reads its latest release only (the settings page, for the 업데이트 it may offer); a failure is logged and leaves the
+    /// last one read.
+    public async Task Look(HttpClient http)
+    {
+        if (Catalog is not { } c) return;
+        try
+        {
+            Latest = await AddonLatest.Fetch(http, c).ConfigureAwait(false);
+        }
+        catch (AddonDownloadException x)
+        {
+            Log.Write($"add-on {Id}: latest release not read ({x.Reason}): {x.Message}");
+        }
+        catch (Exception x) when (x is InvalidOperationException or HttpRequestException)
+        {
+            Log.Error("add-on " + Id, x);
+        }
+        AddonHub.Notify();
+    }
+
+    private async Task Fetched(HttpClient http, AddonRelease e, string root)
+    {
+        string staging = await AddonDownload.Prepare(http, e, root, (done, total) =>
+        {
+            if (Fetch.Report(done, total)) AddonHub.Notify();
+        }, CancellationToken.None).ConfigureAwait(false);
+        try
+        {
+            lock (gate)
+            {
+                AddonDownload.Commit(staging, e, root);
+                Load();
+            }
+        }
+        finally
+        {
+            if (Directory.Exists(staging)) Directory.Delete(staging, true);
+        }
+        Log.Write($"add-on {Id}: {e.Version} downloaded");
+        if (!On || AddonHub.SkippedByShift) return;
+        // at once: the host of the version before is stopped (explorer lets go of its DLLs) and this one starts
+        if (StartedVersion is { } was && was != e.Version)
+        {
+            Log.Write($"add-on {Id}: from {was} to {e.Version} now");
+            Stop();
+        }
+        Start();
     }
 
     public string DataDir => store.DataDir(Id);
@@ -419,17 +481,29 @@ internal static class AddonHub
     {
         var list = new List<Addon> { new(AddonProtocol.Id, shipped) };
         foreach (var e in catalog ?? Enumerable.Empty<AddonCatalog.Entry>())
-            if (e.Offered && list.All(a => a.Id != e.Id)) list.Add(new Addon(e.Id, shipped));
+            if (list.All(a => a.Id != e.Id)) list.Add(new Addon(e.Id, shipped) { Catalog = e });
         foreach (string id in user.Ids())
             if (list.All(a => a.Id != id)) list.Add(new Addon(id, user, user: true));
         return list;
     }
 
-    /// Bloom starts: the add-ons switched on start on a worker thread. `autostart`: started at sign-in (logged with the
-    /// time since then, for comparing the ways Bloom is started at sign-in).
+    /// How long after Bloom's start, and then how often while it runs, the add-ons switched on look for a new release.
+    internal static readonly TimeSpan FirstLook = TimeSpan.FromSeconds(20), Every = TimeSpan.FromHours(24);
+
+    /// Looks at the add-ons' releases by themselves: only while 설정 > 정보 > 켤 때 업데이트 확인 is on (one who turned it
+    /// off wants no look at GitHub Bloom didn't ask for), and never in a dev or QA copy.
+    private static bool AutoLook => Offered && Settings.Current.UpdateCheck;
+
+    private static Timer? daily;
+
+    /// Bloom starts: the add-ons switched on start on a worker thread, each with the version it has, and look for a new
+    /// release a little later and then once a day (one found is put to work at once, Addon.Update). `autostart`: started at
+    /// sign-in (logged with the time since then, for comparing the ways Bloom is started at sign-in).
     public static void Begin(bool autostart)
     {
-        if (!Offered || Settings.Current.AddonsOn.Count == 0) return;
+        if (!Offered) return;
+        daily ??= new Timer(_ => LookAll(), null, FirstLook, Every);
+        if (Settings.Current.AddonsOn.Count == 0) return;
         if ((Native.Win32.GetAsyncKeyState(0x10 /* VK_SHIFT */) & 0x8000) != 0)
         {
             SkippedByShift = true;
@@ -443,8 +517,15 @@ internal static class AddonHub
         })));
     }
 
-    /// The switch on the settings page: saved at once, the host started (with the catalog's release when one is
-    /// offered, Bring) or stopped on a worker thread.
+    /// The timer's look: every add-on switched on updates (not this run when Shift was held at the start).
+    private static void LookAll()
+    {
+        if (!AutoLook || SkippedByShift) return;
+        foreach (var a in All.Where(a => a.On && !a.User)) _ = Update(a);
+    }
+
+    /// The switch on the settings page: saved at once, the host started (after its latest release is read, and downloaded
+    /// when newer, Bring) or stopped on a worker thread.
     public static Task Set(Addon a, bool on)
     {
         var list = Settings.Current.AddonsOn;
@@ -456,26 +537,34 @@ internal static class AddonHub
         return on ? Task.Run(() => Bring(a, fresh: true)) : Task.Run(a.Stop);
     }
 
-    /// Starts the add-on, checking the catalog for a newer release first. The release is waited for when the add-on has
-    /// nothing to run yet or was just switched on (`fresh`: no host of it runs); at Bloom's start the copy it has starts
-    /// at once and the download is for the next start, so the taskbar isn't held up or reloaded. A download that fails
-    /// leaves the copy it has, which starts as before.
+    /// Starts the add-on. Just switched on (`fresh`) or with nothing to run yet, its latest release is read (and
+    /// downloaded when newer) first, so it starts once, with the newest; at Bloom's start the version it has starts at
+    /// once (the taskbar isn't held up) and the timer's look comes later. A look that fails leaves the version it has,
+    /// which starts as before.
     private static async Task Bring(Addon a, bool fresh)
     {
-        if (a.Offer() is { } e)
-        {
-            var fetch = Download(a, e);
-            if (fresh || a.Manifest is null || a.Broken) await fetch.ConfigureAwait(false);
-        }
+        if (fresh || a.Manifest is null || a.Broken) await Update(a).ConfigureAwait(false);
         a.Start();
     }
 
     /// 다시 켜기 (safe mode cleared) and 다시 시도.
     public static Task Retry(Addon a, bool resetSafeMode) => Task.Run(() => a.Start(resetSafeMode));
 
-    /// 받기, 업데이트 and 다시 받기: the catalog's release, over the API chats' shared client, on a worker thread. Also in a
-    /// dev or QA copy (into its own data folder), where nothing is started from it.
-    public static Task Download(Addon a, AddonCatalog.Entry e) => a.Download(Ai.ApiClient.Shared, e);
+    /// The client the add-ons' releases are read and downloaded over: the API chats' shared one.
+    private static HttpClient Http => Ai.ApiClient.Shared;
+
+    /// 받기, 업데이트 and 다시 받기, the switch and the timer: its latest release read and, when newer, downloaded and put to
+    /// work (Addon.Update), on a worker thread. Also in a dev or QA copy (into its own data folder), where nothing is
+    /// started from it.
+    public static Task Update(Addon a) => a.Update(Http);
+
+    /// The settings page is drawn: each of `addons` whose latest release wasn't read in the last day reads it (no
+    /// download), so the page can offer 업데이트 for one that is off too.
+    public static void Look(IEnumerable<Addon> addons)
+    {
+        foreach (var a in addons)
+            if (a.Catalog is not null && !a.Fetch.Busy && !a.LookedWithin(Every)) _ = Task.Run(() => a.Look(Http));
+    }
 
     /// Bloom quits: every host let go, none stopped (Addon.Detach).
     public static void Quit()

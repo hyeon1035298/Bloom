@@ -1998,9 +1998,15 @@ Now {0} · from its GitHub release	当前 {0} · 从其 GitHub 发布版下载
 Update	更新
 Download {0} {1}	下载 {0} {1}
 From its GitHub release, checked by Bloom before it is installed	从其 GitHub 发布版下载，经 Bloom 校验后安装
-{0} {1} downloaded	已下载 {0} {1}
 Check your connection and try again	请检查网络连接后重试
-The downloaded file isn't the one Bloom expects, so it wasn't installed	下载的文件与 Bloom 预期的不同，因此未安装
+The downloaded file isn't the one its release names, so it wasn't installed	下载的文件与发布版中注明的文件不同，因此未安装
+Download {0}	下载 {0}
+Looking for a new {0}	正在检查 {0} 的新版本
+GitHub release	GitHub 发布版
+There is no release to download yet	暂时没有可下载的发布版
+Report it on GitHub	在 GitHub 上报告问题
+Opens an issue in this add-on's repository, with its version and status filled in	在此加载项的仓库中新建 Issue · 已填好版本和状态
+Open an issue	新建 Issue
 What the download holds isn't valid, so it wasn't installed	下载的内容无效，因此未安装
 Couldn't save the download · check the free disk space	无法保存下载的文件 · 请检查可用磁盘空间
 Add: {0}	添加{0}
@@ -2019,10 +2025,8 @@ Add-ons are separate programs Bloom starts, each turned on and off here. Click o
 All add-ons	加载项列表
 Turns the taskbar into a centred pill	将任务栏变为居中的药丸形状
 Starts taskbar customization again	重新启动任务栏自定义
-Turn taskbar customization off and on to switch to the new version	关闭再开启任务栏自定义即可切换到新版本
 Its settings show here while it is on	开启后，此加载项的设置显示在这里
 Starts this add-on again	重新启动此加载项
-Turn this add-on off and on to switch to the new version	关闭再开启此加载项即可切换到新版本
 An add-on you added	你添加的加载项
 This add-on has no settings to change in Bloom	此加载项没有可在 Bloom 中更改的设置
 View source	查看源代码

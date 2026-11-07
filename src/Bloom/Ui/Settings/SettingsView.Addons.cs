@@ -10,9 +10,9 @@ using Bloom.Search;
 namespace Bloom.Ui;
 
 /// 설정 > 애드온: every add-on with its switch and its host's status, and a page of its own under it in the list (the
-/// line opens it). First the taskbar add-on (PillTaskbar), then the others the release Bloom's catalog pins
-/// (AddonHub.Listed), each downloaded on its line (AddonDownload), then the ones the user put in Bloom's user-addons
-/// folder themselves (AddonStore.User). The taskbar add-on's page is laid out by Bloom while it is on
+/// line opens it). First the taskbar add-on (PillTaskbar), then the others Bloom's catalog lists (AddonHub.Listed), each
+/// downloaded on its line (AddonDownload), then the ones the user put in Bloom's user-addons folder themselves
+/// (AddonStore.User). The taskbar add-on's page is laid out by Bloom while it is on
 /// (SettingsView.Taskbar); every other's is drawn from the settings its schema describes (SettingsView.AddonSettings).
 internal sealed partial class SettingsView
 {
@@ -29,6 +29,10 @@ internal sealed partial class SettingsView
         var taskbar = taskbarAddon ?? AddonHub.Taskbar;
         var listed = listedAddons ?? AddonHub.Listed.ToList();
         var users = userAddons ?? AddonHub.Users.ToList();
+        // their latest releases, read once a day while the page is drawn, so 업데이트 shows for one that is off too (not
+        // for QA pictures or the recording mode, whose page stays the same whatever GitHub holds)
+        if (collected is null && taskbarAddon is null && listedAddons is null && host.Opt.CaptureDir is null && !host.Opt.Demo)
+            AddonHub.Look(listed.Prepend(taskbar));
         Page("addons", Tr("애드온", "Add-ons"), G.Plug,
             Tr("애드온은 Bloom이 함께 실행하는 별도 프로그램이며, 여기서 하나씩 켜고 끕니다. 줄을 누르면 그 애드온의 페이지가 열립니다. Bloom의 로컬 데이터 폴더 안 user-addons에 직접 넣은 애드온은 Bloom을 다시 시작하면 보입니다.",
                 "Add-ons are separate programs Bloom starts, each turned on and off here. Click one to open its page. One you put in the user-addons folder in Bloom's local data folder shows after Bloom restarts."), filter);
@@ -39,7 +43,7 @@ internal sealed partial class SettingsView
         Action<bool, Switch> setTaskbar = (v, sw) => SetAddon(taskbar, v, sw, () => ConfirmTaskbar(taskbar));
         var status = AddonLine(s, taskbar, taskbarName, taskbarAbout, G.Screen, TaskbarStatusText, Tr("작업표시줄 꾸미기를 다시 시작합니다", "Starts taskbar customization again"),
             setTaskbar, filter);
-        AddonDownload(taskbar, "PillTaskbar", Tr("작업표시줄 꾸미기를 껐다 켜면 새 버전으로 바뀝니다", "Turn taskbar customization off and on to switch to the new version"), status, filter);
+        AddonDownload(taskbar, "PillTaskbar", status, filter);
         views.Add(new(taskbar, taskbarName, taskbarAbout, G.Screen, status, TaskbarStatusText, setTaskbar, () =>
         {
             if (s.AddonsOn.Contains(taskbar.Id)) TaskbarLines(taskbar, status, filter);
@@ -53,7 +57,7 @@ internal sealed partial class SettingsView
             string about = entry?.About(Lang.Code) ?? "";
             Action<bool, Switch> set = (v, sw) => SetAddon(addon, v, sw, () => ConfirmListed(addon, name));
             var st = AddonLine(s, addon, name, about, G.Plug, AddonStatusText, Tr("이 애드온을 다시 시작합니다", "Starts this add-on again"), set, filter);
-            AddonDownload(addon, name, Tr("이 애드온을 껐다 켜면 새 버전으로 바뀝니다", "Turn this add-on off and on to switch to the new version"), st, filter);
+            AddonDownload(addon, name, st, filter);
             views.Add(new(addon, name, about, G.Plug, st, AddonStatusText, set, SchemaBody(addon, filter)));
         }
         foreach (var addon in users)

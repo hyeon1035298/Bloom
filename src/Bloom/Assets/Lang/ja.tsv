@@ -1998,9 +1998,15 @@ Now {0} · from its GitHub release	現在 {0} · GitHub リリースから取得
 Update	更新
 Download {0} {1}	{0} {1} をダウンロード
 From its GitHub release, checked by Bloom before it is installed	GitHub リリースから取得し、Bloom が確認してからインストールします
-{0} {1} downloaded	{0} {1} をダウンロードしました
 Check your connection and try again	接続を確認してもう一度お試しください
-The downloaded file isn't the one Bloom expects, so it wasn't installed	ダウンロードしたファイルが Bloom の想定と異なるため、インストールしませんでした
+The downloaded file isn't the one its release names, so it wasn't installed	ダウンロードしたファイルがリリースの示すファイルと異なるため、インストールしませんでした
+Download {0}	{0} をダウンロード
+Looking for a new {0}	{0} の新しいバージョンを確認中
+GitHub release	GitHub リリース
+There is no release to download yet	ダウンロードできるリリースはまだありません
+Report it on GitHub	GitHub で問題を報告
+Opens an issue in this add-on's repository, with its version and status filled in	このアドオンのリポジトリで Issue を開きます · バージョンと状態は入力済みです
+Open an issue	Issue を開く
 What the download holds isn't valid, so it wasn't installed	ダウンロードした内容が正しくないため、インストールしませんでした
 Couldn't save the download · check the free disk space	ダウンロードを保存できませんでした · ディスクの空き容量を確認してください
 Add: {0}	{0}を追加
@@ -2019,10 +2025,8 @@ Add-ons are separate programs Bloom starts, each turned on and off here. Click o
 All add-ons	アドオン一覧
 Turns the taskbar into a centred pill	タスクバーを中央のピル型に変えます
 Starts taskbar customization again	タスクバーのカスタマイズを再開します
-Turn taskbar customization off and on to switch to the new version	タスクバーのカスタマイズをオフにしてからオンにすると新しいバージョンに切り替わります
 Its settings show here while it is on	オンにすると、このアドオンの設定がここに表示されます
 Starts this add-on again	このアドオンを再開します
-Turn this add-on off and on to switch to the new version	このアドオンをオフにしてからオンにすると新しいバージョンに切り替わります
 An add-on you added	自分で入れたアドオン
 This add-on has no settings to change in Bloom	このアドオンには Bloom で変更できる設定がありません
 View source	ソースを見る
