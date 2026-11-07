@@ -30,10 +30,8 @@ internal static class FolderIconSet
         int size = sizes.ContainsKey(px) ? px : 256;
         if (Drawn.TryGetValue((name, silver, size), out var known)) return known;
         var look = silver ? spec.Silver : spec.Graphite;
-        double inset = spec.Insets[size];
         var group = new DrawingGroup();
-        group.Children.Add(new GeometryDrawing(new LinearGradientBrush(look.Top, look.Bottom, new Point(inset, inset), new Point(256 - inset, 256 - inset)) { MappingMode = BrushMappingMode.Absolute },
-            null, Tile(256 / 2.0 - inset, spec.Curve)));
+        group.Children.Add(TileDrawing(spec, look, spec.Insets[size]));
         var v = sizes[size];
         var glyph = new DrawingGroup();
         if (v["t"] is JsonArray t)
@@ -60,6 +58,31 @@ internal static class FolderIconSet
         image.Freeze();
         return image;
     }
+
+    /// The running folder's icon as the add-on draws it (its ClockIcon): a clock at three, ring and hands in the ink,
+    /// on the set's tile.
+    public static ImageSource Clock(bool silver)
+    {
+        if (Clocks.TryGetValue(silver, out var known)) return known;
+        var spec = Data.Value;
+        var look = silver ? spec.Silver : spec.Graphite;
+        var group = new DrawingGroup();
+        group.Children.Add(TileDrawing(spec, look, spec.Insets[256]));
+        group.Children.Add(new GeometryDrawing(null, new Pen(look.Tones[0], 15), new EllipseGeometry(new Point(128, 128), 48.5, 48.5)));
+        var hand = new Pen(look.Tones[0], 14) { StartLineCap = PenLineCap.Round, EndLineCap = PenLineCap.Round, LineJoin = PenLineJoin.Round };
+        group.Children.Add(new GeometryDrawing(null, hand, Geometry.Parse("M128,101 L128,128 L148,128")));
+        group.Freeze();
+        var image = new DrawingImage(group);
+        image.Freeze();
+        return Clocks[silver] = image;
+    }
+
+    private static readonly Dictionary<bool, ImageSource> Clocks = new();
+
+    /// The tile with its diagonal gradient, `inset` in from the 256 canvas's edges.
+    private static Drawing TileDrawing(Spec spec, Look look, double inset) =>
+        new GeometryDrawing(new LinearGradientBrush(look.Top, look.Bottom, new Point(inset, inset), new Point(256 - inset, 256 - inset)) { MappingMode = BrushMappingMode.Absolute },
+            null, Tile(256 / 2.0 - inset, spec.Curve));
 
     /// A layer or a cut: its path filled, or stroked with round ends and joins.
     private static Geometry Shape(JsonObject part)
