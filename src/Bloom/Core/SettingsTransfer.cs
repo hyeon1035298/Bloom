@@ -8,13 +8,14 @@ using System.Text.Json.Nodes;
 
 namespace Bloom.Core;
 
-/// Settings to and from one file (a zip): the settings, favorites (with their drawn icons), Bloom-only app names,
-/// quick searches and recent colours, plus a small manifest. Usage history, clipboard history, AI chats and running
-/// timers stay on this PC. Importing keeps a copy of what it replaces in backups\<time> next to the data.
+/// Settings to and from one file (a zip): the settings, favorites (with their drawn icons), Bloom-only app names, the
+/// results hidden from the search, quick searches and recent colours, plus a small manifest. Usage history, clipboard
+/// history, AI chats and running timers stay on this PC. Importing keeps a copy of what it replaces in backups\<time>
+/// next to the data.
 internal static class SettingsTransfer
 {
     /// The files that travel, in the data folder.
-    public static readonly string[] Files = { "settings.json", "favorites.json", "names.json", "quicklinks.json", "usercommands.json", "colors.json" };
+    public static readonly string[] Files = { "settings.json", "favorites.json", "names.json", "hidden.json", "quicklinks.json", "usercommands.json", "colors.json" };
 
     /// Settings that belong to this PC, not to the person: they keep their local value on import.
     // AI accounts: sign-in folders on this PC. permissions (and the old apiFileTools switch they replaced) and the MCP

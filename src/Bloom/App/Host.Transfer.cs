@@ -203,6 +203,7 @@ internal sealed partial class Host
         Settings.Load();
         Favorites.Load();
         AppNames.Load();
+        HiddenResults.Load();
         Quicklinks.Load();
         UserCommands.Load();
         ColorBook.Load();

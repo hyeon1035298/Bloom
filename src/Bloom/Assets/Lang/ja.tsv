@@ -2671,3 +2671,14 @@ just now	たった今
 Detach from the launcher	ランチャーから切り離す
 Always on top	常に手前に表示
 Attach to the launcher	ランチャーに付ける
+Hide from search	検索から非表示
+‘{0}’ hidden · bring it back in Settings › Launcher › Hidden items	「{0}」を非表示 · 設定 › ランチャー › 非表示の項目で戻せます
+Hidden items	非表示の項目
+Results taken out of the search and the home, and bringing them back	検索とホームから外した結果と、その表示の戻し方
+None · Ctrl+K on a result › Hide from search	なし · 結果で Ctrl+K › 検索から非表示
+{0} · not shown in the search or on the home	{0} 件 · 検索とホームに表示しません
+Hidden search results	非表示の検索結果
+Show all again	すべて再表示
+Show again	再表示
+Site shortcut	サイトショートカット
+System switch	システムスイッチ

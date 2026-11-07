@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Bloom.Core;
 using Bloom.Search;
 
 namespace Bloom.App;
@@ -13,12 +14,15 @@ internal static class RootRanking
     {
         // Keep the same traversal, comparator and List.Sort tie behavior as the root list.
         candidates.Sort((x, y) => y.Score.CompareTo(x.Score));
-        for (int i = 0; i < Math.Min(9, candidates.Count); i++)
+        // a result hidden from the search (Core.HiddenResults) is passed over, so the list still fills up to nine
+        for (int i = 0, added = 0; i < candidates.Count && added < 9; i++)
         {
             var candidate = candidates[i];
             var item = materialize(candidate.Source);
+            if (HiddenResults.Has(item.Id)) continue;
             item.Score = candidate.Score;
             output.Add(item);
+            added++;
         }
     }
 }
