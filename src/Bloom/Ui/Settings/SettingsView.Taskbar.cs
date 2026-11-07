@@ -267,7 +267,7 @@ internal sealed partial class SettingsView
     private static string Unit(int n, string unit) => unit switch
     {
         "" => n.ToString(CultureInfo.CurrentCulture),
-        "%" => $"{n}%",
+        "%" or "초" or "분" => $"{n}{unit}",
         _ => $"{n} {unit}",
     };
 

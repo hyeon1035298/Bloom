@@ -176,6 +176,19 @@ internal sealed class Hotkeys : IDisposable
         return (mods, vk);
     }
 
+    /// Parse's other way: (MOD_CONTROL | MOD_ALT, VK_UP) → "ctrl+alt+up"; "off" for vk 0 or a key KeyNames doesn't know.
+    public static string Combo(uint mods, uint vk)
+    {
+        if (vk == 0 || KeyNames.Name(KeyInterop.KeyFromVirtualKey((int)vk)) is not { } k) return "off";
+        var parts = new List<string>();
+        if ((mods & Win32.MOD_CONTROL) != 0) parts.Add("ctrl");
+        if ((mods & Win32.MOD_ALT) != 0) parts.Add("alt");
+        if ((mods & Win32.MOD_SHIFT) != 0) parts.Add("shift");
+        if ((mods & Win32.MOD_WIN) != 0) parts.Add("win");
+        parts.Add(k);
+        return string.Join("+", parts);
+    }
+
     /// "ctrl+alt+o" → "Ctrl+Alt+O", "printscreen" → "PrintScreen"
     public static string Label(string combo) => combo == "off" ? Tr("끔", "Off") : string.Join("+", Parts(combo));
 
