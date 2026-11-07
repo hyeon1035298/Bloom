@@ -249,7 +249,7 @@ h1 .winkey, h2 .winkey { width: 0.7em; vertical-align: baseline; margin-right: 0
 .screens { position: relative; aspect-ratio: 16 / 10; border-radius: var(--radius-frame); overflow: hidden; background: var(--color-surface); }
 .screens img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; opacity: 0; transition: opacity 0.5s var(--ease-out); }
 .screens img.is-on { opacity: 1; }
-.screens img, .ask__shot img, .addons__main img { filter: grayscale(1); }
+.screens img, .ask__shot img { filter: grayscale(1); }
 .screens img[data-fill] { object-fit: cover; object-position: top left; }
 
 @media (max-width: 640px) { .show .live { position: relative; left: auto; bottom: auto; width: auto; margin-top: 8px; } }
@@ -497,9 +497,7 @@ h1 .winkey, h2 .winkey { width: 0.7em; vertical-align: baseline; margin-right: 0
 
 /* ---------- add-ons ---------- */
 .addons { padding-block: clamp(80px, 11vh, 128px); }
-.addons__main { margin-top: 48px; padding: 8px; }
-.addons__main img { border-radius: calc(var(--radius-card) - calc(8px * var(--k))); }
-.addons__row { margin-top: var(--gap); display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: var(--gap); }
+.addons__row { margin-top: 48px; display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: var(--gap); }
 .addon { padding: 32px; grid-column: span 2; }
 .addon:nth-child(-n+2) { grid-column: span 3; }
 .addon h3 { font-size: 19px; }
@@ -546,109 +544,6 @@ h1 .winkey, h2 .winkey { width: 0.7em; vertical-align: baseline; margin-right: 0
 .foot__links { display: flex; flex-wrap: wrap; gap: 8px 24px; }
 .foot__links a { text-decoration: none; color: var(--color-muted); transition: color 0.2s; }
 .foot__links a:hover { color: var(--color-text); }
-
-/* ---------- island: the hidden taskbar's island opens into the pill, a folder opens below ---------- */
-/* Drawn in 1000 units around the screen's centre line (about 25-975 show); --open, --pop, --cx, --cy and --press are set by the island script. */
-.isle { padding: 8px; }
-.isle__screen {
-  --u: 0.105cqw; --open: 0; --pop: 0; --cx: 760; --cy: 200; --press: 0;
-  position: relative; aspect-ratio: 1000 / 250; container-type: inline-size; overflow: hidden; contain: layout paint;
-  border-radius: calc(var(--radius-card) - calc(8px * var(--k)));
-  background:
-    radial-gradient(60% 90% at 22% 110%, rgba(255, 255, 255, 0.10), transparent 70%),
-    radial-gradient(50% 80% at 85% 0%, rgba(255, 255, 255, 0.07), transparent 70%),
-    linear-gradient(160deg, #1c1c1f, #0b0b0d);
-}
-.isle__win { position: absolute; border: 1px solid var(--color-line); border-radius: calc(14 * var(--u)); background: rgba(255, 255, 255, 0.03); }
-.isle__win--a { left: calc(50% + (110 - 500) * var(--u)); top: calc(172 * var(--u)); width: calc(400 * var(--u)); height: calc(160 * var(--u)); }
-.isle__win--b { left: calc(50% + (560 - 500) * var(--u)); top: calc(150 * var(--u)); width: calc(340 * var(--u)); height: calc(160 * var(--u)); }
-
-/* One shape: the island (34 high, flat top, round bottom) grows into the pill (52 high, fully round). */
-.isle__shape {
-  position: absolute; left: 50%; z-index: 2;
-  top: calc(8 * var(--open) * var(--u));
-  width: calc((560 + 320 * var(--open)) * var(--u));
-  height: calc((34 + 18 * var(--open)) * var(--u));
-  transform: translateX(-50%);
-  border-radius: calc(26 * var(--open) * var(--u)) calc(26 * var(--open) * var(--u)) calc((17 + 9 * var(--open)) * var(--u)) calc((17 + 9 * var(--open)) * var(--u));
-}
-.isle__shape, .isle__black, .isle__glass { corner-shape: round; }
-.isle__black, .isle__glass { position: absolute; inset: 0; border-radius: inherit; }
-.isle__black { background: #000; opacity: calc(1 - var(--open)); }
-.isle__glass {
-  opacity: var(--open); background: linear-gradient(rgba(44, 42, 52, 0.82), rgba(26, 25, 32, 0.86));
-  border: 1px solid rgba(255, 255, 255, 0.12); box-shadow: 0 calc(10 * var(--u)) calc(30 * var(--u)) rgba(0, 0, 0, 0.45);
-  backdrop-filter: blur(10px);
-}
-/* the island's top corners flare out into the screen edge */
-.isle__fil { position: absolute; top: 0; width: calc(8 * var(--u)); height: calc(8 * var(--u)); opacity: clamp(0, calc(1 - var(--open) * 5), 1); }
-.isle__fil--l { right: 100%; background: radial-gradient(circle at 0 100%, transparent calc(8 * var(--u)), #000 calc(8 * var(--u) + 0.5px)); }
-.isle__fil--r { left: 100%; background: radial-gradient(circle at 100% 100%, transparent calc(8 * var(--u)), #000 calc(8 * var(--u) + 0.5px)); }
-
-.isle__island, .isle__pill { position: absolute; inset: 0; display: flex; align-items: center; white-space: nowrap; color: #fff; font-variant-numeric: tabular-nums; }
-.isle__island {
-  justify-content: center; gap: calc(16 * var(--u)); font-size: calc(13 * var(--u)); font-weight: 500;
-  opacity: clamp(0, calc(1 - var(--open) * 3), 1);
-}
-.isle__use { display: inline-flex; align-items: center; gap: calc(5 * var(--u)); }
-.isle__use svg { flex: none; width: calc(13 * var(--u)); height: calc(13 * var(--u)); fill: currentColor; }
-.isle__pill {
-  gap: calc(14 * var(--u)); padding-inline: calc(14 * var(--u)) calc(22 * var(--u));
-  opacity: clamp(0, calc((var(--open) - 0.3) * 2.2), 1);
-}
-.isle__time { font-size: calc(14 * var(--u)); color: #e4e4e7; }
-.isle__tray { margin-left: auto; display: flex; gap: calc(16 * var(--u)); color: #e4e4e7; }
-.isle__tray svg { width: calc(17 * var(--u)); height: calc(17 * var(--u)); fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
-
-/* taskbar tiles: folder tiles are the add-on's own light icons */
-.isle .tile {
-  position: relative; flex: none; display: flex; align-items: center; justify-content: center;
-  width: calc(30 * var(--u)); height: calc(30 * var(--u)); border-radius: calc(8 * var(--u));
-  padding: 0; background: none; /* the page's usage .tile has padding and a fill */
-}
-.isle .tile img { flex: none; width: calc(35 * var(--u)); height: calc(35 * var(--u)); max-width: none; border-radius: 0; filter: none; }
-.isle .tile svg { flex: none; width: calc(19 * var(--u)); height: calc(19 * var(--u)); fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
-.isle .tile--auto { background: rgba(255, 255, 255, 0.08); color: #a1a1aa; }
-.isle .tile--app { background: linear-gradient(135deg, #f7f7f9, #babac0); color: #18181b; }
-.isle .tile.is-run::after {
-  content: ""; position: absolute; left: 50%; bottom: calc(-7 * var(--u)); translate: -50% 0;
-  width: calc(6 * var(--u)); height: calc(3 * var(--u)); border-radius: calc(2 * var(--u)); background: rgba(255, 255, 255, 0.35);
-}
-.isle .tile.is-front::after { width: calc(18 * var(--u)); height: calc(2.5 * var(--u)); background: #fff; }
-.isle .tile--folder::before {
-  content: ""; position: absolute; inset: calc(-4 * var(--u)); border-radius: calc(11 * var(--u));
-  background: rgba(255, 255, 255, 0.16); opacity: var(--pop);
-}
-
-/* usage in the pill: logo, plan and percent over a bar, one per account */
-.isle__accts { display: flex; align-items: center; gap: calc(16 * var(--u)); padding-left: calc(6 * var(--u)); translate: 0 calc(-2 * var(--u)); line-height: 1.15; }
-.isle .pa { display: flex; flex-direction: column; gap: calc(5 * var(--u)); min-width: calc(80 * var(--u)); font-size: calc(11.5 * var(--u)); color: #e4e4e7; }
-.isle .pa__row { display: flex; align-items: center; gap: calc(4 * var(--u)); }
-.isle .pa__row b { font-weight: 500; }
-.isle .pa__row span { margin-left: auto; padding-left: calc(8 * var(--u)); }
-.isle .pa svg { flex: none; width: calc(11 * var(--u)); height: calc(11 * var(--u)); fill: currentColor; }
-.isle .pa i { display: block; height: calc(3 * var(--u)); border-radius: calc(2 * var(--u)); background: linear-gradient(90deg, #f4f4f5 calc(var(--v) * 100%), rgba(255, 255, 255, 0.16) 0); }
-
-/* folder popup: one row centred under the 4th tile (pill left 60 + 14 + 3 * 44 + 15 = 221) */
-.isle__pop {
-  position: absolute; z-index: 3; top: calc(72 * var(--u)); left: calc(50% + (90 - 500) * var(--u));
-  display: flex; gap: calc(14 * var(--u)); padding: calc(18 * var(--u));
-  border-radius: calc(20 * var(--u)); border: 1px solid rgba(255, 255, 255, 0.12);
-  background: linear-gradient(rgba(44, 42, 52, 0.86), rgba(26, 25, 32, 0.9)); backdrop-filter: blur(12px);
-  box-shadow: 0 calc(14 * var(--u)) calc(40 * var(--u)) rgba(0, 0, 0, 0.5);
-  opacity: var(--pop); transform-origin: 50% 0;
-  transform: translateY(calc((1 - var(--pop)) * -10 * var(--u))) scale(calc(0.9 + 0.1 * var(--pop)));
-}
-.isle__pop .tile { width: calc(46 * var(--u)); height: calc(46 * var(--u)); border-radius: calc(12 * var(--u)); }
-.isle__pop .tile svg { width: calc(26 * var(--u)); height: calc(26 * var(--u)); }
-
-.isle__cursor {
-  position: absolute; z-index: 4; width: calc(22 * var(--u)); height: calc(22 * var(--u));
-  left: calc(50% + (var(--cx) - 500) * var(--u)); top: calc(var(--cy) * var(--u));
-  translate: -18% -10%; scale: calc(1 - var(--press) * 0.15);
-  fill: #fafafa; stroke: #111; stroke-width: 1.4; stroke-linejoin: round; filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.5));
-}
-.isle.is-still .isle__cursor { display: none; }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
@@ -1030,49 +925,6 @@ h1 .winkey, h2 .winkey { width: 0.7em; vertical-align: baseline; margin-right: 0
   <section class="addons" id="addons" aria-labelledby="addons-title">
     <div class="wrap">
       <h2 id="addons-title" class="head">按需添加扩展功能。<span>由 Bloom 下载、校验并运行的官方加载项</span></h2>
-      <div class="card addons__main isle" data-isle="" role="img" aria-label="将指针移到屏幕顶部的黑色岛条上会展开为玻璃胶囊任务栏，点击文件夹则会在下方打开归组的应用">
-        <div class="isle__screen" aria-hidden="true">
-          <svg width="0" height="0" style="position:absolute"><symbol id="isle-claude" viewBox="0 0 1040 1040"><path d="M286.5 161.2c-2.1 5.1 -3.8 9.8 -3.9 10.4 -0.1 0.7 -0.7 1.8 -1.3 2.5 -0.5 0.8 -1.4 2.7 -1.8 4.4 -1 3.7 -1 3.5 -2.2 6.5 -4.1 9.8 -6.3 15.5 -6.3 16.7 0 0.7 -0.3 1.3 -0.8 1.3 -0.4 0 -1.6 2.7 -2.6 6 -1.1 3.3 -2.2 6 -2.6 6 -0.4 0 -0.7 0.6 -0.7 1.2 0 1.2 -14.2 37.8 -16.3 42.3 -0.5 1.1 -4.3 10.5 -8.4 21 -14.4 37.1 -20.8 53 -22.2 55.9 -0.8 1.6 -1.4 3.3 -1.4 3.8 0 0.5 -1 3 -2.1 5.6 -1.2 2.5 -2.2 5.1 -2.4 5.7 -0.2 1 -0.6 2.1 -3.8 9.7 -0.8 2 -1.3 3.8 -1.1 4.1 0.3 0.2 -0.2 1 -1.1 1.7 -0.8 0.7 -1.5 2.1 -1.5 3.1 0 1.1 -0.4 2.7 -0.9 3.7 -2 3.5 -6.1 13.5 -6.1 14.6 0 0.6 -0.6 2.2 -1.3 3.6 -0.7 1.4 -2.4 5.4 -3.7 9 -1.3 3.6 -3 7.6 -3.7 9 -0.7 1.4 -1.3 3 -1.3 3.6 0 0.5 -0.9 2.9 -2 5.2 -1.1 2.2 -2 4.7 -2 5.5 0 0.7 -0.5 1.8 -1.1 2.4 -0.6 0.6 -1.2 1.7 -1.3 2.4 -0.2 0.8 -0.7 2.3 -1.1 3.4 -0.4 1.1 -7.3 18.4 -15.2 38.5 -7.9 20.1 -16.4 41.4 -18.9 47.5 -2.5 6 -4.7 11.7 -4.9 12.5 -0.1 0.8 -1 3.1 -1.8 5 -4 9 -8.7 21.3 -8.7 22.6 0 0.8 -0.4 1.4 -1 1.4 -0.5 0 -1 0.9 -1 1.9 0 1.1 -0.5 2.3 -1 2.6 -0.6 0.4 -0.8 1.1 -0.4 1.6 0.3 0.5 0.1 1.5 -0.4 2.2 -0.5 0.7 -4.1 9.3 -8 19.2 -3.9 9.9 -7.7 19.3 -8.3 21 -0.7 1.6 -1.3 3.2 -1.4 3.5 -0.1 0.3 -0.5 1.4 -1 2.5 -4.8 11.6 -13.5 34.2 -13.5 35.2 0 0.7 -0.5 1.3 -1.2 1.3 -0.6 0 -0.8 0.3 -0.5 0.7 0.4 0.3 0.3 1.1 -0.2 1.7 -0.5 0.6 -1.4 2.9 -2.1 5.1 -0.7 2.2 -2 5.6 -2.8 7.5 -0.9 1.9 -1.6 3.7 -1.7 4 -0.1 0.3 -0.5 1.4 -1 2.5 -0.4 1.1 -4.4 11 -8.7 22 -4.3 11 -8.2 20.9 -8.7 22 -0.5 1.1 -1.9 4.7 -3.1 8 -1.3 3.3 -2.9 7.3 -3.6 9 -1.8 4.2 -5.8 14.9 -5.9 15.7 0 0.4 -0.6 1.3 -1.2 1.9 -0.7 0.7 -1.3 2.1 -1.3 3.1 0 1 -0.4 2.6 -1 3.6 -0.5 0.9 -5.3 12.7 -10.6 26.2 -5.3 13.5 -10 25.4 -10.5 26.5 -0.4 1.1 -2.7 6.7 -4.9 12.5 -2.3 5.8 -4.7 11.8 -5.4 13.5 -0.8 1.6 -2.2 5.2 -3.1 8 -1 2.7 -2.3 5.6 -2.8 6.2 -0.5 0.7 -0.6 1.3 -0.3 1.3 0.4 0 0 1.2 -0.8 2.7 -0.8 1.6 -3.1 7.1 -5.1 12.3 -2.1 5.2 -4.6 11.6 -5.6 14.2l-1.9 4.8 81.3 0 81.2 0 3.5 -9.3c1.9 -5 3.5 -9.4 3.5 -9.7 0.1 -0.3 0.9 -2.2 1.8 -4.4 0.9 -2.1 1.7 -4.1 1.7 -4.3 0 -0.5 4.4 -11.9 6.4 -16.8 0.7 -1.7 3 -7.5 5.1 -13 2.1 -5.5 4.3 -11.4 5 -13 0.6 -1.7 1.8 -4.6 2.5 -6.5 0.6 -1.9 1.6 -4.4 2.1 -5.5 1.1 -2.6 13.9 -35.7 14.3 -37 0.2 -0.6 0.8 -2.4 1.5 -4 0.6 -1.7 1.9 -5 2.8 -7.5 0.9 -2.5 2.1 -5.1 2.6 -5.8 0.5 -0.6 0.7 -1.2 0.4 -1.2 -0.3 0 1 -3.5 2.8 -7.8l3.4 -7.7 151.7 0 151.7 0 7.4 19c4 10.4 7.6 19.7 7.9 20.5 0.3 0.8 1.9 5.1 3.6 9.5 1.6 4.4 3.4 8.9 3.9 10 0.4 1.1 3.1 8.1 5.9 15.5 2.8 7.4 5.7 15.1 6.5 17 2.5 6 3.8 9.5 3.9 10.2 0.1 0.3 0.4 1 0.9 1.4 0.4 0.4 0.7 1.4 0.7 2.1 0 0.8 1.1 3.9 2.5 6.9 1.4 3 2.5 5.8 2.5 6.2 0 0.8 6.8 18.5 9.5 24.7 0.7 1.6 1.8 4.7 2.5 6.7l1.2 3.8 81 0 81 0 -0.6 -2.6c-0.4 -1.4 -1.5 -4.5 -2.5 -6.8 -1 -2.2 -4.2 -10.2 -7.1 -17.6 -2.9 -7.4 -5.8 -14.9 -6.5 -16.5 -0.7 -1.7 -4.3 -10.7 -7.9 -20 -3.7 -9.4 -7 -17.9 -7.5 -19 -0.5 -1.1 -1.3 -3.1 -1.9 -4.5 -0.6 -1.4 -5.6 -14.2 -11.2 -28.5 -5.6 -14.3 -10.6 -26.9 -11.1 -28 -0.4 -1.1 -1.8 -4.5 -2.9 -7.5 -1.2 -3 -2.8 -7 -3.7 -8.9 -0.8 -1.8 -1.6 -3.9 -1.8 -4.5 -0.1 -0.6 -1 -2.9 -1.9 -5 -1 -2.2 -1.9 -4.8 -2.1 -5.8 -0.2 -1 -0.7 -2.4 -1.2 -3.1 -0.4 -0.6 -0.8 -1.4 -0.9 -1.7 0 -0.3 -0.4 -1.4 -0.9 -2.5 -0.4 -1.1 -1.8 -4.5 -3 -7.5 -1.2 -3 -2.6 -6.4 -3 -7.5 -0.5 -1.1 -0.9 -2.2 -1 -2.5 -0.1 -0.3 -0.5 -1.4 -1 -2.5 -6.7 -16.6 -13.5 -34.2 -13.5 -35.2 0 -0.7 -0.4 -1.3 -0.8 -1.3 -0.5 0 -0.9 -0.6 -0.9 -1.3 -0.1 -1.2 -5 -14.1 -7.9 -20.4 -0.8 -1.7 -1.4 -3.3 -1.4 -3.6 0 -0.2 -0.6 -2 -1.4 -3.8 -0.8 -1.9 -1.4 -3.6 -1.4 -3.9 -0.1 -0.3 -1.5 -3.9 -3.2 -8 -4.2 -10.2 -4.8 -11.6 -6.1 -14.3 -0.5 -1.3 -1.1 -2.9 -1.3 -3.7 -0.2 -0.8 -0.8 -2.6 -1.3 -4 -0.6 -1.4 -3.6 -9 -6.8 -17 -3.1 -8 -6 -15.4 -6.5 -16.5 -2.3 -5.1 -6.5 -15.7 -9.2 -22.9 -1.6 -4.4 -3.5 -9.4 -4.3 -11.1 -0.8 -1.6 -2.7 -6.4 -4.3 -10.5 -1.6 -4.1 -3.3 -8.4 -3.7 -9.5 -0.5 -1.1 -0.9 -2.2 -1 -2.5 -0.6 -1.6 -1.8 -4.8 -2.6 -6.5 -0.4 -1.1 -2.2 -5.6 -3.9 -10 -1.7 -4.4 -3.5 -9 -4 -10.3 -1.4 -3.1 -2.4 -5.6 -5.8 -14.2 -1.6 -4.1 -3.3 -8.4 -3.7 -9.5 -0.5 -1.1 -0.9 -2.2 -1 -2.5 -0.1 -0.3 -0.7 -1.8 -1.3 -3.3 -0.7 -1.6 -1.2 -3.4 -1.2 -4.1 0 -0.6 -0.4 -1.6 -0.8 -2.2 -0.5 -0.5 -1.5 -2.5 -2.2 -4.4 -0.7 -1.9 -2 -5.1 -2.8 -7 -0.8 -1.9 -1.8 -4.4 -2.2 -5.5 -0.5 -1.1 -5 -12.6 -10 -25.5 -10.8 -27.6 -10.2 -26.2 -12.9 -32.2 -1.2 -2.6 -2.1 -5.2 -2.1 -5.8 0 -0.6 -0.4 -1.8 -0.9 -2.8 -1.5 -2.9 -2.9 -6.3 -6.1 -14.7 -1.7 -4.4 -3.5 -9 -4 -10.3 -0.6 -1.2 -1.4 -3.2 -1.9 -4.5 -1.7 -4.3 -4 -10.3 -8.5 -21.8 -2.6 -6.4 -4.6 -12.1 -4.6 -12.7 0 -0.6 -0.3 -1.2 -0.7 -1.4 -0.5 -0.2 -1.6 -2.4 -2.5 -5.1 -1 -2.6 -2.6 -6.8 -3.5 -9.5 -1 -2.6 -2.2 -5 -2.8 -5.4 -0.5 -0.4 -0.7 -0.8 -0.3 -0.8 0.4 0 -0.5 -2.8 -1.8 -6.3 -2.3 -5.8 -3 -7.5 -5.4 -13 -0.5 -1.2 -4.4 -11 -8.5 -21.7 -4.2 -10.7 -8.2 -20.9 -8.9 -22.5 -0.7 -1.7 -5.1 -12.6 -9.7 -24.3l-8.3 -21.2 -83.2 0 -83.2 0 -3.7 9.2zm91 186.9c0.4 1.3 1.3 3.7 2 5.4 0.7 1.6 3.5 8.8 6.3 16 2.7 7.1 5.3 13.9 5.7 15 0.5 1.1 0.9 2.2 1 2.5 0.9 2.6 4.7 12.5 5.8 15 0.6 1.4 1.1 2.7 1.2 3 0.1 0.3 0.5 1.2 0.8 2 0.3 0.8 2.9 7.6 5.7 15 2.8 7.4 5.7 14.8 6.4 16.5 0.8 1.6 1.9 4.8 2.6 7 0.7 2.2 1.6 4.4 2 5 0.5 0.5 0.8 1.2 0.9 1.5 0 0.8 1.2 4.3 2.7 7.7 0.8 1.7 1.4 3.4 1.4 3.8 0 0.4 0.6 2.1 1.4 3.8 0.8 1.8 4.2 10.6 7.6 19.7 3.4 9.1 7 18.3 8 20.5 0.9 2.2 2.3 5.7 3 7.9 0.7 2.1 3 8.2 5.2 13.5 2.2 5.3 4.1 10.3 4.3 11.1 0.2 0.8 2.2 6.2 4.5 12 2.3 5.8 5 13 6.1 16 1.1 3 2.4 5.9 2.9 6.4 0.6 0.6 1 1.9 1 2.9 0 1 0.7 3.1 1.5 4.5 2.2 4.2 4.7 12.5 3.8 13.1 -0.4 0.3 -45 0.4 -98.9 0.1l-98.2 -0.5 2.4 -6c1.2 -3.3 4.7 -12.3 7.7 -20 3 -7.7 5.7 -14.9 6.2 -16 0.4 -1.1 0.9 -2.5 1 -3 0.3 -1.1 6 -15.7 7.4 -19 0.5 -1.1 2.4 -5.8 4.1 -10.5 1.8 -4.7 3.9 -10 4.7 -11.9 0.8 -1.8 1.6 -3.9 1.7 -4.5 0.4 -2.2 4.8 -13.1 5.8 -14.3 0.6 -0.7 0.8 -1.3 0.4 -1.3 -0.4 0 0 -1.3 0.9 -3 0.8 -1.6 1.5 -3.2 1.5 -3.5 0 -0.3 0.7 -2.1 1.5 -4.1 0.8 -2 1.5 -3.8 1.5 -4 0 -0.1 0.5 -1.5 1.2 -3.1 0.6 -1.5 1.2 -3 1.3 -3.3 0.5 -2 2 -6.1 3.5 -9.5 0.9 -2.2 3.3 -8.3 5.3 -13.5 2 -5.2 5.6 -14.7 8.1 -21 9.5 -24.4 30 -78 32.2 -84 0.5 -1.4 3.2 3.6 4.9 9.1z M591 153.4c0 0.8 0.4 1.7 0.9 2 0.4 0.3 1.4 2.6 2.1 5.1 0.7 2.5 1.7 4.5 2.1 4.5 0.5 0 0.9 0.9 0.9 2 0 1.1 0.4 2.8 0.9 3.8 0.5 0.9 1.7 3.7 2.7 6.2 1 2.5 2.5 6.3 3.4 8.5 3.9 9.1 9.4 24.1 9.2 24.7 -0.1 0.5 0.2 0.8 0.8 0.8 0.6 0 1 0.6 1 1.3 0 1.2 1.8 5.9 6.3 16.7 0.5 1.4 1.1 2.9 1.3 3.5 0.1 0.5 3.4 8.9 7.4 18.5 3.9 9.6 7.3 18.2 7.5 19 0.2 0.8 0.9 2.8 1.6 4.5 0.7 1.6 1.3 3.2 1.4 3.5 0.1 0.3 0.6 1.6 1.3 3 0.6 1.4 4.9 12.4 9.7 24.5 4.7 12.1 9.4 24 10.4 26.5 1.1 2.5 3.6 8.8 5.6 14 5.4 14 6.4 16.6 8.3 21 0.9 2.2 11.8 29.8 21.9 55.5 2 4.9 4.1 10.3 4.8 12 0.7 1.6 2.5 6.1 4 10 1.4 3.8 3 7.9 3.5 9 0.5 1.1 1.9 4.5 3 7.5 1.2 3 2.7 6.6 3.3 8 0.6 1.4 1.1 2.7 1.1 3 0.1 0.6 2.1 5.6 4.4 11 4.9 11.8 9.2 23.5 9.2 24.7 0 0.7 0.5 1.3 1 1.3 0.6 0 1 0.6 1 1.2 0 1.3 4.9 14.4 7.6 20.3 0.7 1.6 2.5 6.1 4 10 1.4 3.8 2.9 7.4 3.2 8 0.4 0.5 0.7 1.7 0.9 2.5 0.1 0.8 0.6 2.3 1.2 3.5 0.6 1.1 7.4 18.2 15.1 38 7.8 19.8 15 37.9 16.1 40.2 1 2.4 1.9 4.6 1.9 5.1 0 0.5 0.9 2.7 2 5 1.1 2.2 2 4.8 2 5.6 0 0.8 0.4 1.7 0.9 2 0.5 0.3 1.2 1.8 1.6 3.3 0.3 1.6 1.3 4.1 2 5.8 0.8 1.6 4.3 10.4 7.9 19.5 3.5 9.1 12.5 31.9 20 50.8 7.5 18.9 13.6 34.5 13.6 34.8 0 0.2 0.9 2.3 1.9 4.7 1 2.3 2.6 6.2 3.6 8.7 2 5.3 4.3 10.8 5.6 13.2 0.5 1 0.9 2.4 0.9 3.1 0 0.7 1.1 3.7 2.5 6.5 1.4 2.9 2.5 5.5 2.5 5.9 0 0.8 3.7 10.1 6.6 17 0.8 1.7 1.4 3.3 1.4 3.6 0 0.2 0.8 2.2 1.7 4.3 0.9 2.2 1.7 4.1 1.8 4.4 0.1 0.3 0.5 1.4 1 2.5 5.9 14.6 17.5 44.7 17.5 45.5 0 0.7 27.6 1 80 1l80 0 -1.9 -4.8c-1 -2.6 -4 -10.1 -6.6 -16.7 -2.6 -6.6 -5.5 -13.8 -6.5 -16 -0.9 -2.2 -2.3 -5.7 -3 -7.8 -0.7 -2.2 -1.8 -5.1 -2.6 -6.5 -0.8 -1.5 -1.4 -3.1 -1.4 -3.5 0 -0.5 -0.6 -2.3 -1.4 -4 -2.2 -4.9 -10.7 -26.1 -10.9 -27.2 -0.4 -1.6 -8.7 -22.8 -9.8 -24.7 -0.4 -0.9 -3.2 -7.7 -6 -15 -2.8 -7.3 -5.6 -14.4 -6.1 -15.8 -0.6 -1.4 -1.2 -3 -1.3 -3.5 -0.2 -0.6 -1.2 -3.2 -2.4 -5.7 -1.1 -2.5 -2.8 -6.8 -3.7 -9.4 -0.9 -2.7 -2.4 -6.7 -3.4 -8.9 -1.8 -4 -3.2 -7.6 -3.4 -8.5 -0.3 -1.2 -25 -63 -26.7 -66.7 -1 -2.4 -1.9 -4.9 -1.9 -5.7 0 -0.8 -0.4 -1.8 -1 -2.1 -0.5 -0.3 -1 -1.3 -1 -2.1 0 -0.8 -0.9 -3.3 -1.9 -5.7 -1.1 -2.3 -4 -9.4 -6.4 -15.7 -11.6 -29.6 -17.9 -45.7 -18.7 -47.5 -1.4 -3.2 -5.9 -14.5 -20.3 -51 -7.3 -18.7 -13.7 -34.9 -14.2 -36 -0.5 -1.1 -0.9 -2.2 -1 -2.5 -0.1 -0.3 -0.6 -1.6 -1.2 -3 -0.6 -1.4 -1.9 -4.5 -2.8 -7 -0.9 -2.5 -2.1 -5.4 -2.5 -6.5 -2.8 -6.5 -16.1 -40.3 -16.5 -41.5 -0.2 -0.8 -1.1 -3.3 -2.1 -5.5 -1 -2.2 -1.8 -4.2 -1.9 -4.5 0 -0.5 -12 -30.9 -13.5 -34.5 -0.5 -1.1 -1.9 -4.5 -3 -7.5 -3.4 -8.6 -3.7 -9.3 -5.4 -13.2 -0.9 -2 -1.6 -3.8 -1.6 -4.1 0 -0.3 -0.4 -1.6 -0.9 -2.9 -0.5 -1.3 -0.9 -2.5 -0.8 -2.8 0 -0.3 -1 -2.3 -2.2 -4.5 -1.1 -2.2 -2.1 -4.3 -2.1 -4.7 0 -0.5 -4.6 -12.2 -10.1 -26.1 -5.6 -13.8 -10.8 -27 -11.6 -29.1 -0.8 -2.2 -1.7 -4.5 -2.1 -5 -0.3 -0.6 -0.7 -1.8 -0.9 -2.6 -0.1 -0.8 -0.7 -2.6 -1.4 -4 -1.7 -3.6 -2.5 -5.5 -5.9 -14.5 -1.7 -4.4 -3.5 -8.9 -4 -10 -0.4 -1.1 -3.8 -9.7 -7.5 -19 -8.9 -22.9 -15.5 -39.6 -16.5 -42 -0.5 -1.1 -1.8 -4.3 -2.8 -7 -1.1 -2.8 -3.2 -8 -4.7 -11.8l-2.7 -6.7 -79.4 0c-68.5 0 -79.4 0.2 -79.4 1.4z"></path></symbol><symbol id="isle-gpt" viewBox="15 16 150 148"><path d="M101.228 164.247C96.2776 164.247 91.5751 163.307 87.1201 161.426C82.6651 159.545 78.7051 156.921 75.2401 153.555C71.4781 154.842 67.5676 155.486 63.5086 155.486C56.8756 155.486 50.7376 153.852 45.0946 150.585C39.4516 147.318 34.8976 142.863 31.4326 137.22C28.0666 131.577 26.3836 125.291 26.3836 118.361C26.3836 115.49 26.7796 112.371 27.5716 109.005C23.6116 105.342 20.5426 101.135 18.3646 96.3828C16.1866 91.5318 15.0976 86.4828 15.0976 81.2358C15.0976 75.8898 16.2361 70.7418 18.5131 65.7918C20.7901 60.8418 23.9581 56.5848 28.0171 53.0208C32.1751 49.3578 36.9766 46.8333 42.4216 45.4473C43.5106 39.8043 45.7876 34.7553 49.2526 30.3003C52.8166 25.7463 57.1726 22.1823 62.3206 19.6083C67.4686 17.0343 72.9631 15.7473 78.8041 15.7473C83.7541 15.7473 88.4566 16.6878 92.9116 18.5688C97.3666 20.4498 101.327 23.0733 104.792 26.4393C108.554 25.1523 112.464 24.5088 116.523 24.5088C123.156 24.5088 129.294 26.1423 134.937 29.4093C140.58 32.6763 145.085 37.1313 148.451 42.7743C151.916 48.4173 153.648 54.7038 153.648 61.6338C153.648 64.5048 153.252 67.6233 152.46 70.9893C156.42 74.6523 159.489 78.9093 161.667 83.7603C163.845 88.5123 164.934 93.5118 164.934 98.7588C164.934 104.105 163.796 109.253 161.519 114.203C159.242 119.153 156.024 123.459 151.866 127.122C147.807 130.686 143.055 133.161 137.61 134.547C136.521 140.19 134.195 145.239 130.631 149.694C127.166 154.248 122.859 157.812 117.711 160.386C112.563 162.96 107.069 164.247 101.228 164.247ZM64.5481 145.685C69.4981 145.685 73.8046 144.645 77.4676 142.566L105.386 126.528C106.376 125.835 106.871 124.895 106.871 123.707V110.936L70.9336 131.577C68.7556 132.864 66.5776 132.864 64.3996 131.577L36.3331 115.391C36.3331 115.688 36.2836 116.034 36.1846 116.43C36.1846 116.826 36.1846 117.42 36.1846 118.212C36.1846 123.261 37.3726 127.914 39.7486 132.171C42.2236 136.329 45.6391 139.596 49.9951 141.972C54.3511 144.447 59.2021 145.685 64.5481 145.685ZM66.0331 121.479C66.6271 121.776 67.1716 121.925 67.6666 121.925C68.1616 121.925 68.6566 121.776 69.1516 121.479L80.2891 115.094L44.5006 94.3038C42.3226 93.0168 41.2336 91.0863 41.2336 88.5123V56.2878C36.2836 58.4658 32.3236 61.8318 29.3536 66.3858C26.3836 70.8408 24.8986 75.7908 24.8986 81.2358C24.8986 86.0868 26.1361 90.7398 28.6111 95.1948C31.0861 99.6498 34.3036 103.016 38.2636 105.293L66.0331 121.479ZM101.228 154.446C106.475 154.446 111.227 153.258 115.484 150.882C119.741 148.506 123.107 145.239 125.582 141.081C128.057 136.923 129.294 132.27 129.294 127.122V95.0463C129.294 93.8583 128.799 92.9673 127.809 92.3733L116.523 85.8393V127.271C116.523 129.845 115.434 131.775 113.256 133.062L85.1896 149.249C90.0406 152.714 95.3866 154.446 101.228 154.446ZM106.871 100.095V79.8993L90.09 70.3953L73.1611 79.8993V100.095L90.09 109.599L106.871 100.095ZM63.5086 52.7238C63.5086 50.1498 64.5976 48.2193 66.7756 46.9323L94.8421 30.7458C89.9911 27.2808 84.6451 25.5483 78.8041 25.5483C73.5571 25.5483 68.8051 26.7363 64.5481 29.1123C60.2911 31.4883 56.9251 34.7553 54.4501 38.9133C52.0741 43.0713 50.8861 47.7243 50.8861 52.8723V84.7998C50.8861 85.9878 51.3811 86.9283 52.3711 87.6213L63.5086 94.1553V52.7238ZM138.947 123.707C143.897 121.529 147.807 118.163 150.678 113.609C153.648 109.055 155.133 104.105 155.133 98.7588C155.133 93.9078 153.896 89.2548 151.421 84.7998C148.946 80.3448 145.728 76.9788 141.768 74.7018L113.999 58.6638C113.405 58.2678 112.86 58.1193 112.365 58.2183C111.87 58.2183 111.375 58.3668 110.88 58.6638L99.7426 64.9008L135.68 85.8393C136.769 86.4333 137.561 87.2253 138.056 88.2153C138.65 89.1063 138.947 90.1953 138.947 91.4823V123.707ZM109.098 48.2688C111.276 46.8828 113.454 46.8828 115.632 48.2688L143.847 64.7523C143.847 64.0593 143.847 63.1683 143.847 62.0793C143.847 57.3273 142.659 52.8228 140.283 48.5658C138.006 44.2098 134.69 40.7448 130.334 38.1708C126.077 35.5968 121.127 34.3098 115.484 34.3098C110.534 34.3098 106.227 35.3493 102.564 37.4283L74.6461 53.4663C73.6561 54.1593 73.1611 55.0998 73.1611 56.2878V69.0588L109.098 48.2688Z"></path></symbol></svg>
-          <div class="isle__win isle__win--a"></div>
-          <div class="isle__win isle__win--b"></div>
-          <div class="isle__shape">
-            <i class="isle__fil isle__fil--l"></i><i class="isle__fil isle__fil--r"></i>
-            <div class="isle__black"></div>
-            <div class="isle__glass"></div>
-            <div class="isle__island">
-              <span data-isle-clock="">15:00:02</span>
-              <span class="isle__use"><svg><use href="#isle-claude"></use></svg>Ultra 68 %</span>
-              <span class="isle__use"><svg><use href="#isle-claude"></use></svg>Ultra 36 %</span>
-              <span class="isle__use"><svg><use href="#isle-claude"></use></svg>Ultra 92 %</span>
-              <span class="isle__use"><svg><use href="#isle-gpt"></use></svg>Pro 100 79 %</span>
-            </div>
-            <div class="isle__pill">
-              <i class="tile"><img src="../assets/tile-bloom.svg" alt=""></i>
-              <i class="tile is-run"><img src="../assets/tile-system.svg" alt=""></i>
-              <i class="tile is-run"><img src="../assets/tile-audio.svg" alt=""></i>
-              <i class="tile tile--folder is-run"><img src="../assets/tile-ai-sparkle.svg" alt=""></i>
-              <i class="tile is-run is-front"><img src="../assets/tile-design.svg" alt=""></i>
-              <i class="tile is-run"><img src="../assets/tile-3d.svg" alt=""></i>
-              <i class="tile tile--auto is-run"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="6.5"></circle><path d="M12 8.5V12h3"></path></svg></i>
-              <span class="isle__accts">
-                <span class="pa"><span class="pa__row"><svg><use href="#isle-claude"></use></svg><b>Ultra</b><span>68 %</span></span><i style="--v:.68"></i></span>
-                <span class="pa"><span class="pa__row"><svg><use href="#isle-claude"></use></svg><b>Ultra</b><span>36 %</span></span><i style="--v:.36"></i></span>
-                <span class="pa"><span class="pa__row"><svg><use href="#isle-claude"></use></svg><b>Ultra</b><span>92 %</span></span><i style="--v:.92"></i></span>
-                <span class="pa"><span class="pa__row"><svg><use href="#isle-gpt"></use></svg><b>Pro 100</b><span>79 %</span></span><i style="--v:.79"></i></span>
-              </span>
-              <span class="isle__tray"><svg viewBox="0 0 24 24"><path d="M6 9.5l6 6 6-6"></path></svg><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.6"></circle><path d="M12 3.5v2M12 18.5v2M3.5 12h2M18.5 12h2M6 6l1.4 1.4M16.6 16.6L18 18M6 18l1.4-1.4M16.6 7.4L18 6"></path></svg></span>
-              <span class="isle__time" data-isle-time="">15:00:02</span>
-            </div>
-          </div>
-          <div class="isle__pop">
-            <i class="tile tile--app"><svg viewBox="0 0 24 24"><path d="M7 4h10v16H7z"></path><path d="M9.5 8h5M9.5 11h5M9.5 14h3"></path></svg></i>
-            <i class="tile tile--app"><svg viewBox="0 0 24 24"><path d="M6 4h12v16H6z"></path><path d="M8.5 7h7v3h-7zM9 13h.01M12 13h.01M15 13h.01M9 16.5h.01M12 16.5h.01M15 16.5h.01"></path></svg></i>
-            <i class="tile tile--app"><svg viewBox="0 0 24 24"><path d="M4 6h16v12H4z"></path><path d="M7 10l2.5 2L7 14M11.5 14.5H15"></path></svg></i>
-            <i class="tile tile--app"><svg viewBox="0 0 24 24"><path d="M4 8h3l1.5-2h7L17 8h3v10H4z"></path><circle cx="12" cy="13" r="3"></circle></svg></i>
-          </div>
-          <svg class="isle__cursor" viewBox="0 0 24 24"><path d="M5 3l14 8.2-6.1 1.4L10 19z"></path></svg>
-        </div>
-      </div>
       <div class="addons__row">
         <div class="card addon">
           <div class="addon__pic"><img src="../assets/addons/taskbar.webp" width="960" height="400" alt="顶部的岛展开成胶囊任务栏，打开文件夹并启动里面的应用" loading="lazy"></div>
@@ -1620,43 +1472,6 @@ h1 .winkey, h2 .winkey { width: 0.7em; vertical-align: baseline; margin-right: 0
   });
 
   addEventListener('load', function () { ScrollTrigger.refresh(); });
-})();
-</script>
-<script>
-// Island: the pointer reaches the island, it opens into the pill taskbar, a folder opens and closes, the pill folds back.
-(function () {
-  var box = document.querySelector('[data-isle]');
-  if (!box) return;
-  var screen = box.querySelector('.isle__screen'), clocks = box.querySelectorAll('[data-isle-clock], [data-isle-time]');
-  var s = { open: 0, pop: 0, cx: 760, cy: 200, press: 0 };
-  function paint() {
-    ['open', 'pop', 'cx', 'cy', 'press'].forEach(function (k) { screen.style.setProperty('--' + k, s[k].toFixed(4)); });
-  }
-  if (!window.gsap || matchMedia('(prefers-reduced-motion: reduce)').matches) {
-    s.open = 1; s.pop = 1; paint(); box.classList.add('is-still');
-    return;
-  }
-  var tl = gsap.timeline({ repeat: -1, paused: true, onUpdate: function () {
-    paint();
-    var sec = 2 + Math.floor(tl.time());
-    clocks.forEach(function (c) { c.textContent = '15:00:' + (sec < 10 ? '0' : '') + sec; });
-  } });
-  tl.set(s, { open: 0, pop: 0, cx: 760, cy: 200, press: 0 }, 0)
-    .to(s, { cx: 560, cy: 20, duration: 1.1, ease: 'power2.inOut' }, 0.5)
-    .to(s, { open: 1, duration: 0.75, ease: 'power3.inOut' }, 1.55)
-    .to(s, { cx: 225, cy: 32, duration: 0.8, ease: 'power2.inOut' }, 2.5)
-    .to(s, { press: 1, duration: 0.08, ease: 'none' }, 3.35)
-    .to(s, { press: 0, duration: 0.18, ease: 'power2.out' }, 3.43)
-    .to(s, { pop: 1, duration: 0.5, ease: 'expo.out' }, 3.42)
-    .to(s, { cx: 131, cy: 113, duration: 0.7, ease: 'power2.inOut' }, 4.1)
-    .to(s, { cx: 740, cy: 195, duration: 0.9, ease: 'power2.inOut' }, 5.6)
-    .to(s, { pop: 0, duration: 0.28, ease: 'power2.in' }, 5.75)
-    .to(s, { open: 0, duration: 0.6, ease: 'power3.inOut' }, 6.35)
-    .to({}, { duration: 1.4 }, 6.95);
-  paint();
-  if ('IntersectionObserver' in window) {
-    new IntersectionObserver(function (es) { es[0].isIntersecting ? tl.play() : tl.pause(); }, { threshold: 0.35 }).observe(box);
-  } else tl.play();
 })();
 </script>
 
