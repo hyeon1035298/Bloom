@@ -18,7 +18,7 @@ internal static class TaskbarPageTests
     /// The add-on's setting keys (its interface, from settings.schema.json): the page has a place for each.
     private static readonly string[] AddonKeys =
     {
-        "pill.enabled", "pill.style", "pill.theme", "pill.cornerRadius", "pill.blur", "pill.tintOpacity",
+        "pill.enabled", "pill.style", "pill.theme", "pill.glass", "pill.cornerRadius", "pill.blur", "pill.tintOpacity",
         "tray.hideVolume", "tray.hideNetwork", "tray.hideBattery", "tray.hideMicrophone", "tray.hideLocation", "tray.hideStudioEffects",
         "tray.hideRecall", "tray.hideLanguageBar", "tray.hideLanguageExtras", "tray.hideCopilot", "tray.bell", "tray.clock",
         "tray.clockFormat",
@@ -105,7 +105,7 @@ internal static class TaskbarPageTests
     public static void MapHasEveryKeyOnce()
     {
         var mapped = TaskbarMap.Entries.Select(e => e.Key).ToList();
-        Check.Eq(AddonKeys.Length, 59, "the add-on's 59 keys");
+        Check.Eq(AddonKeys.Length, 60, "the add-on's 60 keys");
         Check.Eq(mapped.Count, mapped.Distinct().Count(), "no key twice on the page");
         Check.True(mapped.ToHashSet().SetEquals(AddonKeys), "every key has its place, and none the add-on lacks");
         foreach (var (key, _, _, _) in TaskbarMap.Sizes) Check.True(key is "s" or "m" or "l", "three size presets");
@@ -168,6 +168,52 @@ internal static class TaskbarPageTests
             v.Reload();
             Check.True(!v.Bool("size.enabled"), "a 0 reads as off");
             Check.Eq(v.Default("folders.runningName"), "실행 중", "a text's default");
+        }
+        finally
+        {
+            Directory.Delete(dir, true);
+        }
+    }
+
+    /// Bloom's light or dark and 유리 효과 reach the add-on as pill.theme and pill.glass; glass on is the add-on's default,
+    /// so it leaves values.json, and an add-on without pill.glass gets the theme alone.
+    public static void ThemeAndGlassFollowBloom()
+    {
+        string dir = TempDir("addon-follow");
+        try
+        {
+            static JsonObject Pill(bool withGlass)
+            {
+                var items = new JsonArray
+                {
+                    new JsonObject
+                    {
+                        ["key"] = "pill.theme", ["type"] = "choice", ["default"] = "system", ["name"] = Names("테마", "Theme"),
+                        ["options"] = new JsonArray { Option("system"), Option("dark"), Option("light") },
+                    },
+                };
+                if (withGlass) items.Add(Item("pill.glass", "bool", true, "유리 효과", "Glass effect"));
+                return new JsonObject { ["groups"] = new JsonArray { new JsonObject { ["id"] = "pill", ["name"] = Names("알약", "Pill"), ["items"] = items } } };
+            }
+            static JsonObject Option(string value) => new() { ["value"] = value, ["name"] = Names(value, value) };
+            string runtime = Path.Combine(dir, "values.json");
+            JsonObject Written() => (JsonObject)JsonNode.Parse(File.ReadAllText(runtime))!;
+
+            var schema = AddonSchema.Parse(Pill(true).ToJsonString());
+            var v = new AddonValues(Path.Combine(dir, "user", "settings.json"), runtime, schema);
+            AddonHub.FollowTheme(schema, v, dark: true, glass: false);
+            Check.Eq((string)Written()["pill.theme"]!, "dark", "the theme");
+            Check.Eq((bool)Written()["pill.glass"]!, false, "glass off");
+            AddonHub.FollowTheme(schema, v, dark: true, glass: true);
+            Check.True(Written()["pill.glass"] is null, "glass on: back at the add-on's default, dropped");
+            Check.Eq((string)Written()["pill.theme"]!, "dark", "the theme stays");
+
+            File.Delete(runtime);
+            var older = AddonSchema.Parse(Pill(false).ToJsonString());
+            var w = new AddonValues(Path.Combine(dir, "older", "settings.json"), runtime, older);
+            AddonHub.FollowTheme(older, w, dark: false, glass: false);
+            Check.Eq((string)Written()["pill.theme"]!, "light", "an older add-on: the theme");
+            Check.True(Written()["pill.glass"] is null, "an older add-on: no key it doesn't know");
         }
         finally
         {

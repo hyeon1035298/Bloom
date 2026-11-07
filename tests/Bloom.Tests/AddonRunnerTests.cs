@@ -134,6 +134,102 @@ internal static class AddonRunnerTests
         });
     }
 
+    /// One build of version 0.1.0 in the install folder (`build` makes its bytes differ); its manifest.
+    private static AddonManifest Ship(AddonStore store, string shipped, string build)
+    {
+        string dir = Path.Combine(shipped, AddonProtocol.Id);
+        Directory.CreateDirectory(dir);
+        var files = new JsonObject();
+        foreach (string name in new[] { "PillTaskbarHost.exe", AddonProtocol.ModDll })
+        {
+            File.WriteAllText(Path.Combine(dir, name), name + " " + build);
+            files[name] = AddonStore.Sha256(Path.Combine(dir, name));
+        }
+        var manifest = new JsonObject
+        {
+            ["id"] = AddonProtocol.Id,
+            ["version"] = "0.1.0",
+            ["license"] = "GPL-3.0-only",
+            ["source"] = "https://example.invalid",
+            ["minBloom"] = "0.1.0",
+            ["host"] = new JsonObject { ["exe"] = "PillTaskbarHost.exe", ["protocol"] = AddonProtocol.Version },
+            ["files"] = files,
+        };
+        File.WriteAllText(Path.Combine(dir, AddonManifest.FileName), manifest.ToJsonString());
+        return Check.NotNull(store.Shipped(AddonProtocol.Id), "the shipped manifest");
+    }
+
+    /// Bloom restarts onto another build of the same add-on version (a local install over the downloaded release) while
+    /// the last Bloom's host runs from the run copy and explorer holds its DLL. Without a way to let go of that copy the
+    /// start fails before any host is started, so nothing hands the old host the new Bloom and it ends after its wait.
+    /// With one, the old host is stopped through its Stop event, the copy is replaced and a host of the new build starts.
+    /// Either way no file of the copy goes while the old host still runs from it.
+    public static void AnotherBuildReplacesTheRunningHost()
+    {
+        string root = Path.Combine(Path.GetTempPath(), "bloom-addon-build-" + Guid.NewGuid().ToString("N"));
+        string shipped = Path.Combine(root, "shipped"), args = Path.Combine(root, "args"), ev = TestEvent();
+        var store = new AddonStore(shipped, Path.Combine(root, "local"));
+        FileStream? held = null;
+        try
+        {
+            string copy = store.RunCopy(Ship(store, shipped, "a"));
+            string dll = Path.Combine(copy, AddonProtocol.ModDll);
+            // every file of build a, addon.json too: nothing is taken from under a host that still runs from the copy
+            bool Whole() => File.Exists(Path.Combine(copy, AddonManifest.FileName))
+                && new[] { "PillTaskbarHost.exe", AddonProtocol.ModDll }.All(n => File.Exists(Path.Combine(copy, n)) && File.ReadAllText(Path.Combine(copy, n)) == n + " a");
+            With("wait:" + ev, () =>
+            {
+                using var released = new ManualResetEventSlim();
+                using var old = Runner(ev);
+                // explorer lets go of the DLL once the runtime is out, as the host ends
+                old.Changed += () =>
+                {
+                    if (old.Running || held is null) return;
+                    held.Dispose();
+                    released.Set();
+                };
+                Check.True(old.Start(), "the last Bloom's host started");
+                Check.True(Until(() => File.Exists(args)), "it is up");
+                held = new FileStream(dll, FileMode.Open, FileAccess.Read, FileShare.Read);
+
+                var next = Ship(store, shipped, "b");
+                bool threw = false;
+                try
+                {
+                    store.RunCopy(next);
+                }
+                catch (Exception e) when (e is IOException or UnauthorizedAccessException)
+                {
+                    threw = true;
+                }
+                Check.True(threw && old.Running, "without a release the copy stays in use and the start fails");
+                Check.True(Whole(), "and it is left whole");
+
+                bool ended = false, wholeAtRelease = false;
+                Check.Eq(store.RunCopy(next, () =>
+                {
+                    wholeAtRelease = Whole();
+                    AddonRunner.StopHost(ev, null, null, TimeSpan.FromSeconds(5));
+                    ended = released.Wait(10_000);
+                }), copy, "the same folder");
+                Check.True(wholeAtRelease, "nothing of the copy is deleted before its host has stopped");
+                Check.True(ended && old.LastExit == 0, "the old host stopped through its Stop event");
+                Check.Eq(File.ReadAllText(dll), AddonProtocol.ModDll + " b", "the copy holds the new build");
+
+                File.Delete(args);
+                using var fresh = Runner(ev); // Start clears the Stop event the step-down left set
+                Check.True(fresh.Start() && Until(() => File.Exists(args)) && fresh.Running, "a host of the new build runs");
+                fresh.Stop();
+                Check.True(Until(() => fresh.LastExit == 0), "and stops as usual");
+            }, args);
+        }
+        finally
+        {
+            held?.Dispose();
+            Directory.Delete(root, true);
+        }
+    }
+
     /// Dev and QA copies (--data) never start a host or touch the add-on's files: the same rule as the elevated Win-key
     /// helper's (not a dev copy, the main instance).
     public static void NoHostFromADevCopy()
