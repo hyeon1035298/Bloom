@@ -226,6 +226,11 @@ body { font-family: "Wanted Sans Variable", "Wanted Sans", "Pretendard", "Malgun
 .lrow::before { content: ""; position: absolute; inset: 0; border-radius: inherit; background: rgba(255, 255, 255, 0.08); opacity: var(--sel, 0); }
 .lrow::after { content: ""; position: absolute; left: 0; top: 50%; translate: 0 -50%; width: calc(3 * var(--u)); height: calc(15 * var(--u)); border-radius: calc(2 * var(--u)); background: #f4f4f5; opacity: var(--sel, 0); }
 .lrow > * { position: relative; }
+/* ---------- reorder: a snippet dragged to another place in the 상용구 tab ---------- */
+.rows { position: relative; height: calc(4 * 29 * var(--u)); }
+.rows .lrow { position: absolute; left: 0; right: 0; top: 0; transform: translateY(calc(var(--y, 0) * var(--u))); }
+.rows .lrow.lift { z-index: 2; background: rgba(46, 46, 51, calc(0.82 * var(--lift, 0))); box-shadow: 0 calc(6 * var(--u)) calc(16 * var(--u)) rgba(0, 0, 0, calc(0.5 * var(--lift, 0))); }
+.dropline { position: absolute; z-index: 1; left: calc(6 * var(--u)); right: calc(6 * var(--u)); height: calc(2 * var(--u)); border-radius: calc(1 * var(--u)); background: var(--pink); opacity: var(--on, 0); transform: translateY(calc((var(--y, 0) - 1) * var(--u))); }
 .lrow .ico { width: calc(13 * var(--u)); height: calc(13 * var(--u)); color: #a1a1aa; }
 .lrow b { font-weight: 500; color: #f4f4f5; }
 .lrow .faint { overflow: hidden; text-overflow: ellipsis; min-width: 0; }
@@ -664,6 +669,57 @@ scenes.snippets = {
       set(caret, { blink: focus && Math.floor(t / 0.5) % 2 === 0 ? 1 : 0 });
       paste.querySelector('span').style.display = pa > 0 ? '' : 'none';
       point(cur, at(cx, t), at(cy, t), at(press, t));
+    };
+  },
+};
+
+// In the clipboard's 상용구 tab the last snippet is dragged to the top: it lifts and follows the pointer, a pink line
+// marks where it lands, and the others make room when it is let go. A fade, and the list is as it was.
+scenes.reorder = {
+  dur: 7.4,
+  build(s) {
+    s.style.setProperty('--pink', '#FF7A9E');
+    const PITCH = 29; // a row and the gap under it
+    const row = (icon, title, sub, end) => `<div class="lrow">${ico(icon)}<b>${title}</b><span class="faint">${sub}</span>${end ? `<span class="end key">${end}</span>` : ''}</div>`;
+    s.innerHTML = `<div class="desk"><div class="u win" ${box(430, 150, 190, 100)}></div></div>
+      <div class="lch glass" style="left:calc(161*var(--u));top:calc(32*var(--u));width:calc(318*var(--u));height:calc(200*var(--u))">
+        <div class="lch__search">${ico('search')}<span class="faint" style="flex:1">${LS.find}</span>
+          <div class="seg"><span>${LS.hist}</span><span class="on">${LS.snip}</span></div></div>
+        <div class="lch__lists"><div class="lch__list"><div class="lch__head">${LS.snip}<span>${LS.count}</span></div>
+          <div class="rows">${LS.snippets.map(([n, t, k]) => row('mark', n, t, k)).join('')}${row('add', LS.newOne, '')}<i class="dropline"></i></div></div></div>
+      </div>${CURSOR}`;
+    const q = sel => s.querySelector(sel);
+    const cur = q('.cursor'), card = q('.lch'), line = q('.dropline');
+    const rows = [...s.querySelectorAll('.rows .lrow')];
+    const moved = rows[2];
+    moved.classList.add('lift');
+    let P;
+    const press = [[0, 0], [1.1, 0], [1.2, 1, 'none'], [3.5, 1], [3.6, 0, 'out2']];
+    const lift = [[0, 0], [1.35, 0], [1.55, 1, 'out2'], [3.55, 1], [3.8, 0, 'out2']];
+    // the dragged row's shift from its place: up past the first row, then into the first place on the release
+    const drag = [[0, 0], [1.4, 0], [3.1, -2 * PITCH - 6, 'io2'], [3.5, -2 * PITCH - 6], [3.8, -2 * PITCH, 'out3']];
+    const room = [[0, 0], [3.5, 0], [3.8, 1, 'out3']]; // the first two rows one place down
+    const fade = [[0, 1], [6.5, 1], [6.8, 0, 'in2'], [7.0, 0], [7.4, 1, 'out2']];
+    return t => {
+      P ??= { row: unitsOf(moved, s) }; // measured before any shift: the first place's box
+      const back = t >= 6.8; // the list as it was, once faded out
+      const d = back ? 0 : at(drag, t), r = back ? 0 : at(room, t);
+      set(card, { card: at(fade, t) });
+      set(rows[0], { y: r * PITCH, sel: 0 });
+      set(rows[1], { y: PITCH + r * PITCH, sel: 0 });
+      set(moved, { y: 2 * PITCH + d, lift: back ? 0 : at(lift, t), sel: !back && t >= 3.5 ? 1 : 0 });
+      set(rows[3], { y: 3 * PITCH, sel: 0 });
+      // the line in front of the first row whose middle is below the dragged one's
+      const mid = 2 * PITCH + d + 13.5;
+      const to = [0, 1, 2].find(i => mid < i * PITCH + 13.5) ?? 3;
+      const dragging = !back && t >= 1.4 && t < 3.5;
+      set(line, { on: dragging && to < 2 ? 1 : 0, y: to * PITCH });
+      // the pointer holds the row where it took it
+      const grab = P.row.cx - 40;
+      const cx = [[0, 420], [0.9, grab], [3.5, grab], [4.4, grab + 60], [6.6, 420], [7.4, 420]];
+      const cy0 = P.row.cy + 2 * PITCH; // the dragged row's middle in its own place
+      const cy = t < 1.4 ? at([[0, 236], [0.9, cy0]], t) : t < 3.5 ? cy0 + d : at([[3.5, cy0 - 2 * PITCH - 6], [4.4, cy0 - 2 * PITCH + 30], [6.6, 236], [7.4, 236]], t);
+      point(cur, at(cx, t), cy, at(press, t));
     };
   },
 };
