@@ -2464,8 +2464,8 @@ Couldn't change Claude Code's settings	无法更改 Claude Code 的设置
 When a low limit is full again after its reset	不足的额度在重置后恢复满时
 Version, updates and help	版本、更新和帮助
 Version	版本
-What's new in this version	此版本的更新内容
-Also shown once at the first start after an update · Enter shows it	更新后首次启动时也会显示一次 · 按 Enter 查看
+Update history	更新记录
+Each version's changes, loaded from GitHub · also shown once at the first start after an update · Enter shows it	从 GitHub 加载各版本的更改 · 更新后首次启动时也会显示一次 · 按 Enter 查看
 License	许可证
 Bloom is MIT · the taskbar add-on PillTaskbar is a separate GPL-3.0 program	Bloom 采用 MIT · 任务栏插件 PillTaskbar 是采用 GPL-3.0 的独立程序
 Help	帮助
@@ -2773,3 +2773,5 @@ Ctrl+Tab switches	Ctrl+Tab 切换
 Find a snippet · type a text and Enter to add it	查找常用语 · 输入文字后按 Enter 新建
 Snippets · {0}	常用语 · {0} 条
 Opens the clipboard's snippets tab. Enter pastes into the window in front.	打开剪贴板的常用语标签页。按 Enter 粘贴到前面的窗口。
+{0} · installed	{0} · 已安装
+Couldn't load the release notes. Check the connection, or see them on GitHub.	无法加载更新说明。请检查网络连接，或在 GitHub 上查看。

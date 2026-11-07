@@ -173,6 +173,9 @@ internal static class Program
                 case "--demo":
                     opt.Demo = true;
                     break;
+                case "--notes-from" when i + 1 < args.Length:
+                    opt.NotesFrom = args[++i];
+                    break;
                 case "--qa-scale" when i + 1 < args.Length:
                     opt.QaScale = double.TryParse(args[++i], System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out double qs) && qs is >= 1 and <= 4 ? qs : null;
                     break;

@@ -10,6 +10,7 @@ internal sealed class Options
     public string? Open; // --open <file>: a Markdown file to open in its document window (Explorer's 연결 프로그램)
     public bool Demo; // --demo: the recording mode (Core.Demo), on a --data folder only
     public double? QaScale; // --qa-scale <n>: QA pictures at n× (README and promo pictures want 2)
+    public string? NotesFrom; // --notes-from <address>: 바뀐 점's files from there instead of GitHub (with --data: QA before a push)
     public int? Display;
     public string? CaptureDir;
     public string? GlassFile;

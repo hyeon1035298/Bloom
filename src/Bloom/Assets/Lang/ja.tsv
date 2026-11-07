@@ -2464,8 +2464,8 @@ Couldn't change Claude Code's settings	Claude Code の設定を変更できま�
 When a low limit is full again after its reset	少なくなった上限がリセット後にまた満タンになったとき
 Version, updates and help	バージョン、アップデート、ヘルプ
 Version	バージョン
-What's new in this version	このバージョンの新機能
-Also shown once at the first start after an update · Enter shows it	アップデート後の最初の起動時にも一度表示されます · Enter で表示
+Update history	アップデート履歴
+Each version's changes, loaded from GitHub · also shown once at the first start after an update · Enter shows it	バージョンごとの変更点を GitHub から読み込みます · アップデート後の最初の起動時にも一度表示されます · Enter で表示
 License	ライセンス
 Bloom is MIT · the taskbar add-on PillTaskbar is a separate GPL-3.0 program	Bloom は MIT です · タスクバーアドオン PillTaskbar は GPL-3.0 の別プログラムです
 Help	ヘルプ
@@ -2773,3 +2773,5 @@ Ctrl+Tab switches	Ctrl+Tab で切り替え
 Find a snippet · type a text and Enter to add it	定型文を探す · 文章を入れて Enter で新規作成
 Snippets · {0}	定型文 · {0} 件
 Opens the clipboard's snippets tab. Enter pastes into the window in front.	クリップボードの定型文タブを開きます。Enter で前面のウィンドウに貼り付けます。
+{0} · installed	{0} · インストール済み
+Couldn't load the release notes. Check the connection, or see them on GitHub.	変更履歴を読み込めませんでした。インターネット接続を確認するか、GitHub でご覧ください。

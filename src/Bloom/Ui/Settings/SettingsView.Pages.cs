@@ -768,7 +768,7 @@ internal sealed partial class SettingsView
         Page("about", Tr("정보", "About"), G.Info, Tr("버전, 업데이트, 도움말", "Version, updates and help"), filter);
         Header(Tr("버전", "Version"));
         UpdateRows(s, filter);
-        Add(Tr("이번 버전에서 바뀐 점", "What's new in this version"), Tr("업데이트한 뒤 처음 켤 때도 한 번 표시합니다 · Enter로 보기", "Also shown once at the first start after an update · Enter shows it"), null, G.Document, () => host.ShowWhatsNew(), null, filter);
+        Add(Tr("업데이트 기록", "Update history"), Tr("버전별 변경 사항을 GitHub에서 불러옵니다 · 업데이트한 뒤 처음 켤 때도 한 번 표시합니다 · Enter로 보기", "Each version's changes, loaded from GitHub · also shown once at the first start after an update · Enter shows it"), null, G.Document, () => host.ShowWhatsNew(), null, filter);
         // the taskbar add-on ships beside Bloom under its own licence; its source is a separate repository
         Add(Tr("라이선스", "License"), Tr("Bloom은 MIT입니다 · 작업표시줄 애드온 PillTaskbar는 GPL-3.0인 별도 프로그램입니다", "Bloom is MIT · the taskbar add-on PillTaskbar is a separate GPL-3.0 program"),
             RowButton(Tr("소스 보기", "View source"), () => Launch.Open(PillTaskbarSource)), G.Document, () => Launch.Open(PillTaskbarSource), null, filter);
