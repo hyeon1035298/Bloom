@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Bloom social preview</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/wanteddev/wanted-sans@v1.0.3/packages/wanted-sans/fonts/webfonts/variable/split/WantedSansVariable.min.css">
+<style>
+/* The repository's social preview (Settings › Social preview), 1280 × 640, in the landing page's hero look: the
+   diagonal light, the dust, the white glow. GitHub's topic pages show it 725 wide and cut it to 275 high around the
+   middle, so everything that has to be read sits between y 90 and 550. Render: social.png from this page at 1×. */
+:root {
+  --bg: #07080A; --surface-2: #18181B; --text: #F4F4F5; --muted: #A1A1AA; --faint: #8A8A93;
+  --line: rgba(255, 255, 255, 0.08); --line-2: rgba(255, 255, 255, 0.14); --glow: rgba(255, 255, 255, 0.16);
+  --beam: rgba(255, 255, 255, 0.55); --beam-soft: rgba(255, 255, 255, 0.10); --shade: rgba(0, 0, 0, 0.55);
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; background: var(--bg); }
+body { font-family: "Wanted Sans Variable", "Wanted Sans", "Pretendard", system-ui, sans-serif; -webkit-font-smoothing: antialiased; color: var(--text); }
+.card { position: relative; width: 1280px; height: 640px; overflow: hidden; isolation: isolate; background: var(--bg); }
+.beams { position: absolute; inset: -20% -10%; z-index: -2;
+  mask-image: radial-gradient(closest-side, #fff 30%, transparent); }
+.beam { position: absolute; top: 50%; left: 50%; width: 150%; height: var(--h); translate: -50% -50%; rotate: 32deg; margin-top: var(--y);
+  background: linear-gradient(90deg, transparent, var(--beam) 40%, var(--beam) 60%, transparent); filter: blur(var(--b)); opacity: var(--o); }
+.dust { position: absolute; inset: 0; z-index: -1; }
+.left { position: absolute; left: 92px; top: 134px; width: 520px; }
+.brand { display: flex; align-items: center; gap: 14px; font-size: 30px; font-weight: 650; letter-spacing: -0.01em; }
+.brand img { width: 46px; height: 46px; border-radius: 12px; }
+h1 { margin: 34px 0 0; font-size: 74px; line-height: 1.04; letter-spacing: -0.035em; word-spacing: -0.04em; font-weight: 680; text-shadow: 0 2px 30px var(--shade); }
+.winkey { display: inline-block; width: 0.62em; height: 0.62em; vertical-align: -0.04em; margin-inline: 0.02em; }
+.winkey svg { width: 100%; height: 100%; fill: currentColor; display: block; }
+.lede { margin: 26px 0 0; font-size: 24px; line-height: 1.4; color: var(--muted); }
+.lede b { color: var(--text); font-weight: 600; }
+.right { position: absolute; left: 652px; top: 112px; width: 760px; }
+.frame { border-radius: 18px; overflow: hidden; background: var(--surface-2);
+  box-shadow: 0 0 0 1px var(--line-2), 0 0 60px 8px var(--glow), 0 0 180px 48px var(--beam-soft); }
+.frame img { display: block; width: 100%; }
+.ask { position: absolute; left: -58px; top: 300px; width: 420px; border-radius: 14px; background: var(--surface-2);
+  box-shadow: 0 0 0 1px var(--line-2), 0 24px 60px var(--shade), 0 0 80px 8px var(--glow); overflow: hidden; }
+.ask__q { display: flex; align-items: center; gap: 12px; padding: 16px 18px; font-size: 19px; border-bottom: 1px solid var(--line); }
+.ask__q svg { width: 18px; height: 18px; flex: none; color: var(--muted); }
+.caret { display: inline-block; width: 2px; height: 21px; background: var(--text); margin-left: 2px; vertical-align: -3px; }
+.ask__row { display: flex; align-items: center; gap: 12px; margin: 8px; padding: 10px 12px; border-radius: 10px; background: rgba(255, 255, 255, 0.07); font-size: 17px; }
+.ask__row i { display: grid; place-items: center; width: 28px; height: 28px; border-radius: 8px; background: rgba(255, 255, 255, 0.1); }
+.ask__row i svg { width: 14px; height: 14px; fill: currentColor; }
+.ask__row b { font-weight: 650; }
+.ask__row span { color: var(--muted); font-size: 15px; }
+.ask__row kbd { margin-left: auto; font: 600 13px/1 inherit; font-family: inherit; padding: 5px 8px; border-radius: 6px; background: rgba(255, 255, 255, 0.12); color: var(--text); }
+</style>
+</head>
+<body>
+<div class="card" id="card">
+  <div class="beams" aria-hidden="true">
+    <i class="beam" style="--h:110px;--y:-250px;--o:.12;--b:36px"></i>
+    <i class="beam" style="--h:130px;--y:-90px;--o:.24;--b:32px"></i>
+    <i class="beam" style="--h:70px;--y:40px;--o:.3;--b:22px"></i>
+    <i class="beam" style="--h:150px;--y:190px;--o:.18;--b:38px"></i>
+  </div>
+  <canvas class="dust" width="1280" height="640" aria-hidden="true"></canvas>
+  <div class="left">
+    <div class="brand"><img src="assets/mark.png" alt="">Bloom</div>
+    <h1>One <span class="winkey"><svg viewBox="0 0 16 16"><path d="M0 0h7.4v7.4H0zM8.6 0H16v7.4H8.6zM0 8.6h7.4V16H0zM8.6 8.6H16V16H8.6z"/></svg></span> key,<br>one search line.</h1>
+    <p class="lede">A free launcher for Windows.<br><b>Apps, files, maths and AI</b> from one line.</p>
+  </div>
+  <div class="right">
+    <div class="frame"><img src="assets/en-home-landing.webp" alt=""></div>
+    <div class="ask">
+      <div class="ask__q"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><span>Schedule a meeting Fri 3 PM<i class="caret"></i></span></div>
+      <div class="ask__row"><i><svg viewBox="0 0 24 24"><path d="M12 2l2.4 7.6L22 12l-7.6 2.4L12 22l-2.4-7.6L2 12l7.6-2.4z"/></svg></i><b>Ask AI</b><span>Claude · Sonnet</span><kbd>Tab</kbd></div>
+    </div>
+  </div>
+</div>
+<script>
+// the landing page's dust: faint points, a seeded spread so every render is the same
+const c = document.querySelector('.dust'), g = c.getContext('2d');
+let s = 7;
+const rnd = () => (s = (s * 16807) % 2147483647) / 2147483647;
+for (let i = 0; i < 170; i++) {
+  const x = rnd() * 1280, y = rnd() * 640, r = rnd() < 0.85 ? 0.8 : 1.4, a = 0.12 + rnd() * 0.4;
+  g.fillStyle = `rgba(255,255,255,${a.toFixed(2)})`;
+  g.beginPath(); g.arc(x, y, r, 0, Math.PI * 2); g.fill();
+}
+</script>
+</body>
+</html>
