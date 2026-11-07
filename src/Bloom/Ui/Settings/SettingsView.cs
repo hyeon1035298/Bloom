@@ -758,6 +758,15 @@ internal sealed partial class SettingsView : ScrollViewer
         }
     }
 
+    /// The mouse's back button: a sub-page goes to its parent, as the arrow at its top does (false: not on one, or the
+    /// filter's matches are shown).
+    public bool GoUp()
+    {
+        if (lastFilter.Length > 0 || pages.Find(p => p.key == current).parent is not { } up) return false;
+        Go(up);
+        return true;
+    }
+
     private void Step(int d)
     {
         if (pages.Count == 0) return;

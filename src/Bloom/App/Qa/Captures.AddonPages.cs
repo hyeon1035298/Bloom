@@ -35,6 +35,12 @@ internal static partial class Captures
                 }
             }
         }
+        // the mouse's back button on the last add-on's page: back on 애드온
+        var back = new System.Windows.Input.MouseButtonEventArgs(System.Windows.Input.Mouse.PrimaryDevice, Environment.TickCount, System.Windows.Input.MouseButton.XButton1) { RoutedEvent = UIElement.PreviewMouseDownEvent };
+        sw.RaiseEvent(back);
+        await File.WriteAllTextAsync(Path.Combine(dir, $"{l}-back.txt"), $"back button taken: {back.Handled}");
+        await Task.Delay(200);
+        await sw.Dispatcher.InvokeAsync(() => sw.Capture(Path.Combine(dir, $"{l}-dark-back.png")), System.Windows.Threading.DispatcherPriority.ApplicationIdle);
         sw.Close();
     }
 }

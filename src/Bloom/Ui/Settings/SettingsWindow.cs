@@ -150,6 +150,10 @@ internal sealed class SettingsWindow : Window
             }
             if (view.HandleKey(key)) e.Handled = true;
         };
+        PreviewMouseDown += (_, e) =>
+        {
+            if (e.ChangedButton == MouseButton.XButton1 && view.GoUp()) e.Handled = true;
+        };
         SourceInitialized += (_, _) => Frame();
         Loaded += (_, _) =>
         {
