@@ -29,29 +29,42 @@ jobs:
           if (-not $v) { throw 'no <Version> in Bloom.csproj' }
           "version=$v" >> $env:GITHUB_OUTPUT
 
-      # the add-ons in addons/catalog.json ({"addons": [{id, version, url, sha256, size}]}), which Bloom embeds and
-      # Settings > Add-ons downloads from: a gate only, nothing of them goes into the release. Each release zip is
-      # downloaded, checked against its sha256 (and size when given) and unpacked, and its addon.json must name the
-      # entry's id and version; no release while an entry lacks its hash or fails a check
+      # the add-ons in addons/catalog.json ({"addons": [{id, repo, minVersion, ...}]}), which Bloom embeds and Settings >
+      # Add-ons downloads from each repository's latest release: a gate only, nothing of them goes into the release. Each
+      # latest release's bloom-addon.json is read as Bloom reads it, the zip it names downloaded from the same release and
+      # checked against its sha256 and size and unpacked, and its addon.json must give that id, version and minBloom; no
+      # release while an add-on's latest release has no bloom-addon.json, is before its minVersion or fails a check
       - name: Add-ons
         shell: pwsh
         run: |
+          function Before([string]$a, [string]$b) {
+              $na = [version]($a -split '[-+]', 2)[0]; $nb = [version]($b -split '[-+]', 2)[0]
+              if ($na -ne $nb) { return $na -lt $nb }
+              return ($a -ne $b) -and ($a.Length -gt $na.ToString().Length) -and ($b.Length -eq $nb.ToString().Length -or [string]::CompareOrdinal($a, $b) -lt 0)
+          }
           $list = @((Get-Content addons/catalog.json -Raw | ConvertFrom-Json).addons)
-          $empty = @($list | Where-Object { -not $_.sha256 } | ForEach-Object { "$($_.id) $($_.version)" })
-          if ($empty) { throw "addons/catalog.json: fill in the sha256 of the release zip for $($empty -join ', ')" }
           foreach ($a in $list) {
               if ($a.id -notmatch '^[a-z0-9-]+$') { throw "addons/catalog.json: '$($a.id)' is not lowercase letters, digits and -" }
-              if ($a.url -notmatch '^https://') { throw "addons/catalog.json: $($a.id) is not an https address" }
+              if ($a.repo -notmatch '^[A-Za-z0-9-]+/[A-Za-z0-9._-]+$') { throw "addons/catalog.json: $($a.id) has no owner/name repo" }
+              $latest = Join-Path $env:RUNNER_TEMP "$($a.id).bloom-addon.json"
+              Invoke-WebRequest -Uri "https://github.com/$($a.repo)/releases/latest/download/bloom-addon.json" -OutFile $latest
+              $r = Get-Content -LiteralPath $latest -Raw | ConvertFrom-Json
+              if ($r.id -ne $a.id) { throw "$($a.repo): bloom-addon.json is for '$($r.id)', not $($a.id)" }
+              if ($r.zip -notmatch '^[A-Za-z0-9][A-Za-z0-9._-]*\.zip$') { throw "$($a.repo): bloom-addon.json names no plain .zip" }
+              if (Before $r.version $a.minVersion) { throw "$($a.repo): the latest release $($r.version) is before the catalog's minVersion $($a.minVersion)" }
               $zip = Join-Path $env:RUNNER_TEMP "$($a.id).zip"
-              Invoke-WebRequest -Uri $a.url -OutFile $zip
+              Invoke-WebRequest -Uri "https://github.com/$($a.repo)/releases/download/v$($r.version)/$($r.zip)" -OutFile $zip
               $got = (Get-FileHash -LiteralPath $zip -Algorithm SHA256).Hash
-              if ($got -ne $a.sha256) { throw "addons/catalog.json: $($a.id) $($a.version) is $got, not the sha256 the catalog gives" }
+              if ($got -ne $r.sha256) { throw "$($a.repo): $($r.zip) is $got, not the sha256 its bloom-addon.json gives" }
               $length = (Get-Item -LiteralPath $zip).Length
-              if ($a.size -and $length -ne $a.size) { throw "addons/catalog.json: $($a.id) $($a.version) is $length bytes, not the size the catalog gives" }
+              if ($length -ne $r.size) { throw "$($a.repo): $($r.zip) is $length bytes, not the size its bloom-addon.json gives" }
               $dir = Join-Path $env:RUNNER_TEMP "addons/$($a.id)"
               Expand-Archive -LiteralPath $zip -DestinationPath $dir
               $m = Get-Content -LiteralPath (Join-Path $dir addon.json) -Raw | ConvertFrom-Json
-              if ($m.id -ne $a.id -or $m.version -ne $a.version) { throw "addons/catalog.json: the zip holds $($m.id) $($m.version), not $($a.id) $($a.version)" }
+              if ($m.id -ne $r.id -or $m.version -ne $r.version -or $m.minBloom -ne $r.minBloom) {
+                  throw "$($a.repo): the zip holds $($m.id) $($m.version) (Bloom $($m.minBloom)), not what its bloom-addon.json gives"
+              }
+              "$($a.id) $($r.version): ok"
           }
 
       # the release's text: its "## <version>" section of CHANGELOG.md, or else the commits since the last release
