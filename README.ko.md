@@ -60,6 +60,8 @@ irm https://raw.githubusercontent.com/hyeon1035298/Bloom/main/install.ps1 | iex
 
 ### AI 채팅
 
+<img src="docs/media/ko/link.webp" alt="Claude Code, Codex, omp, API 키가 Bloom 하나로 이어지고, PC 작업, 메모와 타이머와 캘린더, AI 빠른 동작, 작업 알림으로 나뉘는 그림">
+
 <img src="docs/media/ko/ai.webp" alt="파일을 옮기기 전에 허용과 거절을 묻는 채팅 카드와, Claude Code와 Codex의 작업 알림 카드들">
 
 - 검색줄에 궁금한 것을 적고 Tab을 누르면 빠른 AI가 그 자리에서 바로 답합니다. Shift+Tab을 누르면 이전 맥락 없이 새 대화로 묻습니다.

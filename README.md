@@ -60,6 +60,8 @@ irm https://raw.githubusercontent.com/hyeon1035298/Bloom/main/install.ps1 | iex
 
 ### AI chat
 
+<img src="docs/media/en/link.webp" alt="Claude Code, Codex, omp and API keys run into Bloom, which hands work to PC tasks, notes, timers and calendar, AI actions and work notifications">
+
 <img src="docs/media/en/ai.webp" alt="A chat asking Allow or Decline before it moves a PDF into Documents, and work notification cards for Claude Code and Codex">
 
 - Type a question in the search line and press Tab to get an instant answer from quick AI. Press Shift+Tab to ask in a fresh chat without previous context.
