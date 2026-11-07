@@ -119,11 +119,11 @@ irm https://raw.githubusercontent.com/hyeon1035298/Bloom/main/install.ps1 | iex
 
 <img src="docs/media/zh/addons.webp" alt="设置 › 加载项 中的任务栏文件夹编辑器和胶囊任务栏预览">
 
-加载项是可以在 Bloom 内下载、校验并运行的独立程序。加载项的代码不包含在 Bloom 本体中，目前提供的 2 个官方加载项均采用 GPL-3.0 许可证，在各自的独立仓库中开源。
+加载项是可以在 Bloom 内下载、校验并运行的独立程序。加载项的代码不包含在 Bloom 本体中，目前提供的 5 个官方加载项均采用 GPL-3.0 许可证，在各自的独立仓库中开源。
 
 ### 任务栏（PillTaskbar）
 
-<img src="docs/media/island.webp" alt="开启自动隐藏岛后，平时任务栏会自动收起，并在屏幕顶部中央显示一个小巧的岛条。">
+<img src="docs/media/zh/addon-taskbar.webp" alt="顶部的岛展开成胶囊任务栏，打开文件夹并启动里面的应用">
 
 - 将 Windows 11 默认任务栏变成悬浮在屏幕中央的半透明玻璃胶囊造型。
 - 在任务栏上把一个应用图标拖到另一个图标上就能建好文件夹，并可在 设置 › 加载项 中编辑文件夹名称和内容。
@@ -134,7 +134,30 @@ irm https://raw.githubusercontent.com/hyeon1035298/Bloom/main/install.ps1 | iex
 
 ### 按显示器 Alt+Tab
 
+<img src="docs/media/zh/addon-alttab.webp" alt="Alt+Tab 出现在光标所在的显示器上，只列出那台显示器的窗口">
+
 使用多台显示器时，按下 Alt+Tab 会在鼠标光标所在的显示器上弹出窗口切换列表，并且只显示当前显示器上的窗口。
+
+### 内存清理
+
+<img src="docs/media/zh/addon-memory.webp" alt="点时钟旁的内存条会打开窗口，一键释放内存">
+
+- 任务栏时钟旁的内存条显示内存使用率。点一下打开窗口，一键释放内存。
+- 还可以挑出占用内存多的程序并结束它。
+
+### 显示器亮度调节
+
+<img src="docs/media/zh/addon-brightness.webp" alt="点时钟旁的显示器会打开窗口，一个滑块让两台显示器一起变亮，再用滚轮调暗">
+
+- 时钟旁的显示器图标显示亮度。一个滑块调所有显示器，在图标上滚动滚轮也能调。
+- 可以用快捷键调亮度，离开时让屏幕变暗。
+
+### 咖啡
+
+<img src="docs/media/zh/addon-coffee.webp" alt="咖啡关着时，10 分钟没有输入屏幕就会关闭；把咖啡开 1 小时，过了同样的 10 分钟屏幕仍亮着">
+
+- 打开时钟旁的咖啡杯，电脑和屏幕就不会休眠。
+- 可以一直开到关闭，也可以设定时间。右键点咖啡杯即可开关。
 
 ### 加载项的安装方式
 

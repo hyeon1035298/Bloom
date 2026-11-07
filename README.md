@@ -119,11 +119,11 @@ irm https://raw.githubusercontent.com/hyeon1035298/Bloom/main/install.ps1 | iex
 
 <img src="docs/media/en/addons.webp" alt="Settings › Add-ons with the taskbar folders editor and a preview of the pill taskbar">
 
-Add-ons are separate programs that you can download, verify, and run from within Bloom. Their code is not built into Bloom itself, and the two official add-ons currently available are released under GPL-3.0 in their own source repositories.
+Add-ons are separate programs that you can download, verify, and run from within Bloom. Their code is not built into Bloom itself, and the five official add-ons currently available are released under GPL-3.0 in their own source repositories.
 
 ### Taskbar (PillTaskbar)
 
-<img src="docs/media/island.webp" alt="Turn on the auto-hide island option to hide the taskbar when idle and show a compact island bar at the top center of the screen.">
+<img src="docs/media/en/addon-taskbar.webp" alt="The island at the top opens into the pill taskbar, a folder opens and the app in it starts">
 
 - Transforms the default Windows 11 taskbar into a translucent glass pill floating at the center of the screen.
 - Drag one app icon onto another on the taskbar to group them into a folder, and edit folder names and contents in Settings › Add-ons.
@@ -134,7 +134,30 @@ Add-ons are separate programs that you can download, verify, and run from within
 
 ### Alt+Tab per monitor
 
+<img src="docs/media/en/addon-alttab.webp" alt="Alt+Tab opens on the monitor with the cursor and lists only its windows">
+
 When you use multiple monitors, pressing Alt+Tab opens the window switcher on the monitor where your mouse cursor is and shows only the windows on that monitor.
+
+### Memory Clean
+
+<img src="docs/media/en/addon-memory.webp" alt="The RAM module next to the clock opens its window, and Clean now frees memory">
+
+- A RAM module next to the taskbar clock shows memory use. Click it to open its window, and Clean now frees memory.
+- The Programs tab lets you pick programs that use a lot of memory and end them.
+
+### Monitor Brightness
+
+<img src="docs/media/en/addon-brightness.webp" alt="The monitor next to the clock opens its window, one slider moves both monitors, and the wheel over it turns them down">
+
+- A monitor icon next to the clock shows the brightness. One slider moves every monitor, and the wheel over the icon changes it too.
+- Change the brightness with hotkeys, and dim the screen when you are away.
+
+### Coffee
+
+<img src="docs/media/en/addon-coffee.webp" alt="With the cup off, ten minutes without input turn the screen off; with the cup on for an hour, the same ten minutes leave it on">
+
+- Turn on the coffee cup next to the clock and the PC and screen stay awake.
+- Keep it on until you turn it off or for a set time. Right-click the cup to turn it on or off.
 
 ### How add-ons are installed
 
