@@ -39,7 +39,7 @@ irm https://raw.githubusercontent.com/hyeon1035298/Bloom/main/install.ps1 | iex
 
 ### 一个搜索栏
 
-<img src="docs/media/zh/search.webp" alt="启动器把 5.9 ft to cm 换算出来，下方卡片介绍首字母、计算和单位、提醒和表情">
+<img src="docs/media/zh/search.webp" alt="启动器把 5.9 ft to cm 换算出来，旁边是窗口布局列表，下方卡片介绍首字母、计算和单位、提醒、表情、路径、窗口布局、日期和安装">
 
 - 快速查找已安装的应用、Windows 设置和 Bloom 命令。支持只输英文首字母（`gc`），如果使用韩语输入，还能识别初声（`ㅁㅁㅈ`）或忘记切换输入法时打出的字符（`초개ㅡㄷ`）。
 - 输入 `45000*1.1`、`5.9 ft to cm`、`100 usd` 这样的算式、单位或汇率即可实时算出结果，按 Enter 就能复制到剪贴板。
@@ -47,11 +47,6 @@ irm https://raw.githubusercontent.com/hyeon1035298/Bloom/main/install.ps1 | iex
 - 输入 `:heart` 查找表情符号，或者像 `yt cats` 这样加上前缀直接搜索指定网站。
 - 安装 Everything 后，按文件名就能秒搜电脑里的任何文件。
 - 在搜索结果上按 Ctrl+K 会列出对该项目可执行的所有操作；在空搜索栏里输入 `?` 则能一览支持的输入示例。
-
-### 路径、窗口、日期和安装
-
-<img src="docs/media/zh/more.webp" alt="用图标表示半屏和四分之一屏的窗口布局列表，以及介绍路径、窗口布局、日期和世界时钟、安装的卡片">
-
 - 输入 `C:\Users` 这样的文件夹路径，不用专门打开资源管理器，就能直接在启动器里查看里面的文件和子文件夹。
 - 输入 `left half`、`maximize`、`next screen` 等指令，把当前窗口贴靠到半屏或移到另一台显示器。
 - 输入 `in 100 days` 或 `tokyo 3pm`，轻松推算日期和查看世界各地的时间。
