@@ -101,18 +101,17 @@ internal static class UserAddonTests
             Directory.CreateDirectory(shipped);
             Put(user, "alt-tab", Manifest("alt-tab"));
             Put(user, "my-addon", Manifest("my-addon"));
-            string sha = new('a', 64);
             var catalog = new[]
             {
-                new AddonCatalog.Entry(AddonProtocol.Id, "1.0.0", "https://example.invalid/a.zip", sha, 0),
-                new AddonCatalog.Entry("alt-tab", "1.0.0", "https://example.invalid/b.zip", sha, 0),
-                new AddonCatalog.Entry("waiting", "1.0.0", "https://example.invalid/c.zip", "", 0),
+                new AddonCatalog.Entry(AddonProtocol.Id, "owner/a", "1.0.0"),
+                new AddonCatalog.Entry("alt-tab", "owner/b", "1.0.0"),
             };
             var list = AddonHub.Discover(new AddonStore(shipped, local, Path.Combine(root, "downloads")), new AddonStore(user, local), catalog);
             Check.Eq(string.Join(",", list.Select(a => a.Id)), $"{AddonProtocol.Id},alt-tab,my-addon",
-                "the taskbar one, the catalog's offered ones, then the user's; a user one with a catalog id left out");
-            Check.True(!list[1].User && list[1].Manifest is null && list[1].Offer(id => catalog.FirstOrDefault(e => e.Id == id)) is not null,
-                "the catalog's one is Bloom's, not downloaded yet, and offered");
+                "the taskbar one, the catalog's ones, then the user's; a user one with a catalog id left out");
+            list[1].Latest = new AddonRelease("alt-tab", "1.0.0", "https://example.invalid/b.zip", new string('a', 64), 1, new Version(0, 1, 0));
+            Check.True(!list[1].User && list[1].Manifest is null && list[1].Catalog == catalog[1] && list[1].Offer() is not null,
+                "the catalog's one is Bloom's, not downloaded yet, and its latest release offered");
         }
         finally
         {

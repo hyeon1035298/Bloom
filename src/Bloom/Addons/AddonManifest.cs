@@ -93,7 +93,7 @@ internal sealed record AddonManifest(string Id, string Version, string License, 
     public static bool IsVersion(string v) => v.Length is > 0 and <= 40 && v.Trim('.').Length > 0
         && v.All(c => char.IsAsciiLetterOrDigit(c) || c is '.' or '-' or '+');
 
-    private static bool IsSha256(string s) => s.Length == 64 && s.All(char.IsAsciiHexDigit);
+    internal static bool IsSha256(string s) => s.Length == 64 && s.All(char.IsAsciiHexDigit);
 
     /// A relative path that stays inside the folder it is joined to, with Windows' separators; null for anything else
     /// (rooted, a drive or stream colon, "..", ".", empty parts, characters a file name can't have).

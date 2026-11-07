@@ -13,8 +13,9 @@ namespace Bloom.Addons;
 internal enum AddonFailure
 {
     Network, // no answer, an error status, or the connection broke off
-    Hash, // the zip is not the one the catalog pins
-    Content, // the zip's entries or its addon.json are not what the catalog names
+    Missing, // the add-on's latest release has no bloom-addon.json (none to download yet)
+    Hash, // the zip is not the one its bloom-addon.json names
+    Content, // bloom-addon.json, the zip's entries or its addon.json are not what they should be
     Disk, // the files could not be written
 }
 
@@ -75,20 +76,18 @@ internal sealed class AddonFetch
     }
 }
 
-/// Downloads a catalog add-on into <download root>\<id>\<version>: the zip to a temp file, its SHA-256 checked against
-/// the catalog, unpacked into a staging folder (an entry whose path would leave it refuses the whole zip), its addon.json
-/// checked for the catalog's id and version and every file for the hash addon.json gives, then renamed in. Whatever
-/// fails, the temp file and the staging folder go, so a half download is never used or left behind.
+/// Downloads an add-on release (AddonLatest) into <download root>\<id>\<version>: the zip to a temp file, its SHA-256
+/// checked against the release's bloom-addon.json, unpacked into a staging folder (an entry whose path would leave it
+/// refuses the whole zip), its addon.json checked for the release's id, version and minBloom and every file for the hash
+/// addon.json gives, then renamed in. Whatever fails, the temp file and the staging folder go, so a half download is
+/// never used or left behind.
 internal static class AddonDownload
 {
-    /// Larger than any add-on should be: a server sending more is stopped there (the catalog's size, when given, instead).
-    private const long MaxBytes = 512L * 1024 * 1024;
-
     /// No byte from the server for this long ends the download.
     private static readonly TimeSpan Idle = TimeSpan.FromSeconds(30);
 
     /// Download, check and put in, in one go (the tests; Addon.Download puts in under its own lock).
-    public static async Task Install(HttpClient http, AddonCatalog.Entry e, string root, Action<long, long>? progress = null, CancellationToken ct = default)
+    public static async Task Install(HttpClient http, AddonRelease e, string root, Action<long, long>? progress = null, CancellationToken ct = default)
     {
         string staging = await Prepare(http, e, root, progress, ct).ConfigureAwait(false);
         try
@@ -103,9 +102,8 @@ internal static class AddonDownload
 
     /// The download, checked and unpacked: returns its staging folder (under <root>\<id>, named with a leading dot so
     /// it is never taken for a downloaded version). `progress`: bytes so far and the total (-1 while unknown).
-    public static async Task<string> Prepare(HttpClient http, AddonCatalog.Entry e, string root, Action<long, long>? progress, CancellationToken ct)
+    public static async Task<string> Prepare(HttpClient http, AddonRelease e, string root, Action<long, long>? progress, CancellationToken ct)
     {
-        if (!e.Offered) throw new AddonDownloadException(AddonFailure.Hash, $"{e.Id} {e.Version}: the catalog gives no SHA-256");
         string dir = Path.Combine(root, e.Id);
         string tag = $".{e.Version}.{Guid.NewGuid():N}";
         string zip = Path.Combine(dir, tag + ".zip.tmp"), staging = Path.Combine(dir, tag + ".tmp");
@@ -114,7 +112,7 @@ internal static class AddonDownload
             Directory.CreateDirectory(dir);
             string sha = await Fetch(http, e, zip, progress, ct).ConfigureAwait(false);
             if (!string.Equals(sha, e.Sha256, StringComparison.OrdinalIgnoreCase))
-                throw new AddonDownloadException(AddonFailure.Hash, $"{e.Id} {e.Version}: SHA-256 {sha}, the catalog gives {e.Sha256}");
+                throw new AddonDownloadException(AddonFailure.Hash, $"{e.Id} {e.Version}: SHA-256 {sha}, its bloom-addon.json gives {e.Sha256}");
             Unpack(zip, staging);
             Verify(staging, e);
             return staging;
@@ -144,7 +142,7 @@ internal static class AddonDownload
 
     /// The checked staging folder becomes <root>\<id>\<version> (a broken one there before is replaced), and every other
     /// version and leftover beside it goes. Fast: the caller may hold its add-on's lock around this.
-    public static void Commit(string staging, AddonCatalog.Entry e, string root)
+    public static void Commit(string staging, AddonRelease e, string root)
     {
         string dir = Path.Combine(root, e.Id), target = Path.Combine(dir, e.Version);
         try
@@ -171,61 +169,56 @@ internal static class AddonDownload
         }
     }
 
-    /// Streams the zip to `file`, hashing as it goes; returns the hex SHA-256. Redirects are followed by hand (the shared
-    /// client follows none), https only and at most five.
-    private static async Task<string> Fetch(HttpClient http, AddonCatalog.Entry e, string file, Action<long, long>? progress, CancellationToken ct)
+    /// GET `url`, following redirects by hand (the shared client follows none): https only and at most five. Returns the
+    /// last answer whatever its status (the caller's to dispose). `idle`: cancelled when a hop takes longer than Idle.
+    internal static async Task<HttpResponseMessage> Get(HttpClient http, Uri url, CancellationTokenSource idle)
     {
-        using var idle = CancellationTokenSource.CreateLinkedTokenSource(ct);
-        var url = new Uri(e.Url);
-        HttpResponseMessage? response = null;
-        try
+        for (int hops = 0; ; hops++)
         {
-            for (int hops = 0; ; hops++)
+            if (url.Scheme != Uri.UriSchemeHttps) throw new AddonDownloadException(AddonFailure.Network, $"{url}: not https");
+            idle.CancelAfter(Idle);
+            var response = await Net(() => http.SendAsync(new HttpRequestMessage(HttpMethod.Get, url), HttpCompletionOption.ResponseHeadersRead, idle.Token)).ConfigureAwait(false);
+            if ((int)response.StatusCode is >= 300 and < 400 && response.Headers.Location is { } next && hops < 5)
             {
-                if (url.Scheme != Uri.UriSchemeHttps) throw new AddonDownloadException(AddonFailure.Network, $"{url}: not https");
-                idle.CancelAfter(Idle);
-                response = await Net(() => http.SendAsync(new HttpRequestMessage(HttpMethod.Get, url), HttpCompletionOption.ResponseHeadersRead, idle.Token)).ConfigureAwait(false);
-                if ((int)response.StatusCode is >= 300 and < 400 && response.Headers.Location is { } next && hops < 5)
-                {
-                    url = next.IsAbsoluteUri ? next : new Uri(url, next);
-                    response.Dispose();
-                    response = null;
-                    continue;
-                }
-                if (response.StatusCode != HttpStatusCode.OK) throw new AddonDownloadException(AddonFailure.Network, $"{url.Host}: HTTP {(int)response.StatusCode}");
-                break;
+                url = next.IsAbsoluteUri ? next : new Uri(url, next);
+                response.Dispose();
+                continue;
             }
-            var content = response.Content;
-            long total = e.Size > 0 ? e.Size : content.Headers.ContentLength ?? -1;
-            long limit = e.Size > 0 ? e.Size : MaxBytes;
-            if (content.Headers.ContentLength is { } sent && sent > limit) throw new AddonDownloadException(AddonFailure.Hash, $"{e.Id}: {sent} bytes, more than {limit}");
-            using var hash = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
-            await using var net = await Net(() => content.ReadAsStreamAsync(idle.Token)).ConfigureAwait(false);
-            await using var to = new FileStream(file, FileMode.CreateNew, FileAccess.Write, FileShare.None, 81920, true);
-            var buffer = new byte[81920];
-            long done = 0;
-            progress?.Invoke(0, total);
-            while (true)
-            {
-                idle.CancelAfter(Idle);
-                int n = await Net(() => net.ReadAsync(buffer, idle.Token).AsTask()).ConfigureAwait(false);
-                if (n == 0) break;
-                done += n;
-                if (done > limit) throw new AddonDownloadException(AddonFailure.Hash, $"{e.Id}: more than {limit} bytes");
-                hash.AppendData(buffer, 0, n);
-                await to.WriteAsync(buffer.AsMemory(0, n), ct).ConfigureAwait(false);
-                progress?.Invoke(done, total);
-            }
-            return Convert.ToHexStringLower(hash.GetHashAndReset());
-        }
-        finally
-        {
-            response?.Dispose();
+            return response;
         }
     }
 
+    /// Streams the zip to `file`, hashing as it goes; returns the hex SHA-256. No more than the release's size is read.
+    private static async Task<string> Fetch(HttpClient http, AddonRelease e, string file, Action<long, long>? progress, CancellationToken ct)
+    {
+        using var idle = CancellationTokenSource.CreateLinkedTokenSource(ct);
+        using var response = await Get(http, new Uri(e.Url), idle).ConfigureAwait(false);
+        if (response.StatusCode != HttpStatusCode.OK) throw new AddonDownloadException(AddonFailure.Network, $"{response.RequestMessage?.RequestUri?.Host}: HTTP {(int)response.StatusCode}");
+        var content = response.Content;
+        long total = e.Size, limit = e.Size;
+        if (content.Headers.ContentLength is { } sent && sent > limit) throw new AddonDownloadException(AddonFailure.Hash, $"{e.Id}: {sent} bytes, more than {limit}");
+        using var hash = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
+        await using var net = await Net(() => content.ReadAsStreamAsync(idle.Token)).ConfigureAwait(false);
+        await using var to = new FileStream(file, FileMode.CreateNew, FileAccess.Write, FileShare.None, 81920, true);
+        var buffer = new byte[81920];
+        long done = 0;
+        progress?.Invoke(0, total);
+        while (true)
+        {
+            idle.CancelAfter(Idle);
+            int n = await Net(() => net.ReadAsync(buffer, idle.Token).AsTask()).ConfigureAwait(false);
+            if (n == 0) break;
+            done += n;
+            if (done > limit) throw new AddonDownloadException(AddonFailure.Hash, $"{e.Id}: more than {limit} bytes");
+            hash.AppendData(buffer, 0, n);
+            await to.WriteAsync(buffer.AsMemory(0, n), ct).ConfigureAwait(false);
+            progress?.Invoke(done, total);
+        }
+        return Convert.ToHexStringLower(hash.GetHashAndReset());
+    }
+
     /// A step that talks to the server: what goes wrong there is a network failure (a cancel by the caller stays one).
-    private static async Task<T> Net<T>(Func<Task<T>> step)
+    internal static async Task<T> Net<T>(Func<Task<T>> step)
     {
         try
         {
@@ -268,8 +261,9 @@ internal static class AddonDownload
         }
     }
 
-    /// The unpacked add-on is the one the catalog names, and every file it lists has its hash.
-    private static void Verify(string staging, AddonCatalog.Entry e)
+    /// The unpacked add-on is the release bloom-addon.json names (the Bloom it needs too, which the offer was judged by),
+    /// and every file it lists has its hash.
+    private static void Verify(string staging, AddonRelease e)
     {
         string file = Path.Combine(staging, AddonManifest.FileName);
         if (!File.Exists(file)) throw new AddonDownloadException(AddonFailure.Content, "the zip has no addon.json");
@@ -284,6 +278,8 @@ internal static class AddonDownload
         }
         if (m.Id != e.Id || m.Version != e.Version)
             throw new AddonDownloadException(AddonFailure.Content, $"the zip holds {m.Id} {m.Version}, not {e.Id} {e.Version}");
+        if (m.MinBloom != e.MinBloom)
+            throw new AddonDownloadException(AddonFailure.Content, $"the zip needs Bloom {m.MinBloom}, its bloom-addon.json says {e.MinBloom}");
         foreach (var (name, sha) in m.Files)
         {
             string f = Path.Combine(staging, name);
