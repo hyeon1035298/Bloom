@@ -495,12 +495,14 @@ h1 .winkey, h2 .winkey { width: 0.7em; vertical-align: baseline; margin-right: 0
 .addons { padding-block: clamp(80px, 11vh, 128px); }
 .addons__main { margin-top: 48px; padding: 8px; }
 .addons__main img { border-radius: calc(var(--radius-card) - calc(8px * var(--k))); }
-.addons__row { margin-top: var(--gap); display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--gap); }
-.addon { padding: 32px; }
+.addons__row { margin-top: var(--gap); display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: var(--gap); }
+.addon { padding: 32px; grid-column: span 2; }
+.addon:nth-child(-n+2) { grid-column: span 3; }
 .addon h3 { font-size: 19px; }
 .addon p { margin-top: 8px; color: var(--color-muted); }
 .addon a { display: inline-block; margin-top: 16px; font-size: 15px; }
 .addons__note { margin-top: 24px; text-align: center; font-size: 14px; color: var(--color-faint); }
+@media (max-width: 1000px) { .addons__row { grid-template-columns: repeat(2, minmax(0, 1fr)); } .addon, .addon:nth-child(-n+2) { grid-column: auto; } .addon:last-child { grid-column: 1 / -1; } }
 @media (max-width: 760px) { .addons__row { grid-template-columns: minmax(0, 1fr); } }
 
 /* ---------- close ---------- */
@@ -1065,6 +1067,21 @@ h1 .winkey, h2 .winkey { width: 0.7em; vertical-align: baseline; margin-right: 0
           <h3>モニターごとの Alt+Tab</h3>
           <p>モニターが複数あるとき、カーソルのあるモニターに Alt+Tab を出し、そのモニターのウィンドウだけを表示します。</p>
           <a class="textlink" href="https://github.com/hyeon1035298/AltTabPerMonitor_BloomAddon">AltTabPerMonitor のソース</a>
+        </div>
+        <div class="card addon">
+          <h3>メモリ整理</h3>
+          <p>タスクバーの時計の横にメモリ使用量が出ます。クリックするとメモリを空けて、プログラムを終了できます。</p>
+          <a class="textlink" href="https://github.com/hyeon1035298/MemoryClean_BloomAddon">MemoryClean のソース</a>
+        </div>
+        <div class="card addon">
+          <h3>モニターの明るさ調整</h3>
+          <p>時計の横でモニターごとに明るさを合わせます。スライダーひとつで全部のモニターが変わり、ホイールでも変えられます。</p>
+          <a class="textlink" href="https://github.com/hyeon1035298/MonitorBrightness_BloomAddon">MonitorBrightness のソース</a>
+        </div>
+        <div class="card addon">
+          <h3>コーヒー</h3>
+          <p>時計の横のコーヒーカップをオンにすると、PC と画面がスリープしません。オフにするまで、または決めた時間だけ続きます。</p>
+          <a class="textlink" href="https://github.com/hyeon1035298/KeepAwake_BloomAddon">KeepAwake のソース</a>
         </div>
       </div>
       <p class="addons__note">設定 › アドオン からボタンひとつでダウンロードでき、内蔵のハッシュ値と一致するときだけインストールされます。</p>

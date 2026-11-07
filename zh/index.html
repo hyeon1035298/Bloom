@@ -495,12 +495,14 @@ h1 .winkey, h2 .winkey { width: 0.7em; vertical-align: baseline; margin-right: 0
 .addons { padding-block: clamp(80px, 11vh, 128px); }
 .addons__main { margin-top: 48px; padding: 8px; }
 .addons__main img { border-radius: calc(var(--radius-card) - calc(8px * var(--k))); }
-.addons__row { margin-top: var(--gap); display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--gap); }
-.addon { padding: 32px; }
+.addons__row { margin-top: var(--gap); display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: var(--gap); }
+.addon { padding: 32px; grid-column: span 2; }
+.addon:nth-child(-n+2) { grid-column: span 3; }
 .addon h3 { font-size: 19px; }
 .addon p { margin-top: 8px; color: var(--color-muted); }
 .addon a { display: inline-block; margin-top: 16px; font-size: 15px; }
 .addons__note { margin-top: 24px; text-align: center; font-size: 14px; color: var(--color-faint); }
+@media (max-width: 1000px) { .addons__row { grid-template-columns: repeat(2, minmax(0, 1fr)); } .addon, .addon:nth-child(-n+2) { grid-column: auto; } .addon:last-child { grid-column: 1 / -1; } }
 @media (max-width: 760px) { .addons__row { grid-template-columns: minmax(0, 1fr); } }
 
 /* ---------- close ---------- */
@@ -1065,6 +1067,21 @@ h1 .winkey, h2 .winkey { width: 0.7em; vertical-align: baseline; margin-right: 0
           <h3>按显示器 Alt+Tab</h3>
           <p>使用多台显示器时，在光标所在的显示器上弹出 Alt+Tab，并只显示该显示器上的窗口。</p>
           <a class="textlink" href="https://github.com/hyeon1035298/AltTabPerMonitor_BloomAddon">AltTabPerMonitor 源代码</a>
+        </div>
+        <div class="card addon">
+          <h3>内存清理</h3>
+          <p>任务栏时钟旁会显示内存使用量。点一下就能释放内存，也能结束程序。</p>
+          <a class="textlink" href="https://github.com/hyeon1035298/MemoryClean_BloomAddon">MemoryClean 源代码</a>
+        </div>
+        <div class="card addon">
+          <h3>显示器亮度调节</h3>
+          <p>在时钟旁为每台显示器调节亮度。一个滑块就能调所有显示器，滚轮也可以调。</p>
+          <a class="textlink" href="https://github.com/hyeon1035298/MonitorBrightness_BloomAddon">MonitorBrightness 源代码</a>
+        </div>
+        <div class="card addon">
+          <h3>咖啡</h3>
+          <p>打开时钟旁的咖啡杯，电脑和屏幕就不会休眠。可以一直开着，也可以设定时间。</p>
+          <a class="textlink" href="https://github.com/hyeon1035298/KeepAwake_BloomAddon">KeepAwake 源代码</a>
         </div>
       </div>
       <p class="addons__note">在 设置 › 加载项 中一键即可下载，仅在与内置哈希值一致时才会安装。</p>
