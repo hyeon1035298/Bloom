@@ -66,11 +66,11 @@ internal static class ScreenGrab
         using var cancellation = abort.Register(() => Finish(null));
         try
         {
-            var island = NoticeIsland.FindPixels(); // in the frozen picture too: the hint and the bar keep off it
             foreach (IntPtr mon in Launcher.Monitors())
             {
                 var info = new Win32.MONITORINFO { cbSize = Marshal.SizeOf<Win32.MONITORINFO>() };
                 if (!Win32.GetMonitorInfo(mon, ref info)) continue;
+                var island = NoticeIsland.FindPixels(mon); // in the frozen picture too: the hint and the bar keep off it
                 var m = info.rcMonitor;
                 var wa = info.rcWork;
                 windows.Add(Overlay(desktop, new ScreenRect(m.Left, m.Top, m.Right - m.Left, m.Bottom - m.Top), vx, vy, hint, r => Finish(r),

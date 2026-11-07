@@ -23,15 +23,25 @@ internal static class NoticeIsland
     /// The island alone, looked for through the windows.
     public static Rect? Find() => Look(true).Island;
 
-    /// The island in physical pixels (it is on the primary monitor, whose DIPs start at 0,0), for windows placed by
-    /// monitor pixels: the capture's overlays keep their hint and bar off it.
-    public static Rect? FindPixels()
+    /// The island on `monitor` in physical pixels, for windows placed by monitor pixels: the capture's overlays keep
+    /// their hint and bar off it. The add-on keeps an island on every monitor's taskbar, not only the primary one.
+    public static Rect? FindPixels(IntPtr monitor)
     {
-        if (Find() is not { } r) return null;
-        IntPtr primary = Win32.MonitorFromPoint(new Win32.POINT { X = 0, Y = 0 }, Win32.MONITOR_DEFAULTTOPRIMARY);
-        if (Win32.GetDpiForMonitor(primary, 0, out uint dpi, out _) != 0 || dpi == 0) dpi = 96;
+        var info = new Win32.MONITORINFO { cbSize = Marshal.SizeOf<Win32.MONITORINFO>() };
+        if (!Win32.GetMonitorInfo(monitor, ref info)) return null;
+        if (Win32.GetDpiForMonitor(monitor, 0, out uint dpi, out _) != 0 || dpi == 0) dpi = 96;
         double s = dpi / 96.0;
-        return new Rect(r.X * s, r.Y * s, r.Width * s, r.Height * s);
+        Rect? box;
+        if (Fake is { } fake)
+            box = info.rcMonitor.Left == 0 && info.rcMonitor.Top == 0 ? fake : null; // the QA box is on the primary monitor
+        else
+        {
+            IntPtr h = Search(info.rcMonitor);
+            box = h != IntPtr.Zero && Win32.GetWindowRect(h, out var window)
+                ? NoticePlacement.Island(window, Win32.GetWindowRgnBox(h, out var region), region, info.rcMonitor, s)
+                : null;
+        }
+        return box is { } r ? new Rect(r.X * s, r.Y * s, r.Width * s, r.Height * s) : null;
     }
 
     /// The island and the taskbar as they show now. `search`: look through the windows for the island (once a second);

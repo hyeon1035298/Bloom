@@ -11,10 +11,14 @@ internal enum RecordSurfaceKind { Plain, Pill, Island }
 /// the taskbar, else nothing (a bar of its own under the area). `Box` is that shape in physical pixels.
 internal readonly record struct RecordSurface(RecordSurfaceKind Kind, Rect Box)
 {
-    public static RecordSurface Find()
+    /// The shape on the monitor that holds `area` (physical).
+    public static RecordSurface Find(ScreenRect area)
     {
-        if (NoticeIsland.FindPixels() is { } island) return new(RecordSurfaceKind.Island, island);
-        if (PillBox() is { } pill) return new(RecordSurfaceKind.Pill, pill);
+        IntPtr mon = Win32.MonitorFromPoint(new Win32.POINT { X = area.X + area.Width / 2, Y = area.Y + area.Height / 2 }, Win32.MONITOR_DEFAULTTONEAREST);
+        if (NoticeIsland.FindPixels(mon) is { } island) return new(RecordSurfaceKind.Island, island);
+        // the pill is the primary taskbar's: on another monitor the plain bar stays by the area
+        IntPtr primary = Win32.MonitorFromPoint(new Win32.POINT { X = 0, Y = 0 }, Win32.MONITOR_DEFAULTTOPRIMARY);
+        if (mon == primary && PillBox() is { } pill) return new(RecordSurfaceKind.Pill, pill);
         return new(RecordSurfaceKind.Plain, Rect.Empty);
     }
 
