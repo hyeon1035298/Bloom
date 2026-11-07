@@ -39,7 +39,7 @@ irm https://raw.githubusercontent.com/hyeon1035298/Bloom/main/install.ps1 | iex
 
 ### One search line
 
-<img src="docs/media/en/search.webp" alt="The launcher converting 5.9 ft to cm, with cards on initials, maths and units, reminders and emoji">
+<img src="docs/media/en/search.webp" alt="The launcher converting 5.9 ft to cm next to the window layout list, with cards on initials, maths and units, reminders, emoji, paths, window layouts, dates and app installs">
 
 - Quickly find installed apps, Windows settings, and Bloom commands. You can type just the initials (`gc`), and for Korean input it also recognizes initial consonants (`ㅁㅁㅈ`) or words typed without switching the keyboard layout (`초개ㅡㄷ`).
 - Type math expressions, unit conversions, or currencies like `45000*1.1`, `5.9 ft to cm`, or `100 usd` to see the answer right away, then press Enter to copy it to the clipboard.
@@ -47,11 +47,6 @@ irm https://raw.githubusercontent.com/hyeon1035298/Bloom/main/install.ps1 | iex
 - Find emoji by name with `:heart`, or search websites directly with a prefix like `yt cats`.
 - With Everything installed, you can find any file on your PC by name right away.
 - Press Ctrl+K on any search result to see all the actions you can take on it, or type `?` in an empty search line to see examples of what you can type.
-
-### Paths, windows, dates and installs
-
-<img src="docs/media/en/more.webp" alt="The window layout list with drawn icons for halves and quarters, with cards on paths, window layout, dates and world clock, and installing apps">
-
 - Type a folder path like `C:\Users` to browse its files and subfolders right inside the launcher without opening File Explorer.
 - Type commands like `left half`, `maximize`, or `next screen` to snap the active window or move it to another monitor.
 - Calculate dates and check world times by typing phrases like `in 100 days` or `tokyo 3pm`.
