@@ -82,8 +82,8 @@ internal static class MdParser
     // Singleline: a document's paragraph comes whole, its line ends in it (Lines), and **bold** may go over one
     private static readonly Regex Token = new(TokenPattern, RegexOptions.Compiled | RegexOptions.Singleline);
 
-    // a pane's: ![alt](src) pictures too (a chat answer keeps reading them as "!" and a link)
-    private static readonly Regex PaneToken = new(@"(!\[(?<pa>[^\]]*)\]\((?<ps>[^)\s]+)\))|" + TokenPattern, RegexOptions.Compiled | RegexOptions.Singleline);
+    // a pane's: ![alt](src) pictures too, and a linked one [![alt](src)](url) (a chat answer keeps reading them as "!" and a link)
+    private static readonly Regex PaneToken = new(@"(\[!\[(?<la>[^\]]*)\]\((?<ls>[^)\s]+)\)\]\((?<lu2>[^)\s]+)\))|(!\[(?<pa>[^\]]*)\]\((?<ps>[^)\s]+)\))|" + TokenPattern, RegexOptions.Compiled | RegexOptions.Singleline);
 
     /// An autolink longer than this is shown shortened with "…" (copied whole).
     public const int AutolinkShown = 60;
@@ -281,7 +281,8 @@ internal static class MdParser
         foreach (Match m in (ctx.Pictures ? PaneToken : Token).Matches(s))
         {
             if (m.Index > at) Text(s[at..m.Index], style, link, into);
-            if (m.Groups["pa"].Success) into.Add(new MdSpan(MdSpanKind.Picture, m.Groups["pa"].Value, style, link, Source: m.Groups["ps"].Value));
+            if (m.Groups["la"].Success) into.Add(new MdSpan(MdSpanKind.Picture, m.Groups["la"].Value, style, new MdLink(m.Groups["lu2"].Value), Source: m.Groups["ls"].Value));
+            else if (m.Groups["pa"].Success) into.Add(new MdSpan(MdSpanKind.Picture, m.Groups["pa"].Value, style, link, Source: m.Groups["ps"].Value));
             else if (m.Groups["b"].Success || m.Groups["b2"].Success) Inline(m.Groups["b"].Success ? m.Groups["b"].Value : m.Groups["b2"].Value, style | MdStyle.Bold, link, ctx, into);
             else if (m.Groups["s"].Success) Inline(m.Groups["s"].Value, style | MdStyle.Strike, link, ctx, into);
             else if (m.Groups["c"].Success) into.Add(new MdSpan(MdSpanKind.Text, m.Groups["c"].Value.Replace('\n', ' '), style | MdStyle.Code, link)); // a line end in code: a space

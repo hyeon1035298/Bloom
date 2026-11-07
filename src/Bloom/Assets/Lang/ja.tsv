@@ -2004,6 +2004,17 @@ Check your connection and try again	接続を確認してもう一度お試し�
 The downloaded file isn't the one Bloom expects, so it wasn't installed	ダウンロードしたファイルが Bloom の想定と異なるため、インストールしませんでした
 What the download holds isn't valid, so it wasn't installed	ダウンロードした内容が正しくないため、インストールしませんでした
 Couldn't save the download · check the free disk space	ダウンロードを保存できませんでした · ディスクの空き容量を確認してください
+Add: {0}	{0}を追加
+Up to {0} can be added	{0} 件まで追加できます
+Type a name and press Enter	名前を入力して Enter を押します
+Type a file name ending in {0} and press Enter	{0} で終わるファイル名を入力して Enter を押します
+That name can't be used	この名前は使えません
+Only a file name ending in {0}	{0} で終わるファイル名のみ使えます
+Already in the list	すでに一覧にあります
+Off — click to set a shortcut	オフ — クリックでショートカットを設定
+Click and press another combination; Delete clears it	クリックして別の組み合わせを押します。Delete で消去します
+Bloom already uses it	Bloom がすでに使っています
+They show here once the add-on has run	アドオンが一度動くとここに表示されます
 Add-ons	アドオン
 Add-ons are separate programs Bloom starts, each turned on and off here. Click one to open its page. One you put in the user-addons folder in Bloom's local data folder shows after Bloom restarts.	アドオンは Bloom が起動する別のプログラムで、ここで一つずつオン・オフします。カードをクリックすると、そのアドオンのページが開きます。Bloom のローカルデータフォルダー内の user-addons に自分で入れたアドオンは、Bloom を再起動すると表示されます。
 All add-ons	アドオン一覧
@@ -2189,7 +2200,6 @@ Add a model	モデルを追加
 Pick from the models omp knows, by provider	omp が知っているモデルをプロバイダー別に探して選びます
 Add by hand	直接追加
 provider/model, then Enter (e.g. anthropic/claude-sonnet-5-5)	プロバイダー/モデルの形で入力して Enter (例: anthropic/claude-sonnet-5-5)
-Already in the list	すでに一覧にあります
 not read yet	未取得
 Refresh omp's model list	omp のモデル一覧を更新
 Reads omp models again now · {0} models · last {1}	omp models を今すぐ読み直します · {0} 件 · 前回 {1}
@@ -2557,8 +2567,6 @@ That file couldn't be brought in as the icon.	そのファイルをアイコン�
 {0} changed	変更した項目 {0} 件
 Off · turn it on in Features	オフ · 機能でオンにする
 Another app already uses it — press another combination	別のアプリがすでに使っています — 別の組み合わせを押してください
-Off — click to set a shortcut	オフ — クリックでショートカットを設定
-Bloom already uses it	Bloom がすでに使っています
 No settings found	設定の検索結果なし
 Basics	基本
 Find a setting	設定を探す
@@ -2598,8 +2606,10 @@ Start menu apps	スタートメニューのアプリ
 In this folder	このフォルダーにあり
 In {0}	{0} にあり
 No shortcut	ショートカットなし
+Icons	アイコン
 Shows the first four apps together. Reordering the apps changes it too.	中のアプリ 4 つをまとめて表示します。アプリの順番を変えるとアイコンも変わります。
 Use the apps	アプリをまとめて表示
+Switches between its light and dark look with the taskbar's theme.	タスク バーのテーマに合わせて明るい版と暗い版が切り替わります。
 Choose a file	ファイルを選ぶ
 Uses the icon of an .ico, .png, .exe or .dll file.	.ico、.png、.exe、.dll ファイルのアイコンを使います。
 Folder icon	フォルダーのアイコン

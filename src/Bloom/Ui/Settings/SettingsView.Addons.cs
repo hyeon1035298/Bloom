@@ -12,8 +12,8 @@ namespace Bloom.Ui;
 /// 설정 > 애드온: every add-on with its switch and its host's status, and a page of its own under it in the list (the
 /// line opens it). First the taskbar add-on (PillTaskbar), then the others the release Bloom's catalog pins
 /// (AddonHub.Listed), each downloaded on its line (AddonDownload), then the ones the user put in Bloom's user-addons
-/// folder themselves (AddonStore.User). Bloom draws settings for none but the taskbar add-on: on its page while it is on
-/// (SettingsView.Taskbar).
+/// folder themselves (AddonStore.User). The taskbar add-on's page is laid out by Bloom while it is on
+/// (SettingsView.Taskbar); every other's is drawn from the settings its schema describes (SettingsView.AddonSettings).
 internal sealed partial class SettingsView
 {
     /// The tests: hand-made add-ons in place of the catalog's and the user's.
@@ -54,7 +54,7 @@ internal sealed partial class SettingsView
             Action<bool, Switch> set = (v, sw) => SetAddon(addon, v, sw, () => ConfirmListed(addon, name));
             var st = AddonLine(s, addon, name, about, G.Plug, AddonStatusText, Tr("이 애드온을 다시 시작합니다", "Starts this add-on again"), set, filter);
             AddonDownload(addon, name, Tr("이 애드온을 껐다 켜면 새 버전으로 바뀝니다", "Turn this add-on off and on to switch to the new version"), st, filter);
-            views.Add(new(addon, name, about, G.Plug, st, AddonStatusText, set, null));
+            views.Add(new(addon, name, about, G.Plug, st, AddonStatusText, set, SchemaBody(addon, filter)));
         }
         foreach (var addon in users)
         {
@@ -62,10 +62,13 @@ internal sealed partial class SettingsView
             string about = Tr("직접 넣은 애드온", "An add-on you added");
             Action<bool, Switch> set = (v, sw) => SetAddon(addon, v, sw, () => ConfirmUser(name));
             var st = AddonLine(s, addon, name, about, G.Plug, AddonStatusText, Tr("이 애드온을 다시 시작합니다", "Starts this add-on again"), set, filter);
-            views.Add(new(addon, name, about, G.Plug, st, AddonStatusText, set, null));
+            views.Add(new(addon, name, about, G.Plug, st, AddonStatusText, set, SchemaBody(addon, filter)));
         }
         foreach (var v in views) AddonPage(s, v, filter);
     }
+
+    /// What an add-on's page holds below the head when its schema has settings (SettingsView.AddonSettings).
+    private Action? SchemaBody(Addon addon, string filter) => HasSettings(addon) ? () => AddonSettings(addon, filter) : null;
 
     /// An add-on's page, under 애드온 in the list: a head with its name, status, version, source and switch; keys that
     /// jump to its groups when it has three or more; then its settings (`Body`), or a line saying it has none.

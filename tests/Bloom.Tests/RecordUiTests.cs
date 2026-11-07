@@ -27,6 +27,29 @@ internal static class RecordUiTests
         Check.Eq(RecordBar.PlainTop(new ScreenRect(0, 0, 2560, 1392), work, 60, 9), 1323, "inside its bottom for the whole screen");
     }
 
+    /// The taskbar's edge once it is all the way out, an auto-hidden one being mostly off the screen.
+    public static void TaskbarEdgeOnceOut()
+    {
+        var monitor = new Win32.RECT { Left = 0, Top = 0, Right = 2560, Bottom = 1440 };
+        var pill = new Win32.RECT { Left = 980, Top = 12, Right = 1580, Bottom = 90 };
+        var hiddenTop = new Win32.RECT { Left = 0, Top = -98, Right = 2560, Bottom = 2 };
+        Check.Eq(RecordSurface.OutEdge(monitor, hiddenTop, 2, pill), (true, 90.0), "hidden at the top: the pill's bottom once out");
+        Check.Eq(RecordSurface.OutEdge(monitor, hiddenTop, 0, pill), (true, 100.0), "no region: the window's height");
+        var hiddenBottom = new Win32.RECT { Left = 0, Top = 1438, Right = 2560, Bottom = 1538 };
+        Check.Eq(RecordSurface.OutEdge(monitor, hiddenBottom, 2, pill), (false, 1352.0), "hidden at the bottom: the pill's top once out");
+        var shownBottom = new Win32.RECT { Left = 0, Top = 1340, Right = 2560, Bottom = 1440 };
+        Check.Eq(RecordSurface.OutEdge(monitor, shownBottom, 2, pill), (false, 1352.0), "shown: the same line");
+    }
+
+    /// The floating pill keeps 8 DIPs clear of the taskbar's edge: its shape's top under a top taskbar (the window's
+    /// top 4 DIPs above the shape), its shape's bottom over a bottom one (the window's 32 DIPs of shadow room below).
+    public static void FloatingPillClearsTheTaskbar()
+    {
+        Check.Eq(RecordBar.FloatTop(false, 90, 1.5, 132), 96, "top: 90 + (8 − 4) × 1.5");
+        int y = RecordBar.FloatTop(true, 1352, 1.5, 132);
+        Check.Eq(y + 132 - 48, 1340, "bottom: the shape's bottom 12 px over the edge");
+    }
+
     public static void FrameLineIsTwoDips()
     {
         Check.Eq(RecordingFrame.Thickness(1), 2, "100 %");
