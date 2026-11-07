@@ -440,7 +440,7 @@ internal static partial class Captures
         ob.Close();
 
         // 바뀐 점 after an update
-        var news = new WhatsNewWindow(ReleaseNotes.Current, ReleaseNotes.For(ReleaseNotes.Current) ?? "-") { WindowStartupLocation = WindowStartupLocation.Manual, Left = -32000, Top = -32000, ShowActivated = false };
+        var news = new WhatsNewWindow(ReleaseNotes.Current, await ReleaseNotes.Versions()) { WindowStartupLocation = WindowStartupLocation.Manual, Left = -32000, Top = -32000, ShowActivated = false };
         news.Show();
         await Task.Delay(300);
         await news.Dispatcher.InvokeAsync(() => Shots.Save((FrameworkElement)news.Content, Path.Combine(dir, $"{l}-x20-whats-new.png")), System.Windows.Threading.DispatcherPriority.ApplicationIdle);

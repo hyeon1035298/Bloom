@@ -52,6 +52,7 @@ internal sealed partial class Host
         ui = Application.Current.Dispatcher;
         Demo.On = Opt.Demo || Opt.ResponsiveRounds is not null; // before anything reads the PC
         if (Opt.Lang is { } lang) Lang.Init(lang); // before the settings, which would fix it otherwise
+        if (Opt.NotesFrom is { } notes && Paths.IsDev) ReleaseNotes.Base = notes.EndsWith('/') ? notes : notes + "/";
         Settings.Load();
         // started at sign-in: the taskbar add-on goes first, before the indexing, the home and the usage lookups, so the
         // stock taskbar shows as briefly as it can
@@ -260,13 +261,35 @@ internal sealed partial class Host
         Log.Write($"started {(Paths.IsDev ? "dev " + Paths.Data : "")} pid {Environment.ProcessId}");
     }
 
-    /// 바뀐 점: this version's notes from the changelog (설정 › 정보, and once after an update with `quiet`: no focus).
-    public void ShowWhatsNew(bool quiet = false)
+    /// 바뀐 점: the version list from GitHub, at this version's notes (설정 › 정보, and once after an update with `quiet`:
+    /// no focus, and nothing when the notes can't be had). One window: asked again, the open one comes forward.
+    public void ShowWhatsNew(bool quiet = false) => _ = WhatsNew(quiet);
+
+    private WhatsNewWindow? whatsNew;
+    private bool whatsNewComing; // the changelog is on its way
+
+    private async Task WhatsNew(bool quiet)
     {
+        if (whatsNew is not null)
+        {
+            if (!quiet) whatsNew.Activate();
+            return;
+        }
+        if (whatsNewComing) return;
+        whatsNewComing = true;
         string v = ReleaseNotes.Current;
-        var w = new WhatsNewWindow(v, ReleaseNotes.For(v) ?? Tr("이번 버전의 변경 기록 없음", "No release notes for this version"), OpenSettings) { ShowActivated = !quiet };
-        w.Closed += (_, _) => Window.TrimSoon();
-        w.Show();
+        var versions = await ReleaseNotes.Versions();
+        // on its own only with this version's notes at hand (fetched now; the window then has them at once)
+        bool skip = quiet && (versions?.Contains(v) != true || await ReleaseNotes.For(v) is null);
+        whatsNewComing = false;
+        if (whatsNew is not null || skip) return;
+        whatsNew = new WhatsNewWindow(v, versions, OpenSettings) { ShowActivated = !quiet };
+        whatsNew.Closed += (_, _) =>
+        {
+            whatsNew = null;
+            Window.TrimSoon();
+        };
+        whatsNew.Show();
     }
 
     /// QA (`--qa-measure <s>`): how much memory (and CPU time) this run holds after `seconds` of ordinary running, then
