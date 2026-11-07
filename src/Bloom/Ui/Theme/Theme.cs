@@ -125,7 +125,8 @@ internal static class Theme
         return t;
     }
 
-    public static TextBlock Glyph(char g, double size, Brush color) => new()
+    /// An icon glyph, its ink centred where it is centred (InkGlyph).
+    public static TextBlock Glyph(char g, double size, Brush color) => new InkGlyph
     {
         Text = g.ToString(),
         FontFamily = IconFont,
