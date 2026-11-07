@@ -195,7 +195,11 @@ internal sealed partial class SettingsView
         // the picture moves while the line is on screen (AddonArt)
         FrameworkElement inner;
         if (AddonArt.For(id) is { } art)
+        {
             inner = art;
+            r.MouseEnter += (_, _) => art.Pointed = true;
+            r.MouseLeave += (_, _) => art.Pointed = false;
+        }
         else
         {
             var big = Theme.Glyph(glyph, 30, Theme.P.TextFaint);

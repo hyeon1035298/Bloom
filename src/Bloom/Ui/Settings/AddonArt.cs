@@ -11,7 +11,8 @@ using Bloom.Core;
 namespace Bloom.Ui;
 
 /// The moving picture of what an add-on does, at the start of its line on 설정 > 애드온: shapes and words drawn in code
-/// in the theme's colours, an 8 s loop. The loop runs only while the line is on screen and Motion.Moves allows it;
+/// in the theme's colours, an 8 s loop. The loop runs only while the line is on screen and Motion.Moves allows it, or,
+/// with animations off, while the pointer is on the line (Pointed: the viewer asked to see it, from the start);
 /// otherwise the picture holds the moment that shows the add-on at work. For gives null for an add-on Bloom has no
 /// picture of (its line shows its glyph).
 internal sealed class AddonArt : FrameworkElement
@@ -53,15 +54,30 @@ internal sealed class AddonArt : FrameworkElement
     /// A moment of the loop to show (0–1) in place of the clock: the tests' pictures.
     internal double? Hold { get; set; }
 
-    /// Starts the loop while the picture is on screen and things may move, and stops it otherwise.
+    private bool pointed;
+
+    /// The pointer is on the picture's line (set by the line): with animations off, the loop plays while it is.
+    public bool Pointed
+    {
+        get => pointed;
+        set
+        {
+            if (pointed == value) return;
+            pointed = value;
+            Run();
+        }
+    }
+
+    /// Starts the loop while the picture is on screen and things may move (or it is pointed at), and stops it otherwise.
     private void Run()
     {
-        bool go = IsLoaded && IsVisible && Motion.Moves;
+        bool moves = Motion.Moves, go = IsLoaded && IsVisible && (moves || pointed);
         if (go && timer is null)
         {
             int fps = Settings.Current.AnimationFps > 0 ? Math.Min(Settings.Current.AnimationFps, 60) : 30;
             timer = new DispatcherTimer(DispatcherPriority.Render) { Interval = TimeSpan.FromMilliseconds(1000.0 / fps) };
             timer.Tick += (_, _) => InvalidateVisual();
+            if (!moves) clock.Reset(); // pointed at with animations off: from the start each time
             clock.Start();
             timer.Start();
         }
