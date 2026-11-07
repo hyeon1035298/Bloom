@@ -27,6 +27,22 @@ internal static class WhatsNewPictureTests
         return bytes;
     }
 
+    /// Windows reads WebP through its WebP image extension, which Windows Server (the release workflow's machine) lacks;
+    /// there 바뀐 점 shows the alt texts instead (WhatsNewWindow.Picture), and the decoding checks are skipped.
+    private static bool NoWebP(string test)
+    {
+        try
+        {
+            _ = new AnimatedPicture(BuiltIn("alttab.webp")!);
+            return false;
+        }
+        catch (NotSupportedException)
+        {
+            Console.WriteLine($"  skip  {test}: this Windows has no WebP decoder");
+            return true;
+        }
+    }
+
     /// Every picture this version's notes show, in either language, is built in, decodes and has a time for each frame.
     public static void ThisVersionsPicturesAreBuiltIn()
     {
@@ -36,10 +52,11 @@ internal static class WhatsNewPictureTests
         int end = log.IndexOf("\n## ", start + 4, StringComparison.Ordinal);
         string section = end < 0 ? log[start..] : log[start..end];
         var names = Regex.Matches(section, @"!\[[^\]]*\]\((?<src>[^)\s]+)\)").Select(m => m.Groups["src"].Value.Split('/')[^1]).Distinct().ToList();
+        foreach (string name in names) Check.True(BuiltIn(name) is not null, name + " is built in");
+        if (NoWebP(nameof(ThisVersionsPicturesAreBuiltIn))) return;
         foreach (string name in names)
         {
             var bytes = BuiltIn(name);
-            Check.True(bytes is not null, name + " is built in");
             var pic = new AnimatedPicture(bytes!);
             Check.True(pic.Frames > 10, $"{name} moves ({pic.Frames} frames)");
             int total = AnimatedPicture.FrameTimes(bytes!, pic.Frames).Sum();
@@ -70,6 +87,7 @@ internal static class WhatsNewPictureTests
     /// A paragraph that is one picture becomes the element made of it; one the maker can't make shows its alt text.
     public static void RenderPutsPicturesInTheirPlace()
     {
+        if (NoWebP(nameof(RenderPutsPicturesInTheirPlace))) return;
         string md = "- one\n\n![shown](a/b/alttab.webp)\n\n![missing](a/b/none.webp)\n\n- two";
         var text = Markdown.Render(md, _ => { }, picture: s => s.Source!.EndsWith("alttab.webp") ? new AnimatedPicture(BuiltIn("alttab.webp")!) : null);
         var blocks = text.Document.Blocks.ToList();
