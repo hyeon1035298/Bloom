@@ -34,6 +34,8 @@
   <ItemGroup>
     <!-- the emoji / symbol search (tools\make_symbols.py) -->
     <EmbeddedResource Include="Assets\symbols.tsv" LogicalName="Bloom.Assets.symbols.tsv" />
+    <!-- the taskbar folders' icon set (tools\folder-icons.py, Ui\FolderIconSet.cs) -->
+    <EmbeddedResource Include="Assets\folder-icons.json" LogicalName="Bloom.Assets.folder-icons.json" />
     <!-- Japanese and Chinese, keyed by the English text (tools\lang.py) -->
     <EmbeddedResource Include="Assets\Lang\*.tsv" LogicalName="Bloom.Assets.Lang.%(Filename).tsv" />
     <EmbeddedResource Include="..\..\CHANGELOG.md" LogicalName="Bloom.CHANGELOG.md" />

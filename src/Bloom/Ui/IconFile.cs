@@ -8,11 +8,31 @@ using System.Windows.Media.Imaging;
 
 namespace Bloom.Ui;
 
-/// .ico files Bloom makes for the taskbar folders: a symbol drawn on a light or dark rounded tile, or a picture the user
-/// picked (.png) brought into an .ico. Each size is a PNG inside the .ico, which Windows reads from Vista on.
+/// .ico files Bloom makes for the taskbar folders: an icon of the set in either look, a symbol drawn on a light or dark
+/// rounded tile, or a picture the user picked (.png) brought into an .ico. Each size is a PNG inside the .ico, which
+/// Windows reads from Vista on.
 internal static class IconFile
 {
     private static readonly int[] Sizes = { 16, 24, 32, 48, 64, 256 };
+    private static readonly int[] SetSizes = { 16, 20, 24, 32, 40, 48, 64, 96, 256 };
+
+    /// An icon of the set (FolderIconSet) on its silver tile (`silver`, for a dark taskbar) or its graphite one, each
+    /// size from the drawing made for it.
+    public static byte[] SetIcon(string name, bool silver)
+    {
+        var frames = new List<byte[]>();
+        foreach (int px in SetSizes)
+        {
+            var v = new DrawingVisual();
+            using (var dc = v.RenderOpen())
+            {
+                dc.PushTransform(new ScaleTransform(px / 256.0, px / 256.0));
+                dc.DrawDrawing(FolderIconSet.Draw(name, silver, px));
+            }
+            frames.Add(Png(Render(v, px)));
+        }
+        return Ico(frames, SetSizes);
+    }
 
     /// The symbol `glyph` (Segoe Fluent Icons) on a tile: dark ground with a white symbol, or light ground with a dark one.
     public static byte[] Glyph(char glyph, bool dark)
