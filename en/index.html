@@ -515,7 +515,6 @@ h1 .winkey, h2 .winkey { width: 0.7em; vertical-align: baseline; margin-right: 0
 .close h2 { font-size: clamp(2.6rem, 6vw, 5rem); line-height: 1.06; letter-spacing: -0.03em; word-spacing: -0.04em; font-weight: 680; }
 .close h2 > span:not(.winkey) { display: block; }
 .close__row { margin-top: 40px; display: flex; flex-direction: column; align-items: center; gap: 16px; }
-.close .ps { margin-top: 32px; display: flex; flex-direction: column; align-items: center; }
 .cmd {
   display: flex; align-items: center; gap: 4px; max-width: 100%;
   border: 1px solid var(--color-line-2); background: var(--color-surface); border-radius: calc(12px * var(--k)); padding: 4px 4px 4px 16px;
@@ -528,13 +527,38 @@ h1 .winkey, h2 .winkey { width: 0.7em; vertical-align: baseline; margin-right: 0
 }
 .cmd button:hover { background: var(--color-raised-2); }
 .cmd button:active { transform: scale(0.95); }
-.close__small { margin-top: 24px; font-size: 14px; color: var(--color-faint); }
 .close__note { font-size: 15px; color: var(--color-muted); max-width: 48ch; }
 .close__note b { color: var(--color-text); font-weight: 600; }
-.ps summary { cursor: pointer; list-style: none; color: var(--color-muted); font-size: 14px; transition: color 0.2s; }
-.ps summary::-webkit-details-marker { display: none; }
-.ps summary:hover { color: var(--color-text); }
-.ps[open] summary { margin-bottom: 12px; }
+
+/* ---------- download: a small panel by the button, the setup file or one PowerShell line ---------- */
+.dl {
+  position: fixed; z-index: 60; left: 0; top: 0; width: min(440px, calc(100% - 32px)); padding: 6px; text-align: left;
+  border: 1px solid var(--color-line-2); border-radius: calc(16px * var(--k)); background: var(--color-bg-2);
+  box-shadow: 0 18px 44px var(--color-shade), 0 0 80px var(--color-beam-soft);
+}
+.dl[hidden] { display: none; }
+.dl.is-up { transform-origin: 50% 100%; }
+.dl { transform-origin: 50% 0; }
+.dl__opt { display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: calc(10px * var(--k)); }
+a.dl__opt { text-decoration: none; color: var(--color-text); transition: background-color 0.2s; }
+a.dl__opt:hover, a.dl__opt:focus-visible { background: var(--color-surface-2); outline: none; }
+.dl__ico { flex: none; display: grid; place-items: center; width: 32px; height: 32px; border-radius: calc(8px * var(--k)); background: var(--color-raised); color: var(--color-text); }
+.dl__txt { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.dl__txt b { font-size: 15px; font-weight: 600; color: var(--color-text); }
+.dl__txt small { font-size: 13px; line-height: 1.45; color: var(--color-muted); }
+.dl__txt small code { font-family: var(--font-mono); font-size: 12px; }
+.dl__ps { padding: 12px; border-top: 1px solid var(--color-line); margin-top: 2px; }
+.dl__ps .dl__opt { padding: 0 0 12px; }
+.dl .cmd { align-items: flex-start; padding: 8px 4px 4px 12px; }
+.dl .cmd code { white-space: normal; word-break: break-all; text-wrap: balance; line-height: 1.5; color: var(--color-text); }
+.dl__more { margin-top: 10px; font-size: 13px; }
+.dl .textlink:focus-visible, .dl .cmd button:focus-visible { outline: 2px solid var(--color-text); outline-offset: 2px; }
+@media (prefers-reduced-motion: no-preference) {
+  .dl:not([hidden]) { animation: dl-in 0.28s var(--ease-out); }
+  .dl.is-up:not([hidden]) { animation-name: dl-up; }
+}
+@keyframes dl-in { from { opacity: 0; transform: translateY(-6px) scale(0.98); } }
+@keyframes dl-up { from { opacity: 0; transform: translateY(6px) scale(0.98); } }
 
 /* ---------- footer ---------- */
 .foot { padding-block: 40px 48px; }
@@ -1002,11 +1026,6 @@ h1 .winkey, h2 .winkey { width: 0.7em; vertical-align: baseline; margin-right: 0
         </a>
         <p class="close__note"><b>BloomLauncher-win-Setup.exe</b>, free and open source. If “Windows protected your PC” appears, click More info › Run anyway. <a class="textlink" href="https://github.com/hyeon1035298/Bloom/releases/latest">Version and release notes</a></p>
       </div>
-      <details class="ps">
-        <summary>Install with PowerShell</summary>
-        <div class="cmd"><code id="cmd">irm https://raw.githubusercontent.com/hyeon1035298/Bloom/main/install.ps1 | iex</code> <button type="button" data-copy="cmd">Copy</button></div>
-        <p class="close__small">Downloads and runs the same installer as the button above. <a class="textlink" href="https://github.com/hyeon1035298/Bloom/blob/main/install.ps1">View script</a></p>
-      </details>
     </div>
   </section>
 </main>
@@ -1018,6 +1037,21 @@ h1 .winkey, h2 .winkey { width: 0.7em; vertical-align: baseline; margin-right: 0
     <nav class="foot__links" aria-label="External links"><a href="https://github.com/hyeon1035298/Bloom">GitHub</a> <a href="https://github.com/hyeon1035298/Bloom/releases">Releases</a> <a href="https://github.com/hyeon1035298/Bloom/blob/main/README.md">README</a></nav>
   </div>
 </footer>
+
+<div class="dl" id="dl" role="dialog" aria-label="How to install" hidden="">
+  <a class="dl__opt" href="https://github.com/hyeon1035298/Bloom/releases/latest/download/BloomLauncher-win-Setup.exe">
+    <span class="dl__ico"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"></path></svg></span>
+    <span class="dl__txt"><b>Download the installer</b><small>Downloads and runs <code>BloomLauncher-win-Setup.exe</code>.</small></span>
+  </a>
+  <div class="dl__ps">
+    <div class="dl__opt">
+      <span class="dl__ico"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 7l5 5-5 5M12 18h7"></path></svg></span>
+      <span class="dl__txt"><b>Install with PowerShell</b><small>Paste this into PowerShell and press Enter to download and run the same installer.</small></span>
+    </div>
+    <div class="cmd"><code id="cmd">irm https://raw.githubusercontent.com/hyeon1035298/Bloom/main/install.ps1 | iex</code> <button type="button" data-copy="cmd">Copy</button></div>
+    <p class="dl__more"><a class="textlink" href="https://github.com/hyeon1035298/Bloom/blob/main/install.ps1">View script</a></p>
+  </div>
+</div>
 
 <div class="pick" id="lang-pick" role="dialog" aria-modal="true" aria-labelledby="pick-t" data-lenis-prevent hidden>
   <div class="pick__card">
@@ -1150,6 +1184,42 @@ h1 .winkey, h2 .winkey { width: 0.7em; vertical-align: baseline; margin-right: 0
         }, function () { flash(small ? 'Copy failed' : 'Copy the link from the address bar'); });
       });
     });
+  } else {
+    // On Windows a button opens the panel by it instead: the setup file, or the PowerShell line with a copy button.
+    var dl = $('#dl'), dlFrom = null;
+    var placeDl = function () {
+      if (!dlFrom) return;
+      var r = dlFrom.getBoundingClientRect(), w = dl.offsetWidth, h = dl.offsetHeight, gap = 10, edge = 16;
+      var up = r.bottom + gap + h > innerHeight - edge && r.top - gap - h >= edge;
+      var x = Math.min(Math.max(r.left + r.width / 2 - w / 2, edge), document.documentElement.clientWidth - w - edge);
+      dl.classList.toggle('is-up', up);
+      dl.style.left = Math.round(x) + 'px';
+      dl.style.top = Math.round(up ? r.top - gap - h : r.bottom + gap) + 'px';
+    };
+    var closeDl = function (back) {
+      if (!dlFrom) return;
+      var from = dlFrom; dlFrom = null;
+      dl.hidden = true; from.setAttribute('aria-expanded', 'false');
+      if (back) from.focus();
+    };
+    $$('[data-dl]').forEach(function (a) {
+      a.setAttribute('aria-haspopup', 'dialog'); a.setAttribute('aria-controls', 'dl'); a.setAttribute('aria-expanded', 'false');
+      a.addEventListener('click', function (e) {
+        e.preventDefault();
+        var again = dlFrom === a;
+        closeDl(false);
+        if (again) return;
+        dlFrom = a; dl.hidden = false; a.setAttribute('aria-expanded', 'true');
+        placeDl();
+        $('a', dl).focus();
+      });
+    });
+    $('a', dl).addEventListener('click', function () { closeDl(false); });
+    addEventListener('keydown', function (e) { if (e.key === 'Escape' && dlFrom) closeDl(true); });
+    document.addEventListener('click', function (e) { if (dlFrom && !dl.contains(e.target) && !dlFrom.contains(e.target)) closeDl(false); });
+    document.addEventListener('focusin', function (e) { if (dlFrom && !dl.contains(e.target) && !dlFrom.contains(e.target)) closeDl(false); });
+    addEventListener('scroll', placeDl, { passive: true });
+    addEventListener('resize', placeDl);
   }
 
   // Dock: switch the screen in the frame.
