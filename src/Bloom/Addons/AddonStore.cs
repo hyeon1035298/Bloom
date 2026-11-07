@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
+using System.Threading;
 using Bloom.Core;
 
 namespace Bloom.Addons;
@@ -96,7 +97,8 @@ internal sealed class AddonStore
 
     /// The run copy of this version, made when missing or not matching its hashes: copied into a staging folder beside
     /// it, each file checked against the manifest, then renamed in, so a half copy is never started. Returns its folder.
-    public string RunCopy(AddonManifest m)
+    /// `release`: lets go of a copy that can't be replaced because files of it are in use (Replace).
+    public string RunCopy(AddonManifest m, Action? release = null)
     {
         string target = Path.Combine(DataDir(m.Id), m.Version);
         if (Matches(target, m)) return target;
@@ -112,7 +114,7 @@ internal sealed class AddonStore
                 if (!string.Equals(Sha256(to), sha, StringComparison.OrdinalIgnoreCase)) throw new InvalidDataException($"{name}: SHA-256 does not match addon.json");
             }
             File.Copy(Path.Combine(source, AddonManifest.FileName), Path.Combine(staging, AddonManifest.FileName));
-            if (Directory.Exists(target)) Directory.Delete(target, true); // a broken copy (throws while a file of it is still loaded)
+            if (Directory.Exists(target)) Replace(target, release);
             Directory.Move(staging, target);
             return target;
         }
@@ -120,6 +122,46 @@ internal sealed class AddonStore
         {
             if (Directory.Exists(staging)) TryDelete(staging);
         }
+    }
+
+    /// Release waits for the host, but explorer drops the runtime DLL a moment after the host has seen it go.
+    private static readonly TimeSpan[] ReleasedTries = { TimeSpan.FromMilliseconds(200), TimeSpan.FromMilliseconds(400), TimeSpan.FromMilliseconds(800) };
+
+    /// Deletes a copy that doesn't match: a broken one, or another build of the same version (a local install over a
+    /// downloaded release). Nothing of it goes while a host runs from it or explorer holds its DLLs: a recursive delete
+    /// would take every file not in use (addon.json, the schema) from under them before it fails. `release` then ends
+    /// what holds it and the copy is deleted once it is free (IOException when there is no `release` or it stays in use).
+    private static void Replace(string target, Action? release)
+    {
+        if (InUse(target))
+        {
+            if (release is null) throw new IOException($"{target}: in use");
+            release();
+            for (int i = 0; InUse(target); i++)
+            {
+                if (i == ReleasedTries.Length) throw new IOException($"{target}: still in use");
+                Thread.Sleep(ReleasedTries[i]);
+            }
+        }
+        Directory.Delete(target, true);
+    }
+
+    /// A file of the folder is open or mapped (a running exe, a loaded DLL): opening it for writing, shared with no one,
+    /// fails then. Nothing is written.
+    private static bool InUse(string dir)
+    {
+        foreach (string f in Directory.GetFiles(dir, "*", SearchOption.AllDirectories))
+        {
+            try
+            {
+                new FileStream(f, FileMode.Open, FileAccess.Write, FileShare.None).Dispose();
+            }
+            catch (Exception e) when (e is IOException or UnauthorizedAccessException)
+            {
+                return true;
+            }
+        }
+        return false;
     }
 
     /// Run copies of other versions, and staging folders left by a crash, go; one whose DLL explorer still holds can't

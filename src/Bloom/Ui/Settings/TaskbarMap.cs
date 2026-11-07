@@ -31,6 +31,7 @@ internal static class TaskbarMap
         new("size.enabled", Section.Look, Control.SetWith),
         new("pill.style", Section.Look, Control.Curated),
         new("pill.theme", Section.Look, Control.SetWith), // Bloom's own light or dark (AddonHub.FollowTheme)
+        new("pill.glass", Section.Look, Control.SetWith), // Bloom's own 유리 효과 (AddonHub.FollowTheme)
         new("start.mode", Section.Look, Control.Curated),
         new("size.taskbarHeight", Section.LookMore, Control.Number),
         new("size.iconSize", Section.LookMore, Control.Number),

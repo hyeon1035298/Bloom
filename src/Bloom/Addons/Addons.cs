@@ -241,7 +241,7 @@ internal sealed class Addon
             if (Broken || Manifest is not { } m) return;
             try
             {
-                string dir = store.RunCopy(m);
+                string dir = store.RunCopy(m, runner is { Running: true } ? null : StepDown);
                 store.Prune(m);
                 // from the setting, not the UI's theme: at a start from sign-in this runs before the UI has made it
                 AddonHub.FollowTheme(this, SystemTheme.Dark(Settings.Current.Theme));
@@ -273,6 +273,17 @@ internal sealed class Addon
             }
         }
         AddonHub.Notify();
+    }
+
+    /// The run copy of this version is another build of it (a local install over the downloaded release, or the other way
+    /// round) and the host the last Bloom left running runs from it, with explorer holding its DLLs. A start would only
+    /// hand that host this Bloom's process and keep the other build; the copy can't be replaced while it runs, and without
+    /// a start the host ends once its wait for a new Bloom is over. So it is stopped first, the way a host of another
+    /// version steps down for a new one, and this build starts in its place.
+    private void StepDown()
+    {
+        Log.Write($"add-on {Id}: the run copy of {Manifest?.Version} is another build and in use; stopping its host");
+        AddonRunner.StopHost(StopEvent, null, OtherHost, AddonRunner.StopWait);
     }
 
     /// Stops the host and waits for it (up to AddonRunner.StopWait: a worker thread). Also one this Bloom didn't start.
@@ -366,21 +377,33 @@ internal static class AddonHub
 
     public static Addon Taskbar => All[0];
 
-    /// Every add-on whose schema has pill.theme draws in Bloom's theme, the taskbar one or not (a widget add-on works on
-    /// Windows' own taskbar too): its pill.theme is kept to the one Bloom shows, on each theme change and as it starts.
+    /// Every add-on draws in Bloom's theme, the taskbar one or not (a widget add-on works on Windows' own taskbar too):
+    /// its pill.theme is kept to the one Bloom shows and its pill.glass to 유리 효과 (Settings.Transparency), on each
+    /// theme change and as it starts.
     public static void FollowTheme(bool dark)
     {
         foreach (var a in All) FollowTheme(a, dark);
     }
 
-    /// Nothing while the add-on has no schema or no such key.
-    internal static void FollowTheme(Addon a, bool dark)
+    internal static void FollowTheme(Addon a, bool dark) => FollowTheme(a.Schema, a.Values, dark, Settings.Current.Transparency != "off");
+
+    /// Each key only while the add-on's schema has it (an older add-on has no pill.glass); written once when either changed.
+    internal static void FollowTheme(AddonSchema? schema, AddonValues? v, bool dark, bool glass)
     {
-        if (a.Schema?["pill.theme"] is null || a.Values is not { } v) return;
+        if (schema is null || v is null) return;
+        bool changed = false;
         string theme = dark ? "dark" : "light";
-        if (v.Text("pill.theme") == theme) return;
-        v.Set("pill.theme", theme);
-        v.Flush();
+        if (schema["pill.theme"] is not null && v.Text("pill.theme") != theme)
+        {
+            v.Set("pill.theme", theme);
+            changed = true;
+        }
+        if (schema["pill.glass"] is not null && v.Bool("pill.glass") != glass)
+        {
+            v.Set("pill.glass", glass);
+            changed = true;
+        }
+        if (changed) v.Flush();
     }
 
     /// Bloom's add-ons besides the taskbar one: the others its catalog offers, in the catalog's order.
