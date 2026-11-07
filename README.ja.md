@@ -294,7 +294,6 @@ powershell -File tools\install.ps1   # → %LOCALAPPDATA%\Programs\Bloom、ス�
 | `Ui/Settings/` | 設定ウィンドウ。アドオンのページとタスクバーのフォルダーの編集画面を含む |
 | `Ui/Tools/` | ツール ウィンドウ、その配置、くっつきと吸着 (`ToolDock`)、メモ、タイマー、電卓、クリップボード |
 | `Ui/Controls/`、`Ui/Theme/` | 共通コントロール (G2 の角の `SmoothBorder`、`Dropdown`、`PopupMenu`、`AccentPicker`) とテーマ (アニメーションの `Motion`) |
-| `tests/Bloom.Tests` | テストフレームワークを使わないコンソール実行の自動テスト |
 
 新しい機能は、結果の `Engine.<feature>.cs`、`Launcher.ViewSpecs.cs` のビュー 1 行、必要なら保存用の `Core/<feature>.cs` に分けます。
 画面のテキストはすべて `Tr("한국어", "English")` で書きます。日本語と簡体字中国語は、英語のテキストをキーにした `src/Bloom/Assets/Lang/ja.tsv` と `zh.tsv` から来ます。`python tools/lang.py check` で足りないものを、`todo ja` で未翻訳のテキストを一覧にします。検索のキーワードと解析用のデータは韓国語と英語のままです。
@@ -302,13 +301,9 @@ powershell -File tools\install.ps1   # → %LOCALAPPDATA%\Programs\Bloom、ス�
 QA と開発の実行では、実データと分けて必ず `--data <一時フォルダー>` を使います。
 
 ```powershell
-# テスト (終了コード = 失敗の数)
-dotnet run --project tests\Bloom.Tests
 # lint (アナライザーと書式)、警告ゼロ
 dotnet build src\Bloom\Bloom.csproj -c Debug --no-incremental -p:AnalysisLevel=latest-recommended -p:EnforceCodeStyleInBuild=true
-dotnet build tests\Bloom.Tests\Bloom.Tests.csproj -c Debug --no-incremental -p:AnalysisLevel=latest-recommended -p:EnforceCodeStyleInBuild=true
 dotnet format whitespace src\Bloom\Bloom.csproj --verify-no-changes
-dotnet format whitespace tests\Bloom.Tests\Bloom.Tests.csproj --verify-no-changes
 ```
 
 時間を区切って応答性を調べるには、Release ビルドを `--data <isolated-folder> --no-hook --no-tray --qa-responsive 3` で実行します。`responsiveness.json` と `responsiveness.txt` が書き出されます。

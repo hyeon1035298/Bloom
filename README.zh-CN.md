@@ -294,7 +294,6 @@ powershell -File tools\install.ps1   # → %LOCALAPPDATA%\Programs\Bloom，开�
 | `Ui/Settings/` | 设置窗口，包括加载项页面和任务栏文件夹编辑器 |
 | `Ui/Tools/` | 工具窗口、它们的摆放、附着和吸附（`ToolDock`），以及笔记、计时器、计算器和剪贴板 |
 | `Ui/Controls/`、`Ui/Theme/` | 共用控件（G2 圆角的 `SmoothBorder`、`Dropdown`、`PopupMenu`、`AccentPicker`）和主题（动画在 `Motion`） |
-| `tests/Bloom.Tests` | 不使用测试框架、以控制台程序运行的自动测试 |
 
 新功能拆分为负责结果的 `Engine.<功能>.cs`、`Launcher.ViewSpecs.cs` 中的一行视图，以及需要存储时的 `Core/<功能>.cs`。
 屏幕上的所有文字都写成 `Tr("한국어", "English")`。日文和简体中文来自 `src/Bloom/Assets/Lang/ja.tsv` 和 `zh.tsv`，以英文文本为键。`python tools/lang.py check` 列出缺失项，`todo ja` 列出待翻译的文本。搜索关键词和解析数据保留韩语和英语。
@@ -302,13 +301,9 @@ powershell -File tools\install.ps1   # → %LOCALAPPDATA%\Programs\Bloom，开�
 QA 和开发运行始终使用 `--data <临时文件夹>`，与真实数据分开。
 
 ```powershell
-# 测试（退出码 = 失败数）
-dotnet run --project tests\Bloom.Tests
 # lint（分析器和格式），零警告
 dotnet build src\Bloom\Bloom.csproj -c Debug --no-incremental -p:AnalysisLevel=latest-recommended -p:EnforceCodeStyleInBuild=true
-dotnet build tests\Bloom.Tests\Bloom.Tests.csproj -c Debug --no-incremental -p:AnalysisLevel=latest-recommended -p:EnforceCodeStyleInBuild=true
 dotnet format whitespace src\Bloom\Bloom.csproj --verify-no-changes
-dotnet format whitespace tests\Bloom.Tests\Bloom.Tests.csproj --verify-no-changes
 ```
 
 要做有时限的响应速度测试，用 `--data <独立文件夹> --no-hook --no-tray --qa-responsive 3` 运行 Release 版本。它会写出 `responsiveness.json` 和 `responsiveness.txt`。
