@@ -100,6 +100,8 @@ internal sealed partial class SettingsView
         SchemaRow(schema, v, "pill.style", G.Palette, filter, Tr("배경", "Background"),
             Tr("알약 뒤를 흐리게 비춥니다. 빛 받는 유리는 가장자리에 빛과 반사광이 더해집니다", "Blurs what is behind the pill. Lit glass adds light and a sheen at the edges"));
         SchemaRow(schema, v, "start.mode", G.Power, filter, sub: Tr("꽃 버튼은 누르면 Bloom을 열고 닫습니다", "The flower button opens and closes Bloom"));
+        SchemaRow(schema, v, "pill.edge", G.Screen, filter);
+        SchemaRow(schema, v, "pill.align", G.Screen, filter);
         Fold("look", Section.LookMore, schema, v, filter, Tr("숫자로 바꾸면 위의 크기는 ‘직접’이 됩니다", "A number changed here makes the size above ‘Custom’"));
     }
 
@@ -231,7 +233,8 @@ internal sealed partial class SettingsView
     /// `extra` adds `extras` lines of the page's own before the schema's.
     private void Fold(string id, Section section, AddonSchema schema, AddonValues v, string filter, string? openSub = null, int extras = 0, Action? extra = null)
     {
-        var items = In(section).Where(e => e.Control is Control.Number or Control.Choice or Control.Switch or Control.Text && schema[e.Key] is not null).ToList();
+        var items = In(section).Concat(TaskbarMap.Unplaced(schema.Keys, section, k => schema[k]?.Type))
+            .Where(e => e.Control is Control.Number or Control.Choice or Control.Switch or Control.Text && schema[e.Key] is not null).ToList();
         bool all = collected is not null || filter.Length > 0;
         bool open = all || taskbarOpen.Contains(id);
         if (!all)

@@ -33,6 +33,8 @@ internal static class TaskbarMap
         new("pill.theme", Section.Look, Control.SetWith), // Bloom's own light or dark (AddonHub.FollowTheme)
         new("pill.glass", Section.Look, Control.SetWith), // Bloom's own 유리 효과 (AddonHub.FollowTheme)
         new("start.mode", Section.Look, Control.Curated),
+        new("pill.edge", Section.Look, Control.Choice),
+        new("pill.align", Section.Look, Control.Choice),
         new("size.taskbarHeight", Section.LookMore, Control.Number),
         new("size.iconSize", Section.LookMore, Control.Number),
         new("size.iconSpacing", Section.LookMore, Control.Number),
@@ -60,6 +62,9 @@ internal static class TaskbarMap
         new("usage.logoColor", Section.Tray, Control.Curated), // 아이콘 색, one setting with the home cards' (Settings.UsageLogo)
         new("usage.gapBefore", Section.TrayMore, Control.Number),
         new("usage.gapAfter", Section.TrayMore, Control.Number),
+        new("usage.sessions", Section.TrayMore, Control.Switch),
+        new("tray.panelsNearTray", Section.TrayMore, Control.Switch),
+        new("tray.centerStill", Section.TrayMore, Control.Switch),
         // 숨김 아일랜드
         new("island.enabled", Section.Island, Control.Curated),
         new("autohide.enabled", Section.Island, Control.SetWith),
@@ -68,9 +73,16 @@ internal static class TaskbarMap
         new("island.showClock", Section.Island, Control.Chip),
         new("island.showMedia", Section.Island, Control.Chip),
         new("island.showUsage", Section.Island, Control.Chip),
+        new("island.showMemory", Section.Island, Control.Chip),
+        new("island.showCpu", Section.Island, Control.Chip),
         new("island.hoverTransparency", Section.Island, Control.Curated),
         new("island.height", Section.IslandMore, Control.Number),
         new("island.width", Section.IslandMore, Control.Number),
+        new("island.clockAt", Section.IslandMore, Control.Choice),
+        new("island.mediaAt", Section.IslandMore, Control.Choice),
+        new("island.usageAt", Section.IslandMore, Control.Choice),
+        new("island.memoryAt", Section.IslandMore, Control.Choice),
+        new("island.cpuAt", Section.IslandMore, Control.Choice),
         new("autohide.revealZone", Section.IslandMore, Control.Number),
         new("autohide.showDelay", Section.IslandMore, Control.Number),
         new("autohide.hideDelay", Section.IslandMore, Control.Number),
@@ -94,6 +106,31 @@ internal static class TaskbarMap
     };
 
     public static IEnumerable<Entry> In(Section section) => Entries.Where(e => e.Section == section);
+
+    private static readonly HashSet<string> Mapped = Entries.Select(e => e.Key).ToHashSet();
+
+    /// A setting of a newer add-on that this map has no line for yet: under its group's 자세히 (by the key's first part),
+    /// drawn from the schema by its type, so an add-on update's settings can be changed before Bloom places them.
+    public static IEnumerable<Entry> Unplaced(IEnumerable<string> keys, Section section, System.Func<string, string?> type) =>
+        keys.Where(k => !Mapped.Contains(k) && MoreOf(k) == section)
+            .Select(k => type(k) switch
+            {
+                "bool" => new Entry(k, section, Control.Switch),
+                "choice" => new Entry(k, section, Control.Choice),
+                "int" => new Entry(k, section, Control.Number),
+                "text" => new Entry(k, section, Control.Text),
+                _ => default,
+            })
+            .Where(e => e.Key is not null);
+
+    private static Section? MoreOf(string key) => key[..System.Math.Max(0, key.IndexOf('.'))] switch
+    {
+        "pill" or "size" or "start" => Section.LookMore,
+        "tray" or "media" or "usage" => Section.TrayMore,
+        "island" or "autohide" => Section.IslandMore,
+        "folders" => Section.FoldersMore,
+        _ => null,
+    };
 
     /// Numbers the add-on reads as "not set" (its about texts say so): shown as words, never as the number.
     private static readonly Dictionary<string, int> Unset = new()
