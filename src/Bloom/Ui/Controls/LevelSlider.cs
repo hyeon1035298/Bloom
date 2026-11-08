@@ -77,6 +77,8 @@ internal sealed class LevelSlider : StackPanel
 
     private void Follow(MouseEventArgs e)
     {
+        // a slider its page dropped while it was dragged has no place on screen: the pointer would read as its start
+        if (PresentationSource.FromVisual(track) is null) return;
         double share = Math.Clamp((e.GetPosition(track).X - KnobSize / 2) / (TrackWidth - KnobSize), 0, 1);
         int v = min + (int)Math.Round(share * (max - min));
         if (v == Value) return;
