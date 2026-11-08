@@ -404,15 +404,21 @@ internal sealed class Addon
         }
     }
 
-    /// The state files the host and runtime write: the settings page follows them while it is open.
+    /// The state files the host and runtime write: the settings page follows them while it is open. Not values.json:
+    /// Bloom writes it itself, ten times a second while a slider is dragged, and the page redrawn for it would drop the
+    /// slider from under the pointer.
     private void Watch()
     {
         if (watcher is not null) return;
         Directory.CreateDirectory(DataDir);
         var w = new FileSystemWatcher(DataDir, "*.json") { NotifyFilter = NotifyFilters.FileName | NotifyFilters.LastWrite };
-        w.Changed += (_, _) => AddonHub.Notify();
-        w.Created += (_, _) => AddonHub.Notify();
-        w.Renamed += (_, _) => AddonHub.Notify();
+        static void Seen(FileSystemEventArgs e)
+        {
+            if (!string.Equals(e.Name, AddonProtocol.ValuesFile, StringComparison.OrdinalIgnoreCase)) AddonHub.Notify();
+        }
+        w.Changed += (_, e) => Seen(e);
+        w.Created += (_, e) => Seen(e);
+        w.Renamed += (_, e) => Seen(e);
         w.EnableRaisingEvents = true;
         watcher = w;
     }

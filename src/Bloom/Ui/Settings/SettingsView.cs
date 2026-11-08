@@ -30,6 +30,7 @@ internal sealed partial class SettingsView : ScrollViewer
     private int sel;
     private static string? drawing; // "AI로 전부 그리기" while it runs
     private string lastFilter = "";
+    private bool redrawAfterDrag; // an add-on's status moved while something on the page held the mouse
     private List<Ai.McpServerDef>? mcpFound; // 설정 > PC 작업 · MCP: the servers found on this PC, read once a visit
 
     /// Collect mode (SettingsCatalog): the lines the pages add are recorded here as text instead of built as rows.
@@ -57,6 +58,15 @@ internal sealed partial class SettingsView : ScrollViewer
         HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled;
         Focusable = false;
         Template = Launcher.ThinScroll();
+        // a slider or the scroll bar let go: what an add-on changed meanwhile shows now
+        LostMouseCapture += (_, _) =>
+        {
+            if (redrawAfterDrag)
+            {
+                redrawAfterDrag = false;
+                OnAddons();
+            }
+        };
         // 업데이트 확인's line and the AI accounts' sign-in lines follow while the window is open
         Loaded += (_, _) =>
         {
@@ -90,13 +100,19 @@ internal sealed partial class SettingsView : ScrollViewer
     }
 
     /// An add-on's status moved (the host started, the symbol files came in, the taskbar's folders changed): its page
-    /// follows while it shows, where it is scrolled to, and not under a field being typed in (the redraw would drop it).
+    /// follows while it shows, where it is scrolled to, and not under a field being typed in or a slider being dragged
+    /// (the redraw would drop it; after a drag it comes once the mouse is let go).
     private void OnAddons()
     {
         if (Dispatcher.HasShutdownStarted) return;
         Dispatcher.BeginInvoke(() =>
         {
             if (Keyboard.FocusedElement is TextBox box && IsAncestorOf(box)) return;
+            if (Mouse.Captured is DependencyObject held && (held == this || IsAncestorOf(held)))
+            {
+                redrawAfterDrag = true;
+                return;
+            }
             if (IsLoaded && IsVisible && (current == "addons" || current.StartsWith("addon:", StringComparison.Ordinal) || lastFilter.Length > 0)) TaskbarRebuild();
         }, System.Windows.Threading.DispatcherPriority.Background);
     }
