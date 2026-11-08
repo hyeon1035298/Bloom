@@ -74,6 +74,9 @@ internal sealed class Addon
     private FileSystemWatcher? watcher;
     private volatile bool problem;
 
+    /// The last Start failed (its run copy couldn't be made); Start logged why.
+    public bool StartFailed => problem;
+
     public Addon(string id, AddonStore store, bool user = false)
     {
         Id = id;
@@ -304,14 +307,20 @@ internal sealed class Addon
             try
             {
                 string dir = store.RunCopy(m, runner is { Running: true } ? null : StepDown);
-                store.Prune(m);
+                // the host the last Bloom left running from another folder (a build beside a held copy) runs another
+                // build: handed this Bloom's process it would keep running it
+                if (runner is not { Running: true } && OtherHostDir() is { } other &&
+                    !string.Equals(Path.GetFullPath(other), Path.GetFullPath(dir), StringComparison.OrdinalIgnoreCase))
+                    StepDown();
+                store.Prune(m, dir);
                 // from the setting, not the UI's theme: at a start from sign-in this runs before the UI has made it
                 AddonHub.FollowTheme(this, SystemTheme.Dark(Settings.Current.Theme));
                 AddonHub.WriteValues(this);
                 Watch();
-                // a version downloaded since the last start runs from its own copy: a runner of the old one that has
-                // stopped is let go
-                if (runner is { Running: false } old && StartedVersion != m.Version)
+                // a version downloaded since the last start, or a build beside a held copy (RunCopy), runs from its own
+                // folder: a runner of another one that has stopped is let go
+                string exe = Path.Combine(dir, m.HostExe);
+                if (runner is { Running: false } old && (StartedVersion != m.Version || !string.Equals(old.Exe, exe, StringComparison.OrdinalIgnoreCase)))
                 {
                     old.Changed -= AddonHub.Notify;
                     old.Dispose();
@@ -319,7 +328,7 @@ internal sealed class Addon
                 }
                 if (runner is null)
                 {
-                    var r = new AddonRunner(Path.Combine(dir, m.HostExe), StopEvent, OtherHost);
+                    var r = new AddonRunner(exe, StopEvent, OtherHost);
                     r.Changed += AddonHub.Notify;
                     runner = r;
                 }
@@ -338,14 +347,30 @@ internal sealed class Addon
     }
 
     /// The run copy of this version is another build of it (a local install over the downloaded release, or the other way
-    /// round) and the host the last Bloom left running runs from it, with explorer holding its DLLs. A start would only
+    /// round) and the host the last Bloom left running runs from it, with explorer holding its DLLs, or that host runs
+    /// from another folder (a build beside a held copy, AddonStore.RunCopy). A start would only
     /// hand that host this Bloom's process and keep the other build; the copy can't be replaced while it runs, and without
     /// a start the host ends once its wait for a new Bloom is over. So it is stopped first, the way a host of another
     /// version steps down for a new one, and this build starts in its place.
     private void StepDown()
     {
-        Log.Write($"add-on {Id}: the run copy of {Manifest?.Version} is another build and in use; stopping its host");
+        Log.Write($"add-on {Id}: the host the last Bloom left running is another build of {Manifest?.Version}; stopping it");
         AddonRunner.StopHost(StopEvent, null, OtherHost, AddonRunner.StopWait);
+    }
+
+    /// The folder of the host the last Bloom left running; null when there is none or it can't be read.
+    private string? OtherHostDir()
+    {
+        if (OtherHost() is not { } pid) return null;
+        try
+        {
+            using var p = Process.GetProcessById(pid);
+            return Path.GetDirectoryName(p.MainModule?.FileName);
+        }
+        catch (Exception e) when (e is ArgumentException or InvalidOperationException or NotSupportedException or System.ComponentModel.Win32Exception)
+        {
+            return null;
+        }
     }
 
     /// Stops the host and waits for it (up to AddonRunner.StopWait: a worker thread). Also one this Bloom didn't start.
@@ -519,7 +544,8 @@ internal static class AddonHub
         _ = Task.Run(() => Task.WhenAll(All.Where(a => a.On).Select(async a =>
         {
             await Bring(a, fresh: false).ConfigureAwait(false);
-            if (autostart) Log.Write($"add-on {a.Id}: started from --autostart, {LogonTask.SinceSignIn()} after sign-in");
+            if (autostart)
+                Log.Write($"add-on {a.Id}: {(a.StartFailed ? "did not start" : "started")} from --autostart, {LogonTask.SinceSignIn()} after sign-in");
         })));
     }
 

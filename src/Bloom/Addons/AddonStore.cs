@@ -113,11 +113,14 @@ internal sealed class AddonStore
 
     /// The run copy of this version, made when missing or not matching its hashes: copied into a staging folder beside
     /// it, each file checked against the manifest, then renamed in, so a half copy is never started. Returns its folder.
-    /// `release`: lets go of a copy that can't be replaced because files of it are in use (Replace).
+    /// `release`: lets go of a copy that can't be replaced because files of it are in use (Replace). One that stays in
+    /// use after it (explorer can hold the DLLs of a host that ran long well past its end) is left for a later start
+    /// (Prune), and this build runs from a folder of its own beside it, SideName.
     public string RunCopy(AddonManifest m, Action? release = null)
     {
         string target = Path.Combine(DataDir(m.Id), m.Version);
         if (Matches(target, m)) return target;
+        string side = Path.Combine(DataDir(m.Id), SideName(m));
         string staging = Path.Combine(DataDir(m.Id), $".{m.Version}.{Guid.NewGuid():N}.tmp");
         string source = SourceDir(m.Id);
         try
@@ -130,7 +133,12 @@ internal sealed class AddonStore
                 if (!string.Equals(Sha256(to), sha, StringComparison.OrdinalIgnoreCase)) throw new InvalidDataException($"{name}: SHA-256 does not match addon.json");
             }
             File.Copy(Path.Combine(source, AddonManifest.FileName), Path.Combine(staging, AddonManifest.FileName));
-            if (Directory.Exists(target)) Replace(target, release);
+            if (Directory.Exists(target) && !Replace(target, release))
+            {
+                if (Matches(side, m)) return side;
+                if (Directory.Exists(side) && !Replace(side, null)) throw new IOException($"{side}: in use");
+                target = side;
+            }
             Directory.Move(staging, target);
             return target;
         }
@@ -140,26 +148,41 @@ internal sealed class AddonStore
         }
     }
 
-    /// Release waits for the host, but explorer drops the runtime DLL a moment after the host has seen it go.
-    private static readonly TimeSpan[] ReleasedTries = { TimeSpan.FromMilliseconds(200), TimeSpan.FromMilliseconds(400), TimeSpan.FromMilliseconds(800) };
+    /// The folder a build runs from while another build of its version is held: the version and the start of a hash
+    /// of its files' hashes, so the same build finds it again.
+    public static string SideName(AddonManifest m)
+    {
+        string files = string.Join(",", m.Files.OrderBy(f => f.Key, StringComparer.Ordinal).Select(f => f.Value.ToUpperInvariant()));
+        return $"{m.Version}~{Convert.ToHexString(SHA256.HashData(System.Text.Encoding.UTF8.GetBytes(files)))[..8]}";
+    }
+
+    /// Release waits for the host, and explorer drops the runtime DLL a moment after the host has seen it go, as a rule.
+    /// After a long run it can hold it for a minute or more (seen 2026-11-09): about 3 s is waited, then RunCopy goes
+    /// beside it.
+    private static readonly TimeSpan[] ReleasedTries =
+    {
+        TimeSpan.FromMilliseconds(200), TimeSpan.FromMilliseconds(400), TimeSpan.FromMilliseconds(800), TimeSpan.FromMilliseconds(1600),
+    };
 
     /// Deletes a copy that doesn't match: a broken one, or another build of the same version (a local install over a
     /// downloaded release). Nothing of it goes while a host runs from it or explorer holds its DLLs: a recursive delete
     /// would take every file not in use (addon.json, the schema) from under them before it fails. `release` then ends
-    /// what holds it and the copy is deleted once it is free (IOException when there is no `release` or it stays in use).
-    private static void Replace(string target, Action? release)
+    /// what holds it and the copy is deleted once it is free. False when it is in use: at once with no `release`, or still
+    /// after ReleasedTries.
+    private static bool Replace(string target, Action? release)
     {
         if (InUse(target))
         {
-            if (release is null) throw new IOException($"{target}: in use");
+            if (release is null) return false;
             release();
             for (int i = 0; InUse(target); i++)
             {
-                if (i == ReleasedTries.Length) throw new IOException($"{target}: still in use");
+                if (i == ReleasedTries.Length) return false;
                 Thread.Sleep(ReleasedTries[i]);
             }
         }
         Directory.Delete(target, true);
+        return true;
     }
 
     /// A file of the folder is open or mapped (a running exe, a loaded DLL): opening it for writing, shared with no one,
@@ -180,9 +203,10 @@ internal sealed class AddonStore
         return false;
     }
 
-    /// Run copies of other versions, and staging folders left by a crash, go; one whose DLL explorer still holds can't
-    /// and stays for a later start. The data files and folders beside them are never touched.
-    public void Prune(AddonManifest m)
+    /// Run copies of other versions or builds (all but `keep`, the one RunCopy gave, and the version's own folder, which
+    /// RunCopy replaces), and staging folders left by a crash, go; one whose DLL explorer still holds can't and stays for
+    /// a later start. The data files and folders beside them are never touched.
+    public void Prune(AddonManifest m, string? keep = null)
     {
         string dir = DataDir(m.Id);
         if (!Directory.Exists(dir)) return;
@@ -190,7 +214,8 @@ internal sealed class AddonStore
         {
             string name = Path.GetFileName(sub);
             bool staging = name.StartsWith('.') && name.EndsWith(".tmp", StringComparison.Ordinal);
-            bool oldCopy = name != m.Version && File.Exists(Path.Combine(sub, AddonManifest.FileName));
+            bool oldCopy = name != m.Version && !string.Equals(sub, keep, StringComparison.OrdinalIgnoreCase) &&
+                           File.Exists(Path.Combine(sub, AddonManifest.FileName));
             if (staging) TryDelete(sub);
             else if (oldCopy) TryDeleteCopy(sub);
         }

@@ -42,6 +42,9 @@ internal sealed class AddonRunner : IDisposable
         this.lead = lead ?? Array.Empty<string>();
     }
 
+    /// The host it starts.
+    public string Exe => exe;
+
     /// Something below changed (any thread).
     public event Action? Changed;
 
