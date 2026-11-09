@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Threading;
+using Bloom.Addons;
 using Bloom.Ai;
 using Bloom.Core;
 using Bloom.Ui;
@@ -197,9 +198,10 @@ internal static class Notices
         Card(Settings.Current.NoticeDone, new Notice("done", Head(t.Tool, Tr("작업 완료", "Done")), t.Title, Tr($"소요 시간 {Span(took)}", $"Elapsed: {Span(took)}"), Click: Jump(t)), true);
     }
 
-    /// The click of a turn's card: to the window its CLI runs in. A headless run (a program's `claude -p`, `codex exec`)
-    /// has no session window, and a turn whose process isn't known only closes.
-    private static Action? Jump(AgentTask t) => t.Pid is { } pid && !t.Headless ? () => _ = Raise(pid) : null;
+    /// The click of a turn's card: to the window its CLI runs in, or with 카드를 누르면 at 작업표시줄 AI 패널 to its chat
+    /// in the taskbar add-on (TaskbarChat), the window while the add-on can't show it. A headless run (a program's
+    /// `claude -p`, `codex exec`) has no session window, and a turn whose process isn't known only closes.
+    private static Action? Jump(AgentTask t) => TaskbarChat.Click(t.Key, t.Pid is { } pid && !t.Headless ? () => _ = Raise(pid) : null);
 
     private static async Task Raise(int pid)
     {

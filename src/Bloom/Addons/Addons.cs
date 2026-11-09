@@ -590,6 +590,15 @@ internal static class AddonHub
     /// started from it.
     public static Task Update(Addon a) => a.Update(Http);
 
+    /// 설정 > 정보 > 업데이트 확인, with Bloom's own look: every add-on switched on looks for its latest release now and
+    /// puts a newer one to work (as the daily look does), and the others read theirs so their page can offer 업데이트.
+    public static void CheckNow()
+    {
+        if (!Offered) return;
+        foreach (var a in All.Where(a => !a.User && a.Catalog is not null && !a.Fetch.Busy))
+            _ = a.On && !SkippedByShift ? Update(a) : Task.Run(() => a.Look(Http));
+    }
+
     /// The settings page is drawn: each of `addons` whose latest release wasn't read in the last day reads it (no
     /// download), so the page can offer 업데이트 for one that is off too.
     public static void Look(IEnumerable<Addon> addons)

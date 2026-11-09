@@ -240,13 +240,13 @@ internal static class AddonPreviews
         void Monitor(double x, double fill, string number, bool accent, string caption)
         {
             p.Box(x, 8, 64, 40, 5, fill).Outline(x, 8, 64, 40, 5, 1, 0.5).Box(x + 26, 50, 12, 3, 1.5, 0.4)
-                .Text(number, x + 32, 28, 12, brush: accent ? Theme.P.Accent : Theme.P.Popup, width: 50)
+                .Text(number, x + 32, 28, 12, paint: accent ? "accent" : "popup", width: 50)
                 .Text(caption, x + 32, 60, 11, false, 0.7, width: 100);
         }
         void Arrow(double from, double to) => p.Stroke(Invariant($"M {from},28 H {to} M {to - 6},23 L {to},28 {to - 6},33"), 1.3, 0.35);
         Monitor(10, 0.55, "100", false, Tr("쓰는 동안", "In use"));
         Arrow(88, 232);
-        p.Acc(118, 17, 84, 22, 6).Text(Tr($"{minutes}분 그대로", $"{minutes} min idle"), 160, 28, 11, brush: Theme.P.AccentInk, width: 84);
+        p.Acc(118, 17, 84, 22, 6).Text(Tr($"{minutes}분 그대로", $"{minutes} min idle"), 160, 28, 11, paint: "accentInk", width: 84);
         Monitor(246, 0.1, level.ToString(CultureInfo.CurrentCulture), true, Tr("어둡게", "Dimmed"));
         Arrow(324, 430);
         p.Text(Tr("마우스·키보드", "Mouse or keys"), 377, 18, 11, false, 0.7, width: 110);
@@ -284,7 +284,7 @@ internal static class AddonPreviews
             "custom" => Tr($"바로 {Minutes(v.Int("awake.minutes"))} 켜기", $"On for {Minutes(v.Int("awake.minutes"))}"),
             _ => Tr("끌 때까지 켜기", "On until turned off"),
         };
-        p.Acc(320, 6, 120, 30, 7).Text(set, 380, 21, 11, brush: Theme.P.AccentInk, width: 116)
+        p.Acc(320, 6, 120, 30, 7).Text(set, 380, 21, 11, paint: "accentInk", width: 116)
             .Text(Tr("아래에서 정한 시간", "The time set below"), 380, 50, 11, false, 0.75, width: 120);
         var row = new StackPanel { Orientation = Orientation.Horizontal };
         var how = Caption(Tr("쓰는 법", "How to use"));

@@ -18,7 +18,7 @@ internal sealed partial class SettingsView
     /// 아이콘 색: Settings.UsageLogo, written to the add-on's usage.logoColor too; each choice drawn (AddonPictures).
     private void UsageLogoRow(AddonValues? values, string sub, string filter) =>
         Pictures(Tr("아이콘 색", "Icon colour"), sub, G.Palette, new[] { ("brand", Tr("원래 색", "Original")), ("mono", Tr("단색", "Single colour")) }
-            .Select(o => (o.Item1, o.Item2, AddonPictures.Option("pill-taskbar", "usage.logo", o.Item1)!)).ToArray(),
+            .Select(o => (o.Item1, o.Item2, AddonPictures.Logo(o.Item1))).ToArray(),
             Settings.Current.UsageLogo == "mono" ? "mono" : "brand", v =>
             {
                 SetUsageLogo(v, values ?? AddonHub.Taskbar.Values);
@@ -35,7 +35,7 @@ internal sealed partial class SettingsView
     private void UsageTagRow(string filter) =>
         Pictures(Tr("이름표", "Label"), Tr("아이콘 옆에 적습니다. 이름이 없는 계정은 요금제를 적습니다", "Written beside the icon; an account without a name shows its plan"), G.Tag,
             new[] { ("none", Tr("없음", "None")), ("name", Tr("이름", "Name")), ("plan", Tr("요금제", "Plan")) }
-                .Select(o => (o.Item1, o.Item2, AddonPictures.Option("pill-taskbar", "usage.tag", o.Item1)!)).ToArray(),
+                .Select(o => (o.Item1, o.Item2, AddonPictures.Tag(o.Item1))).ToArray(),
             Settings.Current.UsageTag is "name" or "plan" ? Settings.Current.UsageTag : "none", v =>
             {
                 Settings.Current.UsageTag = v;

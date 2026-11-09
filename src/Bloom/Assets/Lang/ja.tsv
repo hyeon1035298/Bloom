@@ -2054,153 +2054,6 @@ Always	ずっと
 30 min	30 分
 1 h	1 時間
 2 h	2 時間
-Start button	スタートボタン
-Unchanged	そのまま
-Hidden	非表示
-Bloom button	Bloom ボタン
-Top	上
-Bottom	下
-Taskbar height	タスクバーの高さ
-Windows' own is 48	Windows の標準は 48 です
-Icon size	アイコンのサイズ
-Windows' own is 24	Windows の標準は 24 です
-Icon spacing	アイコンの間隔
-An app button is the icon size plus this wide; Windows' own is 20	アプリボタンの幅はアイコンのサイズに間隔を足した値です。Windows の標準は 20 です
-Corner radius	角の丸み
-Background blur	背景のぼかし
-Background tint	背景色の濃さ
-Pill shape	ピルの形
-Off, the taskbar looks as Windows draws it	オフにすると Windows 標準の見た目に戻ります
-Battery	バッテリー
-Notification bell	通知ベル
-Language bar	言語バー
-Extra language icons	言語の補助アイコン
-Clock	時計
-Time and date	時刻と日付
-Time only	時刻のみ
-Time format	時刻の表記
-Longest track title	曲名の最大幅
-A longer title ends in …	はみ出した曲名は … で縮めます
-Gap after the apps	アプリと使用量の間
-Gap before the tray	使用量とトレイの間
-Sessions in the details	詳細ウィンドウにセッションを表示
-The window a click on the usage opens lists this PC's Claude Code and Codex sessions	使用量をクリックして開くウィンドウに、この PC の Claude Code・Codex のセッションを表示します
-Windows panels by the tray	Windows パネルをトレイの横に
-Quick Settings and the notification center open by the pill's tray, not at the screen's end	クイック設定と通知センターを、画面の端ではなくピルのトレイの横に開きます
-Notification center without the slide	通知センターのスライドをオフ
-The notification center and calendar appear in place instead of sliding in	通知センターとカレンダーが横からスライドせず、その場に表示されます
-Now playing	再生中の曲
-Memory use	メモリ使用率
-CPU use	CPU 使用率
-Height	高さ
-At 100% scale	100% の拡大率が基準です
-Width	幅
-At 100% scale; a track title that doesn't fit is shortened	100% の拡大率が基準です。収まらないときは曲名を縮めます
-Where the clock sits	時計の位置
-On the middle island, or on one in the screen's left or right corner	中央のアイランド、または画面の左右の隅のアイランドに置きます
-Where now playing sits	再生中の曲の位置
-Where AI usage sits	AI 使用量の位置
-Where memory use sits	メモリ使用率の位置
-Where CPU use sits	CPU 使用率の位置
-Reveal zone	表示される範囲
-The pointer brings the taskbar out only on this much of the edge; 100 is all of it	端のこの範囲でだけ、ポインターでタスクバーが出てきます。100 なら端全体です
-Wait before showing	表示までの時間
-Wait before hiding	隠れるまでの時間
-Counted from when the pointer leaves	ポインターが離れてから数えます
-Animation length	アニメーションの長さ
-Stay hidden for the Bloom launcher	Bloom ランチャーを開いても隠したまま
-Off, opening the launcher brings that monitor's taskbar out too	オフにすると、ランチャーを開いたときにそのモニターのタスクバーも出てきます
-Stay hidden when an app flashes	アプリが点滅しても隠したまま
-Off, it comes out as in Windows and stays until that app is opened	オフにすると Windows と同じように出てきて、そのアプリを開くまで残ります
-Running folder	実行中フォルダー
-Apps started without pinning gather in one clock-shaped folder	ピン留めせずに起動したアプリを、時計の形のフォルダー 1 つにまとめます
-Running folder's name	実行中フォルダーの名前
-Folder location	フォルダーの場所
-Each folder inside it becomes one taskbar folder	この中のフォルダー 1 つがタスクバーのフォルダー 1 つになります
-Wait before merging	まとまるまでの時間
-How long an app stays over another before they merge	アプリをほかのアプリの上にこの時間置くとまとまります
-Open folder size	開いたフォルダーのサイズ
-App names	アプリ名を表示
-Off, the cells shrink to the icons	オフにすると、マスがアイコンのサイズまで縮みます
-Icon size in folders	フォルダー内のアイコンのサイズ
-Space between apps	アプリの間隔
-Folder opens	フォルダーが開く向き
-Away from the taskbar	タスクバーの反対側
-Above the taskbar	タスクバーの上
-Below the taskbar	タスクバーの下
-Distance from the taskbar	タスクバーとの距離
-Corner smoothing	角のなめらかさ
-0 is an ordinary round corner, 60 a continuous curve	0 は普通の丸い角、60 は途切れずにつながった曲線です
-Left	左
-Middle	中央
-Right	右
-Look	見た目
-With an administrator window in front, Windows' own shows	管理者権限のウィンドウが前にあると Windows の表示になります
-Window previews	ウィンドウのプレビュー
-App icons	アプリのアイコン
-Small	小
-Large	大
-Huge	特大
-Window names	ウィンドウ名
-The chosen one	選んだウィンドウだけ
-Where Alt+Tab shows	Alt+Tab が出る場所
-Windows listed	表示するウィンドウ
-Where Win+Alt+Tab shows	Win+Alt+Tab が出る場所
-Windows Win+Alt+Tab lists	Win+Alt+Tab で表示するウィンドウ
-Icon look	アイコンの形
-The number is what is in use now	数字は今使っている量です
-Outline	線
-Filled	塗り
-Solid	べた塗り
-Value shown	表示する値
-Right-clicking the icon changes it too	アイコンを右クリックしても切り替わります
-Memory	メモリ
-Both	両方
-Clean when memory fills up	メモリが多く使われたら解放
-At most once every 30 seconds	30 秒に 1 回まで
-At	基準
-Clean on a schedule	決まった間隔で解放
-Every	間隔
-Program	プログラム
-Brightness on the taskbar	タスクバーに表示する明るさ
-First monitor	1 台目のモニター
-Average	平均
-Per wheel notch	ホイール 1 目盛りで
-Turning the wheel over the taskbar icon	タスクバーのアイコンの上でホイールを回したとき
-All monitors together	すべてのモニターをまとめて
-Changing one sets the others to the same brightness	1 台を変えると、ほかのモニターも同じ明るさになります
-Brighter	明るく
-Click, then press a new combination	クリックしてから新しい組み合わせを押してください
-Dimmer	暗く
-Per press	1 回押すごとに
-Dim when away	離席したら暗く
-It comes back as soon as the mouse or keyboard is used	マウスかキーボードを使うと元に戻ります
-Dim to	暗くする明るさ
-Keep on	オンにしておくもの
-With the PC only, the screen turns off as usual	PC だけのときは、画面はいつもどおりオフになります
-Screen and PC	画面と PC
-PC only	PC だけ
-On with a right-click	右クリックでオンにしたとき
-Until turned off	オフにするまで
-1 hour	1 時間
-2 hours	2 時間
-A time of my own	自分で決めた時間
-Switcher look	切り替え画面の見た目
-With several monitors	モニターが複数あるとき
-Taskbar icon	タスクバーのアイコン
-Cleaning	解放
-Programs left alone	解放しないプログラム
-Brightness range per monitor	モニターごとの明るさの範囲
-Cleaning leaves these programs' memory as it is	解放するとき、これらのプログラムのメモリは空けません
-Sets where 0 and 100 fall on each monitor's own brightness	明るさ 0 と 100 が、モニターの実際の明るさのどこに当たるかを決めます
-The pointer's monitor	ポインターのあるモニター
-The highlighted windows are listed	アクセントカラーのウィンドウが一覧に出ます
-That monitor's	そのモニターのウィンドウだけ
-All on the main one	メインモニターではすべて
-A little	少し解放
-Some	ほどよく解放
-A lot	たくさん解放
-Main	メイン
 Preview	プレビュー
 9:41 PM	午後 9:41
 Pick what it shows below	表示するものを下で選んでください
@@ -2529,6 +2382,7 @@ Runs in the tray at sign-in	サインイン時にトレイで起動
 Not registered	未登録
 Win key over admin apps	管理者アプリの上でも Win キーを使用
 Opens with Win even over apps run as administrator · admin approval to turn on	管理者として実行中のアプリが前面にあっても Win キーで開きます · オンにするには管理者の承認が必要
+Look	見た目
 System follows Windows' light or dark setting	「システム」は Windows のライト・ダークの設定に従います
 The launcher, tool windows, chat and settings together · Ctrl+= / Ctrl+- / Ctrl+0 in the launcher	ランチャー、ツール ウィンドウ、チャット、設定をまとめて · ランチャーで Ctrl+= / Ctrl+- / Ctrl+0
 Animation	アニメーション
@@ -2746,6 +2600,8 @@ Position	位置
 A preview card shows there when you pick	選ぶとそこにプレビューのカードが表示されます
 Move it yourself	手動で移動
 Drag a notice card on the screen · it sticks to the middle and the edges	画面上で通知カードをドラッグして移動 · 中央と端に吸着します
+Small	小
+Large	大
 X-large	特大
 Shown for	表示時間
 Stays while hovered · approval cards stay until work resumes	マウスを重ねると表示を維持 · 承認カードは作業再開まで
@@ -2755,6 +2611,9 @@ Stays while hovered · approval cards stay until work resumes	マウスを重ね
 20 s	20 秒
 A short sound of its own for each kind	種類ごとに専用の短い音
 Loud	大きめ
+Clicking a card	カードをクリックしたとき
+Go to the app	アプリへ移動
+Taskbar AI panel	タスクバーの AI パネル
 What to tell	通知する内容
 What a turn works on once it runs past 4 s	ターンが 4 秒を超えたときに取り組んでいる内容
 When it ends, with how long it took (past 10 s)	終わったとき、かかった時間と一緒に (10 秒以上)
@@ -2767,6 +2626,10 @@ Couldn't change Claude Code's settings	Claude Code の設定を変更できま�
 When a low limit is full again after its reset	少なくなった上限がリセット後にまた満タンになったとき
 Windows notifications	Windows 通知
 Other apps' Windows banners as these cards · a click opens Windows' notification center · needs the PillTaskbar add-on	他のアプリの Windows 通知バナーの代わりにこのカードで · クリックで Windows の通知センター · タスクバーアドオン PillTaskbar が必要です
+A Claude Code or Codex card takes you to its session's window	Claude Code や Codex のカードをクリックすると、そのセッションのウィンドウへ移動します
+Needs the PillTaskbar taskbar add-on, installed and on. Until then a card goes to the app	タスクバーアドオン PillTaskbar をインストールしてオンにすると使えます。それまではアプリへ移動します
+Turn on the usage meter's session list and AI chat in the taskbar add-on's settings. Until then a card goes to the app	タスクバーアドオンの設定で、使用量バーのセッション一覧と AI チャットをオンにしてください。それまではアプリへ移動します
+Opens the session's chat in the taskbar's usage panel	そのセッションのチャットをタスクバーの使用量パネルで開きます
 Version, updates and help	バージョン、アップデート、ヘルプ
 Version	バージョン
 Update history	アップデート履歴
@@ -2785,7 +2648,7 @@ Up to date · Enter checks for updates	最新バージョン · Enter でアッ�
 Downloading {0}…	{0} をダウンロード中…
 Version {0} ready · click to restart	バージョン {0} の準備完了 · クリックで再起動
 Could not check for updates. Check your connection and retry.	更新を確認できませんでした。接続を確認して再試行してください。
-Enter checks for updates · looks for a new version on GitHub Releases	Enter でアップデートを確認 · GitHub Releases で新しいバージョンを探します
+Enter checks Bloom and its add-ons for updates on GitHub Releases	Enter で Bloom とアドオンのアップデートを GitHub Releases で確認します
 Check when Bloom starts	Bloom の起動時に確認
 Checks once after launch · downloads new versions for the next start	起動後に 1 回確認 · 新バージョンをダウンロードし次回起動時に適用
 Ctrl+K on an audio file in the search results › ‘Play in mini player’. Music files are only read.	検索結果のオーディオ ファイルで Ctrl+K ›「ミニプレーヤーで再生」を選びます。音楽ファイルは読み取るだけです。
@@ -2831,6 +2694,7 @@ A number changed here makes the size above ‘Custom’	ここで数値を変え
 Taskbar tray	タスクバーのトレイ
 Icons shown	表示するアイコン
 An icon turned off leaves no gap	オフにしたアイコンは場所も残しません
+Now playing	再生中の曲
 Album art, title and play buttons	アルバムアート、タイトル、再生ボタン
 A bar per account; the island shows it too	アカウントごとにバーが 1 本。非表示アイランドにも出ます
 Usage file export is off	使用量ファイルの書き出しがオフ

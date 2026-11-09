@@ -129,6 +129,8 @@ internal sealed class TaskbarCommands
     public static (string, JsonObject) Order(string folder, IEnumerable<string> names) => ("order", new() { ["folder"] = folder, ["names"] = Strings(names) });
     public static (string, JsonObject) Dissolve(string folder) => ("dissolve", new() { ["folder"] = folder });
     public static (string, JsonObject) Delete(string folder) => ("delete", new() { ["folder"] = folder });
+    /// A Claude Code (`claude`) or Codex (`codex`) session's chat in the usage meter's details, by its log id.
+    public static (string, JsonObject) Chat(string source, string session) => ("chat", new() { ["source"] = source, ["session"] = session });
 
     private static JsonArray Strings(IEnumerable<string> items) => new(items.Select(s => (JsonNode)JsonValue.Create(s)).ToArray());
 

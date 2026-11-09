@@ -30,7 +30,12 @@ internal sealed record AddonText(string Ko, string En, string? Ja = null, string
     private static string? Text(JsonObject o, string code) => o[code] is JsonValue v && v.TryGetValue(out string? s) && s.Length > 0 ? s : null;
 }
 
-internal sealed record AddonOption(string Value, AddonText Name);
+internal sealed record AddonOption(string Value, AddonText Name)
+{
+    /// The option's plainer name on Bloom's page, and its picture (the schema's "easy": {"name", "picture"}).
+    public AddonText? EasyName { get; init; }
+    public AddonPicture? Picture { get; init; }
+}
 
 /// One setting: its full key ("group.key", the name in values.json), its kind (bool, int, choice, text), default,
 /// range for a number and options for a choice.
@@ -51,6 +56,9 @@ internal sealed record AddonSetting(string Key, string Type, JsonNode Default, i
     /// A record's fields (records only).
     public IReadOnlyList<AddonSetting> Fields { get; init; } = [];
 
+    /// How Bloom's page words and shows it (AddonEasyItem; null: as the schema names it).
+    public AddonEasyItem? Easy { get; init; }
+
     private static readonly string[] Units = ["px", "%", "ms", "s", "min", "초", "분"];
 
     /// The number's unit when the name ends with it ("Icon size (px)", "간격(분)"): the slider shows it with the value instead.
@@ -66,7 +74,10 @@ internal sealed record AddonSetting(string Key, string Type, JsonNode Default, i
     }
 }
 
-internal sealed record AddonGroup(string Id, AddonText Name, AddonText? About, IReadOnlyList<AddonSetting> Items);
+internal sealed record AddonGroup(string Id, AddonText Name, AddonText? About, IReadOnlyList<AddonSetting> Items)
+{
+    public AddonEasyGroup? Easy { get; init; }
+}
 
 /// An add-on's settings.schema.json: its settings in groups, with names, defaults and ranges. Bloom draws its settings
 /// page from this data and writes the values the user changes; nothing of the add-on's code is in Bloom.
@@ -75,6 +86,11 @@ internal sealed class AddonSchema
     public IReadOnlyList<AddonGroup> Groups { get; }
     private readonly Dictionary<string, AddonSetting> byKey;
 
+    /// The groups' order on Bloom's page where it isn't theirs here (the rest after these), and the pictures of the
+    /// page's own choices by a name of the page's and the option ("size" → "s"); the schema's "easy": {"order", "pictures"}.
+    public IReadOnlyList<string> Order { get; private init; } = [];
+    private IReadOnlyDictionary<string, AddonPicture> pictures = new Dictionary<string, AddonPicture>();
+
     private AddonSchema(List<AddonGroup> groups)
     {
         Groups = groups;
@@ -82,6 +98,10 @@ internal sealed class AddonSchema
     }
 
     public AddonSetting? this[string key] => byKey.GetValueOrDefault(key);
+
+    /// An option's picture: a setting's option's, else one of the page's own choices (null: none).
+    public AddonPicture? Picture(string key, string value) =>
+        this[key]?.Options.FirstOrDefault(o => o.Value == value)?.Picture ?? pictures.GetValueOrDefault(key + "/" + value);
 
     public IEnumerable<string> Keys => byKey.Keys;
 
@@ -132,9 +152,17 @@ internal sealed class AddonSchema
                 if (!seen.Add(item.Key)) throw Bad($"{item.Key} twice");
                 items.Add(item);
             }
-            list.Add(new AddonGroup(id, AddonText.Of(g["name"]) ?? throw Bad($"group {id}: no name"), AddonText.Of(g["about"]), items));
+            list.Add(new AddonGroup(id, AddonText.Of(g["name"]) ?? throw Bad($"group {id}: no name"), AddonText.Of(g["about"]), items) { Easy = AddonEasyGroup.Of(g["easy"]) });
         }
-        return new AddonSchema(list);
+        var easy = root["easy"] as JsonObject;
+        var order = (easy?["order"] as JsonArray)?.Select(n => n is JsonValue v && v.TryGetValue(out string? s) ? s : null).OfType<string>().ToArray() ?? [];
+        var pictures = new Dictionary<string, AddonPicture>(StringComparer.Ordinal);
+        if (easy?["pictures"] is JsonObject choices)
+            foreach (var (choice, options) in choices)
+                if (options is JsonObject byValue)
+                    foreach (var (value, picture) in byValue)
+                        if (AddonPicture.Of(picture) is { } p) pictures[choice + "/" + value] = p;
+        return new AddonSchema(list) { Order = order, pictures = pictures };
     }
 
     /// Files a setting can't live in: the runtime's values and the host's and runtime's own.
@@ -175,7 +203,11 @@ internal sealed class AddonSchema
                 numeric = Int(def) is not null;
                 if (numeric && file is null) throw Bad($"{key}: numbered options need a file");
                 foreach (var o in (i["options"] as JsonArray ?? throw Bad($"{key}: no options")).OfType<JsonObject>())
-                    options.Add(new AddonOption(OptionValue(o, numeric) ?? throw Bad($"{key}: an option without a value"), AddonText.Of(o["name"]) ?? throw Bad($"{key}: an option without a name")));
+                    options.Add(new AddonOption(OptionValue(o, numeric) ?? throw Bad($"{key}: an option without a value"), AddonText.Of(o["name"]) ?? throw Bad($"{key}: an option without a name"))
+                    {
+                        EasyName = AddonText.Of((o["easy"] as JsonObject)?["name"]),
+                        Picture = AddonPicture.Of((o["easy"] as JsonObject)?["picture"]),
+                    });
                 string? shown = numeric ? Int(def)?.ToString(CultureInfo.InvariantCulture) : Str(i, "default");
                 if (options.Count == 0 || !options.Any(o => o.Value == shown)) throw Bad($"{key}: default is not one of its options");
                 break;
@@ -216,6 +248,7 @@ internal sealed class AddonSchema
             Suffix = suffix,
             Label = label,
             Fields = fields,
+            Easy = inRecord ? null : AddonEasyItem.Of(i["easy"]),
         };
     }
 
