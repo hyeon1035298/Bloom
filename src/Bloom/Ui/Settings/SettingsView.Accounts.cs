@@ -61,7 +61,7 @@ internal sealed partial class SettingsView
                 UsageExport.Changed();
             }, filter);
         Choice(Tr("보여 줄 값", "Show"), Tr("쓴 만큼(32%) 또는 남은 만큼(68% 남음) · 막대도 같이 바뀝니다", "What's used (32%) or what's left (68% left) · the bars follow"), G.Model,
-            new[] { ("used", Tr("쓴 만큼", "Used")), ("left", Tr("남은 만큼", "Left")) }, s.UsageLeft ? "left" : "used", v =>
+            new[] { ("used", Tr("쓴 만큼", "Used")), ("left", Tr("남은 만큼", "Remaining")) }, s.UsageLeft ? "left" : "used", v =>
             {
                 s.UsageLeft = v == "left";
                 UsageExport.Changed();

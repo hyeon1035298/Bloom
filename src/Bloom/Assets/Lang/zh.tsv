@@ -166,6 +166,9 @@ Really at: {0}	实际位置：{0}
 A network path.	这是网络路径。
 The file exists already.	该文件已存在。
 It has {0} other names, so it changes there too.	它还有 {0} 个其他名称，因此在那些位置也会改变。
+The prompt is empty. Edit the command.	提示词为空。请编辑命令。
+Step {0} failed · {1}	第 {0} 步失败 · {1}
+No response. Try again.	无响应。请重试。
 Claude Code · Approval request	Claude Code · 批准请求
 Allow	允许
 Decline	拒绝
@@ -230,7 +233,7 @@ Move failed or cancelled. Check the destination and permissions, then retry.	移
 Copy failed or cancelled. Check the destination and permissions, then retry.	复制失败或已取消。请检查目标文件夹和权限后重试。
 The picture is gone, so it can't be made again	原图已删除，无法重新生成
 Copied {0}	已复制 {0}
-No response. Try again.	无响应。请重试。
+I ran ‘{0}’; this was the result. Let's continue.\n\n[Result]\n{1}	我运行了‘{0}’，结果如下。我们接着聊。\n\n[结果]\n{1}
 I ran ‘{0}’ on the text below; this was the result. Let's continue.\n\n[Text]\n{1}\n\n[Result]\n{2}	我对下面的文字执行了“{0}”，结果如下。我们继续吧。\n\n[原文]\n{1}\n\n[结果]\n{2}
 Recording saved	录屏已保存
 {0} · file copied to the clipboard · Screen Recordings	{0} · 文件已复制到剪贴板 · Screen Recordings
@@ -243,6 +246,10 @@ Could not save the file	无法保存文件
 Could not make the video	无法生成视频
 Check the sound devices, or record again without sound	请检查声音设备，或不录声音再录一次
 Try again	请重试
+AI command · Done	AI 命令 · 完成
+AI command · Failed	AI 命令 · 失败
+Open chat	打开对话
+The chat was deleted	对话已删除
 Export Bloom settings	导出 Bloom 设置
 Bloom settings (*.zip)|*.zip	Bloom 设置 (*.zip)|*.zip
 Settings export failed	设置导出失败
@@ -276,7 +283,6 @@ Keep data	保留数据
 Delete data	删除数据
 Without admin approval the Win-key helper stays installed. After Bloom is removed, remove ‘Bloom Win-key helper’ in Windows Settings › Apps.	未获管理员批准，Win 键助手未被删除。删除 Bloom 后，请在 Windows 设置 › 应用中删除“Bloom Win-key helper”。
 Uninstall failed	卸载失败
-No release notes for this version	此版本无更新说明
 Update the Win-key helper	更新 Win 键助手
 This version of Bloom needs the Win-key helper installed again. Until then, Win does not open Bloom over admin apps.	此版本的 Bloom 需要重新安装 Win 键助手。在此之前，管理员应用在前台时按 Win 键不会打开 Bloom。
 Reinstall	重新安装
@@ -329,6 +335,23 @@ Bloom — press Win to open	Bloom — 按 Win 键打开
 Open\tWin	打开\tWin
 Settings	设置
 Quit Bloom	退出 Bloom
+New snippet	新建常用语
+New chain	新建组合
+New AI command	新建 AI 命令
+New script	新建脚本
+Input	输入
+selection · clipboard · none — Enter alone takes the selection	选中 · 剪贴板 · 无 — 直接按 Enter 即为选中文本
+Enter selection, clipboard or none	请输入选中、剪贴板或无
+Schedule	定时
+Schedule (optional) — e.g. 30m, 2h, 3d, daily 09:00 · only with no input	定时（可选）— 例：30分钟、2小时、3天、每天 09:00 · 仅限输入为“无”
+Only a command with no input can run on a schedule	只有输入为“无”的命令才能定时运行
+Next run {0}	下次运行 {0}
+Open the results chat	打开结果对话
+Set a schedule	设置定时
+Change the schedule	更改定时
+Stop the schedule	关闭定时运行
+Schedule off	定时运行已关闭
+‘{0}’ schedule	‘{0}’ 的定时
 No reminders found	未找到提醒
 {0} reminders	{0} 个提醒
 No reminders on this day	当天无提醒
@@ -364,6 +387,7 @@ Open in the browser	在浏览器中打开
 Open the image	打开图片
 Ask AI about this text	就这段文字问 AI
 Copied text	复制的文字
+Save as a snippet	保存为常用语
 Unpin	取消固定
 Pin to the top	置顶
 Delete this entry	删除此项
@@ -378,14 +402,15 @@ Size	大小
 {0} files	{0} 个文件
 Link	链接
 Text	文字
-Characters	字数
-{0:#,0}	{0:#,0} 字
- · {0} lines	 · {0} 行
 From	来源
 Copied at	复制时间
 Yes	是
+Characters	字数
+{0:#,0}	{0:#,0} 字
+ · {0} lines	 · {0} 行
 Snippet	常用语
 Chain	操作链
+AI command	AI 命令
 Script	脚本
 Running… · stop it from Ctrl+K	运行中… · 可在 Ctrl+K 中停止
 {0} + input · {1}	{0} + 输入 · {1}
@@ -401,19 +426,20 @@ Always run without a window	总是无窗口运行
 Always run in a window	总是在窗口中运行
 Runs in a window	在窗口中运行
 Runs without a window · results appear as notifications	无窗口运行 · 通过通知显示结果
-Edit command	编辑命令
+Delete snippet	删除常用语
 Delete command	删除命令
 Deletes the command ‘{0}’.	删除命令“{0}”。
 Delete	删除
 Custom commands	自定义命令
-New snippet	新建常用语
-New chain	新建组合
-New script	新建脚本
+Save an AI instruction you use often · run it on the selection or clipboard · >> for several steps	用名称保存常用的 AI 指令 · 对选中文本或剪贴板运行 · 用 >> 分多步
 Paste a text you use often by its keyword · {date} {time} {clipboard} {input}	用关键词粘贴常用文字 · {date} {time} {clipboard} {input}
 Run several search lines in turn — e.g. notepad ; volume 30 ; wait 2	依次运行多条搜索栏指令 — 例如 notepad ; volume 30 ; wait 2
 Run a .ps1, .bat or program, or one PowerShell line	运行 .ps1、.bat、程序或一行 PowerShell
 Create	创建
 {0} · keyword + space + input	{0} 个 · 关键词 + 空格 + 输入
+Prompt	提示词
+What the AI should do — split steps by >>  e.g. Summarize in 3 lines >> Translate into Korean	要 AI 做的事 — 用 >> 分隔步骤  例）概括为 3 行 >> 翻译成英语
+Enter what the AI should do	请输入要 AI 做的事
 The text to paste — \\n for a new line · {date} {time} {clipboard} {input}	要粘贴的文字 — 换行用 \\n · {date} {time} {clipboard} {input}
 Enter the text to paste	输入要粘贴的文本
 Steps	步骤
@@ -434,6 +460,8 @@ Enter a keyword without spaces	输入不含空格的关键词
 ‘{0}’ is in use. Enter another keyword.	“{0}”已被使用。请输入其他关键词。
 Added ‘{0}’	已添加“{0}”
 Command saved	已保存命令
+Edit snippet	编辑常用语
+Edit command	编辑命令
 Command	命令
 Add a command	添加命令
 Every command is in this block	所有命令都在此区块中
@@ -527,6 +555,19 @@ Recent files	最近的文件
 Recently copied	最近复制
 Ctrl+Alt+V all	Ctrl+Alt+V 查看全部
 Recent AI chats	最近的 AI 聊天
+Waiting for approval	等待批准
+History	记录
+No notifications	没有通知
+No matching notifications	没有匹配的通知
+Finished tasks, limits, approvals and command results collect here	任务完成、额度、等待批准和用户命令的结果会汇集在这里
+Go to session	前往会话
+{0}/{1} {2:HH:mm}	{0}月{1}日 {2:HH:mm}
+Copy	复制
+Result	结果
+Time	时间
+Copy the preview	复制预览
+Delete this notification	删除此通知
+Deletes all {0} notifications.	将删除全部 {0} 条通知。
 Set a shortcut…	设置快捷键…
 Change the shortcut… ({0})	更改快捷键… ({0})
 Remove the shortcut	删除快捷键
@@ -600,7 +641,6 @@ Ask AI about the selected screen area · 1 use	将所选屏幕区域发送给 AI
 Reads the text and translates it · 1 use	识别文字并翻译 · 消耗 1 次
 3  Copy text	3  复制文字
 Copies text recognized on this PC · no AI usage	复制在本机识别的文字 · 不消耗 AI 用量
-Copy	复制
 4  Live translation	4  实时翻译
 Keeps reading this area and translates when it changes · ongoing usage	持续读取此区域，内容变化时翻译 · 持续消耗额度
 Start	开始
@@ -676,6 +716,7 @@ Copied	已复制
 Could not run	无法运行
 No selected or copied text	无已选中或复制的文本
 Select text in any app and press {0}, or copy it and come back	在任意应用中选中文字后按 {0}，或复制后再回来
+‘{0}’ in progress… step {1}	‘{0}’ 进行中… 第 {1} 步
 ‘{0}’ in progress…	正在“{0}”…
 ‘{0}’ result	“{0}”的结果
 Failed	失败
@@ -693,6 +734,7 @@ The answer shows on the right	结果显示在右侧
 “{0}”	“{0}”
 Enter an AI instruction	输入 AI 指令
 into {0}	译成{0}
+My AI commands	我的 AI 命令
 The selection	选中的文字
 The clipboard	剪贴板
 {0} chars	{0} 字
@@ -732,6 +774,11 @@ Copy as shown	按显示格式复制
 Copy with the expression	连同算式复制
 Bloom settings	Bloom 设置
 Settings › {0}	设置 › {0}
+Snippets	常用语
+Save ‘{0}’ as a snippet	将‘{0}’保存为常用语
+A text you use often · Enter pastes it into the window in front · {date} {time} {clipboard} {input}	经常使用的文字 · 按 Enter 粘贴到前面的窗口 · {date} {time} {clipboard} {input}
+Already a snippet: ‘{0}’	‘{0}’ 已在常用语中
+Saved ‘{0}’ as a snippet	已将‘{0}’保存为常用语
 System	系统
 Nothing matches	无匹配项
 Set volume to {0}%	把音量设为 {0}%
@@ -912,6 +959,8 @@ Copy to the clipboard: {0}	复制到剪贴板：{0}
 saved captures	已保存的截图
 glass	玻璃效果
 shortcut	快捷键
+Hide from search	从搜索中隐藏
+hidden	已隐藏
 Focus	专注
 Meeting	会议
 Drag to move	拖动以移动
@@ -951,8 +1000,19 @@ Mail greeting	邮件问候
 Hello, here are the notes for {date}.\\nThanks.	你好，这是 {date} 的笔记。\\n谢谢。
 Back up, then check	备份后检查
 bk D:\\photos ; wait 1 ; td	bk D:\\photos ; wait 1 ; td
+Tidy meeting notes	整理会议记录
+Only the decisions and to-dos as a list >> Translate into Korean	只把决定和待办列成清单 >> 翻译成英语
+Phrase of the day	今日英语表达
+One useful Korean phrase for today with two examples	一个今天用得上的英语表达和两个例句
 bk D:\\photos	bk D:\\photos
 notepad ; volume 30 ; nosuchstepxyz	notepad ; volume 30 ; nosuchstepxyz
+Summarize in 3 lines >> Translate into Korean	概括为 3 行 >> 翻译成英语
+phrase of the	今日英语
+Tomorrow's 3 pm meeting moves to 4. Min brings the slides, Ji books the room.	明天下午 3 点的会议改到 4 点。小明准备资料，小丽负责订会议室。
+**I'm swamped** — I have too much to do.\n1. I'm swamped this week.\n2. Sorry, I was swamped yesterday.	**I'm swamped** — 事情多到忙不过来。\n1. I'm swamped this week.（这周忙不过来）\n2. Sorry, I was swamped yesterday.（抱歉，昨天太忙了）
+Polish the sign-in screen	完善登录界面
+Elapsed: 12 min	耗时 12 分钟
+Tidy the downloads folder	整理下载文件夹
 AI chat window	AI 对话窗口
 D:\\my photos	D:\\my photos
 Tidy downloads	整理下载文件
@@ -978,6 +1038,11 @@ chrom	chrom
 Design review	设计评审
 Morning Walk	清晨散步
 Demo Tape	小样
+110 Main Street\n3rd floor, design team	北京市朝阳区建国路 88 号\n3 层 设计组
+Payment details	付款说明
+It ships as soon as the payment arrives.	确认收款后立即发货。
+payment	收款
+Closed today	今天休息
 Rename	重命名
 File Explorer	文件资源管理器
 AI tokens	AI Token
@@ -1249,6 +1314,16 @@ Translate again	重新翻译
  · paused	 · 已暂停
  · reading every {0:0.#} s	 · 每 {0:0.#} 秒读取一次
 Translating…	翻译中…
+Clipboard	剪贴板
+No input	无输入
+Selected text	选中的文本
+The shortest interval is 30 minutes	最短间隔为 30 分钟
+The interval can be at most 365 days	间隔最长为 365 天
+e.g. 30m, 2h, 3d, daily 09:00	例：30分钟、2小时、3天、每天 09:00
+Daily at {0}	每天 {0}
+Every {0:0} d	每 {0:0} 天
+Every {0:0} h	每 {0:0} 小时
+Every {0:0} min	每 {0:0} 分钟
 Undefined	未定义
 {0} · decimal {1:#,0}	{0} · 十进制 {1:#,0}
 Loading exchange rates…	正在加载汇率…
@@ -1319,6 +1394,8 @@ Search in Korean or English and paste	用韩语或英语查找并粘贴
 Files and folders Windows remembers you opened	Windows 记录的最近打开的文件和文件夹
 Dark mode · sound · Bluetooth · Wi-Fi · sleep …	深色模式 · 声音 · 蓝牙 · Wi-Fi · 睡眠 …
 Summarize, translate or polish the selected or copied text	对选中或复制的文字进行总结、翻译、润色
+Notification center	通知中心
+Finished tasks, limits, approvals and command results in one place	任务完成、额度、等待批准和用户命令的结果集中一处
 Bloom tour	Bloom 导览
 See the first-run setup and the guide again	再次查看首次设置和使用指南
 Export settings	导出设置
@@ -1339,7 +1416,6 @@ Notifications	通知
 Power & sleep	电源和睡眠
 Storage	存储
 Multitasking	多任务处理
-Clipboard	剪贴板
 About	关于
 Bluetooth & devices	蓝牙和其他设备
 Printers & scanners	打印机和扫描仪
@@ -1397,7 +1473,6 @@ Windows tool	Windows 工具
 Weight	重量
 Temperature	温度
 Data (1 KB = 1024 B)	数据 (1 KB = 1024 B)
-Time	时间
 Speed	速度
 Left half	左半边
 Right half	右半边
@@ -1684,7 +1759,6 @@ Output {0}	输出 {0}
 Cache read {0}	缓存读取 {0}
 Cache write {0}	缓存写入 {0}
 Cache hits {0}	缓存命中 {0}
-Input	输入
 Cache write	缓存写入
 Cache read	缓存读取
 Output	输出
@@ -1710,10 +1784,13 @@ Week of {0}	自 {0} 起的一周
  · nothing	 · 无记录
 1 model with no price · {0} tokens not in the cost	1 个模型无价格 · 未计入折算费用的 Token {0}
 {0} models with no price · {1} tokens not in the cost	{0} 个模型无价格 · 未计入折算费用的 Token {1}
-Bloom {0} · What's new	Bloom {0} · 新功能
-Bloom {0} update complete	Bloom {0} 更新完成
+{0} · installed	{0} · 已安装
 Changes in this version	此版本的更改
 See it on GitHub	在 GitHub 上查看
+Bloom {0} · What's new	Bloom {0} · 新功能
+Bloom {0} update complete	Bloom {0} 更新完成
+No release notes for this version	此版本无更新说明
+Couldn't load the release notes. Check the connection, or see them on GitHub.	无法加载更新说明。请检查网络连接，或在 GitHub 上查看。
 {0:0.#}% of what the model remembers · omp summarises by itself when it gets long	模型记住的对话的 {0:0.#}% · 对话变长时 omp 会自行总结
 How much the model remembers — shown after the next answer · omp summarises by itself when it gets long	模型记住的对话量 — 下一次回答结束后显示 · 对话变长时 omp 会自行总结
 Tidying…	整理中…
@@ -1800,6 +1877,7 @@ Pin to home ({0})	固定到主页 ({0})
 Removed ‘{0}’ from home	已从主页移除“{0}”
 Pinned ‘{0}’ to home	已把“{0}”固定到主页
 Remove from recent	从最近使用中删除
+‘{0}’ hidden · bring it back in Settings › Launcher › Hidden items	已隐藏“{0}” · 可在 设置 › 启动器 › 已隐藏的项目 中恢复
 Draw with AI… (describe the picture)	用 AI 画… (用文字描述图案)
 Back to the original icon	恢复原图标
 Picture icon for ‘{0}’	“{0}”的图案图标
@@ -1841,6 +1919,7 @@ Quick AI answer ready · Tab	快速 AI 回答完成 · Tab
 Edit home	编辑主页
 Done (Esc · Ctrl+E)	完成 (Esc · Ctrl+E)
 Order or hide the home blocks (Ctrl+E)	排列或隐藏主页区块 (Ctrl+E)
+Ctrl+Tab switches	Ctrl+Tab 切换
 Add a block	添加区块
 Click a card to add it here, or drag it into place	点击卡片添加到此栏末尾，拖动则添加到放下的位置
 1 hidden block	1 个已隐藏的区块
@@ -1854,7 +1933,9 @@ File name · Everything syntax (ext:pdf, dm:today)	文件名 · Everything 语�
 File search · Everything	文件搜索 · Everything
 File search · Everything is off	文件搜索 · Everything 未运行
 Find a chat, or ask something new	查找对话，或提出新问题
+Find a snippet · type a text and Enter to add it	查找常用语 · 输入文字后按 Enter 新建
 Find something you copied	查找复制过的内容
+Snippets · {0}	常用语 · {0} 条
 Clipboard history · {0}	剪贴板历史 · {0} 项
 Clipboard history · off	剪贴板历史 · 已关闭
 Find a reminder	查找提醒
@@ -1862,7 +1943,10 @@ Calendar · {0} reminders	日历 · {0} 个提醒
 Calendar · reminders	日历 · 提醒
 Find a shortcut · type an address and Enter to add one	查找快捷方式 · 输入网址后按 Enter 添加
 Browser · {0} · keyword + space + search	浏览器 · {0} · 关键词 + 空格 + 搜索词
+Find a command · scripts, snippets, chains, AI commands	查找命令 · 脚本、常用语、组合、AI 命令
 Custom commands · {0} · keyword + space + input	自定义命令 · {0} 个 · 关键词 + 空格 + 输入
+Find a notification · Enter opens it	查找通知 · 按 Enter 打开
+Notification center · {0}	通知中心 · {0} 条
 Apps	应用
 Find a program · Enter quits it · Ctrl+Enter closes its windows	查找程序 · Enter 强制结束 · Ctrl+Enter 关闭其窗口
 End apps · {0}	结束应用 · {0} 个
@@ -1944,6 +2028,183 @@ Monitor 1	显示器 1
 Monitor 2	显示器 2
 Clean now	立即清理
 1.2 GB freed	已释放 1.2 GB
+Coffee	咖啡
+Free to sleep	可以睡眠
+Awake until turned off	保持唤醒直到关闭
+Always	一直
+30 min	30 分钟
+1 h	1 小时
+2 h	2 小时
+Start button	开始按钮
+Unchanged	保持不变
+Hidden	隐藏
+Bloom button	Bloom 按钮
+Top	顶部
+Bottom	底部
+Taskbar height	任务栏高度
+Windows' own is 48	Windows 默认为 48
+Icon size	图标大小
+Windows' own is 24	Windows 默认为 24
+Icon spacing	图标间距
+An app button is the icon size plus this wide; Windows' own is 20	应用按钮宽度为图标大小加上间距。Windows 默认为 20
+Corner radius	圆角
+Background blur	背景模糊
+Background tint	背景色浓度
+Pill shape	胶囊形状
+Off, the taskbar looks as Windows draws it	关闭后恢复 Windows 默认外观
+Battery	电池
+Notification bell	通知铃铛
+Language bar	语言栏
+Extra language icons	语言辅助图标
+Clock	时钟
+Time and date	时间和日期
+Time only	仅时间
+Time format	时间格式
+Longest track title	曲名最大宽度
+A longer title ends in …	过长的曲名用 … 缩短
+Gap after the apps	应用与用量之间
+Gap before the tray	用量与托盘之间
+Sessions in the details	在详情窗口显示会话
+The window a click on the usage opens lists this PC's Claude Code and Codex sessions	单击用量打开的窗口中显示这台电脑上的 Claude Code·Codex 会话
+Windows panels by the tray	Windows 面板靠近托盘
+Quick Settings and the notification center open by the pill's tray, not at the screen's end	快速设置和通知中心在胶囊托盘旁打开，而不是屏幕边缘
+Notification center without the slide	关闭通知中心滑入动画
+The notification center and calendar appear in place instead of sliding in	通知中心和日历不从侧边滑入，直接在原位显示
+Now playing	正在播放
+Memory use	内存使用率
+CPU use	CPU 使用率
+Height	高度
+At 100% scale	以 100% 缩放为准
+Width	宽度
+At 100% scale; a track title that doesn't fit is shortened	以 100% 缩放为准。放不下时缩短曲名
+Where the clock sits	时钟位置
+On the middle island, or on one in the screen's left or right corner	放在中间的浮岛，或屏幕左右角的浮岛上
+Where now playing sits	正在播放的位置
+Where AI usage sits	AI 用量位置
+Where memory use sits	内存使用率位置
+Where CPU use sits	CPU 使用率位置
+Reveal zone	唤出区域
+The pointer brings the taskbar out only on this much of the edge; 100 is all of it	只有在边缘的这一部分，指针才能唤出任务栏。100 为整个边缘
+Wait before showing	显示前等待
+Wait before hiding	隐藏前等待
+Counted from when the pointer leaves	从指针离开时开始计算
+Animation length	动画时长
+Stay hidden for the Bloom launcher	打开 Bloom 启动器时保持隐藏
+Off, opening the launcher brings that monitor's taskbar out too	关闭后，打开启动器时该显示器的任务栏也会一起出现
+Stay hidden when an app flashes	应用闪烁时保持隐藏
+Off, it comes out as in Windows and stays until that app is opened	关闭后会像 Windows 一样出现，直到打开该应用
+Running folder	运行中文件夹
+Apps started without pinning gather in one clock-shaped folder	未固定就启动的应用会集中到一个时钟形状的文件夹
+Running folder's name	运行中文件夹名称
+Folder location	文件夹位置
+Each folder inside it becomes one taskbar folder	其中的每个文件夹会成为一个任务栏文件夹
+Wait before merging	合并前等待
+How long an app stays over another before they merge	应用在另一个应用上停留这么久才会合并
+Open folder size	打开的文件夹大小
+App names	显示应用名称
+Off, the cells shrink to the icons	关闭后，格子缩小到图标大小
+Icon size in folders	文件夹内图标大小
+Space between apps	应用间距
+Folder opens	文件夹打开方向
+Away from the taskbar	任务栏的另一侧
+Above the taskbar	任务栏上方
+Below the taskbar	任务栏下方
+Distance from the taskbar	与任务栏的距离
+Corner smoothing	圆角平滑度
+0 is an ordinary round corner, 60 a continuous curve	0 为普通圆角，60 为连续不断的曲线
+Left	左
+Middle	居中
+Right	右
+Look	外观
+With an administrator window in front, Windows' own shows	管理员权限的窗口在前台时显示为 Windows 样式
+Window previews	窗口预览
+App icons	应用图标
+Small	小
+Large	大
+Huge	特大
+Window names	窗口名称
+The chosen one	仅选中的窗口
+Where Alt+Tab shows	Alt+Tab 出现的位置
+Windows listed	显示的窗口
+Where Win+Alt+Tab shows	Win+Alt+Tab 出现的位置
+Windows Win+Alt+Tab lists	Win+Alt+Tab 显示的窗口
+Icon look	图标样式
+The number is what is in use now	数字是当前的使用量
+Outline	线条
+Filled	填充
+Solid	实心
+Value shown	显示的数值
+Right-clicking the icon changes it too	右键单击图标也可以切换
+Memory	内存
+Both	两者
+Clean when memory fills up	内存占用高时清理
+At most once every 30 seconds	最多每 30 秒一次
+At	阈值
+Clean on a schedule	按固定间隔清理
+Every	间隔
+Program	程序
+Brightness on the taskbar	任务栏上显示的亮度
+First monitor	第一台显示器
+Average	平均
+Per wheel notch	滚轮每格
+Turning the wheel over the taskbar icon	在任务栏图标上滚动滚轮时
+All monitors together	所有显示器一起
+Changing one sets the others to the same brightness	调整一台时，其他显示器也变为相同亮度
+Brighter	调亮
+Click, then press a new combination	单击后按下新的组合键
+Dimmer	调暗
+Per press	每按一次
+Dim when away	离开时调暗
+It comes back as soon as the mouse or keyboard is used	使用鼠标或键盘后恢复原样
+Dim to	调暗后的亮度
+Keep on	保持开启
+With the PC only, the screen turns off as usual	仅保持电脑时，屏幕照常关闭
+Screen and PC	屏幕和电脑
+PC only	仅电脑
+On with a right-click	右键单击开启时
+Until turned off	直到关闭
+1 hour	1 小时
+2 hours	2 小时
+A time of my own	自定义时间
+Switcher look	切换器样式
+With several monitors	有多台显示器时
+Taskbar icon	任务栏图标
+Cleaning	清理
+Programs left alone	不清理的程序
+Brightness range per monitor	每台显示器的亮度范围
+Cleaning leaves these programs' memory as it is	清理时不释放这些程序的内存
+Sets where 0 and 100 fall on each monitor's own brightness	设定亮度 0 和 100 对应显示器实际亮度的哪个位置
+The pointer's monitor	指针所在的显示器
+Main monitor	主显示器
+The highlighted windows are listed	强调色的窗口会出现在列表中
+That monitor's	仅该显示器的窗口
+All on the main one	主显示器上显示全部
+A little	少量清理
+Some	适量清理
+A lot	大量清理
+Main	主显示器
+Preview	预览
+9:41 PM	下午 9:41
+Pick what it shows below	请在下方选择要显示的内容
+Only what is picked shows	只显示选中的内容
+The wheel: {0}% a notch	滚轮每次 {0}%
+{0}% a press	每按一次 {0}%
+On the taskbar	在任务栏上
+In use	使用时
+{0} min idle	{0} 分钟无操作
+Dimmed	调暗
+Mouse or keys	鼠标·键盘
+Left click	左键单击
+30 min · 1 h …	30 分钟 · 1 小时 …
+Pick each time	每次选择
+Right click	右键单击
+On for 30 min	立即开启 30 分钟
+On for 1 hour	立即开启 1 小时
+On for 2 hours	立即开启 2 小时
+On for {0}	立即开启 {0}
+On until turned off	开启直到关闭
+The time set below	下方设定的时间
+How to use	使用方法
 {0} API key	{0} API 密钥
 The key is stored encrypted on this PC only and used only for requests to {0}. Usage is billed to your {1} account.	密钥仅加密保存在这台电脑上，只用于发往 {0} 的请求。使用费用计入你的 {1} 账户。
 Open the key page	打开密钥页面
@@ -1972,7 +2233,7 @@ Added accounts every {0} min · the home's ↻ checks all	已添加的账户每 
 5 min	5 分钟
 10 min	10 分钟
 What's used (32%) or what's left (68% left) · the bars follow	已用量 (32%) 或剩余量 (剩 68%) · 进度条也随之变化
-Left	剩余
+Remaining	剩余
 The picked icon files in their own colours or in one · the home cards and the taskbar share it	所选图标文件使用原色或单色 · 主页卡片与任务栏共用
 ChatGPT checks	ChatGPT 查询方式
 Lightweight: one HTTPS request with the Codex sign-in · no CLI · not an official API, may change	轻量方式：使用 Codex 登录发送 1 次 HTTPS 请求 · 不运行 CLI · 非官方 API，可能变化
@@ -1990,29 +2251,45 @@ Show on the home	在主页显示
 Hide on the home	在主页隐藏
 Default account	默认账户
 This account's renewed sign-in isn't saved yet. Try again in a moment.	尚未能保存此账户更新后的登录信息。请稍后再试。
+Looking for a new {0}	正在检查 {0} 的新版本
+GitHub release	GitHub 发布版
 Downloading {0}	正在下载 {0}
 Download	下载
 Couldn't download {0}	无法下载 {0}
 {0} {1} update	{0} {1} 更新
 Now {0} · from its GitHub release	当前 {0} · 从其 GitHub 发布版下载
-Update	更新
 Download {0} {1}	下载 {0} {1}
 From its GitHub release, checked by Bloom before it is installed	从其 GitHub 发布版下载，经 Bloom 校验后安装
-Check your connection and try again	请检查网络连接后重试
-The downloaded file isn't the one its release names, so it wasn't installed	下载的文件与发布版中注明的文件不同，因此未安装
 Download {0}	下载 {0}
-Looking for a new {0}	正在检查 {0} 的新版本
-GitHub release	GitHub 发布版
-There is no release to download yet	暂时没有可下载的发布版
 Report it on GitHub	在 GitHub 上报告问题
 Opens an issue in this add-on's repository, with its version and status filled in	在此加载项的仓库中新建 Issue · 已填好版本和状态
 Open an issue	新建 Issue
+Check your connection and try again	请检查网络连接后重试
+There is no release to download yet	暂时没有可下载的发布版
+The downloaded file isn't the one its release names, so it wasn't installed	下载的文件与发布版中注明的文件不同，因此未安装
 What the download holds isn't valid, so it wasn't installed	下载的内容无效，因此未安装
 Couldn't save the download · check the free disk space	无法保存下载的文件 · 请检查可用磁盘空间
+More · {0} monitors	更多 · {0} 台显示器
+More · {0}	更多 · {0} 项
+The upright mark is the {0}% in use now	竖向刻度是当前使用量 {0}%
+Win+Alt+Tab the same	Win+Alt+Tab 也相同
+Off, Win+Alt+Tab is set on its own	关闭后单独设定 Win+Alt+Tab
+Cleaning strength	清理强度
+Light: frees what programs hold but don't use	轻度：释放程序占用却未使用的内存
+Normal: frees what programs and caches don't use	标准：释放程序和缓存中多余的内存
+Strong: frees all seven kinds; things may pause a moment	强力：释放全部七种。可能会短暂停顿
+Custom: pick what to clean below	自定义：在下方选择要清理的部分
+Normal	标准
+Strong	强力
+{0} of {1} kinds	{1} 种中的 {0} 种
+What to clean	要清理的部分
 Add: {0}	添加{0}
 Up to {0} can be added	最多可添加 {0} 个
+Pick from running	从运行中的程序选择
+Pick a running program, or type its name below	从运行中的程序中选择，或在下方输入名称
 Type a name and press Enter	输入名称后按 Enter
 Type a file name ending in {0} and press Enter	输入以 {0} 结尾的文件名后按 Enter
+Add by name	按名称添加
 That name can't be used	不能使用此名称
 Only a file name ending in {0}	只能是以 {0} 结尾的文件名
 Already in the list	已在列表中
@@ -2020,6 +2297,8 @@ Off — click to set a shortcut	已关闭 — 点击设置快捷键
 Click and press another combination; Delete clears it	点击后按下其他组合键，按 Delete 清除
 Bloom already uses it	Bloom 已在使用此键
 They show here once the add-on has run	加载项运行过一次后会显示在这里
+Brightness range	亮度范围
+0 is {0}% and 100 is {1}% of the monitor's own	亮度 0 为实际的 {0}%，100 为实际的 {1}%
 Add-ons	加载项
 Add-ons are separate programs Bloom starts, each turned on and off here. Click one to open its page. One you put in the user-addons folder in Bloom's local data folder shows after Bloom restarts.	加载项是由 Bloom 启动的独立程序，在这里逐个开启和关闭。点击卡片即可打开该加载项的页面。你自己放入 Bloom 本地数据文件夹中 user-addons 的加载项，在重新启动 Bloom 后显示。
 All add-ons	加载项列表
@@ -2232,7 +2511,6 @@ Runs in the tray at sign-in	登录时在托盘中运行
 Not registered	未注册
 Win key over admin apps	在管理员应用上也使用 Win 键
 Opens with Win even over apps run as administrator · admin approval to turn on	即使前台是以管理员身份运行的应用，也可用 Win 键打开 · 开启需要管理员批准
-Look	外观
 System follows Windows' light or dark setting	“系统”跟随 Windows 的浅色或深色设置
 The launcher, tool windows, chat and settings together · Ctrl+= / Ctrl+- / Ctrl+0 in the launcher	启动器、工具窗口、对话和设置一起调整 · 在启动器中按 Ctrl+= / Ctrl+- / Ctrl+0
 Animation	动画
@@ -2293,6 +2571,15 @@ Drawing… {0}/{1}	正在画… {0}/{1}
  · {0} failed	 · {0} 个失败
 Restore the original icons	恢复原图标
 Restores original app icons for {0} picture icons.	将 {0} 个图片图标恢复为原应用图标。
+Hidden items	已隐藏的项目
+Results taken out of the search and the home, and bringing them back	从搜索和主页中隐藏的结果，以及恢复显示
+None · Ctrl+K on a result › Hide from search	无 · 在结果上按 Ctrl+K › 从搜索中隐藏
+{0} · not shown in the search or on the home	{0} 项 · 不在搜索和主页中显示
+Hidden search results	已隐藏的搜索结果
+Show all again	全部恢复显示
+Show again	恢复显示
+Site shortcut	网站快捷方式
+System switch	系统开关
 Clear counts	清除
 Token counts cleared	已清除 Token 统计
 Saved captures deleted: {0}	已删除 {0} 张已保存的截图
@@ -2300,6 +2587,7 @@ Shortcuts	快捷键
 Shortcuts that work in any app	在任何应用中都能用的快捷键
 Opens the chat window anywhere · down again when it's in front	随时打开对话窗口 · 已在最前时再按会收起
 Opens the clipboard history right away	立即打开剪贴板历史
+Opens the clipboard's snippets tab. Enter pastes into the window in front.	打开剪贴板的常用语标签页。按 Enter 粘贴到前面的窗口。
 Opens the list of open windows	打开已打开窗口的列表
 Emoji & symbols	表情符号 · 符号
 Choose a symbol and press Enter to paste into the active window.	选择符号并按 Enter，粘贴到当前窗口。
@@ -2429,7 +2717,6 @@ Work notifications	工作通知
 AI work starting, done or waiting for approval, as cards in a screen corner	在屏幕角落以卡片显示 AI 任务的开始、完成和等待批准
 On · about +1 MB of memory	已开启 · 内存约 +1 MB
 Off — no cards, no sounds · on: about +1 MB	已关闭 — 没有卡片和声音 · 开启后内存约 +1 MB
-Preview	预览
 Top left	左上
 Top center	顶部居中
 Top right	右上
@@ -2441,8 +2728,6 @@ Position	位置
 A preview card shows there when you pick	选择后预览卡片会显示在该位置
 Move it yourself	手动移动
 Drag a notice card on the screen · it sticks to the middle and the edges	在屏幕上拖动通知卡片 · 会吸附到中央和边缘
-Small	小
-Large	大
 X-large	特大
 Shown for	显示时长
 Stays while hovered · approval cards stay until work resumes	鼠标悬停时保留 · 批准卡片保留到操作继续
@@ -2506,11 +2791,9 @@ The address of the PC where JRiver runs (default {0}). Turn on JRiver's Media Ne
 Write it as http://address:port	请按 http://地址:端口 的格式填写
 Only when JRiver was given a user name and password. Leave it empty if not.	仅在 JRiver 设置了用户名和密码时填写。没有则留空。
 Stored encrypted on this PC only and used only for requests to JRiver. It is not shown while typed.	仅加密保存在这台电脑上，只用于发往 JRiver 的请求。输入时不显示。
-About PillTaskbar	关于 PillTaskbar
-PillTaskbar is a separate GPL-3.0 program · {0}	PillTaskbar 是采用 GPL-3.0 的独立程序 · {0}
 Taskbar folders	任务栏文件夹
-Dragging an app onto another on the taskbar and holding it there briefly makes a folder too	在任务栏上把应用拖到另一个应用上停留片刻，也会成为文件夹
-Off · when on, pinned apps can be grouped into folders	关闭 · 打开后可把固定的应用归入文件夹
+Dropping an app onto another makes a folder	将应用拖到另一个应用上即可成为文件夹
+On, pinned apps can be grouped into folders	开启后可将固定的应用归入文件夹
 Folders can be edited while taskbar customization runs	任务栏美化运行时可以编辑文件夹
 The taskbar hasn't sent its folders yet	任务栏尚未发来文件夹信息
 The taskbar didn't answer within 5 seconds, so for now this is read only	任务栏 5 秒内没有响应，目前只能查看
@@ -2518,17 +2801,18 @@ Taskbar folders haven't turned on yet	任务栏文件夹尚未打开
 Edit folders	编辑文件夹
 Make folders and change their names, icons and apps	创建文件夹，并更改名称、图标和其中的应用
 Taskbar look	任务栏外观
-Changes the taskbar's height and icon size together	同时更改任务栏高度和图标大小
-Blurs what is behind the pill. Lit glass adds light and a sheen at the edges	模糊显示胶囊后方。受光玻璃会在边缘加上光线和反光
+The taskbar's height and icon size	任务栏高度和图标大小
+Blurs what is behind the pill	模糊显示胶囊后方
 The flower button opens and closes Bloom	按下花朵按钮可打开或关闭 Bloom
+Where on the screen	屏幕上的位置
+Windows' own setting stays as it is	不更改 Windows 设置
+Pill alignment	胶囊对齐
 A number changed here makes the size above ‘Custom’	在此更改数值后，上方的大小会变为“自定义”
 Taskbar tray	任务栏托盘
 Icons shown	显示的图标
-Only the ones on stay in the tray; the ones off leave no gap	只有打开的留在托盘中，关闭的图标不留空位
-Only the 12-hour clock shows AM and PM	仅 12 小时制显示上午、下午
-Now playing	正在播放
-Puts the album art, the title and previous, play and next buttons before the tray	在托盘前放置专辑封面、标题以及上一首、播放、下一首按钮
-Shows one picked value per account as a bar. The auto-hide island shows the same	每个账户以条形显示所选的一个值。自动隐藏小岛也显示相同的值
+An icon turned off leaves no gap	关闭的图标不会留下空位
+Album art, title and play buttons	专辑封面、标题、播放按钮
+A bar per account; the island shows it too	每个账户一条进度条。隐藏浮岛中也会显示
 Usage file export is off	用量文件导出已关闭
 The taskbar reads the usage file Bloom exports; turn it on to see the usage	任务栏读取 Bloom 导出的用量文件，打开后才会显示用量
 The same setting as the home cards	与主页卡片相同的设置
@@ -2537,13 +2821,13 @@ Bell only with new notifications	仅在有新通知时显示通知铃
 Hides the bell while there are no notifications	没有通知时隐藏通知铃
 Auto-hide island	自动隐藏小岛
 Use the auto-hide island	使用自动隐藏小岛
-The taskbar hides itself, and an island appears at the top centre of the screen	任务栏会自动隐藏，屏幕顶部中央会出现小岛
-With click, pointing at it alone doesn't bring it out	选择点击时，仅指向不会唤出
-The taskbar follows Bloom's light or dark; the island's colour is picked here	任务栏跟随 Bloom 的浅色或深色，灵动岛的颜色在此选择
+The taskbar hides, and a small island stays at the screen's edge	任务栏隐藏后，屏幕边缘留下一个小浮岛
+Bringing the taskbar out	唤出任务栏
 Shown on the island	小岛上显示的内容
-With the pointer over it	指针悬停时
-What is below shows through while the pointer is there: 0 not at all, 100 fully	指针在上方时可透出下方内容：0 不透，100 完全透明
-More · {0}	更多 · {0} 项
+See-through under the pointer	指针悬停时透明
+0 not at all, 100 fully	0 为不透明，100 为完全透明
+Island colour	浮岛颜色
+{0} changed	已更改 {0} 项
 {0} to {1}	{0} 到 {1}
 The taskbar add-on's files are not valid, or it needs a newer Bloom	任务栏加载项文件无效，或需要更新版本的 Bloom
 Paused · Explorer kept crashing, so taskbar customization was turned off	已暂停 · 资源管理器连续崩溃，已关闭任务栏自定义
@@ -2556,7 +2840,7 @@ Icon colour	图标颜色
 Original	原色
 Single colour	单色
 Label	名称标签
-Written beside the icon. An account without a name shows its plan; a long one is cut with …. The island shows it too	显示在图标旁。没有名称的账户显示套餐，过长时以 … 截断。小岛上也会显示
+Written beside the icon; an account without a name shows its plan	写在图标旁。没有名称的账户显示套餐名
 Plan	套餐
 This plan has only the {0} limit	此套餐只有 {0} 限额
 Choose a file…	选择文件…
@@ -2567,7 +2851,6 @@ A letter shows. You can choose a logo file (SVG, PNG, ICO)	显示字母。可以
 Icon	图标
 Logos (*.svg;*.png;*.ico)|*.svg;*.png;*.ico	徽标 (*.svg;*.png;*.ico)|*.svg;*.png;*.ico
 That file couldn't be brought in as the icon.	无法将该文件用作图标。
-{0} changed	已更改 {0} 项
 Off · turn it on in Features	已关闭 · 在“功能”中开启
 Another app already uses it — press another combination	已被其他应用占用 — 请按其他组合
 No settings found	未找到设置
@@ -2627,9 +2910,12 @@ The taskbar couldn't carry it out	任务栏无法执行该命令
 {0} failed · {1}	{0} 失败 · {1}
 Fits the content	适应内容
 Windows default	Windows 默认
-Faintly outlined glass	淡轮廓玻璃
+Faint outline	浅色轮廓线
 Lit glass	受光玻璃
-Borderless glass	无边框玻璃
+No outline	无边框
+As Windows	跟随 Windows
+Point at it	指针移上去时
+Click it	单击时
 Rose	玫瑰
 Lavender	薰衣草
 Sky	天空
@@ -2674,104 +2960,3 @@ just now	刚刚
 Detach from the launcher	从启动器分离
 Always on top	始终置顶
 Attach to the launcher	附到启动器
-Hide from search	从搜索中隐藏
-‘{0}’ hidden · bring it back in Settings › Launcher › Hidden items	已隐藏“{0}” · 可在 设置 › 启动器 › 已隐藏的项目 中恢复
-Hidden items	已隐藏的项目
-Results taken out of the search and the home, and bringing them back	从搜索和主页中隐藏的结果，以及恢复显示
-None · Ctrl+K on a result › Hide from search	无 · 在结果上按 Ctrl+K › 从搜索中隐藏
-{0} · not shown in the search or on the home	{0} 项 · 不在搜索和主页中显示
-Hidden search results	已隐藏的搜索结果
-Show all again	全部恢复显示
-Show again	恢复显示
-Site shortcut	网站快捷方式
-System switch	系统开关
-hidden	已隐藏
-The prompt is empty. Edit the command.	提示词为空。请编辑命令。
-Step {0} failed · {1}	第 {0} 步失败 · {1}
-I ran ‘{0}’; this was the result. Let's continue.\n\n[Result]\n{1}	我运行了‘{0}’，结果如下。我们接着聊。\n\n[结果]\n{1}
-AI command · Done	AI 命令 · 完成
-AI command · Failed	AI 命令 · 失败
-Open chat	打开对话
-The chat was deleted	对话已删除
-New AI command	新建 AI 命令
-selection · clipboard · none — Enter alone takes the selection	选中 · 剪贴板 · 无 — 直接按 Enter 即为选中文本
-Enter selection, clipboard or none	请输入选中、剪贴板或无
-Schedule	定时
-Schedule (optional) — e.g. 30m, 2h, 3d, daily 09:00 · only with no input	定时（可选）— 例：30分钟、2小时、3天、每天 09:00 · 仅限输入为“无”
-Only a command with no input can run on a schedule	只有输入为“无”的命令才能定时运行
-Next run {0}	下次运行 {0}
-Open the results chat	打开结果对话
-Set a schedule	设置定时
-Change the schedule	更改定时
-Stop the schedule	关闭定时运行
-Schedule off	定时运行已关闭
-‘{0}’ schedule	‘{0}’ 的定时
-AI command	AI 命令
-Save an AI instruction you use often · run it on the selection or clipboard · >> for several steps	用名称保存常用的 AI 指令 · 对选中文本或剪贴板运行 · 用 >> 分多步
-Prompt	提示词
-What the AI should do — split steps by >>  e.g. Summarize in 3 lines >> Translate into Korean	要 AI 做的事 — 用 >> 分隔步骤  例）概括为 3 行 >> 翻译成英语
-Enter what the AI should do	请输入要 AI 做的事
-No notifications	没有通知
-No matching notifications	没有匹配的通知
-{0}/{1} {2:HH:mm}	{0}月{1}日 {2:HH:mm}
-Result	结果
-Copy the preview	复制预览
-Delete this notification	删除此通知
-Deletes all {0} notifications.	将删除全部 {0} 条通知。
-‘{0}’ in progress… step {1}	‘{0}’ 进行中… 第 {1} 步
-My AI commands	我的 AI 命令
-Tidy meeting notes	整理会议记录
-Only the decisions and to-dos as a list >> Translate into Korean	只把决定和待办列成清单 >> 翻译成英语
-Phrase of the day	今日英语表达
-One useful Korean phrase for today with two examples	一个今天用得上的英语表达和两个例句
-Summarize in 3 lines >> Translate into Korean	概括为 3 行 >> 翻译成英语
-phrase of the	今日英语
-Tomorrow's 3 pm meeting moves to 4. Min brings the slides, Ji books the room.	明天下午 3 点的会议改到 4 点。小明准备资料，小丽负责订会议室。
-**I'm swamped** — I have too much to do.\n1. I'm swamped this week.\n2. Sorry, I was swamped yesterday.	**I'm swamped** — 事情多到忙不过来。\n1. I'm swamped this week.（这周忙不过来）\n2. Sorry, I was swamped yesterday.（抱歉，昨天太忙了）
-No input	无输入
-Selected text	选中的文本
-The shortest interval is 30 minutes	最短间隔为 30 分钟
-The interval can be at most 365 days	间隔最长为 365 天
-e.g. 30m, 2h, 3d, daily 09:00	例：30分钟、2小时、3天、每天 09:00
-Daily at {0}	每天 {0}
-Every {0:0} d	每 {0:0} 天
-Every {0:0} h	每 {0:0} 小时
-Every {0:0} min	每 {0:0} 分钟
-Notification center	通知中心
-Find a command · scripts, snippets, chains, AI commands	查找命令 · 脚本、常用语、组合、AI 命令
-Notification center · {0}	通知中心 · {0} 条
-Waiting for approval	等待批准
-History	记录
-Finished tasks, limits, approvals and command results collect here	任务完成、额度、等待批准和用户命令的结果会汇集在这里
-Go to session	前往会话
-Polish the sign-in screen	完善登录界面
-Elapsed: 12 min	耗时 12 分钟
-Tidy the downloads folder	整理下载文件夹
-Finished tasks, limits, approvals and command results in one place	任务完成、额度、等待批准和用户命令的结果集中一处
-Find a notification · Enter opens it	查找通知 · 按 Enter 打开
-Coffee	咖啡
-Free to sleep	可以睡眠
-Awake until turned off	保持唤醒直到关闭
-Always	一直
-30 min	30 分钟
-1 h	1 小时
-2 h	2 小时
-Save as a snippet	保存为常用语
-Delete snippet	删除常用语
-Edit snippet	编辑常用语
-Snippets	常用语
-Save ‘{0}’ as a snippet	将‘{0}’保存为常用语
-A text you use often · Enter pastes it into the window in front · {date} {time} {clipboard} {input}	经常使用的文字 · 按 Enter 粘贴到前面的窗口 · {date} {time} {clipboard} {input}
-Already a snippet: ‘{0}’	‘{0}’ 已在常用语中
-Saved ‘{0}’ as a snippet	已将‘{0}’保存为常用语
-110 Main Street\n3rd floor, design team	北京市朝阳区建国路 88 号\n3 层 设计组
-Payment details	付款说明
-It ships as soon as the payment arrives.	确认收款后立即发货。
-payment	收款
-Closed today	今天休息
-Ctrl+Tab switches	Ctrl+Tab 切换
-Find a snippet · type a text and Enter to add it	查找常用语 · 输入文字后按 Enter 新建
-Snippets · {0}	常用语 · {0} 条
-Opens the clipboard's snippets tab. Enter pastes into the window in front.	打开剪贴板的常用语标签页。按 Enter 粘贴到前面的窗口。
-{0} · installed	{0} · 已安装
-Couldn't load the release notes. Check the connection, or see them on GitHub.	无法加载更新说明。请检查网络连接，或在 GitHub 上查看。
