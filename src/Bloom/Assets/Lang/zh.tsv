@@ -169,10 +169,13 @@ It has {0} other names, so it changes there too.	它还有 {0} 个其他名称�
 The prompt is empty. Edit the command.	提示词为空。请编辑命令。
 Step {0} failed · {1}	第 {0} 步失败 · {1}
 No response. Try again.	无响应。请重试。
-Claude Code · Approval request	Claude Code · 批准请求
-Allow	允许
 Decline	拒绝
 Answer in terminal	在终端中回答
+Claude Code · Question	Claude Code · 提问
+Claude's question	Claude 的提问
+Claude's {0} questions	Claude 的 {0} 个提问
+Claude Code · Approval request	Claude Code · 批准请求
+Allow	允许
 Bloom couldn't open the file	Bloom 无法打开文件
 The file isn't there, or it can't be opened	文件不存在，或无法打开
 Markdown document	Markdown 文档
@@ -304,6 +307,8 @@ Approval pending · click to go to session	等待批准 · 点击转到会话
 Claude · Limit near	Claude · 即将达到上限
 18% of the weekly limit left	每周额度剩余 18%
 Resets in 2 d	2 天后重置
+Mail	邮件
+Another app's Windows notification · click for the notification center	其他应用的 Windows 通知 · 点击打开通知中心
 ChatGPT · Limit reset	ChatGPT · 额度重置
 5-hour limit reset	5 小时额度已重置
 Needs approval	等待批准
@@ -1061,6 +1066,17 @@ Now estimate Q4 from this	再根据这些预测一下第四季度
 sum	sum
 Refresh every	刷新间隔
 account	账户
+Claude's 2 questions	Claude 的 2 个提问
+How should the notification center and the taskbar go together?	通知中心和任务栏要如何联动？
+Pairing	联动方式
+By the mouse (recommended)	以鼠标为准（推荐）
+Both close once the mouse leaves them.	鼠标离开两者后一起关闭。
+While it is open	打开期间一直显示
+The taskbar stays out while the center is open.	通知中心打开期间，任务栏也保持显示。
+Which screens?	应用到哪些屏幕？
+Screens	屏幕
+Main monitor	主显示器
+Second monitor	副显示器
 Refactor the sign-in screen, session expiry and the error wording in one go	一次性重构登录界面、会话过期处理和错误文案
 “Also fix signing in again after the session drops, and add tests”	“会话断开后重新登录的流程也一起修好，再加上测试”
 Tidy the build script	整理构建脚本
@@ -1615,7 +1631,6 @@ Terminal	终端
 Colour · design	颜色 · 设计
 Photos	照片
 People · messenger	人物 · 聊天
-Mail	邮件
 Usage · speed	用量 · 速度
 Cloud	云
 Shopping	购物
@@ -1636,6 +1651,10 @@ Drag the notice card where you want it.	将通知卡片拖到想要的位置。
 It sticks to the middle and the edges nearby.	靠近中央和边缘时会自动吸附。
 Hold Ctrl while dragging to place it freely.	按住 Ctrl 拖动则不吸附。
 Island	浮岛
+Answer	回答
+Pick any	可多选
+Other (type your own)	其他（自己输入）
+Click to open Windows' notification center	点击打开 Windows 通知中心
 Click to go to the session window	点击转到会话窗口
 Search in your browser · site shortcuts (e.g. yt cats)	在浏览器中搜索 · 网站快捷方式 (例如 yt cats)
 Find files on this PC by name (Everything)	按名称查找本机文件 (Everything)
@@ -2175,7 +2194,6 @@ Brightness range per monitor	每台显示器的亮度范围
 Cleaning leaves these programs' memory as it is	清理时不释放这些程序的内存
 Sets where 0 and 100 fall on each monitor's own brightness	设定亮度 0 和 100 对应显示器实际亮度的哪个位置
 The pointer's monitor	指针所在的显示器
-Main monitor	主显示器
 The highlighted windows are listed	强调色的窗口会出现在列表中
 That monitor's	仅该显示器的窗口
 All on the main one	主显示器上显示全部
@@ -2747,6 +2765,8 @@ Bloom · Notifications	Bloom · 通知
 Couldn't change Claude Code's settings	无法更改 Claude Code 的设置
 5-hour · weekly limit at 20% left or when used up	5 小时 · 每周额度剩余 20% 时和用完时
 When a low limit is full again after its reset	不足的额度在重置后恢复满时
+Windows notifications	Windows 通知
+Other apps' Windows banners as these cards · a click opens Windows' notification center · needs the PillTaskbar add-on	用这些卡片代替其他应用的 Windows 通知横幅 · 点击打开 Windows 通知中心 · 需要任务栏插件 PillTaskbar
 Version, updates and help	版本、更新和帮助
 Version	版本
 Update history	更新记录
@@ -2828,7 +2848,7 @@ See-through under the pointer	指针悬停时透明
 0 not at all, 100 fully	0 为不透明，100 为完全透明
 Island colour	浮岛颜色
 {0} changed	已更改 {0} 项
-{0} to {1}	{0} 到 {1}
+{0}–{1}	{0}～{1}
 The taskbar add-on's files are not valid, or it needs a newer Bloom	任务栏加载项文件无效，或需要更新版本的 Bloom
 Paused · Explorer kept crashing, so taskbar customization was turned off	已暂停 · 资源管理器连续崩溃，已关闭任务栏自定义
 No symbols · this Windows version lacks the taskbar symbols it needs	无符号 · 此 Windows 版本缺少所需的任务栏符号
@@ -2863,7 +2883,7 @@ Sending to the taskbar…	正在发送到任务栏…
 Click a folder to edit it below	点击文件夹即可在下方编辑
 New folder	新建文件夹
 Automatic folder	自动文件夹
-The folders pinned to the taskbar show here while taskbar customization runs.	任务栏美化运行时，固定的文件夹会显示在这里。
+The folders pinned to the taskbar show here while taskbar customization runs	任务栏美化运行时，固定的文件夹会显示在这里
 Take out	移出
 Folder name	文件夹名称
 Change icon	更改图标

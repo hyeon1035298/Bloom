@@ -154,12 +154,12 @@ internal static partial class WindowsToasts
         var found = new List<Toast>();
         if (sqlite3_open_v2(Store, out IntPtr db, 1 /* READONLY */, IntPtr.Zero) != 0)
         {
-            sqlite3_close(db);
+            _ = sqlite3_close(db);
             return (-1, found);
         }
         try
         {
-            sqlite3_busy_timeout(db, 500);
+            _ = sqlite3_busy_timeout(db, 500);
             long newest = -1;
             Query(db, "select max(Id) from Notification", s => newest = sqlite3_column_int64(s, 0));
             if (after < 0 || newest <= after) return (newest, found);
@@ -176,7 +176,7 @@ internal static partial class WindowsToasts
         }
         finally
         {
-            sqlite3_close(db);
+            _ = sqlite3_close(db);
         }
     }
 
@@ -189,7 +189,7 @@ internal static partial class WindowsToasts
         }
         finally
         {
-            sqlite3_finalize(s);
+            _ = sqlite3_finalize(s);
         }
     }
 
@@ -239,7 +239,7 @@ internal static partial class WindowsToasts
 
     [LibraryImport("user32.dll", EntryPoint = "RegisterWindowMessageW", StringMarshalling = StringMarshalling.Utf16)] private static partial uint RegisterWindowMessage(string name);
     [LibraryImport("user32.dll", EntryPoint = "GetPropW", StringMarshalling = StringMarshalling.Utf16)] private static partial IntPtr GetProp(IntPtr hwnd, string name);
-    [LibraryImport("user32.dll", EntryPoint = "SetPropW", StringMarshalling = StringMarshalling.Utf16)] [return: MarshalAs(UnmanagedType.Bool)] private static partial bool SetProp(IntPtr hwnd, string name, IntPtr data);
+    [LibraryImport("user32.dll", EntryPoint = "SetPropW", StringMarshalling = StringMarshalling.Utf16)][return: MarshalAs(UnmanagedType.Bool)] private static partial bool SetProp(IntPtr hwnd, string name, IntPtr data);
     [LibraryImport("user32.dll", EntryPoint = "RemovePropW", StringMarshalling = StringMarshalling.Utf16)] private static partial IntPtr RemoveProp(IntPtr hwnd, string name);
 
     // the system's SQLite (Windows' own, no package)
