@@ -297,7 +297,7 @@ internal sealed class TaskbarEditor : Border
         if (edit.New) return NewFolder();
         string? current = Current;
         if (current == Running) return RunningDetail();
-        if (current is null) return state is null ? Faint(Tr("작업표시줄 꾸미기가 작동하면 고정한 폴더가 여기에 보입니다.", "The folders pinned to the taskbar show here while taskbar customization runs.")) : Empty();
+        if (current is null) return state is null ? Faint(Tr("작업표시줄 꾸미기가 작동하면 고정한 폴더가 여기에 보입니다", "The folders pinned to the taskbar show here while taskbar customization runs")) : Empty();
         var d = FolderDetail(current);
         d.IsEnabled = !readOnly;
         return d;

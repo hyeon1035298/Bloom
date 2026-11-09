@@ -415,8 +415,9 @@ internal sealed partial class SettingsView
                     break;
                 }
                 // a wide range (a height in pixels, a delay in ms): typed in, empty = the default; a "not set" number
-                // shows as its words in the empty field
-                string range = Tr($"{Unit(min, unit)}에서 {Unit(max, unit)}까지", $"{Unit(min, unit)} to {Unit(max, unit)}");
+                // shows as its words in the empty field, so the range starts after it; short, so it stays on one line
+                int low = Special(key, min) is null ? min : min + 1;
+                string range = Tr($"{low}~{Unit(max, unit)}", $"{low}–{Unit(max, unit)}");
                 int now = v.Int(key);
                 Field(title, sub is null ? range : $"{sub} · {range}", glyph, Special(key, now) is null ? now.ToString(CultureInfo.InvariantCulture) : "",
                     Special(key, def) ?? def.ToString(CultureInfo.InvariantCulture),
