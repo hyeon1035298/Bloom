@@ -2035,11 +2035,90 @@ Always	一直
 30 min	30 分钟
 1 h	1 小时
 2 h	2 小时
+Start button	开始按钮
+Unchanged	保持不变
+Hidden	隐藏
+Bloom button	Bloom 按钮
+Top	顶部
+Bottom	底部
+Taskbar height	任务栏高度
+Windows' own is 48	Windows 默认为 48
+Icon size	图标大小
+Windows' own is 24	Windows 默认为 24
+Icon spacing	图标间距
+An app button is the icon size plus this wide; Windows' own is 20	应用按钮宽度为图标大小加上间距。Windows 默认为 20
+Corner radius	圆角
+Background blur	背景模糊
+Background tint	背景色浓度
+Pill shape	胶囊形状
+Off, the taskbar looks as Windows draws it	关闭后恢复 Windows 默认外观
+Battery	电池
+Notification bell	通知铃铛
+Language bar	语言栏
+Extra language icons	语言辅助图标
+Clock	时钟
+Time and date	时间和日期
+Time only	仅时间
+Time format	时间格式
+Longest track title	曲名最大宽度
+A longer title ends in …	过长的曲名用 … 缩短
+Gap after the apps	应用与用量之间
+Gap before the tray	用量与托盘之间
+Sessions in the details	在详情窗口显示会话
+The window a click on the usage opens lists this PC's Claude Code and Codex sessions	单击用量打开的窗口中显示这台电脑上的 Claude Code·Codex 会话
+Windows panels by the tray	Windows 面板靠近托盘
+Quick Settings and the notification center open by the pill's tray, not at the screen's end	快速设置和通知中心在胶囊托盘旁打开，而不是屏幕边缘
+Notification center without the slide	关闭通知中心滑入动画
+The notification center and calendar appear in place instead of sliding in	通知中心和日历不从侧边滑入，直接在原位显示
+Now playing	正在播放
+Memory use	内存使用率
+CPU use	CPU 使用率
+Height	高度
+At 100% scale	以 100% 缩放为准
+Width	宽度
+At 100% scale; a track title that doesn't fit is shortened	以 100% 缩放为准。放不下时缩短曲名
+Where the clock sits	时钟位置
+On the middle island, or on one in the screen's left or right corner	放在中间的浮岛，或屏幕左右角的浮岛上
+Where now playing sits	正在播放的位置
+Where AI usage sits	AI 用量位置
+Where memory use sits	内存使用率位置
+Where CPU use sits	CPU 使用率位置
+Reveal zone	唤出区域
+The pointer brings the taskbar out only on this much of the edge; 100 is all of it	只有在边缘的这一部分，指针才能唤出任务栏。100 为整个边缘
+Wait before showing	显示前等待
+Wait before hiding	隐藏前等待
+Counted from when the pointer leaves	从指针离开时开始计算
+Animation length	动画时长
+Stay hidden for the Bloom launcher	打开 Bloom 启动器时保持隐藏
+Off, opening the launcher brings that monitor's taskbar out too	关闭后，打开启动器时该显示器的任务栏也会一起出现
+Stay hidden when an app flashes	应用闪烁时保持隐藏
+Off, it comes out as in Windows and stays until that app is opened	关闭后会像 Windows 一样出现，直到打开该应用
+Running folder	运行中文件夹
+Apps started without pinning gather in one clock-shaped folder	未固定就启动的应用会集中到一个时钟形状的文件夹
+Running folder's name	运行中文件夹名称
+Folder location	文件夹位置
+Each folder inside it becomes one taskbar folder	其中的每个文件夹会成为一个任务栏文件夹
+Wait before merging	合并前等待
+How long an app stays over another before they merge	应用在另一个应用上停留这么久才会合并
+Open folder size	打开的文件夹大小
+App names	显示应用名称
+Off, the cells shrink to the icons	关闭后，格子缩小到图标大小
+Icon size in folders	文件夹内图标大小
+Space between apps	应用间距
+Folder opens	文件夹打开方向
+Away from the taskbar	任务栏的另一侧
+Above the taskbar	任务栏上方
+Below the taskbar	任务栏下方
+Distance from the taskbar	与任务栏的距离
+Corner smoothing	圆角平滑度
+0 is an ordinary round corner, 60 a continuous curve	0 为普通圆角，60 为连续不断的曲线
+Left	左
+Middle	居中
+Right	右
 Look	外观
 With an administrator window in front, Windows' own shows	管理员权限的窗口在前台时显示为 Windows 样式
 Window previews	窗口预览
 App icons	应用图标
-Icon size	图标大小
 Small	小
 Large	大
 Huge	特大
@@ -2154,7 +2233,7 @@ Added accounts every {0} min · the home's ↻ checks all	已添加的账户每 
 5 min	5 分钟
 10 min	10 分钟
 What's used (32%) or what's left (68% left) · the bars follow	已用量 (32%) 或剩余量 (剩 68%) · 进度条也随之变化
-Left	剩余
+Remaining	剩余
 The picked icon files in their own colours or in one · the home cards and the taskbar share it	所选图标文件使用原色或单色 · 主页卡片与任务栏共用
 ChatGPT checks	ChatGPT 查询方式
 Lightweight: one HTTPS request with the Codex sign-in · no CLI · not an official API, may change	轻量方式：使用 Codex 登录发送 1 次 HTTPS 请求 · 不运行 CLI · 非官方 API，可能变化
@@ -2732,7 +2811,6 @@ A number changed here makes the size above ‘Custom’	在此更改数值后，
 Taskbar tray	任务栏托盘
 Icons shown	显示的图标
 An icon turned off leaves no gap	关闭的图标不会留下空位
-Now playing	正在播放
 Album art, title and play buttons	专辑封面、标题、播放按钮
 A bar per account; the island shows it too	每个账户一条进度条。隐藏浮岛中也会显示
 Usage file export is off	用量文件导出已关闭

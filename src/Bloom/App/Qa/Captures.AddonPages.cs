@@ -31,17 +31,15 @@ internal static partial class Captures
         foreach (string theme in new[] { "light", "dark" })
         {
             Theme.Apply(theme);
-            foreach (var a in list)
-            {
-                await TaskbarShot(sw, Path.Combine(dir, $"{l}-{theme}-page-{a.Id}-1.png"), SettingsView.AddonPageKey(a.Id));
-                var view = sw.ViewForQa;
-                for (int i = 2; i <= 12 && view.VerticalOffset + view.ViewportHeight < view.ExtentHeight - 1; i++)
-                {
-                    view.ScrollToVerticalOffset(view.VerticalOffset + view.ViewportHeight - 80);
-                    await Task.Delay(200);
-                    await sw.Dispatcher.InvokeAsync(() => sw.Capture(Path.Combine(dir, $"{l}-{theme}-page-{a.Id}-{i}.png")), System.Windows.Threading.DispatcherPriority.ApplicationIdle);
-                }
-            }
+            foreach (var a in list) await PageScreens(sw, a.Id, Path.Combine(dir, $"{l}-{theme}-page-{a.Id}"));
+        }
+        // the taskbar page again with every 자세히 open (light): the folded lines' words
+        if (taskbar.Schema is not null)
+        {
+            Theme.Apply("light");
+            SettingsView.OpenTaskbarFoldsForQa(true);
+            await PageScreens(sw, taskbar.Id, Path.Combine(dir, $"{l}-light-page-{taskbar.Id}-open"));
+            SettingsView.OpenTaskbarFoldsForQa(false);
         }
         // the mouse's back button on the last add-on's page: back on 애드온
         var back = new System.Windows.Input.MouseButtonEventArgs(System.Windows.Input.Mouse.PrimaryDevice, Environment.TickCount, System.Windows.Input.MouseButton.XButton1) { RoutedEvent = UIElement.PreviewMouseDownEvent };
@@ -52,5 +50,19 @@ internal static partial class Captures
         taskbar.QaStatus = null;
         Settings.Current.AddonsOn.Remove(taskbar.Id);
         sw.Close();
+    }
+
+    /// An add-on's page, a screen at a time to its end: `<name>-1.png`, `-2`, ….
+    private static async Task PageScreens(SettingsWindow sw, string id, string name)
+    {
+        await TaskbarShot(sw, $"{name}-1.png", SettingsView.AddonPageKey(id));
+        var view = sw.ViewForQa;
+        for (int i = 2; i <= 12 && view.VerticalOffset + view.ViewportHeight < view.ExtentHeight - 1; i++)
+        {
+            view.ScrollToVerticalOffset(view.VerticalOffset + view.ViewportHeight - 80);
+            await Task.Delay(200);
+            string file = $"{name}-{i}.png";
+            await sw.Dispatcher.InvokeAsync(() => sw.Capture(file), System.Windows.Threading.DispatcherPriority.ApplicationIdle);
+        }
     }
 }

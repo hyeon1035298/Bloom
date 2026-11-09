@@ -2035,11 +2035,90 @@ Always	ずっと
 30 min	30 分
 1 h	1 時間
 2 h	2 時間
+Start button	スタートボタン
+Unchanged	そのまま
+Hidden	非表示
+Bloom button	Bloom ボタン
+Top	上
+Bottom	下
+Taskbar height	タスクバーの高さ
+Windows' own is 48	Windows の標準は 48 です
+Icon size	アイコンのサイズ
+Windows' own is 24	Windows の標準は 24 です
+Icon spacing	アイコンの間隔
+An app button is the icon size plus this wide; Windows' own is 20	アプリボタンの幅はアイコンのサイズに間隔を足した値です。Windows の標準は 20 です
+Corner radius	角の丸み
+Background blur	背景のぼかし
+Background tint	背景色の濃さ
+Pill shape	ピルの形
+Off, the taskbar looks as Windows draws it	オフにすると Windows 標準の見た目に戻ります
+Battery	バッテリー
+Notification bell	通知ベル
+Language bar	言語バー
+Extra language icons	言語の補助アイコン
+Clock	時計
+Time and date	時刻と日付
+Time only	時刻のみ
+Time format	時刻の表記
+Longest track title	曲名の最大幅
+A longer title ends in …	はみ出した曲名は … で縮めます
+Gap after the apps	アプリと使用量の間
+Gap before the tray	使用量とトレイの間
+Sessions in the details	詳細ウィンドウにセッションを表示
+The window a click on the usage opens lists this PC's Claude Code and Codex sessions	使用量をクリックして開くウィンドウに、この PC の Claude Code・Codex のセッションを表示します
+Windows panels by the tray	Windows パネルをトレイの横に
+Quick Settings and the notification center open by the pill's tray, not at the screen's end	クイック設定と通知センターを、画面の端ではなくピルのトレイの横に開きます
+Notification center without the slide	通知センターのスライドをオフ
+The notification center and calendar appear in place instead of sliding in	通知センターとカレンダーが横からスライドせず、その場に表示されます
+Now playing	再生中の曲
+Memory use	メモリ使用率
+CPU use	CPU 使用率
+Height	高さ
+At 100% scale	100% の拡大率が基準です
+Width	幅
+At 100% scale; a track title that doesn't fit is shortened	100% の拡大率が基準です。収まらないときは曲名を縮めます
+Where the clock sits	時計の位置
+On the middle island, or on one in the screen's left or right corner	中央のアイランド、または画面の左右の隅のアイランドに置きます
+Where now playing sits	再生中の曲の位置
+Where AI usage sits	AI 使用量の位置
+Where memory use sits	メモリ使用率の位置
+Where CPU use sits	CPU 使用率の位置
+Reveal zone	表示される範囲
+The pointer brings the taskbar out only on this much of the edge; 100 is all of it	端のこの範囲でだけ、ポインターでタスクバーが出てきます。100 なら端全体です
+Wait before showing	表示までの時間
+Wait before hiding	隠れるまでの時間
+Counted from when the pointer leaves	ポインターが離れてから数えます
+Animation length	アニメーションの長さ
+Stay hidden for the Bloom launcher	Bloom ランチャーを開いても隠したまま
+Off, opening the launcher brings that monitor's taskbar out too	オフにすると、ランチャーを開いたときにそのモニターのタスクバーも出てきます
+Stay hidden when an app flashes	アプリが点滅しても隠したまま
+Off, it comes out as in Windows and stays until that app is opened	オフにすると Windows と同じように出てきて、そのアプリを開くまで残ります
+Running folder	実行中フォルダー
+Apps started without pinning gather in one clock-shaped folder	ピン留めせずに起動したアプリを、時計の形のフォルダー 1 つにまとめます
+Running folder's name	実行中フォルダーの名前
+Folder location	フォルダーの場所
+Each folder inside it becomes one taskbar folder	この中のフォルダー 1 つがタスクバーのフォルダー 1 つになります
+Wait before merging	まとまるまでの時間
+How long an app stays over another before they merge	アプリをほかのアプリの上にこの時間置くとまとまります
+Open folder size	開いたフォルダーのサイズ
+App names	アプリ名を表示
+Off, the cells shrink to the icons	オフにすると、マスがアイコンのサイズまで縮みます
+Icon size in folders	フォルダー内のアイコンのサイズ
+Space between apps	アプリの間隔
+Folder opens	フォルダーが開く向き
+Away from the taskbar	タスクバーの反対側
+Above the taskbar	タスクバーの上
+Below the taskbar	タスクバーの下
+Distance from the taskbar	タスクバーとの距離
+Corner smoothing	角のなめらかさ
+0 is an ordinary round corner, 60 a continuous curve	0 は普通の丸い角、60 は途切れずにつながった曲線です
+Left	左
+Middle	中央
+Right	右
 Look	見た目
 With an administrator window in front, Windows' own shows	管理者権限のウィンドウが前にあると Windows の表示になります
 Window previews	ウィンドウのプレビュー
 App icons	アプリのアイコン
-Icon size	アイコンのサイズ
 Small	小
 Large	大
 Huge	特大
@@ -2154,7 +2233,7 @@ Added accounts every {0} min · the home's ↻ checks all	追加したアカウ�
 5 min	5 分
 10 min	10 分
 What's used (32%) or what's left (68% left) · the bars follow	使った量 (32%) か残りの量 (68% 残り) · バーもそれに合わせます
-Left	残り
+Remaining	残り
 The picked icon files in their own colours or in one · the home cards and the taskbar share it	選んだアイコンファイルを元の色か単色で · ホームのカードとタスクバーで共通です
 ChatGPT checks	ChatGPT の確認方式
 Lightweight: one HTTPS request with the Codex sign-in · no CLI · not an official API, may change	軽量方式: Codex のサインインで HTTPS リクエスト 1 回 · CLI 実行なし · 公式 API ではないため変わる可能性あり
@@ -2732,7 +2811,6 @@ A number changed here makes the size above ‘Custom’	ここで数値を変え
 Taskbar tray	タスクバーのトレイ
 Icons shown	表示するアイコン
 An icon turned off leaves no gap	オフにしたアイコンは場所も残しません
-Now playing	再生中の曲
 Album art, title and play buttons	アルバムアート、タイトル、再生ボタン
 A bar per account; the island shows it too	アカウントごとにバーが 1 本。非表示アイランドにも出ます
 Usage file export is off	使用量ファイルの書き出しがオフ
