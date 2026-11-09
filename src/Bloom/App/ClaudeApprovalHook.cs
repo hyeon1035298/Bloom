@@ -4,6 +4,7 @@ using System.IO.Pipes;
 using System.Linq;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using Bloom.Core;
 using Bloom.Native;
 
@@ -29,7 +30,7 @@ internal static class ClaudeApprovalHook
         string input;
         using (var reader = new StreamReader(Console.OpenStandardInput(), Utf8)) input = reader.ReadToEnd();
         int parent = Win32.ProcessTree().TryGetValue(Environment.ProcessId, out var me) ? me.parent : 0; // the Claude Code that asks
-        if (Output(Ask(Pipe, parent, input)) is { } json)
+        if (Output(Ask(Pipe, parent, input), input) is { } json)
         {
             using var stdout = Console.OpenStandardOutput();
             stdout.Write(Utf8.GetBytes(json));
@@ -37,7 +38,10 @@ internal static class ClaudeApprovalHook
         return 0;
     }
 
-    /// The running Bloom's answer: "allow", "deny", or null (no Bloom, or the terminal asks).
+    /// Bloom's answer to AskUserQuestion: this, then the answers as a JSON object (question text → answer).
+    public const string Answers = "answers:";
+
+    /// The running Bloom's answer: "allow", "deny", "answers:{…}", or null (no Bloom, or the terminal asks).
     internal static string? Ask(string pipe, int pid, string input)
     {
         if (!Directory.EnumerateFiles(@"\\.\pipe\", pipe).Any()) return null; // Bloom isn't running: no wait for it
@@ -49,7 +53,7 @@ internal static class ClaudeApprovalHook
             writer.WriteLine(JsonSerializer.Serialize(new { pid, input }));
             using var reader = new StreamReader(link, Utf8, leaveOpen: true); // the link closes last
             string? answer = reader.ReadLine();
-            return answer is "allow" or "deny" ? answer : null;
+            return answer is "allow" or "deny" || answer?.StartsWith(Answers, StringComparison.Ordinal) == true ? answer : null;
         }
         catch (Exception e) when (e is TimeoutException or IOException or UnauthorizedAccessException)
         {
@@ -57,11 +61,32 @@ internal static class ClaudeApprovalHook
         }
     }
 
-    /// The hook's JSON for an answer (null: no decision).
-    internal static string? Output(string? answer) => answer switch
+    /// The hook's JSON for an answer (null: no decision). Answers go back as an allow whose updatedInput is the tool's
+    /// input with them in it, which Claude Code takes as the user's answers to AskUserQuestion.
+    internal static string? Output(string? answer, string? input = null) => answer switch
     {
         "allow" => JsonSerializer.Serialize(new { hookSpecificOutput = new { hookEventName = "PermissionRequest", decision = new { behavior = "allow" } } }),
+        not null when answer.StartsWith(Answers, StringComparison.Ordinal) => Answered(input, answer[Answers.Length..]) is { } updated
+            ? new JsonObject { ["hookSpecificOutput"] = new JsonObject { ["hookEventName"] = "PermissionRequest", ["decision"] = new JsonObject { ["behavior"] = "allow", ["updatedInput"] = updated } } }.ToJsonString()
+            : null,
         "deny" => JsonSerializer.Serialize(new { hookSpecificOutput = new { hookEventName = "PermissionRequest", decision = new { behavior = "deny", message = "The user declined this on Bloom's notice card." } } }),
         _ => null,
     };
+
+    /// The tool's input as the hook got it, with `answers` in it; null when either isn't the JSON object it should be.
+    private static JsonObject? Answered(string? input, string answers)
+    {
+        try
+        {
+            if (JsonNode.Parse(input ?? "") is not JsonObject hook || hook["tool_input"] is not JsonObject tool
+                || JsonNode.Parse(answers) is not JsonObject given || given.Any(a => a.Value?.GetValueKind() != JsonValueKind.String)) return null;
+            var updated = (JsonObject)tool.DeepClone();
+            updated["answers"] = given.DeepClone();
+            return updated;
+        }
+        catch (JsonException)
+        {
+            return null;
+        }
+    }
 }

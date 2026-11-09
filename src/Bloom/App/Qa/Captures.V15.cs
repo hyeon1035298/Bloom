@@ -184,6 +184,24 @@ internal static partial class Captures
     private static Notice SampleWaiting(string tool, string task, string key) =>
         new("waiting", $"{tool} · {Tr("승인 대기", "Needs approval")}", task, Tr("승인 대기", "Approval pending"), key);
 
+    // AskUserQuestion's card as ClaudeApprovals words it: one question to pick one, one to pick several
+    private static Notice SampleQuestion() =>
+        new("waiting", Tr("Claude Code · 질문", "Claude Code · Question"), Tr("Claude의 질문 2개", "Claude's 2 questions"), "Bloom", "qa-question",
+            Buttons: new (string, Action)[] { (Tr("거절", "Decline"), () => { }), (Tr("터미널에서 답하기", "Answer in terminal"), () => { }) },
+            Questions: new CardQuestions(new[]
+            {
+                new CardQuestion(Tr("알림 센터와 작업표시줄을 어떻게 묶을까요?", "How should the notification center and the taskbar go together?"), Tr("묶는 방식", "Pairing"), new[]
+                {
+                    new CardChoice(Tr("마우스 기준 (추천)", "By the mouse (recommended)"), Tr("마우스가 둘 다 벗어나면 함께 닫힙니다.", "Both close once the mouse leaves them.")),
+                    new CardChoice(Tr("열려 있는 동안 계속", "While it is open"), Tr("알림 센터가 열려 있는 동안 작업표시줄도 나와 있습니다.", "The taskbar stays out while the center is open.")),
+                }, false),
+                new CardQuestion(Tr("어떤 화면에 적용할까요?", "Which screens?"), Tr("화면", "Screens"), new[]
+                {
+                    new CardChoice(Tr("주 모니터", "Main monitor"), ""),
+                    new CardChoice(Tr("보조 모니터", "Second monitor"), ""),
+                }, true),
+            }, _ => { }));
+
     private static Notice SampleLimit(string who, string limit, int left, TimeSpan resets)
     {
         string when = Notices.Span(resets);
@@ -220,6 +238,10 @@ internal static partial class Captures
             nw.Add(samples[0]);
             await Task.Delay(400);
             await nw.Dispatcher.InvokeAsync(() => nw.Capture(Path.Combine(dir, $"{l}-{theme}-n2-recover.png")), System.Windows.Threading.DispatcherPriority.ApplicationIdle);
+            nw.Clear();
+            nw.Add(SampleQuestion());
+            await Task.Delay(400);
+            await nw.Dispatcher.InvokeAsync(() => nw.Capture(Path.Combine(dir, $"{l}-{theme}-n4-question.png")), System.Windows.Threading.DispatcherPriority.ApplicationIdle);
         }
         Theme.Apply("dark");
         nw.Clear();
