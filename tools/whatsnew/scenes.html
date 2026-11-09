@@ -235,6 +235,36 @@ body { font-family: "Wanted Sans Variable", "Wanted Sans", "Pretendard", "Malgun
 .lrow b { font-weight: 500; color: #f4f4f5; }
 .lrow .faint { overflow: hidden; text-overflow: ellipsis; min-width: 0; }
 .lrow .end { margin-left: auto; flex: none; }
+/* ---------- question: Claude Code's questions answered on Bloom's notice card ---------- */
+.qc {
+  position: absolute; z-index: 5; border-radius: calc(14 * var(--u)); padding: calc(12 * var(--u)) calc(14 * var(--u));
+  display: flex; flex-direction: column; gap: calc(2 * var(--u)); font-size: calc(10 * var(--u)); color: #e4e4e7;
+  opacity: var(--card, 0); transform: translateX(calc((1 - var(--card, 0)) * 26 * var(--u)));
+}
+.qc__head { display: flex; gap: calc(10 * var(--u)); margin-bottom: calc(6 * var(--u)); }
+.qc__ico { flex: none; display: grid; place-items: center; width: calc(26 * var(--u)); height: calc(26 * var(--u)); border-radius: calc(7 * var(--u)); background: rgba(240, 146, 79, 0.18); color: var(--orange); }
+.qc__ico svg { width: calc(15 * var(--u)); height: calc(15 * var(--u)); fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.qc__kind { font-size: calc(9 * var(--u)); font-weight: 600; color: var(--orange); }
+.qc__title { font-size: calc(12 * var(--u)); font-weight: 600; color: #fafafa; }
+.qc__from, .qc__h { font-size: calc(8.5 * var(--u)); color: #a1a1aa; }
+.qc__h { margin-top: calc(5 * var(--u)); }
+.qc__q { font-size: calc(10.5 * var(--u)); line-height: 1.3; color: #fafafa; margin-bottom: calc(2 * var(--u)); }
+.qc__row { display: flex; gap: calc(16 * var(--u)); }
+.qc__opt { display: flex; align-items: center; gap: calc(7 * var(--u)); height: calc(18 * var(--u)); white-space: nowrap; }
+.rd, .ck { position: relative; flex: none; width: calc(12 * var(--u)); height: calc(12 * var(--u)); border: calc(1.4 * var(--u)) solid color-mix(in srgb, var(--pink) calc(var(--on, 0) * 100%), rgba(255, 255, 255, 0.55)); }
+.rd { border-radius: 50%; corner-shape: round; }
+.rd::after { content: ""; position: absolute; inset: calc(1.8 * var(--u)); border-radius: 50%; corner-shape: round; background: var(--pink); transform: scale(var(--on, 0)); }
+.ck { border-radius: calc(3 * var(--u)); background: color-mix(in srgb, var(--pink) calc(var(--on, 0) * 100%), transparent); }
+.ck svg { position: absolute; inset: 0; width: 100%; height: 100%; fill: none; stroke: #18181b; stroke-width: 3.2; stroke-linecap: round; stroke-linejoin: round; opacity: var(--on, 0); }
+.qc__btns { display: flex; gap: calc(6 * var(--u)); margin-top: calc(9 * var(--u)); }
+.qc__btn { display: grid; place-items: center; height: calc(22 * var(--u)); padding: 0 calc(10 * var(--u)); border-radius: calc(7 * var(--u)); background: rgba(255, 255, 255, 0.08); font-size: calc(9.5 * var(--u)); color: #e4e4e7; white-space: nowrap; }
+.qc__btn--go { font-weight: 600; background: color-mix(in srgb, var(--pink) calc(var(--go, 0) * 100%), rgba(255, 255, 255, 0.05)); color: color-mix(in srgb, #18181b calc(var(--go, 0) * 100%), #71717a); }
+.qterm .doc__body { gap: calc(4 * var(--u)); font-family: "Cascadia Mono", Consolas, monospace; font-size: calc(9 * var(--u)); line-height: 1.45; color: #a1a1aa; white-space: nowrap; }
+.qterm .w__bar span { font-size: calc(9 * var(--u)); color: #d4d4d8; }
+.qterm .you { color: #fafafa; }
+.qterm .dot { color: var(--orange); }
+.qterm .ans { align-self: flex-start; padding: 0 calc(3 * var(--u)); margin-left: calc(-3 * var(--u)); border-radius: calc(3 * var(--u)); color: #fafafa; background: rgba(255, 122, 158, calc(0.32 * var(--flash, 0))); opacity: var(--shown, 0); }
+.qterm .then { opacity: var(--shown, 0); }
 </style>
 </head>
 <body>
@@ -366,6 +396,7 @@ const ICON = {
   text: '<path d="M5 6.5h14M5 11h14M5 15.5h9"/>',
   mark: '<path d="M7 3.5h10v17l-5-3.6-5 3.6z"/>',
   add: '<path d="M12 5v14M5 12h14"/>',
+  clock: '<circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/>',
 };
 const ico = (name, cls = 'ico') => `<svg class="${cls}" viewBox="0 0 24 24">${ICON[name]}</svg>`;
 const WINS = `<div class="u win" ${box(40, 128, 250, 160)}></div><div class="u win" ${box(330, 112, 200, 170)}></div>`;
@@ -720,6 +751,75 @@ scenes.reorder = {
       const cy0 = P.row.cy + 2 * PITCH; // the dragged row's middle in its own place
       const cy = t < 1.4 ? at([[0, 236], [0.9, cy0]], t) : t < 3.5 ? cy0 + d : at([[3.5, cy0 - 2 * PITCH - 6], [4.4, cy0 - 2 * PITCH + 30], [6.6, 236], [7.4, 236]], t);
       point(cur, at(cx, t), cy, at(press, t));
+    };
+  },
+};
+
+// Claude Code, in the terminal on the left, asks two questions; Bloom's card comes in at the right with them. One
+// choice is picked for the first, two for the second, 답하기 sends them, the card goes and the terminal has the answers.
+const LQ = {
+  ko: { kind: 'Claude Code · 질문', title: 'Claude의 질문 2개', h1: '묶는 방식', q1: '알림 센터와 작업표시줄을 어떻게 묶을까요?',
+    o1: ['마우스 기준 (추천)', '열려 있는 동안 계속'], h2: '화면 · 여러 개 선택', q2: '어떤 화면에 적용할까요?', o2: ['주 모니터', '보조 모니터'],
+    answer: '답하기', decline: '거절', term: '터미널에서 답하기',
+    prompt: '알림 센터가 작업표시줄과 같이 열리게 해 줘', asking: '질문 2개 · 답을 기다리는 중',
+    a1: '묶는 방식 → 마우스 기준 (추천)', a2: '화면 → 주 모니터, 보조 모니터', then: '답을 받아 이어서 작업합니다' },
+  en: { kind: 'Claude Code · Question', title: "Claude's 2 questions", h1: 'Pairing', q1: 'How should the notification center and the taskbar go together?',
+    o1: ['By the mouse (recommended)', 'While it is open'], h2: 'Screens · Pick any', q2: 'Which screens?', o2: ['Main monitor', 'Second monitor'],
+    answer: 'Answer', decline: 'Decline', term: 'Answer in terminal',
+    prompt: 'Open the notification center with the taskbar', asking: '2 questions · waiting for answers',
+    a1: 'Pairing → By the mouse (recommended)', a2: 'Screens → Main monitor, Second monitor', then: 'Got the answers, carrying on' },
+}[LANG];
+scenes.question = {
+  dur: 9.0,
+  build(s) {
+    s.style.setProperty('--pink', '#FF7A9E');
+    s.style.setProperty('--orange', '#F0924F');
+    const CX = 322, CY = 16; // the card's place once in
+    const opt = (kind, text) => `<div class="qc__opt"><i class="${kind}">${kind === 'ck' ? ico('check', '') : ''}</i>${text}</div>`;
+    s.innerHTML = `<div class="desk"><div class="u win" ${box(40, 214, 200, 60)}></div></div>
+      <div class="doc qterm" style="left:calc(22*var(--u));top:calc(40*var(--u));width:calc(284*var(--u));height:calc(176*var(--u))">
+        <div class="w__bar"><img src="assets/terminal.svg" alt=""><span>Claude Code</span></div>
+        <div class="doc__body"><div class="you">› ${LQ.prompt}</div><div><span class="dot">●</span> <span data-ask>${LQ.asking}</span></div>
+          <div class="ans" data-a>${LQ.a1}</div><div class="ans" data-a>${LQ.a2}</div><div class="then"><span class="dot">●</span> ${LQ.then}</div></div>
+      </div>
+      <div class="qc glass" style="left:calc(${CX}*var(--u));top:calc(${CY}*var(--u));width:calc(300*var(--u))">
+        <div class="qc__head"><i class="qc__ico">${ico('clock', '')}</i>
+          <div><div class="qc__kind">${LQ.kind}</div><div class="qc__title">${LQ.title}</div><div class="qc__from">Bloom</div></div></div>
+        <div class="qc__h">${LQ.h1}</div><div class="qc__q">${LQ.q1}</div>
+        ${LQ.o1.map(o => opt('rd', o)).join('')}
+        <div class="qc__h">${LQ.h2}</div><div class="qc__q">${LQ.q2}</div>
+        <div class="qc__row">${LQ.o2.map(o => opt('ck', o)).join('')}</div>
+        <div class="qc__btns"><span class="qc__btn qc__btn--go">${LQ.answer}</span><span class="qc__btn">${LQ.decline}</span><span class="qc__btn">${LQ.term}</span></div>
+      </div>${CURSOR}`;
+    const q = sel => s.querySelector(sel);
+    const cur = q('.cursor'), card = q('.qc'), go = q('.qc__btn--go'), ask = q('[data-ask]'), then = q('.then');
+    const radios = [...s.querySelectorAll('.rd')], checks = [...s.querySelectorAll('.ck')], answers = [...s.querySelectorAll('[data-a]')];
+    let P;
+    const cardOn = [[0, 0], [0.5, 0], [0.95, 1, 'outExpo'], [5.5, 1], [5.9, 0, 'in2']];
+    const clicks = [2.0, 3.0, 3.8, 4.8]; // the first choice, both screens, 답하기
+    const press = [[0, 0], ...clicks.flatMap(c => [[c - 0.08, 0], [c, 1, 'none'], [c + 0.16, 0, 'out2']])];
+    const on = c => [[0, 0], [c, 0], [c + 0.14, 1, 'out3'], [8.3, 1], [8.31, 0, 'none']];
+    const shown = d => [[0, 0], [5.0 + d, 0], [5.25 + d, 1, 'out2'], [8.2, 1], [8.6, 0, 'in2']];
+    const flash = d => [[0, 0], [5.0 + d, 0], [5.15 + d, 1, 'out2'], [6.4 + d, 0, 'io2']];
+    return t => {
+      // where each piece sits once the card is in (it slides in from the right)
+      const at0 = el => { const a = unitsOf(el, s), c = unitsOf(card, s); return { x: CX + a.x - c.x, cx: CX + a.cx - c.x, cy: CY + a.cy - c.y }; };
+      P ??= { r: at0(radios[0]), c1: at0(checks[0]), c2: at0(checks[1]), go: at0(go) };
+      set(card, { card: at(cardOn, t) });
+      set(radios[0], { on: at(on(clicks[0]), t) });
+      set(radios[1], { on: 0 });
+      set(checks[0], { on: at(on(clicks[1]), t) });
+      set(checks[1], { on: at(on(clicks[2]), t) });
+      set(go, { go: at([[0, 0], [clicks[1], 0], [clicks[1] + 0.2, 1, 'out2'], [8.3, 1], [8.31, 0, 'none']], t) });
+      // three dots while it waits; the answers and the line after them, each flashing as it lands
+      const waiting = t < clicks[3] + 0.2 || t >= 8.6;
+      ask.textContent = LQ.asking + (waiting ? '.'.repeat(1 + Math.floor(t / 0.4) % 3) : '');
+      answers.forEach((a, i) => set(a, { shown: at(shown(i * 0.2), t), flash: at(flash(i * 0.2), t) }));
+      set(then, { shown: at(shown(0.7), t) });
+      const home = [250, 236];
+      const cx = [[0, home[0]], [1.2, home[0]], [1.9, P.r.cx], [2.3, P.r.cx], [2.9, P.c1.cx], [3.2, P.c1.cx], [3.7, P.c2.cx], [4.1, P.c2.cx], [4.7, P.go.cx], [5.2, P.go.cx], [6.6, home[0]], [9.0, home[0]]];
+      const cy = [[0, home[1]], [1.2, home[1]], [1.9, P.r.cy], [2.3, P.r.cy], [2.9, P.c1.cy], [3.2, P.c1.cy], [3.7, P.c2.cy], [4.1, P.c2.cy], [4.7, P.go.cy], [5.2, P.go.cy], [6.6, home[1]], [9.0, home[1]]];
+      point(cur, at(cx, t), at(cy, t), at(press, t));
     };
   },
 };

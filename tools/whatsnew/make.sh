@@ -22,5 +22,9 @@ case "$1" in
   for lang in ko en; do
     node "$here/capture.mjs" reorder "$out/reorder-$lang.webp" --lang $lang
   done ;;
+1.3.0)
+  for lang in ko en; do
+    node "$here/capture.mjs" question "$out/question-$lang.webp" --lang $lang
+  done ;;
 *) echo "no pictures listed for $1"; exit 2 ;;
 esac
