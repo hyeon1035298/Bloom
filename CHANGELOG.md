@@ -2,6 +2,18 @@
 
 Each release on GitHub shows its section from this file (the workflow looks for `## <version>`).
 
+## 1.2.1
+
+- Fixed: an add-on's setting slider can be dragged all the way to either end without stopping or jumping back to its start.
+- Fixed: Settings › Taskbar shows the settings a newer add-on adds.
+- Fixed: reinstalling an add-on of the same version no longer fails while Windows still holds its old files. The add-on starts right away.
+
+### 한국어
+
+- 고침: 애드온 설정 슬라이더를 끝까지 끌어도 멈추거나 처음 값으로 돌아가지 않습니다.
+- 고침: 설정 › 작업표시줄에 새 버전 애드온이 더한 설정이 나옵니다.
+- 고침: 같은 버전 애드온을 다시 설치할 때 Windows가 옛 파일을 붙잡고 있어도 실패하지 않고 바로 시작합니다.
+
 ## 1.2.0
 
 [![In the clipboard's Snippets tab, the last snippet is dragged to the top and the others make room](https://raw.githubusercontent.com/hyeon1035298/Bloom/main/docs/media/whatsnew/1.2.0/reorder-en.webp)](bloom://settings/shortcuts)
