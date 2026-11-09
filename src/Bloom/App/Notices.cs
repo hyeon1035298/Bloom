@@ -80,6 +80,7 @@ internal static class Notices
             (s.NoticeDone, new Notice("done", Tr("Codex · 작업 완료", "Codex · Done"), Tr("알림 미리 보기", "Notice preview"), Tr("소요 시간 3분", "Elapsed: 3 min"), Sample: true)),
             (s.NoticeWaiting, new Notice("waiting", Tr("Claude Code · 승인 대기", "Claude Code · Needs approval"), Tr("알림 미리 보기", "Notice preview"), Tr("승인 대기 · 클릭하여 세션으로 이동", "Approval pending · click to go to session"), Click: () => { }, Sample: true)), // no session behind a preview: the click only closes it
             (s.NoticeLimit, new Notice("limit", Tr("Claude · 한도 임박", "Claude · Limit near"), Tr("주간 한도 18% 남음", "18% of the weekly limit left"), Tr("2일 뒤 초기화", "Resets in 2 d"), Sample: true)),
+            (s.NoticeWindows, new Notice("windows", Tr("메일", "Mail"), Tr("알림 미리 보기", "Notice preview"), Tr("다른 앱의 Windows 알림 · 클릭하면 알림 센터", "Another app's Windows notification · click for the notification center"), Click: () => { }, Sample: true)),
             (s.NoticeRecover, new Notice("recover", Tr("ChatGPT · 한도 복구", "ChatGPT · Limit reset"), Tr("5시간 한도 초기화 완료", "5-hour limit reset"), null, Sample: true)),
         };
         var shown = all.Where(x => x.on).Select(x => x.n).ToList();
@@ -277,6 +278,14 @@ internal static class Notices
         if (OpenUpdates is { } open) choices.Add((Tr("업데이트 설정", "Update settings"), open));
         Show(new Notice("done", Tr("Bloom · 업데이트", "Bloom · Update"), Tr($"새 버전 {version} 다운로드 완료", $"Version {version} downloaded"),
             Tr("다음 실행 시 적용", "Applies at next start"), Buttons: choices), sound: false);
+    }
+
+    /// Another app's notification that Windows would have shown as its banner (WindowsToasts): the card, without
+    /// Bloom's sound (Windows plays the app's own), and a click opens Windows' notification center.
+    public static void Windows(string app, string title, string? detail, Action openCenter)
+    {
+        if (!Settings.Current.Notices || !Settings.Current.NoticeWindows) return;
+        Show(new Notice("windows", app, title, detail, Click: openCenter), sound: false);
     }
 
     /// A Bloom chat's AI waits for a yes or no while no Bloom window is in front.

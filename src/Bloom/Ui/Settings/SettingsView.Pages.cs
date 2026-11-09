@@ -705,6 +705,7 @@ internal sealed partial class SettingsView
         {
             s.Notices = v;
             Notices.Apply();
+            WindowsToasts.Apply(Dispatcher);
             Dispatcher.BeginInvoke(() => Build(lastFilter)); // the groups below follow the switch
         }, out var onT);
         Add(Tr("작업 알림", "Work notifications"), s.Notices ? Tr("켜짐 · 메모리 약 +1 MB", "On · about +1 MB of memory") : Tr("꺼짐 — 알림도 소리도 없음 · 켜면 메모리 약 +1 MB", "Off — no cards, no sounds · on: about +1 MB"), on, G.Bell, onT, null, filter);
@@ -759,6 +760,11 @@ internal sealed partial class SettingsView
         });
         Kind(Tr("한도 임박", "Limit near"), Tr("5시간 · 주간 한도가 20% 남았을 때와 다 썼을 때", "5-hour · weekly limit at 20% left or when used up"), G.Warning, s.NoticeLimit, v => s.NoticeLimit = v);
         Kind(Tr("한도 복구", "Limit reset"), Tr("모자랐던 한도가 초기화되어 다시 찼을 때", "When a low limit is full again after its reset"), G.Sync, s.NoticeRecover, v => s.NoticeRecover = v);
+        Kind(Tr("Windows 알림", "Windows notifications"), Tr("다른 앱의 Windows 알림 배너 대신 이 카드로 · 클릭하면 Windows 알림 센터 · 작업표시줄 애드온 PillTaskbar가 켜져 있어야 합니다", "Other apps' Windows banners as these cards · a click opens Windows' notification center · needs the PillTaskbar add-on"), G.Bell, s.NoticeWindows, v =>
+        {
+            s.NoticeWindows = v;
+            WindowsToasts.Apply(Dispatcher);
+        });
     }
 
     private const string PillTaskbarSource = "https://github.com/hyeon1035298/PillTaskbar_BloomAddon";
