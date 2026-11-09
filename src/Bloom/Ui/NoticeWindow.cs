@@ -150,6 +150,17 @@ internal sealed class NoticeWindow : Window
         foreach (var card in stack.Children.OfType<FrameworkElement>().Where(c => c.Tag is Notice { Sample: true }).ToList()) Dismiss(card, false);
     }
 
+    /// A card's text line is typed in (AskUserQuestion's 기타): the window takes the focus for it, and goes back to
+    /// never taking it after.
+    public void Typing(bool on)
+    {
+        IntPtr hwnd = new WindowInteropHelper(this).Handle;
+        if (hwnd == IntPtr.Zero) return;
+        long ex = Win32.GetWindowLongPtr(hwnd, Win32.GWL_EXSTYLE).ToInt64();
+        Win32.SetWindowLongPtr(hwnd, Win32.GWL_EXSTYLE, new IntPtr(on ? ex & ~Win32.WS_EX_NOACTIVATE : ex | Win32.WS_EX_NOACTIVATE));
+        if (on && !IsActive) Activate();
+    }
+
     /// The card with this key goes (its 승인 대기 ended).
     public void Remove(string key)
     {
@@ -319,7 +330,7 @@ internal sealed class NoticeWindow : Window
         var title = Theme.T(n.Title, 14, Theme.P.Text, Theme.Medium); // one line each, then … (the tooltip has it all)
         title.Margin = new Thickness(0, 3, 0, 0);
         text.Children.Add(title);
-        if (n.Body is { Length: > 0 } body)
+        if (n.Body is { Length: > 0 } body && n.Questions is null)
             text.Children.Add(new SmoothBorder
             {
                 Background = Theme.P.Well,
@@ -340,7 +351,8 @@ internal sealed class NoticeWindow : Window
             button.Margin = new Thickness(0, 8, 0, 0);
             text.Children.Add(button);
         }
-        if (n.Buttons is { Count: > 0 } choices)
+        if (n.Questions is { } questions) text.Children.Add(NoticeQuestionsView.Build(questions, n.Buttons)); // its buttons after 답하기
+        else if (n.Buttons is { Count: > 0 } choices)
         {
             var row2 = new WrapPanel { Margin = new Thickness(0, 8, 0, 0) };
             foreach (var (label, run) in choices)
@@ -370,7 +382,8 @@ internal sealed class NoticeWindow : Window
             Cursor = Cursors.Hand,
             Child = row,
             Tag = n,
-            ToolTip = (n.Detail is { Length: > 0 } ? $"{n.Title}\n{n.Detail}" : n.Title) + (n.Body is { Length: > 0 } ? "\n" + n.Body : "") + (n.Click is null ? "" : "\n" + Tr("클릭하면 세션 창으로 이동합니다", "Click to go to the session window")),
+            // questions show whole on the card, and a tooltip would cover their choices
+            ToolTip = n.Questions is not null ? null : (n.Detail is { Length: > 0 } ? $"{n.Title}\n{n.Detail}" : n.Title) + (n.Body is { Length: > 0 } ? "\n" + n.Body : "") + (n.Click is null ? "" : "\n" + Tr("클릭하면 세션 창으로 이동합니다", "Click to go to the session window")),
         };
     }
 

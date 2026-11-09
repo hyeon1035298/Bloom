@@ -13,9 +13,10 @@ namespace Bloom.App;
 /// what it is about, a line under that, and a key for a card that stays until its state ends (승인 대기). Action is the
 /// button under the card; Click is what a click on the card itself does before it closes (a turn's card: go to its
 /// session window). Gone runs when the card leaves for any reason; Buttons are a row of choices (an approval's 허용 · 거절);
-/// Body is text shown whole, wrapped (what an approval would allow); Sample marks a made-up card of 미리 보기.
+/// Body is text shown whole, wrapped (what an approval would allow); Sample marks a made-up card of 미리 보기. Questions
+/// are shown in place of Body, to answer on the card (AskUserQuestion), with Buttons after their 답하기.
 internal sealed record Notice(string Kind, string Head, string Title, string? Detail, string? Key = null, string? ActionText = null, Action? Action = null, Action? Click = null,
-    Action? Gone = null, IReadOnlyList<(string Text, Action Run)>? Buttons = null, string? Body = null, bool Sample = false);
+    Action? Gone = null, IReadOnlyList<(string Text, Action Run)>? Buttons = null, string? Body = null, bool Sample = false, CardQuestions? Questions = null);
 
 /// 알림: Claude Code and Codex turns (ClaudeWatch, CodexWatch — 진행 중, 작업 완료, 승인 대기) and the plan limits
 /// (AiUsage — 한도 임박 · 소진, 한도 복구) as cards (NoticeWindow) with a sound each (Chimes). Every kind has its switch

@@ -15,7 +15,8 @@ using Bloom.Search;
 namespace Bloom.App;
 
 /// Bloom's side of Claude Code's approval hook (ClaudeApprovalHook, 설정 > 알림 > 알림 카드에서 승인): each request comes
-/// over the pipe and becomes a card with 허용 · 거절 · 터미널에서 답하기 (Notices). The terminal keeps its own question —
+/// over the pipe and becomes a card with 허용 · 거절 · 터미널에서 답하기 (Notices), or for AskUserQuestion its questions to
+/// answer on the card (CardQuestions). The terminal keeps its own question —
 /// Bloom answers nothing — when the switch is off, the session is a program's run (`claude -p`), its window is in front,
 /// no card can show (알림 off, a full-screen app), or the user goes to the terminal (the card, its button, or the window
 /// brought to the front). A card goes when Claude Code stops waiting (the hook ended).
@@ -75,7 +76,8 @@ internal static class ClaudeApprovals
         }
     }
 
-    /// One hook run: its request in, the answer out ("allow", "deny", or an empty line: the terminal asks).
+    /// One hook run: its request in, the answer out ("allow", "deny", "answers:{…}" for AskUserQuestion, or an empty
+    /// line: the terminal asks).
     private static async Task Serve(NamedPipeServerStream pipe)
     {
         using (pipe)
@@ -113,13 +115,15 @@ internal static class ClaudeApprovals
             if (answer.TrySetResult("") && window != IntPtr.Zero) OpenWindows.Switch(window);
         }
         string key = "approve:" + Guid.NewGuid().ToString("N"), session = "claude:" + r.Session;
-        var card = new Notice("waiting", Tr("Claude Code · 승인 요청", "Claude Code · Approval request"), r.Tool, about, key, Click: Terminal, Gone: () => answer.TrySetResult(""),
-            Buttons: new (string, Action)[]
-            {
-                (Tr("허용", "Allow"), () => answer.TrySetResult("allow")),
-                (Tr("거절", "Decline"), () => answer.TrySetResult("deny")),
-                (Tr("터미널에서 답하기", "Answer in terminal"), Terminal),
-            }, Body: r.Body);
+        var decline = (Tr("거절", "Decline"), (Action)(() => answer.TrySetResult("deny")));
+        var terminal = (Tr("터미널에서 답하기", "Answer in terminal"), (Action)Terminal);
+        // AskUserQuestion: its questions and choices to pick from, in place of 허용
+        var card = r.Questions is { } questions
+            ? new Notice("waiting", Tr("Claude Code · 질문", "Claude Code · Question"), questions.Count == 1 ? Tr("Claude의 질문", "Claude's question") : Tr($"Claude의 질문 {questions.Count}개", $"Claude's {questions.Count} questions"), about, key,
+                Click: Terminal, Gone: () => answer.TrySetResult(""), Buttons: new[] { decline, terminal }, Body: r.Body,
+                Questions: new CardQuestions(questions, given => answer.TrySetResult(ClaudeApprovalHook.Answers + JsonSerializer.Serialize(given))))
+            : new Notice("waiting", Tr("Claude Code · 승인 요청", "Claude Code · Approval request"), r.Tool, about, key, Click: Terminal, Gone: () => answer.TrySetResult(""),
+                Buttons: new[] { (Tr("허용", "Allow"), (Action)(() => answer.TrySetResult("allow"))), decline, terminal }, Body: r.Body);
         if (!Notices.Approval(session, card)) return "";
         open.Add(answer);
         // the session's window brought to the front another way: the terminal asks there
@@ -145,8 +149,11 @@ internal static class ClaudeApprovals
     {
         public const int MaxLines = 8, MaxChars = 600;
 
-        /// The whole request fits on a card.
-        public bool Fits => Body.Length <= MaxChars && Body.Split('\n').Length <= MaxLines;
+        /// AskUserQuestion's questions, when the card can show them as choices (CardQuestions.Parse); null otherwise.
+        public IReadOnlyList<CardQuestion>? Questions { get; init; }
+
+        /// The whole request fits on a card: questions are shown whole as their choices.
+        public bool Fits => Questions is not null || (Body.Length <= MaxChars && Body.Split('\n').Length <= MaxLines);
 
         /// {"pid": n, "input": "<the hook's JSON>"} → the request; null for anything else.
         public static Request? Parse(string line)
@@ -173,8 +180,12 @@ internal static class ClaudeApprovals
                             if (f != first) lines.Add($"{fields[f].Name}: {(fields[f].Value.ValueKind == JsonValueKind.String ? fields[f].Value.GetString() : fields[f].Value.GetRawText())}");
                     }
                 }
+                string tool = Str(r, "tool_name") ?? "?";
+                var questions = tool == "AskUserQuestion" && r.TryGetProperty("tool_input", out var asked) ? CardQuestions.Parse(asked) : null;
+                if (questions is not null) // the questions in words, for the log and the tooltip (the card shows them as choices)
+                    lines = questions.Select(q => (q.Header.Length > 0 ? $"[{q.Header}] " : "") + q.Text + "\n" + string.Join("\n", q.Choices.Select(c => "· " + c.Label))).ToList();
                 string body = string.Join("\n", lines).Replace("\r\n", "\n", StringComparison.Ordinal).Trim();
-                return new Request(pid, Str(r, "session_id") ?? "", Str(r, "tool_name") ?? "?", body, Str(r, "cwd"));
+                return new Request(pid, Str(r, "session_id") ?? "", tool, body, Str(r, "cwd")) { Questions = questions };
             }
             catch (JsonException)
             {
