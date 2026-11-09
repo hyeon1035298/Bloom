@@ -2054,153 +2054,6 @@ Always	一直
 30 min	30 分钟
 1 h	1 小时
 2 h	2 小时
-Start button	开始按钮
-Unchanged	保持不变
-Hidden	隐藏
-Bloom button	Bloom 按钮
-Top	顶部
-Bottom	底部
-Taskbar height	任务栏高度
-Windows' own is 48	Windows 默认为 48
-Icon size	图标大小
-Windows' own is 24	Windows 默认为 24
-Icon spacing	图标间距
-An app button is the icon size plus this wide; Windows' own is 20	应用按钮宽度为图标大小加上间距。Windows 默认为 20
-Corner radius	圆角
-Background blur	背景模糊
-Background tint	背景色浓度
-Pill shape	胶囊形状
-Off, the taskbar looks as Windows draws it	关闭后恢复 Windows 默认外观
-Battery	电池
-Notification bell	通知铃铛
-Language bar	语言栏
-Extra language icons	语言辅助图标
-Clock	时钟
-Time and date	时间和日期
-Time only	仅时间
-Time format	时间格式
-Longest track title	曲名最大宽度
-A longer title ends in …	过长的曲名用 … 缩短
-Gap after the apps	应用与用量之间
-Gap before the tray	用量与托盘之间
-Sessions in the details	在详情窗口显示会话
-The window a click on the usage opens lists this PC's Claude Code and Codex sessions	单击用量打开的窗口中显示这台电脑上的 Claude Code·Codex 会话
-Windows panels by the tray	Windows 面板靠近托盘
-Quick Settings and the notification center open by the pill's tray, not at the screen's end	快速设置和通知中心在胶囊托盘旁打开，而不是屏幕边缘
-Notification center without the slide	关闭通知中心滑入动画
-The notification center and calendar appear in place instead of sliding in	通知中心和日历不从侧边滑入，直接在原位显示
-Now playing	正在播放
-Memory use	内存使用率
-CPU use	CPU 使用率
-Height	高度
-At 100% scale	以 100% 缩放为准
-Width	宽度
-At 100% scale; a track title that doesn't fit is shortened	以 100% 缩放为准。放不下时缩短曲名
-Where the clock sits	时钟位置
-On the middle island, or on one in the screen's left or right corner	放在中间的浮岛，或屏幕左右角的浮岛上
-Where now playing sits	正在播放的位置
-Where AI usage sits	AI 用量位置
-Where memory use sits	内存使用率位置
-Where CPU use sits	CPU 使用率位置
-Reveal zone	唤出区域
-The pointer brings the taskbar out only on this much of the edge; 100 is all of it	只有在边缘的这一部分，指针才能唤出任务栏。100 为整个边缘
-Wait before showing	显示前等待
-Wait before hiding	隐藏前等待
-Counted from when the pointer leaves	从指针离开时开始计算
-Animation length	动画时长
-Stay hidden for the Bloom launcher	打开 Bloom 启动器时保持隐藏
-Off, opening the launcher brings that monitor's taskbar out too	关闭后，打开启动器时该显示器的任务栏也会一起出现
-Stay hidden when an app flashes	应用闪烁时保持隐藏
-Off, it comes out as in Windows and stays until that app is opened	关闭后会像 Windows 一样出现，直到打开该应用
-Running folder	运行中文件夹
-Apps started without pinning gather in one clock-shaped folder	未固定就启动的应用会集中到一个时钟形状的文件夹
-Running folder's name	运行中文件夹名称
-Folder location	文件夹位置
-Each folder inside it becomes one taskbar folder	其中的每个文件夹会成为一个任务栏文件夹
-Wait before merging	合并前等待
-How long an app stays over another before they merge	应用在另一个应用上停留这么久才会合并
-Open folder size	打开的文件夹大小
-App names	显示应用名称
-Off, the cells shrink to the icons	关闭后，格子缩小到图标大小
-Icon size in folders	文件夹内图标大小
-Space between apps	应用间距
-Folder opens	文件夹打开方向
-Away from the taskbar	任务栏的另一侧
-Above the taskbar	任务栏上方
-Below the taskbar	任务栏下方
-Distance from the taskbar	与任务栏的距离
-Corner smoothing	圆角平滑度
-0 is an ordinary round corner, 60 a continuous curve	0 为普通圆角，60 为连续不断的曲线
-Left	左
-Middle	居中
-Right	右
-Look	外观
-With an administrator window in front, Windows' own shows	管理员权限的窗口在前台时显示为 Windows 样式
-Window previews	窗口预览
-App icons	应用图标
-Small	小
-Large	大
-Huge	特大
-Window names	窗口名称
-The chosen one	仅选中的窗口
-Where Alt+Tab shows	Alt+Tab 出现的位置
-Windows listed	显示的窗口
-Where Win+Alt+Tab shows	Win+Alt+Tab 出现的位置
-Windows Win+Alt+Tab lists	Win+Alt+Tab 显示的窗口
-Icon look	图标样式
-The number is what is in use now	数字是当前的使用量
-Outline	线条
-Filled	填充
-Solid	实心
-Value shown	显示的数值
-Right-clicking the icon changes it too	右键单击图标也可以切换
-Memory	内存
-Both	两者
-Clean when memory fills up	内存占用高时清理
-At most once every 30 seconds	最多每 30 秒一次
-At	阈值
-Clean on a schedule	按固定间隔清理
-Every	间隔
-Program	程序
-Brightness on the taskbar	任务栏上显示的亮度
-First monitor	第一台显示器
-Average	平均
-Per wheel notch	滚轮每格
-Turning the wheel over the taskbar icon	在任务栏图标上滚动滚轮时
-All monitors together	所有显示器一起
-Changing one sets the others to the same brightness	调整一台时，其他显示器也变为相同亮度
-Brighter	调亮
-Click, then press a new combination	单击后按下新的组合键
-Dimmer	调暗
-Per press	每按一次
-Dim when away	离开时调暗
-It comes back as soon as the mouse or keyboard is used	使用鼠标或键盘后恢复原样
-Dim to	调暗后的亮度
-Keep on	保持开启
-With the PC only, the screen turns off as usual	仅保持电脑时，屏幕照常关闭
-Screen and PC	屏幕和电脑
-PC only	仅电脑
-On with a right-click	右键单击开启时
-Until turned off	直到关闭
-1 hour	1 小时
-2 hours	2 小时
-A time of my own	自定义时间
-Switcher look	切换器样式
-With several monitors	有多台显示器时
-Taskbar icon	任务栏图标
-Cleaning	清理
-Programs left alone	不清理的程序
-Brightness range per monitor	每台显示器的亮度范围
-Cleaning leaves these programs' memory as it is	清理时不释放这些程序的内存
-Sets where 0 and 100 fall on each monitor's own brightness	设定亮度 0 和 100 对应显示器实际亮度的哪个位置
-The pointer's monitor	指针所在的显示器
-The highlighted windows are listed	强调色的窗口会出现在列表中
-That monitor's	仅该显示器的窗口
-All on the main one	主显示器上显示全部
-A little	少量清理
-Some	适量清理
-A lot	大量清理
-Main	主显示器
 Preview	预览
 9:41 PM	下午 9:41
 Pick what it shows below	请在下方选择要显示的内容
@@ -2529,6 +2382,7 @@ Runs in the tray at sign-in	登录时在托盘中运行
 Not registered	未注册
 Win key over admin apps	在管理员应用上也使用 Win 键
 Opens with Win even over apps run as administrator · admin approval to turn on	即使前台是以管理员身份运行的应用，也可用 Win 键打开 · 开启需要管理员批准
+Look	外观
 System follows Windows' light or dark setting	“系统”跟随 Windows 的浅色或深色设置
 The launcher, tool windows, chat and settings together · Ctrl+= / Ctrl+- / Ctrl+0 in the launcher	启动器、工具窗口、对话和设置一起调整 · 在启动器中按 Ctrl+= / Ctrl+- / Ctrl+0
 Animation	动画
@@ -2746,6 +2600,8 @@ Position	位置
 A preview card shows there when you pick	选择后预览卡片会显示在该位置
 Move it yourself	手动移动
 Drag a notice card on the screen · it sticks to the middle and the edges	在屏幕上拖动通知卡片 · 会吸附到中央和边缘
+Small	小
+Large	大
 X-large	特大
 Shown for	显示时长
 Stays while hovered · approval cards stay until work resumes	鼠标悬停时保留 · 批准卡片保留到操作继续
@@ -2755,6 +2611,9 @@ Stays while hovered · approval cards stay until work resumes	鼠标悬停时保
 20 s	20 秒
 A short sound of its own for each kind	每种通知都有自己的短提示音
 Loud	响亮
+Clicking a card	点击卡片时
+Go to the app	转到应用
+Taskbar AI panel	任务栏 AI 面板
 What to tell	通知内容
 What a turn works on once it runs past 4 s	任务运行超过 4 秒时显示它在做什么
 When it ends, with how long it took (past 10 s)	结束时连同所用时间一起显示 (超过 10 秒)
@@ -2767,6 +2626,10 @@ Couldn't change Claude Code's settings	无法更改 Claude Code 的设置
 When a low limit is full again after its reset	不足的额度在重置后恢复满时
 Windows notifications	Windows 通知
 Other apps' Windows banners as these cards · a click opens Windows' notification center · needs the PillTaskbar add-on	用这些卡片代替其他应用的 Windows 通知横幅 · 点击打开 Windows 通知中心 · 需要任务栏插件 PillTaskbar
+A Claude Code or Codex card takes you to its session's window	点击 Claude Code 或 Codex 的卡片会转到该会话的窗口
+Needs the PillTaskbar taskbar add-on, installed and on. Until then a card goes to the app	需要安装并开启任务栏插件 PillTaskbar。在此之前会转到应用
+Turn on the usage meter's session list and AI chat in the taskbar add-on's settings. Until then a card goes to the app	请在任务栏插件的设置中开启用量条的会话列表和 AI 聊天。在此之前会转到应用
+Opens the session's chat in the taskbar's usage panel	在任务栏的用量面板中打开该会话的聊天
 Version, updates and help	版本、更新和帮助
 Version	版本
 Update history	更新记录
@@ -2785,7 +2648,7 @@ Up to date · Enter checks for updates	已是最新版本 · 按 Enter 检查更
 Downloading {0}…	正在下载 {0}…
 Version {0} ready · click to restart	版本 {0} 已就绪 · 点击重新启动
 Could not check for updates. Check your connection and retry.	无法检查更新。请检查网络连接后重试。
-Enter checks for updates · looks for a new version on GitHub Releases	按 Enter 检查更新 · 在 GitHub Releases 上查找新版本
+Enter checks Bloom and its add-ons for updates on GitHub Releases	按 Enter 在 GitHub Releases 上检查 Bloom 及其插件的更新
 Check when Bloom starts	启动 Bloom 时检查
 Checks once after launch · downloads new versions for the next start	启动后检查一次 · 下载新版本并在下次启动时应用
 Ctrl+K on an audio file in the search results › ‘Play in mini player’. Music files are only read.	在搜索结果中的音频文件上按 Ctrl+K ›“用迷你播放器播放”。音乐文件只会被读取。
@@ -2831,6 +2694,7 @@ A number changed here makes the size above ‘Custom’	在此更改数值后，
 Taskbar tray	任务栏托盘
 Icons shown	显示的图标
 An icon turned off leaves no gap	关闭的图标不会留下空位
+Now playing	正在播放
 Album art, title and play buttons	专辑封面、标题、播放按钮
 A bar per account; the island shows it too	每个账户一条进度条。隐藏浮岛中也会显示
 Usage file export is off	用量文件导出已关闭

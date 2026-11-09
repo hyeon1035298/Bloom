@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using Bloom.Addons;
 using Bloom.Browser;
 using Bloom.Ai;
 using Bloom.App;
@@ -737,6 +738,11 @@ internal sealed partial class SettingsView
             s.NoticeSound = v;
             Chimes.Play("done");
         }, filter);
+        Choice(Tr("카드를 누르면", "Clicking a card"), NoticeClickNote(s.NoticeClick), G.Chat, new[] { ("app", Tr("앱으로 이동", "Go to the app")), ("taskbar", Tr("작업표시줄 AI 패널", "Taskbar AI panel")) }, s.NoticeClick, v =>
+        {
+            s.NoticeClick = v;
+            Dispatcher.BeginInvoke(() => Build(lastFilter)); // the line under it says what the add-on still needs
+        }, filter);
         Header(Tr("알릴 일", "What to tell"));
         void Kind(string title, string sub, char glyph, bool value, Action<bool> set)
         {
@@ -766,6 +772,16 @@ internal sealed partial class SettingsView
             WindowsToasts.Apply(Dispatcher);
         });
     }
+
+    /// The line under 카드를 누르면: where a Claude Code or Codex card goes, and what the taskbar add-on still needs for its panel.
+    private static string NoticeClickNote(string value) => value != "taskbar"
+        ? Tr("Claude Code와 Codex 카드를 누르면 그 세션 창으로 갑니다", "A Claude Code or Codex card takes you to its session's window")
+        : TaskbarChat.Missing() switch
+        {
+            TaskbarChat.Need.Addon => Tr("작업표시줄 애드온 PillTaskbar를 설치하고 켜야 쓸 수 있어요. 그 전에는 앱으로 갑니다", "Needs the PillTaskbar taskbar add-on, installed and on. Until then a card goes to the app"),
+            TaskbarChat.Need.Chat => Tr("작업표시줄 애드온 설정에서 사용량 막대의 세션 목록과 AI 채팅을 켜야 해요. 그 전에는 앱으로 갑니다", "Turn on the usage meter's session list and AI chat in the taskbar add-on's settings. Until then a card goes to the app"),
+            _ => Tr("그 세션의 채팅을 작업표시줄 사용량 창에서 엽니다", "Opens the session's chat in the taskbar's usage panel"),
+        };
 
     private const string PillTaskbarSource = "https://github.com/hyeon1035298/PillTaskbar_BloomAddon";
 
@@ -825,7 +841,7 @@ internal sealed partial class SettingsView
             Updates.Stage.Downloading => Tr($"새 버전({Updates.Found})을 받는 중…", $"Downloading {Updates.Found}…"),
             Updates.Stage.Ready => Tr($"새 버전 {Updates.Found} 준비됨 · 클릭하여 다시 시작", $"Version {Updates.Found} ready · click to restart"),
             Updates.Stage.Failed => Tr("업데이트 확인 실패 · 인터넷 연결을 확인하고 다시 누르세요", "Could not check for updates. Check your connection and retry."),
-            _ => Tr("Enter로 업데이트 확인 · GitHub 릴리스에서 새 버전을 찾습니다", "Enter checks for updates · looks for a new version on GitHub Releases"),
+            _ => Tr("Enter로 Bloom과 애드온의 업데이트를 확인합니다. GitHub 릴리스에서 새 버전을 찾습니다", "Enter checks Bloom and its add-ons for updates on GitHub Releases"),
         };
         Add(now == Updates.Stage.Ready ? Tr("다시 시작해서 업데이트", "Restart to update") : $"Bloom {ver}", sub, null, G.Refresh, () =>
         {
@@ -839,6 +855,7 @@ internal sealed partial class SettingsView
                     break;
                 default:
                     _ = Updates.Check(true);
+                    AddonHub.CheckNow();
                     break;
             }
         }, null, filter);

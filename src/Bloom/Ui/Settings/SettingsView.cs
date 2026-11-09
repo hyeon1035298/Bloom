@@ -488,12 +488,13 @@ internal sealed partial class SettingsView : ScrollViewer
         }, filter);
     }
 
-    /// A switch whose line starts with a picture of what it turns on (AddonPictures.Thumb), the picture lit while on.
-    private void PictureSwitch(string title, string? sub, Func<bool, FrameworkElement> picture, bool value, Action<bool> set, string filter)
+    /// A switch whose line starts with a picture of what it turns on (AddonPictures.Thumb), the picture lit while on;
+    /// without one (an add-on that ships none), a plain switch.
+    private void PictureSwitch(string title, string? sub, Func<bool, FrameworkElement>? picture, bool value, Action<bool> set, string filter)
     {
         if (Record(title, sub, filter)) return;
         var sw = Toggle(value, set, out var t);
-        Place(title, sub, () => Line(title, sub, sw, folding && filter.Length > 0, null, AddonPictures.Tile(picture, value)), t, null, filter);
+        Place(title, sub, () => Line(title, sub, sw, folding && filter.Length > 0, null, picture is null ? null : AddonPictures.Tile(picture, value)), t, null, filter);
     }
 
     /// A value along a track (LevelSlider): dragging sets it as it moves, letting go saves it; ←→ step it by `step`.

@@ -77,7 +77,7 @@ internal sealed partial class SettingsView
             // the editor isn't a line: the search finds it, and the running folder's two settings, by these
             Add(Tr("폴더 편집", "Edit folders"), Tr("폴더를 만들고 이름, 아이콘, 안의 앱을 바꿉니다", "Make folders and change their names, icons and apps"), null, G.Folder, () => Go(AddonPageKey(addon.Id)), null, filter);
             foreach (var e in In(Section.Folders).Where(e => e.Control == Control.Running))
-                if (schema[e.Key] is { } item && AddonEasy.Of(addon.Id, e.Key) is var easy)
+                if (schema[e.Key] is { } item && AddonEasy.Of(schema, e.Key) is var easy)
                     Add(easy?.Title ?? item.Split().name, easy?.Sub is { Length: > 0 } s ? s : item.About?.Shown, null, G.Folder, () => Go(AddonPageKey(addon.Id)), null, filter);
         }
         Fold("folders", Section.FoldersMore, schema, v, filter);
@@ -91,8 +91,7 @@ internal sealed partial class SettingsView
         string size = SizeNow(v);
         var sizes = Sizes.Select(p => (p.key, p.key switch { "s" => Tr("작게", "Small"), "m" => Tr("보통", "Medium"), _ => Tr("크게", "Large") })).ToList();
         if (size == "custom") sizes.Add(("custom", Tr("직접", "Custom")));
-        Pictures(Tr("크기", "Size"), Tr("작업표시줄 높이와 아이콘 크기", "The taskbar's height and icon size"), G.Screen,
-            sizes.Select(o => (o.key, o.Item2, AddonPictures.Option("pill-taskbar", "size", o.key)!)).ToArray(), size, k =>
+        void PickSize(string k)
         {
             if (Sizes.FirstOrDefault(p => p.key == k) is not { key: not null } p) return;
             v.Set("size.enabled", true);
@@ -100,7 +99,12 @@ internal sealed partial class SettingsView
             v.Set("size.iconSize", p.icon);
             v.Set("size.iconSpacing", p.spacing);
             Dispatcher.BeginInvoke(TaskbarRebuild); // 직접 goes, and 자세히's numbers follow
-        }, filter);
+        }
+        string sizeTitle = Tr("크기", "Size"), sizeSub = Tr("작업표시줄 높이와 아이콘 크기", "The taskbar's height and icon size");
+        var sizePictures = sizes.Select(o => AddonPictures.Option(schema, "size", o.key)).ToArray();
+        // an add-on without the pictures: the sizes side by side
+        if (sizePictures.All(p => p is not null)) Pictures(sizeTitle, sizeSub, G.Screen, sizes.Select((o, i) => (o.key, o.Item2, sizePictures[i]!)).ToArray(), size, PickSize, filter);
+        else Choice(sizeTitle, sizeSub, G.Screen, sizes.ToArray(), size, PickSize, filter);
         SchemaRow(schema, v, "pill.style", G.Palette, filter, Tr("배경", "Background"), Tr("알약 뒤를 흐리게 비춥니다", "Blurs what is behind the pill"), rebuild: true);
         SchemaRow(schema, v, "start.mode", G.Power, filter, sub: Tr("꽃 버튼은 누르면 Bloom을 열고 닫습니다", "The flower button opens and closes Bloom"), rebuild: true);
         SchemaRow(schema, v, "pill.edge", G.Screen, filter, Tr("화면의 어디에", "Where on the screen"), Tr("Windows 설정은 바꾸지 않습니다", "Windows' own setting stays as it is"), rebuild: true);
@@ -206,11 +210,11 @@ internal sealed partial class SettingsView
         Place(title, shown, () => Line(title, shown, null, folding && filter.Length > 0, filter.Length == 0 ? Chips(chips, glyphs) : null), null, null, filter);
     }
 
-    /// A chip's label: Bloom's name for it (AddonEasy), else from the setting's name: "볼륨 아이콘 숨기기" / "Hide volume
+    /// A chip's label: the schema's plain name for it (AddonEasy), else from the setting's name: "볼륨 아이콘 숨기기" / "Hide volume
     /// icon" → 볼륨 / Volume.
     internal static string ChipName(AddonSetting item)
     {
-        if (AddonEasy.Of("pill-taskbar", item.Key)?.Title is { } own) return own;
+        if (item.Easy?.Name?.Shown is { } own) return own;
         string n = item.Name.Shown;
         foreach (string tail in new[] { " 아이콘 숨기기", " 숨기기", " 보이기", " icon" })
             if (n.EndsWith(tail, StringComparison.Ordinal)) n = n[..^tail.Length];
@@ -248,7 +252,7 @@ internal sealed partial class SettingsView
             // the island lives in the auto-hide helper and needs Windows' own auto-hide: all three go on and off
             // together (the host turns Windows' back on if it is off when the add-on starts)
             PictureSwitch(Tr("숨김 아일랜드 쓰기", "Use the auto-hide island"), Tr("작업표시줄이 숨고 화면 가장자리에 작은 섬이 남습니다", "The taskbar hides, and a small island stays at the screen's edge"),
-                AddonPictures.Thumb("pill-taskbar", "island.enabled")!, on, x =>
+                AddonPictures.Thumb(schema["island.enabled"]), on, x =>
                 {
                     v.Set("island.enabled", x);
                     v.Set("autohide.enabled", x);
@@ -336,13 +340,13 @@ internal sealed partial class SettingsView
     /// slider for a short range, else a number field; a text field. Name and range come from the schema, `title` and
     /// `sub` replace them where the page words a line its own way ("" for no line under it), and so does AddonEasy's
     /// `easy`. `rebuild`: other lines follow the value. A switch with a picture of what it turns on, and a choice whose
-    /// options all have pictures (AddonPictures, by the page's add-on), are drawn with them. `also`: after a choice is
+    /// options all have pictures (AddonPictures, from the schema), are drawn with them. `also`: after a choice is
     /// set (another setting that follows it). `mark`: a reading on a slider's track.
     private void SchemaRow(AddonSchema schema, AddonValues v, string key, char glyph, string filter, string? title = null, string? sub = null, bool rebuild = false,
         AddonEasy.Line? easy = null, Action<string>? also = null, int mark = -1)
     {
         if (schema[key] is not { } item) return;
-        easy ??= AddonEasy.Of(easyAddon, key);
+        easy ??= AddonEasy.Of(schema, key);
         var (name, unit) = item.Split();
         title ??= easy?.Title ?? name;
         sub ??= easy?.Sub ?? item.About?.Shown;
@@ -354,7 +358,7 @@ internal sealed partial class SettingsView
         switch (item.Type)
         {
             case "bool":
-                if (AddonPictures.Thumb(easyAddon, key) is { } thumb)
+                if (AddonPictures.Thumb(item) is { } thumb)
                 {
                     PictureSwitch(title, sub, thumb, v.Bool(key), on =>
                     {
@@ -372,7 +376,7 @@ internal sealed partial class SettingsView
                 break;
             case "choice":
                 var options = item.Options.Select(o => (o.Value, parts: (easy?.Option?.Invoke(o.Value) ?? OptionLabel(key, o.Value)) is { } own ? (name: own, detail: (string?)null) : OptionName(o.Name.Shown))).ToArray();
-                var pictures = options.Select(o => AddonPictures.Option(easyAddon, key, o.Value)).ToArray();
+                var pictures = options.Select(o => AddonPictures.Option(schema, key, o.Value)).ToArray();
                 if (options.Length <= 4 && pictures.All(p => p is not null))
                 {
                     Pictures(title, sub, glyph, options.Select((o, i) => (o.Value, o.parts.name, pictures[i]!)).ToArray(), v.Text(key), x =>

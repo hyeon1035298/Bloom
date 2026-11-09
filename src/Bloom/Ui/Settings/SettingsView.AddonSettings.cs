@@ -38,17 +38,17 @@ internal sealed partial class SettingsView
         if (addon.Schema is not { } schema || addon.Values is not { } v) return;
         string id = addon.Id;
         easyAddon = id;
-        var order = AddonEasy.Order(id);
-        var groups = schema.Groups.Select((g, i) => (g, at: Array.IndexOf(order, g.Id) is var o and >= 0 ? o : order.Length + i)).OrderBy(x => x.at).Select(x => x.g);
+        var order = schema.Order.ToList();
+        var groups = schema.Groups.Select((g, i) => (g, at: order.IndexOf(g.Id) is var o and >= 0 ? o : order.Count + i)).OrderBy(x => x.at).Select(x => x.g);
         foreach (var group in groups)
         {
             var items = group.Items.Where(i => !Followed.Contains(i.Key)).ToList();
             if (items.Count == 0) continue;
-            string title = AddonEasy.Group(id, group.Id) ?? group.Name.Shown;
+            string title = AddonEasy.Group(group) ?? group.Name.Shown;
             // a list says what it is for under the group's name (its lines are its entries)
-            string? note = AddonEasy.GroupNote(id, group.Id) ?? group.About?.Shown ?? items.FirstOrDefault(i => i.Type == "list")?.About?.Shown;
-            Header(title, note);
-            if (AddonEasy.Folded(id, group.Id))
+            string? note = AddonEasy.GroupNote(group) ?? group.About?.Shown ?? items.FirstOrDefault(i => i.Type == "list")?.About?.Shown;
+            Header(title, note is { Length: > 0 } ? note : null);
+            if (AddonEasy.Folded(group))
             {
                 FoldedGroup(group.Id, items, schema, v, title, filter);
                 continue;
@@ -56,7 +56,7 @@ internal sealed partial class SettingsView
             var more = new List<(bool changed, Action add)>();
             foreach (var item in items)
             {
-                var easy = AddonEasy.Of(id, item.Key);
+                var easy = AddonEasy.Of(schema, item.Key);
                 var it = item;
                 if (easy?.More == true) more.Add((v.Changed(it.Key), () => AddonItem(schema, v, it, easy, title, filter)));
                 else AddonItem(schema, v, it, easy, title, filter);
@@ -83,7 +83,7 @@ internal sealed partial class SettingsView
         }
         if (!open) return;
         folding = true;
-        foreach (var item in items) AddonItem(schema, v, item, AddonEasy.Of(easyAddon, item.Key), title, filter);
+        foreach (var item in items) AddonItem(schema, v, item, AddonEasy.Of(schema, item.Key), title, filter);
         folding = false;
     }
 
@@ -109,14 +109,16 @@ internal sealed partial class SettingsView
                 WinSame(v, filter);
                 break;
         }
-        if (easy?.When is { } when && !when(v) && !everything) return;
-        indenting = easy?.When is not null;
+        // the Win+Alt+Tab lines hang on 'Win+Alt+Tab도 같게'
+        var when = (easyAddon, key) is ("alt-tab-per-monitor", "monitor.winAltTabLocation" or "monitor.winAltTabWindows") ? x => !AddonEasy.SameWin(x) : easy?.When;
+        if (when is not null && !when(v) && !everything) return;
+        indenting = when is not null;
         try
         {
             switch ((easyAddon, key, item.Type))
             {
                 case ("memory-clean", "clean.areas", _):
-                    CleanStrength(item, v, filter);
+                    CleanStrength(schema, item, v, filter);
                     break;
                 case ("memory-clean", "auto.percent", _):
                     int now = AddonPreviews.MemoryNow();
@@ -188,7 +190,7 @@ internal sealed partial class SettingsView
     }
 
     /// 정리 세기: the seven kinds of memory the add-on can clean, as three steps and 직접 (the chips, set in under it).
-    private void CleanStrength(AddonSetting item, AddonValues v, string filter)
+    private void CleanStrength(AddonSchema schema, AddonSetting item, AddonValues v, string filter)
     {
         string key = item.Key;
         int bits = v.Int(key);
@@ -201,8 +203,8 @@ internal sealed partial class SettingsView
             "strong" => Tr("강하게: 일곱 가지를 모두 비웁니다. 잠깐 멈칫할 수 있습니다", "Strong: frees all seven kinds; things may pause a moment"),
             _ => Tr("직접: 정리할 곳을 아래에서 고릅니다", "Custom: pick what to clean below"),
         };
-        var options = new[] { ("light", Tr("가볍게", "Light")), ("normal", Tr("보통", "Normal")), ("strong", Tr("강하게", "Strong")), ("custom", Tr("직접", "Custom")) }
-            .Select(o => (o.Item1, o.Item2, AddonPictures.Option("memory-clean", "clean.strength", o.Item1)!)).ToArray();
+        var steps = new[] { ("light", Tr("가볍게", "Light")), ("normal", Tr("보통", "Normal")), ("strong", Tr("강하게", "Strong")), ("custom", Tr("직접", "Custom")) };
+        var pictures = steps.Select(o => AddonPictures.Option(schema, "clean.strength", o.Item1)).ToArray();
         // how many of the seven kinds the value cleans, a square each (its name on the pointer)
         var squares = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(0, 6, 0, 0) };
         foreach (var o in item.Options)
@@ -214,13 +216,16 @@ internal sealed partial class SettingsView
         var countText = Theme.T(Tr($"{item.Options.Count}가지 중 {count}가지", $"{count} of {item.Options.Count} kinds"), 12, Theme.P.TextFaint);
         countText.Margin = new Thickness(5, 0, 0, 0);
         squares.Children.Add(countText);
-        Pictures(title, sub, G.Sliders, options, now, k =>
+        void Pick(string k)
         {
             AddonEasy.CustomAreas = k == "custom";
             var step = AddonEasy.Strengths.FirstOrDefault(s => s.key == k);
             if (step.key is not null) v.Set(key, step.bits);
             Dispatcher.BeginInvoke(TaskbarRebuild);
-        }, filter, squares);
+        }
+        // an add-on without the pictures: the four steps side by side
+        if (pictures.All(p => p is not null)) Pictures(title, sub, G.Sliders, steps.Select((o, i) => (o.Item1, o.Item2, pictures[i]!)).ToArray(), now, Pick, filter, squares);
+        else Choice(title, sub, G.Sliders, steps, now, Pick, filter);
         if (now != "custom" && collected is null && filter.Length == 0) return;
         indenting = true;
         AddonFlags(item, v, filter, Tr("정리할 곳", "What to clean"));
