@@ -16,6 +16,18 @@ internal sealed class KeyRecorder : SmoothBorder
     private readonly TextBlock text;
     private string value;
     private string? error;
+    private bool caps;
+
+    /// At rest the combo shows as key caps ([Ctrl][Alt][↑], Keys.Caps) instead of a line of text (an add-on's page).
+    public bool Caps
+    {
+        get => caps;
+        set
+        {
+            caps = value;
+            Show(null);
+        }
+    }
 
     /// The new combo ("ctrl+alt+m") or "off".
     public event Action<string>? Picked;
@@ -144,6 +156,18 @@ internal sealed class KeyRecorder : SmoothBorder
         text.Foreground = on ? Theme.P.AccentText : value == "off" ? Theme.P.TextFaint : Theme.P.Text;
         text.Text = !on ? Hotkeys.Label(value)
             : error ?? (held!.Length > 0 ? held + "…" : Tr("키를 누르세요", "Press keys"));
+        if (!on && caps && value != "off")
+        {
+            var row = new StackPanel { Orientation = Orientation.Horizontal, HorizontalAlignment = HorizontalAlignment.Center };
+            foreach (string part in Hotkeys.Parts(value))
+            {
+                var cap = Keys.Cap(part);
+                if (row.Children.Count == 0) cap.Margin = new Thickness(0);
+                row.Children.Add(cap);
+            }
+            Child = row;
+        }
+        else Child = text;
         ToolTip = on ? Tr("Esc 취소 · Backspace 끄기", "Esc cancels · Backspace turns it off") : Tr("눌러서 바꾸기", "Click to change");
     }
 }
