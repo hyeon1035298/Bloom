@@ -8,6 +8,23 @@ namespace Bloom.Native;
 // Every Win32 call the launcher makes, in one place.
 internal static class Win32
 {
+    // ── memory ──────────────────────────────────────────────────────────────────────────────────
+    [StructLayout(LayoutKind.Sequential)]
+    private struct MEMORYSTATUSEX
+    {
+        public uint dwLength, dwMemoryLoad;
+        public ulong ullTotalPhys, ullAvailPhys, ullTotalPageFile, ullAvailPageFile, ullTotalVirtual, ullAvailVirtual, ullAvailExtendedVirtual;
+    }
+
+    [DllImport("kernel32.dll")] private static extern bool GlobalMemoryStatusEx(ref MEMORYSTATUSEX status);
+
+    /// How much of the physical memory is in use now, in %, or -1 when Windows doesn't say.
+    public static int MemoryLoad()
+    {
+        var m = new MEMORYSTATUSEX { dwLength = (uint)Marshal.SizeOf<MEMORYSTATUSEX>() };
+        return GlobalMemoryStatusEx(ref m) ? (int)m.dwMemoryLoad : -1;
+    }
+
     // ── hooks and input ─────────────────────────────────────────────────────────────────────────
     public const int WH_KEYBOARD_LL = 13;
     public const int WM_KEYDOWN = 0x100, WM_KEYUP = 0x101, WM_SYSKEYDOWN = 0x104, WM_SYSKEYUP = 0x105;

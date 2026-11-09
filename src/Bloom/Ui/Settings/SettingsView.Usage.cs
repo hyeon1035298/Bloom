@@ -15,9 +15,10 @@ namespace Bloom.Ui;
 /// (설정 > AI 계정). They reach the taskbar through the usage file (UsageExport) and the add-on's values (아이콘 색).
 internal sealed partial class SettingsView
 {
-    /// 아이콘 색: Settings.UsageLogo, written to the add-on's usage.logoColor too.
+    /// 아이콘 색: Settings.UsageLogo, written to the add-on's usage.logoColor too; each choice drawn (AddonPictures).
     private void UsageLogoRow(AddonValues? values, string sub, string filter) =>
-        Choice(Tr("아이콘 색", "Icon colour"), sub, G.Palette, new[] { ("brand", Tr("원래 색", "Original")), ("mono", Tr("단색", "Single colour")) },
+        Pictures(Tr("아이콘 색", "Icon colour"), sub, G.Palette, new[] { ("brand", Tr("원래 색", "Original")), ("mono", Tr("단색", "Single colour")) }
+            .Select(o => (o.Item1, o.Item2, AddonPictures.Option("pill-taskbar", "usage.logo", o.Item1)!)).ToArray(),
             Settings.Current.UsageLogo == "mono" ? "mono" : "brand", v =>
             {
                 SetUsageLogo(v, values ?? AddonHub.Taskbar.Values);
@@ -30,10 +31,12 @@ internal sealed partial class SettingsView
         values?.Set("usage.logoColor", Settings.Current.UsageLogo);
     }
 
-    /// 이름표: the usage file's tag.
+    /// 이름표: the usage file's tag; each choice drawn (AddonPictures).
     private void UsageTagRow(string filter) =>
-        Choice(Tr("이름표", "Label"), Tr("아이콘 옆에 적습니다. 이름이 없는 계정은 요금제를 적고, 길면 …로 줄입니다. 아일랜드에도 같이 나옵니다", "Written beside the icon. An account without a name shows its plan; a long one is cut with …. The island shows it too"), G.Tag,
-            new[] { ("none", Tr("없음", "None")), ("name", Tr("이름", "Name")), ("plan", Tr("요금제", "Plan")) }, Settings.Current.UsageTag is "name" or "plan" ? Settings.Current.UsageTag : "none", v =>
+        Pictures(Tr("이름표", "Label"), Tr("아이콘 옆에 적습니다. 이름이 없는 계정은 요금제를 적습니다", "Written beside the icon; an account without a name shows its plan"), G.Tag,
+            new[] { ("none", Tr("없음", "None")), ("name", Tr("이름", "Name")), ("plan", Tr("요금제", "Plan")) }
+                .Select(o => (o.Item1, o.Item2, AddonPictures.Option("pill-taskbar", "usage.tag", o.Item1)!)).ToArray(),
+            Settings.Current.UsageTag is "name" or "plan" ? Settings.Current.UsageTag : "none", v =>
             {
                 Settings.Current.UsageTag = v;
                 UsageExport.Changed();

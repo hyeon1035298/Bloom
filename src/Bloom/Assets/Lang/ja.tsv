@@ -166,6 +166,9 @@ Really at: {0}	実際の場所: {0}
 A network path.	ネットワークパスです。
 The file exists already.	すでにあるファイルです。
 It has {0} other names, so it changes there too.	他に名前が{0}個あるため、そちらの場所でも変更されます。
+The prompt is empty. Edit the command.	プロンプトが空です。コマンドを編集してください。
+Step {0} failed · {1}	ステップ {0} 失敗 · {1}
+No response. Try again.	応答なし。再試行してください。
 Claude Code · Approval request	Claude Code · 承認リクエスト
 Allow	許可
 Decline	拒否
@@ -230,7 +233,7 @@ Move failed or cancelled. Check the destination and permissions, then retry.	移
 Copy failed or cancelled. Check the destination and permissions, then retry.	コピー失敗またはキャンセル。コピー先と権限を確認して再試行してください。
 The picture is gone, so it can't be made again	元の画像が削除されたため、作り直せません
 Copied {0}	{0} のコピー完了
-No response. Try again.	応答なし。再試行してください。
+I ran ‘{0}’; this was the result. Let's continue.\n\n[Result]\n{1}	‘{0}’を実行した結果です。続けて話しましょう。\n\n[結果]\n{1}
 I ran ‘{0}’ on the text below; this was the result. Let's continue.\n\n[Text]\n{1}\n\n[Result]\n{2}	下の文章に「{0}」を実行し、結果はこうでした。続けましょう。\n\n[文章]\n{1}\n\n[結果]\n{2}
 Recording saved	録画を保存済み
 {0} · file copied to the clipboard · Screen Recordings	{0} · ファイルをクリップボードにコピー済み · Screen Recordings
@@ -243,6 +246,10 @@ Could not save the file	ファイルを保存できませんでした
 Could not make the video	動画を作成できませんでした
 Check the sound devices, or record again without sound	サウンドデバイスを確認するか、音声なしでもう一度録画してください
 Try again	再試行してください
+AI command · Done	AIコマンド · 完了
+AI command · Failed	AIコマンド · 失敗
+Open chat	チャットを開く
+The chat was deleted	チャットは削除されました
 Export Bloom settings	Bloom の設定をエクスポート
 Bloom settings (*.zip)|*.zip	Bloom の設定 (*.zip)|*.zip
 Settings export failed	設定のエクスポート失敗
@@ -276,7 +283,6 @@ Keep data	データを保持
 Delete data	データを削除
 Without admin approval the Win-key helper stays installed. After Bloom is removed, remove ‘Bloom Win-key helper’ in Windows Settings › Apps.	管理者の承認がないため、Win キー ヘルパーは削除されませんでした。Bloom の削除後、Windows の設定 › アプリで「Bloom Win-key helper」を削除してください。
 Uninstall failed	アンインストール失敗
-No release notes for this version	このバージョンの変更履歴なし
 Update the Win-key helper	Win キー ヘルパーの更新
 This version of Bloom needs the Win-key helper installed again. Until then, Win does not open Bloom over admin apps.	このバージョンの Bloom に合わせて Win キー ヘルパーを再インストールする必要があります。それまでは管理者アプリの上で Win キーを押しても Bloom は開きません。
 Reinstall	再インストール
@@ -329,6 +335,23 @@ Bloom — press Win to open	Bloom — Win キーで開く
 Open\tWin	開く\tWin
 Settings	設定
 Quit Bloom	Bloom を終了
+New snippet	新しい定型文
+New chain	新しいチェーン
+New AI command	新しいAIコマンド
+New script	新しいスクリプト
+Input	入力
+selection · clipboard · none — Enter alone takes the selection	選択 · クリップボード · なし — Enterだけで選択テキスト
+Enter selection, clipboard or none	選択、クリップボード、なしのいずれかを入力してください
+Schedule	スケジュール
+Schedule (optional) — e.g. 30m, 2h, 3d, daily 09:00 · only with no input	スケジュール（任意）— 例: 30分, 2時間, 3日, 毎日 09:00 · 入力が「なし」の場合のみ
+Only a command with no input can run on a schedule	スケジュールは入力が「なし」のコマンドにのみ設定できます
+Next run {0}	次回実行 {0}
+Open the results chat	結果のチャットを開く
+Set a schedule	スケジュールを設定
+Change the schedule	スケジュールを変更
+Stop the schedule	スケジュール実行をオフ
+Schedule off	スケジュール実行オフ
+‘{0}’ schedule	‘{0}’ のスケジュール
 No reminders found	リマインダーの検索結果なし
 {0} reminders	リマインダー {0} 件
 No reminders on this day	この日のリマインダーなし
@@ -364,6 +387,7 @@ Open in the browser	ブラウザーで開く
 Open the image	画像を開く
 Ask AI about this text	このテキストについて AI に聞く
 Copied text	コピーしたテキスト
+Save as a snippet	定型文として保存
 Unpin	固定を解除
 Pin to the top	一番上に固定
 Delete this entry	この項目を削除
@@ -378,14 +402,15 @@ Size	サイズ
 {0} files	ファイル {0} 個
 Link	リンク
 Text	テキスト
-Characters	文字数
-{0:#,0}	{0:#,0} 文字
- · {0} lines	 · {0} 行
 From	コピー元
 Copied at	コピーした時刻
 Yes	はい
+Characters	文字数
+{0:#,0}	{0:#,0} 文字
+ · {0} lines	 · {0} 行
 Snippet	定型文
 Chain	連続操作
+AI command	AIコマンド
 Script	スクリプト
 Running… · stop it from Ctrl+K	実行中… · Ctrl+K から停止
 {0} + input · {1}	{0} + 入力 · {1}
@@ -401,19 +426,20 @@ Always run without a window	常にウィンドウなしで実行
 Always run in a window	常にウィンドウで実行
 Runs in a window	ウィンドウで実行
 Runs without a window · results appear as notifications	ウィンドウなしで実行 · 結果は通知に表示
-Edit command	コマンドを編集
+Delete snippet	定型文を削除
 Delete command	コマンドを削除
 Deletes the command ‘{0}’.	コマンド「{0}」を削除します。
 Delete	削除
 Custom commands	カスタムコマンド
-New snippet	新しい定型文
-New chain	新しいチェーン
-New script	新しいスクリプト
+Save an AI instruction you use often · run it on the selection or clipboard · >> for several steps	よく使うAIへの指示を名前を付けて保存 · 選択テキストやクリップボードに実行 · >> で複数ステップ
 Paste a text you use often by its keyword · {date} {time} {clipboard} {input}	よく使う文をキーワードで貼り付け · {date} {time} {clipboard} {input}
 Run several search lines in turn — e.g. notepad ; volume 30 ; wait 2	検索欄の入力を順番に実行 — 例: notepad ; volume 30 ; wait 2
 Run a .ps1, .bat or program, or one PowerShell line	.ps1、.bat、プログラム、または PowerShell 1 行を実行
 Create	作成
 {0} · keyword + space + input	{0} 件 · キーワード + スペース + 入力
+Prompt	プロンプト
+What the AI should do — split steps by >>  e.g. Summarize in 3 lines >> Translate into Korean	AIにさせること — ステップは >> で区切る  例) 3行に要約 >> 英語に翻訳
+Enter what the AI should do	AIにさせることを入力してください
 The text to paste — \\n for a new line · {date} {time} {clipboard} {input}	貼り付ける文 — 改行は \\n · {date} {time} {clipboard} {input}
 Enter the text to paste	貼り付ける文章を入力してください
 Steps	ステップ
@@ -434,6 +460,8 @@ Enter a keyword without spaces	空白を含まないキーワードを入力し�
 ‘{0}’ is in use. Enter another keyword.	「{0}」は使用中です。別のキーワードを入力してください。
 Added ‘{0}’	「{0}」追加済み
 Command saved	コマンドの保存完了
+Edit snippet	定型文を編集
+Edit command	コマンドを編集
 Command	コマンド
 Add a command	コマンドを追加
 Every command is in this block	すべてのコマンドがこのブロックにあります
@@ -527,6 +555,19 @@ Recent files	最近のファイル
 Recently copied	最近コピーしたもの
 Ctrl+Alt+V all	Ctrl+Alt+V ですべて
 Recent AI chats	最近の AI チャット
+Waiting for approval	承認待ち
+History	履歴
+No notifications	通知なし
+No matching notifications	該当する通知なし
+Finished tasks, limits, approvals and command results collect here	作業完了 · 上限 · 承認待ち · ユーザーコマンドの結果がここにたまります
+Go to session	セッションへ移動
+{0}/{1} {2:HH:mm}	{0}月{1}日 {2:HH:mm}
+Copy	コピー
+Result	結果
+Time	時間
+Copy the preview	プレビューをコピー
+Delete this notification	この通知を削除
+Deletes all {0} notifications.	通知 {0} 件をすべて削除します。
 Set a shortcut…	ショートカットを設定…
 Change the shortcut… ({0})	ショートカットを変更… ({0})
 Remove the shortcut	ショートカットを削除
@@ -600,7 +641,6 @@ Ask AI about the selected screen area · 1 use	選んだ画面の領域を AI �
 Reads the text and translates it · 1 use	文字を読み取って翻訳します · 1 回使用
 3  Copy text	3  テキストをコピー
 Copies text recognized on this PC · no AI usage	この PC で認識した文字をコピー · AI 使用量なし
-Copy	コピー
 4  Live translation	4  リアルタイム翻訳
 Keeps reading this area and translates when it changes · ongoing usage	この範囲を読み続け、変わったときに翻訳します · 継続して使用
 Start	開始
@@ -676,6 +716,7 @@ Copied	コピー完了
 Could not run	実行できませんでした
 No selected or copied text	選択・コピーした文章なし
 Select text in any app and press {0}, or copy it and come back	どのアプリでもテキストを選択して {0} を押すか、コピーしてから戻ってきてください
+‘{0}’ in progress… step {1}	‘{0}’ 実行中… ステップ {1}
 ‘{0}’ in progress…	「{0}」を実行中…
 ‘{0}’ result	「{0}」の結果
 Failed	失敗
@@ -693,6 +734,7 @@ The answer shows on the right	結果は右側に表示されます
 “{0}”	「{0}」
 Enter an AI instruction	AI への指示を入力
 into {0}	{0}へ
+My AI commands	マイAIコマンド
 The selection	選択したテキスト
 The clipboard	クリップボード
 {0} chars	{0} 文字
@@ -732,6 +774,11 @@ Copy as shown	表示どおりにコピー
 Copy with the expression	式と一緒にコピー
 Bloom settings	Bloom の設定
 Settings › {0}	設定 › {0}
+Snippets	定型文
+Save ‘{0}’ as a snippet	‘{0}’ を定型文として保存
+A text you use often · Enter pastes it into the window in front · {date} {time} {clipboard} {input}	よく使う文章 · Enter で前面のウィンドウに貼り付け · {date} {time} {clipboard} {input}
+Already a snippet: ‘{0}’	‘{0}’ は定型文に登録済み
+Saved ‘{0}’ as a snippet	‘{0}’ を定型文として保存しました
 System	システム
 Nothing matches	該当項目なし
 Set volume to {0}%	音量を {0}% にする
@@ -912,6 +959,8 @@ Copy to the clipboard: {0}	クリップボードにコピー: {0}
 saved captures	保存したキャプチャ
 glass	ガラス効果
 shortcut	ショートカットキー
+Hide from search	検索から非表示
+hidden	非表示
 Focus	集中
 Meeting	会議
 Drag to move	ドラッグで移動
@@ -951,8 +1000,19 @@ Mail greeting	メールの挨拶
 Hello, here are the notes for {date}.\\nThanks.	こんにちは、{date} のメモをお送りします。\\nよろしくお願いします。
 Back up, then check	バックアップして確認
 bk D:\\photos ; wait 1 ; td	bk D:\\photos ; wait 1 ; td
+Tidy meeting notes	議事録の整理
+Only the decisions and to-dos as a list >> Translate into Korean	決定事項とやることだけをリストに >> 英語に翻訳
+Phrase of the day	今日の英語フレーズ
+One useful Korean phrase for today with two examples	今日使える英語フレーズ1つと例文2つ
 bk D:\\photos	bk D:\\photos
 notepad ; volume 30 ; nosuchstepxyz	notepad ; volume 30 ; nosuchstepxyz
+Summarize in 3 lines >> Translate into Korean	3行に要約 >> 英語に翻訳
+phrase of the	今日の英語
+Tomorrow's 3 pm meeting moves to 4. Min brings the slides, Ji books the room.	明日15時の会議は16時に変更します。資料は佐藤さん、会議室の予約は鈴木さんが担当します。
+**I'm swamped** — I have too much to do.\n1. I'm swamped this week.\n2. Sorry, I was swamped yesterday.	**I'm swamped** — やることが多すぎて手一杯。\n1. I'm swamped this week.（今週は手一杯です）\n2. Sorry, I was swamped yesterday.（昨日は忙しくてすみません）
+Polish the sign-in screen	ログイン画面の調整
+Elapsed: 12 min	所要時間 12分
+Tidy the downloads folder	ダウンロードフォルダーの整理
 AI chat window	AI チャット ウィンドウ
 D:\\my photos	D:\\my photos
 Tidy downloads	ダウンロードを整理
@@ -978,6 +1038,11 @@ chrom	chrom
 Design review	デザインレビュー
 Morning Walk	夜明けの散歩
 Demo Tape	デモテープ
+110 Main Street\n3rd floor, design team	東京都千代田区丸の内1-1\n3階 デザインチーム
+Payment details	振込のご案内
+It ships as soon as the payment arrives.	入金を確認しだい発送いたします。
+payment	入金
+Closed today	本日は休業です
 Rename	名前を変更
 File Explorer	エクスプローラー
 AI tokens	AI トークン
@@ -1249,6 +1314,16 @@ Translate again	もう一度翻訳
  · paused	 · 一時停止中
  · reading every {0:0.#} s	 · {0:0.#} 秒ごとに読み取り
 Translating…	翻訳中…
+Clipboard	クリップボード
+No input	入力なし
+Selected text	選択テキスト
+The shortest interval is 30 minutes	最短の間隔は30分です
+The interval can be at most 365 days	間隔は最長365日です
+e.g. 30m, 2h, 3d, daily 09:00	例: 30分, 2時間, 3日, 毎日 09:00
+Daily at {0}	毎日 {0}
+Every {0:0} d	{0:0}日ごと
+Every {0:0} h	{0:0}時間ごと
+Every {0:0} min	{0:0}分ごと
 Undefined	未定義
 {0} · decimal {1:#,0}	{0} · 10 進数 {1:#,0}
 Loading exchange rates…	為替レートを読み込み中…
@@ -1319,6 +1394,8 @@ Search in Korean or English and paste	韓国語か英語で探して貼り付け
 Files and folders Windows remembers you opened	Windows が覚えている最近開いたファイルとフォルダー
 Dark mode · sound · Bluetooth · Wi-Fi · sleep …	ダークモード · サウンド · Bluetooth · Wi-Fi · スリープ …
 Summarize, translate or polish the selected or copied text	選択またはコピーしたテキストを要約・翻訳・推敲
+Notification center	通知センター
+Finished tasks, limits, approvals and command results in one place	作業完了 · 上限 · 承認待ち · ユーザーコマンドの結果をひとまとめに
 Bloom tour	Bloom ツアー
 See the first-run setup and the guide again	最初の設定とガイドをもう一度見る
 Export settings	設定をエクスポート
@@ -1339,7 +1416,6 @@ Notifications	通知
 Power & sleep	電源とスリープ
 Storage	ストレージ
 Multitasking	マルチタスク
-Clipboard	クリップボード
 About	バージョン情報
 Bluetooth & devices	Bluetooth とデバイス
 Printers & scanners	プリンターとスキャナー
@@ -1397,7 +1473,6 @@ Windows tool	Windows ツール
 Weight	重さ
 Temperature	温度
 Data (1 KB = 1024 B)	データ (1 KB = 1024 B)
-Time	時間
 Speed	速度
 Left half	左半分
 Right half	右半分
@@ -1684,7 +1759,6 @@ Output {0}	出力 {0}
 Cache read {0}	キャッシュ読み込み {0}
 Cache write {0}	キャッシュ書き込み {0}
 Cache hits {0}	キャッシュヒット {0}
-Input	入力
 Cache write	キャッシュ書き込み
 Cache read	キャッシュ読み込み
 Output	出力
@@ -1710,10 +1784,13 @@ Week of {0}	{0} からの 1 週間
  · nothing	 · 記録なし
 1 model with no price · {0} tokens not in the cost	価格のないモデル 1 個 · 換算額に含まれないトークン {0}
 {0} models with no price · {1} tokens not in the cost	価格のないモデル {0} 個 · 換算額に含まれないトークン {1}
-Bloom {0} · What's new	Bloom {0} · 新機能
-Bloom {0} update complete	Bloom {0} の更新完了
+{0} · installed	{0} · インストール済み
 Changes in this version	このバージョンの変更点
 See it on GitHub	GitHub で見る
+Bloom {0} · What's new	Bloom {0} · 新機能
+Bloom {0} update complete	Bloom {0} の更新完了
+No release notes for this version	このバージョンの変更履歴なし
+Couldn't load the release notes. Check the connection, or see them on GitHub.	変更履歴を読み込めませんでした。インターネット接続を確認するか、GitHub でご覧ください。
 {0:0.#}% of what the model remembers · omp summarises by itself when it gets long	モデルが覚えている会話の {0:0.#}% · 長くなると omp が自分で要約します
 How much the model remembers — shown after the next answer · omp summarises by itself when it gets long	モデルが覚えている会話の量 — 次の回答のあとに表示されます · 長くなると omp が自分で要約します
 Tidying…	整理中…
@@ -1800,6 +1877,7 @@ Pin to home ({0})	ホームに固定 ({0})
 Removed ‘{0}’ from home	「{0}」をホームから削除済み
 Pinned ‘{0}’ to home	「{0}」をホームに固定済み
 Remove from recent	最近使ったものから削除
+‘{0}’ hidden · bring it back in Settings › Launcher › Hidden items	「{0}」を非表示 · 設定 › ランチャー › 非表示の項目で戻せます
 Draw with AI… (describe the picture)	AI で描く… (絵を言葉で説明)
 Back to the original icon	元のアイコンに戻す
 Picture icon for ‘{0}’	「{0}」の絵のアイコン
@@ -1841,6 +1919,7 @@ Quick AI answer ready · Tab	クイック AI 回答完了 · Tab
 Edit home	ホームを編集
 Done (Esc · Ctrl+E)	完了 (Esc · Ctrl+E)
 Order or hide the home blocks (Ctrl+E)	ホームのブロックの並べ替えや非表示 (Ctrl+E)
+Ctrl+Tab switches	Ctrl+Tab で切り替え
 Add a block	ブロックを追加
 Click a card to add it here, or drag it into place	カードをクリックでこの列の末尾に、ドラッグで置いた場所に追加
 1 hidden block	非表示のブロック 1 個
@@ -1854,7 +1933,9 @@ File name · Everything syntax (ext:pdf, dm:today)	ファイル名 · Everything
 File search · Everything	ファイル検索 · Everything
 File search · Everything is off	ファイル検索 · Everything がオフです
 Find a chat, or ask something new	チャットを探すか、新しく質問
+Find a snippet · type a text and Enter to add it	定型文を探す · 文章を入れて Enter で新規作成
 Find something you copied	コピーしたものを探す
+Snippets · {0}	定型文 · {0} 件
 Clipboard history · {0}	クリップボードの履歴 · {0} 件
 Clipboard history · off	クリップボードの履歴 · オフ
 Find a reminder	リマインダーを探す
@@ -1862,7 +1943,10 @@ Calendar · {0} reminders	カレンダー · リマインダー {0} 件
 Calendar · reminders	カレンダー · リマインダー
 Find a shortcut · type an address and Enter to add one	ショートカットを探す · アドレスを入力して Enter で追加
 Browser · {0} · keyword + space + search	ブラウザー · {0} · キーワード + スペース + 検索語
+Find a command · scripts, snippets, chains, AI commands	コマンドを探す · スクリプト、定型文、チェーン、AIコマンド
 Custom commands · {0} · keyword + space + input	カスタムコマンド · {0}件 · キーワード + スペース + 入力
+Find a notification · Enter opens it	通知を検索 · Enterで開く
+Notification center · {0}	通知センター · {0}件
 Apps	アプリ
 Find a program · Enter quits it · Ctrl+Enter closes its windows	プログラムを探す · Enter で強制終了 · Ctrl+Enter でウィンドウを閉じる
 End apps · {0}	アプリを終了 · {0}件
@@ -1944,6 +2028,183 @@ Monitor 1	モニター 1
 Monitor 2	モニター 2
 Clean now	今すぐ解放
 1.2 GB freed	1.2 GB 解放
+Coffee	コーヒー
+Free to sleep	スリープできます
+Awake until turned off	オフにするまで起きています
+Always	ずっと
+30 min	30 分
+1 h	1 時間
+2 h	2 時間
+Start button	スタートボタン
+Unchanged	そのまま
+Hidden	非表示
+Bloom button	Bloom ボタン
+Top	上
+Bottom	下
+Taskbar height	タスクバーの高さ
+Windows' own is 48	Windows の標準は 48 です
+Icon size	アイコンのサイズ
+Windows' own is 24	Windows の標準は 24 です
+Icon spacing	アイコンの間隔
+An app button is the icon size plus this wide; Windows' own is 20	アプリボタンの幅はアイコンのサイズに間隔を足した値です。Windows の標準は 20 です
+Corner radius	角の丸み
+Background blur	背景のぼかし
+Background tint	背景色の濃さ
+Pill shape	ピルの形
+Off, the taskbar looks as Windows draws it	オフにすると Windows 標準の見た目に戻ります
+Battery	バッテリー
+Notification bell	通知ベル
+Language bar	言語バー
+Extra language icons	言語の補助アイコン
+Clock	時計
+Time and date	時刻と日付
+Time only	時刻のみ
+Time format	時刻の表記
+Longest track title	曲名の最大幅
+A longer title ends in …	はみ出した曲名は … で縮めます
+Gap after the apps	アプリと使用量の間
+Gap before the tray	使用量とトレイの間
+Sessions in the details	詳細ウィンドウにセッションを表示
+The window a click on the usage opens lists this PC's Claude Code and Codex sessions	使用量をクリックして開くウィンドウに、この PC の Claude Code・Codex のセッションを表示します
+Windows panels by the tray	Windows パネルをトレイの横に
+Quick Settings and the notification center open by the pill's tray, not at the screen's end	クイック設定と通知センターを、画面の端ではなくピルのトレイの横に開きます
+Notification center without the slide	通知センターのスライドをオフ
+The notification center and calendar appear in place instead of sliding in	通知センターとカレンダーが横からスライドせず、その場に表示されます
+Now playing	再生中の曲
+Memory use	メモリ使用率
+CPU use	CPU 使用率
+Height	高さ
+At 100% scale	100% の拡大率が基準です
+Width	幅
+At 100% scale; a track title that doesn't fit is shortened	100% の拡大率が基準です。収まらないときは曲名を縮めます
+Where the clock sits	時計の位置
+On the middle island, or on one in the screen's left or right corner	中央のアイランド、または画面の左右の隅のアイランドに置きます
+Where now playing sits	再生中の曲の位置
+Where AI usage sits	AI 使用量の位置
+Where memory use sits	メモリ使用率の位置
+Where CPU use sits	CPU 使用率の位置
+Reveal zone	表示される範囲
+The pointer brings the taskbar out only on this much of the edge; 100 is all of it	端のこの範囲でだけ、ポインターでタスクバーが出てきます。100 なら端全体です
+Wait before showing	表示までの時間
+Wait before hiding	隠れるまでの時間
+Counted from when the pointer leaves	ポインターが離れてから数えます
+Animation length	アニメーションの長さ
+Stay hidden for the Bloom launcher	Bloom ランチャーを開いても隠したまま
+Off, opening the launcher brings that monitor's taskbar out too	オフにすると、ランチャーを開いたときにそのモニターのタスクバーも出てきます
+Stay hidden when an app flashes	アプリが点滅しても隠したまま
+Off, it comes out as in Windows and stays until that app is opened	オフにすると Windows と同じように出てきて、そのアプリを開くまで残ります
+Running folder	実行中フォルダー
+Apps started without pinning gather in one clock-shaped folder	ピン留めせずに起動したアプリを、時計の形のフォルダー 1 つにまとめます
+Running folder's name	実行中フォルダーの名前
+Folder location	フォルダーの場所
+Each folder inside it becomes one taskbar folder	この中のフォルダー 1 つがタスクバーのフォルダー 1 つになります
+Wait before merging	まとまるまでの時間
+How long an app stays over another before they merge	アプリをほかのアプリの上にこの時間置くとまとまります
+Open folder size	開いたフォルダーのサイズ
+App names	アプリ名を表示
+Off, the cells shrink to the icons	オフにすると、マスがアイコンのサイズまで縮みます
+Icon size in folders	フォルダー内のアイコンのサイズ
+Space between apps	アプリの間隔
+Folder opens	フォルダーが開く向き
+Away from the taskbar	タスクバーの反対側
+Above the taskbar	タスクバーの上
+Below the taskbar	タスクバーの下
+Distance from the taskbar	タスクバーとの距離
+Corner smoothing	角のなめらかさ
+0 is an ordinary round corner, 60 a continuous curve	0 は普通の丸い角、60 は途切れずにつながった曲線です
+Left	左
+Middle	中央
+Right	右
+Look	見た目
+With an administrator window in front, Windows' own shows	管理者権限のウィンドウが前にあると Windows の表示になります
+Window previews	ウィンドウのプレビュー
+App icons	アプリのアイコン
+Small	小
+Large	大
+Huge	特大
+Window names	ウィンドウ名
+The chosen one	選んだウィンドウだけ
+Where Alt+Tab shows	Alt+Tab が出る場所
+Windows listed	表示するウィンドウ
+Where Win+Alt+Tab shows	Win+Alt+Tab が出る場所
+Windows Win+Alt+Tab lists	Win+Alt+Tab で表示するウィンドウ
+Icon look	アイコンの形
+The number is what is in use now	数字は今使っている量です
+Outline	線
+Filled	塗り
+Solid	べた塗り
+Value shown	表示する値
+Right-clicking the icon changes it too	アイコンを右クリックしても切り替わります
+Memory	メモリ
+Both	両方
+Clean when memory fills up	メモリが多く使われたら解放
+At most once every 30 seconds	30 秒に 1 回まで
+At	基準
+Clean on a schedule	決まった間隔で解放
+Every	間隔
+Program	プログラム
+Brightness on the taskbar	タスクバーに表示する明るさ
+First monitor	1 台目のモニター
+Average	平均
+Per wheel notch	ホイール 1 目盛りで
+Turning the wheel over the taskbar icon	タスクバーのアイコンの上でホイールを回したとき
+All monitors together	すべてのモニターをまとめて
+Changing one sets the others to the same brightness	1 台を変えると、ほかのモニターも同じ明るさになります
+Brighter	明るく
+Click, then press a new combination	クリックしてから新しい組み合わせを押してください
+Dimmer	暗く
+Per press	1 回押すごとに
+Dim when away	離席したら暗く
+It comes back as soon as the mouse or keyboard is used	マウスかキーボードを使うと元に戻ります
+Dim to	暗くする明るさ
+Keep on	オンにしておくもの
+With the PC only, the screen turns off as usual	PC だけのときは、画面はいつもどおりオフになります
+Screen and PC	画面と PC
+PC only	PC だけ
+On with a right-click	右クリックでオンにしたとき
+Until turned off	オフにするまで
+1 hour	1 時間
+2 hours	2 時間
+A time of my own	自分で決めた時間
+Switcher look	切り替え画面の見た目
+With several monitors	モニターが複数あるとき
+Taskbar icon	タスクバーのアイコン
+Cleaning	解放
+Programs left alone	解放しないプログラム
+Brightness range per monitor	モニターごとの明るさの範囲
+Cleaning leaves these programs' memory as it is	解放するとき、これらのプログラムのメモリは空けません
+Sets where 0 and 100 fall on each monitor's own brightness	明るさ 0 と 100 が、モニターの実際の明るさのどこに当たるかを決めます
+The pointer's monitor	ポインターのあるモニター
+Main monitor	メインモニター
+The highlighted windows are listed	アクセントカラーのウィンドウが一覧に出ます
+That monitor's	そのモニターのウィンドウだけ
+All on the main one	メインモニターではすべて
+A little	少し解放
+Some	ほどよく解放
+A lot	たくさん解放
+Main	メイン
+Preview	プレビュー
+9:41 PM	午後 9:41
+Pick what it shows below	表示するものを下で選んでください
+Only what is picked shows	選んだものだけ表示されます
+The wheel: {0}% a notch	ホイールで {0}% ずつ
+{0}% a press	押すと {0}% ずつ
+On the taskbar	タスクバーで
+In use	使っている間
+{0} min idle	{0} 分そのまま
+Dimmed	暗く
+Mouse or keys	マウス・キーボード
+Left click	左クリック
+30 min · 1 h …	30 分 · 1 時間 …
+Pick each time	その都度選ぶ
+Right click	右クリック
+On for 30 min	すぐ 30 分オン
+On for 1 hour	すぐ 1 時間オン
+On for 2 hours	すぐ 2 時間オン
+On for {0}	すぐ {0} オン
+On until turned off	オフにするまでオン
+The time set below	下で決めた時間
+How to use	使い方
 {0} API key	{0} API キー
 The key is stored encrypted on this PC only and used only for requests to {0}. Usage is billed to your {1} account.	キーはこの PC にのみ暗号化して保存し、{0} へのリクエストにだけ使います。利用料金は {1} アカウントに請求されます。
 Open the key page	キー発行ページを開く
@@ -1972,7 +2233,7 @@ Added accounts every {0} min · the home's ↻ checks all	追加したアカウ�
 5 min	5 分
 10 min	10 分
 What's used (32%) or what's left (68% left) · the bars follow	使った量 (32%) か残りの量 (68% 残り) · バーもそれに合わせます
-Left	残り
+Remaining	残り
 The picked icon files in their own colours or in one · the home cards and the taskbar share it	選んだアイコンファイルを元の色か単色で · ホームのカードとタスクバーで共通です
 ChatGPT checks	ChatGPT の確認方式
 Lightweight: one HTTPS request with the Codex sign-in · no CLI · not an official API, may change	軽量方式: Codex のサインインで HTTPS リクエスト 1 回 · CLI 実行なし · 公式 API ではないため変わる可能性あり
@@ -1990,29 +2251,45 @@ Show on the home	ホームに表示
 Hide on the home	ホームで非表示
 Default account	既定のアカウント
 This account's renewed sign-in isn't saved yet. Try again in a moment.	このアカウントの更新されたサインイン情報をまだ保存できていません。しばらくしてからもう一度お試しください。
+Looking for a new {0}	{0} の新しいバージョンを確認中
+GitHub release	GitHub リリース
 Downloading {0}	{0} をダウンロード中
 Download	ダウンロード
 Couldn't download {0}	{0} をダウンロードできませんでした
 {0} {1} update	{0} {1} にアップデート
 Now {0} · from its GitHub release	現在 {0} · GitHub リリースから取得します
-Update	更新
 Download {0} {1}	{0} {1} をダウンロード
 From its GitHub release, checked by Bloom before it is installed	GitHub リリースから取得し、Bloom が確認してからインストールします
-Check your connection and try again	接続を確認してもう一度お試しください
-The downloaded file isn't the one its release names, so it wasn't installed	ダウンロードしたファイルがリリースの示すファイルと異なるため、インストールしませんでした
 Download {0}	{0} をダウンロード
-Looking for a new {0}	{0} の新しいバージョンを確認中
-GitHub release	GitHub リリース
-There is no release to download yet	ダウンロードできるリリースはまだありません
 Report it on GitHub	GitHub で問題を報告
 Opens an issue in this add-on's repository, with its version and status filled in	このアドオンのリポジトリで Issue を開きます · バージョンと状態は入力済みです
 Open an issue	Issue を開く
+Check your connection and try again	接続を確認してもう一度お試しください
+There is no release to download yet	ダウンロードできるリリースはまだありません
+The downloaded file isn't the one its release names, so it wasn't installed	ダウンロードしたファイルがリリースの示すファイルと異なるため、インストールしませんでした
 What the download holds isn't valid, so it wasn't installed	ダウンロードした内容が正しくないため、インストールしませんでした
 Couldn't save the download · check the free disk space	ダウンロードを保存できませんでした · ディスクの空き容量を確認してください
+More · {0} monitors	詳細 · モニター {0} 台
+More · {0}	詳細 · {0} 件
+The upright mark is the {0}% in use now	縦の目盛りが今の使用量 {0}% です
+Win+Alt+Tab the same	Win+Alt+Tab も同じに
+Off, Win+Alt+Tab is set on its own	オフにすると Win+Alt+Tab を別に決めます
+Cleaning strength	解放の強さ
+Light: frees what programs hold but don't use	軽め: プログラムが確保しているだけのメモリを空けます
+Normal: frees what programs and caches don't use	標準: プログラムとキャッシュの余ったメモリを空けます
+Strong: frees all seven kinds; things may pause a moment	強め: 7 種類をすべて空けます。一瞬止まることがあります
+Custom: pick what to clean below	カスタム: 解放する場所を下で選びます
+Normal	標準
+Strong	強め
+{0} of {1} kinds	{1} 種類中 {0} 種類
+What to clean	解放する場所
 Add: {0}	{0}を追加
 Up to {0} can be added	{0} 件まで追加できます
+Pick from running	実行中から選ぶ
+Pick a running program, or type its name below	実行中のプログラムから選ぶか、下に名前を入力してください
 Type a name and press Enter	名前を入力して Enter を押します
 Type a file name ending in {0} and press Enter	{0} で終わるファイル名を入力して Enter を押します
+Add by name	名前で追加
 That name can't be used	この名前は使えません
 Only a file name ending in {0}	{0} で終わるファイル名のみ使えます
 Already in the list	すでに一覧にあります
@@ -2020,6 +2297,8 @@ Off — click to set a shortcut	オフ — クリックでショートカット�
 Click and press another combination; Delete clears it	クリックして別の組み合わせを押します。Delete で消去します
 Bloom already uses it	Bloom がすでに使っています
 They show here once the add-on has run	アドオンが一度動くとここに表示されます
+Brightness range	明るさの範囲
+0 is {0}% and 100 is {1}% of the monitor's own	明るさ 0 は実際の {0}%、100 は実際の {1}% です
 Add-ons	アドオン
 Add-ons are separate programs Bloom starts, each turned on and off here. Click one to open its page. One you put in the user-addons folder in Bloom's local data folder shows after Bloom restarts.	アドオンは Bloom が起動する別のプログラムで、ここで一つずつオン・オフします。カードをクリックすると、そのアドオンのページが開きます。Bloom のローカルデータフォルダー内の user-addons に自分で入れたアドオンは、Bloom を再起動すると表示されます。
 All add-ons	アドオン一覧
@@ -2232,7 +2511,6 @@ Runs in the tray at sign-in	サインイン時にトレイで起動
 Not registered	未登録
 Win key over admin apps	管理者アプリの上でも Win キーを使用
 Opens with Win even over apps run as administrator · admin approval to turn on	管理者として実行中のアプリが前面にあっても Win キーで開きます · オンにするには管理者の承認が必要
-Look	見た目
 System follows Windows' light or dark setting	「システム」は Windows のライト・ダークの設定に従います
 The launcher, tool windows, chat and settings together · Ctrl+= / Ctrl+- / Ctrl+0 in the launcher	ランチャー、ツール ウィンドウ、チャット、設定をまとめて · ランチャーで Ctrl+= / Ctrl+- / Ctrl+0
 Animation	アニメーション
@@ -2293,6 +2571,15 @@ Drawing… {0}/{1}	描いています… {0}/{1}
  · {0} failed	 · {0} 件失敗
 Restore the original icons	元のアイコンに戻す
 Restores original app icons for {0} picture icons.	{0} 件の画像アイコンを元のアプリアイコンに戻します。
+Hidden items	非表示の項目
+Results taken out of the search and the home, and bringing them back	検索とホームから外した結果と、その表示の戻し方
+None · Ctrl+K on a result › Hide from search	なし · 結果で Ctrl+K › 検索から非表示
+{0} · not shown in the search or on the home	{0} 件 · 検索とホームに表示しません
+Hidden search results	非表示の検索結果
+Show all again	すべて再表示
+Show again	再表示
+Site shortcut	サイトショートカット
+System switch	システムスイッチ
 Clear counts	消去
 Token counts cleared	トークン集計を消去しました
 Saved captures deleted: {0}	保存したキャプチャ {0} 枚を削除済み
@@ -2300,6 +2587,7 @@ Shortcuts	ショートカット
 Shortcuts that work in any app	どのアプリでも使えるショートカット
 Opens the chat window anywhere · down again when it's in front	どこからでもチャット ウィンドウを開きます · 手前にあるときはもう一度で下がります
 Opens the clipboard history right away	クリップボードの履歴をすぐに開きます
+Opens the clipboard's snippets tab. Enter pastes into the window in front.	クリップボードの定型文タブを開きます。Enter で前面のウィンドウに貼り付けます。
 Opens the list of open windows	開いているウィンドウの一覧を開きます
 Emoji & symbols	絵文字 · 記号
 Choose a symbol and press Enter to paste into the active window.	記号を選び Enter を押すと、アクティブなウィンドウに貼り付けます。
@@ -2429,7 +2717,6 @@ Work notifications	作業の通知
 AI work starting, done or waiting for approval, as cards in a screen corner	AI 作業の開始、完了、承認待ちを画面の隅にカードで表示
 On · about +1 MB of memory	オン · メモリ約 +1 MB
 Off — no cards, no sounds · on: about +1 MB	オフ — カードも音もなし · オンでメモリ約 +1 MB
-Preview	プレビュー
 Top left	左上
 Top center	中央上
 Top right	右上
@@ -2441,8 +2728,6 @@ Position	位置
 A preview card shows there when you pick	選ぶとそこにプレビューのカードが表示されます
 Move it yourself	手動で移動
 Drag a notice card on the screen · it sticks to the middle and the edges	画面上で通知カードをドラッグして移動 · 中央と端に吸着します
-Small	小
-Large	大
 X-large	特大
 Shown for	表示時間
 Stays while hovered · approval cards stay until work resumes	マウスを重ねると表示を維持 · 承認カードは作業再開まで
@@ -2506,11 +2791,9 @@ The address of the PC where JRiver runs (default {0}). Turn on JRiver's Media Ne
 Write it as http://address:port	http://アドレス:ポート の形式で入力してください
 Only when JRiver was given a user name and password. Leave it empty if not.	JRiver にユーザー名とパスワードを設定した場合のみ入力します。なければ空のままにしてください。
 Stored encrypted on this PC only and used only for requests to JRiver. It is not shown while typed.	この PC にのみ暗号化して保存し、JRiver へのリクエストにだけ使用します。入力中は表示されません。
-About PillTaskbar	PillTaskbar について
-PillTaskbar is a separate GPL-3.0 program · {0}	PillTaskbar は GPL-3.0 の別プログラムです · {0}
 Taskbar folders	タスクバーのフォルダー
-Dragging an app onto another on the taskbar and holding it there briefly makes a folder too	タスクバーでアプリを別のアプリの上にドラッグして少し置いてもフォルダーになります
-Off · when on, pinned apps can be grouped into folders	オフ · オンにするとピン留めしたアプリをフォルダーにまとめられます
+Dropping an app onto another makes a folder	アプリをほかのアプリの上にドロップするとフォルダーになります
+On, pinned apps can be grouped into folders	オンにすると、ピン留めしたアプリをフォルダーにまとめます
 Folders can be edited while taskbar customization runs	タスクバーのカスタマイズが動作している間はフォルダーを編集できます
 The taskbar hasn't sent its folders yet	タスクバーからまだフォルダー情報が届いていません
 The taskbar didn't answer within 5 seconds, so for now this is read only	タスクバーが 5 秒以内に応答しなかったため、今は表示のみです
@@ -2518,17 +2801,18 @@ Taskbar folders haven't turned on yet	タスクバーのフォルダーはまだ
 Edit folders	フォルダーの編集
 Make folders and change their names, icons and apps	フォルダーを作り、名前・アイコン・中のアプリを変えます
 Taskbar look	タスクバーの見た目
-Changes the taskbar's height and icon size together	タスクバーの高さとアイコンのサイズを一緒に変えます
-Blurs what is behind the pill. Lit glass adds light and a sheen at the edges	ピルの後ろをぼかして映します。光を受けるガラスは縁に光と反射が加わります
+The taskbar's height and icon size	タスクバーの高さとアイコンのサイズ
+Blurs what is behind the pill	ピルの後ろをぼかして映します
 The flower button opens and closes Bloom	花のボタンを押すと Bloom を開閉します
+Where on the screen	画面のどこに
+Windows' own setting stays as it is	Windows の設定は変えません
+Pill alignment	ピルの配置
 A number changed here makes the size above ‘Custom’	ここで数値を変えると上のサイズは「カスタム」になります
 Taskbar tray	タスクバーのトレイ
 Icons shown	表示するアイコン
-Only the ones on stay in the tray; the ones off leave no gap	オンのものだけがトレイに残り、オフのアイコンは場所も残しません
-Only the 12-hour clock shows AM and PM	12時間表示のときだけ午前・午後が付きます
-Now playing	再生中の曲
-Puts the album art, the title and previous, play and next buttons before the tray	アルバムアート、タイトル、前へ・再生・次へボタンをトレイの前に置きます
-Shows one picked value per account as a bar. The auto-hide island shows the same	アカウントごとに選んだ値を 1 つバーで表示します。自動非表示アイランドにも同じ値が出ます
+An icon turned off leaves no gap	オフにしたアイコンは場所も残しません
+Album art, title and play buttons	アルバムアート、タイトル、再生ボタン
+A bar per account; the island shows it too	アカウントごとにバーが 1 本。非表示アイランドにも出ます
 Usage file export is off	使用量ファイルの書き出しがオフ
 The taskbar reads the usage file Bloom exports; turn it on to see the usage	タスクバーは Bloom が書き出した使用量ファイルを読みます。オンにすると使用量が表示されます
 The same setting as the home cards	ホームのカードと同じ設定です
@@ -2537,13 +2821,13 @@ Bell only with new notifications	新しい通知があるときだけ通知ベ�
 Hides the bell while there are no notifications	通知がないときは通知ベルを隠します
 Auto-hide island	自動非表示アイランド
 Use the auto-hide island	自動非表示アイランドを使う
-The taskbar hides itself, and an island appears at the top centre of the screen	タスクバーが自動的に隠れ、画面上部中央にアイランドが現れます
-With click, pointing at it alone doesn't bring it out	クリックにすると、ポインターを当てるだけでは出てきません
-The taskbar follows Bloom's light or dark; the island's colour is picked here	タスクバーは Bloom のライト・ダークに従い、アイランドの色はここで選びます
+The taskbar hides, and a small island stays at the screen's edge	タスクバーが隠れ、画面の端に小さなアイランドが残ります
+Bringing the taskbar out	タスクバーの呼び出し
 Shown on the island	アイランドに表示するもの
-With the pointer over it	ポインターを乗せると
-What is below shows through while the pointer is there: 0 not at all, 100 fully	ポインターがある間、下が透けて見えます。0 はそのまま、100 は完全に透けます
-More · {0}	詳細 · {0} 件
+See-through under the pointer	ポインターを乗せると透ける
+0 not at all, 100 fully	0 でそのまま、100 で完全に透けます
+Island colour	アイランドの色
+{0} changed	変更した項目 {0} 件
 {0} to {1}	{0}～{1}
 The taskbar add-on's files are not valid, or it needs a newer Bloom	タスクバーアドオンのファイルが正しくないか、より新しい Bloom が必要です
 Paused · Explorer kept crashing, so taskbar customization was turned off	停止中 · エクスプローラーが続けて停止したため、タスクバーのカスタマイズをオフにしました
@@ -2556,7 +2840,7 @@ Icon colour	アイコンの色
 Original	元の色
 Single colour	単色
 Label	名札
-Written beside the icon. An account without a name shows its plan; a long one is cut with …. The island shows it too	アイコンの横に表示します。名前のないアカウントはプランを表示し、長いと … で省略します。アイランドにも表示されます
+Written beside the icon; an account without a name shows its plan	アイコンの横に書きます。名前のないアカウントはプランを書きます
 Plan	プラン
 This plan has only the {0} limit	このプランには {0} の上限しかありません
 Choose a file…	ファイルを選ぶ…
@@ -2567,7 +2851,6 @@ A letter shows. You can choose a logo file (SVG, PNG, ICO)	文字で表示して
 Icon	アイコン
 Logos (*.svg;*.png;*.ico)|*.svg;*.png;*.ico	ロゴ (*.svg;*.png;*.ico)|*.svg;*.png;*.ico
 That file couldn't be brought in as the icon.	そのファイルをアイコンとして読み込めませんでした。
-{0} changed	変更した項目 {0} 件
 Off · turn it on in Features	オフ · 機能でオンにする
 Another app already uses it — press another combination	別のアプリがすでに使っています — 別の組み合わせを押してください
 No settings found	設定の検索結果なし
@@ -2627,9 +2910,12 @@ The taskbar couldn't carry it out	タスクバーがコマンドを処理でき�
 {0} failed · {1}	{0} に失敗 · {1}
 Fits the content	内容に合わせる
 Windows default	Windows の既定
-Faintly outlined glass	薄い輪郭線のガラス
+Faint outline	薄い輪郭線
 Lit glass	光を受けるガラス
-Borderless glass	縁のないガラス
+No outline	枠なし
+As Windows	Windows どおり
+Point at it	ポインターを合わせると
+Click it	クリックすると
 Rose	ローズ
 Lavender	ラベンダー
 Sky	スカイ
@@ -2674,104 +2960,3 @@ just now	たった今
 Detach from the launcher	ランチャーから切り離す
 Always on top	常に手前に表示
 Attach to the launcher	ランチャーに付ける
-Hide from search	検索から非表示
-‘{0}’ hidden · bring it back in Settings › Launcher › Hidden items	「{0}」を非表示 · 設定 › ランチャー › 非表示の項目で戻せます
-Hidden items	非表示の項目
-Results taken out of the search and the home, and bringing them back	検索とホームから外した結果と、その表示の戻し方
-None · Ctrl+K on a result › Hide from search	なし · 結果で Ctrl+K › 検索から非表示
-{0} · not shown in the search or on the home	{0} 件 · 検索とホームに表示しません
-Hidden search results	非表示の検索結果
-Show all again	すべて再表示
-Show again	再表示
-Site shortcut	サイトショートカット
-System switch	システムスイッチ
-hidden	非表示
-The prompt is empty. Edit the command.	プロンプトが空です。コマンドを編集してください。
-Step {0} failed · {1}	ステップ {0} 失敗 · {1}
-I ran ‘{0}’; this was the result. Let's continue.\n\n[Result]\n{1}	‘{0}’を実行した結果です。続けて話しましょう。\n\n[結果]\n{1}
-AI command · Done	AIコマンド · 完了
-AI command · Failed	AIコマンド · 失敗
-Open chat	チャットを開く
-The chat was deleted	チャットは削除されました
-New AI command	新しいAIコマンド
-selection · clipboard · none — Enter alone takes the selection	選択 · クリップボード · なし — Enterだけで選択テキスト
-Enter selection, clipboard or none	選択、クリップボード、なしのいずれかを入力してください
-Schedule	スケジュール
-Schedule (optional) — e.g. 30m, 2h, 3d, daily 09:00 · only with no input	スケジュール（任意）— 例: 30分, 2時間, 3日, 毎日 09:00 · 入力が「なし」の場合のみ
-Only a command with no input can run on a schedule	スケジュールは入力が「なし」のコマンドにのみ設定できます
-Next run {0}	次回実行 {0}
-Open the results chat	結果のチャットを開く
-Set a schedule	スケジュールを設定
-Change the schedule	スケジュールを変更
-Stop the schedule	スケジュール実行をオフ
-Schedule off	スケジュール実行オフ
-‘{0}’ schedule	‘{0}’ のスケジュール
-AI command	AIコマンド
-Save an AI instruction you use often · run it on the selection or clipboard · >> for several steps	よく使うAIへの指示を名前を付けて保存 · 選択テキストやクリップボードに実行 · >> で複数ステップ
-Prompt	プロンプト
-What the AI should do — split steps by >>  e.g. Summarize in 3 lines >> Translate into Korean	AIにさせること — ステップは >> で区切る  例) 3行に要約 >> 英語に翻訳
-Enter what the AI should do	AIにさせることを入力してください
-No notifications	通知なし
-No matching notifications	該当する通知なし
-{0}/{1} {2:HH:mm}	{0}月{1}日 {2:HH:mm}
-Result	結果
-Copy the preview	プレビューをコピー
-Delete this notification	この通知を削除
-Deletes all {0} notifications.	通知 {0} 件をすべて削除します。
-‘{0}’ in progress… step {1}	‘{0}’ 実行中… ステップ {1}
-My AI commands	マイAIコマンド
-Tidy meeting notes	議事録の整理
-Only the decisions and to-dos as a list >> Translate into Korean	決定事項とやることだけをリストに >> 英語に翻訳
-Phrase of the day	今日の英語フレーズ
-One useful Korean phrase for today with two examples	今日使える英語フレーズ1つと例文2つ
-Summarize in 3 lines >> Translate into Korean	3行に要約 >> 英語に翻訳
-phrase of the	今日の英語
-Tomorrow's 3 pm meeting moves to 4. Min brings the slides, Ji books the room.	明日15時の会議は16時に変更します。資料は佐藤さん、会議室の予約は鈴木さんが担当します。
-**I'm swamped** — I have too much to do.\n1. I'm swamped this week.\n2. Sorry, I was swamped yesterday.	**I'm swamped** — やることが多すぎて手一杯。\n1. I'm swamped this week.（今週は手一杯です）\n2. Sorry, I was swamped yesterday.（昨日は忙しくてすみません）
-No input	入力なし
-Selected text	選択テキスト
-The shortest interval is 30 minutes	最短の間隔は30分です
-The interval can be at most 365 days	間隔は最長365日です
-e.g. 30m, 2h, 3d, daily 09:00	例: 30分, 2時間, 3日, 毎日 09:00
-Daily at {0}	毎日 {0}
-Every {0:0} d	{0:0}日ごと
-Every {0:0} h	{0:0}時間ごと
-Every {0:0} min	{0:0}分ごと
-Notification center	通知センター
-Find a command · scripts, snippets, chains, AI commands	コマンドを探す · スクリプト、定型文、チェーン、AIコマンド
-Notification center · {0}	通知センター · {0}件
-Waiting for approval	承認待ち
-History	履歴
-Finished tasks, limits, approvals and command results collect here	作業完了 · 上限 · 承認待ち · ユーザーコマンドの結果がここにたまります
-Go to session	セッションへ移動
-Polish the sign-in screen	ログイン画面の調整
-Elapsed: 12 min	所要時間 12分
-Tidy the downloads folder	ダウンロードフォルダーの整理
-Finished tasks, limits, approvals and command results in one place	作業完了 · 上限 · 承認待ち · ユーザーコマンドの結果をひとまとめに
-Find a notification · Enter opens it	通知を検索 · Enterで開く
-Coffee	コーヒー
-Free to sleep	スリープできます
-Awake until turned off	オフにするまで起きています
-Always	ずっと
-30 min	30 分
-1 h	1 時間
-2 h	2 時間
-Save as a snippet	定型文として保存
-Delete snippet	定型文を削除
-Edit snippet	定型文を編集
-Snippets	定型文
-Save ‘{0}’ as a snippet	‘{0}’ を定型文として保存
-A text you use often · Enter pastes it into the window in front · {date} {time} {clipboard} {input}	よく使う文章 · Enter で前面のウィンドウに貼り付け · {date} {time} {clipboard} {input}
-Already a snippet: ‘{0}’	‘{0}’ は定型文に登録済み
-Saved ‘{0}’ as a snippet	‘{0}’ を定型文として保存しました
-110 Main Street\n3rd floor, design team	東京都千代田区丸の内1-1\n3階 デザインチーム
-Payment details	振込のご案内
-It ships as soon as the payment arrives.	入金を確認しだい発送いたします。
-payment	入金
-Closed today	本日は休業です
-Ctrl+Tab switches	Ctrl+Tab で切り替え
-Find a snippet · type a text and Enter to add it	定型文を探す · 文章を入れて Enter で新規作成
-Snippets · {0}	定型文 · {0} 件
-Opens the clipboard's snippets tab. Enter pastes into the window in front.	クリップボードの定型文タブを開きます。Enter で前面のウィンドウに貼り付けます。
-{0} · installed	{0} · インストール済み
-Couldn't load the release notes. Check the connection, or see them on GitHub.	変更履歴を読み込めませんでした。インターネット接続を確認するか、GitHub でご覧ください。

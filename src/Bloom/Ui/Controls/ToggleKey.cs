@@ -11,12 +11,14 @@ namespace Bloom.Ui;
 internal sealed class ToggleKey : SmoothBorder
 {
     private readonly TextBlock text;
+    private readonly TextBlock? glyph;
     private bool on, hover;
 
     /// The new state, after a click.
     public event Action<bool>? Changed;
 
-    public ToggleKey(string label, bool value)
+    /// `icon`: a glyph before the label (the tray icon a chip shows), '\0' for none.
+    public ToggleKey(string label, bool value, char icon = '\0')
     {
         on = value;
         CornerRadius = new CornerRadius(8);
@@ -25,7 +27,18 @@ internal sealed class ToggleKey : SmoothBorder
         BorderThickness = new Thickness(1);
         Cursor = Cursors.Hand;
         text = Theme.Label(label, 12, Theme.P.TextFaint, Theme.Medium, inBorder: true);
-        Child = text;
+        if (icon == '\0') Child = text;
+        else
+        {
+            // the glyph's ink centred in the key's height beside the label's (InkGlyph, InkText)
+            Padding = new Thickness(9, 0, 12, 0);
+            glyph = Theme.Glyph(icon, 13, Theme.P.TextFaint);
+            glyph.Margin = new Thickness(0, 0, 6, 0);
+            var row = new StackPanel { Orientation = Orientation.Horizontal };
+            row.Children.Add(glyph);
+            row.Children.Add(text);
+            Child = row;
+        }
         MouseEnter += (_, _) =>
         {
             hover = true;
@@ -64,5 +77,6 @@ internal sealed class ToggleKey : SmoothBorder
             TopLine = BottomLine = null;
         }
         text.Foreground = on ? Theme.P.Text : hover ? Theme.P.TextDim : Theme.P.TextFaint;
+        if (glyph is not null) glyph.Foreground = text.Foreground;
     }
 }
