@@ -68,6 +68,23 @@ internal sealed class LevelSlider : StackPanel
         Show(Math.Clamp(value, min, max));
     }
 
+    /// A thin upright mark on the track at `v` (where a reading is now, beside the value being set).
+    public void Mark(int v)
+    {
+        double x = (TrackWidth - KnobSize) * (Math.Clamp(v, min, max) - min) / Math.Max(1, max - min) + KnobSize / 2;
+        track.Children.Insert(2, new Border
+        {
+            Width = 2,
+            Height = 14,
+            CornerRadius = new CornerRadius(1),
+            Background = Theme.P.Text,
+            HorizontalAlignment = HorizontalAlignment.Left,
+            VerticalAlignment = VerticalAlignment.Center,
+            Margin = new Thickness(x - 1, 0, 0, 0),
+            IsHitTestVisible = false,
+        });
+    }
+
     /// Moves it by `delta` (←→ on the row) and returns where it went.
     public int Step(int delta)
     {

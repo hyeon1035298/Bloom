@@ -120,9 +120,15 @@ internal sealed partial class SettingsView : ScrollViewer
     /// A line: its title, a faint line under it, its control at the end, and no icon (the sidebar carries the page's).
     /// Its height grows with a second line under it. `folded`: a match from under a 자세히 fold, marked so after its title.
     /// `below`: a row of keys under the title and its line, inside the line, so its highlight takes them in too.
-    private static Row Line(string title, string? sub, FrameworkElement? control, bool folded = false, FrameworkElement? below = null)
+    /// `lead`: a small picture before the title (what a switch turns on, AddonPictures.Tile).
+    private static Row Line(string title, string? sub, FrameworkElement? control, bool folded = false, FrameworkElement? below = null, FrameworkElement? lead = null)
     {
         var r = new Row(null) { Height = double.NaN, MinHeight = 56, Margin = new Thickness(0), Padding = new Thickness(0, 9, 12, 9), Selectable = false };
+        if (lead is not null)
+        {
+            lead.Margin = new Thickness(0, 0, 14, 0);
+            r.Add(lead, GridLength.Auto);
+        }
         FrameworkElement Title()
         {
             var t = Theme.T(title, 13, Theme.P.Text, Theme.Medium);
@@ -309,6 +315,7 @@ internal sealed partial class SettingsView : ScrollViewer
     /// The folds open now (page/fold), kept while this window is open; a new window starts with all of them folded.
     private readonly HashSet<string> unfolded = new();
     private bool folding; // the lines being added are a fold's
+    private bool indenting; // the lines being added belong to the line above them (shown while it is on): set in by 20
     private string? nextTip; // a tooltip for the next line (Tip)
 
     /// The defaults a fold compares the values with (바꾼 값 N개).
@@ -396,6 +403,7 @@ internal sealed partial class SettingsView : ScrollViewer
         else if (pageKey != current) return null;
         var r = make();
         if (tip is not null) r.ToolTip = tip;
+        if (indenting && filter.Length == 0) r.Margin = new Thickness(20, 0, 0, 0);
         int index = rows.Count;
         r.Clicked = () =>
         {
@@ -452,17 +460,61 @@ internal sealed partial class SettingsView : ScrollViewer
         }, filter);
     }
 
+    /// A choice of how something looks: its options as pictures under the line's title (PictureChoice); click or ←→
+    /// picks, Enter goes round.
+    /// `above`: a line of its own between the title and the pictures (정리 세기's squares).
+    private void Pictures(string title, string? sub, char glyph, (string value, string label, Func<bool, FrameworkElement> picture)[] options, string value, Action<string> set, string filter, FrameworkElement? above = null)
+    {
+        if (Record(title, sub, filter)) return;
+        var pc = new PictureChoice(options, value);
+        FrameworkElement below = pc;
+        if (above is not null)
+        {
+            var both = new StackPanel();
+            both.Children.Add(above);
+            both.Children.Add(pc);
+            below = both;
+        }
+        void Pick(string v)
+        {
+            set(v);
+            Settings.Save();
+        }
+        pc.Picked += Pick;
+        Place(title, sub, () => Line(title, sub, null, folding && filter.Length > 0, below), () => Pick(pc.Cycle()), d =>
+        {
+            Pick(pc.Step(d));
+            return true;
+        }, filter);
+    }
+
+    /// A switch whose line starts with a picture of what it turns on (AddonPictures.Thumb), the picture lit while on.
+    private void PictureSwitch(string title, string? sub, Func<bool, FrameworkElement> picture, bool value, Action<bool> set, string filter)
+    {
+        if (Record(title, sub, filter)) return;
+        var sw = Toggle(value, set, out var t);
+        Place(title, sub, () => Line(title, sub, sw, folding && filter.Length > 0, null, AddonPictures.Tile(picture, value)), t, null, filter);
+    }
+
     /// A value along a track (LevelSlider): dragging sets it as it moves, letting go saves it; ←→ step it by `step`.
-    private void Level(string title, string? sub, char glyph, int value, int min, int max, int step, Func<int, string> label, Action<int> set, string filter)
+    /// `kept`: after the value is let go (or stepped), what follows it (a preview drawn again). `mark`: a reading shown on
+    /// the track (LevelSlider.Mark), -1 for none.
+    private void Level(string title, string? sub, char glyph, int value, int min, int max, int step, Func<int, string> label, Action<int> set, string filter, Action? kept = null, int mark = -1)
     {
         if (Record(title, sub, filter)) return;
         var slider = new LevelSlider(value, min, max, label);
+        if (mark >= 0) slider.Mark(mark);
         slider.Moved += set;
-        slider.Picked += _ => Settings.Save();
+        slider.Picked += _ =>
+        {
+            Settings.Save();
+            kept?.Invoke();
+        };
         Add(title, sub, slider, glyph, null, d =>
         {
             set(slider.Step(d * step));
             Settings.Save();
+            kept?.Invoke();
             return true;
         }, filter);
     }
@@ -496,7 +548,7 @@ internal sealed partial class SettingsView : ScrollViewer
 
     /// A length of time on its row (보관 기간, 쉬는 대화 닫기): DurationField, the row's Enter (or a click) puts the caret
     /// in it; the line under it (`sub` of the value) follows a change.
-    private void Duration(string title, Func<int, string> sub, char glyph, int value, int max, (string key, string label, int minutes)[] units, Action<int> set, string filter)
+    private void Duration(string title, Func<int, string?> sub, char glyph, int value, int max, (string key, string label, int minutes)[] units, Action<int> set, string filter)
     {
         if (Record(title, sub(value), filter)) return;
         var field = new DurationField(value, max, units) { Done = () => FocusFilter?.Invoke() };
