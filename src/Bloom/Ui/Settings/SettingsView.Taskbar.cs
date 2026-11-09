@@ -26,6 +26,13 @@ internal sealed partial class SettingsView
     /// The folds open now (자세히 under a group), kept while Bloom runs.
     private static readonly HashSet<string> taskbarOpen = new();
 
+    /// QA (Captures.AddonPages): every 자세히 on the taskbar page open, or all shut again.
+    internal static void OpenTaskbarFoldsForQa(bool open)
+    {
+        taskbarOpen.Clear();
+        if (open) taskbarOpen.UnionWith(["look", "tray", "island", "folders"]);
+    }
+
     /// The folder editor's selection and half-done steps, kept across the page's rebuilds.
     private readonly TaskbarEditor.Edit taskbarEdit = new();
 
@@ -70,7 +77,8 @@ internal sealed partial class SettingsView
             // the editor isn't a line: the search finds it, and the running folder's two settings, by these
             Add(Tr("폴더 편집", "Edit folders"), Tr("폴더를 만들고 이름, 아이콘, 안의 앱을 바꿉니다", "Make folders and change their names, icons and apps"), null, G.Folder, () => Go(AddonPageKey(addon.Id)), null, filter);
             foreach (var e in In(Section.Folders).Where(e => e.Control == Control.Running))
-                if (schema[e.Key] is { } item) Add(item.Split().name, item.About?.Shown, null, G.Folder, () => Go(AddonPageKey(addon.Id)), null, filter);
+                if (schema[e.Key] is { } item && AddonEasy.Of(addon.Id, e.Key) is var easy)
+                    Add(easy?.Title ?? item.Split().name, easy?.Sub is { Length: > 0 } s ? s : item.About?.Shown, null, G.Folder, () => Go(AddonPageKey(addon.Id)), null, filter);
         }
         Fold("folders", Section.FoldersMore, schema, v, filter);
     }
@@ -198,9 +206,11 @@ internal sealed partial class SettingsView
         Place(title, shown, () => Line(title, shown, null, folding && filter.Length > 0, filter.Length == 0 ? Chips(chips, glyphs) : null), null, null, filter);
     }
 
-    /// A chip's label from the setting's name: "볼륨 아이콘 숨기기" / "Hide volume icon" → 볼륨 / Volume.
+    /// A chip's label: Bloom's name for it (AddonEasy), else from the setting's name: "볼륨 아이콘 숨기기" / "Hide volume
+    /// icon" → 볼륨 / Volume.
     internal static string ChipName(AddonSetting item)
     {
+        if (AddonEasy.Of("pill-taskbar", item.Key)?.Title is { } own) return own;
         string n = item.Name.Shown;
         foreach (string tail in new[] { " 아이콘 숨기기", " 숨기기", " 보이기", " icon" })
             if (n.EndsWith(tail, StringComparison.Ordinal)) n = n[..^tail.Length];
@@ -332,6 +342,7 @@ internal sealed partial class SettingsView
         AddonEasy.Line? easy = null, Action<string>? also = null, int mark = -1)
     {
         if (schema[key] is not { } item) return;
+        easy ??= AddonEasy.Of(easyAddon, key);
         var (name, unit) = item.Split();
         title ??= easy?.Title ?? name;
         sub ??= easy?.Sub ?? item.About?.Shown;

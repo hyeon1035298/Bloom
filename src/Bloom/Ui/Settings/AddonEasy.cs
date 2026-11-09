@@ -7,7 +7,7 @@ namespace Bloom.Ui;
 /// plainer name and line than the schema's, plainer option names, a line shown only while the switch or choice it
 /// belongs to calls for it, rarely changed lines under 자세히 (an option's picture, where it has one, is AddonPictures').
 /// Data only; the page reads it (SettingsView.AddonSettings). A key with no entry, a newer add-on's setting among them, is drawn from its schema.
-internal static class AddonEasy
+internal static partial class AddonEasy
 {
     internal sealed record Line
     {
@@ -125,6 +125,7 @@ internal static class AddonEasy
             },
         },
         ("keep-awake", "awake.minutes") => new() { Title = Tr("직접 정한 시간", "A time of my own"), Sub = "", When = v => v.Text("awake.duration") == "custom", Minutes = true },
+        ("pill-taskbar", _) => Taskbar(key), // AddonEasy.Taskbar.cs
         _ => null,
     };
 
