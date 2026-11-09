@@ -123,6 +123,7 @@ internal sealed class Settings
     public bool NoticeApprove { get; set; } // 알림 카드에서 승인 (App\ClaudeApprovals): Bloom's hook in Claude Code's settings.json while on
     public bool NoticeLimit { get; set; } = true; // 한도 임박 · 소진 (20 % left, used up)
     public bool NoticeRecover { get; set; } = true; // 한도 복구 (a low limit back after its reset)
+    public bool NoticeWindows { get; set; } // Windows 알림: other apps' banners as cards (App\WindowsToasts, with PillTaskbar)
     // 성능 (Ui\Theme\Motion.cs)
     public string Animation { get; set; } = "system"; // system (Windows' animation effects) | on | reduced (fades only) | off
     public int AnimationFps { get; set; } // 0 = the screen's own rate | 30 | 60

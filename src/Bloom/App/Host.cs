@@ -214,6 +214,7 @@ internal sealed partial class Host
             if (!Opt.Demo) Notices.Start(ui); // recording mode: no cards from the real Claude Code and Codex
             if (!Opt.Demo) StartSchedule(); // 내 AI 명령's own runs
             if (!Opt.Demo) ClaudeApprovals.Start(ui);
+            if (!Opt.Demo) WindowsToasts.Apply(ui);
             if (Opt.MeasureSeconds is { } measure) MeasureLater(measure);
             if (Opt.SummonRounds is { } rounds) _ = SummonBench.Run(this, ui, rounds);
             if (!Opt.Demo) Clipboard.Start(); // recording mode: the PC's clipboard stays out, the samples stay in
@@ -723,6 +724,7 @@ internal sealed partial class Host
         Chats.Shutdown(save);
         winKey?.Dispose();
         winKeyAdmin?.Dispose();
+        WindowsToasts.Stop(); // PillTaskbar shows Windows' banners again
         Addons.AddonHub.Quit(); // let go, not stopped: the host unloads by itself unless the next Bloom takes it over
         Clipboard.Dispose();
         Shortcuts?.Dispose();
