@@ -169,10 +169,13 @@ It has {0} other names, so it changes there too.	他に名前が{0}個あるた�
 The prompt is empty. Edit the command.	プロンプトが空です。コマンドを編集してください。
 Step {0} failed · {1}	ステップ {0} 失敗 · {1}
 No response. Try again.	応答なし。再試行してください。
-Claude Code · Approval request	Claude Code · 承認リクエスト
-Allow	許可
 Decline	拒否
 Answer in terminal	ターミナルで答える
+Claude Code · Question	Claude Code · 質問
+Claude's question	Claude の質問
+Claude's {0} questions	Claude の質問 {0} 件
+Claude Code · Approval request	Claude Code · 承認リクエスト
+Allow	許可
 Bloom couldn't open the file	Bloom でファイルを開けませんでした
 The file isn't there, or it can't be opened	ファイルが見つからないか、開けないファイルです
 Markdown document	Markdown 文書
@@ -304,6 +307,8 @@ Approval pending · click to go to session	承認待ち · クリックでセッ
 Claude · Limit near	Claude · 上限が近い
 18% of the weekly limit left	週間上限の残り 18%
 Resets in 2 d	2日後にリセット
+Mail	メール
+Another app's Windows notification · click for the notification center	他のアプリの Windows 通知 · クリックで通知センター
 ChatGPT · Limit reset	ChatGPT · 上限リセット
 5-hour limit reset	5 時間の上限リセット完了
 Needs approval	承認待ち
@@ -1061,6 +1066,17 @@ Now estimate Q4 from this	これをもとに第4四半期も予測して
 sum	sum
 Refresh every	更新間隔
 account	アカウント
+Claude's 2 questions	Claude の質問 2 件
+How should the notification center and the taskbar go together?	通知センターとタスクバーをどう連動させますか？
+Pairing	連動のしかた
+By the mouse (recommended)	マウス基準（おすすめ）
+Both close once the mouse leaves them.	マウスが両方から離れると一緒に閉じます。
+While it is open	開いている間ずっと
+The taskbar stays out while the center is open.	通知センターが開いている間はタスクバーも表示されたままです。
+Which screens?	どの画面に適用しますか？
+Screens	画面
+Main monitor	メインモニター
+Second monitor	サブモニター
 Refactor the sign-in screen, session expiry and the error wording in one go	サインイン画面、セッション切れ、エラー文言をまとめてリファクタリング
 “Also fix signing in again after the session drops, and add tests”	「セッションが切れたあとの再サインインも直して、テストも追加して」
 Tidy the build script	ビルド スクリプトを整理
@@ -1615,7 +1631,6 @@ Terminal	ターミナル
 Colour · design	色 · デザイン
 Photos	写真
 People · messenger	人 · メッセンジャー
-Mail	メール
 Usage · speed	使用量 · 速度
 Cloud	クラウド
 Shopping	ショッピング
@@ -1636,6 +1651,10 @@ Drag the notice card where you want it.	通知カードを好きな場所へド�
 It sticks to the middle and the edges nearby.	中央や端に近づくと吸着します。
 Hold Ctrl while dragging to place it freely.	Ctrl を押しながらドラッグすると吸着しません。
 Island	アイランド
+Answer	回答する
+Pick any	複数選択
+Other (type your own)	その他（自分で入力）
+Click to open Windows' notification center	クリックすると Windows の通知センターを開きます
 Click to go to the session window	クリックするとセッションのウィンドウへ移動します
 Search in your browser · site shortcuts (e.g. yt cats)	ブラウザーで検索 · サイトのショートカット (例: yt cats)
 Find files on this PC by name (Everything)	この PC のファイルを名前で探す (Everything)
@@ -2175,7 +2194,6 @@ Brightness range per monitor	モニターごとの明るさの範囲
 Cleaning leaves these programs' memory as it is	解放するとき、これらのプログラムのメモリは空けません
 Sets where 0 and 100 fall on each monitor's own brightness	明るさ 0 と 100 が、モニターの実際の明るさのどこに当たるかを決めます
 The pointer's monitor	ポインターのあるモニター
-Main monitor	メインモニター
 The highlighted windows are listed	アクセントカラーのウィンドウが一覧に出ます
 That monitor's	そのモニターのウィンドウだけ
 All on the main one	メインモニターではすべて
@@ -2747,6 +2765,8 @@ Bloom · Notifications	Bloom · 通知
 Couldn't change Claude Code's settings	Claude Code の設定を変更できませんでした
 5-hour · weekly limit at 20% left or when used up	5 時間 · 週間の上限の残りが 20% のときと、使い切ったとき
 When a low limit is full again after its reset	少なくなった上限がリセット後にまた満タンになったとき
+Windows notifications	Windows 通知
+Other apps' Windows banners as these cards · a click opens Windows' notification center · needs the PillTaskbar add-on	他のアプリの Windows 通知バナーの代わりにこのカードで · クリックで Windows の通知センター · タスクバーアドオン PillTaskbar が必要です
 Version, updates and help	バージョン、アップデート、ヘルプ
 Version	バージョン
 Update history	アップデート履歴
@@ -2828,7 +2848,7 @@ See-through under the pointer	ポインターを乗せると透ける
 0 not at all, 100 fully	0 でそのまま、100 で完全に透けます
 Island colour	アイランドの色
 {0} changed	変更した項目 {0} 件
-{0} to {1}	{0}～{1}
+{0}–{1}	{0}～{1}
 The taskbar add-on's files are not valid, or it needs a newer Bloom	タスクバーアドオンのファイルが正しくないか、より新しい Bloom が必要です
 Paused · Explorer kept crashing, so taskbar customization was turned off	停止中 · エクスプローラーが続けて停止したため、タスクバーのカスタマイズをオフにしました
 No symbols · this Windows version lacks the taskbar symbols it needs	シンボルなし · この Windows のバージョンには必要なタスクバーのシンボルがありません
@@ -2863,7 +2883,7 @@ Sending to the taskbar…	タスクバーに送信中…
 Click a folder to edit it below	フォルダーを押すと下で編集できます
 New folder	新しいフォルダー
 Automatic folder	自動フォルダー
-The folders pinned to the taskbar show here while taskbar customization runs.	タスクバーのカスタマイズが動作すると、ピン留めしたフォルダーがここに表示されます。
+The folders pinned to the taskbar show here while taskbar customization runs	タスクバーのカスタマイズが動作すると、ピン留めしたフォルダーがここに表示されます
 Take out	取り出す
 Folder name	フォルダー名
 Change icon	アイコンを変更
