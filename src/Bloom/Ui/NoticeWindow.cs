@@ -370,7 +370,7 @@ internal sealed class NoticeWindow : Window
             Cursor = Cursors.Hand,
             Child = row,
             Tag = n,
-            ToolTip = (n.Detail is { Length: > 0 } ? $"{n.Title}\n{n.Detail}" : n.Title) + (n.Body is { Length: > 0 } ? "\n" + n.Body : "") + (n.Click is null ? "" : "\n" + Tr("클릭하면 세션 창으로 이동합니다", "Click to go to the session window")),
+            ToolTip = (n.Detail is { Length: > 0 } ? $"{n.Title}\n{n.Detail}" : n.Title) + (n.Body is { Length: > 0 } ? "\n" + n.Body : "") + (n.Click is null ? "" : "\n" + (n.Kind == "windows" ? Tr("클릭하면 Windows 알림 센터를 엽니다", "Click to open Windows' notification center") : Tr("클릭하면 세션 창으로 이동합니다", "Click to go to the session window"))),
         };
     }
 
@@ -389,6 +389,7 @@ internal sealed class NoticeWindow : Window
         "waiting" => G.Clock,
         "limit" => G.Warning,
         "recover" => G.Sync,
+        "windows" => G.Bell,
         _ => G.Done,
     };
 

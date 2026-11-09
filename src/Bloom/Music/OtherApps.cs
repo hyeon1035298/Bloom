@@ -147,7 +147,7 @@ internal static class OtherApps
     }
 
     /// The name the Start menu shows for the app (shell:AppsFolder), or null. Off the UI thread.
-    private static string? ShellName(string app)
+    internal static string? ShellName(string app)
     {
         if (ShellCom.SHCreateItemFromParsingName(@"shell:AppsFolder\" + app, IntPtr.Zero, ShellCom.IID_IShellItem, out IntPtr pointer) != 0 || pointer == IntPtr.Zero) return null;
         try
