@@ -265,6 +265,42 @@ body { font-family: "Wanted Sans Variable", "Wanted Sans", "Pretendard", "Malgun
 .qterm .dot { color: var(--orange); }
 .qterm .ans { align-self: flex-start; padding: 0 calc(3 * var(--u)); margin-left: calc(-3 * var(--u)); border-radius: calc(3 * var(--u)); color: #fafafa; background: rgba(255, 122, 158, calc(0.32 * var(--flash, 0))); opacity: var(--shown, 0); }
 .qterm .then { opacity: var(--shown, 0); }
+/* ---------- chat: a click on the notice card opens that session's chat in the taskbar's usage window ---------- */
+.nc {
+  position: absolute; z-index: 5; border-radius: calc(14 * var(--u)); padding: calc(12 * var(--u)) calc(14 * var(--u));
+  display: flex; gap: calc(10 * var(--u)); font-size: calc(10 * var(--u)); color: #e4e4e7;
+  opacity: var(--card, 0); transform: translateX(calc((1 - var(--card, 0)) * 26 * var(--u))) scale(calc(1 - 0.04 * var(--press, 0)));
+}
+.nc::after { content: ""; position: absolute; inset: 0; border-radius: inherit; background: rgba(255, 255, 255, calc(0.07 * var(--hot, 0))); }
+.nc__ico { flex: none; display: grid; place-items: center; width: calc(26 * var(--u)); height: calc(26 * var(--u)); border-radius: calc(7 * var(--u)); background: rgba(74, 222, 128, 0.16); color: #4ade80; }
+.nc__ico svg { width: calc(15 * var(--u)); height: calc(15 * var(--u)); fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+.nc__kind { font-size: calc(9 * var(--u)); font-weight: 600; color: #4ade80; }
+.nc__title { font-size: calc(12 * var(--u)); font-weight: 600; color: #fafafa; margin-top: calc(1 * var(--u)); }
+.nc__from { font-size: calc(8.5 * var(--u)); color: #a1a1aa; margin-top: calc(3 * var(--u)); }
+.tc {
+  position: absolute; z-index: 3; border-radius: calc(16 * var(--u)); overflow: hidden; display: flex;
+  opacity: var(--pop, 0); transform-origin: 30% 0; transform: translateY(calc((1 - var(--pop, 0)) * -10 * var(--u))) scale(calc(0.92 + 0.08 * var(--pop, 0)));
+  font-size: calc(9.5 * var(--u)); color: #e4e4e7; word-break: keep-all;
+}
+.tc__list { flex: none; width: calc(118 * var(--u)); padding: calc(12 * var(--u)) calc(8 * var(--u)); display: flex; flex-direction: column; gap: calc(6 * var(--u)); border-right: 1px solid rgba(255, 255, 255, 0.08); }
+.tc__use { display: flex; align-items: center; gap: calc(5 * var(--u)); font-size: calc(10 * var(--u)); padding: 0 calc(4 * var(--u)) calc(4 * var(--u)); }
+.tc__use b { font-weight: 600; }
+.tc__use span { margin-left: auto; color: #a1a1aa; }
+.tc__ses { display: flex; align-items: center; gap: calc(6 * var(--u)); height: calc(22 * var(--u)); padding: 0 calc(6 * var(--u)); border-radius: calc(7 * var(--u)); white-space: nowrap; overflow: hidden; color: #a1a1aa; }
+.tc__ses--on { background: rgba(255, 122, 158, calc(0.18 * var(--sel, 0))); color: color-mix(in srgb, #fafafa calc(var(--sel, 0) * 100%), #a1a1aa); }
+.tc__ses i { flex: none; width: calc(6 * var(--u)); height: calc(6 * var(--u)); border-radius: 50%; corner-shape: round; background: #4ade80; }
+.tc__ses i.rest { background: rgba(255, 255, 255, 0.4); }
+.tc__ses span { overflow: hidden; text-overflow: ellipsis; }
+.tc__chat { flex: 1; min-width: 0; padding: calc(12 * var(--u)) calc(14 * var(--u)); display: flex; flex-direction: column; gap: calc(7 * var(--u)); }
+.tc__title { font-size: calc(10.5 * var(--u)); font-weight: 600; color: #fafafa; padding-bottom: calc(2 * var(--u)); }
+.tc__you { align-self: flex-end; max-width: 86%; padding: calc(6 * var(--u)) calc(9 * var(--u)); border-radius: calc(10 * var(--u)); background: rgba(255, 255, 255, 0.09); color: #fafafa; line-height: 1.35; }
+.tc__tool { display: flex; align-items: center; gap: calc(6 * var(--u)); font-family: "Cascadia Mono", Consolas, monospace; font-size: calc(8.5 * var(--u)); color: #a1a1aa; }
+.tc__tool svg { flex: none; width: calc(11 * var(--u)); height: calc(11 * var(--u)); fill: none; stroke: #4ade80; stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; }
+.tc__tool b { font-weight: 600; color: #e4e4e7; }
+.tc__ai { line-height: 1.4; color: #e4e4e7; }
+.tc [data-in] { opacity: var(--in, 0); transform: translateY(calc((1 - var(--in, 0)) * 6 * var(--u))); }
+.pa--hot { position: relative; }
+.pa--hot::before { content: ""; position: absolute; inset: calc(-6 * var(--u)) calc(-8 * var(--u)); border-radius: calc(8 * var(--u)); background: rgba(255, 255, 255, 0.16); opacity: var(--hot, 0); }
 </style>
 </head>
 <body>
@@ -820,6 +856,72 @@ scenes.question = {
       const cx = [[0, home[0]], [1.2, home[0]], [1.9, P.r.cx], [2.3, P.r.cx], [2.9, P.c1.cx], [3.2, P.c1.cx], [3.7, P.c2.cx], [4.1, P.c2.cx], [4.7, P.go.cx], [5.2, P.go.cx], [6.6, home[0]], [9.0, home[0]]];
       const cy = [[0, home[1]], [1.2, home[1]], [1.9, P.r.cy], [2.3, P.r.cy], [2.9, P.c1.cy], [3.2, P.c1.cy], [3.7, P.c2.cy], [4.1, P.c2.cy], [4.7, P.go.cy], [5.2, P.go.cy], [6.6, home[1]], [9.0, home[1]]];
       point(cur, at(cx, t), at(cy, t), at(press, t));
+    };
+  },
+};
+
+// Claude Code finishes a task and Bloom's card comes in at the right; a click on it opens the taskbar's usage window
+// with that session picked and its chat to the end, and the window folds away.
+const LCH = {
+  ko: { kind: 'Claude Code · 작업 완료', from: 'Bloom · 누르면 작업표시줄에서 대화를 엽니다',
+    sessions: ['알림 센터 묶기', '사용량 창 다듬기', '번역 정리'], you: '알림 센터가 작업표시줄과 같이 열리게 해 줘',
+    ai: '다 됐습니다. 이제 알림 센터가 작업표시줄 옆에서 같이 열립니다.' },
+  en: { kind: 'Claude Code · Done', from: 'Bloom · Click to open the chat on the taskbar',
+    sessions: ['Pair the notification center', 'Polish the usage window', 'Tidy translations'], you: 'Open the notification center with the taskbar',
+    ai: 'Done. The notification center now opens by the taskbar.' },
+}[LANG];
+scenes.chat = {
+  dur: 9.0,
+  build(s) {
+    s.style.setProperty('--pink', '#FF7A9E');
+    const CX = 398, CY = 186; // the card's place once in
+    s.innerHTML = `<div class="desk">${WINS}</div>
+      <div class="pill" style="--x:30;--w:580">
+        <i class="tile"><img src="assets/bloom.svg" alt=""></i>
+        <i class="tile is-run"><img src="assets/system.svg" alt=""></i>
+        <i class="tile is-run"><img src="assets/terminal.svg" alt=""></i>
+        <i class="tile is-run is-front"><img src="assets/design.svg" alt=""></i>
+        <span class="accts"><span class="pa pa--hot"><span class="pa__row">${logo('claude')}<b>Max</b><span>68 %</span></span><i style="--v:.68"></i></span></span>
+        <span class="isle-tray">${ico('down', '')}<span class="wid wid--bri"><b>40</b></span><span class="wid wid--ram"><b>46</b></span></span>
+        <span class="isle-time" data-clock>15:00:02</span>
+      </div>
+      <div class="tc glass" style="left:calc(150*var(--u));top:calc(64*var(--u));width:calc(372*var(--u));height:calc(166*var(--u))">
+        <div class="tc__list">
+          <div class="tc__use">${logo('claude')}<b>Max</b><span>68 %</span></div>
+          ${LCH.sessions.map((n, i) => `<div class="tc__ses${i === 0 ? ' tc__ses--on' : ''}"><i class="${i === 2 ? 'rest' : ''}"></i><span>${n}</span></div>`).join('')}
+        </div>
+        <div class="tc__chat">
+          <div class="tc__title" data-in>${LCH.sessions[0]}</div>
+          <div class="tc__you" data-in>${LCH.you}</div>
+          <div class="tc__tool" data-in>${ico('check', '')}<b>Edit</b> Notices.cs</div>
+          <div class="tc__tool" data-in>${ico('check', '')}<b>Bash</b> dotnet test</div>
+          <div class="tc__ai" data-in>${LCH.ai}</div>
+        </div>
+      </div>
+      <div class="nc glass" style="left:calc(${CX}*var(--u));top:calc(${CY}*var(--u));width:calc(222*var(--u))">
+        <i class="nc__ico">${ico('check', '')}</i>
+        <div><div class="nc__kind">${LCH.kind}</div><div class="nc__title">${LCH.sessions[0]}</div><div class="nc__from">${LCH.from}</div></div>
+      </div>${CURSOR}`;
+    const q = sel => s.querySelector(sel);
+    const cur = q('.cursor'), card = q('.nc'), win = q('.tc'), meter = q('.pa--hot'), picked = q('.tc__ses--on'), clock = q('[data-clock]');
+    const rows = [...s.querySelectorAll('.tc [data-in]')];
+    let P;
+    const click = 2.4;
+    const cardOn = [[0, 0], [0.5, 0], [0.95, 1, 'outExpo'], [click + 0.15, 1], [click + 0.45, 0, 'in2']];
+    const pop = [[0, 0], [click + 0.35, 0], [click + 0.8, 1, 'out3'], [7.6, 1], [8.1, 0, 'in2']];
+    return t => {
+      P ??= (() => { const a = unitsOf(card, s); return { cx: CX + a.w * 0.55, cy: CY + a.h / 2 }; })();
+      set(card, { card: at(cardOn, t), press: at([[0, 0], [click - 0.08, 0], [click, 1, 'none'], [click + 0.16, 0, 'out2']], t),
+        hot: at([[0, 0], [click - 0.5, 0], [click - 0.25, 1], [click + 0.3, 1], [click + 0.45, 0]], t) });
+      set(meter, { hot: at([[0, 0], [click + 0.3, 0], [click + 0.5, 1], [click + 1.1, 1], [click + 1.5, 0]], t) });
+      set(win, { pop: at(pop, t) });
+      set(picked, { sel: at([[0, 0], [click + 0.7, 0], [click + 1.0, 1, 'out2'], [8.3, 1], [8.31, 0, 'none']], t) });
+      rows.forEach((r, i) => set(r, { in: at([[0, 0], [click + 0.9 + i * 0.38, 0], [click + 1.2 + i * 0.38, 1, 'out3'], [8.3, 1], [8.31, 0, 'none']], t) }));
+      clock.textContent = `15:00:${two(2 + Math.floor(t))}`;
+      const home = [300, 236];
+      const cx = [[0, home[0]], [1.3, home[0]], [2.2, P.cx], [click + 0.3, P.cx], [4.0, home[0] + 40], [8.1, home[0] + 40], [8.9, home[0]]];
+      const cy = [[0, home[1]], [1.3, home[1]], [2.2, P.cy], [click + 0.3, P.cy], [4.0, home[1] + 10], [8.1, home[1] + 10], [8.9, home[1]]];
+      point(cur, at(cx, t), at(cy, t), at([[0, 0], [click - 0.08, 0], [click, 1, 'none'], [click + 0.16, 0, 'out2']], t));
     };
   },
 };
