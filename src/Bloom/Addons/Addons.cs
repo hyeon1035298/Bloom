@@ -685,7 +685,8 @@ internal static class AddonHub
         if (f.Broken) return new(AddonState.Broken);
         if (!f.On) return new(AddonState.Off);
         if (f.Skipped && !f.Started) return new(AddonState.Skipped);
-        if (f.LastExit is { } code && AddonProtocol.IsFinal(code) && !f.HostAlive && !f.Waiting) return new(FromCode(code));
+        // also while a try again waits: after 14 (AddonRunner.DownloadRetry) the page keeps saying why
+        if (f.LastExit is { } code && AddonProtocol.IsFinal(code) && !f.HostAlive) return new(FromCode(code));
         if (f.HostAlive && f.Host is { } h)
         {
             if (h.SafeMode) return new(AddonState.SafeMode);

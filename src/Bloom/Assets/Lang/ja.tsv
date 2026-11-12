@@ -2192,7 +2192,7 @@ Paused · Explorer kept crashing, so this add-on was turned off	停止中 · エ
 No symbols · this Windows version lacks the symbols it needs	シンボルなし · この Windows のバージョンには必要なシンボルがありません
 On in Windhawk · turn the same mod off in Windhawk. If you don't use Windhawk, set its service to manual start and close or uninstall Windhawk instead	Windhawk でオン · Windhawk で同じ Mod をオフにしてください。Windhawk を使わない場合は、サービスを手動開始にして Windhawk を終了するかアンインストールしてもかまいません
 Blocked by a security feature · Windows Security (Smart App Control) kept it from loading	セキュリティ機能がブロック · Windows セキュリティ (スマート アプリ コントロール) が読み込みを止めました
-Could not download the symbol files · check your connection and try again	シンボルファイルをダウンロードできませんでした · 接続を確認して再試行してください
+Could not download the symbol files · if your connection works, Microsoft may not have published the symbol files for this Windows update yet. Trying again every {0} minutes	シンボルファイルをダウンロードできませんでした · 接続に問題がなければ、Microsoft がこの Windows 更新のシンボルファイルをまだ公開していない可能性があります。{0} 分ごとに再試行します
 Explorer needs a restart · restart Explorer, then try again	エクスプローラーの再起動が必要 · エクスプローラーを再起動してからもう一度お試しください
 Stopped · this add-on stopped	停止 · このアドオンが停止しました
 Turn on {0}	{0} をオンにする

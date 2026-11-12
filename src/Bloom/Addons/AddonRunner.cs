@@ -9,12 +9,18 @@ using Bloom.Core;
 namespace Bloom.Addons;
 
 /// One add-on's host process: started with the protocol's arguments, watched for its exit code, started again after an
-/// unexpected end (twice, 5 s then 30 s later) but never after a code that says why it stopped (10-15), and stopped
-/// through its named Stop event. A Bloom that quits only lets go of it: the host watches Bloom's process and unloads by
-/// itself a little after Bloom is gone, unless a new Bloom (a restart, an update) takes it over in that time.
+/// unexpected end (twice, 5 s then 30 s later) but never after a code that says why it stopped (10-15), except 14, and
+/// stopped through its named Stop event. A Bloom that quits only lets go of it: the host watches Bloom's process and
+/// unloads by itself a little after Bloom is gone, unless a new Bloom (a restart, an update) takes it over in that time.
 internal sealed class AddonRunner : IDisposable
 {
     public static readonly TimeSpan[] Retries = { TimeSpan.FromSeconds(5), TimeSpan.FromSeconds(30) };
+
+    /// After 14 (the symbol files could not be downloaded) the host starts again this often, for as long as it is on:
+    /// right after a Windows update Microsoft's symbol server can lack the new build's files for days (issue #21: the
+    /// November 2026 update's), and the add-on should come on by itself once they are there. A try that finds them
+    /// still missing costs one request per file.
+    public static readonly TimeSpan DownloadRetry = TimeSpan.FromMinutes(30);
 
     /// The host waits up to 10 s for explorer to unload the add-on, so it gets a little more before it is ended by force.
     public static readonly TimeSpan StopWait = TimeSpan.FromSeconds(12);
@@ -22,7 +28,7 @@ internal sealed class AddonRunner : IDisposable
     private readonly string exe, stopEvent;
     private readonly IReadOnlyList<string> lead;
     private readonly TimeSpan[] retries;
-    private readonly TimeSpan stopWait;
+    private readonly TimeSpan stopWait, downloadRetry;
     private readonly Func<int?>? otherHost;
     private readonly object gate = new();
     private Process? process;
@@ -32,13 +38,14 @@ internal sealed class AddonRunner : IDisposable
 
     /// `otherHost`: the process id of a host this runner did not start (one a quitting Bloom left running, which this
     /// Bloom's start handed over to), for Stop to wait on. `lead`: arguments before the protocol's (a test's stand-in).
-    public AddonRunner(string exe, string stopEvent, Func<int?>? otherHost = null, TimeSpan[]? retries = null, TimeSpan? stopWait = null, IReadOnlyList<string>? lead = null)
+    public AddonRunner(string exe, string stopEvent, Func<int?>? otherHost = null, TimeSpan[]? retries = null, TimeSpan? stopWait = null, IReadOnlyList<string>? lead = null, TimeSpan? downloadRetry = null)
     {
         this.exe = exe;
         this.stopEvent = stopEvent;
         this.otherHost = otherHost;
         this.retries = retries ?? Retries;
         this.stopWait = stopWait ?? StopWait;
+        this.downloadRetry = downloadRetry ?? DownloadRetry;
         this.lead = lead ?? Array.Empty<string>();
     }
 
@@ -148,11 +155,16 @@ internal sealed class AddonRunner : IDisposable
             LastExit = code;
             Log.Write($"add-on host ended: {code}");
             // 0 is a normal end: asked to stop, or this start handed its command line to a host already running. 10-15
-            // say why it stopped and would only end the same way again: the user decides (다시 켜기, 다시 시도).
-            if (!stopping && !disposed && code != AddonProtocol.ExitOk && !AddonProtocol.IsFinal(code))
+            // say why it stopped and would only end the same way again: the user decides (다시 켜기, 다시 시도). Only 14
+            // can mend by itself (Microsoft publishes the symbol files later), so it is tried again, slowly (DownloadRetry).
+            if (!stopping && !disposed && code != AddonProtocol.ExitOk)
             {
-                if (failures < retries.Length) retry = new Timer(_ => Again(), null, retries[failures++], Timeout.InfiniteTimeSpan);
-                else GaveUp = true;
+                if (code == AddonProtocol.ExitDownload) retry = new Timer(_ => Again(), null, downloadRetry, Timeout.InfiniteTimeSpan);
+                else if (!AddonProtocol.IsFinal(code))
+                {
+                    if (failures < retries.Length) retry = new Timer(_ => Again(), null, retries[failures++], Timeout.InfiniteTimeSpan);
+                    else GaveUp = true;
+                }
             }
         }
         Raise();

@@ -321,10 +321,19 @@ internal sealed partial class SettingsView
         AddonState.Windhawk => Tr("Windhawk에서 켜져 있음 · Windhawk에서 같은 모드를 끄세요. Windhawk를 쓰지 않으면 서비스를 수동 시작으로 바꾸고 Windhawk를 끄거나 지워도 됩니다",
             "On in Windhawk · turn the same mod off in Windhawk. If you don't use Windhawk, set its service to manual start and close or uninstall Windhawk instead"),
         AddonState.Blocked => Tr("보안 기능이 막음 · Windows 보안(스마트 앱 컨트롤)이 불러오기를 막았습니다", "Blocked by a security feature · Windows Security (Smart App Control) kept it from loading"),
-        AddonState.Download => Tr("기호 파일을 받지 못했습니다 · 인터넷 연결을 확인하고 다시 시도하세요", "Could not download the symbol files · check your connection and try again"),
+        AddonState.Download => DownloadStatusText(),
         AddonState.Restart => Tr("탐색기 재시작 필요 · 탐색기를 다시 시작한 뒤 다시 시도하세요", "Explorer needs a restart · restart Explorer, then try again"),
         _ => Tr("멈춤 · 이 애드온이 멈췄습니다", "Stopped · this add-on stopped"),
     };
+
+    /// AddonState.Download on either status line. Most often the connection is fine and Microsoft hasn't published a new
+    /// Windows build's symbol files yet (issue #21), so the line says so and that Bloom tries again by itself.
+    private static string DownloadStatusText()
+    {
+        int minutes = (int)AddonRunner.DownloadRetry.TotalMinutes;
+        return Tr($"기호 파일을 받지 못했습니다 · 인터넷 연결이 정상이면 Microsoft가 이번 Windows 업데이트의 기호 파일을 아직 올리지 않은 것일 수 있습니다. {minutes}분마다 다시 시도합니다",
+            $"Could not download the symbol files · if your connection works, Microsoft may not have published the symbol files for this Windows update yet. Trying again every {minutes} minutes");
+    }
 
     /// The switch: the first time on, `confirm` says what the add-on is and must be accepted (once per add-on); then the
     /// setting is saved and the host started or stopped.
