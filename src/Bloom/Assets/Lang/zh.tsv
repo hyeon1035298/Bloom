@@ -2192,7 +2192,7 @@ Paused · Explorer kept crashing, so this add-on was turned off	已暂停 · 资
 No symbols · this Windows version lacks the symbols it needs	无符号 · 此 Windows 版本缺少所需的符号
 On in Windhawk · turn the same mod off in Windhawk. If you don't use Windhawk, set its service to manual start and close or uninstall Windhawk instead	已在 Windhawk 中开启 · 请在 Windhawk 中关闭同一模组。如果不使用 Windhawk，也可以将其服务设为手动启动并退出或卸载 Windhawk
 Blocked by a security feature · Windows Security (Smart App Control) kept it from loading	被安全功能阻止 · Windows 安全中心（智能应用控制）阻止了加载
-Could not download the symbol files · check your connection and try again	无法下载符号文件 · 请检查网络连接后重试
+Could not download the symbol files · if your connection works, Microsoft may not have published the symbol files for this Windows update yet. Trying again every {0} minutes	无法下载符号文件 · 如果网络正常，可能是 Microsoft 尚未发布此次 Windows 更新的符号文件。每 {0} 分钟重试一次
 Explorer needs a restart · restart Explorer, then try again	需要重启资源管理器 · 请重启资源管理器后重试
 Stopped · this add-on stopped	已停止 · 此加载项已停止
 Turn on {0}	开启 {0}
