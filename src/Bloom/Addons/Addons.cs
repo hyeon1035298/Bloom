@@ -29,11 +29,14 @@ internal enum AddonState
     Blocked, // 13
     Download, // 14
     Restart, // 15: explorer must restart before the add-on can load again
+    PdbMissing, // 14 with reason pdbMissing: Microsoft hasn't published the PDB, and porting couldn't cover it
+    PortCrashed, // 14 with reason portCrashed: explorer crashed while it ran on ported symbols, which are now set aside
     Stopped, // ended some other way, or could not be started
 }
 
-/// The state, and while the symbol files download how far along (0-100; -1 when unknown).
-internal readonly record struct AddonStatus(AddonState State, int Percent = -1);
+/// The state, while the symbol files download how far along (0-100; -1 when unknown), and a running add-on's note.
+/// Running stays Running with a note, so what waits for a running add-on (the taskbar chat, folders) still works.
+internal readonly record struct AddonStatus(AddonState State, int Percent = -1, RunningNote Note = RunningNote.None);
 
 /// host-state.json and runtime-state.json as far as Bloom reads them (protocol §1).
 internal sealed class HostState
@@ -45,6 +48,9 @@ internal sealed class HostState
     public HostProgress? Progress { get; set; }
     public bool SafeMode { get; set; }
     public HostLoaded? Loaded { get; set; }
+
+    /// "pdb" or "ported" (protocol §1, optional: an older host writes neither).
+    public string? SymbolsSource { get; set; }
 
     internal sealed class HostProgress
     {
@@ -686,7 +692,7 @@ internal static class AddonHub
         if (!f.On) return new(AddonState.Off);
         if (f.Skipped && !f.Started) return new(AddonState.Skipped);
         // also while a try again waits: after 14 (AddonRunner.DownloadRetry) the page keeps saying why
-        if (f.LastExit is { } code && AddonProtocol.IsFinal(code) && !f.HostAlive) return new(FromCode(code));
+        if (f.LastExit is { } code && AddonProtocol.IsFinal(code) && !f.HostAlive) return new(FromCode(code, f.Host?.Reason));
         if (f.HostAlive && f.Host is { } h)
         {
             if (h.SafeMode) return new(AddonState.SafeMode);
@@ -696,7 +702,7 @@ internal static class AddonHub
                     return new(AddonState.Starting, h.Progress is { Total: > 0 } p ? (int)Math.Clamp(p.Done * 100 / p.Total, 0, 100) : -1);
                 case "running":
                     // the runtime's file speaks for the explorer the host loaded into, not for one that came before it
-                    return f.Runtime is { State: "running" } r && r.Pid == h.Loaded?.Pid ? new(AddonState.Running) : new(AddonState.Starting);
+                    return f.Runtime is { State: "running" } r && r.Pid == h.Loaded?.Pid ? new(AddonState.Running, -1, NoteOf(h)) : new(AddonState.Starting);
                 case "failed":
                     return new(FromReason(h.Reason));
             }
@@ -710,13 +716,14 @@ internal static class AddonHub
 
     /// A code the protocol adds later gets its line here, an AddonState and a status text, and joins IsFinal when the user
     /// has to act before a start can work; until then it reads as Stopped.
-    private static AddonState FromCode(int code) => code switch
+    /// 14 says more through the host's reason (a host before porting only ever writes "download" for it).
+    private static AddonState FromCode(int code, string? reason) => code switch
     {
         AddonProtocol.ExitCrashes => AddonState.SafeMode,
         AddonProtocol.ExitNoSymbols => AddonState.NoSymbols,
         AddonProtocol.ExitWindhawk => AddonState.Windhawk,
         AddonProtocol.ExitBlocked => AddonState.Blocked,
-        AddonProtocol.ExitDownload => AddonState.Download,
+        AddonProtocol.ExitDownload => reason is "pdbMissing" or "portCrashed" ? FromReason(reason) : AddonState.Download,
         AddonProtocol.ExitRestart => AddonState.Restart,
         _ => AddonState.Stopped,
     };
@@ -728,7 +735,13 @@ internal static class AddonHub
         "windhawk" => AddonState.Windhawk,
         "blocked" => AddonState.Blocked,
         "download" => AddonState.Download,
+        "pdbMissing" => AddonState.PdbMissing,
+        "portCrashed" => AddonState.PortCrashed,
         "restart" => AddonState.Restart,
         _ => AddonState.Stopped,
     };
+
+    /// A module left unhooked matters more than where the symbols came from.
+    private static RunningNote NoteOf(HostState h) =>
+        h.Reason == "degraded" ? RunningNote.Degraded : h.SymbolsSource == "ported" ? RunningNote.Ported : RunningNote.None;
 }

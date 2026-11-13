@@ -2844,3 +2844,7 @@ just now	刚刚
 Detach from the launcher	从启动器分离
 Always on top	始终置顶
 Attach to the launcher	附到启动器
+Waiting for symbol files · Microsoft hasn't published the symbol files for this Windows update yet, and the symbols of an earlier build could not be borrowed safely. Trying again every {0} minutes	等待符号文件 · Microsoft 尚未发布此次 Windows 更新的符号文件，也无法安全借用早期版本的符号。每 {0} 分钟重试一次
+Paused · Explorer crashed while it ran on borrowed symbols, so it was turned off. It turns on again once Microsoft publishes the symbol files	已暂停 · 使用借用的符号运行时资源管理器崩溃，因此已关闭。Microsoft 发布符号文件后会重新开启
+Running with some features off · the symbols they need were not found on this Windows version	仅部分功能运行 · 在此 Windows 版本中未找到其余功能所需的符号
+Running on borrowed symbols · from an earlier build until Microsoft publishes the symbol files for this Windows update	使用借用的符号运行中 · 在 Microsoft 发布此次 Windows 更新的符号文件之前，使用早期版本的符号
