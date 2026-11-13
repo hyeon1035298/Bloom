@@ -290,7 +290,8 @@ internal sealed partial class SettingsView
         Place(title, sub, () => filter.Length == 0 ? AddonRow(addon.Id, title, collectedSub, glyph, status, sub, end) : Line(title, sub, end), () => Go(page),
             d => toggle is not null && sw.On != d > 0 && Flip(toggle), filter);
 
-        if (collected is null && status.State is AddonState.SafeMode or AddonState.Download or AddonState.Restart or AddonState.Stopped)
+        if (collected is null && status.State is AddonState.SafeMode or AddonState.Download or AddonState.PdbMissing or AddonState.PortCrashed
+            or AddonState.Restart or AddonState.Stopped)
         {
             bool reset = status.State == AddonState.SafeMode;
             string again = reset ? Tr("다시 켜기", "Turn on again") : Tr("다시 시도", "Try again");
@@ -315,7 +316,10 @@ internal sealed partial class SettingsView
         AddonState.Skipped => Tr("Shift를 누른 채 시작해 이번에는 켜지 않았습니다", "Bloom started with Shift held, so it is off this time"),
         AddonState.Starting when st.Percent >= 0 => Tr($"켜는 중 · 기호 파일 받는 중 {st.Percent}%", $"Turning on · downloading symbol files {st.Percent}%"),
         AddonState.Starting => Tr("켜는 중", "Turning on"),
+        AddonState.Running when st.Note != RunningNote.None => RunningNoteText(st.Note),
         AddonState.Running => Tr("작동 중", "Running"),
+        AddonState.PdbMissing => PdbMissingText(),
+        AddonState.PortCrashed => PortCrashedText(),
         AddonState.SafeMode => Tr("멈춤 · 탐색기가 연달아 멈춰 이 애드온을 껐습니다", "Paused · Explorer kept crashing, so this add-on was turned off"),
         AddonState.NoSymbols => Tr("기호 없음 · 이 Windows 버전에는 필요한 기호가 없습니다", "No symbols · this Windows version lacks the symbols it needs"),
         AddonState.Windhawk => Tr("Windhawk에서 켜져 있음 · Windhawk에서 같은 모드를 끄세요. Windhawk를 쓰지 않으면 서비스를 수동 시작으로 바꾸고 Windhawk를 끄거나 지워도 됩니다",
@@ -334,6 +338,25 @@ internal sealed partial class SettingsView
         return Tr($"기호 파일을 받지 못했습니다 · 인터넷 연결이 정상이면 Microsoft가 이번 Windows 업데이트의 기호 파일을 아직 올리지 않은 것일 수 있습니다. {minutes}분마다 다시 시도합니다",
             $"Could not download the symbol files · if your connection works, Microsoft may not have published the symbol files for this Windows update yet. Trying again every {minutes} minutes");
     }
+
+    /// AddonState.PdbMissing on either status line: a host that tells the 404 apart says so for certain, and that the
+    /// symbols of an older build could not be borrowed safely either.
+    private static string PdbMissingText()
+    {
+        int minutes = (int)AddonRunner.DownloadRetry.TotalMinutes;
+        return Tr($"기호 파일 기다리는 중 · Microsoft가 이번 Windows 업데이트의 기호 파일을 아직 올리지 않았고, 이전 빌드의 기호도 안전하게 빌려 쓸 수 없었습니다. {minutes}분마다 다시 시도합니다",
+            $"Waiting for symbol files · Microsoft hasn't published the symbol files for this Windows update yet, and the symbols of an earlier build could not be borrowed safely. Trying again every {minutes} minutes");
+    }
+
+    /// AddonState.PortCrashed on either status line.
+    private static string PortCrashedText() => Tr("멈춤 · 빌린 기호로 작동하던 중 탐색기가 멈춰 껐습니다. Microsoft가 기호 파일을 올리면 다시 켜집니다",
+        "Paused · Explorer crashed while it ran on borrowed symbols, so it was turned off. It turns on again once Microsoft publishes the symbol files");
+
+    /// A running add-on's line with its note, on either page.
+    private static string RunningNoteText(RunningNote note) => note == RunningNote.Degraded
+        ? Tr("일부 기능만 작동 중 · 이 Windows 버전에서 나머지 기능에 필요한 기호를 찾지 못했습니다", "Running with some features off · the symbols they need were not found on this Windows version")
+        : Tr("빌린 기호로 작동 중 · Microsoft가 이번 Windows 업데이트의 기호 파일을 올릴 때까지 이전 빌드의 기호를 씁니다",
+            "Running on borrowed symbols · from an earlier build until Microsoft publishes the symbol files for this Windows update");
 
     /// The switch: the first time on, `confirm` says what the add-on is and must be accepted (once per add-on); then the
     /// setting is saved and the host started or stopped.

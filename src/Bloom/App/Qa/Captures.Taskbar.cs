@@ -25,7 +25,12 @@ internal static partial class Captures
             Settings.Current.AddonsOn.Remove(addon.Id);
             await TaskbarShot(sw, Path.Combine(dir, $"{l}-{theme}-taskbar-dev.png"));
             Settings.Current.AddonsOn.Add(addon.Id); // this dev copy's own settings only; nothing starts from it
-            foreach (var (name, status) in new[] { ("symbols", new AddonStatus(AddonState.Starting, 42)), ("running", new AddonStatus(AddonState.Running)), ("safe-mode", new AddonStatus(AddonState.SafeMode)) })
+            foreach (var (name, status) in new[]
+            {
+                ("symbols", new AddonStatus(AddonState.Starting, 42)), ("running", new AddonStatus(AddonState.Running)), ("safe-mode", new AddonStatus(AddonState.SafeMode)),
+                ("ported", new AddonStatus(AddonState.Running, -1, RunningNote.Ported)), ("pdb-missing", new AddonStatus(AddonState.PdbMissing)),
+                ("port-crashed", new AddonStatus(AddonState.PortCrashed)),
+            })
             {
                 addon.QaStatus = status;
                 await TaskbarShot(sw, Path.Combine(dir, $"{l}-{theme}-taskbar-{name}.png"));
