@@ -36,7 +36,8 @@ internal enum AddonState
 
 /// The state, while the symbol files download how far along (0-100; -1 when unknown), and a running add-on's note.
 /// Running stays Running with a note, so what waits for a running add-on (the taskbar chat, folders) still works.
-internal readonly record struct AddonStatus(AddonState State, int Percent = -1, RunningNote Note = RunningNote.None);
+/// PortingHost, with Download only: the host tells a 404 apart, so Download is not Microsoft's missing symbol files.
+internal readonly record struct AddonStatus(AddonState State, int Percent = -1, RunningNote Note = RunningNote.None, bool PortingHost = false);
 
 /// host-state.json and runtime-state.json as far as Bloom reads them (protocol §1).
 internal sealed class HostState
@@ -414,7 +415,8 @@ internal sealed class Addon
             alive = r?.Running == true || (host is { Pid: > 0 } && IsHost(host.Pid));
         }
         return AddonHub.Decide(new AddonHub.Facts(AddonHub.Offered, Manifest is not null, Broken, On, AddonHub.SkippedByShift, r is not null,
-            alive, r?.Waiting == true, r?.LastExit, r?.GaveUp == true || problem, host, runtime));
+            alive, r?.Waiting == true, r?.LastExit, r?.GaveUp == true || problem, host, runtime,
+            Manifest?.Files.ContainsKey(AddonProtocol.PortSources) == true));
     }
 
     /// The process id in host-state.json while that process is this add-on's host.
@@ -682,9 +684,15 @@ internal static class AddonHub
 
     /// What the status is decided from: the switch, the runner, and the host's and runtime's state files.
     internal readonly record struct Facts(bool Offered, bool Shipped, bool Broken, bool On, bool Skipped, bool Started,
-        bool HostAlive, bool Waiting, int? LastExit, bool Failed, HostState? Host, RuntimeState? Runtime);
+        bool HostAlive, bool Waiting, int? LastExit, bool Failed, HostState? Host, RuntimeState? Runtime, bool PortingHost = false);
 
     internal static AddonStatus Decide(in Facts f)
+    {
+        var s = DecideState(f);
+        return s.State == AddonState.Download && f.PortingHost ? s with { PortingHost = true } : s;
+    }
+
+    private static AddonStatus DecideState(in Facts f)
     {
         if (!f.Offered) return new(AddonState.Dev);
         if (!f.Shipped) return new(AddonState.NotShipped);

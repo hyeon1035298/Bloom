@@ -6,7 +6,7 @@ Each release on GitHub shows its section from this file (the workflow looks for 
 
 [![After a Windows update the taskbar add-on turns on and runs on symbols borrowed from an earlier build](https://raw.githubusercontent.com/hyeon1035298/Bloom/main/docs/media/whatsnew/1.4.1/borrowed-en.webp)](bloom://settings/addons)
 
-- Add-ons keep working after a Windows update. Until Microsoft publishes the symbol files for the new build, they borrow the symbols of an earlier build. This comes with PillTaskbar 0.2.15, Alt+Tab per monitor 1.2.1-9, Monitor Brightness 0.2.2, Coffee 0.1.7 and Memory Clean 0.3.2.
+- After a Windows update, add-ons can run before Microsoft publishes the symbol files for the new build, by borrowing the symbols of an earlier build. This comes with PillTaskbar 0.2.15, Alt+Tab per monitor 1.2.1-9, Monitor Brightness 0.2.2, Coffee 0.1.7 and Memory Clean 0.3.2.
 - Settings › Add-ons shows when an add-on runs on borrowed symbols, when it waits for Microsoft's symbol files, and when it was turned off because Explorer crashed while it ran on them.
 - Fixed: after a Windows update, add-ons could stop with "Could not download the symbol files" even though the internet worked. Microsoft hadn't published the symbol files for the new Windows build yet. Bloom now tries again every 30 minutes and turns the add-on on once the files are there, and the message explains this.
 
@@ -14,7 +14,7 @@ Each release on GitHub shows its section from this file (the workflow looks for 
 
 [![Windows 업데이트 뒤 작업표시줄 애드온이 켜지고 이전 빌드에서 빌린 기호로 작동합니다](https://raw.githubusercontent.com/hyeon1035298/Bloom/main/docs/media/whatsnew/1.4.1/borrowed-ko.webp)](bloom://settings/addons)
 
-- Windows 업데이트 뒤에도 애드온이 계속 작동합니다. Microsoft가 새 빌드의 기호 파일을 올릴 때까지 이전 빌드의 기호를 빌려 씁니다. PillTaskbar 0.2.15, 모니터별 Alt+Tab 1.2.1-9, 모니터 밝기 조정 0.2.2, 커피 0.1.7, 메모리 정리 0.3.2부터 들어 있습니다.
+- Windows 업데이트 뒤 Microsoft가 새 빌드의 기호 파일을 올리기 전에도 애드온이 이전 빌드의 기호를 빌려 작동할 수 있습니다. PillTaskbar 0.2.15, 모니터별 Alt+Tab 1.2.1-9, 모니터 밝기 조정 0.2.2, 커피 0.1.7, 메모리 정리 0.3.2부터 들어 있습니다.
 - 설정 › 애드온에 애드온이 빌린 기호로 작동하는지, Microsoft의 기호 파일을 기다리는지, 빌린 기호로 작동하다 탐색기가 멈춰 꺼졌는지 나옵니다.
 - 고침: Windows 업데이트 뒤 인터넷이 정상인데도 애드온이 "기호 파일을 받지 못했습니다"로 멈출 수 있었습니다. Microsoft가 새 Windows 빌드의 기호 파일을 아직 올리지 않았기 때문입니다. 이제 Bloom이 30분마다 다시 시도해 파일이 올라오면 애드온을 켜고, 안내 문구도 이 내용을 설명합니다.
 

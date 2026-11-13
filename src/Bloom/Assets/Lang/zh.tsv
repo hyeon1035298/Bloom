@@ -2192,9 +2192,15 @@ Paused · Explorer kept crashing, so this add-on was turned off	已暂停 · 资
 No symbols · this Windows version lacks the symbols it needs	无符号 · 此 Windows 版本缺少所需的符号
 On in Windhawk · turn the same mod off in Windhawk. If you don't use Windhawk, set its service to manual start and close or uninstall Windhawk instead	已在 Windhawk 中开启 · 请在 Windhawk 中关闭同一模组。如果不使用 Windhawk，也可以将其服务设为手动启动并退出或卸载 Windhawk
 Blocked by a security feature · Windows Security (Smart App Control) kept it from loading	被安全功能阻止 · Windows 安全中心（智能应用控制）阻止了加载
-Could not download the symbol files · if your connection works, Microsoft may not have published the symbol files for this Windows update yet. Trying again every {0} minutes	无法下载符号文件 · 如果网络正常，可能是 Microsoft 尚未发布此次 Windows 更新的符号文件。每 {0} 分钟重试一次
 Explorer needs a restart · restart Explorer, then try again	需要重启资源管理器 · 请重启资源管理器后重试
 Stopped · this add-on stopped	已停止 · 此加载项已停止
+Could not download the symbol files · check your internet connection. Trying again every {0} minutes	无法下载符号文件 · 请检查网络连接。每 {0} 分钟重试一次
+Could not download the symbol files · if your connection works, Microsoft may not have published the symbol files for this Windows update yet. Trying again every {0} minutes	无法下载符号文件 · 如果网络正常，可能是 Microsoft 尚未发布此次 Windows 更新的符号文件。每 {0} 分钟重试一次
+Waiting for symbol files · Microsoft hasn't published the symbol files for this Windows update yet, and the symbols of an earlier build could not be borrowed safely. Trying again every {0} minutes	等待符号文件 · Microsoft 尚未发布此次 Windows 更新的符号文件，也无法安全借用早期版本的符号。每 {0} 分钟重试一次
+Paused · Explorer crashed while it ran on borrowed symbols, so taskbar customization was turned off. It turns on again once Microsoft publishes the symbol files	已暂停 · 使用借用的符号运行时资源管理器崩溃，因此已关闭任务栏自定义。Microsoft 发布符号文件后会重新开启
+Paused · Explorer crashed while it ran on borrowed symbols, so this add-on was turned off. It turns on again once Microsoft publishes the symbol files	已暂停 · 使用借用的符号运行时资源管理器崩溃，因此已关闭此加载项。Microsoft 发布符号文件后会重新开启
+Running with some features off · the symbols they need were not found on this Windows version	仅部分功能运行 · 在此 Windows 版本中未找到其余功能所需的符号
+Running on borrowed symbols · from an earlier build until Microsoft publishes the symbol files for this Windows update	使用借用的符号运行中 · 在 Microsoft 发布此次 Windows 更新的符号文件之前，使用早期版本的符号
 Turn on {0}	开启 {0}
 This add-on is a program separate from Bloom. It works by loading code into Explorer, and is licensed under {0}. The first start downloads the symbol files it needs from the Microsoft symbol server.	此加载项是独立于 Bloom 的程序，通过向资源管理器加载代码来运行，采用 {0} 许可。首次启动时会从 Microsoft 符号服务器下载所需的符号文件。
 An add-on you added is a separate program that Bloom neither made nor checked. Turning it on starts that program, and it may load code into Explorer. Only turn on add-ons you trust.	你添加的加载项是 Bloom 未制作也未检查的独立程序。开启后会启动该程序，它可能会向资源管理器载入代码。请只开启你信任的加载项。
@@ -2844,7 +2850,3 @@ just now	刚刚
 Detach from the launcher	从启动器分离
 Always on top	始终置顶
 Attach to the launcher	附到启动器
-Waiting for symbol files · Microsoft hasn't published the symbol files for this Windows update yet, and the symbols of an earlier build could not be borrowed safely. Trying again every {0} minutes	等待符号文件 · Microsoft 尚未发布此次 Windows 更新的符号文件，也无法安全借用早期版本的符号。每 {0} 分钟重试一次
-Paused · Explorer crashed while it ran on borrowed symbols, so it was turned off. It turns on again once Microsoft publishes the symbol files	已暂停 · 使用借用的符号运行时资源管理器崩溃，因此已关闭。Microsoft 发布符号文件后会重新开启
-Running with some features off · the symbols they need were not found on this Windows version	仅部分功能运行 · 在此 Windows 版本中未找到其余功能所需的符号
-Running on borrowed symbols · from an earlier build until Microsoft publishes the symbol files for this Windows update	使用借用的符号运行中 · 在 Microsoft 发布此次 Windows 更新的符号文件之前，使用早期版本的符号

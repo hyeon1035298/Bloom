@@ -2192,9 +2192,15 @@ Paused · Explorer kept crashing, so this add-on was turned off	停止中 · エ
 No symbols · this Windows version lacks the symbols it needs	シンボルなし · この Windows のバージョンには必要なシンボルがありません
 On in Windhawk · turn the same mod off in Windhawk. If you don't use Windhawk, set its service to manual start and close or uninstall Windhawk instead	Windhawk でオン · Windhawk で同じ Mod をオフにしてください。Windhawk を使わない場合は、サービスを手動開始にして Windhawk を終了するかアンインストールしてもかまいません
 Blocked by a security feature · Windows Security (Smart App Control) kept it from loading	セキュリティ機能がブロック · Windows セキュリティ (スマート アプリ コントロール) が読み込みを止めました
-Could not download the symbol files · if your connection works, Microsoft may not have published the symbol files for this Windows update yet. Trying again every {0} minutes	シンボルファイルをダウンロードできませんでした · 接続に問題がなければ、Microsoft がこの Windows 更新のシンボルファイルをまだ公開していない可能性があります。{0} 分ごとに再試行します
 Explorer needs a restart · restart Explorer, then try again	エクスプローラーの再起動が必要 · エクスプローラーを再起動してからもう一度お試しください
 Stopped · this add-on stopped	停止 · このアドオンが停止しました
+Could not download the symbol files · check your internet connection. Trying again every {0} minutes	シンボルファイルをダウンロードできませんでした · インターネット接続を確認してください。{0} 分ごとに再試行します
+Could not download the symbol files · if your connection works, Microsoft may not have published the symbol files for this Windows update yet. Trying again every {0} minutes	シンボルファイルをダウンロードできませんでした · 接続に問題がなければ、Microsoft がこの Windows 更新のシンボルファイルをまだ公開していない可能性があります。{0} 分ごとに再試行します
+Waiting for symbol files · Microsoft hasn't published the symbol files for this Windows update yet, and the symbols of an earlier build could not be borrowed safely. Trying again every {0} minutes	シンボルファイル待ち · Microsoft はこの Windows 更新のシンボルファイルをまだ公開しておらず、以前のビルドのシンボルも安全に借りられませんでした。{0} 分ごとに再試行します
+Paused · Explorer crashed while it ran on borrowed symbols, so taskbar customization was turned off. It turns on again once Microsoft publishes the symbol files	停止中 · 借りたシンボルで動作中にエクスプローラーがクラッシュしたため、タスクバーのカスタマイズをオフにしました。Microsoft がシンボルファイルを公開すると再びオンになります
+Paused · Explorer crashed while it ran on borrowed symbols, so this add-on was turned off. It turns on again once Microsoft publishes the symbol files	停止中 · 借りたシンボルで動作中にエクスプローラーがクラッシュしたため、このアドオンをオフにしました。Microsoft がシンボルファイルを公開すると再びオンになります
+Running with some features off · the symbols they need were not found on this Windows version	一部の機能のみ実行中 · この Windows のバージョンで残りの機能に必要なシンボルが見つかりませんでした
+Running on borrowed symbols · from an earlier build until Microsoft publishes the symbol files for this Windows update	借りたシンボルで実行中 · Microsoft がこの Windows 更新のシンボルファイルを公開するまで、以前のビルドのシンボルを使います
 Turn on {0}	{0} をオンにする
 This add-on is a program separate from Bloom. It works by loading code into Explorer, and is licensed under {0}. The first start downloads the symbol files it needs from the Microsoft symbol server.	このアドオンは Bloom とは別のプログラムで、エクスプローラーにコードを読み込んで動作します。ライセンスは {0} です。初回の起動時に Microsoft シンボル サーバーから必要なシンボルファイルをダウンロードします。
 An add-on you added is a separate program that Bloom neither made nor checked. Turning it on starts that program, and it may load code into Explorer. Only turn on add-ons you trust.	自分で入れたアドオンは、Bloom が作成も確認もしていない別のプログラムです。オンにするとそのプログラムが起動し、エクスプローラーにコードを読み込むことがあります。信頼できるアドオンだけをオンにしてください。
@@ -2844,7 +2850,3 @@ just now	たった今
 Detach from the launcher	ランチャーから切り離す
 Always on top	常に手前に表示
 Attach to the launcher	ランチャーに付ける
-Waiting for symbol files · Microsoft hasn't published the symbol files for this Windows update yet, and the symbols of an earlier build could not be borrowed safely. Trying again every {0} minutes	シンボルファイル待ち · Microsoft はこの Windows 更新のシンボルファイルをまだ公開しておらず、以前のビルドのシンボルも安全に借りられませんでした。{0} 分ごとに再試行します
-Paused · Explorer crashed while it ran on borrowed symbols, so it was turned off. It turns on again once Microsoft publishes the symbol files	停止中 · 借りたシンボルで動作中にエクスプローラーがクラッシュしたため、オフにしました。Microsoft がシンボルファイルを公開すると再びオンになります
-Running with some features off · the symbols they need were not found on this Windows version	一部の機能のみ実行中 · この Windows のバージョンで残りの機能に必要なシンボルが見つかりませんでした
-Running on borrowed symbols · from an earlier build until Microsoft publishes the symbol files for this Windows update	借りたシンボルで実行中 · Microsoft がこの Windows 更新のシンボルファイルを公開するまで、以前のビルドのシンボルを使います
