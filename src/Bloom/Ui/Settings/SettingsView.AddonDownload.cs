@@ -48,7 +48,7 @@ internal sealed partial class SettingsView
         else if (addon.Manifest is null)
             Add(Tr($"{name} 받기", $"Download {name}"), Tr("GitHub 릴리스에서 받아 Bloom이 확인한 뒤 설치합니다", "From its GitHub release, checked by Bloom before it is installed"),
                 RowButton(get, Get), G.Download, Get, null, filter);
-        if (addon.Manifest is { } m && status.State is AddonState.SafeMode or AddonState.Stopped or AddonState.Broken)
+        if (addon.Manifest is { } m && status.State is AddonState.SafeMode or AddonState.Stopped or AddonState.Broken or AddonState.PortCrashed)
         {
             void Report() => Launch.Open(IssueUrl(catalog, m.Version, status.State));
             Add(Tr("GitHub에 문제 알리기", "Report it on GitHub"), Tr("이 애드온 저장소에 이슈를 엽니다 · 버전과 상태가 미리 채워집니다", "Opens an issue in this add-on's repository, with its version and status filled in"),

@@ -64,5 +64,6 @@ internal static class AddonProtocol
     public const int ExitRestart = 15; // an earlier mod or runtime image is still in explorer: it must restart first
 
     /// A code the host ends with on purpose: starting it again would only end the same way, so Bloom waits for the user.
+    /// 14 alone is tried again, slowly, while the add-on stays on (AddonRunner.DownloadRetry).
     public static bool IsFinal(int code) => code is >= ExitCrashes and <= ExitRestart;
 }
