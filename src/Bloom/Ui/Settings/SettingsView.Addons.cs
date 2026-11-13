@@ -319,22 +319,26 @@ internal sealed partial class SettingsView
         AddonState.Running when st.Note != RunningNote.None => RunningNoteText(st.Note),
         AddonState.Running => Tr("작동 중", "Running"),
         AddonState.PdbMissing => PdbMissingText(),
-        AddonState.PortCrashed => PortCrashedText(),
+        AddonState.PortCrashed => PortCrashedText(false),
         AddonState.SafeMode => Tr("멈춤 · 탐색기가 연달아 멈춰 이 애드온을 껐습니다", "Paused · Explorer kept crashing, so this add-on was turned off"),
         AddonState.NoSymbols => Tr("기호 없음 · 이 Windows 버전에는 필요한 기호가 없습니다", "No symbols · this Windows version lacks the symbols it needs"),
         AddonState.Windhawk => Tr("Windhawk에서 켜져 있음 · Windhawk에서 같은 모드를 끄세요. Windhawk를 쓰지 않으면 서비스를 수동 시작으로 바꾸고 Windhawk를 끄거나 지워도 됩니다",
             "On in Windhawk · turn the same mod off in Windhawk. If you don't use Windhawk, set its service to manual start and close or uninstall Windhawk instead"),
         AddonState.Blocked => Tr("보안 기능이 막음 · Windows 보안(스마트 앱 컨트롤)이 불러오기를 막았습니다", "Blocked by a security feature · Windows Security (Smart App Control) kept it from loading"),
-        AddonState.Download => DownloadStatusText(),
+        AddonState.Download => DownloadStatusText(st.PortingHost),
         AddonState.Restart => Tr("탐색기 재시작 필요 · 탐색기를 다시 시작한 뒤 다시 시도하세요", "Explorer needs a restart · restart Explorer, then try again"),
         _ => Tr("멈춤 · 이 애드온이 멈췄습니다", "Stopped · this add-on stopped"),
     };
 
-    /// AddonState.Download on either status line. Most often the connection is fine and Microsoft hasn't published a new
-    /// Windows build's symbol files yet (issue #21), so the line says so and that Bloom tries again by itself.
-    private static string DownloadStatusText()
+    /// AddonState.Download on either status line. From a host before porting it is most often Microsoft not having
+    /// published a new Windows build's symbol files yet (issue #21), so the line says so and that Bloom tries again by
+    /// itself. A porting host reports that case as pdbMissing, so its Download is the connection or this PC.
+    private static string DownloadStatusText(bool portingHost)
     {
         int minutes = (int)AddonRunner.DownloadRetry.TotalMinutes;
+        if (portingHost)
+            return Tr($"기호 파일을 받지 못했습니다 · 인터넷 연결을 확인하세요. {minutes}분마다 다시 시도합니다",
+                $"Could not download the symbol files · check your internet connection. Trying again every {minutes} minutes");
         return Tr($"기호 파일을 받지 못했습니다 · 인터넷 연결이 정상이면 Microsoft가 이번 Windows 업데이트의 기호 파일을 아직 올리지 않은 것일 수 있습니다. {minutes}분마다 다시 시도합니다",
             $"Could not download the symbol files · if your connection works, Microsoft may not have published the symbol files for this Windows update yet. Trying again every {minutes} minutes");
     }
@@ -348,9 +352,12 @@ internal sealed partial class SettingsView
             $"Waiting for symbol files · Microsoft hasn't published the symbol files for this Windows update yet, and the symbols of an earlier build could not be borrowed safely. Trying again every {minutes} minutes");
     }
 
-    /// AddonState.PortCrashed on either status line.
-    private static string PortCrashedText() => Tr("멈춤 · 빌린 기호로 작동하던 중 탐색기가 멈춰 껐습니다. Microsoft가 기호 파일을 올리면 다시 켜집니다",
-        "Paused · Explorer crashed while it ran on borrowed symbols, so it was turned off. It turns on again once Microsoft publishes the symbol files");
+    /// AddonState.PortCrashed on either status line, naming what was turned off.
+    private static string PortCrashedText(bool taskbar) => taskbar
+        ? Tr("멈춤 · 빌린 기호로 작동하던 중 탐색기가 멈춰 작업표시줄 꾸미기를 껐습니다. Microsoft가 기호 파일을 올리면 다시 켜집니다",
+            "Paused · Explorer crashed while it ran on borrowed symbols, so taskbar customization was turned off. It turns on again once Microsoft publishes the symbol files")
+        : Tr("멈춤 · 빌린 기호로 작동하던 중 탐색기가 멈춰 이 애드온을 껐습니다. Microsoft가 기호 파일을 올리면 다시 켜집니다",
+            "Paused · Explorer crashed while it ran on borrowed symbols, so this add-on was turned off. It turns on again once Microsoft publishes the symbol files");
 
     /// A running add-on's line with its note, on either page.
     private static string RunningNoteText(RunningNote note) => note == RunningNote.Degraded

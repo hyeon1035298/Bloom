@@ -30,6 +30,9 @@ internal static class AddonProtocol
     public const string RuntimeDll = "PillTaskbarRuntime.dll";
     public const string ModDll = "PillTaskbar.dll";
     public const string SymbolList = "symbols.txt";
+    /// Shipped by a host that ports symbols from an older build; such a host reports a 404 as reason pdbMissing, so its
+    /// 14 with reason download is a connection or this PC's own trouble.
+    public const string PortSources = "port-sources.txt";
 
     // Named objects. %u is the explorer process id (the explorer-side names never carry a version).
     public const string HostMutex = @"Local\Bloom.Addon.pill-taskbar.Host";
