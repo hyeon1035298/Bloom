@@ -181,6 +181,9 @@ internal sealed class SettingsWindow : Window
 
     public void Page(string key) => view.GoForQa(key);
 
+    /// Whether the list has that page (SettingsView.Has).
+    public bool Has(string key) => view.Has(key);
+
     internal SettingsView ViewForQa => view;
 
     public void SelectForQa(int i) => view.SelectForQa(i);

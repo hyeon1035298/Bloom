@@ -1035,6 +1035,14 @@ internal sealed partial class SettingsView : ScrollViewer
     /// QA: open a category by key.
     public void GoForQa(string key) => Go(key);
 
+    /// Whether the list has the page a key goes to (an older layout's key as PageOf maps it; an add-on's while it is
+    /// listed): a page asked for from outside (SettingsHandoff) opens only then.
+    public bool Has(string key)
+    {
+        string to = PageOf(key);
+        return pages.Exists(p => p.key == to);
+    }
+
     /// QA: selects a row (from the end when negative), which scrolls it into view.
     public void SelectForQa(int i) => Select(i < 0 ? rows.Count + i : i);
 }
