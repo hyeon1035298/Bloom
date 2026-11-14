@@ -143,6 +143,10 @@ internal static class Program
                 case "--settings":
                     opt.Settings = true;
                     break;
+                case SettingsHandoff.Arg when i + 1 < args.Length:
+                    opt.Settings = true;
+                    opt.SettingsPage = SettingsHandoff.Parse(args[++i]);
+                    break;
                 case "--reset-from" when i + 1 < args.Length:
                     resetFrom = int.TryParse(args[++i], out int pid) ? pid : 0;
                     break;
@@ -207,12 +211,12 @@ internal static class Program
             {
                 switch (DocHandoff.Send(DocHandoff.Pipe, doc))
                 {
-                    case DocHandoff.Answer.Opened:
+                    case LinePipe.Answer.Done:
                         return 0;
-                    case DocHandoff.Answer.Refused:
+                    case LinePipe.Answer.Refused:
                         DocHandoff.Tell(doc, DocHandoff.Refused);
                         return 5;
-                    case DocHandoff.Answer.Silent:
+                    case LinePipe.Answer.Silent:
                         DocHandoff.Tell(doc, Tr("실행 중인 Bloom이 응답하지 않았습니다", "The running Bloom didn't answer"));
                         return 7;
                 }
@@ -221,6 +225,25 @@ internal static class Program
                     DocHandoff.Tell(doc, Tr("Bloom이 30초 안에 준비되지 않았습니다", "Bloom wasn't ready within 30 seconds"));
                     return 6;
                 }
+                Thread.Sleep(150);
+                first = Take(mutex);
+            }
+        }
+        if (!first && opt.SettingsPage is { } page && !quit)
+        {
+            // the running Bloom opens that page. One still starting has no pipe yet: waited for (30 s). One older than the
+            // argument has its .Settings signal but never such a pipe: the signal, 설정's first screen as `--settings`
+            // alone. One quitting closes the pipe without a word or doesn't answer while its signal is still there: tried
+            // again until it lets go of the mutex, which this start then takes to open the page itself. One that refuses,
+            // or doesn't answer for 30 s, gets the signal.
+            var clock = System.Diagnostics.Stopwatch.StartNew();
+            bool seen = false;
+            while (!first)
+            {
+                seen |= LinePipe.Listening(SettingsHandoff.Pipe);
+                var said = SettingsHandoff.Send(SettingsHandoff.Pipe, page);
+                if (said == LinePipe.Answer.Done) return 0;
+                if (said == LinePipe.Answer.Refused || clock.ElapsedMilliseconds > 30000 || (!seen && Signals(id + ".Settings"))) break;
                 Thread.Sleep(150);
                 first = Take(mutex);
             }
@@ -278,6 +301,7 @@ internal static class Program
         {
             // first: a start handing a file over waits for this pipe; what it hands over opens once the start is done
             DocHandoff.Listen(DocHandoff.Pipe, path => app.Dispatcher.InvokeAsync(() => host.OpenHanded(path)).Task);
+            SettingsHandoff.Listen(SettingsHandoff.Pipe, key => app.Dispatcher.InvokeAsync(() => host.OpenSettingsAt(key)).Task);
             host.Start();
             Listen(id + ".Show", () => host.Summon());
             Listen(id + ".Settings", host.OpenSettings);
@@ -380,6 +404,14 @@ internal static class Program
         {
             return null;
         }
+    }
+
+    /// Whether a running Bloom listens for that signal (Listen).
+    private static bool Signals(string name)
+    {
+        if (!EventWaitHandle.TryOpenExisting(@"Local\" + name, out var h)) return false;
+        h.Dispose();
+        return true;
     }
 
     /// A named event another start of the app sets (second instance → show / settings / quit).

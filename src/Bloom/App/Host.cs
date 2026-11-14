@@ -244,7 +244,7 @@ internal sealed partial class Host
                 if (!OpenHanded(doc)) ui.BeginInvoke(() => DocHandoff.Tell(doc, DocHandoff.Refused)); // never silently
             }
             else if (Settings.Current.Onboarded != true) ShowOnboarding();
-            else if (Opt.Settings) OpenSettings();
+            else if (Opt.Settings) OpenSettingsAt(Opt.SettingsPage);
             else if (Opt.Show) Summon();
             if (!Opt.Demo && Opt.MeasureSeconds is null && Opt.SummonRounds is null && ReleaseNotes.JustUpdated())
             {
@@ -592,6 +592,18 @@ internal sealed partial class Host
         if (page is not null) settingsWindow.Page(page);
         settingsWindow.Activate();
         Win32.ForceForeground(new System.Windows.Interop.WindowInteropHelper(settingsWindow).Handle);
+    }
+
+    /// 설정 opened from outside (`--settings-page`, SettingsHandoff): on that page when this Bloom has it — one of its
+    /// categories, or the page of an add-on it has — and as it was (the first screen, new) otherwise. Only the page
+    /// shown changes. True: the window is open.
+    public bool OpenSettingsAt(string? key)
+    {
+        OpenSettings(null);
+        if (settingsWindow is not { } w) return false;
+        if (key is not null && w.Has(key)) w.Page(key);
+        else if (key is not null) Log.Write("settings: no page " + key);
+        return true;
     }
 
     public void OpenChat(ChatThread? t)
