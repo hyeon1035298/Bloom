@@ -22,8 +22,10 @@ internal static class SettingsTransfer
     // servers and files switched on (mcpOn, mcpFiles) decide what the AI may do on THIS PC and which programs of it run: a
     // file from elsewhere keeps none of them (a settings file must not be able to turn an approval off or a server on), and
     // an export leaves them out. The add-ons switched on (addonsOn) and their accepted notices (addonsConfirmed) likewise:
-    // an add-on runs a separate program that loads code into explorer, and only a switch flipped on this PC starts it
-    internal static readonly string[] Local = { "claudePath", "codexPath", "ompPath", "onboarded", "aiAccounts", "claudeChatAccount", "gptChatAccount", "permissions", "apiFileTools", "mcpOn", "mcpFiles", "addonsOn", "addonsConfirmed" };
+    // an add-on runs a separate program that loads code into explorer, and only a switch flipped on this PC starts it.
+    // The mini player's programs (foobarPath, musicBeePath) are run when a song plays, and JRiver's address and user get
+    // the password stored on this PC: a file from elsewhere must not point either somewhere else
+    internal static readonly string[] Local = { "claudePath", "codexPath", "ompPath", "onboarded", "aiAccounts", "claudeChatAccount", "gptChatAccount", "permissions", "apiFileTools", "mcpOn", "mcpFiles", "addonsOn", "addonsConfirmed", "foobarPath", "musicBeePath", "jriverAddress", "jriverUser" };
 
     private const string Manifest = "bloom-settings.json";
 
