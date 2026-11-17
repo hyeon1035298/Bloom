@@ -258,12 +258,22 @@ internal static class Providers
         return sb.ToString();
     }
 
-    /// Starts a `run` action: the array as an argument list, no shell, no window; the result is ignored. Started under the
-    /// shared launch gate (ChildProcess.Spawn), like every other launch of Bloom's.
+    /// Starts a `run` action: the array as an argument list, no window; the result is ignored. Started like Run (McpLaunch:
+    /// a .cmd/.bat through cmd.exe with its arguments quoted for cmd, one it can't take refused) under the shared launch
+    /// gate (ChildProcess.Spawn), like every other launch of Bloom's. Throws InvalidOperationException for a refused
+    /// argument.
     public static void StartDetached(string[] args, string? cwd)
     {
-        var psi = new ProcessStartInfo { FileName = args[0], UseShellExecute = false, CreateNoWindow = true };
-        for (int i = 1; i < args.Length; i++) psi.ArgumentList.Add(args[i]);
+        (string file, string arguments) launch;
+        try
+        {
+            launch = McpLaunch.Resolve(args[0], args[1..]);
+        }
+        catch (McpException e)
+        {
+            throw new InvalidOperationException(Tr("이 동작의 값에 배치 파일로 넘길 수 없는 문자가 있습니다.", "This action holds a character that can't be passed to a batch file."), e);
+        }
+        var psi = new ProcessStartInfo { FileName = launch.file, Arguments = launch.arguments, UseShellExecute = false, CreateNoWindow = true };
         if (cwd is not null && Directory.Exists(cwd)) psi.WorkingDirectory = cwd;
         ChildProcess.Spawn(psi)?.Dispose();
     }

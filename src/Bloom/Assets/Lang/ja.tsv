@@ -2850,3 +2850,10 @@ just now	たった今
 Detach from the launcher	ランチャーから切り離す
 Always on top	常に手前に表示
 Attach to the launcher	ランチャーに付ける
+This action holds a character that can't be passed to a batch file.	この操作の値に、バッチファイルに渡せない文字が含まれています。
+the clipboard text	クリップボードの内容
+the input	入力値
+a line break	改行
+a control character	制御
+This command passes {0} to another program, which can't take {1}. Remove it and run again.	このコマンドは{0}を別のプログラムに渡すため、{1}文字を使えません。この文字を削除して再試行してください。
+This command passes {0} to another program, so it can't end in \\. Remove the final \\ and run again.	このコマンドは{0}を別のプログラムに渡すため、末尾を \\ にできません。末尾の \\ を削除して再試行してください。
