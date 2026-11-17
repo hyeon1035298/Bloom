@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
+using Bloom.App;
 using Bloom.Core;
 using Bloom.Native;
 using Bloom.Search;
@@ -93,11 +94,30 @@ internal static class Web
         Open(url);
     }
 
+    /// The address Open hands on: an absolute http, https or mailto address, escaped (no spaces, quotes or backslashes);
+    /// null for anything else. Other schemes (file:, \\host\share, search-ms:, ms-…:) would start whatever program
+    /// registered them, or make Windows sign in to another computer.
+    public static string? Address(string? url)
+    {
+        if (!Uri.TryCreate(url?.Trim(), UriKind.Absolute, out var u) || u.Scheme is not ("http" or "https" or "mailto")) return null;
+        if (u.Scheme != "mailto" && u.Host.Length == 0) return null;
+        return u.AbsoluteUri;
+    }
+
+    /// Opens a web address in the picked browser (mailto: in the mail app Windows has for it); anything else is refused
+    /// with a notice, whoever asked for it.
     public static void Open(string url)
     {
+        if (Address(url) is not { } address)
+        {
+            Log.Write($"web: refused a link ({(Uri.TryCreate(url.Trim(), UriKind.Absolute, out var u) ? u.Scheme + ":" : "no scheme")})");
+            System.Windows.Application.Current?.Dispatcher.BeginInvoke(() => Notices.Result(false, Tr("Bloom · 링크", "Bloom · Link"), Tr("링크 열지 않음", "Link not opened"), Tr("http·https 주소만 열 수 있습니다", "Only http and https addresses open")));
+            return;
+        }
         Win32.AllowSetForegroundWindow(-1);
-        if (Picked is { } b) Launch.Open(b.Exe, "\"" + url.Replace("\"", "%22") + "\"");
-        else Launch.Open(url);
+        // an escaped http(s) address starts with its scheme, never "-", and holds no quote: one argument to the browser
+        if (Picked is { } b && !address.StartsWith("mailto:", StringComparison.Ordinal)) Launch.Open(b.Exe, "\"" + address + "\"");
+        else Launch.Open(address);
     }
 
     public static string? HostOf(string url)

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Text;
+using Bloom.Core;
 
 namespace Bloom.Music;
 
@@ -37,8 +38,9 @@ internal static class M3u
     }
 
     /// The songs the text names: a full path, one relative to `baseDir` (the list's folder), or a file:// address. A
-    /// line is a song only through AudioFiles.Resolve — a web address, a program or a script in a list plays nothing.
-    public static List<Track> Parse(string text, string? baseDir)
+    /// line is a song only through AudioFiles.Resolve — a web address, a program or a script in a list plays nothing,
+    /// nor a song on a share other than the list's own (Reachable) unless `anyShare` (Bloom's own lists).
+    public static List<Track> Parse(string text, string? baseDir, bool anyShare = false)
     {
         var list = new List<Track>();
         string title = "", artist = "";
@@ -53,12 +55,29 @@ internal static class M3u
                 continue;
             }
             if (line[0] == '#') continue;
-            if (Where(line, baseDir) is { } path && AudioFiles.Resolve(path) is { } full)
+            if (Where(line, baseDir) is { } path && AudioFiles.Resolve(path) is { } full && (anyShare || Reachable(full, baseDir)))
                 list.Add(new Track(full, title.Length > 0 ? title : Path.GetFileNameWithoutExtension(full), artist, seconds));
             title = artist = "";
             seconds = 0;
         }
         return list;
+    }
+
+    /// A song on another computer only from a list that lives on that same share (DocLink.Picture's rule): playing it, or
+    /// only looking for it, makes Windows sign in to that host, so a downloaded list never names one. Nothing here touches
+    /// the disk.
+    internal static bool Reachable(string full, string? baseDir)
+    {
+        if (!DocLink.IsNetwork(full)) return true;
+        if (baseDir is null || !DocLink.IsNetwork(baseDir)) return false;
+        try
+        {
+            return string.Equals(Path.GetPathRoot(full), Path.GetPathRoot(Path.GetFullPath(baseDir)), StringComparison.OrdinalIgnoreCase);
+        }
+        catch (Exception e) when (e is ArgumentException or NotSupportedException or PathTooLongException)
+        {
+            return false;
+        }
     }
 
     /// `#EXTINF:` 's rest: "<seconds>[ attributes],<artist> - <title>" (or just the title).
