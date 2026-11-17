@@ -2870,3 +2870,7 @@ a line break	改行
 a control character	制御
 This command passes {0} to another program, which can't take {1}. Remove it and run again.	このコマンドは{0}を別のプログラムに渡すため、{1}文字を使えません。この文字を削除して再試行してください。
 This command passes {0} to another program, so it can't end in \\. Remove the final \\ and run again.	このコマンドは{0}を別のプログラムに渡すため、末尾を \\ にできません。末尾の \\ を削除して再試行してください。
+This file runs when opened (a program, a script or a shortcut).	このファイルは開くと実行されます (プログラム・スクリプト・ショートカット)。
+(nothing in Bloom answers it)	(Bloom に該当する項目がありません)
+Runs	実行する項目
+Run a file: {0}	ファイルを実行: {0}
