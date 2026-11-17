@@ -119,6 +119,42 @@ internal sealed class ChatView : Grid, IComposerHost
         return chip;
     }
 
+    /// 열기 on a file the AI made: a document opens; a file that would run something (a script, a program, a shortcut) is
+    /// only shown in its folder, so a single click never runs what the AI wrote.
+    private static void OpenMade(string path)
+    {
+        if (!RunnableFiles.Is(path))
+        {
+            Launch.Open(path);
+            return;
+        }
+        Launch.Reveal(path);
+        Notices.Result(false, Tr("Bloom · AI 파일", "Bloom · AI file"), Tr($"‘{Path.GetFileName(path)}’ 폴더에서 표시", $"Showing ‘{Path.GetFileName(path)}’ in its folder"),
+            Tr("열면 실행되는 파일이라 바로 열지 않습니다. 내용을 확인한 뒤 직접 여세요.", "Opening this file would run it. Check it first, then open it yourself."));
+    }
+
+    /// A link in an AI answer: a web address in the browser, a file or folder on this PC shown in its folder (never run);
+    /// a path on another computer is refused without looking at it (Windows would sign in there with the user's account),
+    /// and every other address goes to Web.Open, which refuses it.
+    private static void FollowLink(string url)
+    {
+        var (kind, target) = DocLink.Resolve(url, null);
+        if (kind == DocLink.Kind.Web || (kind == DocLink.Kind.None && !url.TrimStart().StartsWith('#')))
+        {
+            Browser.Web.Open(kind == DocLink.Kind.Web ? target : url);
+            return;
+        }
+        if (kind == DocLink.Kind.None) return;
+        if (DocLink.IsNetwork(target))
+        {
+            Log.Write("chat: refused a link to another computer");
+            Notices.Result(false, Tr("Bloom · 링크", "Bloom · Link"), Tr("링크 열지 않음", "Link not opened"), Tr("다른 컴퓨터의 파일 링크는 열지 않습니다", "Links to files on other computers don't open"));
+            return;
+        }
+        if (File.Exists(target) || Directory.Exists(target)) Launch.Reveal(target);
+        else Notices.Result(false, Tr("Bloom · 링크", "Bloom · Link"), Tr($"‘{Path.GetFileName(target)}’ 파일 없음", $"‘{Path.GetFileName(target)}’ isn't there"), null);
+    }
+
     /// A file the AI made: a card with 열기 · 저장 · 폴더.
     private static FrameworkElement MadeFile(string path)
     {
@@ -135,7 +171,7 @@ internal sealed class ChatView : Grid, IComposerHost
         Grid.SetColumn(text, 1);
         g.Children.Add(text);
         var acts = new StackPanel { Orientation = Orientation.Horizontal, VerticalAlignment = VerticalAlignment.Center };
-        acts.Children.Add(Small(Tr("열기", "Open"), () => Launch.Open(path)));
+        acts.Children.Add(Small(Tr("열기", "Open"), () => OpenMade(path)));
         acts.Children.Add(Small(Tr("저장…", "Save…"), () => SaveCopy(path)));
         acts.Children.Add(Small(Tr("폴더", "Folder"), () => Launch.Reveal(path)));
         Grid.SetColumn(acts, 2);
@@ -430,7 +466,7 @@ internal sealed class ChatView : Grid, IComposerHost
             {
                 answer.Children.Add(ReadText.Plain(m.Text, 13.5, Theme.Regular, Theme.P.Danger));
             }
-            else answer.Children.Add(Markdown.Render(m.Text, url => Browser.Web.Open(url)));
+            else answer.Children.Add(Markdown.Render(m.Text, FollowLink));
         }
         if (m.Files is { Count: > 0 } made)
             foreach (string f in made) answer.Children.Add(MadeFile(f));

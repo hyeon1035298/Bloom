@@ -72,8 +72,21 @@ internal static class Playlists
         }
     }
 
-    /// The songs of a list file (what it names that is an audio file), or null when it cannot be read.
-    public static List<Track>? Read(string path) => Text(path) is { } text ? M3u.Parse(text, Path.GetDirectoryName(path)) : null;
+    /// The songs of a list file (what it names that is an audio file), or null when it cannot be read. Bloom's own lists
+    /// keep songs on any share (Save wrote them from songs the user played); another list only those on its own share.
+    public static List<Track>? Read(string path) => Text(path) is { } text ? M3u.Parse(text, Path.GetDirectoryName(path), IsOwn(path)) : null;
+
+    private static bool IsOwn(string path)
+    {
+        try
+        {
+            return string.Equals(Path.GetDirectoryName(Path.GetFullPath(path)), Path.GetFullPath(Folder), StringComparison.OrdinalIgnoreCase);
+        }
+        catch (Exception e) when (e is ArgumentException or NotSupportedException or PathTooLongException)
+        {
+            return false;
+        }
+    }
 
     /// To the Recycle Bin.
     public static bool Delete(Saved list) => Native.ShellFiles.Recycle(list.Path, IntPtr.Zero);

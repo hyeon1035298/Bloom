@@ -321,7 +321,8 @@ internal static class Markdown
 
     private static Hyperlink Link(string url, Action<string> openLink)
     {
-        var h = new Hyperlink { Foreground = Theme.P.AccentText, TextDecorations = null, Cursor = Cursors.Hand };
+        // the target as a tooltip: a link's text can name one place and go to another
+        var h = new Hyperlink { Foreground = Theme.P.AccentText, TextDecorations = null, Cursor = Cursors.Hand, ToolTip = url };
         h.Click += (_, _) => openLink(url);
         h.MouseEnter += (_, _) => h.TextDecorations = TextDecorations.Underline;
         h.MouseLeave += (_, _) => h.TextDecorations = null;
