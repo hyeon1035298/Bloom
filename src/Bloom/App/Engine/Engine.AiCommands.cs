@@ -49,6 +49,7 @@ internal sealed partial class Engine
     {
         c.Input = input;
         c.Every = every.Length > 0 ? every : null;
+        c.Paused = edit is not null && edit.Every == c.Every && edit.Paused;
         c.LastRun = edit is not null && edit.Every == c.Every ? edit.LastRun : DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
     }
 
@@ -73,6 +74,20 @@ internal sealed partial class Engine
                 StayOpen = true,
                 Run = () => host.Window.StartForm(ScheduleForm(c)),
             });
+        if (c.Every is not null && c.Paused)
+            list.Add(new ActionItem
+            {
+                Title = Tr("주기 실행 켜기", "Turn the schedule on"),
+                Glyph = G.Clock,
+                StayOpen = true,
+                Run = () =>
+                {
+                    c.Paused = false;
+                    c.LastRun = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(); // the first run is one interval on
+                    UserCommands.Upsert(c);
+                    host.Window.ShowToast(AiSchedule.Name(c.Every!) + " · " + NextRunText(c));
+                },
+            });
         if (c.Every is not null)
             list.Add(new ActionItem
             {
@@ -82,6 +97,7 @@ internal sealed partial class Engine
                 Run = () =>
                 {
                     c.Every = null;
+                    c.Paused = false;
                     UserCommands.Upsert(c);
                     host.Window.ShowToast(Tr("주기 실행 끔", "Schedule off"));
                 },
@@ -97,6 +113,7 @@ internal sealed partial class Engine
         {
             string every = form[0];
             c.Every = every.Length > 0 ? every : null;
+            c.Paused = false; // a schedule typed here is the user's own
             c.LastRun = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
             UserCommands.Upsert(c);
             host.Window.Go(Mode.Commands);

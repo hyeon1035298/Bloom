@@ -29,7 +29,7 @@ internal sealed partial class Host
         ArmSchedule();
     }
 
-    private static bool Scheduled(UserCommand c) => c.IsAi && c.Every is not null && c.Input == AiInput.None;
+    private static bool Scheduled(UserCommand c) => c.IsAi && !c.Paused && c.Every is not null && c.Input == AiInput.None;
 
     /// The timer waits for the earliest run (none scheduled: it stops).
     private void ArmSchedule()
