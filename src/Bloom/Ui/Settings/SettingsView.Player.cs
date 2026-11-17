@@ -36,9 +36,12 @@ internal sealed partial class SettingsView
         if (way == PlayerWays.Jriver || s.JriverAddress.Length > 0 || s.JriverUser.Length > 0 || password)
         {
             string address = string.IsNullOrWhiteSpace(s.JriverAddress) ? Mcws.DefaultAddress : s.JriverAddress;
-            Add(Tr("JRiver 주소", "JRiver address"), Tr($"{address} · JRiver의 Media Network(웹 서비스)가 켜져 있어야 합니다 · 클릭하여 바꾸기", $"{address} · JRiver's Media Network (the web service) must be on · click to change"), null, G.Link, () => EditJriver("address"), null, filter);
+            // plain http to another PC (a LAN setup is allowed): the password goes unencrypted, said on the rows it concerns
+            string clear = Mcws.PasswordInClear(s.JriverAddress) ? " · " + Tr("주의: http라서 비밀번호가 암호화되지 않은 채 네트워크로 전송됩니다. https 주소를 권장합니다", "Warning: over http the password goes over the network unencrypted. Use an https address") : "";
+            Add(Tr("JRiver 주소", "JRiver address"), Tr($"{address} · JRiver의 Media Network(웹 서비스)가 켜져 있어야 합니다 · 클릭하여 바꾸기", $"{address} · JRiver's Media Network (the web service) must be on · click to change") + clear, null, G.Link, () => EditJriver("address"), null, filter);
             Add(Tr("JRiver 사용자", "JRiver user"), s.JriverUser.Length == 0 ? Tr("없음 · JRiver에 사용자 이름과 비밀번호를 정했을 때만 필요 · 클릭하여 입력", "None · only needed when JRiver was given a user name and password · click to enter") : Tr($"{s.JriverUser} · 클릭하여 바꾸기", $"{s.JriverUser} · click to change"), null, G.Lock, () => EditJriver("user"), null, filter);
             string passwordState = collected is not null ? "" : password ? Tr("저장됨 · 이 PC에만 암호화 · JRiver에 보내는 요청에만 사용 · 클릭하여 바꾸기", "Saved · encrypted on this PC only · used only for requests to JRiver · click to change") : Tr("없음 · 클릭하여 입력", "None · click to enter");
+            if (password) passwordState += clear;
             Add(Tr("JRiver 비밀번호", "JRiver password"), passwordState, null, G.Lock, () => EditJriver("password"), null, filter);
         }
         if (way == PlayerWays.Foobar) ProgramRow(PlayerWays.Foobar, "foobar2000", s.FoobarPath, filter);

@@ -70,8 +70,13 @@ internal static class SettingsTransfer
     /// for the user when the file is not a Bloom settings file; returns the names of the files that were replaced.
     public static List<string> Import(string path) => Import(path, null);
 
+    /// The same, and what came in from the lists that run things (the message after the import).
+    public static List<string> Import(string path, out ImportCounts counts) => Import(path, null, out counts);
+
     /// An explicit timestamp lets recovery tests exercise same-second imports without depending on wall-clock timing.
-    internal static List<string> Import(string path, DateTime? backupTimestamp)
+    internal static List<string> Import(string path, DateTime? backupTimestamp) => Import(path, backupTimestamp, out _);
+
+    private static List<string> Import(string path, DateTime? backupTimestamp, out ImportCounts counts)
     {
         using var zip = ZipFile.OpenRead(path);
         if (zip.GetEntry(Manifest) is not { } m) throw Invalid(Tr("Bloom 설정 파일이 아닙니다. Bloom에서 내보낸 파일을 선택하세요.", "Not a Bloom settings file. Choose a file exported from Bloom."));
@@ -91,6 +96,17 @@ internal static class SettingsTransfer
         }
         if (incoming.Count == 0) throw Invalid(Tr("설정이 없는 파일입니다. Bloom에서 내보낸 파일을 선택하세요.", "No settings in this file. Choose a file exported from Bloom."));
         if (incoming.TryGetValue("settings.json", out string? settings)) incoming["settings.json"] = KeepLocal(settings);
+
+        // scheduled AI commands come in paused: a file from elsewhere must not make the AI run by itself
+        int paused = 0;
+        if (incoming.TryGetValue("usercommands.json", out string? commandsText))
+        {
+            var commands = (JsonObject)JsonNode.Parse(commandsText)!;
+            paused = ImportCounts.PauseScheduled(commands);
+            incoming["usercommands.json"] = commands.ToJsonString(new JsonSerializerOptions { WriteIndented = true });
+        }
+        JsonObject? Node(string f) => incoming.TryGetValue(f, out string? t) ? JsonNode.Parse(t) as JsonObject : null;
+        counts = ImportCounts.Of(Node("usercommands.json"), Node("favorites.json"), Node("quicklinks.json"), paused);
 
         string backup = Paths.In(Path.Combine("backups", (backupTimestamp ?? DateTime.Now).ToString("yyyyMMdd-HHmmss") + "-" + Guid.NewGuid().ToString("N")));
         Directory.CreateDirectory(backup);

@@ -11,7 +11,8 @@ namespace Bloom.App;
 
 /// 설정 > 정보 > 문제 보고: the facts a bug report needs (version, Windows, language, drawing mode, features off, the end
 /// of the log) as text to paste into a GitHub issue. Who the user is stays out of it: the profile folder, the user name,
-/// the PC's name and e-mail addresses are replaced before the text leaves this class. Bloom sends nothing itself: the text
+/// the PC's name and e-mail addresses are replaced before the text leaves this class, and ReportMask shortens the other
+/// paths and URLs and drops key-like tokens. Bloom sends nothing itself: the text
 /// goes to the clipboard and the issue page opens.
 internal static class ProblemReport
 {
@@ -38,7 +39,7 @@ internal static class ProblemReport
         text.AppendLine("```");
         text.AppendLine(LogTail(Paths.In("log.txt"), LogLines));
         text.AppendLine("```");
-        return Mask(text.ToString(), Paths.Home, Environment.UserName, Environment.MachineName);
+        return ReportMask.Apply(Mask(text.ToString(), Paths.Home, Environment.UserName, Environment.MachineName));
     }
 
     /// The last `lines` lines of the log ("" when there is none). Read in one pass while Log may be appending.

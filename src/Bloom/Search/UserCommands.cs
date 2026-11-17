@@ -21,6 +21,7 @@ internal sealed class UserCommand
     public bool ShowWindow { get; set; } // script: in a console window (else hidden; the result comes as a notice)
     public string Input { get; set; } = AiInput.Selection; // ai: what the prompt works on (AiInput)
     public string? Every { get; set; } // ai: how often it runs by itself (AiSchedule: "30m", "2h", "3d", "daily 09:00"); null = only when run
+    public bool Paused { get; set; } // ai, scheduled: the schedule is kept but does not run (set on import: a file from elsewhere must not start runs by itself)
     public long LastRun { get; set; } // ai, scheduled: when it last ran on its own, or when the schedule was set (unix ms)
     public string? Thread { get; set; } // ai, scheduled: the AI chat its results go into
 
