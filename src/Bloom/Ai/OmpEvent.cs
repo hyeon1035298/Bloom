@@ -6,8 +6,9 @@ namespace Bloom.Ai;
 
 /// What one line of omp's rpc output means for a chat. CompactStart/CompactEnd: omp's own (automatic) tidying of the model's memory; Compacted/CompactFailed: the answer to the rpc
 /// `compact` Bloom sent; CommandOutput: what a builtin slash command printed; LocalDone: such a command finished without a turn
-/// (no prompt_result follows); Usage: a get_state answer with the context numbers (SessionId carries them too).
-internal enum OmpKind { None, Delta, Status, StatusClear, SessionId, TurnEnded, CompactStart, CompactEnd, Compacted, CompactFailed, CommandOutput, LocalDone, Usage }
+/// (no prompt_result follows); Usage: a get_state answer with the context numbers (SessionId carries them too); Retry: omp
+/// tries the failed answer again by itself (its auto_retry_start), so an error end just before it is not the end.
+internal enum OmpKind { None, Delta, Status, StatusClear, SessionId, TurnEnded, CompactStart, CompactEnd, Compacted, CompactFailed, CommandOutput, LocalDone, Usage, Retry }
 
 /// What the model holds now: `Tokens` is null when omp can't tell yet (right after a new session or a compaction).
 internal readonly record struct OmpUsage(long? Tokens, long Window)
@@ -70,8 +71,9 @@ internal readonly record struct OmpEvent(OmpKind Kind, string Text = "", bool Ok
     };
 
     /// One stdout line of `omp --mode rpc`. Frames Bloom does not use (ready, events of the agent's inner turns, extension
-    /// frames) are OmpKind.None. A turn ends with its `prompt_result`: completed and aborted (the user's stop: the text so
-    /// far stays) are fine, anything else is an error with omp's own words.
+    /// frames) are OmpKind.None. A turn ends with its `agent_end` (omp 18; earlier ones sent a `prompt_result` too): the
+    /// last answer's stopReason "error" is an error with omp's own words (Detail "agent_end": omp may still retry it),
+    /// anything else, the user's stop included (the text so far stays), is fine.
     public static OmpEvent Parse(string line)
     {
         if (line.Length == 0 || line[0] != '{') return default;
@@ -91,6 +93,17 @@ internal readonly record struct OmpEvent(OmpKind Kind, string Text = "", bool Ok
                     return default;
                 case "tool_execution_start":
                     return new OmpEvent(OmpKind.Status, ToolStatus(Str(r, "toolName")));
+                case "agent_end":
+                    {
+                        string fail = "";
+                        if (r.TryGetProperty("messages", out var msgs) && msgs.ValueKind == JsonValueKind.Array)
+                            foreach (var m in msgs.EnumerateArray())
+                                if (Str(m, "role") == "assistant")
+                                    fail = Str(m, "stopReason") == "error" ? Str(m, "errorMessage") is { Length: > 0 } em ? em : "error" : "";
+                        return fail.Length == 0 ? new OmpEvent(OmpKind.TurnEnded) : new OmpEvent(OmpKind.TurnEnded, fail, false, Detail: "agent_end");
+                    }
+                case "auto_retry_start":
+                    return new OmpEvent(OmpKind.Retry, Tr("다시 시도하는 중…", "Trying again…"));
                 case "prompt_result":
                     string status = Str(r, "status");
                     if (status is "completed" or "aborted") return new OmpEvent(OmpKind.TurnEnded);

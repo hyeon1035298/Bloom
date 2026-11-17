@@ -2874,3 +2874,5 @@ This file runs when opened (a program, a script or a shortcut).	このファイ�
 (nothing in Bloom answers it)	(Bloom に該当する項目がありません)
 Runs	実行する項目
 Run a file: {0}	ファイルを実行: {0}
+Trying again…	再試行しています…
+This account can't use the chosen model. Pick another model and send again.	このアカウントでは選んだモデルを使えません。別のモデルを選んでもう一度送信してください。
