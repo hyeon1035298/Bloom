@@ -143,8 +143,8 @@ internal static class ClaudeApprovals
     private static string? Folder(string? path) => string.IsNullOrEmpty(path) ? null : Path.GetFileName(path.TrimEnd('\\', '/'));
 
     /// What the hook carried: the Claude Code process that asks, its session, the tool, the whole of what it would do
-    /// (Body: the tool's first text — a command, a file, an address — then its other fields as "name: value") and its
-    /// folder.
+    /// (Body: every field of the call as "name: value", made visible by ToolText so no control or format character and no
+    /// line separator but \n is left in it) and its folder.
     internal sealed record Request(int Pid, string Session, string Tool, string Body, string? Cwd)
     {
         public const int MaxLines = 8, MaxChars = 600;
@@ -153,7 +153,7 @@ internal static class ClaudeApprovals
         public IReadOnlyList<CardQuestion>? Questions { get; init; }
 
         /// The whole request fits on a card: questions are shown whole as their choices.
-        public bool Fits => Questions is not null || (Body.Length <= MaxChars && Body.Split('\n').Length <= MaxLines);
+        public bool Fits => Questions is not null || (Body.Length <= MaxChars && ToolText.Lines(Body) <= MaxLines);
 
         /// {"pid": n, "input": "<the hook's JSON>"} → the request; null for anything else.
         public static Request? Parse(string line)
@@ -172,19 +172,14 @@ internal static class ClaudeApprovals
                 {
                     if (input.ValueKind != JsonValueKind.Object) lines.Add(input.GetRawText());
                     else
-                    {
-                        var fields = input.EnumerateObject().ToList();
-                        int first = fields.FindIndex(x => x.Value.ValueKind == JsonValueKind.String);
-                        if (first >= 0) lines.Add(fields[first].Value.GetString()!);
-                        for (int f = 0; f < fields.Count; f++)
-                            if (f != first) lines.Add($"{fields[f].Name}: {(fields[f].Value.ValueKind == JsonValueKind.String ? fields[f].Value.GetString() : fields[f].Value.GetRawText())}");
-                    }
+                        foreach (var field in input.EnumerateObject()) // each under its name: a description can't pass for the command
+                            lines.Add($"{field.Name}: {(field.Value.ValueKind == JsonValueKind.String ? field.Value.GetString() : field.Value.GetRawText())}");
                 }
                 string tool = Str(r, "tool_name") ?? "?";
                 var questions = tool == "AskUserQuestion" && r.TryGetProperty("tool_input", out var asked) ? CardQuestions.Parse(asked) : null;
                 if (questions is not null) // the questions in words, for the log and the tooltip (the card shows them as choices)
                     lines = questions.Select(q => (q.Header.Length > 0 ? $"[{q.Header}] " : "") + q.Text + "\n" + string.Join("\n", q.Choices.Select(c => "· " + c.Label))).ToList();
-                string body = string.Join("\n", lines).Replace("\r\n", "\n", StringComparison.Ordinal).Trim();
+                string body = ToolText.Visible(string.Join("\n", lines)).Trim();
                 return new Request(pid, Str(r, "session_id") ?? "", tool, body, Str(r, "cwd")) { Questions = questions };
             }
             catch (JsonException)

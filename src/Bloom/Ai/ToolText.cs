@@ -29,6 +29,17 @@ internal static class ToolText
         return sb.ToString();
     }
 
+    /// How many lines `text` makes when every line separator counts: \n, a lone \r (CRLF once), \v, \f, U+0085, U+2028
+    /// and U+2029.
+    public static int Lines(string text)
+    {
+        int lines = 1;
+        for (int i = 0; i < text.Length; i++)
+            if (text[i] is '\n' or '\v' or '\f' or '\u0085' or '\u2028' or '\u2029' || (text[i] == '\r' && (i + 1 == text.Length || text[i + 1] != '\n')))
+                lines++;
+        return lines;
+    }
+
     /// The most characters of a call's arguments an approval card is made for: a call with more is refused (ApiToolbox) or
     /// declined (Chats.Asked) rather than asked about with part of it hidden. The card scrolls what it shows.
     public const int MaxPayload = 200_000;

@@ -330,6 +330,7 @@ internal sealed class NoticeWindow : Window
         var title = Theme.T(n.Title, 14, Theme.P.Text, Theme.Medium); // one line each, then … (the tooltip has it all)
         title.Margin = new Thickness(0, 3, 0, 0);
         text.Children.Add(title);
+        // the body (an approval's command) scrolls past BodyHeight: however it wraps, the card's buttons stay on the screen
         if (n.Body is { Length: > 0 } body && n.Questions is null)
             text.Children.Add(new SmoothBorder
             {
@@ -337,7 +338,15 @@ internal sealed class NoticeWindow : Window
                 CornerRadius = new CornerRadius(7),
                 Padding = new Thickness(8, 5, 8, 6),
                 Margin = new Thickness(0, 6, 0, 0),
-                Child = new TextBlock { Text = body, TextWrapping = TextWrapping.Wrap, FontFamily = Theme.Mono, FontSize = 12, Foreground = Theme.P.Text },
+                Child = new ScrollViewer
+                {
+                    Content = new TextBlock { Text = body, TextWrapping = TextWrapping.Wrap, FontFamily = Theme.Mono, FontSize = 12, LineHeight = BodyLine, Foreground = Theme.P.Text },
+                    MaxHeight = BodyHeight,
+                    VerticalScrollBarVisibility = ScrollBarVisibility.Auto,
+                    HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled,
+                    Focusable = false,
+                    Template = Launcher.ThinScroll(),
+                },
             });
         if (n.Detail is { Length: > 0 } d)
         {
@@ -386,6 +395,9 @@ internal sealed class NoticeWindow : Window
             ToolTip = n.Questions is not null ? null : (n.Detail is { Length: > 0 } ? $"{n.Title}\n{n.Detail}" : n.Title) + (n.Body is { Length: > 0 } ? "\n" + n.Body : "") + (n.Click is null ? "" : "\n" + (n.Kind == "windows" ? Tr("클릭하면 Windows 알림 센터를 엽니다", "Click to open Windows' notification center") : Tr("클릭하면 세션 창으로 이동합니다", "Click to go to the session window"))),
         };
     }
+
+    /// A body's line, and the ten of them it shows before it scrolls.
+    private const double BodyLine = 16, BodyHeight = 10 * BodyLine;
 
     /// 진행 중 · 작업 완료 in the accent, 승인 대기 in tangerine, 한도 in red, 복구 in mint.
     public static Color Tint(string kind) => kind switch

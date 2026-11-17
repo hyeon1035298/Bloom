@@ -2861,3 +2861,5 @@ Imported: {0} commands, {1} favorites, {2} quick searches.	読み込んだ項目
 Turn the schedule on	スケジュール実行をオンにする
  (paused)	 (停止中)
 Warning: over http the password goes over the network unencrypted. Use an https address	注意: http のため、パスワードは暗号化されずにネットワークへ送られます。https のアドレスをおすすめします
+What to read	読み取る内容
+Open a page on {0}: {1}	{0} のページを開く: {1}
