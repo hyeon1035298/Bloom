@@ -55,10 +55,10 @@ internal sealed partial class Host
         try
         {
             SaveAll();
-            var files = SettingsTransfer.Import(dlg.FileName);
+            var files = SettingsTransfer.Import(dlg.FileName, out var counts);
             Reload();
             Log.Write($"settings imported ({files.Count} files)");
-            Tell(owner, Tr("설정 불러오기 완료", "Settings imported"), Tr("기존 설정은 데이터 폴더에 백업되었습니다. AI 권한과 MCP 서버 선택은 이 PC의 설정을 그대로 유지했습니다.", "Previous settings backed up in the data folder. AI permissions and the MCP servers switched on were kept as they are on this PC."));
+            Tell(owner, Tr("설정 불러오기 완료", "Settings imported"), Tr("기존 설정은 데이터 폴더에 백업되었습니다. AI 권한과 MCP 서버 선택은 이 PC의 설정을 그대로 유지했습니다.", "Previous settings backed up in the data folder. AI permissions and the MCP servers switched on were kept as they are on this PC.") + ImportedLists(counts));
             if (Lang.Pending(Settings.Current.Language)
                 && ConfirmWindow.Ask(owner, Tr("Bloom 다시 시작", "Restart Bloom"), Tr("불러온 언어를 적용하려면 Bloom을 다시 시작해야 합니다.", "Restart Bloom to apply the imported language."),
                     (Tr("다시 시작", "Restart"), MessageBoxResult.Yes), (Tr("나중에", "Later"), MessageBoxResult.No)) == MessageBoxResult.Yes)
@@ -75,6 +75,15 @@ internal sealed partial class Host
             Tell(owner, Tr("설정 불러오기 실패", "Settings import failed"), reason);
             return false;
         }
+    }
+
+    /// What came in from the lists that run things, and that scheduled AI commands wait paused ("" when none came).
+    private static string ImportedLists(ImportCounts c)
+    {
+        if (c.Commands + c.Favorites + c.Quicklinks == 0) return "";
+        string text = "\n\n" + Tr($"불러온 항목: 내 명령 {c.Commands}개, 즐겨찾기 {c.Favorites}개, 퀵 검색 {c.Quicklinks}개.", $"Imported: {c.Commands} commands, {c.Favorites} favorites, {c.Quicklinks} quick searches.");
+        if (c.Paused > 0) text += " " + Tr($"주기가 있는 AI 명령 {c.Paused}개는 멈춘 상태로 들어왔습니다. 내 명령에서 ‘주기 실행 켜기’를 고르면 다시 실행됩니다.", $"{c.Paused} scheduled AI commands came in paused. Choose ‘Turn the schedule on’ in a command's actions to run it again.");
+        return text;
     }
 
     /// 설정 > 데이터 > Bloom 초기화: asked once (설정 내보내기 후 초기화 · 초기화 · 취소, 취소 the default). Then what Bloom put

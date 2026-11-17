@@ -2856,3 +2856,8 @@ Bloom · AI file	Bloom · AI ファイル
 Showing ‘{0}’ in its folder	「{0}」をフォルダーで表示
 Opening this file would run it. Check it first, then open it yourself.	開くと実行されるファイルのため、すぐには開きません。内容を確認してから自分で開いてください。
 Links to files on other computers don't open	ほかのコンピューターのファイルへのリンクは開きません
+Imported: {0} commands, {1} favorites, {2} quick searches.	読み込んだ項目: コマンド {0} 件、お気に入り {1} 件、クイック検索 {2} 件。
+{0} scheduled AI commands came in paused. Choose ‘Turn the schedule on’ in a command's actions to run it again.	スケジュール付きの AI コマンド {0} 件は停止した状態で読み込まれました。コマンドの操作から「スケジュール実行をオンにする」を選ぶと再び実行されます。
+Turn the schedule on	スケジュール実行をオンにする
+ (paused)	 (停止中)
+Warning: over http the password goes over the network unencrypted. Use an https address	注意: http のため、パスワードは暗号化されずにネットワークへ送られます。https のアドレスをおすすめします

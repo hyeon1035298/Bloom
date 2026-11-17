@@ -106,6 +106,10 @@ internal static class Mcws
         return $"{uri.Scheme}://{uri.Authority}{path}/MCWS/v1/";
     }
 
+    /// True when the password would cross the network unencrypted: a plain http address whose host is not this PC.
+    public static bool PasswordInClear(string? address) =>
+        Base(address) is { } b && Uri.TryCreate(b, UriKind.Absolute, out var uri) && uri.Scheme == "http" && !uri.IsLoopback;
+
     /// The request's address: `endpoint` after the base, the parameters escaped, the zone always the active one.
     public static string Url(string baseUrl, string endpoint, params (string name, string value)[] parameters)
     {

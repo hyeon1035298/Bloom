@@ -38,7 +38,7 @@ internal sealed partial class Engine
         {
             "snippet" => UserCommands.SnippetText(c.Body).Replace('\n', ' '),
             "chain" => string.Join("  →  ", UserCommands.Steps(c.Body)),
-            "ai" => AiInput.Name(c.Input) + (c.Every is { } every ? " · " + AiSchedule.Name(every) : "") + " · " + string.Join("  →  ", AiCommandRun.Split(c.Body)),
+            "ai" => AiInput.Name(c.Input) + (c.Every is { } every ? " · " + AiSchedule.Name(every) + (c.Paused ? Tr(" (멈춤)", " (paused)") : "") : "") + " · " + string.Join("  →  ", AiCommandRun.Split(c.Body)),
             _ => c.Body.Replace(Paths.Home, "~", StringComparison.OrdinalIgnoreCase),
         };
         var item = new ResultItem
