@@ -2861,3 +2861,5 @@ Imported: {0} commands, {1} favorites, {2} quick searches.	已导入的项目: �
 Turn the schedule on	开启定时运行
  (paused)	 (已暂停)
 Warning: over http the password goes over the network unencrypted. Use an https address	注意: 使用 http 时，密码会以未加密的方式通过网络传输。建议使用 https 地址
+What to read	要读取的内容
+Open a page on {0}: {1}	打开 {0} 上的页面: {1}

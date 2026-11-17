@@ -38,6 +38,7 @@ internal sealed class ChatThread
     public string? SessionId { get; set; }
     public string? SessionProvider { get; set; } // whose session SessionId is (null: claude, older files)
     public string? SessionAccount { get; set; } // the AiAccount it lives in (null: the default one, older files)
+    public bool SessionInFolder { get; set; } // a Claude session made in the chat's own folder (false: in ai\ itself, older files)
     public long Created { get; set; }
     public long Updated { get; set; }
     public string? Group { get; set; } // ChatGroup.Id; null = not in a group
@@ -300,6 +301,11 @@ internal sealed partial class Chats
                 session = SessionFor(t, out string? resume, out bool fresh, out bool start);
                 if (!Current()) return Task.FromResult(new SessionStart(false));
                 var preStarted = TakeWarm(t, session);
+                if (preStarted?.InitId is not null)
+                {
+                    t.SessionInFolder = session is ClaudeSession { InFolder: true }; // the id it kept: where that process runs goes with it
+                    Save(t);
+                }
                 if (fresh && !slash) prompt = Earlier(t) + prompt; // a slash command is read by omp only at the very start of the message
                 turnStarted[t.Id] = DateTime.UtcNow.AddSeconds(-1);
                 if (Settings.Current.AiTitles && !slash) leads[t.Id] = new ChatTitles.Lead();
@@ -397,8 +403,13 @@ internal sealed partial class Chats
         return shown;
     }
 
-    /// The thread's folder as the sessions see it (relative to Local\ai) and on disk.
-    public static string FilesRel(ChatThread t) => "files/" + t.Id;
+    /// The thread's folder as the sessions see it (relative to Local\ai; "." for a Claude CLI run in it) and on disk.
+    public static string FilesRel(ChatThread t) => ClaudeInFolder(t) ? "." : "files/" + t.Id;
+
+    /// A Claude chat runs its CLI in its own folder, where nothing of the other chats can be read without a card. A
+    /// session made in ai\ itself before is resumed there: Claude Code finds a session by the folder it began in.
+    public static bool ClaudeInFolder(ChatThread t) =>
+        AiModels.Provider(t.Model) == "claude" && (t.SessionInFolder || ResumeFor(t, "claude", AiAccounts.Chat("claude").Id) is null);
 
     public static string FilesDir(ChatThread t) => Path.Combine(Paths.Local, "ai", "files", t.Id);
 
@@ -502,7 +513,7 @@ internal sealed partial class Chats
             : provider == "api" ? new ApiSession(t.Model, effort, t.Id, ApiSession.Past(t.Messages), UnavailableNote(), ThreadFiles(t))
             : provider == "omp" ? new OmpSession(t.Model, effort, t.Id)
             : provider == "chatgpt" ? ChatGptSession(t, effort, account.Home)
-            : new ClaudeSession(t.Model, effort, FilesRel(t), "Bloom · " + (t.Messages.Count > 0 ? (t.Title.Length > 40 ? t.Title[..40] + "…" : t.Title) : Tr("새 대화", "New chat"))) { AccountHome = account.Home };
+            : new ClaudeSession(t.Model, effort, FilesRel(t), "Bloom · " + (t.Messages.Count > 0 ? (t.Title.Length > 40 ? t.Title[..40] + "…" : t.Title) : Tr("새 대화", "New chat"))) { AccountHome = account.Home, Folder = ClaudeInFolder(t) ? ThreadFiles(t) : null };
         // a session lives in its account's folder: under another account it starts fresh, with the chat so far given to it;
         // an API session always starts from the saved chat itself (ApiSession.Past), so it is neither resumed nor told it
         bool api = provider == "api";
@@ -523,6 +534,7 @@ internal sealed partial class Chats
             t.SessionId = id;
             t.SessionProvider = provider;
             t.SessionAccount = account.Id;
+            t.SessionInFolder = s is ClaudeSession { InFolder: true };
             Save(t);
         });
         void Append(string d)
@@ -878,8 +890,24 @@ internal sealed partial class Chats
             await output.ConfigureAwait(false);
             await jsonDeleted.ConfigureAwait(false);
             await released.Task.ConfigureAwait(false);
-            try { if (Directory.Exists(folder)) Directory.Delete(folder, true); }
-            catch (Exception e) when (e is IOException or UnauthorizedAccessException) { Log.Error("delete chat files", e); }
+            // a Claude CLI runs in the folder: until its process has ended (Dispose gives it 3 s) the folder can't go
+            for (int tries = 1; ; tries++)
+            {
+                try
+                {
+                    if (Directory.Exists(folder)) Directory.Delete(folder, true);
+                    break;
+                }
+                catch (Exception e) when (e is IOException or UnauthorizedAccessException)
+                {
+                    if (tries == 6)
+                    {
+                        Log.Error("delete chat files", e);
+                        break;
+                    }
+                    await Task.Delay(1000).ConfigureAwait(false);
+                }
+            }
         });
         CancelPreStart(t);
         bool removed = sessions.Remove(t.Id, out var s);

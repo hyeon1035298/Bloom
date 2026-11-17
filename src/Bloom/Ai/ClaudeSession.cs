@@ -13,9 +13,10 @@ namespace Bloom.Ai;
 
 /// One long-lived `claude -p` process per conversation, fed through stream-json on stdin.
 /// The context stays in the CLI session (nothing is re-sent each turn); the system prompt is
-/// replaced; the session loads no hooks and none of the user's MCP servers, and allows WebSearch / WebFetch and Read /
-/// Write inside this conversation's folder (ai\files\<thread>: attachments in in\, files it makes in out\). With
-/// PcTools on it also gets Bloom's own MCP tools; what would need a yes comes as a ToolAsk and waits for Answer.
+/// replaced; the session loads no hooks, none of the user's settings or MCP servers (ClaudeLaunch), runs in this
+/// conversation's folder (ai\files\<thread>: attachments in in\, files it makes in out\) and allows WebSearch, Read there
+/// and Write in out\. With PcTools on it also gets Bloom's own MCP tools; anything else (WebFetch, a file elsewhere, a
+/// tool) comes as a ToolAsk and waits for Answer.
 /// Effort "fast" turns thinking off; the other levels go to --effort. The user's own Claude login (OAuth) is used.
 internal sealed class ClaudeSession : IChatSession
 {
@@ -55,7 +56,14 @@ internal sealed class ClaudeSession : IChatSession
     private Func<string, string?>? doing;
     private string? mcpFile; // this session's --mcp-config file (its servers' env stays off the command line)
 
-    private readonly string files; // "files/<thread id>", relative to the working folder
+    private readonly string files; // the thread's folder relative to the working folder: "." in it, "files/<thread id>" in ai\
+
+    /// The conversation's own folder, which the CLI runs in; null: ai\ itself, for a session made there before (Claude
+    /// Code keeps sessions per working folder, so it is resumed where it began).
+    public string? Folder { get; init; }
+
+    /// Whether the CLI runs in the conversation's own folder (Chats keeps it with the session id).
+    public bool InFolder => Folder is not null;
     private readonly string name; // how Claude Code lists the running session ("Bloom · <title>"), not "ai-3f"
 
     public ClaudeSession(string model, string effort, string files, string name)
@@ -146,7 +154,7 @@ internal sealed class ClaudeSession : IChatSession
     {
         var pc = Settings.Current.AiTools ? PcTools?.Invoke() : null;
         doing = pc?.doing;
-        var plan = new Startup(Settings.Current.ClaudePath, Path.Combine(Paths.Local, "ai"),
+        var plan = new Startup(Settings.Current.ClaudePath, Folder ?? Path.Combine(Paths.Local, "ai"),
             SystemPrompt(files + "/out", pc: pc is not null, titles: Settings.Current.AiTitles),
             pc is { } tools ? JsonSerializer.SerializeToElement(tools.server) : null, PrepareMcp?.Invoke(), resume);
         return Task.Run(() =>
@@ -174,9 +182,10 @@ internal sealed class ClaudeSession : IChatSession
         cancellation.ThrowIfCancellationRequested();
         string cwd = plan.Cwd;
         Directory.CreateDirectory(cwd);
-        string work = Path.Combine(cwd, ".keep");
-        File.WriteAllText(work, "");
-        ClearOldMcpFiles(cwd);
+        if (Folder is null) File.WriteAllText(Path.Combine(cwd, ".keep"), "");
+        string mcpDir = ClaudeLaunch.McpDir;
+        ClearOldMcpFiles(mcpDir, TimeSpan.FromDays(1));
+        ClearOldMcpFiles(Path.Combine(Paths.Local, "ai"), TimeSpan.Zero); // where earlier versions wrote them, inside the CLIs' folder
         var psi = new ProcessStartInfo(cli)
         {
             UseShellExecute = false,
@@ -190,27 +199,22 @@ internal sealed class ClaudeSession : IChatSession
             WorkingDirectory = cwd,
         };
         bool fast = Effort == "fast" || !AiModels.HasEffort(Model);
-        // Read / Write reach this conversation's folder without asking; with Bloom's tools anything else is asked in
-        // the chat (--permission-prompt-tool stdio), without them it is refused
-        string allowed = $"WebSearch,WebFetch,Read(./{files}/**),Edit(./{files}/out/**)"; // Edit rules cover Write
-        foreach (string a in new[]
-        {
-            "-p", "--input-format", "stream-json", "--output-format", "stream-json", "--verbose", "--include-partial-messages",
-            "--model", Model, "--system-prompt", plan.Prompt,
-            "--tools", "WebSearch,WebFetch,Read,Write", "--allowedTools", allowed,
-            "--strict-mcp-config", "--disable-slash-commands", "--name", name,
-            "--settings", fast ? "{\"disableAllHooks\":true,\"alwaysThinkingEnabled\":false}" : "{\"disableAllHooks\":true}",
-        }) psi.ArgumentList.Add(a);
-        // Bloom's tool and the other servers switched on, in a file of this session's; every call asks in the chat
+        // Read / Write reach this conversation's folder without asking; anything else is asked in the chat
+        // (--permission-prompt-tool stdio)
+        foreach (string a in ClaudeLaunch.Args(Model, plan.Prompt, files, name, fast, ClaudeLaunch.UserSettings(AccountHome))) psi.ArgumentList.Add(a);
+        // Bloom's tool and the other servers switched on, in a file of this session's outside the CLI's folder; every
+        // call asks in the chat
         var servers = new Dictionary<string, object>();
         if (plan.Server is { } server) servers["bloom"] = server;
         foreach (var d in plan.ReadMcp?.Invoke() ?? new())
             servers.TryAdd(d.Name, d.Raw is { } raw ? raw : d.Stdio ? new { type = "stdio", command = d.Command, args = d.Args, env = d.Env } : new { type = "http", url = d.Url });
         if (servers.Count > 0)
         {
-            mcpFile = Path.Combine(cwd, $"mcp-{Guid.NewGuid():N}.json");
+            Directory.CreateDirectory(mcpDir);
+            mcpFile = Path.Combine(mcpDir, $"mcp-{Guid.NewGuid():N}.json");
             File.WriteAllText(mcpFile, JsonSerializer.Serialize(new { mcpServers = servers }));
-            foreach (string a in new[] { "--mcp-config", mcpFile, "--permission-prompt-tool", "stdio" }) psi.ArgumentList.Add(a);
+            psi.ArgumentList.Add("--mcp-config");
+            psi.ArgumentList.Add(mcpFile);
         }
         if (!fast)
         {
@@ -472,7 +476,7 @@ internal sealed class ClaudeSession : IChatSession
                 // a tool call that needs the user's yes; anything else (no hooks or SDK servers are set) gets an error
                 // back at once, so the CLI never waits on a reply that won't come
                 if (r.TryGetProperty("request", out var req) && Str(req, "subtype") == "can_use_tool")
-                    ToolAsked?.Invoke(new ToolAsk(Str(r, "request_id"), Str(req, "tool_name"), req.TryGetProperty("input", out var input) ? input.GetRawText() : "{}", ""));
+                    ToolAsked?.Invoke(ClaudeLaunch.Worded(new ToolAsk(Str(r, "request_id"), Str(req, "tool_name"), req.TryGetProperty("input", out var input) ? input.GetRawText() : "{}", "")));
                 else Reply(new { subtype = "error", request_id = Str(r, "request_id"), error = "Not supported by Bloom." });
                 break;
             case "control_cancel_request":
@@ -562,13 +566,14 @@ internal sealed class ClaudeSession : IChatSession
         }
     }
 
-    /// Session files a crash left behind (older than a day) go when the next session starts.
-    private static void ClearOldMcpFiles(string dir)
+    /// Session files a crash left behind (older than `age`) go when the next session starts.
+    private static void ClearOldMcpFiles(string dir, TimeSpan age)
     {
         try
         {
+            if (!Directory.Exists(dir)) return;
             foreach (string f in Directory.GetFiles(dir, "mcp-*.json"))
-                if (DateTime.UtcNow - File.GetLastWriteTimeUtc(f) > TimeSpan.FromDays(1)) TryDelete(f);
+                if (DateTime.UtcNow - File.GetLastWriteTimeUtc(f) >= age) TryDelete(f);
         }
         catch (Exception e) when (e is IOException or UnauthorizedAccessException)
         {
