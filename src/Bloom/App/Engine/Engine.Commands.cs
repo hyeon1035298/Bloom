@@ -29,6 +29,20 @@ internal sealed partial class Engine
         _ => G.Code,
     };
 
+    /// Runs a command from its row; a value it can't pass on safely (UserCommands.ScriptLine) comes back as a notice that
+    /// says which character to remove, and nothing runs.
+    private void RunMine(UserCommand c, string input, bool? show = null, bool admin = false)
+    {
+        try
+        {
+            host.RunMine(c, input, show, admin);
+        }
+        catch (CommandValueException e)
+        {
+            Notices.Result(false, Tr("사용자 명령 · 실패", "Custom command · Failed"), c.Name, e.Message, keep: true);
+        }
+    }
+
     public ResultItem FromCommand(UserCommand c, string? input)
     {
         string id = "my:" + c.Id;
@@ -59,15 +73,15 @@ internal sealed partial class Engine
             : () =>
             {
                 Usage.Touch(id);
-                host.RunMine(c, input ?? "");
+                RunMine(c, input ?? "");
             };
         item.MoreActions = () =>
         {
             var list = new List<ActionItem>();
             if (!needsInput && c.Kind == "script")
             {
-                list.Add(new ActionItem { Title = c.ShowWindow ? Tr("창 없이 실행", "Run without a window") : Tr("창에서 실행", "Run in a window"), Keys = "Ctrl+Enter", Glyph = G.NewWindow, Run = () => host.RunMine(c, input ?? "", show: !c.ShowWindow) });
-                list.Add(new ActionItem { Title = Tr("관리자 권한으로 실행", "Run as administrator"), Keys = "Ctrl+Shift+Enter", Glyph = G.Shield, Run = () => host.RunMine(c, input ?? "", admin: true) });
+                list.Add(new ActionItem { Title = c.ShowWindow ? Tr("창 없이 실행", "Run without a window") : Tr("창에서 실행", "Run in a window"), Keys = "Ctrl+Enter", Glyph = G.NewWindow, Run = () => RunMine(c, input ?? "", show: !c.ShowWindow) });
+                list.Add(new ActionItem { Title = Tr("관리자 권한으로 실행", "Run as administrator"), Keys = "Ctrl+Shift+Enter", Glyph = G.Shield, Run = () => RunMine(c, input ?? "", admin: true) });
             }
             if (running) list.Insert(0, new ActionItem { Title = Tr("중지", "Stop"), Glyph = G.Stop, Danger = true, StayOpen = true, Run = () => host.StopMine(c) });
             if (host.LastOutput(c) is { Length: > 0 } output) list.Add(new ActionItem { Title = Tr("마지막 출력 복사", "Copy the last output"), Glyph = G.Copy, Run = () => Launch.Copy(output) });

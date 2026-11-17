@@ -218,7 +218,7 @@ internal sealed partial class Engine
             }
             list.AddRange(FileActions(path, name, folder));
             if (ext is ".ps1" or ".bat" or ".cmd" or ".exe")
-                list.Add(new ActionItem { Title = Tr("사용자 명령에 추가…", "Add to custom commands…"), Glyph = G.Bolt, StayOpen = true, Run = () => host.Window.StartForm(CommandForm("script", null, path.Contains(' ') ? $"\"{path}\"" : path)) });
+                list.Add(new ActionItem { Title = Tr("사용자 명령에 추가…", "Add to custom commands…"), Glyph = G.Bolt, StayOpen = true, Run = () => host.Window.StartForm(CommandForm("script", null, $"\"{path}\"")) });
             return list;
         };
         return item;
