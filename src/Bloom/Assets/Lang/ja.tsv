@@ -2863,3 +2863,10 @@ Turn the schedule on	スケジュール実行をオンにする
 Warning: over http the password goes over the network unencrypted. Use an https address	注意: http のため、パスワードは暗号化されずにネットワークへ送られます。https のアドレスをおすすめします
 What to read	読み取る内容
 Open a page on {0}: {1}	{0} のページを開く: {1}
+This action holds a character that can't be passed to a batch file.	この操作の値に、バッチファイルに渡せない文字が含まれています。
+the clipboard text	クリップボードの内容
+the input	入力値
+a line break	改行
+a control character	制御
+This command passes {0} to another program, which can't take {1}. Remove it and run again.	このコマンドは{0}を別のプログラムに渡すため、{1}文字を使えません。この文字を削除して再試行してください。
+This command passes {0} to another program, so it can't end in \\. Remove the final \\ and run again.	このコマンドは{0}を別のプログラムに渡すため、末尾を \\ にできません。末尾の \\ を削除して再試行してください。
