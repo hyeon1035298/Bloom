@@ -2874,3 +2874,5 @@ This file runs when opened (a program, a script or a shortcut).	此文件打开�
 (nothing in Bloom answers it)	（Bloom 中没有对应的项目）
 Runs	将运行
 Run a file: {0}	运行文件：{0}
+Trying again…	正在重试…
+This account can't use the chosen model. Pick another model and send again.	此账户无法使用所选模型。请选择其他模型后重新发送。

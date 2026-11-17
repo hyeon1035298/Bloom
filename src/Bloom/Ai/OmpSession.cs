@@ -33,6 +33,7 @@ internal sealed class OmpSession : IChatSession, IAsksInChat, IContextGauge
     private readonly InputDeliveryWatchdog interruptWatch = new();
     private int counter;
     private long turn;
+    private long endTicket; // an error end waiting to see whether omp retries; anything newer cancels it
     private bool ending, disposed;
 
     public string Model { get; }
@@ -405,7 +406,12 @@ internal sealed class OmpSession : IChatSession, IAsksInChat, IContextGauge
                 if (tidyWaiting) TidyDone(OmpEvent.CompactEndText(tidiedAction, tidiedFrom, e.Usage?.Tokens ?? -1, false, false));
                 UsageChanged?.Invoke();
                 break;
+            case OmpKind.Retry:
+                Interlocked.Increment(ref endTicket);
+                Status?.Invoke(e.Text);
+                break;
             case OmpKind.CompactStart:
+                Interlocked.Increment(ref endTicket); // an answer too long for the model: omp tidies up and tries again
                 Compacting = true;
                 CompactNote?.Invoke(OmpEvent.CompactStartText(e.Text), true);
                 UsageChanged?.Invoke();
@@ -443,14 +449,24 @@ internal sealed class OmpSession : IChatSession, IAsksInChat, IContextGauge
                 if (Busy && !compactTurn) _ = Task.Delay(250).ContinueWith(_ => EndLocal()); // its output can come just after this answer
                 break;
             case OmpKind.TurnEnded:
-                interruptWatch.Cancel();
-                lock (gate) asks?.Dispose();
-                Busy = false;
-                LastUsed = DateTime.UtcNow;
-                TurnEnded?.Invoke(e.Ok, e.Ok ? null : Clip(e.Text));
-                RefreshUsage();
+                if (!Busy) break; // an older omp's prompt_result after its agent_end
+                long ticket = Interlocked.Increment(ref endTicket);
+                if (!e.Ok && e.Detail == "agent_end") // omp says right after it whether it retries or tidies up first
+                    _ = Task.Delay(400).ContinueWith(_ => { if (Interlocked.Read(ref endTicket) == ticket) EndTurn(e); });
+                else EndTurn(e);
                 break;
         }
+    }
+
+    private void EndTurn(OmpEvent e)
+    {
+        if (!Busy) return;
+        interruptWatch.Cancel();
+        lock (gate) asks?.Dispose();
+        Busy = false;
+        LastUsed = DateTime.UtcNow;
+        TurnEnded?.Invoke(e.Ok, e.Ok ? null : Clip(e.Text));
+        RefreshUsage();
     }
 
     /// A slash command that ran in omp itself: what it printed is the answer, and the turn is over.

@@ -72,6 +72,9 @@ internal static class AiErrors
         string l = e.ToLowerInvariant();
         if (l.Contains("login") || l.Contains("log in") || l.Contains("oauth") || l.Contains("authenticat") || l.Contains("401") || l.Contains("unauthorized"))
             return Tr("omp 로그인이 필요합니다. 터미널에서 omp login을 한 번 실행하세요.", "omp needs you to sign in. Run omp login once in a terminal.") + (details ? "\n\n" + Last(e) : "");
+        // omp's default model can be one the signed-in account doesn't offer ("model_not_found", "model is not supported")
+        if (l.Contains("model_not_found") || (l.Contains("model") && (l.Contains("not supported") || l.Contains("does not exist"))))
+            return Tr("이 계정에서는 고른 모델을 쓸 수 없습니다. 다른 모델을 골라 다시 보내세요.", "This account can't use the chosen model. Pick another model and send again.") + (details ? "\n\n" + Last(e) : "");
         return Friendly(e, false, details);
     }
 
