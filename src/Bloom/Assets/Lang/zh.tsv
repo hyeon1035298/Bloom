@@ -2850,3 +2850,10 @@ just now	刚刚
 Detach from the launcher	从启动器分离
 Always on top	始终置顶
 Attach to the launcher	附到启动器
+This action holds a character that can't be passed to a batch file.	此操作的值包含无法传给批处理文件的字符。
+the clipboard text	剪贴板内容
+the input	输入内容
+a line break	换行
+a control character	控制
+This command passes {0} to another program, which can't take {1}. Remove it and run again.	此命令会将{0}传给其他程序，因此不能包含{1}字符。请删除该字符后重试。
+This command passes {0} to another program, so it can't end in \\. Remove the final \\ and run again.	此命令会将{0}传给其他程序，因此末尾不能是 \\。请删除末尾的 \\ 后重试。
