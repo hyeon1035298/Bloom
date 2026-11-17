@@ -150,7 +150,8 @@ internal static class OmpCli
     /// MCP tools of the conversation (OmpMcp) come from its working folder's .omp/mcp.json: --tools / --no-tools leave them alone.
     public static List<string> ChatArgs(string model, string effort, string system, string sessionDir, string? resume, bool search)
     {
-        var a = new List<string> { "--mode", "rpc", "--no-ui", "--no-title" };
+        // plain rpc has no UI of its own (omp 18 dropped --no-ui: a UI over rpc is its own mode, rpc-ui), so omp can't ask
+        var a = new List<string> { "--mode", "rpc", "--no-title" };
         if (model.Length > 0) a.AddRange(new[] { "--model", model });
         a.AddRange(new[]
         {

@@ -14,7 +14,7 @@ namespace Bloom.Ai;
 /// One long-lived `omp --mode rpc` process per conversation: omp keeps the context (nothing is re-sent each turn) and saves
 /// it in a session of Bloom's own folder, so a closed chat resumes by id. Tools: web search at most (Settings.OmpSearch), and
 /// MCP tools from the conversation's `.omp/mcp.json` (OmpMcp): Bloom's PC tool and the servers switched on in
-/// 설정 > PC 작업 · MCP; no file or command tool of omp's own. omp can't ask the user (--no-ui), so Bloom asks in the chat
+/// 설정 > PC 작업 · MCP; no file or command tool of omp's own. omp can't ask the user (plain rpc mode has no UI), so Bloom asks in the chat
 /// (Ask), as it does for Codex. The system prompt is Bloom's, replacing omp's (OmpCli).
 /// Models are "provider/model" strings, the level is omp's --thinking. All events are raised on the reader thread.
 internal sealed class OmpSession : IChatSession, IAsksInChat, IContextGauge
@@ -63,7 +63,7 @@ internal sealed class OmpSession : IChatSession, IAsksInChat, IContextGauge
     private string tidiedAction = "";
     private readonly StringBuilder local = new(); // what a slash command printed this turn
 
-    // omp can't ask the user (--no-ui): Bloom's MCP server and proxy ask here, in this conversation's chat
+    // omp can't ask the user (plain rpc, no UI): Bloom's MCP server and proxy ask here, in this conversation's chat
     public event Action<ToolAsk>? ToolAsked;
     public event Action<string>? ToolAskWithdrawn;
     private PendingToolAsks? asks;

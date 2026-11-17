@@ -11,7 +11,7 @@ namespace Bloom.Ai;
 /// The MCP tools of an omp chat. omp reads MCP servers from `.omp/mcp.json` of its working folder (measured: also with
 /// --tools=web_search and --no-tools, which leave MCP tools alone), so every conversation gets a working folder of its own
 /// with that file written when its session starts: the conversation's id is in it, which is how Bloom knows in which chat to
-/// ask the user (omp runs `--no-ui` and cannot ask itself). Nothing is written to omp's own settings or to any shared folder.
+/// ask the user (omp runs in plain rpc mode, without a UI, and cannot ask itself). Nothing is written to omp's own settings or to any shared folder.
 ///
 ///   bloom        Bloom's PC tool: `Bloom.exe --mcp <pipe> <conversation>` (the hello of a Codex run: Bloom asks in this chat
 ///                before every action). Every relay entry carries this run's key in its env (McpKey); McpServer closes a
