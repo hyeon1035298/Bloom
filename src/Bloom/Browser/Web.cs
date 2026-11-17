@@ -105,8 +105,9 @@ internal static class Web
     }
 
     /// Opens a web address in the picked browser (mailto: in the mail app Windows has for it); anything else is refused
-    /// with a notice, whoever asked for it.
-    public static void Open(string url)
+    /// with a notice, whoever asked for it. `defaultBrowser`: Windows' default browser even when one is picked (the
+    /// "기본 브라우저로 열기" actions), through the same check.
+    public static void Open(string url, bool defaultBrowser = false)
     {
         if (Address(url) is not { } address)
         {
@@ -116,7 +117,7 @@ internal static class Web
         }
         Win32.AllowSetForegroundWindow(-1);
         // an escaped http(s) address starts with its scheme, never "-", and holds no quote: one argument to the browser
-        if (Picked is { } b && !address.StartsWith("mailto:", StringComparison.Ordinal)) Launch.Open(b.Exe, "\"" + address + "\"");
+        if (!defaultBrowser && Picked is { } b && !address.StartsWith("mailto:", StringComparison.Ordinal)) Launch.Open(b.Exe, "\"" + address + "\"");
         else Launch.Open(address);
     }
 
