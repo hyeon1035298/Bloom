@@ -17,4 +17,7 @@ internal interface IToolPolicy
     /// (ToolText), the paths a file action will work on resolved; a file's content or an edit's before and after.
     /// Empty: the short line is all of it.
     string Detail(string tool, string input) => "";
+
+    /// A call asked about every time, whatever 항상 허용 says (opening a file that runs: a script, a program, a shortcut).
+    bool MustAsk(string tool, string input) => false;
 }

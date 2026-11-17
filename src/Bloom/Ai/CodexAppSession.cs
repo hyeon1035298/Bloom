@@ -261,7 +261,7 @@ internal sealed class CodexAppSession : IChatSession, IAsksInChat
             StandardInputEncoding = utf8,
             WorkingDirectory = plan.Cwd,
         };
-        foreach (string a in new[] { "app-server", "--listen", "stdio://" }) psi.ArgumentList.Add(a);
+        foreach (string a in new[] { "app-server", "--listen", "stdio://" }.Concat(Cli.CodexNoShell)) psi.ArgumentList.Add(a);
         Cli.CleanEnvironment(psi); // the ChatGPT login only
         psi.Environment["CODEX_HOME"] = codexHome;
         AppServerPipe? p;
@@ -448,6 +448,7 @@ internal sealed class CodexAppSession : IChatSession, IAsksInChat
     {
         ["command"] = command,
         ["args"] = args,
+        ["env"] = new JsonObject { [McpKey.Variable] = McpKey.Value }, // the relay's hello carries it (McpKey)
         ["enabled"] = true,
         ["default_tools_approval_mode"] = "approve", // Bloom asks itself, in the chat
         ["tool_timeout_sec"] = 600, // a call can wait that long for the user's yes

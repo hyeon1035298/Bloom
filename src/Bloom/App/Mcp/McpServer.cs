@@ -22,8 +22,9 @@ internal sealed class McpServer
     /// What starts the relay: Bloom itself (`Bloom.exe --mcp <pipe>`).
     public static string Command => Environment.ProcessPath ?? "Bloom.exe";
 
-    /// Claude Code's --mcp-config entry for Bloom itself: the "bloom" stdio server, relaying to this pipe.
-    public object Server => new { type = "stdio", command = Command, args = new[] { "--mcp", Pipe } };
+    /// Claude Code's --mcp-config entry for Bloom itself: the "bloom" stdio server, relaying to this pipe with this run's
+    /// key (McpKey) in its environment.
+    public object Server => new { type = "stdio", command = Command, args = new[] { "--mcp", Pipe }, env = McpKey.Env };
 
     /// Listens from the first chat session that wants it on.
     public void Start()
@@ -69,12 +70,16 @@ internal sealed class McpServer
                     if (first)
                     {
                         first = false;
-                        if (Hello(line) is { } h)
+                        // only Bloom's own relays, which carry this run's key: anything else is closed unanswered
+                        if (Hello(line) is not { } h)
                         {
-                            // a Codex run: its actions are asked in this conversation's chat; a proxy only asks
-                            (conversation, proxy) = h;
-                            continue;
+                            Log.Write("mcp pipe: a connection without Bloom's key was closed");
+                            return;
                         }
+                        // with a conversation (Codex, omp) its actions are asked in that chat; a proxy only asks; with none
+                        // it is Claude Code's relay, which asks through its own permission prompt
+                        (conversation, proxy) = h;
+                        continue;
                     }
                     string? reply = proxy ? await Ask(line, conversation!) : await Answer(line, conversation);
                     if (reply is not null) await writer.WriteLineAsync(reply);
@@ -87,18 +92,20 @@ internal sealed class McpServer
         }
     }
 
-    /// The first line of a connection Codex started: {"bloom_conversation": "<id>"} (Bloom's own tools) or
-    /// {"bloom_proxy": "<id>"} (McpProxy, in front of another MCP server); null for Claude Code's relay.
-    private static (string conversation, bool proxy)? Hello(string line)
+    /// The first line of every connection: {"bloom_key": "<McpKey>"} plus {"bloom_conversation": "<id>"} (Bloom's own
+    /// tools for a Codex or omp chat) or {"bloom_proxy": "<id>"} (McpProxy, in front of another MCP server), or neither
+    /// (Claude Code's relay). Null — and the connection closed — without this run's key.
+    internal static (string? conversation, bool proxy)? Hello(string line)
     {
         try
         {
             using var doc = JsonDocument.Parse(line);
             var r = doc.RootElement;
             if (r.ValueKind != JsonValueKind.Object) return null;
-            if (r.TryGetProperty("bloom_conversation", out var c) && c.GetString() is { } id) return (id, false);
-            if (r.TryGetProperty("bloom_proxy", out var p) && p.GetString() is { } pid) return (pid, true);
-            return null;
+            if (!r.TryGetProperty("bloom_key", out var k) || k.ValueKind != JsonValueKind.String || !McpKey.Matches(k.GetString())) return null;
+            if (r.TryGetProperty("bloom_conversation", out var c) && c.ValueKind == JsonValueKind.String && c.GetString() is { Length: > 0 } id) return (id, false);
+            if (r.TryGetProperty("bloom_proxy", out var p) && p.ValueKind == JsonValueKind.String && p.GetString() is { Length: > 0 } pid) return (pid, true);
+            return (null, false);
         }
         catch (JsonException)
         {

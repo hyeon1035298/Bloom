@@ -36,6 +36,7 @@ internal sealed partial class Chats
             Key = raw.Key.Length > 0 ? raw.Key : Tools?.Key(raw.Tool, raw.Input) ?? raw.Tool,
             // the card shows the call whole; the ✓ / ✕ line under the answer keeps the short Says
             Detail = raw.Detail.Length > 0 ? raw.Detail : Tools?.Detail(raw.Tool, raw.Input) ?? "",
+            MustAsk = raw.MustAsk || (Tools?.MustAsk(raw.Tool, raw.Input) ?? false),
         };
         // the card shows a call whole or the call is not asked about: one too big for it is declined
         if (ask.Detail.Length > ToolText.MaxPayload * 2)

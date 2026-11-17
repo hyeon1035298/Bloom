@@ -2870,3 +2870,7 @@ a line break	换行
 a control character	控制
 This command passes {0} to another program, which can't take {1}. Remove it and run again.	此命令会将{0}传给其他程序，因此不能包含{1}字符。请删除该字符后重试。
 This command passes {0} to another program, so it can't end in \\. Remove the final \\ and run again.	此命令会将{0}传给其他程序，因此末尾不能是 \\。请删除末尾的 \\ 后重试。
+This file runs when opened (a program, a script or a shortcut).	此文件打开时会运行（程序、脚本或快捷方式）。
+(nothing in Bloom answers it)	（Bloom 中没有对应的项目）
+Runs	将运行
+Run a file: {0}	运行文件：{0}

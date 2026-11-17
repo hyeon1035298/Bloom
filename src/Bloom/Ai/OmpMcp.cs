@@ -14,7 +14,8 @@ namespace Bloom.Ai;
 /// ask the user (omp runs `--no-ui` and cannot ask itself). Nothing is written to omp's own settings or to any shared folder.
 ///
 ///   bloom        Bloom's PC tool: `Bloom.exe --mcp <pipe> <conversation>` (the hello of a Codex run: Bloom asks in this chat
-///                before every action; a connection naming no conversation and no token is refused by McpServer).
+///                before every action). Every relay entry carries this run's key in its env (McpKey); McpServer closes a
+///                connection without it.
 ///   <other>      a server the user switched on in 설정 > PC 작업 · MCP: started by `Bloom.exe --mcp-proxy …`, which asks in the
 ///                chat before every call (the definition, with its env values, is read by the proxy; it never sits in this file).
 ///                Web-address servers can't be put behind the proxy, so omp goes without them (as ChatGPT does).
@@ -38,12 +39,12 @@ internal static class OmpMcp
     {
         var servers = new JsonObject();
         if (pc is { } p)
-            servers["bloom"] = Stdio(p.command, new[] { "--mcp", p.pipe, conversation }, null);
+            servers["bloom"] = Stdio(p.command, new[] { "--mcp", p.pipe, conversation }, McpKey.Env);
         if (relay is { } r)
             foreach (var d in extras)
             {
                 if (!d.Stdio || d.Name == "bloom" || servers.ContainsKey(Key(d.Name))) continue;
-                servers[Key(d.Name)] = Stdio(r.command, new[] { "--mcp-proxy", r.pipe, conversation, d.Source, d.Name }, null);
+                servers[Key(d.Name)] = Stdio(r.command, new[] { "--mcp-proxy", r.pipe, conversation, d.Source, d.Name }, McpKey.Env);
             }
         if (servers.Count == 0) return null;
         return new JsonObject { ["mcpServers"] = servers }.ToJsonString(new JsonSerializerOptions { WriteIndented = true });

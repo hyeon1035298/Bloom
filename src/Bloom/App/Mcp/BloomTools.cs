@@ -124,6 +124,24 @@ internal sealed class BloomTools : IPcTools
     /// any other tool's input.
     public string Detail(string tool, string input) => Parse(input, a => IsPc(tool) ? PcDetail(a) : OtherDetail(tool, a), "");
 
+    /// Opening a file that runs (RunnableFiles: a script, a program, a shortcut) is asked every time: 항상 허용 for
+    /// ‘열기’ was given for opening, not for running whatever an AI names or wrote.
+    public bool MustAsk(string tool, string input) => IsPc(tool) && Parse(input, a => S(a, "do") == "open" && Runs(S(a, "q")));
+
+    /// An open target that is a file which runs when opened (a web address or an app name is not).
+    private static bool Runs(string target)
+    {
+        target = target.Trim().Trim('"');
+        return Web.AsUrl(target) is null && RunnableFiles.Is(Resolved(target));
+    }
+
+    /// Bloom's AI folders (Local\ai: chat files, answers' files, Codex and omp work folders): what is in them an AI wrote.
+    private static bool InAiFolder(string path)
+    {
+        string root = Path.Combine(Paths.Local, "ai") + Path.DirectorySeparatorChar;
+        return Resolved(path).StartsWith(root, StringComparison.OrdinalIgnoreCase);
+    }
+
     private string PcDetail(JsonElement a)
     {
         string action = S(a, "do"), q = S(a, "q"), to = S(a, "to");
@@ -145,6 +163,13 @@ internal sealed class BloomTools : IPcTools
                 // before the user has said yes, as a network path would be reached by it
                 string where = Web.AsUrl(target) ?? Tr($"{Resolved(target)} (그 위치에 없으면 앱 ‘{target}’)", $"{Resolved(target)} (or, if nothing is there, the app ‘{target}’)");
                 sb.Append('\n').Append(Tr("열 대상", "Opens")).Append(": ").Append(ToolText.Visible(where));
+                if (Runs(target)) sb.Append('\n').Append(Tr("이 파일은 열면 실행됩니다(프로그램·스크립트·바로 가기).", "This file runs when opened (a program, a script or a shortcut)."));
+                break;
+            case "run_line":
+                // what the line will actually run: the launcher's first answer to it (a saved command shows its name)
+                string? title = host is null ? null : host.Engine.StepTitle(q); // no host: the card tests' tools
+                string runs = title ?? Tr("(Bloom에 맞는 항목 없음)", "(nothing in Bloom answers it)");
+                sb.Append('\n').Append(Tr("실행할 항목", "Runs")).Append(": ").Append(ToolText.Visible(runs));
                 break;
         }
         // a path that is not on a local drive is said so (RealPath.Kind classes it from its text alone)
@@ -256,7 +281,7 @@ internal sealed class BloomTools : IPcTools
         new("find_timers", "look", (q, _) => Look("timers", q), (_, _) => Tr("타이머 보기", "Timers")),
         new("find_commands", "look", (q, _) => Look("commands", q), (_, _) => Tr("사용자 명령 보기", "Custom commands")),
         new("find_notes", "look", (q, _) => OnUi(() => FindNotes(q)), (q, _) => Tr($"메모 찾기: {q}", $"Find notes: {q}").TrimEnd(' ', ':')),
-        new("open", "open", (q, _) => OnUi(() => Open(q)).Unwrap(), (q, _) => Tr($"열기: {Clip(q)}", $"Open: {Clip(q)}")),
+        new("open", "open", (q, _) => OnUi(() => Open(q)).Unwrap(), (q, _) => Runs(q) ? Tr($"파일 실행: {Clip(q)}", $"Run a file: {Clip(q)}") : Tr($"열기: {Clip(q)}", $"Open: {Clip(q)}")),
         new("run_line", "open", (q, _) => OnUi(() => RunLine(q)), (q, _) => Tr($"Bloom에서 실행: {Clip(q)}", $"Run in Bloom: {Clip(q)}")),
         new("run_command", "open", (q, to) => OnUi(() => RunCommand(q, to)), (q, to) => Tr($"사용자 명령 실행: {q} {Clip(to, 40)}", $"Run custom command: {q} {Clip(to, 40)}").Trim()),
         new("note", "bloom", (q, to) => OnUi(() => WriteNote(q, to)), (q, to) => to.Trim().Length > 0
@@ -422,6 +447,12 @@ internal sealed class BloomTools : IPcTools
             return $"Opened {url} in the browser.";
         }
         string path = Environment.ExpandEnvironmentVariables(target);
+        // a script or program in Bloom's AI folders was written by an AI: shown, never run (the user can run it from there)
+        if (Runs(target) && InAiFolder(path) && File.Exists(path))
+        {
+            Launch.Reveal(path);
+            return $"Not run: {path} is a file an AI wrote that would run when opened. It is shown in its folder instead; the user can run it themselves.";
+        }
         if (File.Exists(path) || Directory.Exists(path)) return await Launch.Start(path) ? $"Opened {path}." : $"Couldn't open {path}.";
         var q = new Query(target);
         var app = host.Apps.Apps.Select(x => (x, score: Matcher.Score(q, x.Match))).Where(x => x.score > 0).OrderByDescending(x => x.score).Select(x => x.x).FirstOrDefault();

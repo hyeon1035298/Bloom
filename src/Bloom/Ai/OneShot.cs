@@ -96,6 +96,7 @@ internal static class OneShot
         AiAccounts.UseHome(psi, "chatgpt", accountHome);
         _ = CodexAuth.Unsaved(accountHome); // tokens the light way refreshed go in first
         var args = new List<string> { "exec", "--json", "--skip-git-repo-check", "--ignore-user-config", "--sandbox", "read-only", "--cd", cwd, "--color", "never" };
+        args.AddRange(Cli.CodexNoShell);
         if (AiModels.GptSlug(model) is { } slug)
         {
             args.Add("--model");

@@ -18,6 +18,12 @@ internal static class McpProxy
 {
     public static int Run(string pipe, string conversation, string source, string name)
     {
+        // taken out of this process's environment before the real server starts from it: only Bloom's relays hold the key
+        if (Core.McpKey.Take() is not { } key)
+        {
+            Console.Error.WriteLine("Bloom's key is missing: start this through a Bloom chat.");
+            return 1;
+        }
         if (McpCatalog.Find(source, name) is not { Command: { } command } def)
         {
             Console.Error.WriteLine($"No MCP server named {name} in {source}.");
@@ -38,7 +44,7 @@ internal static class McpProxy
         // not disposed one by one: the pipe goes at the end, and with it these
         var bloomIn = new StreamReader(link, utf8);
         var bloomOut = new StreamWriter(link, utf8) { AutoFlush = true, NewLine = "\n" };
-        bloomOut.WriteLine(JsonSerializer.Serialize(new { bloom_proxy = conversation }));
+        bloomOut.WriteLine(JsonSerializer.Serialize(new { bloom_key = key, bloom_proxy = conversation }));
 
         // Bloom.exe has no console of its own, so a console server started from here would open a window per server
         var psi = new ProcessStartInfo(command) { UseShellExecute = false, CreateNoWindow = true, RedirectStandardInput = true, RedirectStandardOutput = true, StandardInputEncoding = utf8, StandardOutputEncoding = utf8 };

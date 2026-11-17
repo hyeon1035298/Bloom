@@ -212,6 +212,7 @@ internal sealed class CodexSession : IChatSession, IAsksInChat
                 WorkingDirectory = plan.Cwd,
             };
             var args = new List<string> { "exec", "--json", "--skip-git-repo-check", "--ignore-user-config", "--sandbox", "read-only", "--cd", plan.Cwd, "--color", "never" };
+            args.AddRange(Cli.CodexNoShell);
             if (plan.Slug is { Length: > 0 } model)
             {
                 args.Add("--model");
@@ -235,6 +236,7 @@ internal sealed class CodexSession : IChatSession, IAsksInChat
                 {
                     "mcp_servers.bloom.command=" + Toml(t.command),
                     $"mcp_servers.bloom.args=[\"--mcp\", {Toml(t.pipe)}, {Toml(conversation)}]",
+                    "mcp_servers.bloom.env=" + Cli.CodexRelayEnv,
                     "mcp_servers.bloom.default_tools_approval_mode=\"approve\"", // Bloom asks itself, in the chat
                     "mcp_servers.bloom.tool_timeout_sec=600", // a call can wait that long for the user's yes
                     "mcp_servers.bloom.startup_timeout_sec=20",
@@ -253,6 +255,7 @@ internal sealed class CodexSession : IChatSession, IAsksInChat
                     {
                         $"{key}.command={Toml(relay.command)}",
                         $"{key}.args=[\"--mcp-proxy\", {Toml(relay.pipe)}, {Toml(conversation)}, {Toml(d.Source)}, {Toml(d.Name)}]",
+                        $"{key}.env={Cli.CodexRelayEnv}",
                         $"{key}.default_tools_approval_mode=\"approve\"",
                         $"{key}.tool_timeout_sec=600",
                         $"{key}.startup_timeout_sec=30",
