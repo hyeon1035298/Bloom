@@ -29,19 +29,9 @@ internal sealed partial class Engine
         _ => G.Code,
     };
 
-    /// Runs a command from its row; a value it can't pass on safely (UserCommands.ScriptLine) comes back as a notice that
-    /// says which character to remove, and nothing runs.
-    private void RunMine(UserCommand c, string input, bool? show = null, bool admin = false)
-    {
-        try
-        {
-            host.RunMine(c, input, show, admin);
-        }
-        catch (CommandValueException e)
-        {
-            Notices.Result(false, Tr("사용자 명령 · 실패", "Custom command · Failed"), c.Name, e.Message, keep: true);
-        }
-    }
+    /// Runs a command from its row; a value it can't pass on safely becomes Host.RunMine's notice that says which
+    /// character to remove, and nothing runs.
+    private void RunMine(UserCommand c, string input, bool? show = null, bool admin = false) => host.RunMine(c, input, show, admin);
 
     public ResultItem FromCommand(UserCommand c, string? input)
     {

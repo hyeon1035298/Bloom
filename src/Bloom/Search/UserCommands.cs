@@ -157,11 +157,11 @@ internal sealed partial class UserCommands
         var t = now ?? DateTime.Now;
         var map = new Dictionary<string, (string text, bool literal)>(StringComparer.OrdinalIgnoreCase)
         {
-            ["{input}"] = (input.Trim(), false),
+            ["{input}"] = (Unwrapped(input.Trim()), false),
             ["{date}"] = (t.ToString("yyyy-MM-dd"), true),
             ["{time}"] = (t.ToString("HH:mm"), true),
         };
-        if (clipboard is not null && body.Contains("{clipboard}", StringComparison.OrdinalIgnoreCase)) map["{clipboard}"] = (clipboard(), false);
+        if (clipboard is not null && body.Contains("{clipboard}", StringComparison.OrdinalIgnoreCase)) map["{clipboard}"] = (Unwrapped(clipboard()), false);
         // a .ps1 is split off before any scanning (its path may hold ' or #) and comes back in "…", which StartInfo
         // splits again and quotes for PowerShell; only the arguments are PowerShell text. {date} and {time} are put in
         // first (Expand with {input} for {input} leaves the values' places as they are) so a path may hold them
@@ -170,6 +170,16 @@ internal sealed partial class UserCommands
             return scriptArgs.Length == 0 ? $"\"{script}\"" : $"\"{script}\" {FillPowerShell(scriptArgs, map, true)}";
         string ext = Path.GetExtension(SplitFile(Expand(body, "x", null, t).Trim()).file ?? "").ToLowerInvariant();
         return ext is ".bat" or ".cmd" or ".exe" or ".com" ? FillProgram(body, map, ext is ".bat" or ".cmd") : FillPowerShell(body, map, false);
+    }
+
+    /// A full path in one "…" (Explorer's 경로로 복사) comes without the quotes: the template quotes it itself, and a
+    /// program template would otherwise refuse the quote characters. Any other text keeps its quotes as typed.
+    private static string Unwrapped(string value)
+    {
+        string v = value.Trim();
+        if (v.Length < 4 || v[0] != '"' || v[^1] != '"') return value;
+        string inner = v[1..^1];
+        return !inner.Contains('"') && Path.IsPathFullyQualified(inner) ? inner : value;
     }
 
     /// PowerShell's own quote characters: ' ‘ ’ ‚ ‛ and " “ ” „ (the tokenizer takes each of them as a quote).
