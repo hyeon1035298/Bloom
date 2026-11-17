@@ -49,7 +49,16 @@ internal sealed partial class Host
                 StartAiCommand(c);
                 break;
             default:
-                RunScript(c, input, show ?? c.ShowWindow, admin);
+                try
+                {
+                    RunScript(c, input, show ?? c.ShowWindow, admin);
+                }
+                catch (CommandValueException e) when (depth == 0)
+                {
+                    // a value this template can't hand to a program safely: said here for every first-level way in (rows,
+                    // the AI's run_command); a chain's step lets it through, and the chain lists the step as skipped
+                    Notices.Result(false, Head(false), c.Name, e.Message, keep: true);
+                }
                 break;
         }
     }
