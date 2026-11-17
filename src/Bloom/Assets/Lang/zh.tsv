@@ -2856,3 +2856,8 @@ Bloom · AI file	Bloom · AI 文件
 Showing ‘{0}’ in its folder	在文件夹中显示“{0}”
 Opening this file would run it. Check it first, then open it yourself.	打开此文件会运行它，因此不会直接打开。请先检查内容，再自行打开。
 Links to files on other computers don't open	不会打开指向其他电脑上文件的链接
+Imported: {0} commands, {1} favorites, {2} quick searches.	已导入的项目: 命令 {0} 个、收藏夹 {1} 个、快速搜索 {2} 个。
+{0} scheduled AI commands came in paused. Choose ‘Turn the schedule on’ in a command's actions to run it again.	有计划的 AI 命令 {0} 个以暂停状态导入。在命令的操作中选择“开启定时运行”即可再次运行。
+Turn the schedule on	开启定时运行
+ (paused)	 (已暂停)
+Warning: over http the password goes over the network unencrypted. Use an https address	注意: 使用 http 时，密码会以未加密的方式通过网络传输。建议使用 https 地址
