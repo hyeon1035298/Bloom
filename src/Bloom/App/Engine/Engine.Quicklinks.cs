@@ -40,7 +40,7 @@ internal sealed partial class Engine
             var list = new List<ActionItem>();
             if (!needsWords)
             {
-                list.Add(new ActionItem { Title = Tr("기본 브라우저로 열기", "Open in the default browser"), Keys = "Ctrl+Enter", Glyph = G.NewWindow, Run = () => { Usage.Touch(id); Launch.Open(Url()); } });
+                list.Add(new ActionItem { Title = Tr("기본 브라우저로 열기", "Open in the default browser"), Keys = "Ctrl+Enter", Glyph = G.NewWindow, Run = () => { Usage.Touch(id); Web.Open(Url(), defaultBrowser: true); } });
                 list.Add(new ActionItem { Title = Tr("링크 복사", "Copy link"), Keys = "Ctrl+Shift+C", Glyph = G.Link, Run = () => Launch.Copy(Url()) });
             }
             list.Add(new ActionItem { Title = Tr("바로 가기 고치기", "Edit shortcut"), Glyph = G.Settings, StayOpen = true, Run = () => host.Window.StartForm(QuicklinkForm(l, null, null)) });

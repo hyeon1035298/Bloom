@@ -280,7 +280,7 @@ internal sealed partial class Engine
         };
         item.MoreActions = () => new List<ActionItem>
         {
-            new() { Title = Tr("기본 브라우저로 열기", "Open in the default browser"), Keys = "Ctrl+Enter", Glyph = G.NewWindow, Run = () => Launch.Open(url) },
+            new() { Title = Tr("기본 브라우저로 열기", "Open in the default browser"), Keys = "Ctrl+Enter", Glyph = G.NewWindow, Run = () => Web.Open(url, defaultBrowser: true) },
             new() { Title = Tr("링크 복사", "Copy link"), Keys = "Ctrl+Shift+C", Glyph = G.Link, Run = () => Launch.Copy(url) },
             new() { Title = Tr("브라우저 바로 가기로 저장", "Save as a browser shortcut"), Glyph = G.Add, StayOpen = true, Run = () => host.Window.StartForm(QuicklinkForm(null, url, title)) },
         };
