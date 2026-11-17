@@ -2,6 +2,30 @@
 
 Each release on GitHub shows its section from this file (the workflow looks for `## <version>`).
 
+## 1.4.2
+
+- AI chats are more careful with your PC. Claude asks before it fetches a web page, and each chat works in its own folder. Codex no longer uses its own shell, so every action on the PC shows a card in the chat. Opening a program, script or shortcut is asked every time, even with Always allow.
+- Links in AI answers open only web addresses. A file the AI made that would run is shown in its folder, never run.
+- Other programs on the PC can no longer use Bloom's PC tool.
+- Importing a settings file keeps this PC's mini player programs and JRiver address, and scheduled AI commands come in switched off until you turn them on.
+- Custom commands refuse a typed or copied value that could change what the command runs and say which character to remove. A full path copied with its quotes works as it is.
+- Playlists play songs from another computer only when the list is on that same share. Settings warns when the JRiver password would go over plain http.
+- Problem reports hide more, such as paths, web addresses and keys.
+- Add-ons can open Bloom's settings on their own page.
+- Fixed: with omp 18, omp chats didn't start, stayed busy after the answer, or didn't show errors such as a model the account can't use.
+
+### 한국어
+
+- AI 채팅이 PC를 더 조심해서 다룹니다. Claude는 웹 페이지를 가져오기 전에 묻고, 대화마다 자기 폴더에서 작업합니다. Codex는 자체 셸을 쓰지 않아 PC 작업마다 채팅에 카드가 뜹니다. 프로그램, 스크립트, 바로 가기를 여는 일은 항상 허용이어도 매번 묻습니다.
+- AI 답변의 링크는 웹 주소만 엽니다. AI가 만든 파일 중 실행되는 파일은 실행하지 않고 폴더에서 보여 줍니다.
+- PC의 다른 프로그램은 이제 Bloom의 PC 도구를 쓸 수 없습니다.
+- 설정 파일을 가져와도 이 PC의 미니 플레이어 프로그램과 JRiver 주소는 그대로이고, 예약된 AI 명령은 꺼진 채로 들어와 직접 켜야 합니다.
+- 사용자 명령은 실행 내용을 바꿀 수 있는 입력값이나 복사한 값을 거절하고 어떤 글자를 빼야 하는지 알려 줍니다. 따옴표째 복사한 전체 경로는 그대로 쓸 수 있습니다.
+- 재생 목록은 다른 컴퓨터의 곡을 목록이 같은 공유 폴더에 있을 때만 재생합니다. JRiver 비밀번호가 암호화 없는 http로 오가면 설정에 경고가 나옵니다.
+- 문제 보고에서 경로, 웹 주소, 키 같은 정보를 더 많이 가립니다.
+- 애드온이 Bloom 설정을 자기 페이지로 바로 열 수 있습니다.
+- 고침: omp 18에서 omp 채팅이 시작되지 않거나, 답이 와도 계속 작업 중으로 남거나, 계정에서 쓸 수 없는 모델 같은 오류가 보이지 않던 문제를 고쳤습니다.
+
 ## 1.4.1
 
 [![After a Windows update the taskbar add-on turns on and runs on symbols borrowed from an earlier build](https://raw.githubusercontent.com/hyeon1035298/Bloom/main/docs/media/whatsnew/1.4.1/borrowed-en.webp)](bloom://settings/addons)
