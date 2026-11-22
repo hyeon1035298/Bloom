@@ -51,14 +51,46 @@ internal sealed class SpaceDir : SpaceNode
     /// A copy, largest first (the scan may be adding to it).
     public List<SpaceNode> Children()
     {
-        SpaceNode[] copy;
-        lock (this)
-        {
-            copy = new SpaceNode[count];
-            Array.Copy(kids, copy, count);
-        }
+        var copy = Copy();
         Array.Sort(copy, (a, b) => Volatile.Read(ref b.Size).CompareTo(Volatile.Read(ref a.Size)));
         return new List<SpaceNode>(copy);
+    }
+
+    /// A copy in no particular order, safe to read on any thread while the scan adds to the folder.
+    private SpaceNode[] Copy()
+    {
+        lock (this)
+        {
+            var copy = new SpaceNode[count];
+            Array.Copy(kids, copy, count);
+            return copy;
+        }
+    }
+
+    /// The `take` largest files under this folder, largest first, looking at no more than `budget` entries (a whole
+    /// drive has millions). Runs off the UI thread: each folder is read through its own locked copy.
+    public List<SpaceNode> Largest(int take, int budget)
+    {
+        var top = new PriorityQueue<SpaceNode, long>(take + 1); // smallest of the kept ones on top
+        var stack = new Stack<SpaceDir>();
+        stack.Push(this);
+        int seen = 0;
+        while (stack.Count > 0 && seen < budget)
+            foreach (var c in stack.Pop().Copy())
+            {
+                seen++;
+                if (c is SpaceDir cd) stack.Push(cd);
+                else
+                {
+                    long size = Volatile.Read(ref c.Size);
+                    if (top.Count < take) top.Enqueue(c, size);
+                    else if (size > top.Peek().Size) top.EnqueueDequeue(c, size);
+                }
+            }
+        var list = new List<SpaceNode>(top.Count);
+        while (top.Count > 0) list.Add(top.Dequeue());
+        list.Reverse();
+        return list;
     }
 
     public int ChildCount

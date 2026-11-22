@@ -307,7 +307,6 @@ internal sealed partial class Launcher : Window, IChatHost
             chat.Update(thread);
             UpdateChrome();
         };
-        trim.Tick += (_, _) => Trim();
         Theme.Changed += ApplyTheme;
         GptCatalog.Updated += CatalogUpdated;
         Engine.PathReady += PathReady;
@@ -503,27 +502,6 @@ internal sealed partial class Launcher : Window, IChatHost
         KeysField();
         host.Tools.LauncherHidden();
         ShowPreview(null); // a playing preview stops with the window
-        trim.Stop();
-        trim.Start();
-    }
-
-    /// Routine idle notification. MemoryTrim leaves normal GC to the runtime, because other Bloom
-    /// windows (including the screenshot pen) can remain active while the launcher is hidden.
-    private readonly DispatcherTimer trim = new(DispatcherPriority.ApplicationIdle) { Interval = TimeSpan.FromMinutes(1) };
-
-    private void Trim()
-    {
-        trim.Stop();
-        if (IsVisible) return;
-        Core.MemoryTrim.Soon();
-    }
-
-    /// A minute from now, while the launcher stays hidden (another window of Bloom's was closed).
-    public void TrimSoon()
-    {
-        if (IsVisible) return;
-        trim.Stop();
-        trim.Start();
     }
 
     private void OnDeactivated()
@@ -710,7 +688,6 @@ internal sealed partial class Launcher : Window, IChatHost
         UpdateLayout();
         Hide();
         ShowActivated = activates;
-        trim.Start(); // routine idle notification; no forced GC or working-set eviction
     }
 
     public void ShowToast(string text)

@@ -25,9 +25,6 @@ internal sealed class DocWindow : Window
 {
     private static readonly Dictionary<string, DocWindow> open = new(StringComparer.OrdinalIgnoreCase);
 
-    /// A document window closed (the launcher's memory trim follows).
-    public static event Action? Gone;
-
     /// QA: new windows open off-screen and unactivated (pictures with no window on the user's screens).
     internal static bool OffScreenForQa;
 
@@ -183,7 +180,6 @@ internal sealed class DocWindow : Window
             saver.Dispose();
             file.Dispose();
             open.Remove(FilePath);
-            Gone?.Invoke();
         };
     }
 

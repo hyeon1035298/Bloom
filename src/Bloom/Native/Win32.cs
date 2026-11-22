@@ -164,6 +164,23 @@ internal static class Win32
         }
     }
 
+    /// When a process started (FILETIME), so a cache keyed by pid can tell a reused pid from the program it had;
+    /// 0 when it can't be asked.
+    public static long ProcessStarted(uint pid)
+    {
+        IntPtr h = OpenProcess(0x1000 /* PROCESS_QUERY_LIMITED_INFORMATION */, false, (int)pid);
+        if (h == IntPtr.Zero) return 0;
+        try
+        {
+            return GetProcessTimes(h, out long created, out _, out _, out _) ? created : 0;
+        }
+        finally
+        {
+            CloseHandle(h);
+        }
+    }
+
+    [DllImport("kernel32.dll", SetLastError = true)] private static extern bool GetProcessTimes(IntPtr h, out long created, out long exited, out long kernel, out long user);
     [DllImport("kernel32.dll", SetLastError = true)] private static extern IntPtr OpenProcess(uint access, bool inherit, int pid);
     [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)] private static extern bool QueryFullProcessImageName(IntPtr h, int flags, StringBuilder name, ref int size);
 

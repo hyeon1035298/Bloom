@@ -115,7 +115,6 @@ internal sealed partial class Host
         Icons.Start(ui);
         Window = new Launcher(this) { Capturing = Opt.CaptureDir is not null };
         Tools = new ToolDock(this);
-        DocWindow.Gone += Window.TrimSoon;
         if (Opt.ResponsiveRounds is { } responsive)
         {
             _ = ResponsivenessBench.Run(this, ui, responsive);
@@ -288,7 +287,6 @@ internal sealed partial class Host
         whatsNew.Closed += (_, _) =>
         {
             whatsNew = null;
-            Window.TrimSoon();
         };
         whatsNew.Show();
     }
@@ -583,7 +581,6 @@ internal sealed partial class Host
             settingsWindow.Closed += (_, _) =>
             {
                 settingsWindow = null;
-                Window.TrimSoon();
             };
             settingsWindow.Activated += (_, _) => settingsWindow?.Refresh();
             settingsWindow.Show();
@@ -652,7 +649,6 @@ internal sealed partial class Host
             chatWindow.Closed += (_, _) =>
             {
                 chatWindow = null;
-                Window.TrimSoon();
             };
             chatWindow.Show();
         }

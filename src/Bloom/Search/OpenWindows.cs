@@ -50,8 +50,7 @@ internal static class OpenWindows
             if (Win32.GetWindowThreadProcessId(h, out uint pid) == 0 || pid == me) return true;
             string title = Text(h);
             if (title.Length == 0) return true;
-            var (exe, app) = Program(h, pid);
-            seenPids.Add(pid);
+            var (exe, app) = Program(h, pid, seenPids);
             list.Add(new OpenWindow
             {
                 Handle = h,
@@ -95,20 +94,29 @@ internal static class OpenWindows
     }
 
     /// The program behind a window; a Store app's frame (ApplicationFrameHost) is looked through to the app inside.
-    private static (string? exe, string app) Program(IntPtr h, uint pid)
+    /// Marks the pids it used as seen, so the name cache keeps them.
+    private static (string? exe, string app) Program(IntPtr h, uint pid, HashSet<uint> seen)
     {
-        if (programs.TryGetValue(pid, out var known) && !known.app.Equals("ApplicationFrameHost", StringComparison.OrdinalIgnoreCase)) return known;
+        seen.Add(pid);
+        if (programs.TryGetValue(pid, out var known)) return known;
         string? exe = Win32.ProcessPath(pid);
         if (exe is not null && Path.GetFileName(exe).Equals("ApplicationFrameHost.exe", StringComparison.OrdinalIgnoreCase))
         {
+            // one frame process hosts every Store app, so its pid is never cached: the app inside is found per window
+            // on each scan, and cached under the app's own pid
             string? inner = null;
+            uint innerPid = 0;
             Win32.EnumChildWindows(h, (c, _) =>
             {
                 if (Win32.GetWindowThreadProcessId(c, out uint cpid) == 0 || cpid == pid) return true;
                 inner = Win32.ProcessPath(cpid);
+                innerPid = cpid;
                 return inner is null;
             }, IntPtr.Zero);
-            if (inner is not null) exe = inner;
+            if (inner is null) return (exe, Describe(exe));
+            seen.Add(innerPid);
+            if (programs.TryGetValue(innerPid, out var hosted)) return hosted;
+            (pid, exe) = (innerPid, inner);
         }
         string app = exe is null ? "" : Describe(exe);
         programs[pid] = (exe, app);

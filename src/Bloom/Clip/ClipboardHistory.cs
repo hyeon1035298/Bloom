@@ -43,7 +43,7 @@ internal sealed class ClipboardHistory : IDisposable
     private WinEventProc? winEventProc; // kept alive while hooked
     private IntPtr lastForeground;
     private readonly Saver saver;
-    private readonly Dictionary<uint, string?> appNames = new();
+    private readonly Dictionary<(uint pid, long started), string?> appNames = new(); // the start time tells a reused pid apart
     private Task work = Task.CompletedTask; // the copies' entries being made, one after another (Capture)
     private int busyTries;
     private static readonly TimeSpan SettleTime = TimeSpan.FromMilliseconds(150), BusyRetry = TimeSpan.FromMilliseconds(40);
@@ -249,7 +249,8 @@ internal sealed class ClipboardHistory : IDisposable
         if (owner == IntPtr.Zero) return null;
         _ = Win32.GetWindowThreadProcessId(owner, out uint pid);
         if (pid == 0) return null;
-        if (!appNames.TryGetValue(pid, out string? name))
+        var key = (pid, Win32.ProcessStarted(pid));
+        if (!appNames.TryGetValue(key, out string? name))
         {
             try
             {
@@ -272,7 +273,7 @@ internal sealed class ClipboardHistory : IDisposable
                 name = null;
             }
             if (appNames.Count > 200) appNames.Clear();
-            appNames[pid] = name;
+            appNames[key] = name;
         }
         if (name == "\0private")
         {

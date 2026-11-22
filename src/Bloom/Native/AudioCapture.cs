@@ -131,7 +131,8 @@ internal sealed unsafe class AudioCapture : IDisposable
             uint frames, flags;
             ulong position, qpc;
             if (get(c, &data, &frames, &flags, &position, &qpc) < 0) return false;
-            long at = ((long)qpc - start) * AudioMixer.Rate / 10_000_000;
+            // a packet whose timestamp the device could not tell carries a meaningless one: it follows the last packet
+            long? at = (flags & 0x4 /* AUDCLNT_BUFFERFLAGS_TIMESTAMP_ERROR */) != 0 ? null : ((long)qpc - start) * AudioMixer.Rate / 10_000_000;
             mixer.Push(source, at, new ReadOnlySpan<float>(data, (int)frames * AudioMixer.Channels), (flags & 0x2 /* AUDCLNT_BUFFERFLAGS_SILENT */) != 0);
             if (release(c, frames) < 0) return false;
         }
@@ -203,15 +204,16 @@ internal sealed class AudioMixer
         }
     }
 
-    /// One packet of interleaved float stereo from `source`, its first frame due at `at`; `silent` packets count as zeros.
-    public void Push(int source, long at, ReadOnlySpan<float> data, bool silent)
+    /// One packet of interleaved float stereo from `source`, its first frame due at `at` (null: no time known, so right
+    /// after the source's last packet, or at the mix position when that is already past); `silent` packets count as zeros.
+    public void Push(int source, long? at, ReadOnlySpan<float> data, bool silent)
     {
         int frames = data.Length / Channels;
         lock (gate)
         {
             float[] ring = rings[source];
             long end = Math.Max(ends[source], mixed);
-            long place = Math.Abs(at - ends[source]) <= Slack ? ends[source] : at;
+            long place = at is not { } due ? end : Math.Abs(due - ends[source]) <= Slack ? ends[source] : due;
             // a gap: zeros up to where this packet goes
             for (long f = end; f < Math.Min(place, mixed + capacity); f++) Put(ring, f, 0, 0);
             int skip = (int)Math.Clamp(mixed - place, 0, frames); // already mixed: too late for these

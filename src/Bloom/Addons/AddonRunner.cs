@@ -121,8 +121,10 @@ internal sealed class AddonRunner : IDisposable
             var p = ShellChild.Start(exe, psi.ArgumentList, psi.WorkingDirectory) ?? Ai.ChildProcess.Spawn(psi) ?? throw new InvalidOperationException("not started");
             Spawns++;
             process = p;
-            p.EnableRaisingEvents = true; // an exit before this line is still raised
+            // the handler first: a host that already ended raises Exited as soon as events are on, and a handler added
+            // after that would never hear it
             p.Exited += (_, _) => Ended(p);
+            p.EnableRaisingEvents = true;
             Log.Write($"add-on host started: {Path.GetFileName(exe)} pid {p.Id}");
         }
         catch (Exception e) when (e is Win32Exception or InvalidOperationException or IOException)

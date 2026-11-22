@@ -33,6 +33,7 @@ internal sealed class SpaceWindow : Window
     private SpaceScanner? scan;
     private SpaceDir? current;
     private DateTime bigAt = DateTime.MinValue;
+    private int bigRun; // the newest Big; an older one's late result is dropped
     private bool asking; // a question is over the window: its keys go to it
 
     public SpaceWindow(string? path)
@@ -262,31 +263,21 @@ internal sealed class SpaceWindow : Window
     }
 
     // ── the largest files under what is shown ───────────────────────────────────────────────────
-    private void Big()
+    // The walk can cover hundreds of thousands of entries and runs every two seconds while a scan goes on, so it runs on
+    // a worker; the UI thread only makes the rows.
+    private async void Big()
     {
         bigAt = DateTime.UtcNow;
-        bigList.Children.Clear();
-        if (current is null) return;
-        var top = new List<SpaceNode>();
-        var stack = new Stack<SpaceDir>();
-        stack.Push(current);
-        int seen = 0;
-        while (stack.Count > 0 && seen < 400_000)
+        int run = ++bigRun;
+        if (current is not { } at)
         {
-            var n = stack.Pop();
-            foreach (var c in n.Children())
-            {
-                seen++;
-                if (c is SpaceDir cd) stack.Push(cd);
-                else top.Add(c);
-            }
-            if (top.Count > 600)
-            {
-                top = top.OrderByDescending(x => x.Size).Take(40).ToList();
-            }
+            bigList.Children.Clear();
+            return;
         }
-        top = top.OrderByDescending(x => x.Size).Take(40).ToList();
-        bigTitle.Text = Tr($"큰 파일 · {current.Name.TrimEnd('\\')} 안에서", $"Big files · in {current.Name.TrimEnd('\\')}");
+        var top = await System.Threading.Tasks.Task.Run(() => at.Largest(40, 400_000));
+        if (run != bigRun || current != at) return; // a newer one is on its way
+        bigList.Children.Clear();
+        bigTitle.Text = Tr($"큰 파일 · {at.Name.TrimEnd('\\')} 안에서", $"Big files · in {at.Name.TrimEnd('\\')}");
         foreach (var f in top) bigList.Children.Add(BigRow(f));
     }
 
