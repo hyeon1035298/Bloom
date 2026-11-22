@@ -7,6 +7,10 @@ internal interface IToolPolicy
     /// A call that only looks something up (Bloom's find_*): allowed without asking.
     bool Quiet(string tool, string input);
 
+    /// Under 자동 (ToolPermissions.Auto), a call that still waits for the user's yes: running a file that is new to the PC
+    /// (RunnableFiles.IsNew), reading the clipboard.
+    bool AutoAsks(string tool, string input) => false;
+
     /// How the call reads in the chat: "옮기기: a.pdf → D:\문서".
     string Says(string tool, string input);
 
@@ -17,7 +21,4 @@ internal interface IToolPolicy
     /// (ToolText), the paths a file action will work on resolved; a file's content or an edit's before and after.
     /// Empty: the short line is all of it.
     string Detail(string tool, string input) => "";
-
-    /// A call asked about every time, whatever 항상 허용 says (opening a file that runs: a script, a program, a shortcut).
-    bool MustAsk(string tool, string input) => false;
 }

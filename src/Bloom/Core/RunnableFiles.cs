@@ -32,4 +32,39 @@ internal static class RunnableFiles
         }
         return Extensions.Contains(ext);
     }
+
+    /// True when a file to run is one the user hasn't had for long, so 자동 asks before running it (ToolPermissions.Auto):
+    /// it is in the Downloads folder, Windows marks it as from the internet (its Zone.Identifier says zone 3 or 4), it is
+    /// on a network or removable drive, or it was written within the last day (by an AI in the chat's project folder, say).
+    /// A path that can't be checked counts as new.
+    public static bool IsNew(string path)
+    {
+        try
+        {
+            string full = Path.GetFullPath(path);
+            if (full.StartsWith(Path.TrimEndingDirectorySeparator(Paths.Downloads) + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase)) return true;
+            if (full.StartsWith(@"\\", StringComparison.Ordinal) || new DriveInfo(full).DriveType is not (DriveType.Fixed or DriveType.Ram)) return true;
+            var file = new FileInfo(full);
+            return !file.Exists || DateTime.UtcNow - file.LastWriteTimeUtc < TimeSpan.FromDays(1) || ZoneOf(full) >= 3;
+        }
+        catch (Exception e) when (e is ArgumentException or IOException or UnauthorizedAccessException or NotSupportedException)
+        {
+            return true;
+        }
+    }
+
+    /// The zone Windows marked a downloaded file with (its Zone.Identifier stream: 3 internet, 4 restricted); 0 for none.
+    private static int ZoneOf(string path)
+    {
+        try
+        {
+            foreach (string line in File.ReadLines(path + ":Zone.Identifier"))
+                if (line.StartsWith("ZoneId=", StringComparison.OrdinalIgnoreCase) && int.TryParse(line.AsSpan(7).Trim(), out int zone)) return zone;
+        }
+        catch (FileNotFoundException)
+        {
+            /* no mark */
+        }
+        return 0;
+    }
 }

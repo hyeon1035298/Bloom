@@ -9,8 +9,10 @@ namespace Bloom.Ai;
 
 /// How a chat's `claude -p` is started (ClaudeSession), so that Bloom alone decides what runs without a card: none of
 /// the user's own Claude Code settings are loaded (their permission rules, a bypassPermissions default mode, hooks), only
-/// the keys that sign in are carried over; Read reaches the chat's folder, Write its out\, WebSearch runs, and anything
-/// else comes to the chat as an approval card — WebFetch too, as an address can carry away what the chat has read.
+/// the keys that sign in are carried over; Read reaches the chat's folder, Write its out\, WebSearch runs. Under 설정's
+/// Claude 대화 도구 자동 (ToolPermissions.Claude) Claude Code's auto mode judges the rest and only what it asks about comes
+/// to the chat as an approval card; otherwise all of it does — WebFetch too, as an address can carry away what the chat
+/// has read. Bloom's own pc tool comes to the chat in either mode, for Bloom to judge (Chats.Asked).
 internal static class ClaudeLaunch
 {
     /// Where a session's --mcp-config file goes: outside every folder a CLI is started in (Local\ai and below), as it holds
@@ -22,8 +24,9 @@ internal static class ClaudeLaunch
     private static readonly string[] SignIn = { "apiKeyHelper", "awsAuthRefresh", "awsCredentialExport", "env", "forceLoginMethod", "forceLoginOrgUUID" };
 
     /// The arguments before the MCP servers, the effort and the session to resume. `files`: the chat's folder relative to
-    /// the working folder ("." when the CLI runs in it); `userSettings`: the account's settings.json text, or null.
-    public static List<string> Args(string model, string prompt, string files, string name, bool fast, string? userSettings) => new()
+    /// the working folder ("." when the CLI runs in it); `userSettings`: the account's settings.json text, or null; `auto`:
+    /// Claude Code's auto mode (a model it doesn't take it for starts in the default mode, which asks).
+    public static List<string> Args(string model, string prompt, string files, string name, bool fast, string? userSettings, bool auto) => new()
     {
         "-p", "--input-format", "stream-json", "--output-format", "stream-json", "--verbose", "--include-partial-messages",
         "--model", model, "--system-prompt", prompt,
@@ -31,15 +34,16 @@ internal static class ClaudeLaunch
         "--strict-mcp-config", "--disable-slash-commands", "--name", name,
         // "default" rather than its newer name "manual", which older CLIs refuse; no setting source: no rule of the user's
         // own allows anything here
-        "--permission-mode", "default", "--setting-sources", "", "--permission-prompt-tool", "stdio",
-        "--settings", Settings(fast, userSettings),
+        "--permission-mode", auto ? "auto" : "default", "--setting-sources", "", "--permission-prompt-tool", "stdio",
+        "--settings", Settings(fast, userSettings, auto),
     };
 
     /// A path pattern under the chat's folder as the session sees it.
     public static string Under(string files, string sub) => files == "." ? "./" + sub : $"./{files}/{sub}";
 
-    /// The --settings JSON: hooks off (and thinking, `fast`), with the sign-in keys of the user's settings.json.
-    public static string Settings(bool fast, string? userSettings)
+    /// The --settings JSON: hooks off (and thinking, `fast`), with the sign-in keys of the user's settings.json; under
+    /// `auto`, an ask rule for Bloom's pc tool, which auto mode would otherwise judge itself.
+    public static string Settings(bool fast, string? userSettings, bool auto = false)
     {
         var o = new JsonObject();
         if (userSettings is not null)
@@ -57,6 +61,7 @@ internal static class ClaudeLaunch
         }
         o["disableAllHooks"] = true;
         if (fast) o["alwaysThinkingEnabled"] = false;
+        if (auto) o["permissions"] = new JsonObject { ["ask"] = new JsonArray(App.Mcp.BloomTools.Prefix + App.Mcp.BloomTools.Name) };
         return o.ToJsonString();
     }
 

@@ -80,40 +80,29 @@ internal static class Paths
 
     /// The user's Screenshots folder, where Windows' Snipping Tool saves: asked of Windows (FOLDERID_Screenshots), so a
     /// moved Pictures folder is followed; Pictures\Screenshots when Windows doesn't say.
-    public static string Screenshots
-    {
-        get
-        {
-            if (SHGetKnownFolderPath(new Guid("b7bede81-df94-4682-a7d8-57a52620b86f"), 0, IntPtr.Zero, out IntPtr p) == 0)
-                try
-                {
-                    if (Marshal.PtrToStringUni(p) is { Length: > 0 } dir) return dir;
-                }
-                finally
-                {
-                    Marshal.FreeCoTaskMem(p);
-                }
-            return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyPictures), "Screenshots");
-        }
-    }
+    public static string Screenshots =>
+        KnownFolder(new Guid("b7bede81-df94-4682-a7d8-57a52620b86f")) ?? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyPictures), "Screenshots");
 
     /// Videos\Screen Recordings, where Windows' Snipping Tool keeps its recordings: the Videos folder asked of Windows
     /// (FOLDERID_Videos), so a moved one is followed.
-    public static string ScreenRecordings
+    public static string ScreenRecordings =>
+        Path.Combine(KnownFolder(new Guid("18989b1d-99b5-455b-841c-ab7c74e4ddfc")) ?? Environment.GetFolderPath(Environment.SpecialFolder.MyVideos), "Screen Recordings");
+
+    /// The user's Downloads folder, asked of Windows (FOLDERID_Downloads), so a moved one is followed.
+    public static string Downloads =>
+        KnownFolder(new Guid("374de290-123f-4565-9164-39c4925e467b")) ?? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Downloads");
+
+    /// Where a known folder is now; null when Windows doesn't say.
+    private static string? KnownFolder(Guid id)
     {
-        get
+        int hr = SHGetKnownFolderPath(id, 0, IntPtr.Zero, out IntPtr p);
+        try
         {
-            string videos = Environment.GetFolderPath(Environment.SpecialFolder.MyVideos);
-            if (SHGetKnownFolderPath(new Guid("18989b1d-99b5-455b-841c-ab7c74e4ddfc"), 0, IntPtr.Zero, out IntPtr p) == 0)
-                try
-                {
-                    if (Marshal.PtrToStringUni(p) is { Length: > 0 } dir) videos = dir;
-                }
-                finally
-                {
-                    Marshal.FreeCoTaskMem(p);
-                }
-            return Path.Combine(videos, "Screen Recordings");
+            return hr == 0 && Marshal.PtrToStringUni(p) is { Length: > 0 } dir ? dir : null;
+        }
+        finally
+        {
+            Marshal.FreeCoTaskMem(p);
         }
     }
 

@@ -16,7 +16,8 @@ namespace Bloom.Ai;
 /// replaced; the session loads no hooks, none of the user's settings or MCP servers (ClaudeLaunch), runs in this
 /// conversation's folder (ai\files\<thread>: attachments in in\, files it makes in out\) and allows WebSearch, Read there
 /// and Write in out\. With PcTools on it also gets Bloom's own MCP tools; anything else (WebFetch, a file elsewhere, a
-/// tool) comes as a ToolAsk and waits for Answer.
+/// tool) comes as a ToolAsk and waits for Answer — under 자동 only what Claude Code's auto mode asks about, and Bloom's
+/// own tool.
 /// Effort "fast" turns thinking off; the other levels go to --effort. The user's own Claude login (OAuth) is used.
 internal sealed class ClaudeSession : IChatSession
 {
@@ -141,7 +142,7 @@ internal sealed class ClaudeSession : IChatSession
     }
 
     private sealed record Startup(string? Cli, string Cwd, string Prompt, JsonElement? Server,
-        Func<List<McpServerDef>>? ReadMcp, string? Resume);
+        Func<List<McpServerDef>>? ReadMcp, string? Resume, bool Auto);
 
     public bool Start(string? resume, out string? error)
     {
@@ -156,7 +157,8 @@ internal sealed class ClaudeSession : IChatSession
         doing = pc?.doing;
         var plan = new Startup(Settings.Current.ClaudePath, Folder ?? Path.Combine(Paths.Local, "ai"),
             SystemPrompt(files + "/out", pc: pc is not null, titles: Settings.Current.AiTitles),
-            pc is { } tools ? JsonSerializer.SerializeToElement(tools.server) : null, PrepareMcp?.Invoke(), resume);
+            pc is { } tools ? JsonSerializer.SerializeToElement(tools.server) : null, PrepareMcp?.Invoke(), resume,
+            ToolPermissions.Of(ToolPermissions.Claude) == ToolPermissions.Auto);
         return Task.Run(() =>
         {
             bool started = false;
@@ -200,8 +202,8 @@ internal sealed class ClaudeSession : IChatSession
         };
         bool fast = Effort == "fast" || !AiModels.HasEffort(Model);
         // Read / Write reach this conversation's folder without asking; anything else is asked in the chat
-        // (--permission-prompt-tool stdio)
-        foreach (string a in ClaudeLaunch.Args(Model, plan.Prompt, files, name, fast, ClaudeLaunch.UserSettings(AccountHome))) psi.ArgumentList.Add(a);
+        // (--permission-prompt-tool stdio), under 자동 what Claude Code's auto mode asks about
+        foreach (string a in ClaudeLaunch.Args(Model, plan.Prompt, files, name, fast, ClaudeLaunch.UserSettings(AccountHome), plan.Auto)) psi.ArgumentList.Add(a);
         // Bloom's tool and the other servers switched on, in a file of this session's outside the CLI's folder; every
         // call asks in the chat
         var servers = new Dictionary<string, object>();

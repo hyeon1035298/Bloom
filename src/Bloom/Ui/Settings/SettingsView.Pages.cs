@@ -550,13 +550,15 @@ internal sealed partial class SettingsView
         chats.Add(("API", s.AiToolsApi, v => s.AiToolsApi = v));
         KeyChips(Tr("사용할 대화", "Chats that use it"), Tr("실행 전 승인 카드 · 요청마다 약 +250~500 토큰", "An approval card before each action · about +250–500 tokens per request"), chats, filter);
 
-        Header(Tr("권한", "Permissions"), Tr("PC 조작 외에는 API 대화에만 적용", "All but PC actions apply to API chats only"));
+        Header(Tr("권한", "Permissions"), Tr("파일 · 명령 · 다른 MCP 도구는 API 대화에만 적용", "Files, commands and other MCP tools apply to API chats only"));
         (string, string)[] rules = { (ToolPermissions.Ask, Tr("매번 묻기", "Ask each time")), (ToolPermissions.Allow, Tr("항상 허용", "Always allow")), (ToolPermissions.Off, Tr("사용 안 함", "Off")) };
-        // `restart`: the rule decides whether a chat gets the tool at all, which a running CLI session fixed when it began
+        (string, string)[] withAuto = [(ToolPermissions.Auto, Tr("자동", "Auto")), .. rules];
+        // `restart`: the rule decides what a chat gets at all (the tool, Claude Code's mode), which a running CLI session
+        // fixed when it began
         void Rule(string action, string title, string sub, char glyph, bool restart = false) =>
-            Choice(title, sub, glyph, rules, ToolPermissions.Of(s.Permissions, action), v =>
+            Choice(title, sub, glyph, ToolPermissions.DefaultOf(action) == ToolPermissions.Auto ? withAuto : rules, ToolPermissions.Of(s.Permissions, action), v =>
             {
-                if (v == ToolPermissions.Ask) s.Permissions.Remove(action);
+                if (v == ToolPermissions.DefaultOf(action)) s.Permissions.Remove(action);
                 else s.Permissions[action] = v;
                 if (restart) host.Chats.EndAll();
                 // 사용 안 함 ends the running MCP servers and a start under way at once, not at the next message
@@ -567,7 +569,8 @@ internal sealed partial class SettingsView
         Rule(ToolPermissions.Edit, Tr("파일 고치기", "Edit files"), Tr("파일의 일부 바꾸기", "Change part of a file"), G.Pen);
         Rule(ToolPermissions.Command, Tr("명령 실행", "Run commands"), Tr("대화 폴더에서 PowerShell 실행", "PowerShell in the chat's folder"), G.Code);
         Rule(ToolPermissions.Mcp, Tr("다른 MCP 도구", "Other MCP tools"), Tr("아래에서 켠 MCP 서버의 도구 · 끄면 서버를 시작 안 함", "Tools of the MCP servers switched on below · Off starts none"), G.Plug);
-        Rule(ToolPermissions.Pc, Tr("PC 조작 (Bloom 기능)", "PC actions (Bloom's tool)"), Tr("모든 대화 · 열기 · 메모 · 타이머 · 파일 · 클립보드 · 찾기는 묻지 않음", "Every chat · open, notes, timers, files, clipboard · look-ups never ask"), G.Bolt, restart: true);
+        Rule(ToolPermissions.Pc, Tr("PC 조작 (Bloom 기능)", "PC actions (Bloom's tool)"), Tr("모든 대화 · 찾기는 묻지 않음 · 자동은 새로 받거나 만든 실행 파일과 클립보드 읽기만 물음", "Every chat · look-ups never ask · Auto asks only before running a newly downloaded or made file and reading the clipboard"), G.Bolt, restart: true);
+        Rule(ToolPermissions.Claude, Tr("Claude 대화 도구", "Claude chat tools"), Tr("웹 페이지 · 대화 폴더 밖 파일 · 다른 MCP 도구 · 자동은 Claude Code의 자동 모드", "Web pages, files outside the chat's folder, other MCP tools · Auto is Claude Code's auto mode"), G.Globe, restart: true);
         Header(Tr("할 수 있는 일", "What it may do"));
         void Group(string key, string title, string sub, char glyph)
         {

@@ -5,9 +5,9 @@ using Bloom.Core;
 
 namespace Bloom.Ai;
 
-/// The AI's tool calls in a conversation: look-ups go through, actions 설정's 권한 decides (ToolPermissions: 항상 허용,
-/// 사용 안 함) or already allowed for the whole conversation go through or are refused and are recorded, the rest wait on
-/// an approval card (ChatMessage.Asks) for the user's yes or no.
+/// The AI's tool calls in a conversation: look-ups go through, actions 설정's 권한 decides (ToolPermissions: 자동,
+/// 항상 허용, 사용 안 함) or already allowed for the whole conversation go through or are refused and are recorded, the
+/// rest wait on an approval card (ChatMessage.Asks) for the user's yes or no.
 internal sealed partial class Chats
 {
     /// Which calls run without asking, how they read and what 항상 허용 remembers (Host: BloomTools).
@@ -36,7 +36,6 @@ internal sealed partial class Chats
             Key = raw.Key.Length > 0 ? raw.Key : Tools?.Key(raw.Tool, raw.Input) ?? raw.Tool,
             // the card shows the call whole; the ✓ / ✕ line under the answer keeps the short Says
             Detail = raw.Detail.Length > 0 ? raw.Detail : Tools?.Detail(raw.Tool, raw.Input) ?? "",
-            MustAsk = raw.MustAsk || (Tools?.MustAsk(raw.Tool, raw.Input) ?? false),
         };
         // the card shows a call whole or the call is not asked about: one too big for it is declined
         if (ask.Detail.Length > ToolText.MaxPayload * 2)
@@ -46,9 +45,12 @@ internal sealed partial class Chats
             Updated?.Invoke(t);
             return;
         }
-        // 설정's 권한 first (사용 안 함 says no, 항상 허용 yes), then this chat's 항상 허용; either way the answer shows the line
+        // 설정's 권한 first (사용 안 함 says no, 항상 허용 yes, 자동 yes to Bloom's tool but for what it still asks about),
+        // then this chat's 항상 허용; either way the answer shows the line. Under 자동 Claude Code judged its own tools
+        // already: what it asks about is asked.
         string rule = ToolPermissions.Of(ask.Key);
-        if (rule == ToolPermissions.Off || (!ask.MustAsk && (rule != ToolPermissions.Ask || t.AlwaysAllowed.Contains(ask.Key))))
+        bool auto = rule == ToolPermissions.Auto && ToolPermissions.ActionOf(ask.Key) == ToolPermissions.Pc && Tools?.AutoAsks(ask.Tool, ask.Input) == false;
+        if (rule == ToolPermissions.Off || (!ask.MustAsk && (rule == ToolPermissions.Allow || auto || t.AlwaysAllowed.Contains(ask.Key))))
         {
             bool allow = rule != ToolPermissions.Off;
             (m.Done ??= new()).Add((allow ? "✓ " : "✕ ") + ask.Says);

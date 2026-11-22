@@ -110,23 +110,31 @@ internal sealed class BloomTools : IPcTools
     /// a file outside the chat's folder, in every chat.
     public bool Quiet(string tool, string input) => IsPc(tool) && Parse(input, a => ActionOf(a) is { Asks: false } x && !ReadsContents(x, a));
 
+    /// Running a file new to the PC (open; a launcher line too, which also runs what an AI wrote: Open only shows that), or
+    /// reading the clipboard (it may hold a password).
+    public bool AutoAsks(string tool, string input) => IsPc(tool) && Parse(input, a => (S(a, "do"), S(a, "q")) switch
+    {
+        ("open", var q) => Runs(q) && !InAiFolder(q) && RunnableFiles.IsNew(Resolved(q)),
+        ("run_line", var q) => Runs(q) && (InAiFolder(q) || RunnableFiles.IsNew(Resolved(q))),
+        ("clip_read", _) => true,
+        _ => false,
+    });
+
     /// A find_files whose query is more than plain text for names (EverythingQuery).
     private static bool ReadsContents(PcAction action, JsonElement a) => action.Do == "find_files" && !EverythingQuery.IsPlainName(S(a, "q"));
 
     /// What 이 대화에서 항상 허용 covers: one action of the pc tool ("pc:move"), or another tool by name; a content search
-    /// is the file-read permission's (ToolPermissions.ReadOutside).
+    /// is the file-read permission's (ToolPermissions.ReadOutside). Opening a file that runs (the card's 파일 실행) is kept
+    /// apart from 열기, so allowing one doesn't allow the other.
     public string Key(string tool, string input) => IsPc(tool)
-        ? Parse(input, a => ActionOf(a) is { } x && ReadsContents(x, a) ? ToolPermissions.ReadOutside : "pc:" + S(a, "do"), "pc:")
+        ? Parse(input, a => ActionOf(a) is { } x && ReadsContents(x, a) ? ToolPermissions.ReadOutside
+            : S(a, "do") == "open" && Runs(S(a, "q")) ? "pc:run_file" : "pc:" + S(a, "do"), "pc:")
         : tool;
 
     /// What the approval card shows whole (ToolText.Visible throughout): a pc action's every argument, the paths a file
     /// action works on resolved as it will resolve them (variables expanded); Claude's own file tools' paths and texts;
     /// any other tool's input.
     public string Detail(string tool, string input) => Parse(input, a => IsPc(tool) ? PcDetail(a) : OtherDetail(tool, a), "");
-
-    /// Opening a file that runs (RunnableFiles: a script, a program, a shortcut) is asked every time: 항상 허용 for
-    /// ‘열기’ was given for opening, not for running whatever an AI names or wrote.
-    public bool MustAsk(string tool, string input) => IsPc(tool) && Parse(input, a => S(a, "do") == "open" && Runs(S(a, "q")));
 
     /// An open target that is a file which runs when opened (a web address or an app name is not).
     private static bool Runs(string target)

@@ -307,8 +307,7 @@ internal sealed class ApiToolbox
             if (held.Links > 1) detail += " " + Tr($"다른 이름이 {held.Links - 1}개 더 있어 다른 위치에서도 바뀝니다.", $"It has {held.Links - 1} other names, so it changes there too.");
         }
         if (body.Length > 0) detail += "\n" + body;
-        // through a link the question is always put, whatever 권한 says: the card is the only look at where it leads
-        return new ToolAsk(call.Id, call.Name, call.Arguments, says, key) { Detail = detail, MustAsk = trace.Any };
+        return new ToolAsk(call.Id, call.Name, call.Arguments, says, key) { Detail = detail };
     }
 
     /// The links on the way to `full`, found without following any (RealPath.Trace): below the chat's folder when it is
