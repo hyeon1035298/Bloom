@@ -262,6 +262,23 @@ internal sealed class ChatView : Grid, IComposerHost
 
     private int builtCount;
 
+    // the answer being streamed keeps its document between updates: only its last, still open blocks are made again
+    private ChatMessage? streamed;
+    private MarkdownStream? stream;
+
+    private FrameworkElement Answer(ChatMessage m)
+    {
+        if (!m.Streaming)
+        {
+            if (ReferenceEquals(m, streamed)) (streamed, stream) = (null, null); // done: drawn whole, as any answer
+            return Markdown.Render(m.Text, FollowLink);
+        }
+        if (!ReferenceEquals(m, streamed)) (streamed, stream) = (m, new MarkdownStream());
+        var view = Markdown.Render(m.Text, FollowLink, stream: stream);
+        if (view.Parent is Panel before) before.Children.Remove(view); // out of the message drawn before this one
+        return view;
+    }
+
     private static void Rise(FrameworkElement el, int delayMs)
     {
         if (!Motion.Moves) return;
@@ -466,7 +483,7 @@ internal sealed class ChatView : Grid, IComposerHost
             {
                 answer.Children.Add(ReadText.Plain(m.Text, 13.5, Theme.Regular, Theme.P.Danger));
             }
-            else answer.Children.Add(Markdown.Render(m.Text, FollowLink));
+            else answer.Children.Add(Answer(m));
         }
         if (m.Files is { Count: > 0 } made)
             foreach (string f in made) answer.Children.Add(MadeFile(f));

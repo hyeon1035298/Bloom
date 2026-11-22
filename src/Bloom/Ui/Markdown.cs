@@ -30,13 +30,65 @@ internal static class Markdown
     /// The whole answer as one selectable document: drag across paragraphs, lists and tables to copy. With `picture`
     /// (바뀐 점), ![alt](src) is a picture: a paragraph that is one picture alone is the element `picture` makes of it (its
     /// link, [![alt](src)](url), in the span), and any other picture, or one it makes nothing of, its alt text.
-    public static ReadText Render(string md, Action<string> openLink, double size = 14, Func<MdSpan, FrameworkElement?>? picture = null)
+    /// With `stream` (an answer still being written), the document it keeps comes back with only its changed blocks
+    /// made again (Stream).
+    public static ReadText Render(string md, Action<string> openLink, double size = 14, Func<MdSpan, FrameworkElement?>? picture = null, MarkdownStream? stream = null)
     {
         var ctx = new Ctx(openLink, new MdMetrics(size, false), picture);
+        var blocks = MdParser.Parse(md, false, picture is not null);
+        if (stream is not null) return Stream(md, blocks, ctx, stream);
         var doc = ReadText.Doc(size);
-        Blocks(MdParser.Parse(md, false, picture is not null), ctx, doc.Blocks);
+        Blocks(blocks, ctx, doc.Blocks);
         if (doc.Blocks.LastBlock is { } last) last.Margin = new Thickness(last.Margin.Left, last.Margin.Top, last.Margin.Right, 0);
         return new ReadText(doc);
+    }
+
+    /// An answer that grows with every few words: its kept document, rebuilt from the first top-level block whose Key
+    /// changed. Blocks makes exactly one document block per top-level MdBlock from that MdBlock alone, and the Key holds
+    /// everything an MdBlock is read from (its source lines and what its place gave it: first, numbering, end of a
+    /// list), so a kept block is the one a new rendering would make. A table or list still growing, or a fence not yet
+    /// closed, changes its Key and is made again.
+    private static ReadText Stream(string md, List<MdBlock> blocks, Ctx ctx, MarkdownStream s)
+    {
+        string[] lines = md.Replace("\r\n", "\n").Split('\n');
+        var keys = new List<string>(blocks.Count);
+        foreach (var b in blocks) keys.Add(Key(b, lines));
+        if (s.View is null || s.Size != ctx.Size || s.View.Document.Blocks.Count != s.Keys.Count)
+        {
+            s.View = new ReadText(ReadText.Doc(ctx.Size));
+            s.Size = ctx.Size;
+            s.Keys.Clear();
+            s.Last = null;
+        }
+        var doc = s.View.Document;
+        if (s.Last is { } was) was.Margin = s.LastMargin; // no longer necessarily the last
+        int same = 0;
+        while (same < keys.Count && same < s.Keys.Count && keys[same] == s.Keys[same]) same++;
+        while (doc.Blocks.Count > same) doc.Blocks.Remove(doc.Blocks.LastBlock);
+        Blocks(blocks.GetRange(same, blocks.Count - same), ctx, doc.Blocks);
+        s.Keys.Clear();
+        s.Keys.AddRange(keys);
+        if (doc.Blocks.Count != keys.Count)
+        {
+            // not one block each after all: the whole answer anew, this time and every time after
+            doc.Blocks.Clear();
+            Blocks(blocks, ctx, doc.Blocks);
+            s.Keys.Clear();
+        }
+        s.Last = doc.Blocks.LastBlock;
+        if (s.Last is { } last)
+        {
+            s.LastMargin = last.Margin;
+            last.Margin = new Thickness(last.Margin.Left, last.Margin.Top, last.Margin.Right, 0);
+        }
+        return s.View;
+    }
+
+    /// What a top-level block is made from: its kind, what its place in the text gave it, and its source lines.
+    private static string Key(MdBlock b, string[] lines)
+    {
+        int from = Math.Clamp(b.Line, 0, lines.Length), to = Math.Clamp(b.End, from, lines.Length);
+        return $"{b.Kind}|{b.First}|{b.ListEnd}|{b.Marker}|{b.Done}|{b.Indent}|{b.Level}\n{string.Join('\n', lines, from, to - from)}";
     }
 
     private static void Blocks(List<MdBlock> blocks, Ctx ctx, BlockCollection into)
