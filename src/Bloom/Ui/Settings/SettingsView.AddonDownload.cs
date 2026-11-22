@@ -11,10 +11,10 @@ namespace Bloom.Ui;
 /// of them.
 internal sealed partial class SettingsView
 {
-    /// Under an add-on's line: 받기 while this Bloom doesn't have it, 업데이트 when its latest release is newer than the
-    /// version here, how far a look or a download is, why one failed (with 다시 받기), and while it is failing, a way to
-    /// report it in its repository. `name`: the add-on's name in the rows. Not while the launcher's search collects. Works
-    /// in a dev or QA copy too (into its own data folder): its switch still starts nothing there.
+    /// Under an add-on's line: 받기 while this Bloom doesn't have it, how far a look or a download is, why one failed (with
+    /// 다시 받기 for a first download; a newer version is 애드온 목록's 업데이트 (n), SettingsView.Addons), and while it is
+    /// failing, a way to report it in its repository. `name`: the add-on's name in the rows. Not while the launcher's
+    /// search collects. Works in a dev or QA copy too (into its own data folder): its switch still starts nothing there.
     private void AddonDownload(Addon addon, string name, AddonStatus status, string filter)
     {
         if (collected is not null || addon.Catalog is not { } catalog) return;
@@ -36,16 +36,16 @@ internal sealed partial class SettingsView
         }
         var offer = addon.Offer();
         string get = Tr("받기", "Download");
-        // a failed look while the version here is the latest is said nowhere: it is tried again tomorrow
+        // one here (downloaded, or broken) gets a newer version from 애드온 목록's 업데이트 (n), a failed one too; a failed
+        // look while the version here is the latest is said nowhere: it is tried again tomorrow
+        bool here = addon.Manifest is not null || addon.Broken;
         if (fetch.Failed is { } why && (offer is not null || addon.Manifest is null))
-            Add(Tr($"{name} 받기 실패", $"Couldn't download {name}"), FailureText(why), RowButton(Tr("다시 받기", "Try again"), Get), G.Warning, Get, null, filter);
-        else if (offer is { } e && addon.Manifest is { } now && !addon.Broken)
-            Add(Tr($"{name} {e.Version} 업데이트", $"{name} {e.Version} update"), Tr($"지금 {now.Version} · GitHub 릴리스에서 받습니다", $"Now {now.Version} · from its GitHub release"),
-                RowButton($"{Tr("업데이트", "Update")} · {Engine.Size(e.Size)}", Get), G.Download, Get, null, filter);
-        else if (offer is { } first)
+            Add(Tr($"{name} 받기 실패", $"Couldn't download {name}"), FailureText(why), here ? null : RowButton(Tr("다시 받기", "Try again"), Get), G.Warning,
+                here ? null : Get, null, filter);
+        else if (!here && offer is { } first)
             Add(Tr($"{name} {first.Version} 받기", $"Download {name} {first.Version}"), Tr("GitHub 릴리스에서 받아 Bloom이 확인한 뒤 설치합니다", "From its GitHub release, checked by Bloom before it is installed"),
                 RowButton($"{get} · {Engine.Size(first.Size)}", Get), G.Download, Get, null, filter);
-        else if (addon.Manifest is null)
+        else if (!here)
             Add(Tr($"{name} 받기", $"Download {name}"), Tr("GitHub 릴리스에서 받아 Bloom이 확인한 뒤 설치합니다", "From its GitHub release, checked by Bloom before it is installed"),
                 RowButton(get, Get), G.Download, Get, null, filter);
         if (addon.Manifest is { } m && status.State is AddonState.SafeMode or AddonState.Stopped or AddonState.Broken or AddonState.PortCrashed)

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using Bloom.Addons;
@@ -29,15 +30,18 @@ internal sealed partial class SettingsView
         var taskbar = taskbarAddon ?? AddonHub.Taskbar;
         var listed = listedAddons ?? AddonHub.Listed.ToList();
         var users = userAddons ?? AddonHub.Users.ToList();
-        // their latest releases, read once a day while the page is drawn, so 업데이트 shows for one that is off too (not
+        // their latest releases, read once a day while the page is drawn, so 업데이트 (n) counts one that is off too (not
         // for QA pictures or the recording mode, whose page stays the same whatever GitHub holds)
         if (collected is null && taskbarAddon is null && listedAddons is null && host.Opt.CaptureDir is null && !host.Opt.Demo)
             AddonHub.Look(listed.Prepend(taskbar));
         Page("addons", Tr("애드온", "Add-ons"), G.Plug,
             Tr("애드온은 Bloom이 함께 실행하는 별도 프로그램이며, 여기서 하나씩 켜고 끕니다. 줄을 누르면 그 애드온의 페이지가 열립니다. Bloom의 로컬 데이터 폴더 안 user-addons에 직접 넣은 애드온은 Bloom을 다시 시작하면 보입니다.",
                 "Add-ons are separate programs Bloom starts, each turned on and off here. Click one to open its page. One you put in the user-addons folder in Bloom's local data folder shows after Bloom restarts."), filter);
-        Header(Tr("애드온 목록", "All add-ons"));
         var views = new List<AddonView>();
+        // one button beside the title for the add-ons Bloom downloads (the user's own have no releases to read), and what
+        // it found under it
+        Header(Tr("애드온 목록", "All add-ons"), addonCheck is { Length: > 0 } found ? found : null,
+            AddonHub.Offered ? (AddonCheckLabel(addonCheck == "", addonUpdating, listed.Prepend(taskbar).Count(IsNewer)), () => CheckAddons(views.Where(v => !v.Addon.User).ToList())) : null);
 
         string taskbarName = Tr("작업표시줄", "Taskbar"), taskbarAbout = Tr("작업표시줄을 가운데 알약 모양으로 바꿉니다", "Turns the taskbar into a centred pill");
         Action<bool, Switch> setTaskbar = (v, sw) => SetAddon(taskbar, v, sw, () => ConfirmTaskbar(taskbar));
@@ -69,6 +73,65 @@ internal sealed partial class SettingsView
             views.Add(new(addon, name, about, G.Plug, st, AddonStatusText, set, SchemaBody(addon, filter)));
         }
         foreach (var v in views) AddonPage(s, v, filter);
+    }
+
+    /// 애드온 목록's button while this window is open: null before it ran, "" while it runs, else what it found.
+    private string? addonCheck;
+
+    /// While the button runs: it downloads (업데이트) rather than reads (업데이트 확인).
+    private bool addonUpdating;
+
+    /// One add-on as the button reports it: its version before and after, a newer one it has to download, and whether its
+    /// read or its download failed.
+    internal sealed record AddonChecked(string Name, string? Before, string? After, string? Offered, bool Failed);
+
+    /// An add-on here (downloaded, or broken) whose latest release as last read is newer: what 업데이트 downloads. One
+    /// never downloaded has its own 받기 (its switch needs its addon.json's license first).
+    private static bool IsNewer(Addon a) => !a.User && !a.Fetch.Busy && (a.Manifest is not null || a.Broken) && a.Offer() is not null;
+
+    /// The button: 업데이트 (n) while n add-ons have a newer version, else 업데이트 확인; what it does while it runs.
+    internal static string AddonCheckLabel(bool running, bool updating, int newer) =>
+        running ? updating ? Tr("업데이트하는 중…", "Updating…") : Tr("확인하는 중…", "Checking…")
+        : newer > 0 ? Tr($"업데이트 ({newer})", $"Update ({newer})") : Tr("업데이트 확인", "Check for updates");
+
+    /// The button's click. With no newer version known, every add-on reads its latest release now (AddonHub.LookNow) and
+    /// the button counts what it found; with some, it downloads and puts in all of them (AddonHub.Update, at once while
+    /// one is on). Once all have ended, the line under 애드온 목록 says what changed; each add-on's own line shows how far
+    /// its download is.
+    private async void CheckAddons(IReadOnlyList<AddonView> views)
+    {
+        if (addonCheck == "") return;
+        var newer = views.Select(v => v.Addon).Where(IsNewer).ToList();
+        var before = views.Select(v => v.Addon.Manifest?.Version).ToList();
+        addonCheck = "";
+        addonUpdating = newer.Count > 0;
+        Build(lastFilter);
+        bool[] failed;
+        if (addonUpdating)
+        {
+            await Task.WhenAll(newer.Select(AddonHub.Update));
+            failed = views.Select(v => newer.Contains(v.Addon) && v.Addon.Fetch.Failed is not null).ToArray();
+        }
+        else
+            failed = (await AddonHub.LookNow(views.Select(v => v.Addon))).Select(read => !read).ToArray();
+        addonCheck = AddonCheckText(views.Select((v, i) => new AddonChecked(v.Name, before[i], v.Addon.Manifest?.Version,
+            IsNewer(v.Addon) ? v.Addon.Offer()?.Version : null, failed[i])).ToList(), addonUpdating);
+        Build(lastFilter);
+    }
+
+    /// What the button found: the add-ons now on a newer version; the ones whose download (after 업데이트, `updated`) or
+    /// read (after 업데이트 확인) failed; the ones with a newer version to download; else that all are up to date.
+    internal static string AddonCheckText(IReadOnlyList<AddonChecked> list, bool updated)
+    {
+        var parts = new List<string>();
+        if (list.Where(a => a.After is { } v && a.Before != v).Select(a => $"{a.Name} {a.After}").ToList() is { Count: > 0 } moved)
+            parts.Add(Tr($"새 버전으로 바꿈: {string.Join(", ", moved)}", $"Updated: {string.Join(", ", moved)}"));
+        if (list.Where(a => a.Failed).Select(a => a.Name).ToList() is { Count: > 0 } failed)
+            parts.Add(updated ? Tr($"받지 못함: {string.Join(", ", failed)}", $"Couldn't download: {string.Join(", ", failed)}")
+                : Tr($"확인하지 못함: {string.Join(", ", failed)}", $"Couldn't check: {string.Join(", ", failed)}"));
+        if (list.Where(a => !a.Failed && a.Offered is not null).Select(a => $"{a.Name} {a.Offered}").ToList() is { Count: > 0 } offered)
+            parts.Add(Tr($"새 버전 있음: {string.Join(", ", offered)}", $"New version: {string.Join(", ", offered)}"));
+        return parts.Count > 0 ? string.Join(" · ", parts) : Tr("모두 최신 버전입니다", "All up to date");
     }
 
     /// What an add-on's page holds below the head when its schema has settings (SettingsView.AddonSettings).

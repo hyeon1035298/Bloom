@@ -212,24 +212,27 @@ internal sealed class Addon
         }
     }
 
-    /// Reads its latest release only (the settings page, for the 업데이트 it may offer); a failure is logged and leaves the
-    /// last one read.
-    public async Task Look(HttpClient http)
+    /// Reads its latest release only (the settings page, for the 업데이트 it may offer); true once read. A failure is
+    /// logged and leaves the last one read.
+    public async Task<bool> Look(HttpClient http)
     {
-        if (Catalog is not { } c) return;
+        if (Catalog is not { } c) return false;
+        bool read = false;
         try
         {
             Latest = await AddonLatest.Fetch(http, c).ConfigureAwait(false);
+            read = true;
         }
         catch (AddonDownloadException x)
         {
             Log.Write($"add-on {Id}: latest release not read ({x.Reason}): {x.Message}");
         }
-        catch (Exception x) when (x is InvalidOperationException or HttpRequestException)
+        catch (Exception x) when (x is InvalidOperationException or OperationCanceledException or HttpRequestException)
         {
             Log.Error("add-on " + Id, x);
         }
         AddonHub.Notify();
+        return read;
     }
 
     private async Task Fetched(HttpClient http, AddonRelease e, string root)
@@ -606,6 +609,10 @@ internal static class AddonHub
         foreach (var a in All.Where(a => !a.User && a.Catalog is not null && !a.Fetch.Busy))
             _ = a.On && !SkippedByShift ? Update(a) : Task.Run(() => a.Look(Http));
     }
+
+    /// 설정 > 애드온's 업데이트 확인: each of `addons` reads its latest release now (no download); for each, whether it was
+    /// read.
+    public static Task<bool[]> LookNow(IEnumerable<Addon> addons) => Task.WhenAll(addons.Select(a => Task.Run(() => a.Look(Http))));
 
     /// The settings page is drawn: each of `addons` whose latest release wasn't read in the last day reads it (no
     /// download), so the page can offer 업데이트 for one that is off too.

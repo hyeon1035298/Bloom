@@ -2152,8 +2152,6 @@ GitHub release	GitHub リリース
 Downloading {0}	{0} をダウンロード中
 Download	ダウンロード
 Couldn't download {0}	{0} をダウンロードできませんでした
-{0} {1} update	{0} {1} にアップデート
-Now {0} · from its GitHub release	現在 {0} · GitHub リリースから取得します
 Download {0} {1}	{0} {1} をダウンロード
 From its GitHub release, checked by Bloom before it is installed	GitHub リリースから取得し、Bloom が確認してからインストールします
 Download {0}	{0} をダウンロード
