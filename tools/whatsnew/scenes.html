@@ -301,6 +301,19 @@ body { font-family: "Wanted Sans Variable", "Wanted Sans", "Pretendard", "Malgun
 .tc [data-in] { opacity: var(--in, 0); transform: translateY(calc((1 - var(--in, 0)) * 6 * var(--u))); }
 .pa--hot { position: relative; }
 .pa--hot::before { content: ""; position: absolute; inset: calc(-6 * var(--u)) calc(-8 * var(--u)); border-radius: calc(8 * var(--u)); background: rgba(255, 255, 255, 0.16); opacity: var(--hot, 0); }
+/* ---------- auto: under 자동 the chat's PC actions run, and only running a downloaded file waits on a card ---------- */
+.tc__head { display: flex; align-items: center; gap: calc(8 * var(--u)); }
+.tc__chip { margin-left: auto; display: flex; align-items: center; gap: calc(4 * var(--u)); height: calc(17 * var(--u)); padding: 0 calc(8 * var(--u)); border-radius: calc(9 * var(--u)); background: rgba(255, 122, 158, 0.16); color: var(--pink); font-size: calc(8.5 * var(--u)); font-weight: 600; white-space: nowrap; }
+.tc__chip svg { width: calc(10 * var(--u)); height: calc(10 * var(--u)); fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+/* the slot holds the card, then folds to the one line that replaces it (--open 1 → 0) */
+.slot { position: relative; flex: none; height: calc((13 + 58 * var(--open, 1)) * var(--u)); }
+.ask { position: absolute; left: 0; right: 0; top: 0; padding: calc(8 * var(--u)) calc(10 * var(--u)); border-radius: calc(10 * var(--u)); border: 1px solid rgba(240, 146, 79, 0.45); background: rgba(240, 146, 79, 0.07); opacity: var(--card, 0); transform: translateY(calc((1 - var(--card, 0)) * 6 * var(--u))); }
+.ask__kind { font-size: calc(8.5 * var(--u)); font-weight: 600; color: var(--orange); }
+.ask__what { margin-top: calc(2 * var(--u)); font-size: calc(10 * var(--u)); color: #fafafa; }
+.ask__where { font-family: "Cascadia Mono", Consolas, monospace; font-size: calc(8 * var(--u)); color: #a1a1aa; }
+.ask .qc__btns { margin-top: calc(6 * var(--u)); }
+.ask .qc__btn { height: calc(19 * var(--u)); font-size: calc(8.5 * var(--u)); }
+.slot .tc__tool { position: absolute; left: 0; top: 0; }
 </style>
 </head>
 <body>
@@ -921,6 +934,65 @@ scenes.chat = {
       const home = [300, 236];
       const cx = [[0, home[0]], [1.3, home[0]], [2.2, P.cx], [click + 0.3, P.cx], [4.0, home[0] + 40], [8.1, home[0] + 40], [8.9, home[0]]];
       const cy = [[0, home[1]], [1.3, home[1]], [2.2, P.cy], [click + 0.3, P.cy], [4.0, home[1] + 10], [8.1, home[1] + 10], [8.9, home[1]]];
+      point(cur, at(cx, t), at(cy, t), at([[0, 0], [click - 0.08, 0], [click, 1, 'none'], [click + 0.16, 0, 'out2']], t));
+    };
+  },
+};
+
+// Under 권한 · 자동 the chat tidies the Downloads folder without a card; running the installer it downloaded waits on
+// one, 허용 is clicked, the card folds to its ✓ line and the answer comes.
+const LAU = {
+  ko: { title: '다운로드 정리', chip: '권한 · 자동', you: '다운로드 폴더 정리하고 받은 설치 파일도 실행해 줘',
+    tools: ['옮기기: report.pdf → 문서', '옮기기: trip.jpg → 사진', '이름 바꾸기: IMG_2041.jpg → 제주.jpg'],
+    kind: 'PC 작업 승인', what: '파일 실행: setup.exe', where: 'C:\\…\\Downloads\\setup.exe',
+    allow: '허용', always: '이 대화에서 ‘파일 실행’ 항상 허용', decline: '거절', ai: '파일을 정리하고 설치 파일을 실행했습니다.' },
+  en: { title: 'Tidy Downloads', chip: 'Permissions · Auto', you: 'Tidy my Downloads folder and run the installer I got',
+    tools: ['Move: report.pdf → Documents', 'Move: trip.jpg → Pictures', 'Rename: IMG_2041.jpg → Jeju.jpg'],
+    kind: 'Approve PC action', what: 'Run a file: setup.exe', where: 'C:\\…\\Downloads\\setup.exe',
+    allow: 'Allow', always: 'Always allow ‘Run a file’ in this chat', decline: 'Decline', ai: 'Tidied the files and ran the installer.' },
+}[LANG];
+scenes.auto = {
+  dur: 9.0,
+  build(s) {
+    s.style.setProperty('--pink', '#FF7A9E');
+    s.style.setProperty('--orange', '#F0924F');
+    const tool = text => `<div class="tc__tool" data-in>${ico('check', '')}<span>${text}</span></div>`;
+    s.innerHTML = `<div class="desk">${WINS}</div>
+      <div class="tc glass" style="left:calc(110*var(--u));top:calc(24*var(--u));width:calc(420*var(--u));height:calc(214*var(--u))">
+        <div class="tc__chat">
+          <div class="tc__head" data-in><span class="tc__title">${LAU.title}</span><span class="tc__chip">${ico('spark', '')}${LAU.chip}</span></div>
+          <div class="tc__you" data-in>${LAU.you}</div>
+          ${LAU.tools.map(tool).join('')}
+          <div class="slot">
+            <div class="ask"><div class="ask__kind">${LAU.kind}</div><div class="ask__what">${LAU.what}</div><div class="ask__where">${LAU.where}</div>
+              <div class="qc__btns"><span class="qc__btn qc__btn--go">${LAU.allow}</span><span class="qc__btn">${LAU.always}</span><span class="qc__btn">${LAU.decline}</span></div></div>
+            ${tool(LAU.what)}
+          </div>
+          <div class="tc__ai" data-in>${LAU.ai}</div>
+        </div>
+      </div>${CURSOR}`;
+    const q = sel => s.querySelector(sel);
+    const cur = q('.cursor'), win = q('.tc'), slot = q('.slot'), card = q('.ask'), go = q('.qc__btn--go');
+    const [head, you, ...rest] = [...s.querySelectorAll('.tc__chat > [data-in]')];
+    const tools = rest.slice(0, 3), ai = rest[3], done = q('.slot .tc__tool');
+    let P;
+    const click = 4.9, end = [8.3, 1], gone = [8.31, 0, 'none'];
+    const inAt = a => [[0, 0], [a, 0], [a + 0.3, 1, 'out3'], end, gone];
+    return t => {
+      // measured with the window and the card in place (their own moves aside)
+      P ??= (() => { set(win, { pop: 1 }); set(card, { card: 1 }); const b = unitsOf(go, s); return { cx: b.cx, cy: b.cy }; })();
+      set(win, { pop: at([[0, 0], [0.2, 0], [0.6, 1, 'out3'], [8.2, 1], [8.7, 0, 'in2']], t) });
+      set(head, { in: at(inAt(0.4), t) });
+      set(you, { in: at(inAt(0.7), t) });
+      tools.forEach((r, i) => set(r, { in: at(inAt(1.4 + i * 0.5), t) }));
+      set(card, { card: at([[0, 0], [3.0, 0], [3.4, 1, 'out3'], [click + 0.15, 1], [click + 0.4, 0, 'in2']], t) });
+      set(go, { go: at([[0, 0], [4.3, 0], [4.6, 1, 'out2'], end, gone], t) });
+      set(slot, { open: at([[0, 1], [click + 0.2, 1], [click + 0.6, 0, 'io2'], [8.7, 0], [8.71, 1, 'none']], t) });
+      set(done, { in: at(inAt(click + 0.45), t) });
+      set(ai, { in: at(inAt(click + 1.0), t) });
+      const home = [570, 236];
+      const cx = [[0, home[0]], [3.8, home[0]], [4.6, P.cx], [click + 0.3, P.cx], [6.6, home[0]], [9.0, home[0]]];
+      const cy = [[0, home[1]], [3.8, home[1]], [4.6, P.cy], [click + 0.3, P.cy], [6.6, home[1]], [9.0, home[1]]];
       point(cur, at(cx, t), at(cy, t), at([[0, 0], [click - 0.08, 0], [click, 1, 'none'], [click + 0.16, 0, 'out2']], t));
     };
   },

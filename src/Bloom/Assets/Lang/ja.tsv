@@ -31,6 +31,7 @@ Stopped after more than {0} tool calls. Send again to go on.	ツールの呼び�
 {0} request failed. Send again.	{0} へのリクエストが失敗しました。送り直してください。
 Details: {0}	エラー内容: {0}
 omp needs you to sign in. Run omp login once in a terminal.	omp のサインインが必要です。ターミナルで omp login を一度実行してください。
+This account can't use the chosen model. Pick another model and send again.	このアカウントでは選んだモデルを使えません。別のモデルを選んでもう一度送信してください。
 Sign in to ChatGPT. Run codex login in a terminal.	ChatGPT にサインインしてください。ターミナルで codex login を実行してください。
 Sign in to Claude. Run claude in a terminal and sign in.	Claude にサインインしてください。ターミナルで claude を実行してサインインしてください。
 AI usage limit reached. Send again after the limit resets.	AI の利用上限に達しました。リセット後に再送してください。
@@ -66,6 +67,10 @@ Could not send the message. Send it again.	メッセージを送信できませ�
 {0} · replaces the file that is there	{0} · 既存のファイルを上書きします
 {0} · a new file	{0} · 新しいファイル
 Save files: {0}	ファイルを保存: {0}
+Address	アドレス
+What to read	読み取る内容
+Open a page on {0}: {1}	{0} のページを開く: {1}
+Open a page: {0}	ページを開く: {0}
 Searching the web…	ウェブを検索中…
 Reading a page…	ページを読み込み中…
 Reading the attachments…	添付ファイルを読み込み中…
@@ -107,6 +112,7 @@ Couldn't tidy the earlier part	前半を整理できませんでした
 Trimmed long tool results	長いツールの結果を削りました
 Summarised the earlier part	前半を要約しました
  in use…	 を使用中…
+Trying again…	再試行しています…
 The command ran.	コマンドを実行しました。
 No answer from ChatGPT. Try again.	ChatGPT の回答がありません。再試行してください。
 Codex answer failed. Try again.	Codex の回答に失敗しました。再試行してください。
@@ -266,6 +272,8 @@ Later	後で
 Could not access settings. Check permissions for the file and data folder, then retry.	設定にアクセスできませんでした。ファイルとデータフォルダーのアクセス権を確認し、再試行してください。
 Could not read settings. Choose a file exported from Bloom.	設定を読み取れませんでした。Bloom からエクスポートしたファイルを選んでください。
 Settings import failed	設定のインポート失敗
+Imported: {0} commands, {1} favorites, {2} quick searches.	読み込んだ項目: コマンド {0} 件、お気に入り {1} 件、クイック検索 {2} 件。
+{0} scheduled AI commands came in paused. Choose ‘Turn the schedule on’ in a command's actions to run it again.	スケジュール付きの AI コマンド {0} 件は停止した状態で読み込まれました。コマンドの操作から「スケジュール実行をオンにする」を選ぶと再び実行されます。
 Reset Bloom	Bloom をリセット
 Deletes everything Bloom saved and starts again from the first-run screens. This includes settings, favorites, AI chats, notes, clipboard history, the sign-ins of added AI accounts, API keys and add-on settings. Start with Windows turns on again. This can't be undone.	Bloom が保存したすべてのデータを削除し、初回設定画面からやり直します。設定、お気に入り、AI チャット、メモ、クリップボード履歴、追加した AI アカウントのサインイン、API キー、アドオンの設定が含まれます。「Windows と一緒に起動」は再びオンになります。元に戻せません。
 The Bloom program, the default sign-ins and history of Claude Code and Codex, and the other files on this PC stay.	Bloom 本体、Claude Code と Codex の既定のサインインと履歴、この PC のほかのファイルは残ります。
@@ -354,6 +362,7 @@ Next run {0}	次回実行 {0}
 Open the results chat	結果のチャットを開く
 Set a schedule	スケジュールを設定
 Change the schedule	スケジュールを変更
+Turn the schedule on	スケジュール実行をオンにする
 Stop the schedule	スケジュール実行をオフ
 Schedule off	スケジュール実行オフ
 ‘{0}’ schedule	‘{0}’ のスケジュール
@@ -417,6 +426,7 @@ Snippet	定型文
 Chain	連続操作
 AI command	AIコマンド
 Script	スクリプト
+ (paused)	 (停止中)
 Running… · stop it from Ctrl+K	実行中… · Ctrl+K から停止
 {0} + input · {1}	{0} + 入力 · {1}
 Type the input	入力を入れる
@@ -753,7 +763,6 @@ Deletes the site shortcut ‘{0}’.	サイトショートカット「{0}」を�
 New shortcut	新しいショートカット
 Enter an address, name and keyword	アドレス、名前、キーワードを入力
 {0} · keyword + space + search words	{0} 件 · キーワード + スペース + 検索語
-Address	アドレス
 Address — {query} marks the search words  e.g. youtube.com/results?search_query={query}	アドレス — {query} が検索語の位置  例: youtube.com/results?search_query={query}
 Check the address · e.g. example.com or https://…	アドレスを確認してください · 例: example.com または https://…
 Keyword (optional) — e.g. with yt, “yt cats” searches right away	キーワード (任意) — 例: yt にすると “yt cats” ですぐに検索
@@ -941,13 +950,16 @@ Source	元
 Destination	先
 {0} (or, if nothing is there, the app ‘{1}’)	{0}（そこになければアプリ「{1}」）
 Opens	開く対象
+This file runs when opened (a program, a script or a shortcut).	このファイルは開くと実行されます (プログラム・スクリプト・ショートカット)。
+(nothing in Bloom answers it)	(Bloom に該当する項目がありません)
+Runs	実行する項目
 A path is not on a local drive.	ローカルドライブにないパスがあります。
-Open a page: {0}	ページを開く: {0}
 Find apps: {0}	アプリを探す: {0}
 Find files: {0}	ファイルを探す: {0}
 Search file contents: {0}	ファイル内容を検索: {0}
 Timers	タイマー
 Find notes: {0}	メモを探す: {0}
+Run a file: {0}	ファイルを実行: {0}
 Open: {0}	開く: {0}
 Run in Bloom: {0}	Bloom で実行: {0}
 Run custom command: {0} {1}	カスタムコマンドを実行: {0} {1}
@@ -1094,6 +1106,8 @@ Also check what jobs ran in that hour	その時間に動いていたジョブも
 Naver	Naver
 Default browser	既定のブラウザー
 Windows' default browser	Windows の既定のブラウザー
+Bloom · Link	Bloom · リンク
+Link not opened	リンクを開きませんでした
 Image {0}×{1}	画像 {0}×{1}
 {0} and {1} more	{0} ほか {1} 件
 {0:#,0} chars · {1} lines	{0:#,0} 文字 · {1} 行
@@ -1369,6 +1383,7 @@ The words hold a character this command cannot take	検索語に、このコマ�
 Could not create a job for the command	コマンドのジョブ オブジェクトを作成できませんでした
 Could not start the command: {0}	コマンドを起動できませんでした: {0}
 Timed out	タイムアウト
+This action holds a character that can't be passed to a batch file.	この操作の値に、バッチファイルに渡せない文字が含まれています。
 Google search	Google 検索
 Naver search	Naver 検索
 YouTube search	YouTube 検索
@@ -1490,6 +1505,12 @@ Weight	重さ
 Temperature	温度
 Data (1 KB = 1024 B)	データ (1 KB = 1024 B)
 Speed	速度
+the clipboard text	クリップボードの内容
+the input	入力値
+a line break	改行
+a control character	制御
+This command passes {0} to another program, which can't take {1}. Remove it and run again.	このコマンドは{0}を別のプログラムに渡すため、{1}文字を使えません。この文字を削除して再試行してください。
+This command passes {0} to another program, so it can't end in \\. Remove the final \\ and run again.	このコマンドは{0}を別のプログラムに渡すため、末尾を \\ にできません。末尾の \\ を削除して再試行してください。
 Left half	左半分
 Right half	右半分
 Top half	上半分
@@ -1556,6 +1577,11 @@ Files to send to AI	AI に送るファイル
 Explain what is on this screen	この画面に何があるか説明して
 Look at the attached files and tell me what they are	添付したファイルを見て、何なのか教えて
 Remove	外す
+Bloom · AI file	Bloom · AI ファイル
+Showing ‘{0}’ in its folder	「{0}」をフォルダーで表示
+Opening this file would run it. Check it first, then open it yourself.	開くと実行されるファイルのため、すぐには開きません。内容を確認してから自分で開いてください。
+Links to files on other computers don't open	ほかのコンピューターのファイルへのリンクは開きません
+‘{0}’ isn't there	「{0}」が見つかりません
 {0} · made by AI	{0} · AI 生成ファイル
 File not found. Create it again or check its location.	ファイルがありません。再作成するか場所を確認してください。
 Save…	保存…
@@ -1600,7 +1626,6 @@ Saved as you type · {0}	入力すると自動保存 · {0}
 Unsaved changes	保存されていない変更
 What you changed isn't in the file yet. Saving yours puts this text in the file.	変更した内容はまだファイルに保存されていません。自分の内容を保存すると、ファイルがこのテキストになります。
 Don't save	保存しない
-‘{0}’ isn't there	「{0}」が見つかりません
 Checking AI usage…	AI 使用量を確認中…
 Could not get usage. Check the Claude Code or Codex sign-in, then press ↻.	使用量を取得できません。Claude Code または Codex のサインインを確認し、↻ を押してください。
 Move earlier	前へ
@@ -2531,9 +2556,9 @@ How often the screen is read again (reading uses nothing · it translates only w
 PC actions · MCP	PC の操作 · MCP
 AI chat opens apps, tidies files and sets timers on this PC	AI チャットがこの PC でアプリを開き、ファイルを整理し、タイマーを設定します
 Chats that use it	使うチャット
-An approval card before each action · about +250–500 tokens per request	実行前に承認カード · リクエストごとに約 +250~500 トークン
+About +250–500 tokens per request	リクエストごとに約 +250~500 トークン
 Permissions	権限
-All but PC actions apply to API chats only	PC の操作以外は API のチャットにのみ適用
+Files · commands · other MCP tools apply to API chats only	ファイル · コマンド · その他の MCP ツールは API のチャットにのみ適用
 Ask each time	毎回確認
 Always allow	常に許可
 Read files (outside the chat's folder)	ファイルの読み込み (チャットフォルダーの外)
@@ -2547,16 +2572,18 @@ PowerShell in the chat's folder	チャットのフォルダーで PowerShell を
 Other MCP tools	その他の MCP ツール
 Tools of the MCP servers switched on below · Off starts none	下でオンにした MCP サーバーのツール · オフならサーバーを起動しません
 PC actions (Bloom's tool)	PC の操作 (Bloom の機能)
-Every chat · open, notes, timers, files, clipboard · look-ups never ask	すべてのチャット · 開く · メモ · タイマー · ファイル整理 · クリップボード · 調べる操作は確認しません
+Every chat · look-ups never ask · Auto asks only for newly downloaded or created executables and reading the clipboard	すべてのチャット · 調べる操作は確認なし · 自動は新しく取得・作成した実行ファイルとクリップボードの読み取りのみ確認
+Claude chat tools	Claude チャットのツール
+Web pages · files outside the chat's folder · other MCP tools · Auto uses Claude Code's auto mode	ウェブページ · チャットフォルダー外のファイル · その他の MCP ツール · 自動は Claude Code の自動モード
 What it may do	できること
 Look up	調べる
 Apps, files, recent files, open windows, timers, your commands — looked up without asking	アプリ、ファイル、最近のファイル、開いているウィンドウ、タイマー、マイコマンド — 確認なしで調べます
 Open · run	開く · 実行
-Open apps, files and sites; Bloom lines like ‘10 min timer’ or ‘volume 30’; your commands — asks first	アプリ、ファイル、サイトを開く。「10 min timer」「volume 30」のような Bloom の指示、マイコマンド — 先に確認します
+Open apps, files and sites; Bloom lines like ‘10 min timer’ or ‘volume 30’; your commands	アプリ、ファイル、サイトを開く。「10 min timer」「volume 30」のような Bloom の指示、マイコマンド
 Notes · timers · calendar	メモ · タイマー · カレンダー
-Write in Bloom's notes, start its timers, put events on its calendar — asks first · the note shows beside the chat	Bloom のメモに書く、タイマーを開始、カレンダーに予定を入れる — 先に確認します · メモはチャットの横に表示されます
-Rename, move, copy, recycle — asks first · the Recycle Bin brings things back	名前の変更、移動、コピー、ごみ箱 — 先に確認します · ごみ箱から元に戻せます
-Read and write the clipboard — asks first	クリップボードの読み取りと書き込み — 先に確認します
+Write in Bloom's notes, start its timers, put events on its calendar — the note shows beside the chat	Bloom のメモに書く、タイマーを開始、カレンダーに予定を入れる — メモはチャットの横に表示されます
+Rename, move, copy, recycle — the Recycle Bin brings things back	名前の変更、移動、コピー、ごみ箱 — ごみ箱から元に戻せます
+Read and write the clipboard	クリップボードの読み取りと書き込み
 Other MCP servers on this PC	この PC のほかの MCP サーバー
 One switched on starts with each chat. The first answer comes a little later, and usage goes up.	オンにするとチャットの開始時に一緒に起動します。最初の回答が少し遅くなり、使用量が増えます。
 Read the list again	一覧を読み直す
@@ -2663,6 +2690,7 @@ Plays and controls through JRiver Media Center's web service (MCWS). The queue i
 Plays through its command line; the song and the buttons go through Windows' media session. Playing a song follows foobar2000's own way of opening files.	コマンドラインで再生し、今の曲と操作は Windows のメディア セッションを通します。曲を再生すると、foobar2000 がファイルを開く方法に従います。
 Plays and controls through its command line. The song is read from its window title.	コマンドラインで再生・操作します。今の曲はウィンドウのタイトルから読み取ります。
 Bloom plays it itself. Opens flac, mp3, wav, m4a, aac and wma files.	Bloom が直接再生します。flac、mp3、wav、m4a、aac、wma ファイルを開きます。
+Warning: over http the password goes over the network unencrypted. Use an https address	注意: http のため、パスワードは暗号化されずにネットワークへ送られます。https のアドレスをおすすめします
 JRiver address	JRiver のアドレス
 {0} · JRiver's Media Network (the web service) must be on · click to change	{0} · JRiver の Media Network (Web サービス) をオンにする必要があります · クリックで変更
 JRiver user	JRiver のユーザー
@@ -2850,29 +2878,3 @@ just now	たった今
 Detach from the launcher	ランチャーから切り離す
 Always on top	常に手前に表示
 Attach to the launcher	ランチャーに付ける
-Bloom · Link	Bloom · リンク
-Link not opened	リンクを開きませんでした
-Bloom · AI file	Bloom · AI ファイル
-Showing ‘{0}’ in its folder	「{0}」をフォルダーで表示
-Opening this file would run it. Check it first, then open it yourself.	開くと実行されるファイルのため、すぐには開きません。内容を確認してから自分で開いてください。
-Links to files on other computers don't open	ほかのコンピューターのファイルへのリンクは開きません
-Imported: {0} commands, {1} favorites, {2} quick searches.	読み込んだ項目: コマンド {0} 件、お気に入り {1} 件、クイック検索 {2} 件。
-{0} scheduled AI commands came in paused. Choose ‘Turn the schedule on’ in a command's actions to run it again.	スケジュール付きの AI コマンド {0} 件は停止した状態で読み込まれました。コマンドの操作から「スケジュール実行をオンにする」を選ぶと再び実行されます。
-Turn the schedule on	スケジュール実行をオンにする
- (paused)	 (停止中)
-Warning: over http the password goes over the network unencrypted. Use an https address	注意: http のため、パスワードは暗号化されずにネットワークへ送られます。https のアドレスをおすすめします
-What to read	読み取る内容
-Open a page on {0}: {1}	{0} のページを開く: {1}
-This action holds a character that can't be passed to a batch file.	この操作の値に、バッチファイルに渡せない文字が含まれています。
-the clipboard text	クリップボードの内容
-the input	入力値
-a line break	改行
-a control character	制御
-This command passes {0} to another program, which can't take {1}. Remove it and run again.	このコマンドは{0}を別のプログラムに渡すため、{1}文字を使えません。この文字を削除して再試行してください。
-This command passes {0} to another program, so it can't end in \\. Remove the final \\ and run again.	このコマンドは{0}を別のプログラムに渡すため、末尾を \\ にできません。末尾の \\ を削除して再試行してください。
-This file runs when opened (a program, a script or a shortcut).	このファイルは開くと実行されます (プログラム・スクリプト・ショートカット)。
-(nothing in Bloom answers it)	(Bloom に該当する項目がありません)
-Runs	実行する項目
-Run a file: {0}	ファイルを実行: {0}
-Trying again…	再試行しています…
-This account can't use the chosen model. Pick another model and send again.	このアカウントでは選んだモデルを使えません。別のモデルを選んでもう一度送信してください。

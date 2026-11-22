@@ -61,7 +61,7 @@ irm https://raw.githubusercontent.com/hyeon1035298/Bloom/main/install.ps1 | iex
 
 - Type a question in the search line and press Tab to get an instant answer from quick AI. Press Shift+Tab to ask in a fresh chat without previous context.
 - Open the dedicated AI chat window (Ctrl+Alt+C) when you want to continue a longer conversation or attach files and images.
-- You can also ask AI to handle PC tasks like organizing files. Before moving files or changing anything on your PC, it shows an approval card asking you to Allow or Decline.
+- You can also ask AI to handle PC tasks like organizing files. With the default 'Auto' setting, everyday actions run right away, and it shows an approval card first only when running a newly downloaded or created file or reading the clipboard.
 - Say something like "a meeting tomorrow at 3pm" and Bloom adds it to its calendar. You can save notes and start timers the same way.
 - Select text in any app and press AI actions (Ctrl+Alt+A) to summarize, translate, or polish the writing and paste it right back in place.
 - Work notifications pop up a card when a background Claude Code or Codex task finishes, needs your approval, or is running low on usage quota.
@@ -221,7 +221,7 @@ Bloom offers one tool, `pc`, through an MCP server that only this Windows user c
 - Rename, move, copy and send files to the Recycle Bin.
 - Read and write the clipboard.
 
-Everything except look-ups waits for Allow or Decline on a card in the chat, and the result stays under the answer as ✓ or ✕. Claude Code asks through `--permission-prompt-tool stdio`. Codex and omp can't ask by themselves, so Bloom's MCP server shows the same card right before acting.
+Everything except look-ups follows Settings › PC actions · MCP › Permissions. The default, Auto, asks on a card in the chat only when running a newly downloaded or created file or reading the clipboard; when set to Ask each time, every action is decided with the Allow, Always allow in this chat, or Decline buttons. The result stays under the answer as ✓ or ✕. When Claude chat tools are set to Auto, Claude Code runs in its auto mode (`--permission-mode auto`), so only what Claude Code asks for appears in the chat through `--permission-prompt-tool stdio`. Bloom's PC tool is always decided by Bloom. Codex and omp can't ask by themselves, so Bloom's MCP server shows the same card right before acting.
 
 The tool definition adds about 250 to 500 input tokens per request, and switching groups off lowers that. Codex gets the server per chat run through `-c mcp_servers.bloom…` only. omp gets it in the chat's own `.omp/mcp.json` under `%LOCALAPPDATA%\Bloom\ai\omp-work`, and nothing is written to omp's own settings.
 

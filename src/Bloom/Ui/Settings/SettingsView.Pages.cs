@@ -548,9 +548,9 @@ internal sealed partial class SettingsView
             }
             ));
         chats.Add(("API", s.AiToolsApi, v => s.AiToolsApi = v));
-        KeyChips(Tr("사용할 대화", "Chats that use it"), Tr("실행 전 승인 카드 · 요청마다 약 +250~500 토큰", "An approval card before each action · about +250–500 tokens per request"), chats, filter);
+        KeyChips(Tr("사용할 대화", "Chats that use it"), Tr("요청마다 약 +250~500 토큰", "About +250–500 tokens per request"), chats, filter);
 
-        Header(Tr("권한", "Permissions"), Tr("파일 · 명령 · 다른 MCP 도구는 API 대화에만 적용", "Files, commands and other MCP tools apply to API chats only"));
+        Header(Tr("권한", "Permissions"), Tr("파일 · 명령 · 다른 MCP 도구는 API 대화에만 적용", "Files · commands · other MCP tools apply to API chats only"));
         (string, string)[] rules = { (ToolPermissions.Ask, Tr("매번 묻기", "Ask each time")), (ToolPermissions.Allow, Tr("항상 허용", "Always allow")), (ToolPermissions.Off, Tr("사용 안 함", "Off")) };
         (string, string)[] withAuto = [(ToolPermissions.Auto, Tr("자동", "Auto")), .. rules];
         // `restart`: the rule decides what a chat gets at all (the tool, Claude Code's mode), which a running CLI session
@@ -569,8 +569,8 @@ internal sealed partial class SettingsView
         Rule(ToolPermissions.Edit, Tr("파일 고치기", "Edit files"), Tr("파일의 일부 바꾸기", "Change part of a file"), G.Pen);
         Rule(ToolPermissions.Command, Tr("명령 실행", "Run commands"), Tr("대화 폴더에서 PowerShell 실행", "PowerShell in the chat's folder"), G.Code);
         Rule(ToolPermissions.Mcp, Tr("다른 MCP 도구", "Other MCP tools"), Tr("아래에서 켠 MCP 서버의 도구 · 끄면 서버를 시작 안 함", "Tools of the MCP servers switched on below · Off starts none"), G.Plug);
-        Rule(ToolPermissions.Pc, Tr("PC 조작 (Bloom 기능)", "PC actions (Bloom's tool)"), Tr("모든 대화 · 찾기는 묻지 않음 · 자동은 새로 받거나 만든 실행 파일과 클립보드 읽기만 물음", "Every chat · look-ups never ask · Auto asks only before running a newly downloaded or made file and reading the clipboard"), G.Bolt, restart: true);
-        Rule(ToolPermissions.Claude, Tr("Claude 대화 도구", "Claude chat tools"), Tr("웹 페이지 · 대화 폴더 밖 파일 · 다른 MCP 도구 · 자동은 Claude Code의 자동 모드", "Web pages, files outside the chat's folder, other MCP tools · Auto is Claude Code's auto mode"), G.Globe, restart: true);
+        Rule(ToolPermissions.Pc, Tr("PC 조작 (Bloom 기능)", "PC actions (Bloom's tool)"), Tr("모든 대화 · 찾기는 묻지 않음 · 자동은 새로 받거나 만든 실행 파일과 클립보드 읽기만 물음", "Every chat · look-ups never ask · Auto asks only for newly downloaded or created executables and reading the clipboard"), G.Bolt, restart: true);
+        Rule(ToolPermissions.Claude, Tr("Claude 대화 도구", "Claude chat tools"), Tr("웹 페이지 · 대화 폴더 밖 파일 · 다른 MCP 도구 · 자동은 Claude Code의 자동 모드", "Web pages · files outside the chat's folder · other MCP tools · Auto uses Claude Code's auto mode"), G.Globe, restart: true);
         Header(Tr("할 수 있는 일", "What it may do"));
         void Group(string key, string title, string sub, char glyph)
         {
@@ -583,10 +583,10 @@ internal sealed partial class SettingsView
             Add(title, sub, sw, glyph, t, null, filter);
         }
         Group("look", Tr("찾아보기", "Look up"), Tr("앱 · 파일 · 최근 파일 · 열린 창 · 타이머 · 사용자 명령 — 묻지 않고 바로 검색합니다", "Apps, files, recent files, open windows, timers, your commands — looked up without asking"), G.Search);
-        Group("open", Tr("열기 · 실행", "Open · run"), Tr("앱 · 파일 · 사이트 열기, ‘10분 타이머’ ‘볼륨 30’ 같은 Bloom 명령, 사용자 명령 — 하기 전에 확인 창이 표시됩니다", "Open apps, files and sites; Bloom lines like ‘10 min timer’ or ‘volume 30’; your commands — asks first"), G.App);
-        Group("bloom", Tr("메모 · 타이머 · 일정", "Notes · timers · calendar"), Tr("Bloom 메모에 적기 · 타이머 · 캘린더 일정 — 하기 전에 확인 창이 표시됩니다 · 적은 메모는 채팅 옆에 표시됩니다", "Write in Bloom's notes, start its timers, put events on its calendar — asks first · the note shows beside the chat"), G.Document);
-        Group("files", Tr("파일 정리", "Files"), Tr("이름 바꾸기 · 옮기기 · 복사 · 휴지통 — 하기 전에 확인 창이 표시됩니다 · 휴지통에서 되살릴 수 있습니다", "Rename, move, copy, recycle — asks first · the Recycle Bin brings things back"), G.Folder);
-        Group("clip", Tr("클립보드", "Clipboard"), Tr("클립보드 읽기 · 넣기 — 하기 전에 확인 창이 표시됩니다", "Read and write the clipboard — asks first"), G.Paste);
+        Group("open", Tr("열기 · 실행", "Open · run"), Tr("앱 · 파일 · 사이트 열기, ‘10분 타이머’ ‘볼륨 30’ 같은 Bloom 명령, 사용자 명령", "Open apps, files and sites; Bloom lines like ‘10 min timer’ or ‘volume 30’; your commands"), G.App);
+        Group("bloom", Tr("메모 · 타이머 · 일정", "Notes · timers · calendar"), Tr("Bloom 메모에 적기 · 타이머 · 캘린더 일정 — 적은 메모는 채팅 옆에 표시됩니다", "Write in Bloom's notes, start its timers, put events on its calendar — the note shows beside the chat"), G.Document);
+        Group("files", Tr("파일 정리", "Files"), Tr("이름 바꾸기 · 옮기기 · 복사 · 휴지통 — 휴지통에서 되살릴 수 있습니다", "Rename, move, copy, recycle — the Recycle Bin brings things back"), G.Folder);
+        Group("clip", Tr("클립보드", "Clipboard"), Tr("클립보드 읽기 · 넣기", "Read and write the clipboard"), G.Paste);
         Header(Tr("이 PC의 다른 MCP 서버", "Other MCP servers on this PC"), Tr("켜면 대화를 시작할 때 함께 켜집니다. 첫 답이 조금 늦어지고 사용량이 늘어납니다.", "One switched on starts with each chat. The first answer comes a little later, and usage goes up."),
             (Tr("목록 다시 읽기", "Read the list again"), () =>
             {

@@ -31,6 +31,7 @@ Stopped after more than {0} tool calls. Send again to go on.	工具调用超过 
 {0} request failed. Send again.	{0} 请求失败。请重新发送。
 Details: {0}	错误详情：{0}
 omp needs you to sign in. Run omp login once in a terminal.	omp 需要登录。请在终端中运行一次 omp login。
+This account can't use the chosen model. Pick another model and send again.	此账户无法使用所选模型。请选择其他模型后重新发送。
 Sign in to ChatGPT. Run codex login in a terminal.	请登录 ChatGPT。在终端中运行 codex login。
 Sign in to Claude. Run claude in a terminal and sign in.	请登录 Claude。在终端中运行 claude 并登录。
 AI usage limit reached. Send again after the limit resets.	AI 用量已达上限。请在额度重置后重新发送。
@@ -66,6 +67,10 @@ Could not send the message. Send it again.	无法发送消息。请重新发送�
 {0} · replaces the file that is there	{0} · 将覆盖已有文件
 {0} · a new file	{0} · 新文件
 Save files: {0}	保存文件：{0}
+Address	网址
+What to read	要读取的内容
+Open a page on {0}: {1}	打开 {0} 上的页面: {1}
+Open a page: {0}	打开网页：{0}
 Searching the web…	正在搜索网页…
 Reading a page…	正在读取网页…
 Reading the attachments…	正在读取附件…
@@ -107,6 +112,7 @@ Couldn't tidy the earlier part	无法整理前面的部分
 Trimmed long tool results	已精简过长的工具结果
 Summarised the earlier part	已总结前面的部分
  in use…	 使用中…
+Trying again…	正在重试…
 The command ran.	命令已执行。
 No answer from ChatGPT. Try again.	ChatGPT 未返回回答。请重试。
 Codex answer failed. Try again.	Codex 回答失败。请重试。
@@ -266,6 +272,8 @@ Later	稍后
 Could not access settings. Check permissions for the file and data folder, then retry.	无法访问设置。请检查文件和数据文件夹的权限后重试。
 Could not read settings. Choose a file exported from Bloom.	无法读取设置。请选择从 Bloom 导出的文件。
 Settings import failed	设置导入失败
+Imported: {0} commands, {1} favorites, {2} quick searches.	已导入的项目: 命令 {0} 个、收藏夹 {1} 个、快速搜索 {2} 个。
+{0} scheduled AI commands came in paused. Choose ‘Turn the schedule on’ in a command's actions to run it again.	有计划的 AI 命令 {0} 个以暂停状态导入。在命令的操作中选择“开启定时运行”即可再次运行。
 Reset Bloom	重置 Bloom
 Deletes everything Bloom saved and starts again from the first-run screens. This includes settings, favorites, AI chats, notes, clipboard history, the sign-ins of added AI accounts, API keys and add-on settings. Start with Windows turns on again. This can't be undone.	删除 Bloom 保存的所有数据，并从首次设置界面重新开始。包括设置、收藏、AI 聊天、便笺、剪贴板记录、已添加 AI 账户的登录信息、API 密钥和加载项设置。“随 Windows 启动”会重新开启。此操作无法撤销。
 The Bloom program, the default sign-ins and history of Claude Code and Codex, and the other files on this PC stay.	Bloom 程序本身、Claude Code 和 Codex 的默认登录与记录，以及本机的其他文件都会保留。
@@ -354,6 +362,7 @@ Next run {0}	下次运行 {0}
 Open the results chat	打开结果对话
 Set a schedule	设置定时
 Change the schedule	更改定时
+Turn the schedule on	开启定时运行
 Stop the schedule	关闭定时运行
 Schedule off	定时运行已关闭
 ‘{0}’ schedule	‘{0}’ 的定时
@@ -417,6 +426,7 @@ Snippet	常用语
 Chain	操作链
 AI command	AI 命令
 Script	脚本
+ (paused)	 (已暂停)
 Running… · stop it from Ctrl+K	运行中… · 可在 Ctrl+K 中停止
 {0} + input · {1}	{0} + 输入 · {1}
 Type the input	输入内容
@@ -753,7 +763,6 @@ Deletes the site shortcut ‘{0}’.	删除网站快捷方式“{0}”。
 New shortcut	新建快捷方式
 Enter an address, name and keyword	输入地址、名称和关键词
 {0} · keyword + space + search words	{0} 个 · 关键词 + 空格 + 搜索词
-Address	网址
 Address — {query} marks the search words  e.g. youtube.com/results?search_query={query}	网址 — {query} 表示搜索词的位置  例如 youtube.com/results?search_query={query}
 Check the address · e.g. example.com or https://…	请检查地址 · 例如 example.com 或 https://…
 Keyword (optional) — e.g. with yt, “yt cats” searches right away	关键词 (可选) — 例如设为 yt 后，“yt cats” 会直接搜索
@@ -941,13 +950,16 @@ Source	源
 Destination	目标
 {0} (or, if nothing is there, the app ‘{1}’)	{0}（若该位置没有，则打开应用“{1}”）
 Opens	打开对象
+This file runs when opened (a program, a script or a shortcut).	此文件打开时会运行（程序、脚本或快捷方式）。
+(nothing in Bloom answers it)	（Bloom 中没有对应的项目）
+Runs	将运行
 A path is not on a local drive.	有路径不在本地驱动器上。
-Open a page: {0}	打开网页：{0}
 Find apps: {0}	查找应用：{0}
 Find files: {0}	查找文件：{0}
 Search file contents: {0}	搜索文件内容：{0}
 Timers	计时器
 Find notes: {0}	查找便笺：{0}
+Run a file: {0}	运行文件：{0}
 Open: {0}	打开：{0}
 Run in Bloom: {0}	在 Bloom 中运行：{0}
 Run custom command: {0} {1}	运行自定义命令：{0} {1}
@@ -1094,6 +1106,8 @@ Also check what jobs ran in that hour	再看看那段时间运行了哪些任务
 Naver	Naver
 Default browser	默认浏览器
 Windows' default browser	Windows 默认浏览器
+Bloom · Link	Bloom · 链接
+Link not opened	未打开链接
 Image {0}×{1}	图片 {0}×{1}
 {0} and {1} more	{0} 等 {1} 项
 {0:#,0} chars · {1} lines	{0:#,0} 字 · {1} 行
@@ -1369,6 +1383,7 @@ The words hold a character this command cannot take	搜索词中含有无法传�
 Could not create a job for the command	无法为命令创建作业对象
 Could not start the command: {0}	无法启动命令：{0}
 Timed out	超时
+This action holds a character that can't be passed to a batch file.	此操作的值包含无法传给批处理文件的字符。
 Google search	Google 搜索
 Naver search	Naver 搜索
 YouTube search	YouTube 搜索
@@ -1490,6 +1505,12 @@ Weight	重量
 Temperature	温度
 Data (1 KB = 1024 B)	数据 (1 KB = 1024 B)
 Speed	速度
+the clipboard text	剪贴板内容
+the input	输入内容
+a line break	换行
+a control character	控制
+This command passes {0} to another program, which can't take {1}. Remove it and run again.	此命令会将{0}传给其他程序，因此不能包含{1}字符。请删除该字符后重试。
+This command passes {0} to another program, so it can't end in \\. Remove the final \\ and run again.	此命令会将{0}传给其他程序，因此末尾不能是 \\。请删除末尾的 \\ 后重试。
 Left half	左半边
 Right half	右半边
 Top half	上半边
@@ -1556,6 +1577,11 @@ Files to send to AI	要发给 AI 的文件
 Explain what is on this screen	解释一下这个屏幕上有什么
 Look at the attached files and tell me what they are	看看附件里的文件，告诉我它们是什么
 Remove	移除
+Bloom · AI file	Bloom · AI 文件
+Showing ‘{0}’ in its folder	在文件夹中显示“{0}”
+Opening this file would run it. Check it first, then open it yourself.	打开此文件会运行它，因此不会直接打开。请先检查内容，再自行打开。
+Links to files on other computers don't open	不会打开指向其他电脑上文件的链接
+‘{0}’ isn't there	找不到“{0}”
 {0} · made by AI	{0} · AI 生成的文件
 File not found. Create it again or check its location.	未找到文件。请重新生成或检查位置。
 Save…	保存…
@@ -1600,7 +1626,6 @@ Saved as you type · {0}	边写边保存 · {0}
 Unsaved changes	未保存的更改
 What you changed isn't in the file yet. Saving yours puts this text in the file.	你更改的内容尚未保存到文件。保存你的版本后，文件将变为此文本。
 Don't save	不保存
-‘{0}’ isn't there	找不到“{0}”
 Checking AI usage…	正在查询 AI 用量…
 Could not get usage. Check the Claude Code or Codex sign-in, then press ↻.	无法获取用量。请检查 Claude Code 或 Codex 的登录状态，再按 ↻。
 Move earlier	前移
@@ -2531,9 +2556,9 @@ How often the screen is read again (reading uses nothing · it translates only w
 PC actions · MCP	电脑操作 · MCP
 AI chat opens apps, tidies files and sets timers on this PC	AI 聊天可在本机打开应用、整理文件、设置计时器
 Chats that use it	使用的对话
-An approval card before each action · about +250–500 tokens per request	每次操作前显示批准卡片 · 每次请求约 +250~500 Token
+About +250–500 tokens per request	每次请求约 +250~500 Token
 Permissions	权限
-All but PC actions apply to API chats only	除电脑操作外仅适用于 API 对话
+Files · commands · other MCP tools apply to API chats only	文件 · 命令 · 其他 MCP 工具仅适用于 API 对话
 Ask each time	每次询问
 Always allow	始终允许
 Read files (outside the chat's folder)	读取文件（对话文件夹以外）
@@ -2547,16 +2572,18 @@ PowerShell in the chat's folder	在对话文件夹中运行 PowerShell
 Other MCP tools	其他 MCP 工具
 Tools of the MCP servers switched on below · Off starts none	下方已开启的 MCP 服务器的工具 · 关闭则不启动任何服务器
 PC actions (Bloom's tool)	电脑操作（Bloom 功能）
-Every chat · open, notes, timers, files, clipboard · look-ups never ask	所有对话 · 打开 · 便笺 · 计时器 · 文件整理 · 剪贴板 · 查询操作无需询问
+Every chat · look-ups never ask · Auto asks only for newly downloaded or created executables and reading the clipboard	所有对话 · 查询操作无需询问 · 自动仅在运行新下载或创建的可执行文件及读取剪贴板时询问
+Claude chat tools	Claude 对话工具
+Web pages · files outside the chat's folder · other MCP tools · Auto uses Claude Code's auto mode	网页 · 对话文件夹以外的文件 · 其他 MCP 工具 · 自动为 Claude Code 的自动模式
 What it may do	可以做的事
 Look up	查询
 Apps, files, recent files, open windows, timers, your commands — looked up without asking	应用、文件、最近的文件、打开的窗口、计时器、我的命令 — 无需询问直接查询
 Open · run	打开 · 运行
-Open apps, files and sites; Bloom lines like ‘10 min timer’ or ‘volume 30’; your commands — asks first	打开应用、文件和网站；“10 min timer”“volume 30”等 Bloom 指令；我的命令 — 会先询问
+Open apps, files and sites; Bloom lines like ‘10 min timer’ or ‘volume 30’; your commands	打开应用、文件和网站；“10 min timer”“volume 30”等 Bloom 指令；我的命令
 Notes · timers · calendar	便笺 · 计时器 · 日历
-Write in Bloom's notes, start its timers, put events on its calendar — asks first · the note shows beside the chat	写入 Bloom 便笺、启动计时器、在日历中添加日程 — 会先询问 · 便笺会显示在对话旁
-Rename, move, copy, recycle — asks first · the Recycle Bin brings things back	重命名、移动、复制、移到回收站 — 会先询问 · 可从回收站还原
-Read and write the clipboard — asks first	读取和写入剪贴板 — 会先询问
+Write in Bloom's notes, start its timers, put events on its calendar — the note shows beside the chat	写入 Bloom 便笺、启动计时器、在日历中添加日程 — 便笺会显示在对话旁
+Rename, move, copy, recycle — the Recycle Bin brings things back	重命名、移动、复制、移到回收站 — 可从回收站还原
+Read and write the clipboard	读取和写入剪贴板
 Other MCP servers on this PC	本机的其他 MCP 服务器
 One switched on starts with each chat. The first answer comes a little later, and usage goes up.	开启后会随每个对话一起启动。第一个回答会稍慢，用量也会增加。
 Read the list again	重新读取列表
@@ -2663,6 +2690,7 @@ Plays and controls through JRiver Media Center's web service (MCWS). The queue i
 Plays through its command line; the song and the buttons go through Windows' media session. Playing a song follows foobar2000's own way of opening files.	通过命令行播放，当前歌曲和按钮通过 Windows 媒体会话读取和控制。播放歌曲时遵循 foobar2000 自己打开文件的方式。
 Plays and controls through its command line. The song is read from its window title.	通过命令行播放和控制。当前歌曲从窗口标题读取。
 Bloom plays it itself. Opens flac, mp3, wav, m4a, aac and wma files.	由 Bloom 直接播放。可打开 flac、mp3、wav、m4a、aac 和 wma 文件。
+Warning: over http the password goes over the network unencrypted. Use an https address	注意: 使用 http 时，密码会以未加密的方式通过网络传输。建议使用 https 地址
 JRiver address	JRiver 地址
 {0} · JRiver's Media Network (the web service) must be on · click to change	{0} · 需要开启 JRiver 的 Media Network（网络服务）· 点击更改
 JRiver user	JRiver 用户
@@ -2850,29 +2878,3 @@ just now	刚刚
 Detach from the launcher	从启动器分离
 Always on top	始终置顶
 Attach to the launcher	附到启动器
-Bloom · Link	Bloom · 链接
-Link not opened	未打开链接
-Bloom · AI file	Bloom · AI 文件
-Showing ‘{0}’ in its folder	在文件夹中显示“{0}”
-Opening this file would run it. Check it first, then open it yourself.	打开此文件会运行它，因此不会直接打开。请先检查内容，再自行打开。
-Links to files on other computers don't open	不会打开指向其他电脑上文件的链接
-Imported: {0} commands, {1} favorites, {2} quick searches.	已导入的项目: 命令 {0} 个、收藏夹 {1} 个、快速搜索 {2} 个。
-{0} scheduled AI commands came in paused. Choose ‘Turn the schedule on’ in a command's actions to run it again.	有计划的 AI 命令 {0} 个以暂停状态导入。在命令的操作中选择“开启定时运行”即可再次运行。
-Turn the schedule on	开启定时运行
- (paused)	 (已暂停)
-Warning: over http the password goes over the network unencrypted. Use an https address	注意: 使用 http 时，密码会以未加密的方式通过网络传输。建议使用 https 地址
-What to read	要读取的内容
-Open a page on {0}: {1}	打开 {0} 上的页面: {1}
-This action holds a character that can't be passed to a batch file.	此操作的值包含无法传给批处理文件的字符。
-the clipboard text	剪贴板内容
-the input	输入内容
-a line break	换行
-a control character	控制
-This command passes {0} to another program, which can't take {1}. Remove it and run again.	此命令会将{0}传给其他程序，因此不能包含{1}字符。请删除该字符后重试。
-This command passes {0} to another program, so it can't end in \\. Remove the final \\ and run again.	此命令会将{0}传给其他程序，因此末尾不能是 \\。请删除末尾的 \\ 后重试。
-This file runs when opened (a program, a script or a shortcut).	此文件打开时会运行（程序、脚本或快捷方式）。
-(nothing in Bloom answers it)	（Bloom 中没有对应的项目）
-Runs	将运行
-Run a file: {0}	运行文件：{0}
-Trying again…	正在重试…
-This account can't use the chosen model. Pick another model and send again.	此账户无法使用所选模型。请选择其他模型后重新发送。
