@@ -384,22 +384,13 @@ internal static class Icons
                 tile.Background = Theme.P.Raised;
                 tile.BorderBrush = Theme.P.CardLine;
                 tile.BorderThickness = new Thickness(1);
-                tile.Effect = CardLift;
+                tile.Lift(6, 1.5, 0.22);
                 break;
             default: // soft
                 tile.Background = Theme.P.AccentSoft;
                 break;
         }
         return tile;
-    }
-
-    private static readonly System.Windows.Media.Effects.DropShadowEffect CardLift = MakeLift();
-
-    private static System.Windows.Media.Effects.DropShadowEffect MakeLift()
-    {
-        var e = new System.Windows.Media.Effects.DropShadowEffect { BlurRadius = 6, ShadowDepth = 1.5, Direction = 270, Opacity = 0.22, Color = Colors.Black };
-        e.Freeze();
-        return e;
     }
 
     /// The symbol in the style's ink (glyph text, drawn path or the sparkle's fill).

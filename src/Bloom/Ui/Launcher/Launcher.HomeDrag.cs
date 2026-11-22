@@ -4,7 +4,6 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Effects;
 using System.Windows.Threading;
 using Bloom.App;
 using Bloom.Core;
@@ -159,8 +158,10 @@ internal sealed partial class Launcher
         if (h.Block is Grid block)
         {
             h.Gap = Math.Min(block.ActualHeight, LiftMax);
-            h.Plate = new SmoothBorder { Background = Theme.P.Raised, BorderBrush = Theme.P.PopupLine, BorderThickness = new Thickness(1), CornerRadius = new CornerRadius(10), Margin = new Thickness(8, 0, 8, 0), Height = h.Gap, VerticalAlignment = VerticalAlignment.Top, IsHitTestVisible = false };
-            block.Children.Insert(0, h.Plate);
+            var plate = new SmoothBorder { Background = Theme.P.Raised, BorderBrush = Theme.P.PopupLine, BorderThickness = new Thickness(1), CornerRadius = new CornerRadius(10), Margin = new Thickness(8, 0, 8, 0), Height = h.Gap, VerticalAlignment = VerticalAlignment.Top, IsHitTestVisible = false };
+            plate.Lift(22, 5, 0.35);
+            h.Plate = plate;
+            block.Children.Insert(0, plate);
             // a long list lifts its top: the rest fades out
             if (block.ActualHeight > LiftMax)
                 block.OpacityMask = new LinearGradientBrush(Colors.Black, Colors.Transparent, new Point(0, LiftMax - 40), new Point(0, LiftMax)) { MappingMode = BrushMappingMode.Absolute };
@@ -171,9 +172,10 @@ internal sealed partial class Launcher
             h.Gap = NewBlock;
             h.Raised = Up(h.Source).OfType<UIElement>().First(d => VisualTreeHelper.GetParent(d) == homeGrid);
             Panel.SetZIndex(h.Raised, 1);
-            ((Row)h.Source).Background = Theme.P.Raised;
+            var card = (Row)h.Source;
+            card.Background = Theme.P.Raised;
+            card.Lift(22, 5, 0.35);
         }
-        lifted.Effect = new DropShadowEffect { BlurRadius = 22, ShadowDepth = 5, Direction = 270, Opacity = 0.35, Color = Colors.Black };
         lifted.Opacity = 0.96;
         lifted.RenderTransform = new TranslateTransform();
         Panel.SetZIndex(lifted, 1);
@@ -225,7 +227,6 @@ internal sealed partial class Launcher
         h.Lifted = false;
         var lifted = h.Block ?? h.Source;
         lifted.RenderTransform = Transform.Identity;
-        lifted.Effect = null;
         lifted.Opacity = 1;
         Panel.SetZIndex(lifted, 0);
         if (h.Block is Grid block)
@@ -238,6 +239,7 @@ internal sealed partial class Launcher
         homeGrid.OpenGap(false, null, 0);
         if (h.Raised is not null) Panel.SetZIndex(h.Raised, 0);
         var card = (Row)h.Source;
+        card.Unlift();
         card.Selected = card.Selected; // its own fill again
     }
 

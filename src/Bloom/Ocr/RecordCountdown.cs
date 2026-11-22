@@ -7,7 +7,6 @@ using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Windows.Interop;
 using System.Windows.Media;
-using System.Windows.Media.Effects;
 using Bloom.Native;
 using Bloom.Ui;
 
@@ -40,7 +39,7 @@ internal sealed class RecordCountdown : Window
         number = Theme.T("3", 26, Theme.P.Text, Theme.Semi, false);
         number.HorizontalAlignment = HorizontalAlignment.Center;
         Typography.SetNumeralAlignment(number, FontNumeralAlignment.Tabular);
-        Content = new SmoothBorder
+        var disc = new SmoothBorder
         {
             Width = Side,
             Height = Side,
@@ -49,8 +48,9 @@ internal sealed class RecordCountdown : Window
             BorderBrush = Theme.P.PopupLine,
             BorderThickness = new Thickness(1),
             Child = number,
-            Effect = new DropShadowEffect { BlurRadius = 24, ShadowDepth = 8, Direction = 270, Color = Colors.Black, Opacity = Theme.P.Dark ? 0.4 : 0.14 },
         };
+        disc.Lift(24, 8, Theme.P.Dark ? 0.4 : 0.14);
+        Content = disc;
         SourceInitialized += (_, _) =>
         {
             IntPtr h = new WindowInteropHelper(this).Handle;

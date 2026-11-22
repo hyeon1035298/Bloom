@@ -117,8 +117,8 @@ internal static class AddonPreviews
             HorizontalAlignment = v.Text("pill.align") switch { "left" => HorizontalAlignment.Left, "right" => HorizontalAlignment.Right, _ => HorizontalAlignment.Center },
             VerticalAlignment = v.Text("pill.edge") == "top" ? VerticalAlignment.Top : VerticalAlignment.Bottom,
             Margin = new Thickness(12, 9, 12, 9),
-            Effect = new System.Windows.Media.Effects.DropShadowEffect { BlurRadius = 10, ShadowDepth = 2, Opacity = 0.14, Direction = 270 },
         };
+        pill.Lift(10, 2, 0.14);
         var tag = Caption(Tr("미리 보기", "Preview"), new SolidColorBrush(Color.FromRgb(0x3F, 0x3F, 0x46)));
         tag.Margin = new Thickness(12, 9, 0, 9);
         tag.HorizontalAlignment = HorizontalAlignment.Left;

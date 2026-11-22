@@ -56,7 +56,31 @@ internal class SmoothBorder : Border
             rings = null;
             InvalidateVisual();
         }
-        else Effect = new System.Windows.Media.Effects.DropShadowEffect { BlurRadius = blur, ShadowDepth = depth, Direction = 270, Opacity = opacity, Color = Colors.Black };
+        else Effect = GpuShadow(blur, depth, opacity);
+    }
+
+    /// Takes off the shadow Lift gave (a card set down after a drag).
+    public void Unlift()
+    {
+        soft = null;
+        rings = null;
+        Effect = null;
+        InvalidateVisual();
+    }
+
+    // One frozen effect per look, shared by every card that has it (a page of icon cards, say).
+    private static readonly Dictionary<(double, double, double), System.Windows.Media.Effects.DropShadowEffect> GpuShadows = [];
+
+    private static System.Windows.Media.Effects.DropShadowEffect GpuShadow(double blur, double depth, double opacity)
+    {
+        lock (GpuShadows)
+        {
+            if (GpuShadows.TryGetValue((blur, depth, opacity), out var hit)) return hit;
+            var e = new System.Windows.Media.Effects.DropShadowEffect { BlurRadius = blur, ShadowDepth = depth, Direction = 270, Opacity = opacity, Color = Colors.Black };
+            e.Freeze();
+            GpuShadows[(blur, depth, opacity)] = e;
+            return e;
+        }
     }
 
     /// The shadow every popup menu and dropdown list has.

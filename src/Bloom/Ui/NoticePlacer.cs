@@ -223,7 +223,7 @@ internal sealed class NoticePlacer : Window
         buttons.Children.Add(ActionButton.Make(Tr("완료", "Done"), true, () => Finish(true)));
         buttons.Children.Add(ActionButton.Make(Tr("취소", "Cancel"), false, () => Finish(false)));
         text.Children.Add(buttons);
-        return new SmoothBorder
+        var card = new SmoothBorder
         {
             Width = 380,
             Background = Theme.P.Solid,
@@ -231,9 +231,10 @@ internal sealed class NoticePlacer : Window
             BorderThickness = new Thickness(1),
             CornerRadius = new CornerRadius(14),
             Padding = new Thickness(22, 18, 22, 18),
-            Effect = new System.Windows.Media.Effects.DropShadowEffect { BlurRadius = 24, ShadowDepth = 3, Direction = 270, Opacity = 0.35 },
             Child = text,
         };
+        card.Lift(24, 3, 0.35);
+        return card;
     }
 
     /// The island as a dashed pill with its name beside it.

@@ -10,7 +10,6 @@ using System.Windows.Input;
 using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
-using System.Windows.Media.Effects;
 using System.Windows.Threading;
 using Bloom.Native;
 using Bloom.Search;
@@ -100,14 +99,22 @@ internal sealed class RecordBar : Window
             BorderBrush = ink.PopupLine,
             BorderThickness = new Thickness(1),
             CornerRadius = new CornerRadius(12),
-            ClipToBounds = true,
             Child = layers,
             HorizontalAlignment = HorizontalAlignment.Center,
             VerticalAlignment = bottom ? VerticalAlignment.Bottom : VerticalAlignment.Top,
             Margin = bottom ? new Thickness(0, 0, 0, Below) : new Thickness(0, Above, 0, 0),
-            Effect = Shadow(ink.Dark),
         };
-        if (capsule) shape.SizeChanged += (_, _) => shape.CornerRadius = new CornerRadius(shape.ActualHeight / 2);
+        shape.Lift(24, 8, ink.Dark ? 0.4 : 0.14);
+        // what the shape holds is clipped to the shape as it grows and shrinks, but the shape itself is not: its shadow
+        // is drawn around it
+        var inside = new RectangleGeometry();
+        layers.Clip = inside;
+        shape.SizeChanged += (_, _) =>
+        {
+            if (capsule) shape.CornerRadius = new CornerRadius(shape.ActualHeight / 2);
+            var edge = shape.BorderThickness;
+            inside.Rect = new Rect(-edge.Left - layers.Margin.Left, -edge.Top - layers.Margin.Top, shape.ActualWidth, shape.ActualHeight);
+        };
 
         menuSize = Measure(menu, capsule ? 48 : 42);
         recSize = Measure(rec, capsule ? 40 : 42);
@@ -466,15 +473,6 @@ internal sealed class RecordBar : Window
     private Border Separator() => new() { Width = 1, Height = 20, Margin = new Thickness(6, 0, 6, 0), Background = ink.Line };
 
     private static Border Gap(double w) => new() { Width = w };
-
-    private static DropShadowEffect Shadow(bool dark) => new()
-    {
-        BlurRadius = 24,
-        ShadowDepth = 8,
-        Direction = 270,
-        Color = Colors.Black,
-        Opacity = dark ? 0.4 : 0.14,
-    };
 
     private const char Microphone = '';
 

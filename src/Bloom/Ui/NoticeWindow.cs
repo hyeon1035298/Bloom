@@ -378,7 +378,7 @@ internal sealed class NoticeWindow : Window
         row.Children.Add(icon);
         Grid.SetColumn(text, 1);
         row.Children.Add(text);
-        return new SmoothBorder
+        var card = new SmoothBorder
         {
             Background = Theme.P.Solid,
             BorderBrush = Theme.P.PopupLine,
@@ -387,13 +387,14 @@ internal sealed class NoticeWindow : Window
             Padding = new Thickness(14, 12, 16, 12),
             Width = 330,
             Margin = new Thickness(10, 4, 10, 4),
-            Effect = new System.Windows.Media.Effects.DropShadowEffect { BlurRadius = 16, ShadowDepth = 2, Direction = 270, Opacity = 0.3 },
             Cursor = Cursors.Hand,
             Child = row,
             Tag = n,
             // questions show whole on the card, and a tooltip would cover their choices
             ToolTip = n.Questions is not null ? null : (n.Detail is { Length: > 0 } ? $"{n.Title}\n{n.Detail}" : n.Title) + (n.Body is { Length: > 0 } ? "\n" + n.Body : "") + (n.Click is null ? "" : "\n" + (n.Kind == "windows" ? Tr("클릭하면 Windows 알림 센터를 엽니다", "Click to open Windows' notification center") : Tr("클릭하면 세션 창으로 이동합니다", "Click to go to the session window"))),
         };
+        card.Lift(16, 2, 0.3);
+        return card;
     }
 
     /// A body's line, and the ten of them it shows before it scrolls.

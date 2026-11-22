@@ -63,7 +63,7 @@ internal sealed class AlarmWindow : Window
         var body = new StackPanel();
         body.Children.Add(head);
         body.Children.Add(buttons);
-        Content = new SmoothBorder
+        var card = new SmoothBorder
         {
             Background = Theme.P.Solid,
             BorderBrush = Theme.P.PopupLine,
@@ -72,9 +72,10 @@ internal sealed class AlarmWindow : Window
             Padding = new Thickness(16, 14, 14, 12),
             MinWidth = 300,
             Margin = new Thickness(10),
-            Effect = new System.Windows.Media.Effects.DropShadowEffect { BlurRadius = 18, ShadowDepth = 3, Direction = 270, Opacity = 0.35 },
             Child = body,
         };
+        card.Lift(18, 3, 0.35);
+        Content = card;
 
         int slot = open++;
         Loaded += (_, _) =>
