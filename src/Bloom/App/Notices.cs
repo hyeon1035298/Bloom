@@ -107,8 +107,9 @@ internal static class Notices
         });
     }
 
-    /// A card may show now: 알림 is on and Windows doesn't say it's not the time (QA runs: always). The Run Card add-on's
-    /// cards follow the same rule (ClaudeApprovals).
+    /// A card may show now: 알림 is on and Windows doesn't say it's not the time (QA runs: always). The Run Card add-on
+    /// needs only 알림 on (ClaudeApprovals): it hides for a full-screen app on its own monitor and hands the requests back,
+    /// where Windows' answer covers every monitor (a video full screen on another one says busy too).
     public static bool CardsAllowed => Settings.Current.Notices && (Quiet || !UserBusy());
 
     /// A Claude Code turn while the Run Card add-on shows the turns itself (RunCardLink): its 진행 중 · 작업 완료 · 승인

@@ -117,7 +117,7 @@ internal static class ClaudeApprovals
         if (!Settings.Current.NoticeApprove || !r.Fits) return "";
         IntPtr window = await SessionWindow.Locate(r.Pid);
         if (!Settings.Current.NoticeApprove || (window != IntPtr.Zero && Win32.GetForegroundWindow() == window)) return ""; // switched off meanwhile, or the session is in front: its own question
-        if (RunCardLink.Approvals && Notices.CardsAllowed && await OnRunCard(r, window, ended) is { } given) return given;
+        if (RunCardLink.Approvals && Settings.Current.Notices && await OnRunCard(r, window, ended) is { } given) return given;
         var answer = new TaskCompletionSource<string>(TaskCreationOptions.RunContinuationsAsynchronously);
         void Terminal()
         {
