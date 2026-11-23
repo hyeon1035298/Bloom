@@ -43,16 +43,39 @@ internal sealed partial class ClaudeWatch
 
     /// The running Claude Code with this process id, from its session file: typed in (not a program's `claude -p`), its
     /// name and folder; null when it has none.
-    public static (bool Interactive, string? Name, string? Cwd)? Session(int pid)
+    public static (bool Interactive, string? Name, string? Cwd)? Session(int pid) => Session(pid, Home);
+
+    /// The same in another Claude Code folder (`home`): a session started with its own CLAUDE_CONFIG_DIR keeps its
+    /// session file there.
+    public static (bool Interactive, string? Name, string? Cwd)? Session(int pid, string home)
     {
         try
         {
-            using var fs = new FileStream(Path.Combine(Home, "sessions", pid.ToString(System.Globalization.CultureInfo.InvariantCulture) + ".json"), FileMode.Open, FileAccess.Read, FileShare.ReadWrite | FileShare.Delete);
+            using var fs = new FileStream(Path.Combine(home, "sessions", pid.ToString(System.Globalization.CultureInfo.InvariantCulture) + ".json"), FileMode.Open, FileAccess.Read, FileShare.ReadWrite | FileShare.Delete);
             using var doc = JsonDocument.Parse(fs);
             var r = doc.RootElement;
             return (Str(r, "kind") is not { } kind || kind == "interactive", Str(r, "name"), Str(r, "cwd"));
         }
         catch (Exception e) when (e is IOException or UnauthorizedAccessException or JsonException)
+        {
+            return null;
+        }
+    }
+
+    /// The Claude Code folder a transcript is kept in: `<folder>\projects\<project>\<session>.jsonl` → `<folder>`; null
+    /// for a path not of that shape (relative, another file, not under a `projects` folder).
+    public static string? HomeOf(string? transcript)
+    {
+        if (string.IsNullOrWhiteSpace(transcript) || !Path.IsPathFullyQualified(transcript)) return null;
+        try
+        {
+            string file = Path.GetFullPath(transcript);
+            if (!file.EndsWith(".jsonl", StringComparison.OrdinalIgnoreCase) || Path.GetFileNameWithoutExtension(file).Length == 0) return null;
+            string? project = Path.GetDirectoryName(file), projects = project is null ? null : Path.GetDirectoryName(project);
+            if (projects is null || !Path.GetFileName(projects).Equals("projects", StringComparison.OrdinalIgnoreCase)) return null;
+            return Path.GetDirectoryName(projects) is { Length: > 0 } home ? home : null;
+        }
+        catch (Exception e) when (e is ArgumentException or NotSupportedException or PathTooLongException)
         {
             return null;
         }

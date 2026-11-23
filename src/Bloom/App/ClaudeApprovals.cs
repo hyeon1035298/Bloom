@@ -19,10 +19,12 @@ namespace Bloom.App;
 /// answer on the card (CardQuestions). The terminal keeps its own question —
 /// Bloom answers nothing — when the switch is off, the session is a program's run (`claude -p`), its window is in front,
 /// no card can show (알림 off, a full-screen app), or the user goes to the terminal (the card, its button, or the window
-/// brought to the front). A card goes when Claude Code stops waiting (the hook ended).
+/// brought to the front). A card goes when Claude Code stops waiting (the hook ended). With the Run Card add-on
+/// connected and taking requests (RunCardLink), its card asks first and Bloom's own only when it can't.
 internal static class ClaudeApprovals
 {
     private static readonly UTF8Encoding Utf8 = new(false);
+    private static readonly TimeSpan RunCardShownWait = TimeSpan.FromSeconds(1.5); // the add-on says shown or none in this time, else Bloom's card asks
     private static readonly HashSet<TaskCompletionSource<string>> open = new(); // the requests waiting on a card (UI thread)
     private static Dispatcher? ui;
     private static bool listening;
@@ -87,7 +89,7 @@ internal static class ClaudeApprovals
                 using var reader = new StreamReader(pipe, Utf8);
                 using var writer = new StreamWriter(pipe, Utf8) { AutoFlush = true, NewLine = "\n" };
                 string answer = "";
-                if (await reader.ReadLineAsync() is { } line && Request.Parse(line) is { } r && ClaudeWatch.Session(r.Pid) is { Interactive: true } s)
+                if (await reader.ReadLineAsync() is { } line && Request.Parse(line) is { } r && Session(r) is { Interactive: true } s)
                 {
                     var ended = reader.ReadLineAsync(); // the hook's end (Claude Code stopped waiting) closes the pipe
                     string? about = AgentText.Title(s.Name) ?? Folder(r.Cwd ?? s.Cwd);
@@ -102,6 +104,12 @@ internal static class ClaudeApprovals
         }
     }
 
+    /// The asking Claude Code's session file: in the Claude Code folder its transcript is in (a session started with
+    /// its own CLAUDE_CONFIG_DIR), else in Bloom's. A known folder is the only one looked in: Bloom's may hold a stale
+    /// file for the same, reused pid.
+    private static (bool Interactive, string? Name, string? Cwd)? Session(Request r) =>
+        r.Home is { } home ? ClaudeWatch.Session(r.Pid, home) : ClaudeWatch.Session(r.Pid);
+
     /// On the UI thread: the card, and what the user picks on it. A request the card can't show whole goes to the
     /// terminal: nothing the user allows stays out of sight.
     private static async Task<string> Ask(Request r, string? about, Task<string?> ended)
@@ -109,6 +117,7 @@ internal static class ClaudeApprovals
         if (!Settings.Current.NoticeApprove || !r.Fits) return "";
         IntPtr window = await SessionWindow.Locate(r.Pid);
         if (!Settings.Current.NoticeApprove || (window != IntPtr.Zero && Win32.GetForegroundWindow() == window)) return ""; // switched off meanwhile, or the session is in front: its own question
+        if (RunCardLink.Approvals && Notices.CardsAllowed && await OnRunCard(r, window, ended) is { } given) return given;
         var answer = new TaskCompletionSource<string>(TaskCreationOptions.RunContinuationsAsynchronously);
         void Terminal()
         {
@@ -126,18 +135,53 @@ internal static class ClaudeApprovals
                 Buttons: new[] { (Tr("허용", "Allow"), (Action)(() => answer.TrySetResult("allow"))), decline, terminal }, Body: r.Body);
         if (!Notices.Approval(session, card)) return "";
         open.Add(answer);
-        // the session's window brought to the front another way: the terminal asks there
+        var front = Front(window, answer);
+        await Task.WhenAny((Task)answer.Task, ended);
+        front.Stop();
+        open.Remove(answer);
+        Notices.Approved(session, key);
+        return answer.Task.IsCompletedSuccessfully ? answer.Task.Result : "";
+    }
+
+    /// The request on the Run Card add-on's card: its answer; "" when Bloom stops waiting first (the hook ended, the
+    /// session's window came to the front, the switch went off — the add-on's card is cancelled); null when the add-on
+    /// can't take it (`none`, no word in time, the connection dropped before an answer) and Bloom's own card asks.
+    private static async Task<string?> OnRunCard(Request r, IntPtr window, Task<string?> ended)
+    {
+        if (RunCardLink.Ask(r) is not { } ask) return null;
+        var stopped = new TaskCompletionSource<string>(TaskCreationOptions.RunContinuationsAsynchronously); // Bloom's side gave up
+        open.Add(stopped);
+        var front = Front(window, stopped);
+        try
+        {
+            var first = await Task.WhenAny(ask.Shown, Task.Delay(RunCardShownWait), ended, stopped.Task);
+            if (first == ask.Shown && ask.Shown.Result) await Task.WhenAny((Task)ask.Answered, ended, stopped.Task);
+            if (ask.Answered.IsCompleted && ask.Answered.Result is { } answer)
+            {
+                if (answer != RunCardProtocol.Terminal) return answer;
+                if (window != IntPtr.Zero) OpenWindows.Switch(window); // 터미널에서 답하기, as on Bloom's card
+                return "";
+            }
+            ask.Cancel();
+            return stopped.Task.IsCompleted || ended.IsCompleted ? "" : null;
+        }
+        finally
+        {
+            front.Stop();
+            open.Remove(stopped);
+        }
+    }
+
+    /// The session's window brought to the front another way: the terminal asks there (`answer` settles as "").
+    private static DispatcherTimer Front(IntPtr window, TaskCompletionSource<string> answer)
+    {
         var front = new DispatcherTimer(DispatcherPriority.Background) { Interval = TimeSpan.FromSeconds(1) };
         front.Tick += (_, _) =>
         {
             if (window != IntPtr.Zero && Win32.GetForegroundWindow() == window) answer.TrySetResult("");
         };
         front.Start();
-        await Task.WhenAny((Task)answer.Task, ended);
-        front.Stop();
-        open.Remove(answer);
-        Notices.Approved(session, key);
-        return answer.Task.IsCompletedSuccessfully ? answer.Task.Result : "";
+        return front;
     }
 
     private static string? Folder(string? path) => string.IsNullOrEmpty(path) ? null : Path.GetFileName(path.TrimEnd('\\', '/'));
@@ -148,6 +192,10 @@ internal static class ClaudeApprovals
     internal sealed record Request(int Pid, string Session, string Tool, string Body, string? Cwd)
     {
         public const int MaxLines = 8, MaxChars = 600;
+
+        /// The Claude Code folder the session keeps its files in, from the transcript's path (ClaudeWatch.HomeOf); null
+        /// when the hook didn't say or the path isn't of that shape.
+        public string? Home { get; init; }
 
         /// AskUserQuestion's questions, when the card can show them as choices (CardQuestions.Parse); null otherwise.
         public IReadOnlyList<CardQuestion>? Questions { get; init; }
@@ -180,7 +228,7 @@ internal static class ClaudeApprovals
                 if (questions is not null) // the questions in words, for the log and the tooltip (the card shows them as choices)
                     lines = questions.Select(q => (q.Header.Length > 0 ? $"[{q.Header}] " : "") + q.Text + "\n" + string.Join("\n", q.Choices.Select(c => "· " + c.Label))).ToList();
                 string body = ToolText.Visible(string.Join("\n", lines)).Trim();
-                return new Request(pid, Str(r, "session_id") ?? "", tool, body, Str(r, "cwd")) { Questions = questions };
+                return new Request(pid, Str(r, "session_id") ?? "", tool, body, Str(r, "cwd")) { Questions = questions, Home = ClaudeWatch.HomeOf(Str(r, "transcript_path")) };
             }
             catch (JsonException)
             {

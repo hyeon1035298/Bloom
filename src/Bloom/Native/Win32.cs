@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
+using System.Security.Principal;
 using System.Text;
+using Microsoft.Win32.SafeHandles;
 
 namespace Bloom.Native;
 
@@ -180,6 +182,57 @@ internal static class Win32
         }
     }
 
+    /// The process at the other end of a pipe Bloom serves; null when Windows can't say.
+    public static uint? PipeClient(SafePipeHandle pipe) => GetNamedPipeClientProcessId(pipe, out uint pid) ? pid : null;
+
+    /// A process's Windows session; null when it can't be asked.
+    public static uint? ProcessSession(uint pid) => ProcessIdToSessionId(pid, out uint session) ? session : null;
+
+    /// The account a process runs as (its token's TokenUser) and its program path, read through one handle; either is
+    /// null when it can't be asked.
+    public static (SecurityIdentifier? User, string? Path) ProcessIdentity(uint pid)
+    {
+        IntPtr h = OpenProcess(0x1000 /* PROCESS_QUERY_LIMITED_INFORMATION */, false, (int)pid);
+        if (h == IntPtr.Zero) return (null, null);
+        try
+        {
+            var sb = new StringBuilder(1024);
+            int len = sb.Capacity;
+            string? path = QueryFullProcessImageName(h, 0, sb, ref len) ? sb.ToString() : null;
+            return (TokenUser(h), path);
+        }
+        finally
+        {
+            CloseHandle(h);
+        }
+    }
+
+    private static SecurityIdentifier? TokenUser(IntPtr process)
+    {
+        if (!OpenProcessToken(process, 0x0008 /* TOKEN_QUERY */, out IntPtr token)) return null;
+        IntPtr buffer = IntPtr.Zero;
+        try
+        {
+            GetTokenInformation(token, 1 /* TokenUser */, IntPtr.Zero, 0, out int size);
+            if (size <= 0) return null;
+            buffer = Marshal.AllocHGlobal(size);
+            if (!GetTokenInformation(token, 1, buffer, size, out _)) return null;
+            return new SecurityIdentifier(Marshal.ReadIntPtr(buffer)); // TOKEN_USER starts with the SID's pointer
+        }
+        catch (ArgumentException)
+        {
+            return null;
+        }
+        finally
+        {
+            if (buffer != IntPtr.Zero) Marshal.FreeHGlobal(buffer);
+            CloseHandle(token);
+        }
+    }
+
+    [DllImport("kernel32.dll", SetLastError = true)] private static extern bool GetNamedPipeClientProcessId(SafePipeHandle pipe, out uint pid);
+    [DllImport("kernel32.dll", SetLastError = true)] private static extern bool ProcessIdToSessionId(uint pid, out uint session);
+    [DllImport("advapi32.dll", SetLastError = true, EntryPoint = "GetTokenInformation")] private static extern bool GetTokenInformation(IntPtr token, int infoClass, IntPtr info, int length, out int returned);
     [DllImport("kernel32.dll", SetLastError = true)] private static extern bool GetProcessTimes(IntPtr h, out long created, out long exited, out long kernel, out long user);
     [DllImport("kernel32.dll", SetLastError = true)] private static extern IntPtr OpenProcess(uint access, bool inherit, int pid);
     [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)] private static extern bool QueryFullProcessImageName(IntPtr h, int flags, StringBuilder name, ref int size);

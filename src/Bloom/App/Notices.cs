@@ -107,6 +107,14 @@ internal static class Notices
         });
     }
 
+    /// A card may show now: 알림 is on and Windows doesn't say it's not the time (QA runs: always). The Run Card add-on's
+    /// cards follow the same rule (ClaudeApprovals).
+    public static bool CardsAllowed => Settings.Current.Notices && (Quiet || !UserBusy());
+
+    /// A Claude Code turn while the Run Card add-on shows the turns itself (RunCardLink): its 진행 중 · 작업 완료 · 승인
+    /// 대기 cards stay away (알림 센터 still keeps them). Codex's are not the add-on's.
+    private static bool OnRunCard(string key) => RunCardLink.ShowsTurns && key.StartsWith("claude:", StringComparison.Ordinal);
+
     /// Windows says now is not the time: the PC is locked, or a full-screen app, game or presentation is in front.
     private static bool UserBusy() => Native.Win32.SHQueryUserNotificationState(out int state) == 0 && state is >= 1 and <= 4;
 
@@ -150,7 +158,7 @@ internal static class Notices
                 {
                     var n = new Notice("waiting", Head(t.Tool, Tr("승인 대기", "Needs approval")), t.Title, Tr("승인 대기", "Approval pending"), t.Key, Click: Jump(t));
                     NoticeLog.Wait(t.Key, n.Head, n.Title, n.Detail, n.Click);
-                    if (Settings.Current.NoticeWaiting) Show(n);
+                    if (Settings.Current.NoticeWaiting && !OnRunCard(t.Key)) Show(n);
                 }
             }
             else if (!t.Waiting && before?.Waiting == true) Settled(t.Key);
@@ -178,7 +186,9 @@ internal static class Notices
         wait.Tick += (_, _) =>
         {
             Cancel(t.Key);
-            if (!last.TryGetValue(t.Key, out var now) || now.Waiting) return; // done already, or asking
+            // done already, or asking; or the add-on took the turns meanwhile (one that started while it showed them gets
+            // no late card when it goes)
+            if (!last.TryGetValue(t.Key, out var now) || now.Waiting || OnRunCard(t.Key)) return;
             Show(new Notice("start", Head(now.Tool, Tr("진행 중", "Working")), now.Title, now.Prompt is { } p ? $"“{p}”" : null, Click: Jump(now)));
         };
         starting[t.Key] = wait;
@@ -195,13 +205,16 @@ internal static class Notices
         Cancel(t.Key);
         window?.Remove(t.Key);
         if (!Settings.Current.Notices || took < ShortestDone) return;
-        Card(Settings.Current.NoticeDone, new Notice("done", Head(t.Tool, Tr("작업 완료", "Done")), t.Title, Tr($"소요 시간 {Span(took)}", $"Elapsed: {Span(took)}"), Click: Jump(t)), true);
+        Card(Settings.Current.NoticeDone && !OnRunCard(t.Key), new Notice("done", Head(t.Tool, Tr("작업 완료", "Done")), t.Title, Tr($"소요 시간 {Span(took)}", $"Elapsed: {Span(took)}"), Click: Jump(t)), true);
     }
 
     /// The click of a turn's card: to the window its CLI runs in, or with 카드를 누르면 at 작업표시줄 AI 패널 to its chat
     /// in the taskbar add-on (TaskbarChat), the window while the add-on can't show it. A headless run (a program's
     /// `claude -p`, `codex exec`) has no session window, and a turn whose process isn't known only closes.
     private static Action? Jump(AgentTask t) => TaskbarChat.Click(t.Key, t.Pid is { } pid && !t.Headless ? () => _ = Raise(pid) : null);
+
+    /// The Run Card add-on's 열기 on a session's card (RunCardLink): what a click on that turn's card does.
+    public static void Open(string session, int pid) => TaskbarChat.Click("claude:" + session, pid > 0 ? () => _ = Raise(pid) : null)?.Invoke();
 
     private static async Task Raise(int pid)
     {
@@ -304,7 +317,7 @@ internal static class Notices
     /// when no card can show now (알림 off, a full-screen app in front): the terminal asks.
     public static bool Approval(string session, Notice n)
     {
-        if (!Settings.Current.Notices || (!Quiet && UserBusy())) return false;
+        if (!CardsAllowed) return false;
         approving[session] = approving.GetValueOrDefault(session) + 1;
         Settled(session); // this card takes the session's 승인 대기 place
         if (n.Key is { } key) NoticeLog.Wait(key, n.Head, n.Title, n.Detail ?? n.Body, n.Click);
