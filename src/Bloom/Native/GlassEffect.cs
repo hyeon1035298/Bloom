@@ -36,12 +36,13 @@ internal static unsafe class GlassEffect
     /// The source parameter the backdrop brush is set to (CompositionEffectBrush.SetSourceParameter).
     public const string Backdrop = "Backdrop";
 
-    /// The grey for each theme: near the windows' own ground, whose luminosity replaces the backdrop's.
-    public static Color Grey(bool dark) => dark ? Color.FromRgb(0x2C, 0x2C, 0x2C) : Color.FromRgb(0xFC, 0xFC, 0xFC);
+    /// The grey for each theme: near the windows' own ground, whose luminosity replaces the backdrop's. The dark one
+    /// with Amount keeps the faintest text at 4.5:1 over a white window behind (measured: 4.62 at 35, 4.82 at 75).
+    public static Color Grey(bool dark) => dark ? Color.FromRgb(0x1E, 0x1E, 0x20) : Color.FromRgb(0xFC, 0xFC, 0xFC);
 
-    /// How much of the grey's luminosity goes in, by the glass transparency (`see`, 0–100): 0.70 up to 35, then more as
+    /// How much of the grey's luminosity goes in, by the glass transparency (`see`, 0–100): 0.72 up to 35, then more as
     /// the windows' own fill thins, 0.90 at 75 (the setting's top).
-    public static float Amount(int see) => 0.70f + 0.20f * Math.Clamp((see - 35) / 40f, 0f, 1f);
+    public static float Amount(int see) => 0.72f + 0.18f * Math.Clamp((see - 35) / 40f, 0f, 1f);
 
     /// The effect description for the glass (an IGraphicsEffect, owned by the caller): Blend in luminosity mode of the
     /// source parameter Backdrop and a Flood of `grey` at `amount`.
