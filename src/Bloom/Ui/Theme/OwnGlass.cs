@@ -24,7 +24,7 @@ internal static unsafe class OwnGlass
         public readonly IntPtr Visual = visual; // ISpriteVisual
         public IntPtr Brush; // ICompositionEffectBrush
         public (bool Dark, float Amount) PaintedFor = (false, -1);
-        public bool On, Topmost;
+        public bool On, Topmost, Zoomed;
         public HwndSourceHook? Hook;
     }
 
@@ -131,6 +131,20 @@ internal static unsafe class OwnGlass
         {
             Win32.SetWindowPos(layer.Under, topmost ? Win32.HWND_TOPMOST : Win32.HWND_NOTOPMOST, 0, 0, 0, 0, Win32.SWP_NOMOVE | Win32.SWP_NOSIZE | Win32.SWP_NOACTIVATE);
             layer.Topmost = topmost;
+        }
+        // maximized, the window reaches past its monitor by its resize border and its corners are square
+        bool zoomed = IsZoomed(layer.Glass);
+        if (zoomed != layer.Zoomed)
+        {
+            int corner = zoomed ? DWMWCP_DONOTROUND : Win32.DWMWCP_ROUND;
+            _ = Win32.DwmSetWindowAttribute(layer.Under, Win32.DWMWA_WINDOW_CORNER_PREFERENCE, ref corner, 4);
+            layer.Zoomed = zoomed;
+        }
+        var info = new Win32.MONITORINFO { cbSize = Marshal.SizeOf<Win32.MONITORINFO>() };
+        if (zoomed && Win32.GetMonitorInfo(Win32.MonitorFromWindow(layer.Glass, 2 /* nearest */), ref info))
+        {
+            var w = info.rcWork;
+            r = new Win32.RECT { Left = Math.Max(r.Left, w.Left), Top = Math.Max(r.Top, w.Top), Right = Math.Min(r.Right, w.Right), Bottom = Math.Min(r.Bottom, w.Bottom) };
         }
         Win32.SetWindowPos(layer.Under, layer.Glass, r.Left, r.Top, r.Right - r.Left, r.Bottom - r.Top, Win32.SWP_NOACTIVATE | SWP_NOOWNERZORDER | Win32.SWP_SHOWWINDOW);
     }
@@ -379,6 +393,7 @@ internal static unsafe class OwnGlass
     }
 
     private const int WM_WINDOWPOSCHANGED = 0x0047;
+    private const int DWMWCP_DONOTROUND = 1;
     private const uint WS_POPUP = 0x80000000, WS_DISABLED = 0x08000000;
     private const uint WS_EX_TOPMOST = 0x8, WS_EX_TOOLWINDOW = 0x80, WS_EX_NOACTIVATE = 0x08000000, WS_EX_NOREDIRECTIONBITMAP = 0x00200000;
     private const uint SWP_HIDEWINDOW = 0x0080, SWP_NOOWNERZORDER = 0x0200;
@@ -416,6 +431,7 @@ internal static unsafe class OwnGlass
     [DllImport("user32.dll", CharSet = CharSet.Unicode, SetLastError = true)] private static extern IntPtr CreateWindowEx(uint ex, string cls, string? name, uint style, int x, int y, int w, int h, IntPtr parent, IntPtr menu, IntPtr inst, IntPtr param);
     [DllImport("user32.dll")] private static extern bool DestroyWindow(IntPtr hwnd);
     [DllImport("user32.dll")] private static extern bool IsIconic(IntPtr hwnd);
+    [DllImport("user32.dll")] private static extern bool IsZoomed(IntPtr hwnd);
     [DllImport("dwmapi.dll")] private static extern int DwmEnableBlurBehindWindow(IntPtr hwnd, ref DWM_BLURBEHIND bb);
     [DllImport("gdi32.dll")] private static extern IntPtr CreateRectRgn(int l, int t, int r, int b);
     [DllImport("kernel32.dll", CharSet = CharSet.Unicode)] private static extern IntPtr GetModuleHandle(string? name);
