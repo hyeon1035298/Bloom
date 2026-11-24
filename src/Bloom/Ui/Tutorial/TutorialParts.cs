@@ -1,340 +1,56 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Shapes;
 using Bloom.Core;
 
 namespace Bloom.Ui;
 
-internal enum TileMark { None, Pick, Badge, Switch }
-
-/// A picture with a name under it. The mark says how it is chosen.
-internal sealed class PictureTile : Grid
-{
-    private readonly TileMark mark;
-    private readonly SmoothBorder card;
-    private readonly TextBlock about;
-    private readonly ContentControl link = new() { Focusable = false, Visibility = Visibility.Collapsed };
-    private bool on, aboutAccent, dim, off;
-    private (string label, Action open)? linkTo;
-
-    public PictureTile(FrameworkElement scene, double sceneHeight, string name, string? about = null,
-        TileMark mark = TileMark.None, bool on = false, bool small = false, int nameLines = 1)
-    {
-        this.mark = mark;
-        this.on = on;
-        Scene = scene;
-        scene.Height = sceneHeight;
-        var sp = new StackPanel();
-        sp.Children.Add(scene);
-        var nameText = Theme.T(name, small ? 12.5 : 13, Theme.P.Text, Theme.Medium);
-        nameText.Margin = new Thickness(10, 8, 10, 0);
-        if (nameLines > 1)
-        {
-            nameText.TextWrapping = TextWrapping.Wrap;
-            nameText.TextTrimming = TextTrimming.CharacterEllipsis;
-            nameText.MaxHeight = nameLines * nameText.FontSize * 1.4;
-        }
-        sp.Children.Add(nameText);
-        this.about = Theme.T(about ?? "", 11.5, Theme.P.TextFaint);
-        this.about.Margin = new Thickness(10, 2, 10, 8);
-        this.about.Visibility = about is null ? Visibility.Collapsed : Visibility.Visible;
-        sp.Children.Add(this.about);
-        link.Margin = new Thickness(10, 2, 10, 8);
-        sp.Children.Add(link);
-        card = new SmoothBorder { CornerRadius = new CornerRadius(10), BorderThickness = new Thickness(1), Child = sp, Cursor = Cursors.Hand, ClipToBounds = true };
-        Children.Add(card);
-        MouseLeftButtonUp += (_, e) =>
-        {
-            if (off) return;
-            Press();
-            e.Handled = true;
-        };
-        Draw();
-    }
-
-    public FrameworkElement Scene { get; }
-
-    public bool On
-    {
-        get => on;
-        set
-        {
-            on = value;
-            Draw();
-        }
-    }
-
-    public event Action<bool>? Toggled;
-    public Action? Click { get; set; }
-
-    public string? About
-    {
-        get => about.Visibility == Visibility.Visible ? about.Text : null;
-        set
-        {
-            about.Text = value ?? "";
-            about.Visibility = value is null || linkTo is not null ? Visibility.Collapsed : Visibility.Visible;
-        }
-    }
-
-    public bool AboutAccent
-    {
-        get => aboutAccent;
-        set
-        {
-            aboutAccent = value;
-            Draw();
-        }
-    }
-
-    public (string label, Action open)? Link
-    {
-        get => linkTo;
-        set
-        {
-            linkTo = value;
-            link.Content = value is { } l ? TutorialParts.Link(l.label, l.open) : null;
-            link.Visibility = value is null ? Visibility.Collapsed : Visibility.Visible;
-            if (value is not null) about.Visibility = Visibility.Collapsed;
-        }
-    }
-
-    public bool Dim
-    {
-        get => dim;
-        set
-        {
-            dim = value;
-            Scene.Opacity = value ? 0.4 : 1;
-        }
-    }
-
-    public bool Off
-    {
-        get => off;
-        set
-        {
-            off = value;
-            Opacity = value ? 0.45 : 1;
-            IsHitTestVisible = !value;
-        }
-    }
-
-    /// What a click does, by mark: Switch and Badge flip, Pick turns on once, None runs Click.
-    internal void Press()
-    {
-        switch (mark)
-        {
-            case TileMark.None:
-                Click?.Invoke();
-                break;
-            case TileMark.Pick:
-                if (on) return;
-                On = true;
-                Toggled?.Invoke(true);
-                break;
-            default:
-                On = !on;
-                Toggled?.Invoke(on);
-                break;
-        }
-    }
-
-    private void Draw()
-    {
-        card.Background = Theme.P.Card;
-        card.BorderBrush = on && mark != TileMark.None ? Theme.P.Accent : Theme.P.CardLine;
-        about.Foreground = aboutAccent ? Theme.P.AccentText : Theme.P.TextFaint;
-        about.FontWeight = aboutAccent ? Theme.Semi : Theme.Regular;
-    }
-}
-
-/// Equal columns of tiles; every row is as tall as the tallest tile of the grid.
-internal sealed class TileGrid : Panel
-{
-    private readonly int columns;
-    private readonly double columnGap, rowGap;
-    private double rowHeight;
-
-    public TileGrid(int columns, double columnGap, double rowGap)
-    {
-        this.columns = Math.Max(1, columns);
-        this.columnGap = columnGap;
-        this.rowGap = rowGap;
-    }
-
-    private IEnumerable<PictureTile> Tiles => Children.OfType<PictureTile>();
-
-    public void Add(PictureTile tile) => Children.Add(tile);
-
-    /// Single choice over Pick tiles: one stays on, `picked` gets its index.
-    public void PickOne(Action<int> picked)
-    {
-        var tiles = Tiles.ToList();
-        for (int i = 0; i < tiles.Count; i++)
-        {
-            int index = i;
-            tiles[i].Toggled += v =>
-            {
-                if (!v) return;
-                for (int k = 0; k < tiles.Count; k++)
-                    if (k != index) tiles[k].On = false;
-                picked(index);
-            };
-        }
-    }
-
-    private double ColumnWidth(double width) => double.IsInfinity(width) ? 0 : Math.Max(0, (width - (columns - 1) * columnGap) / columns);
-
-    protected override Size MeasureOverride(Size available)
-    {
-        double w = ColumnWidth(available.Width);
-        rowHeight = 0;
-        double widest = 0;
-        foreach (UIElement c in InternalChildren)
-        {
-            c.Measure(new Size(w > 0 ? w : double.PositiveInfinity, double.PositiveInfinity));
-            rowHeight = Math.Max(rowHeight, c.DesiredSize.Height);
-            widest = Math.Max(widest, c.DesiredSize.Width);
-        }
-        int rows = (InternalChildren.Count + columns - 1) / columns;
-        double width = w > 0 ? available.Width : widest * columns + (columns - 1) * columnGap;
-        return new Size(width, rows == 0 ? 0 : rows * rowHeight + (rows - 1) * rowGap);
-    }
-
-    protected override Size ArrangeOverride(Size final)
-    {
-        double w = ColumnWidth(final.Width);
-        for (int i = 0; i < InternalChildren.Count; i++)
-        {
-            int row = i / columns, col = i % columns;
-            InternalChildren[i].Arrange(new Rect(col * (w + columnGap), row * (rowHeight + rowGap), w, rowHeight));
-        }
-        return final;
-    }
-}
-
-/// A card row: an optional 64x38 picture, a title, an optional line under it, an optional control at the right.
-internal sealed class ThumbRow : SmoothBorder
-{
-    private readonly TextBlock sub;
-    private Switch? switched;
-    private bool off;
-
-    public ThumbRow(FrameworkElement? thumb, string title, string? sub = null, FrameworkElement? end = null)
-    {
-        CornerRadius = new CornerRadius(10);
-        BorderThickness = new Thickness(1);
-        Background = Theme.P.Card;
-        BorderBrush = Theme.P.CardLine;
-        Padding = new Thickness(12, 9, 12, 9);
-        Margin = new Thickness(0, 0, 0, 8);
-        var g = new Grid();
-        g.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
-        g.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
-        g.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
-        if (thumb is not null)
-        {
-            thumb.Width = 64;
-            thumb.Height = 38;
-            thumb.Margin = new Thickness(0, 0, 12, 0);
-            g.Children.Add(thumb);
-        }
-        var text = new StackPanel { VerticalAlignment = VerticalAlignment.Center };
-        text.Children.Add(Theme.T(title, 13.5, Theme.P.Text, Theme.Medium));
-        this.sub = Theme.T(sub ?? "", 12, Theme.P.TextFaint);
-        this.sub.TextWrapping = TextWrapping.Wrap;
-        this.sub.Margin = new Thickness(0, 2, 12, 0);
-        this.sub.Visibility = sub is null ? Visibility.Collapsed : Visibility.Visible;
-        text.Children.Add(this.sub);
-        Grid.SetColumn(text, 1);
-        g.Children.Add(text);
-        if (end is not null)
-        {
-            end.VerticalAlignment = VerticalAlignment.Center;
-            Grid.SetColumn(end, 2);
-            g.Children.Add(end);
-        }
-        Child = g;
-        MouseLeftButtonUp += (_, e) =>
-        {
-            if (off || Click is null) return;
-            Click();
-            e.Handled = true;
-        };
-    }
-
-    public static ThumbRow Switched(FrameworkElement? thumb, string title, string? sub, bool on, Action<bool> changed)
-    {
-        var sw = new Switch(on);
-        var row = new ThumbRow(thumb, title, sub, sw) { Cursor = Cursors.Hand };
-        row.switched = sw;
-        row.Click = () =>
-        {
-            sw.On = !sw.On;
-            changed(sw.On);
-        };
-        return row;
-    }
-
-    public Action? Click { get; set; }
-    public Switch? Switch => switched;
-
-    public string? Sub
-    {
-        get => sub.Visibility == Visibility.Visible ? sub.Text : null;
-        set
-        {
-            sub.Text = value ?? "";
-            sub.Visibility = value is null ? Visibility.Collapsed : Visibility.Visible;
-        }
-    }
-
-    public bool Off
-    {
-        get => off;
-        set
-        {
-            off = value;
-            Opacity = value ? 0.45 : 1;
-            IsHitTestVisible = !value;
-        }
-    }
-}
-
-internal static class TutorialParts
+/// What the tutorial's pages are put together from besides the tiles and the rows: the header, the small texts and
+/// the link. The keyboard side is in TutorialFocus.cs.
+internal static partial class TutorialParts
 {
     /// Title, one line under it, an optional tag above and an optional control at the title's right.
     public static FrameworkElement Header(string title, string? sub, string? tag = null, FrameworkElement? end = null)
     {
-        var sp = new StackPanel { Margin = new Thickness(0, 0, 0, 18) };
+        var sp = new StackPanel();
         if (tag is not null)
         {
-            var t = Theme.T(tag, 11.5, Theme.P.AccentText, Theme.Semi);
-            t.Margin = new Thickness(0, 0, 0, 6);
-            sp.Children.Add(t);
+            var mark = Theme.Sparkle(10, Theme.P.AccentText);
+            mark.Margin = new Thickness(0, 0, 5, 0);
+            var words = new StackPanel { Orientation = Orientation.Horizontal };
+            words.Children.Add(mark);
+            words.Children.Add(Theme.Label(tag, 11.5, Theme.P.AccentText, Theme.Semi, inBorder: true));
+            sp.Children.Add(new SmoothBorder
+            {
+                Child = words,
+                Height = 22,
+                CornerRadius = new CornerRadius(6),
+                Padding = new Thickness(8, 0, 8, 0),
+                Margin = new Thickness(0, 0, 0, 10),
+                Background = Theme.P.AccentSoft,
+                HorizontalAlignment = HorizontalAlignment.Left,
+            });
         }
-        var g = new Grid();
-        g.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
-        g.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
-        g.Children.Add(Theme.T(title, 24, Theme.P.Text, Theme.Semi));
-        if (end is not null)
+        var name = Lines(Theme.T(title, 24, Theme.P.Text, Theme.Semi), 30);
+        if (end is null) sp.Children.Add(name);
+        else
         {
+            var line = new Grid();
+            line.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+            line.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+            line.Children.Add(name);
             end.VerticalAlignment = VerticalAlignment.Center;
+            end.Margin = new Thickness(12, 0, 0, 0);
             Grid.SetColumn(end, 1);
-            g.Children.Add(end);
+            line.Children.Add(end);
+            sp.Children.Add(line);
         }
-        sp.Children.Add(g);
         if (sub is not null)
         {
-            var s = Theme.T(Hangul.KeepAll(sub), 13.5, Theme.P.TextDim);
-            s.TextWrapping = TextWrapping.Wrap;
-            s.Margin = new Thickness(0, 8, 0, 0);
-            sp.Children.Add(s);
+            sp.Children.Add(new EvenLines(Theme.T(Hangul.KeepAll(sub), 13.5, Theme.P.TextDim), 20, 2) { Margin = new Thickness(0, 6, 0, 0) });
         }
         return sp;
     }
@@ -342,44 +58,175 @@ internal static class TutorialParts
     /// A faint line with a ringed "i".
     public static FrameworkElement Note(string text)
     {
-        var t = Theme.T(Hangul.KeepAll(text), 12, Theme.P.TextFaint);
-        t.TextWrapping = TextWrapping.Wrap;
-        t.Margin = new Thickness(0, 10, 0, 0);
-        return t;
+        const double line = 17;
+        var g = new Grid();
+        g.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+        g.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+        // the ring keeps to the first line when the text takes two
+        g.Children.Add(new InfoMark { Width = InfoMark.Size, Height = line, Margin = new Thickness(0, 0, 7, 0), VerticalAlignment = VerticalAlignment.Top });
+        var t = new EvenLines(Theme.T(Hangul.KeepAll(text), 12, Theme.P.TextFaint), line, 2) { VerticalAlignment = VerticalAlignment.Top };
+        Grid.SetColumn(t, 1);
+        g.Children.Add(t);
+        return g;
     }
 
     /// A faint section label.
     public static FrameworkElement Label(string text)
     {
-        var t = Theme.T(text, 12, Theme.P.TextFaint, Theme.Semi);
-        t.Margin = new Thickness(0, 0, 0, 8);
+        var t = Lines(Theme.T(text, 12.5, Theme.P.TextFaint, Theme.Semi), 17);
+        t.Margin = new Thickness(2, 0, 2, 8);
         return t;
     }
 
     /// A text link that takes keyboard focus; Enter or Space runs it. `color` null = Theme.P.AccentText.
     public static FrameworkElement Link(string text, Action open, double size = 12.5, Brush? color = null)
     {
-        var t = Theme.T(text, size, color ?? Theme.P.AccentText, Theme.Medium, false);
+        var ink = color ?? Theme.P.AccentText;
+        // in a colour it is underlined, which tells it from a status line in the same colour; in one of the text's own
+        // grays (the footer's skip) it is a quiet one, underlined only under the pointer and with the keyboard on it
+        bool quiet = ReferenceEquals(ink, Theme.P.TextFaint) || ReferenceEquals(ink, Theme.P.TextDim) || ReferenceEquals(ink, Theme.P.Text);
+        var t = Theme.T(text, size, ink, Theme.Medium, false);
+        t.HorizontalAlignment = HorizontalAlignment.Left;
+        t.Background = Brushes.Transparent; // the whole line box takes the click, not only the glyphs' ink
         t.Cursor = Cursors.Hand;
+        bool over = false;
+        void Underline() => t.TextDecorations = !quiet || over || RingShown(t) ? TextDecorations.Underline : null;
+        t.MouseEnter += (_, _) =>
+        {
+            over = true;
+            Underline();
+        };
+        t.MouseLeave += (_, _) =>
+        {
+            over = false;
+            Underline();
+        };
+        // the ring a little wider than the text's box, which ends right at the first and the last glyph
+        TabStop(t, new CornerRadius(5), new Thickness(4, 1, 4, 1), _ => Underline());
+        Keys(t, open, enter: true);
         t.MouseLeftButtonUp += (_, e) =>
         {
             open();
             e.Handled = true;
         };
+        Underline();
         return t;
     }
 
-    /// Makes an element a Tab stop with the tutorial's focus ring; Space runs `act`, and Enter too when `enter`
-    /// (links and buttons; on a tile or a row Enter stays the window's "next page").
-    public static void Focusable(FrameworkElement e, Action act, CornerRadius ring, bool enter = false)
+    /// A one-line text slot with its line height fixed, so a part is as tall in every language's font; what does not
+    /// fit ends in an ellipsis.
+    internal static TextBlock Lines(TextBlock t, double lineHeight)
     {
-        e.MouseLeftButtonUp += (_, args) =>
+        t.LineHeight = lineHeight;
+        t.LineStackingStrategy = LineStackingStrategy.BlockLineHeight;
+        t.TextWrapping = TextWrapping.NoWrap;
+        t.TextTrimming = TextTrimming.CharacterEllipsis;
+        return t;
+    }
+
+    /// A check mark drawn in a `size` box: the tiles' marks and the "installed" line.
+    internal static FrameworkElement Tick(double size, Brush stroke, double thickness)
+    {
+        double k = size / 16;
+        var g = new StreamGeometry();
+        using (var c = g.Open())
         {
-            act();
-            args.Handled = true;
+            c.BeginFigure(new Point(3.2 * k, 8.4 * k), false, false);
+            c.PolyLineTo([new Point(6.2 * k, 11.4 * k), new Point(12.8 * k, 4.6 * k)], true, true);
+        }
+        g.Freeze();
+        return new Path
+        {
+            Data = g,
+            Width = size,
+            Height = size,
+            Stroke = stroke,
+            StrokeThickness = thickness,
+            StrokeStartLineCap = PenLineCap.Round,
+            StrokeEndLineCap = PenLineCap.Round,
+            StrokeLineJoin = PenLineJoin.Round,
+            HorizontalAlignment = HorizontalAlignment.Center,
+            VerticalAlignment = VerticalAlignment.Center,
+            IsHitTestVisible = false,
         };
     }
 
-    /// The element with keyboard focus runs on Enter itself (a link, or something made Focusable with `enter`).
-    public static bool TakesEnter(object? focused) => false;
+    /// A text slot of up to `Most` lines of a fixed height, then an ellipsis. Text that takes more than one line is
+    /// set in the narrowest width that takes no more lines, so its lines come out about as long as each other and the
+    /// last is not left with one short word.
+    internal sealed class EvenLines : Decorator
+    {
+        private readonly TextBlock text;
+        private double lineHeight, width;
+        private int most;
+
+        public EvenLines(TextBlock text, double lineHeight, int most)
+        {
+            Child = this.text = text;
+            text.VerticalAlignment = VerticalAlignment.Top;
+            text.HorizontalAlignment = HorizontalAlignment.Left;
+            text.LineStackingStrategy = LineStackingStrategy.BlockLineHeight;
+            text.TextTrimming = TextTrimming.CharacterEllipsis;
+            Set(lineHeight, most);
+        }
+
+        public TextBlock Text => text;
+
+        /// The lines the text takes as it is laid out (tests).
+        internal int Shown => (int)Math.Round(text.DesiredSize.Height / lineHeight);
+
+        public void Set(double lineHeight, int most)
+        {
+            (this.lineHeight, this.most) = (lineHeight, Math.Max(1, most));
+            text.LineHeight = lineHeight;
+            text.TextWrapping = this.most > 1 ? TextWrapping.Wrap : TextWrapping.NoWrap;
+            InvalidateMeasure();
+        }
+
+        protected override Size MeasureOverride(Size constraint)
+        {
+            double full = constraint.Width, cap = most * lineHeight;
+            text.Measure(new Size(full, double.PositiveInfinity));
+            int lines = (int)Math.Round(text.DesiredSize.Height / lineHeight);
+            width = full;
+            if (lines > most) text.Measure(new Size(full, cap)); // too long: the last line that fits ends in the ellipsis
+            else if (lines > 1 && !double.IsInfinity(full))
+            {
+                double low = text.DesiredSize.Width / lines, high = full;
+                while (high - low > 2)
+                {
+                    double mid = (low + high) / 2;
+                    text.Measure(new Size(mid, double.PositiveInfinity));
+                    if (text.DesiredSize.Height <= lines * lineHeight + 0.5) high = mid;
+                    else low = mid;
+                }
+                // a little room to spare: a width found to the pixel breaks elsewhere once the scale changes
+                width = Math.Min(full, Math.Ceiling(high * 1.03) + 2);
+                text.Measure(new Size(width, cap));
+            }
+            return text.DesiredSize;
+        }
+
+        protected override Size ArrangeOverride(Size final)
+        {
+            // at the width it was measured for: given more, the text would break its lines again
+            text.Arrange(new Rect(0, 0, Math.Min(final.Width, double.IsInfinity(width) ? final.Width : Math.Max(width, text.DesiredSize.Width)), final.Height));
+            return final;
+        }
+    }
+
+    /// The note's mark: an "i" in a ring, drawn so it is the same in every font, in the middle of the first line.
+    private sealed class InfoMark : FrameworkElement
+    {
+        public const double Size = 14;
+
+        protected override void OnRender(DrawingContext dc)
+        {
+            var ink = Theme.P.TextFaint;
+            double cx = Size / 2, cy = RenderSize.Height / 2;
+            dc.DrawEllipse(null, new Pen(ink, 1.2), new Point(cx, cy), Size / 2 - 0.6, Size / 2 - 0.6);
+            dc.DrawEllipse(ink, null, new Point(cx, cy - 2.7), 0.85, 0.85);
+            dc.DrawLine(new Pen(ink, 1.4) { StartLineCap = PenLineCap.Round, EndLineCap = PenLineCap.Round }, new Point(cx, cy - 0.4), new Point(cx, cy + 2.9));
+        }
+    }
 }
