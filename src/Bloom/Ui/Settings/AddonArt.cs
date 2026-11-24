@@ -20,7 +20,7 @@ internal sealed class AddonArt : FrameworkElement
     public const double W = 232, H = 84;
     private const double Loop = 8;
 
-    private enum Kind { Taskbar, AltTab, Brightness, Memory, Coffee }
+    private enum Kind { Taskbar, AltTab, Brightness, Memory, Coffee, RunCard }
 
     private readonly Kind kind;
     private readonly double still;
@@ -49,6 +49,7 @@ internal sealed class AddonArt : FrameworkElement
         "brightness" => new(Kind.Brightness, 0.6),
         "memory-clean" => new(Kind.Memory, 0.6),
         "keep-awake" => new(Kind.Coffee, 0.62),
+        "run-card" => new(Kind.RunCard, 0.40),
         _ => null,
     };
 
@@ -102,6 +103,7 @@ internal sealed class AddonArt : FrameworkElement
             case Kind.Brightness: Brightness(dc, p); break;
             case Kind.Memory: Memory(dc, p); break;
             case Kind.Coffee: Coffee(dc, p); break;
+            case Kind.RunCard: RunCard(dc, p); break;
         }
     }
 
@@ -334,6 +336,164 @@ internal sealed class AddonArt : FrameworkElement
         dc.DrawRoundedRectangle(null, P(ink.Text, 1.1), new Rect(r - .5, t + 2, 4, 4.5), 2, 2);
     }
 
+    /// Beside the terminal a Claude Code session runs in, its pill at the top glows while it works; an approval opens it
+    /// into a card with the command, 허용 is clicked, it folds back into the pill, works on and finishes. The add-on's
+    /// own words.
+    private void RunCard(DrawingContext dc, double p)
+    {
+        double open = K(p, (.20, 0), (.28, 1), (.50, 1), (.58, 0));
+        double done = K(p, (.70, 0), (.74, 1), (.93, 1), (.97, 0));
+
+        // the terminal: its lines, the last one marked while it waits, one more once the work goes on
+        var term = new Rect(14, 12, 72, 58);
+        Window(dc, term);
+        double lx = term.Left + 7, ly = term.Top + 9;
+        foreach (double w in new[] { 40.0, 28.0 })
+        {
+            dc.DrawRoundedRectangle(B(ink.Track), null, new Rect(lx, ly, w, 3), 1.5, 1.5);
+            ly += 8;
+        }
+        double wait = K(p, (.20, 0), (.24, 1), (.48, 1), (.52, 0));
+        if (wait > 0) dc.DrawEllipse(B(Fade(Accent, wait)), null, new Point(lx + 1.5, ly + 1.5), 1.5, 1.5);
+        dc.DrawRoundedRectangle(B(ink.Track), null, new Rect(lx + 6 * wait, ly, 34, 3), 1.5, 1.5);
+        double more = K(p, (.58, 0), (.64, 1), (.93, 1), (.97, 0));
+        if (more > 0) dc.DrawRoundedRectangle(B(Fade(ink.Track, more)), null, new Rect(lx, ly + 8, 46, 3), 1.5, 1.5);
+
+        // the pill as wide as its words (working, then done), opening into the card
+        var work = Lang.Tr("명령 실행 중", "Running");
+        var fin = Text(Lang.Tr("31초 만에 완료", "Done in 31s"), 7, FontWeights.SemiBold, ink.Text);
+        var workText = Text(work, 7, FontWeights.SemiBold, ink.Text);
+        var time = Text(done > 0 ? "0:31" : $"0:{8 + (int)(p * 30):00}", 6.5, FontWeights.Normal, ink.Faint);
+        double pw = 3 + 12 + 4 + (workText.Width + (fin.Width - workText.Width) * done) + 6 + time.Width + 7;
+        var card = new Rect(92, 6, 132, 56);
+        var pill = new Rect(224 - pw, 8, pw, 18);
+        var r = Lerp(pill, card, open);
+        double radius = 9 - open;
+        Shadow(dc, r, radius);
+        dc.DrawRoundedRectangle(B(ink.Pill), P(ink.PillEdge, 1), r, radius, radius);
+
+        double po = K(p, (.20, 1), (.23, 0), (.52, 0), (.57, 1));
+        if (po > 0)
+        {
+            dc.PushOpacity(po);
+            // in the pill's place, which the card covers as it folds back
+            double cy = pill.Top + pill.Height / 2;
+            var at = new Point(pill.Left + 3 + 12 + 4, cy - workText.Height / 2);
+            if (done < 1)
+            {
+                dc.PushOpacity(1 - done);
+                Mark(dc, pill.Left + 9, cy);
+                Shine(dc, work, at, p);
+                dc.Pop();
+            }
+            if (done > 0)
+            {
+                dc.PushOpacity(done);
+                Done(dc, pill.Left + 9, cy);
+                dc.DrawText(fin, at);
+                dc.Pop();
+            }
+            dc.DrawText(time, new Point(pill.Right - 7 - time.Width, cy - time.Height / 2));
+            dc.Pop();
+        }
+
+        // the card's words, inside its shape while it opens and closes
+        double co = K(p, (.25, 0), (.30, 1), (.48, 1), (.52, 0));
+        var allow = Text(Lang.Tr("허용", "Allow"), 6.5, FontWeights.SemiBold, AccentInk);
+        var allowBox = new Rect(card.Left + 6, card.Top + 42, 4 + 7 + 2 + allow.Width + 5, 11);
+        if (co > 0)
+        {
+            dc.PushClip(new RectangleGeometry(r, radius, radius));
+            dc.PushOpacity(co);
+            // the head: the mark, what it asks and its time when there is room for it
+            var title = Text(Lang.Tr("승인 요청 · Bash", "Needs your approval · Bash"), 7, FontWeights.SemiBold, ink.Text);
+            Mark(dc, card.Left + 9, card.Top + 10);
+            dc.DrawText(title, new Point(card.Left + 19, card.Top + 10 - title.Height / 2));
+            var clock = Text("0:14", 6.5, FontWeights.Normal, ink.Faint);
+            if (card.Left + 19 + title.Width + 6 + clock.Width <= card.Right - 6)
+                dc.DrawText(clock, new Point(card.Right - 6 - clock.Width, card.Top + 10 - clock.Height / 2));
+
+            // the steps' bar, three of four done
+            double seg = (card.Width - 12 - 3 * 2) / 4;
+            for (int i = 0; i < 4; i++)
+                dc.DrawRoundedRectangle(B(i < 3 ? ink.Steps : ink.Track), null, new Rect(card.Left + 6 + i * (seg + 2), card.Top + 20, seg, 1.5), .75, .75);
+
+            var code = new Rect(card.Left + 6, card.Top + 26, card.Width - 12, 12);
+            dc.DrawRoundedRectangle(B(ink.Code), null, code, 3, 3);
+            var cmd = Words("npm test", 6, FontWeights.Normal, ink.Text, Theme.Mono);
+            dc.DrawText(cmd, new Point(code.Left + 4, code.Top + (code.Height - cmd.Height) / 2));
+
+            // 허용 (pressed once), 거절, and the way to the terminal at the end
+            double press = K(p, (.44, 0), (.45, 1), (.47, 1), (.49, 0));
+            dc.DrawRoundedRectangle(B(Mix(Accent, 0xFFFFFFFF, .22 * press)), null, allowBox, 5.5, 5.5);
+            ButtonFace(dc, allowBox, '\uE73E', allow, AccentInk);
+            var deny = Text(Lang.Tr("거절", "Deny"), 6.5, FontWeights.SemiBold, ink.Text);
+            var denyBox = new Rect(allowBox.Right + 3, allowBox.Top, 4 + 7 + 2 + deny.Width + 5, 11);
+            dc.DrawRoundedRectangle(B(ink.Hover), null, denyBox, 5.5, 5.5);
+            ButtonFace(dc, denyBox, '\uE711', deny, ink.Text);
+            var away = Text(Lang.Tr("터미널에서 ↗", "In terminal ↗"), 6, FontWeights.Normal, ink.Faint);
+            dc.DrawText(away, new Point(card.Right - 6 - away.Width, allowBox.Top + (11 - away.Height) / 2));
+            dc.Pop();
+            dc.Pop();
+        }
+
+        // the pointer comes to 허용's icon, so its word stays in sight
+        double ax = allowBox.Left + 6, ay = allowBox.Top + 5;
+        Pointer(dc, K(p, (.28, 150), (.40, ax), (.50, ax), (.62, 150)), K(p, (.28, 64), (.40, ay), (.50, ay), (.62, 64)));
+    }
+
+    /// A button's icon and word, set in from its left.
+    private void ButtonFace(DrawingContext dc, Rect box, char icon, FormattedText word, uint argb)
+    {
+        var g = Glyph(icon, 5.5, argb);
+        dc.DrawText(g, new Point(box.Left + 4 + (7 - g.Width) / 2, box.Top + (box.Height - g.Height) / 2));
+        dc.DrawText(word, new Point(box.Left + 4 + 7 + 2, box.Top + (box.Height - word.Height) / 2));
+    }
+
+    /// The session's mark: a spark in a soft round.
+    private void Mark(DrawingContext dc, double cx, double cy)
+    {
+        dc.DrawEllipse(B(ink.Hover), null, new Point(cx, cy), 6, 6);
+        var pen = Round(ink.Text, 1.1);
+        for (int i = 0; i < 4; i++)
+        {
+            double a = i * Math.PI / 4, dx = 3.2 * Math.Cos(a), dy = 3.2 * Math.Sin(a);
+            dc.DrawLine(pen, new Point(cx - dx, cy - dy), new Point(cx + dx, cy + dy));
+        }
+    }
+
+    /// Done: a check in a ring, in the theme's OK colour.
+    private void Done(DrawingContext dc, double cx, double cy)
+    {
+        uint ok = Argb(Theme.P.Ok.Color);
+        var pen = Round(ok, 1.1);
+        dc.DrawEllipse(null, pen, new Point(cx, cy), 5, 5);
+        dc.DrawLine(pen, new Point(cx - 2.3, cy + .1), new Point(cx - .6, cy + 1.8));
+        dc.DrawLine(pen, new Point(cx - .6, cy + 1.8), new Point(cx + 2.4, cy - 1.6));
+    }
+
+    /// A working headline: its resting tone with light swept across it every 1.6 s.
+    private void Shine(DrawingContext dc, string s, Point at, double p)
+    {
+        var rest = Text(s, 7, FontWeights.SemiBold, ink.Shine);
+        var lit = Text(s, 7, FontWeights.SemiBold, ink.Text);
+        dc.DrawText(rest, at);
+        double sweep = p * Loop % 1.6 / 1.6, x = at.X - 16 + (rest.Width + 32) * sweep;
+        shine ??= new LinearGradientBrush
+        {
+            MappingMode = BrushMappingMode.Absolute,
+            GradientStops = { new GradientStop(Colors.Transparent, 0), new GradientStop(Colors.White, .5), new GradientStop(Colors.Transparent, 1) },
+        };
+        shine.StartPoint = new Point(x - 8, 0);
+        shine.EndPoint = new Point(x + 8, 0);
+        dc.PushOpacityMask(shine);
+        dc.DrawText(lit, at);
+        dc.Pop();
+    }
+
+    /// The sweep's mask, moved for each frame (one per picture, never frozen).
+    private LinearGradientBrush? shine;
+
     /// The right end of the pill at the top: the brightness widget (a monitor with its number), the RAM widget (a memory
     /// module with the use) and the clock. `on`: the widget whose window is open.
     private void Tray(DrawingContext dc, double p, int on, double bright, double use)
@@ -451,16 +611,17 @@ internal sealed class AddonArt : FrameworkElement
         public uint Thumb => Dark ? 0xFF3A3A40u : 0xFFE4E4E7u;
         public uint Track => Dark ? 0x24FFFFFFu : 0x1F111111u;
         public uint Hover => Dark ? 0x1AFFFFFFu : 0x14111111u;
+        public uint Shine => Dark ? 0xFFA1A1AAu : 0xFF5E5E67u;
+        public uint Steps => Dark ? 0xBFFFFFFFu : 0xB3111111u;
+        public uint Code => Dark ? 0x47000000u : 0x0F111111u;
     }
 
-    private static uint Accent
-    {
-        get
-        {
-            var c = Theme.P.Accent.Color;
-            return (uint)c.A << 24 | (uint)c.R << 16 | (uint)c.G << 8 | c.B;
-        }
-    }
+    private static uint Accent => Argb(Theme.P.Accent.Color);
+
+    /// The ink on the accent (dark or light, whichever reads).
+    private static uint AccentInk => Argb(Theme.P.AccentInk.Color);
+
+    private static uint Argb(Color c) => (uint)c.A << 24 | (uint)c.R << 16 | (uint)c.G << 8 | c.B;
 
     private static uint Fade(uint argb, double share) => (uint)Math.Round((argb >> 24) * share) << 24 | argb & 0xFFFFFF;
 
@@ -489,21 +650,32 @@ internal sealed class AddonArt : FrameworkElement
         return pens[(argb, thickness)] = p;
     }
 
-    // ---- words, kept while the same words, size and colour come again
+    private static readonly Dictionary<(uint, double), Pen> roundPens = new();
 
-    private readonly Dictionary<(string, double, FontWeight, uint, bool), FormattedText> words = new();
-
-    private FormattedText Text(string s, double size, FontWeight weight, uint argb) => Words(s, size, weight, argb, false);
-
-    private FormattedText Glyph(char g, double size, uint argb) => Words(g.ToString(), size, FontWeights.Normal, argb, true);
-
-    private FormattedText Words(string s, double size, FontWeight weight, uint argb, bool icon)
+    /// A pen with round ends, for strokes drawn as marks (the spark, the check).
+    private static Pen Round(uint argb, double thickness)
     {
-        var key = (s, size, weight, argb, icon);
+        if (roundPens.TryGetValue((argb, thickness), out var p)) return p;
+        p = new Pen(B(argb), thickness) { StartLineCap = PenLineCap.Round, EndLineCap = PenLineCap.Round };
+        p.Freeze();
+        return roundPens[(argb, thickness)] = p;
+    }
+
+    // ---- words, kept while the same words, size, colour and font come again
+
+    private readonly Dictionary<(string, double, FontWeight, uint, FontFamily), FormattedText> words = new();
+
+    private FormattedText Text(string s, double size, FontWeight weight, uint argb) => Words(s, size, weight, argb, Theme.Sans);
+
+    private FormattedText Glyph(char g, double size, uint argb) => Words(g.ToString(), size, FontWeights.Normal, argb, Theme.IconFont);
+
+    private FormattedText Words(string s, double size, FontWeight weight, uint argb, FontFamily family)
+    {
+        var key = (s, size, weight, argb, family);
         if (words.TryGetValue(key, out var t)) return t;
         if (words.Count > 200) words.Clear();
         t = new FormattedText(s, CultureInfo.CurrentUICulture, FlowDirection.LeftToRight,
-            new Typeface(icon ? Theme.IconFont : Theme.Sans, FontStyles.Normal, weight, FontStretches.Normal), size, B(argb),
+            new Typeface(family, FontStyles.Normal, weight, FontStretches.Normal), size, B(argb),
             VisualTreeHelper.GetDpi(this).PixelsPerDip);
         return words[key] = t;
     }
