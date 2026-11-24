@@ -75,8 +75,19 @@ internal static class Theme
         if (!double.IsNaN(w.Height)) w.Height *= k;
     }
 
-    /// Transparency effects on → DWM acrylic under our tint; off → a solid background.
+    /// Transparency effects on → glass under our tint; off → a solid background. Off too where Windows keeps its own
+    /// glass off (Native.SystemEffects: high contrast, a remote desktop, energy saver).
     public static bool Acrylic { get; private set; } = true;
+
+    private static bool WantsAcrylic() =>
+        Core.Settings.Current.Transparency != "off" && SystemTransparency() && !Native.SystemEffects.Off && Environment.OSVersion.Version.Build >= 22621;
+
+    /// Windows turned its glass off or on while Bloom runs (투명 효과, high contrast, a remote desktop, energy saver):
+    /// Bloom's windows follow.
+    public static void SystemChanged()
+    {
+        if (WantsAcrylic() != Acrylic) Apply(Core.Settings.Current.Theme);
+    }
 
     public static FontWeight Regular => FontWeights.Normal;
     public static FontWeight Medium => FontWeights.Medium;
@@ -98,7 +109,7 @@ internal static class Theme
     public static void Apply(string setting)
     {
         bool dark = Core.SystemTheme.Dark(setting);
-        Acrylic = Core.Settings.Current.Transparency != "off" && SystemTransparency() && Environment.OSVersion.Version.Build >= 22621;
+        Acrylic = WantsAcrylic();
         P.Apply(dark, Accents.Current, Core.Settings.Current.GlassTransparency);
         // a ResourceDictionary freezes what it holds, so the scroll thumb gets a fresh copy each time
         if (Application.Current is { } app) app.Resources["AL.Thumb"] = P.Thumb.CloneCurrentValue();

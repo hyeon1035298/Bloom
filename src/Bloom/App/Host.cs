@@ -71,6 +71,7 @@ internal sealed partial class Host
         if (!Settings.Current.GpuDrawing) System.Windows.Media.RenderOptions.ProcessRenderMode = System.Windows.Interop.RenderMode.SoftwareOnly; // 설정 › 성능: about 30 MB less without the GPU driver
         Theme.InitScale();
         Theme.Apply(Settings.Current.Theme);
+        Native.SystemEffects.Watch(Theme.SystemChanged); // 투명 효과, high contrast, a remote desktop, energy saver
         Theme.Changed += () => Addons.AddonHub.FollowTheme(Theme.P.Dark); // every add-on's light or dark
 
         Apps = new AppIndex();
