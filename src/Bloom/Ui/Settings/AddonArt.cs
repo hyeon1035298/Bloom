@@ -159,6 +159,13 @@ internal sealed class AddonArt : FrameworkElement
         InvalidateVisual();
     }
 
+    // The words are laid out for the DPI they were first drawn at; on another monitor they are laid out again.
+    protected override void OnDpiChanged(DpiScale oldDpi, DpiScale newDpi)
+    {
+        words.Forget();
+        InvalidateVisual();
+    }
+
     protected override void OnRender(DrawingContext dc)
     {
         double p = Hold ?? (timer is null ? still : clock.Elapsed.TotalSeconds % Loop / Loop);
