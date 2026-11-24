@@ -23,7 +23,7 @@ internal sealed partial class Host
     private void BeginDemo()
     {
         var s = Settings.Current;
-        s.Onboarded = true;
+        s.MarkTutorialSeen();
         s.FilesInRoot = false; // Everything and the recent files are off anyway; the switch shows it
         s.WindowsInRoot = false;
         s.Notices = false; // the limit and task cards watch the real Claude Code and Codex

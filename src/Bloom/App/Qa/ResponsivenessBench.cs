@@ -40,7 +40,7 @@ internal static class ResponsivenessBench
             var settings = Settings.Current;
             settings.FilesInRoot = false;
             settings.WindowsInRoot = false;
-            settings.Onboarded = true;
+            settings.MarkTutorialSeen();
             host.Window.Capturing = true;
             host.Window.ShowActivated = false;
             host.Window.Topmost = false;

@@ -29,6 +29,7 @@ internal sealed partial class Host
     public Launcher Window = null!;
     public ToolDock Tools = null!;
     private SettingsWindow? settingsWindow;
+    private OnboardingWindow? tour; // the tutorial window while it is open
     private ChatWindow? chatWindow;
 
     /// The AI 채팅 window while it shows (else zero): what a tool the AI brings up floats beside.
@@ -241,41 +242,79 @@ internal sealed partial class Host
             HomePlayer.Start(Window, Later, Opt.Demo); // after Prewarm: its moment shown off-screen is nothing to watch for
             Tools.Restore(); // floating tool windows come back now, attached ones with the launcher
             // started by Explorer's 연결 프로그램: the document (or the song) only — no launcher, and the first-run screens wait for the next start
-            if (Opt.Open is { } doc)
-            {
-                if (!OpenHanded(doc)) ui.BeginInvoke(() => DocHandoff.Tell(doc, DocHandoff.Refused)); // never silently
-            }
-            else if (Settings.Current.Onboarded != true) ShowOnboarding();
-            else if (Opt.Settings) OpenSettingsAt(Opt.SettingsPage);
-            else if (Opt.Show) Summon();
-            if (!Opt.Demo && Opt.MeasureSeconds is null && Opt.SummonRounds is null && ReleaseNotes.JustUpdated())
-            {
-                // the first start on a new version: 바뀐 점 a moment later, without taking the focus
-                var soon = new DispatcherTimer(DispatcherPriority.Background, ui) { Interval = TimeSpan.FromSeconds(3) };
-                soon.Tick += (_, _) =>
-                {
-                    soon.Stop();
-                    ShowWhatsNew(quiet: true);
-                };
-                soon.Start();
-            }
+            if (Opt.Open is { } doc && !OpenHanded(doc)) ui.BeginInvoke(() => DocHandoff.Tell(doc, DocHandoff.Refused)); // never silently
+            var s = Settings.Current;
+            (startRun, startEnv) = StartQueue.Tutorial(Opt.Open is not null, Opt.Tour, s.Onboarded, s.TutorialSeen, () => TutorialEnv.Now);
+            // before the tutorial opens: it reads whether this settings file had been through the first run
+            bool updated = !Opt.Demo && Opt.MeasureSeconds is null && Opt.SummonRounds is null && ReleaseNotes.JustUpdated();
+            startQueue = new(StartQueue.Plan(Opt.Open is not null, startRun.Count > 0, updated, Opt.Settings, Opt.Show));
+            Next();
         }
         else _ = Captures.Run(this, Opt.CaptureDir);
         Log.Write($"started {(Paths.IsDev ? "dev " + Paths.Data : "")} pid {Environment.ProcessId}");
     }
 
+    // ---- what a start opens (StartQueue): each item gets Next as what follows it
+    private Queue<StartQueue.Item>? startQueue;
+    private StartQueue.Item? startLast;
+    private TutorialEnv? startEnv;
+    private List<string> startRun = [];
+
+    /// The start's next window. The tutorial and what's-new go on when their window has closed; the launcher and
+    /// settings go on at once (settings are last whenever a tutorial is in the plan).
+    private void Next()
+    {
+        if (startQueue is not { Count: > 0 } q) return;
+        var item = q.Dequeue();
+        var last = startLast;
+        startLast = item;
+        switch (item)
+        {
+            case StartQueue.Item.Launcher:
+                Summon();
+                Next();
+                break;
+            case StartQueue.Item.Tutorial:
+                ShowOnboarding(startRun, Next, startEnv);
+                break;
+            case StartQueue.Item.WhatsNew when last == StartQueue.Item.Tutorial:
+                // the user has just closed the tutorial: the notes follow it at once, in front
+                _ = WhatsNew(own: true, focus: true, Next);
+                break;
+            case StartQueue.Item.WhatsNew:
+                // the first start on a new version: 바뀐 점 a moment later, without taking the focus
+                var soon = new DispatcherTimer(DispatcherPriority.Background, ui) { Interval = TimeSpan.FromSeconds(3) };
+                soon.Tick += (_, _) =>
+                {
+                    soon.Stop();
+                    _ = WhatsNew(own: true, focus: false, Next);
+                };
+                soon.Start();
+                break;
+            case StartQueue.Item.Settings:
+                OpenSettingsAt(Opt.SettingsPage);
+                Next();
+                break;
+        }
+    }
+
     /// 바뀐 점: the version list from GitHub, at this version's notes (설정 › 정보, and once after an update with `quiet`:
     /// no focus, and nothing when the notes can't be had). One window: asked again, the open one comes forward.
-    public void ShowWhatsNew(bool quiet = false) => _ = WhatsNew(quiet);
+    public void ShowWhatsNew(bool quiet = false) => _ = WhatsNew(own: quiet, focus: !quiet, then: null);
 
     private WhatsNewWindow? whatsNew;
     private bool whatsNewComing; // the changelog is on its way
+    private Action? whatsNewThen; // what waits for the window to close (the start's next window)
 
-    private async Task WhatsNew(bool quiet)
+    /// `own` = Bloom opens it by itself: nothing when this version's notes can't be had. `focus` = it takes the focus.
+    /// `then` runs once, when the window closes or when nothing is shown; while a window is open or on its way, it waits
+    /// for that one.
+    private async Task WhatsNew(bool own, bool focus, Action? then)
     {
+        whatsNewThen += then;
         if (whatsNew is not null)
         {
-            if (!quiet) whatsNew.Activate();
+            if (focus) whatsNew.Activate();
             return;
         }
         if (whatsNewComing) return;
@@ -283,15 +322,28 @@ internal sealed partial class Host
         string v = ReleaseNotes.Current;
         var versions = await ReleaseNotes.Versions();
         // on its own only with this version's notes at hand (fetched now; the window then has them at once)
-        bool skip = quiet && (versions?.Contains(v) != true || await ReleaseNotes.For(v) is null);
+        bool skip = own && (versions?.Contains(v) != true || await ReleaseNotes.For(v) is null);
         whatsNewComing = false;
-        if (whatsNew is not null || skip) return;
-        whatsNew = new WhatsNewWindow(v, versions, OpenSettings) { ShowActivated = !quiet };
+        if (whatsNew is not null) return;
+        if (skip)
+        {
+            WhatsNewDone();
+            return;
+        }
+        whatsNew = new WhatsNewWindow(v, versions, OpenSettings) { ShowActivated = focus };
         whatsNew.Closed += (_, _) =>
         {
             whatsNew = null;
+            WhatsNewDone();
         };
         whatsNew.Show();
+    }
+
+    private void WhatsNewDone()
+    {
+        var then = whatsNewThen;
+        whatsNewThen = null;
+        then?.Invoke();
     }
 
     /// QA (`--qa-measure <s>`): how much memory (and CPU time) this run holds after `seconds` of ordinary running, then
@@ -561,10 +613,23 @@ internal sealed partial class Host
     /// The first-run screens (also "Bloom 둘러보기").
     /// `only` = the pages of this run, null = the full tour. `closed` runs once, when the tutorial window this call
     /// opened (or the one already open) has closed. `env` = what was detected already, so the window does not detect again.
+    /// One tutorial window at a time: asked again, the open one comes forward, whichever kind of run it is.
     public void ShowOnboarding(IReadOnlyList<string>? only = null, Action? closed = null, TutorialEnv? env = null)
     {
-        var w = new OnboardingWindow(this, only, env);
-        if (closed is not null) w.Closed += (_, _) => closed();
+        if (tour is { } open)
+        {
+            if (closed is not null) open.Closed += (_, _) => closed(); // the caller waits for the window that is up
+            if (open.WindowState == WindowState.Minimized) open.WindowState = WindowState.Normal;
+            open.Activate();
+            Win32.ForceForeground(new System.Windows.Interop.WindowInteropHelper(open).Handle);
+            return;
+        }
+        var w = tour = new OnboardingWindow(this, only, env);
+        w.Closed += (_, _) =>
+        {
+            tour = null;
+            closed?.Invoke();
+        };
         w.Show();
         w.Activate();
         Win32.ForceForeground(new System.Windows.Interop.WindowInteropHelper(w).Handle);

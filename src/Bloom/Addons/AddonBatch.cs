@@ -10,7 +10,9 @@ internal static class AddonBatch
 {
     internal sealed record Outcome(Addon Addon, bool Here, AddonFailure? Failed, bool StartFailed)
     {
-        public bool Ok => Here && Failed is null && !StartFailed;
+        /// Here and started. A failed look for a newer release (offline) leaves the version on the PC to start, so
+        /// `Failed` alone does not make it a failure: its settled status says whether it works.
+        public bool Ok => Here && !StartFailed;
     }
 
     /// Tests replace these; the app's are AddonHub.Set and a => a.Status().

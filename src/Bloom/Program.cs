@@ -13,7 +13,7 @@ namespace Bloom;
 
 internal static class Program
 {
-    /// Args: --data <dir> (dev copy with its own data), --show, --settings, --quit, --no-hook,
+    /// Args: --data <dir> (dev copy with its own data), --show, --settings, --tour (the whole tutorial), --quit, --no-hook,
     ///       --no-tray, --display=<n> (dev: open on that monitor), --capture <dir> (render the
     ///       views to PNG files and exit), --autostart (started at sign-in: the Run key, or the logon task
     ///       while an add-on is on).
@@ -144,6 +144,9 @@ internal static class Program
                     break;
                 case "--settings":
                     opt.Settings = true;
+                    break;
+                case "--tour":
+                    opt.Tour = true;
                     break;
                 case SettingsHandoff.Arg when i + 1 < args.Length:
                     opt.Settings = true;

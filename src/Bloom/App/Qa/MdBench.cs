@@ -41,7 +41,7 @@ internal static class MdBench
         try
         {
             if (!Paths.IsDev) throw new InvalidOperationException("The Markdown bench needs a throwaway --data folder.");
-            Settings.Current.Onboarded = true;
+            Settings.Current.MarkTutorialSeen();
             Settings.Current.DocSize = [900, 1000];
             Settings.Current.MdTextSize = Settings.MdTextDefault;
             DocWindow.OffScreenForQa = true;

@@ -222,6 +222,7 @@ internal sealed partial class Host
         UserCommands.Load();
         ColorBook.Load();
         Settings.Current.Onboarded = true;
+        Settings.Current.TutorialSeen ??= [.. TutorialSteps.Before]; // a file from before the ids: the pages it had are seen
         Settings.Save();
         if (!Paths.IsDev) Autostart.Set(Settings.Current.Autostart);
         LogonTask.SyncLater();
