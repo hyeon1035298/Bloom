@@ -105,6 +105,7 @@ internal sealed partial class SettingsView
                     {
                         s.GlassTransparency = v;
                         Theme.P.Glass(v);
+                        OwnGlass.Follow();
                     }, filter)));
         look.Add((s.GpuDrawing != Defaults.GpuDrawing, () =>
         {

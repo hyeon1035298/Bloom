@@ -351,7 +351,8 @@ internal static class Win32
 
     // ── DWM ─────────────────────────────────────────────────────────────────────────────────────
     public const int DWMWA_USE_IMMERSIVE_DARK_MODE = 20, DWMWA_WINDOW_CORNER_PREFERENCE = 33, DWMWA_BORDER_COLOR = 34,
-        DWMWA_CAPTION_COLOR = 35, DWMWA_SYSTEMBACKDROP_TYPE = 38, DWMWA_TRANSITIONS_FORCEDISABLED = 3, DWMWA_CLOAK = 13;
+        DWMWA_CAPTION_COLOR = 35, DWMWA_SYSTEMBACKDROP_TYPE = 38, DWMWA_TRANSITIONS_FORCEDISABLED = 3, DWMWA_CLOAK = 13,
+        DWMWA_USE_HOSTBACKDROPBRUSH = 17;
     public const int DWMWA_COLOR_NONE = unchecked((int)0xFFFFFFFE);
     public const int DWMWCP_ROUND = 2, DWMSBT_NONE = 1, DWMSBT_TRANSIENTWINDOW = 3;
 

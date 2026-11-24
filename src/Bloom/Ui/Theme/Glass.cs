@@ -12,8 +12,9 @@ using Bloom.Native;
 
 namespace Bloom.Ui;
 
-/// Windows 11 acrylic behind a WPF window: the DWM "transient window" backdrop over a client area
-/// extended into the frame, rounded corners, our own hairline border, no DWM show/hide animation
+/// Glass behind a WPF window: Bloom's own (OwnGlass: the blurred screen behind with a luminosity layer, so the words
+/// keep reading over a bright or dark window behind), or the DWM "transient window" acrylic when composition can't,
+/// over a client area extended into the frame; rounded corners, our own hairline border, no DWM show/hide animation
 /// (the launcher opens 100+ times a day — it must appear instantly).
 internal static class Glass
 {
@@ -32,7 +33,10 @@ internal static class Glass
         // no caption fill: the title-bar strip at the top shows the acrylic like the rest
         int noCaption = Win32.DWMWA_COLOR_NONE;
         _ = Win32.DwmSetWindowAttribute(hwnd, Win32.DWMWA_CAPTION_COLOR, ref noCaption, 4);
-        int backdrop = acrylic ? Win32.DWMSBT_TRANSIENTWINDOW : Win32.DWMSBT_NONE;
+        // the glass Bloom draws itself (OwnGlass), else DWM's acrylic
+        bool own = acrylic && OwnGlass.Show(w, hwnd, dark);
+        if (!own) OwnGlass.Hide(hwnd);
+        int backdrop = acrylic && !own ? Win32.DWMSBT_TRANSIENTWINDOW : Win32.DWMSBT_NONE;
         _ = Win32.DwmSetWindowAttribute(hwnd, Win32.DWMWA_SYSTEMBACKDROP_TYPE, ref backdrop, 4);
         var m = acrylic ? new Win32.MARGINS { cxLeftWidth = -1, cxRightWidth = -1, cyTopHeight = -1, cyBottomHeight = -1 } : new Win32.MARGINS();
         _ = Win32.DwmExtendFrameIntoClientArea(hwnd, ref m);
@@ -47,8 +51,10 @@ internal static class Glass
     public static void Cloak(IntPtr hwnd, bool on)
     {
         if (hwnd == IntPtr.Zero) return;
+        if (!on) OwnGlass.Cloak(hwnd, false);
         int v = on ? 1 : 0;
         int hr = Win32.DwmSetWindowAttribute(hwnd, Win32.DWMWA_CLOAK, ref v, 4);
+        if (on) OwnGlass.Cloak(hwnd, true);
         if (hr != 0 && !cloakLogged)
         {
             cloakLogged = true;
