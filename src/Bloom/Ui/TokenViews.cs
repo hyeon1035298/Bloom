@@ -489,7 +489,7 @@ internal static class TokenViews
         TokenPeriod.Week => Tr("7일", "7d"),
         TokenPeriod.Month => Tr("30일", "30d"),
         TokenPeriod.Quarter => Tr("90일", "90d"),
-        _ => Tr("전체", "All Data"),
+        _ => Tr("전체", "All"),
     };
 
     private static string Long(TokenPeriod p) => p switch

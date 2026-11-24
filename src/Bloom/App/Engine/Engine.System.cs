@@ -137,7 +137,7 @@ internal sealed partial class Engine
                 int? v = SystemControl.Volume;
                 item.Accessory = v is null ? Tr("없음", "None") : $"{v}%";
                 item.Subtitle = Tr("Enter 10% 크게 · Ctrl+K 작게 · \"볼륨 30\"처럼 적어도 됩니다", "Enter +10% · Ctrl+K lower · Or type e.g. \"volume 30\"");
-                item.PrimaryLabel = Tr("크게", "Large");
+                item.PrimaryLabel = Tr("크게", "Louder");
                 if (v is { } cur)
                 {
                     item.Run = () => Done(SystemControl.SetVolume(Math.Min(100, cur + 10)), Tr($"볼륨 {Math.Min(100, cur + 10)}%", $"Volume {Math.Min(100, cur + 10)}%"));

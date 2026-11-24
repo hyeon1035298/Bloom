@@ -647,7 +647,7 @@ internal sealed partial class SettingsView : ScrollViewer
         PageAccounts(s, filter);
         PageMcp(s, filter);
         PageNotices(s, filter);
-        section = Tr("도구", "Tool");
+        section = Tr("도구", "Tools");
         PageTools(s, filter);
         PageAddons(s, filter);
         section = "";

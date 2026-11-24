@@ -341,7 +341,7 @@ internal sealed partial class ChatWindow
         foreach (var p in T3.Projects)
         {
             int count = T3.Rows.Count(x => x.ProjectId == p.Id);
-            string about = (p.Root ?? "") + (count > 0 ? Tr($" · 스레드 {count}", $" · {count} threads") : "");
+            string about = (p.Root ?? "") + (count > 0 ? (count == 1 ? Tr(" · 스레드 1", " · 1 thread") : Tr($" · 스레드 {count}", $" · {count} threads")) : "");
             cards.Children.Add(FolderCard(G.Folder, p.Title, about, !r.Scratch && r.ProjectId == p.Id, () => PickFolder(t, p.Id)));
         }
         cards.Children.Add(FolderCard(G.Add, Tr("폴더 없이", "No folder"), Tr("빈 작업 공간(scratch)", "Empty scratch workspace"), r.Scratch, () => PickFolder(t, null)));

@@ -55,7 +55,7 @@ internal sealed class PreviewPane : Grid
         if (d is null) return;
 
         // facts
-        if (d.Meta.Count > 0) meta.Children.Add(Pad(Section2.Header(Tr("정보", "About"), null)));
+        if (d.Meta.Count > 0) meta.Children.Add(Pad(Section2.Header(Tr("정보", "Info"), null)));
         foreach (var (label, value) in d.Meta) meta.Children.Add(MetaLine(label, value));
 
         // the big one

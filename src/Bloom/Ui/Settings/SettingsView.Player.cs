@@ -18,7 +18,7 @@ internal sealed partial class SettingsView
         Header(Tr("미니 플레이어", "Mini Player"), Tr("파일 검색 결과의 오디오 파일에서 Ctrl+K › ‘미니 플레이어로 재생’을 고릅니다. 음악 파일은 읽기만 합니다.", "Press Ctrl+K › ‘Play in Mini Player’ on an audio file in search results. Audio files are only read, never modified."));
         if (FeatureOff(filter, "player")) return;
         string way = PlayerWays.Of(s.PlayerMode);
-        Choice(Tr("재생 방식", "Playback backend"), way switch
+        Choice(Tr("재생 방식", "Playback method"), way switch
         {
             PlayerWays.Jriver => Tr("JRiver Media Center의 웹 서비스(MCWS)로 틀고 조작합니다. 대기열은 JRiver의 것입니다.", "Plays and controls music via JRiver Media Center's web service (MCWS). Uses JRiver's queue."),
             PlayerWays.Foobar => Tr("명령줄로 틀고, Windows 미디어 세션으로 지금 곡을 읽고 조작합니다. 곡을 틀면 foobar2000이 파일을 여는 방식을 따릅니다.", "Starts playback via command line and reads/controls the current track via Windows Media Session. Follows foobar2000's file-opening behavior."),
@@ -54,7 +54,7 @@ internal sealed partial class SettingsView
         string sub = path.Length > 0 ? Tr($"{path} · 클릭하여 바꾸기", $"{path} · Click to change")
             : found.Length > 0 ? Tr($"자동으로 찾음: {found} · 다른 곳에 있다면 클릭하여 경로 입력", $"Auto-detected: {found} · Click to enter path if installed elsewhere")
             : Tr("찾지 못함 · 클릭하여 .exe 경로 입력", "Not found · Click to enter .exe path");
-        Add(Tr($"{name} 프로그램", $"{name} executable"), sub, null, G.Folder, () =>
+        Add(Tr($"{name} 프로그램", $"{name} program"), sub, null, G.Folder, () =>
         {
             string? v = ValueWindow.Ask(Window.GetWindow(this), Tr($"{name} 프로그램 경로", $"{name} executable path"), Tr($"{name}.exe의 전체 경로입니다. 비워 두면 Bloom이 실행 중인 것이나 보통의 설치 폴더에서 찾습니다.", $"Full path to {name}.exe. If left blank, Bloom looks for a running instance or checks standard install folders."), path, false, path.Length > 0, p => p.Length == 0 || (Path.IsPathFullyQualified(p.Trim('"')) && File.Exists(p.Trim('"')) && p.Trim('"').EndsWith(".exe", System.StringComparison.OrdinalIgnoreCase)) ? null : Tr("있는 .exe 파일의 전체 경로여야 합니다", "Must be the full path to an existing .exe file"));
             if (v is null) return;

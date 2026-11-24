@@ -246,7 +246,7 @@ internal sealed partial class Engine
         f.Fields.Add(new FormField
         {
             Label = Tr("단축어", "Keyword"),
-            Hint = Tr("단축어 (선택) — 예) bk 를 정하면 “bk D:\\사진”처럼 입력과 함께 실행", "Keyword (optional) — e.g. Set bk to run with input like “bk D:\\Photos”"),
+            Hint = Tr("단축어 (선택) — 예) bk 를 정하면 “bk C:\\사진”처럼 입력과 함께 실행", "Keyword (optional) — e.g. Set bk to run with input like “bk C:\\Photos”"),
             Value = edit?.Keyword ?? "",
             Optional = true,
             Check = v =>

@@ -160,7 +160,7 @@ Not signed in · Please try again	ログインしていません · 再試行し
 Balance	残高
 Remaining credits in your OpenRouter account.	OpenRouter アカウントの残りクレジットです。
 Remaining amount on this API key's usage limit.	この API キーの使用上限の残額です。
-Used	使用額
+Used	使用済み
 Total amount spent with this API key. Account balance can only be checked with a management key.	この API キーでこれまでに使用した金額です。アカウント残高は管理キーでのみ照会できます。
 DeepSeek account balance (including topped-up and granted balance).	DeepSeek アカウントの残高です（チャージ残高と付与残高を含む）。
 Skipped MCP server {0} for this chat due to an insecure configuration (unencrypted http URL or restricted headers).	MCP サーバー {0} は安全でない設定（暗号化されていない http アドレスまたは送信できないヘッダー）のため、この会話では除外して回答します。
@@ -350,7 +350,7 @@ This question has already ended	質問は既に終了しています
 Failed to send	送信できませんでした
 Question	質問
 Completed	完了
-Quota reset	上限リセット
+Limit reset	上限リセット
 {0} limit has reset	{0}上限のリセット完了
 Limit Reached	上限到達
 {0} limit reached	{0}上限に達しました
@@ -367,6 +367,7 @@ Choose Allow or Deny	許可または拒否を選択してください
 Open AI Chat	AI チャットを開く
 {0}s	{0}秒
 {0} hr {1} min	{0}時間{1}分
+{0} hr	{0}時間
 {0}d {1}h	{0}日 {1}時間
 Bug Report · Bloom {0}	問題の報告 · Bloom {0}
 Describe what happened and paste the copied diagnostic info below (Ctrl+V).	発生した状況を記入し、コピーした診断情報を下に貼り付けてください (Ctrl+V)。
@@ -495,7 +496,7 @@ Name	名前
 Name used for searching	検索に使用する名前
 Enter a name	名前を入力してください
 Keyword	キーワード
-Keyword (optional) — e.g. Set bk to run with input like “bk D:\\Photos”	キーワード (任意) — 例: bk と設定すると “bk D:\\写真” のように入力付きで実行
+Keyword (optional) — e.g. Set bk to run with input like “bk C:\\Photos”	キーワード (任意) — 例: bk と設定すると “bk C:\\写真” のように入力付きで実行
 Enter a keyword to use {input}	{input} を使用するにはキーワードを入力してください
 Enter a keyword without spaces	空白を含まないキーワードを入力してください
 Keyword '{0}' is already in use · Enter a different keyword	キーワード「{0}」は使用中です · 別のキーワードを入力してください
@@ -603,7 +604,7 @@ Task completions, limits, pending approvals, and custom command outputs appear h
 Go to session	セッションへ移動
 {0}/{1} {2:HH:mm}	{0}月{1}日 {2:HH:mm}
 Copy	コピー
-Time	時刻
+Time	時間
 Copy preview	プレビューをコピー
 Dismiss notification	この通知を消去
 Clear all {0} notifications?	{0}件の通知をすべて消去します。
@@ -696,6 +697,7 @@ Recognized Text	読み取った文字
 {0} lines · Windows OCR · Recognized on device	{0}行 · Windows OCR · PC内で認識完了
 Lines	行数
 {0} lines	{0}行
+Language	言語
 Copy text	テキストをコピー
 Copied	コピーしました
 1 Claude/ChatGPT credit	Claude/ChatGPT 使用量1回
@@ -830,7 +832,7 @@ Default microphone	既定のマイク
 Mute mic	マイクをミュート
 Unmute mic	マイクのミュート解除
 Enter +10% · Ctrl+K lower · Or type e.g. "volume 30"	Enterで10%上げる · Ctrl+Kで下げる · "音量 30" のように入力も可能
-Large	大
+Louder	大きく
 10% lower	10%下げる
 Set to 50%	50%にする
 Volume 50%	音量 50%
@@ -921,7 +923,7 @@ Uninstall it from Windows App Settings	Windowsのアプリ設定からアンイ�
 Open Windows	開いているウィンドウ
 No matching windows	一致するウィンドウがありません
 Minimized	最小化
-Windows	ウィンドウ
+Window	ウィンドウ
 Switch	切替
 Close window	ウィンドウを閉じる
 Minimize	最小化
@@ -950,7 +952,8 @@ App Install · Done	アプリのインストール · 完了
 App Install · Failed	アプリのインストール · 失敗
 Search and install ‘{0}’ via winget	wingetで ‘{0}’ を検索してインストール
 winget · Microsoft Store catalog	winget · Microsoft Store アプリ一覧
-All Data	全体
+All	すべて
+Documents	ドキュメント
 Unity	Unity
 Blender	Blender
 Adobe	Adobe
@@ -1350,7 +1353,8 @@ Change translation engine (also saved to Settings)	翻訳エンジンを変更�
 Target language (Auto: Korean to English, other languages to Korean)	翻訳先の言語（自動: 韓国語は英語へ、その他は韓国語へ）
 Thinking: {0}	思考 {0}
 Thinking level (higher levels are slower and use more quota · also saved to Settings)	思考レベル（高いほど低速になり使用量が増えます · 設定にも保存されます）
-Reload	再読み込み
+Resume	再開
+Pause	一時停止
 Retranslate	再翻訳
 {0} · 1 call	{0} · 呼び出し 1 回
 {0} · {1} calls	{0} · 呼び出し {1} 回
@@ -1438,7 +1442,7 @@ Recently opened files and folders from Windows history	Windowsに記録された
 Dark Mode · Audio · Bluetooth · Wi-Fi · Sleep …	ダークモード · 音声 · Bluetooth · Wi-Fi · スリープ …
 Summarize, translate, or polish selected or copied text	選択またはコピーしたテキストを要約 · 翻訳 · 推敲
 Notification Center	通知センター
-Task completions, usage limits, pending approvals, and custom command results in one place	タスク完了 · 上限 · 承認待ち · カスタムコマンドの結果を一か所に
+Finished tasks, limits, approvals, and command results in one place	タスク完了 · 上限 · 承認待ち · カスタムコマンドの結果を一か所に
 Bloom Tour	Bloom ツアー
 View the initial setup and usage guide again	初期設定と使い方のガイドをもう一度見る
 Export Settings	設定を書き出す
@@ -1455,6 +1459,7 @@ Night light	夜間モード
 Sound	サウンド
 Sound devices	サウンド デバイス
 App volume and device preferences	アプリの音量とデバイスの基本設定
+Notifications	通知
 Power & sleep	電源とスリープ
 Storage	ストレージ
 Multitasking	マルチタスク
@@ -1462,11 +1467,13 @@ About	情報
 Bluetooth & devices	Bluetooth とデバイス
 Printers & scanners	プリンターとスキャナー
 Mouse	マウス
+Typing	入力
 Network & internet	ネットワークとインターネット
 Proxy	プロキシ
 Mobile hotspot	モバイル ホットスポット
 Background	背景
-Theme	テーマ
+Colors	色
+Themes	テーマ
 Lock screen	ロック画面
 Taskbar	タスク バー
 Fonts	フォント
@@ -1504,6 +1511,7 @@ System Properties	システムのプロパティ
 Environment Variables	環境変数
 Power Options	電源オプション
 Desktop	デスクトップ
+Pictures	ピクチャ
 Videos	ビデオ
 This PC	PC
 Recycle Bin	ごみ箱
@@ -1577,7 +1585,7 @@ Moved to Recycle Bin: {0}	ごみ箱へ移動しました: {0}
 {0:#,0} small files	小さいファイル {0} 個
 Scanning…	読み込み中…
 Search actions…	アクションを検索…
-Bloom Notification	Bloom 通知
+Bloom Reminder	Bloom リマインダー
 Timer Finished	タイマー終了
 Snooze 5 min	5 分後に再通知
 Failed to attach {0} file(s) · Select up to {1} files under 50 MB each. Folders cannot be attached.	{0} 件の添付に失敗 · 50 MB 以下のファイルを一度に {1} 個まで選択してください。フォルダーは添付できません。
@@ -1628,6 +1636,7 @@ Allow: {0}	許可: {0}
 End session · Start new chat	セッションを終了 · 新しいチャットを開く
 Delete this chat	このチャットを削除
 OK	OK
+Reload	再読み込み
 Save my edits	編集内容を保存
 Could not save · File is in use by another program · Retrying soon	保存できません · 他のプログラムがファイルを使用中 · まもなく再試行します
 Could not save	保存できません
@@ -1710,6 +1719,7 @@ Check CPU and memory usage and quit unresponsive apps	CPU · メモリ使用量�
 Run scripts, text snippets, and multi-step macros with keywords	スクリプト · 定型文 · 複数アクションの一括実行をキーワードで起動
 Welcome to Bloom	Bloom のセットアップ
 Skip	スキップ
+Previous	前へ
 Open Bloom	Bloom を開く
 Get Started	はじめる
 Search & Launch	検索と起動
@@ -1718,7 +1728,7 @@ Import settings from another PC	他の PC から設定をインポート
 How to Open Bloom	Bloom の起動方法
 You can enable both shortcuts at the same time.	両方のショートカットを同時に使用できます。
 Open with Win Key	Win キーで開く
-Tap and release the Win key alone to open Bloom. Shortcuts like Win+E continue to work normally.	Win キー単体を押して離すと Bloom が開きます。Win+E などの組み合わせはそのまま使えます。
+Tap the Win key alone to open Bloom. Shortcuts like Win+E still work.	Win キー単体を押して離すと Bloom が開きます。Win+E などの組み合わせはそのまま使えます。
 Open with Alt+Space	Alt+Space で開く
 Press Alt+Space to open Bloom.	Alt+Space を押して Bloom を開きます。
 Launch at Windows startup	Windows 起動時に自動で開く
@@ -1733,7 +1743,8 @@ Add only the features you need to Favorites · {0} selected	使う機能だけ�
 Appearance	外観
 Applied immediately	選択するとすぐに適用されます
 Light	ライト
-Dim	暗くする
+Dark	ダーク
+Theme	テーマ
 CPU (Default)	CPU (標準)
 GPU (Experimental)	GPU (実験的)
 CPU rendering is used by default. GPU rendering is experimental and may cause stutter or brief freezes on some PCs. Takes effect on next restart.	標準では CPU で描画します。GPU 描画は実験的な機能であり、一部の PC では画面がカクついたり数秒間停止したりすることがあります。次回起動時から適用されます。
@@ -1764,7 +1775,7 @@ Essential Shortcuts	基本ショートカット
 Open and type — Apps, settings, math (12*3), files, web search	開いて入力 — アプリ、設定、計算 (12*3)、ファイル、ウェブ検索
 Ask AI what you just typed	入力した内容をそのまま AI に質問
 More Actions — Everything you can do with the selected item	その他 — 選択した項目で行えるすべての操作
-Bloom Lens — Select a screen region to ask AI, translate, or copy text	Bloom Lens — 画面領域を AI に質問 · 翻訳 · テキストをコピー
+Bloom Lens — Select a region to ask AI, translate, or copy text	Bloom Lens — 画面領域を AI に質問 · 翻訳 · テキストをコピー
 Natural phrases work too:  "10m timer"  "3:30 meeting reminder"  "#ff5a8a"	自然な文でも入力できます:  "10分タイマー"  "3時半に会議リマインダー"  "#ff5a8a"
 Setup Complete	セットアップ完了
 Open Bloom anytime with your shortcut. You can reopen Settings and the guide from the launcher.	選択したショートカットで Bloom を開けます。設定や使い方はランチャーからいつでも確認できます。
@@ -1782,6 +1793,7 @@ Open Mini Player	ミニプレーヤーを開く
 Previous Track	前の曲
 Play · Pause	再生 · 一時停止
 Next Track	次の曲
+Info	情報
 Muted preview · Click to pause	ミュートでプレビュー · クリックで停止
 Est. Cost	換算額
 Estimated at API rates: {0}	API 料金での換算 {0}
@@ -1850,7 +1862,7 @@ Could not load release notes. Check your internet connection or view them on Git
 Context used: {0:0.#}% · omp automatically compacts the chat when it gets long	モデルが記憶している会話 {0}% · 会話が長くなると omp が自動で要約します
 Context usage — shown after the next reply finishes · omp automatically compacts long chats	モデルが記憶している会話の量 — 次の応答が完了すると表示されます · 会話が長くなると omp が自動で要約します
 Compacting…	要約中…
-Clean	整理
+Compact	要約
 Cannot compact right now	現在は要約できません
 Summarizes earlier messages to free up model context — on-screen chat history stays intact (unavailable while replying)	会話の前半を要約してモデルが記憶する分量を減らします — 画面上のチャット履歴はそのまま残ります (応答中は使用できません)
 Groups	グループ
@@ -1874,7 +1886,6 @@ Deleted {0} chats	チャット {0} 件を削除しました
 Deleted {0} groups	グループ {0} 件を削除しました
 {0} groups selected	グループ {0} 件を選択中
 No items selected	選択された項目はありません
-All	すべて
 Select all visible chats · Click again to deselect all (Ctrl+A)	表示中のチャットをすべて選択 · もう一度押すとすべて解除 (Ctrl+A)
 Confirm delete	本当に削除
 Delete	削除
@@ -1906,6 +1917,7 @@ T3 account · {0}	T3 アカウント · {0}
 Which folder would you like to work in?	どのフォルダーで作業しますか？
 Projects registered in T3 · Sending a message creates a new thread in T3	T3 に登録されているプロジェクトです · 送信すると T3 に新しいスレッドが作成されます
 Loading folders from T3…	T3 のフォルダーを読み込み中…
+ · 1 thread	 · スレッド 1
  · {0} threads	 · スレッド {0}
 Empty scratch workspace	空の作業スペース (scratch)
 Stop (Esc)	停止 (Esc)
@@ -1928,7 +1940,6 @@ Saturation and brightness	彩度と明度
 Hue	色相
 Pick from screen	画面から抽出
 Recent colors	最近抽出した色
-Dark	ダーク
 Active switches blend into the background	オンのスイッチが背景に埋もれます
 Adjust for visibility	見やすく調整
 Contrast {0}	コントラスト {0}
@@ -2013,7 +2024,7 @@ File name · Everything syntax (ext:pdf, dm:today)	ファイル名 · Everything
 File Search · Everything	ファイル検索 · Everything
 File Search · Everything Off	ファイル検索 · Everything オフ
 Search chats or ask a new question	会話を検索、または新しく質問
-Search snippets · Type text and press Enter to create	定型文を検索 · テキストを入力して Enter で新規作成
+Search snippets · Type text, Enter to create	定型文を検索 · テキストを入力して Enter で新規作成
 Search copied items	コピーした内容を検索
 Snippets · {0}	定型文 · {0} 件
 Clipboard History · {0}	クリップボード履歴 · {0} 件
@@ -2023,7 +2034,7 @@ Calendar · {0} reminders	カレンダー · リマインダー {0} 件
 Calendar · Reminders	カレンダー · リマインダー
 Search shortcuts · Type a URL and press Enter to create	ショートカットを検索 · URL を入力して Enter で新規作成
 Browser · {0} · Keyword + Space + Query	ブラウザー · {0} · キーワード + スペース + 検索語
-Search commands · Scripts · Snippets · Macros · AI Commands	コマンドを検索 · スクリプト · 定型文 · 一括実行 · AI コマンド
+Search scripts, snippets, batches, AI commands	コマンドを検索 · スクリプト · 定型文 · 一括実行 · AI コマンド
 Custom Commands · {0} · Keyword + Space + Input	カスタムコマンド · {0} 件 · キーワード + スペース + 入力
 Search notifications · Press Enter to open	通知を検索 · Enter で開く
 Notification Center · {0}	通知センター · {0} 件
@@ -2040,7 +2051,7 @@ Color Picker · {0} recent colors	カラーピッカー · 最近の色 {0} 件
 Color Palette · {0} colors · Extracted locally	カラーパレット · {0} 色 · PC 内で抽出
 Search in folder · Enter to open	フォルダー内を検索 · Enter で開く
 Favorites Folder · Ctrl+K Remove · Reorder	お気に入りフォルダー · Ctrl+K 削除 · 並び替え
-Window title or app name · Enter to switch · Ctrl+W to close	ウィンドウ名またはアプリ名 · Enter で切替 · Ctrl+W で閉じる
+Window title or app · Enter to switch · Ctrl+W to close	ウィンドウ名またはアプリ名 · Enter で切替 · Ctrl+W で閉じる
 Switch Windows · {0} open	ウィンドウ切替 · 開いているウィンドウ {0} 件
 heart, smile, arrow, unit … · Enter to paste	ハート、笑顔、矢印、単位 … · Enter で貼り付け
 Emoji · {0} symbols	絵文字 · 記号 {0} 件
@@ -2053,7 +2064,7 @@ Install Apps · winget	アプリをインストール · winget
 Dark mode, mute, volume 30, Bluetooth …	ダークモード、ミュート、音量 30、Bluetooth …
 System · Controls & Toggles	システム · オン/オフ切替
 Choose an action for this result	結果に対する操作を選択
-Choose an action · or type a custom instruction and press Enter	アクションを選択 · または指示を入力して Enter
+Choose an action · or type an instruction and press Enter	アクションを選択 · または指示を入力して Enter
 AI Quick Action · {0} selected chars	AI クイックアクション · 選択テキスト {0} 文字
 AI Quick Action · {0} copied chars	AI クイックアクション · コピーしたテキスト {0} 文字
 File Type · Ctrl+Tab to switch	ファイルの種類 · Ctrl+Tab で切り替え
@@ -2068,6 +2079,7 @@ Dock Tool (Ctrl+J)	ツールを固定 (Ctrl+J)
 Attach files or images — Ctrl+O, paste, or drag and drop	ファイル · 画像を添付 — Ctrl+O、貼り付けやドラッグ＆ドロップも可能
 Settings (Ctrl+,)	設定 (Ctrl+,)
 Pin on Top (Ctrl+P) · Stays above other windows. Drag the search bar or bottom bar to move.	最前面に固定 (Ctrl+P) · 他のウィンドウをクリックしても最前面に保たれます。検索バーまたは下部バーをドラッグして移動できます。
+Tools	ツール
 Close {0}	{0} を閉じる
 Dock {0}	{0} を固定
 Previous Track (restarts track if past 3s)	前の曲 (3 秒以上再生した場合は先頭へ)
@@ -2123,6 +2135,7 @@ Click by {0}%	クリックで {0}% ずつ
 On the taskbar	タスクバーで
 While in use	使用中
 Idle for {0} min	{0}分間操作なし
+Dim	暗くする
 Mouse · Keyboard	マウス・キーボード
 Back	元に戻す
 Left-click	左クリック
@@ -2211,6 +2224,7 @@ Light: Frees idle memory held by apps	軽め: プログラムが保持してい�
 Normal: Frees spare memory from apps and cache	標準: プログラムとキャッシュの余分なメモリを解放します
 Deep: Clears all seven areas. May briefly pause the system	強め: 7つすべてを解放します。一瞬動作が止まることがあります
 Custom: Choose which areas to clean below	カスタム: 整理する対象を下から選びます
+Gentle	軽め
 Normal	標準
 Deep	強め
 {0} of {1}	{1}個中{0}個
@@ -2377,6 +2391,7 @@ Logs	ログ
 Diagnostic logs used for reporting issues	問題の報告に使う記録
 Clear diagnostic logs used for reporting issues.	問題の報告に使う記録を空にします。
 Clear Logs	ログを空にする
+All Data	全体
 Clear all data and restart from initial setup	すべてのデータを消去し、初期設定画面からやり直します
 Reset…	初期化…
 Uninstall Bloom from this PC. You can choose whether to keep your data	この PC から Bloom をアンインストールします。データを残すか選べます
@@ -2391,7 +2406,7 @@ Deleted {0}	{0} を削除
 Clear Recovered Documents	復元されたドキュメントを消去
 These are unsaved document edits and may be your only copy. Open the folder to check them before moving to the Recycle Bin.	保存されなかったドキュメントの編集内容です。これが唯一のコピーである可能性があります。移動する前に開いて確認してください。
 Other	その他
-Total	合計
+all	すべて
 Custom Input…	直接入力…
 Enter an unlisted model as provider/model	一覧にないモデルを プロバイダー/モデル 形式で入力します
 Custom Model	モデルを直接入力
@@ -2446,7 +2461,6 @@ No thinking levels	思考段階なし
 Type in Search above to narrow results	上の検索に文字を入力して絞り込んでください
 General	一般
 How Bloom opens and looks	Bloom の開き方と外観
-Language	言語
 Changing language restarts Bloom · Auto uses the Windows display language	言語変更時に Bloom を再起動 · 自動は Windows の表示言語を使用
 Bloom needs to restart to apply the language change.	言語を適用するには Bloom を再起動する必要があります。
 Opens when you press and release the Win key alone (shortcuts like Win+E work normally)	Win キー単体を押して離すと開きます (Win+E などの組み合わせはそのまま)
@@ -2461,8 +2475,8 @@ Opens with the Win key even when an administrator app is in front · Requires ad
 System follows your Windows theme setting	システムは Windows のモード設定に従います
 Scales Launcher · Tool windows · AI Chat · Settings together · Ctrl+= / Ctrl+- / Ctrl+0 in Launcher	ランチャー · ツールウィンドウ · AI チャット · 設定ウィンドウをまとめて調整 · ランチャーで Ctrl+= / Ctrl+- / Ctrl+0
 Animations	アニメーション
-Reduce: Fade in and out only · Off: No motion	減らす: フェードイン・アウトのみ · オフ: 動きなし
-Reduce	減らす
+Reduced: Fade in and out only · Off: No motion	減らす: フェードイン・アウトのみ · オフ: 動きなし
+Reduced	控えめ
 Glass Effect	ガラス効果
 Follows Windows transparency effects. Uses a solid background when turned off.	Windows の透明効果に従います。オフにすると単色の背景になります。
 Reset to Default Size	デフォルトサイズに戻す
@@ -2528,6 +2542,7 @@ System Toggle	システムスイッチ
 Token counts cleared	トークン集計を消去しました
 Deleted {0} saved captures	保存されたキャプチャ {0}枚を削除しました
 Global shortcuts available in any app	どのアプリからでも使えるショートカット
+Windows	ウィンドウ
 Open AI Chat window · Minimize if already in front	AI チャットウィンドウを開く · 前面にある場合は最小化
 Opens Clipboard History directly	押すとクリップボード履歴がすぐに開きます
 Opens the Snippets tab in Clipboard. Press Enter to paste into the active window.	押すとクリップボードの定型文タブが開きます。Enter で前面のウィンドウに貼り付けます。
@@ -2677,6 +2692,7 @@ Selecting a position shows a preview card there	選択するとその位置に�
 Move freely	ドラッグして移動
 Drag the notification card on screen · Snaps to center and edges	画面上で通知カードをドラッグして移動します · 中央と端にスナップします
 Small	小
+Large	大
 Extra large	特大
 Duration	表示時間
 Stays while hovered · Approval requests stay until resumed	マウスを乗せている間は維持 · 承認待ちは再開まで表示
@@ -2686,6 +2702,8 @@ Stays while hovered · Approval requests stay until resumed	マウスを乗せ�
 20s	20秒
 Sound effect	効果音
 Short distinct sound for each notification type	通知の種類ごとに異なる短いサウンド
+Quiet	小
+Loud	大
 When card is clicked	カードをクリックしたとき
 Go to app	アプリへ移動
 Taskbar AI panel	タスクバー AI パネル
@@ -2727,7 +2745,7 @@ Press Enter to check for Bloom and add-on updates from GitHub Releases	Enter で
 Check for updates on startup	起動時にアップデートを確認
 Checks once after launch · Downloads new versions and applies them on next launch	起動後に一度確認 · 新しいバージョンをダウンロードし、次回起動時に適用
 Press Ctrl+K › ‘Play in Mini Player’ on an audio file in search results. Audio files are only read, never modified.	ファイル検索結果のオーディオファイルで Ctrl+K ›「ミニプレーヤーで再生」を選択します。音楽ファイルは読み取りのみ行います。
-Playback backend	再生方式
+Playback method	再生方式
 Plays and controls music via JRiver Media Center's web service (MCWS). Uses JRiver's queue.	JRiver Media Center の Web サービス (MCWS) で再生・操作します。再生キューは JRiver のものを使用します。
 Starts playback via command line and reads/controls the current track via Windows Media Session. Follows foobar2000's file-opening behavior.	コマンドラインで再生し、Windows メディアセッションで現在の曲の読み取りと操作を行います。再生時は foobar2000 がファイルを開く動作に従います。
 Plays and controls via command line. Reads the current track from the window title.	コマンドラインで再生・操作します。現在の曲はウィンドウタイトルから読み取ります。
@@ -2742,7 +2760,7 @@ Saved · Encrypted on this PC only · Used only for requests to JRiver · Click 
 None · Click to enter	なし · クリックして入力
 Auto-detected: {0} · Click to enter path if installed elsewhere	自動検出: {0} · 別の場所にある場合はクリックしてパスを入力
 Not found · Click to enter .exe path	見つかりません · クリックして .exe のパスを入力
-{0} executable	{0} プログラム
+{0} program	{0} プログラム
 {0} executable path	{0} プログラムのパス
 Full path to {0}.exe. If left blank, Bloom looks for a running instance or checks standard install folders.	{0}.exe のフルパスです。空欄にすると、実行中のプロセスまたは通常のインストールフォルダーから探します。
 Must be the full path to an existing .exe file	存在する .exe ファイルのフルパスである必要があります
@@ -2875,8 +2893,8 @@ Taskbar could not process the command	タスクバーがコマンドを処理で
 {0} failed · {1}	{0}に失敗 · {1}
 Fit to content	内容に合わせる
 Windows default	Windows 既定
-Subtle Glass	淡い輪郭線
-Smart Light	光を受けるガラス
+Faint outline	淡い輪郭線
+Lit glass	光を受けるガラス
 No border	枠線なし
 Follow Windows	Windows に従う
 On hover	ポインターを合わせたとき

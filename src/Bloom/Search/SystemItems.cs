@@ -46,7 +46,7 @@ internal static class SystemItems
         Cmd("cmd:recent", Tr("최근 파일", "Recent Files"), Tr("Windows가 기억하는 최근에 연 파일 · 폴더", "Recently opened files and folders from Windows history"), G.History, "recent files documents opened 최근 파일 최근 문서 열어본 최근 항목");
         Cmd("cmd:system", Tr("시스템", "System"), Tr("다크 모드 · 소리 · 블루투스 · Wi-Fi · 절전 …", "Dark Mode · Audio · Bluetooth · Wi-Fi · Sleep …"), '\uE770', "system toggles quick settings 시스템 빠른 설정 토글 켜기 끄기");
         Cmd("cmd:quick", Tr("AI 빠른 동작", "AI Quick Actions"), Tr("선택하거나 복사한 글을 요약 · 번역 · 다듬기", "Summarize, translate, or polish selected or copied text"), G.Sparkle, "ai quick actions summarize translate rewrite fix grammar 빠른 동작 요약 번역 다듬기 맞춤법 교정");
-        Cmd("cmd:inbox", Tr("알림 센터", "Notification Center"), Tr("작업 완료 · 한도 · 승인 대기 · 사용자 명령 결과를 한곳에", "Task completions, usage limits, pending approvals, and custom command results in one place"), G.Bell, "notification center inbox history results log approval 알림 센터 알림함 기록 결과 주기 실행 승인 대기");
+        Cmd("cmd:inbox", Tr("알림 센터", "Notification Center"), Tr("작업 완료 · 한도 · 승인 대기 · 사용자 명령 결과를 한곳에", "Finished tasks, limits, approvals, and command results in one place"), G.Bell, "notification center inbox history results log approval 알림 센터 알림함 기록 결과 주기 실행 승인 대기");
         Cmd("cmd:welcome", Tr("Bloom 둘러보기", "Bloom Tour"), Tr("처음 설정과 사용법 안내를 다시 보기", "View the initial setup and usage guide again"), G.Info, "welcome tutorial onboarding guide help 둘러보기 튜토리얼 안내 처음 사용법 도움말 시작하기");
         Cmd("cmd:export", Tr("설정 내보내기", "Export Settings"), Tr("설정 · 즐겨찾기 · 앱 이름 · 브라우저 바로 가기를 파일 하나로", "Settings · Favorites · App names · Browser shortcuts in one file"), G.Send, "export settings backup 설정 내보내기 백업 저장 옮기기");
         Cmd("cmd:import", Tr("설정 불러오기", "Import Settings"), Tr("내보낸 설정 파일에서 가져오기", "Import from an exported settings file"), G.Import, "import settings restore 설정 불러오기 가져오기 복원 옮기기");
@@ -62,7 +62,7 @@ internal static class SystemItems
         Page(Tr("소리", "Sound"), "ms-settings:sound", "sound audio volume 볼륨 스피커 마이크 오디오");
         Page(Tr("소리 장치", "Sound devices"), "ms-settings:sound-devices", "sound devices output input 출력 입력");
         Page(Tr("앱 볼륨 및 장치", "App volume and device preferences"), "ms-settings:apps-volume", "app volume mixer 볼륨 믹서");
-        Page(Tr("알림", "Reminder"), "ms-settings:notifications", "notifications 알림 끄기");
+        Page(Tr("알림", "Notifications"), "ms-settings:notifications", "notifications 알림 끄기");
         Page(Tr("집중 모드", "Focus"), "ms-settings:quiethours", "focus assist do not disturb 방해 금지");
         Page(Tr("전원 및 절전", "Power & sleep"), "ms-settings:powersleep", "power sleep battery 전원 절전 배터리");
         Page(Tr("저장소", "Storage"), "ms-settings:storagesense", "storage disk 저장 공간 디스크");
@@ -72,15 +72,15 @@ internal static class SystemItems
         Page(Tr("Bluetooth 및 장치", "Bluetooth & devices"), "ms-settings:bluetooth", "bluetooth devices 블루투스 장치");
         Page(Tr("프린터 및 스캐너", "Printers & scanners"), "ms-settings:printers", "printers scanners 프린터 스캐너");
         Page(Tr("마우스", "Mouse"), "ms-settings:mousetouchpad", "mouse pointer 마우스 포인터");
-        Page(Tr("입력", "Input"), "ms-settings:typing", "typing keyboard 키보드 입력");
+        Page(Tr("입력", "Typing"), "ms-settings:typing", "typing keyboard 키보드 입력");
         Page("Wi-Fi", "ms-settings:network-wifi", "wifi wireless 와이파이 무선");
         Page(Tr("네트워크 및 인터넷", "Network & internet"), "ms-settings:network", "network internet ethernet 네트워크 인터넷 이더넷");
         Page("VPN", "ms-settings:network-vpn", "vpn");
         Page(Tr("프록시", "Proxy"), "ms-settings:network-proxy", "proxy 프록시");
         Page(Tr("모바일 핫스팟", "Mobile hotspot"), "ms-settings:network-mobilehotspot", "hotspot 핫스팟 테더링");
         Page(Tr("배경", "Background"), "ms-settings:personalization-background", "wallpaper background 배경화면 바탕화면");
-        Page(Tr("색", "Color"), "ms-settings:colors", "colors accent dark mode 색 다크 모드 테마 색상");
-        Page(Tr("테마", "Theme"), "ms-settings:themes", "themes 테마");
+        Page(Tr("색", "Colors"), "ms-settings:colors", "colors accent dark mode 색 다크 모드 테마 색상");
+        Page(Tr("테마", "Themes"), "ms-settings:themes", "themes 테마");
         Page(Tr("잠금 화면", "Lock screen"), "ms-settings:lockscreen", "lock screen 잠금 화면");
         Page(Tr("작업 표시줄", "Taskbar"), "ms-settings:taskbar", "taskbar 작업 표시줄");
         Page(Tr("시작", "Start"), "ms-settings:personalization-start", "start menu 시작 메뉴");
@@ -121,9 +121,9 @@ internal static class SystemItems
         Tool(Tr("전원 옵션", "Power Options"), "powercfg.cpl", null, "power options 전원 옵션 고성능");
 
         Folder(Tr("다운로드", "Downloads"), "shell:Downloads", "downloads 다운로드");
-        Folder(Tr("문서", "Document"), "shell:Personal", "documents 문서");
+        Folder(Tr("문서", "Documents"), "shell:Personal", "documents 문서");
         Folder(Tr("바탕 화면", "Desktop"), "shell:Desktop", "desktop 바탕화면");
-        Folder(Tr("사진", "Photo"), "shell:My Pictures", "pictures photos 사진");
+        Folder(Tr("사진", "Pictures"), "shell:My Pictures", "pictures photos 사진");
         Folder(Tr("동영상", "Videos"), "shell:My Video", "videos 동영상 비디오");
         Folder(Tr("음악", "Music"), "shell:My Music", "music 음악");
         Folder(Tr("이 PC", "This PC"), "shell:MyComputerFolder", "this pc my computer 내 PC 내 컴퓨터 드라이브");

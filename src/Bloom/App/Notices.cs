@@ -387,7 +387,7 @@ internal static class Notices
                 if (level == 0)
                 {
                     if (before.resets is { } r && DateTime.Now >= r.AddMinutes(-1))
-                        Card(s.NoticeRecover, new Notice("recover", Head(who, Tr("한도 복구", "Quota reset")), Tr($"{l.Title} 한도 초기화 완료", $"{l.Title} limit has reset"), null), true);
+                        Card(s.NoticeRecover, new Notice("recover", Head(who, Tr("한도 복구", "Limit reset")), Tr($"{l.Title} 한도 초기화 완료", $"{l.Title} limit has reset"), null), true);
                     continue;
                 }
                 if (level < before.level) continue;
@@ -494,7 +494,7 @@ internal static class Notices
     {
         if (t.TotalMinutes < 1) return Tr($"{Math.Max(1, (int)t.TotalSeconds)}초", $"{Math.Max(1, (int)t.TotalSeconds)}s");
         if (t.TotalHours < 1) return Tr($"{(int)t.TotalMinutes}분", $"{(int)t.TotalMinutes} min");
-        if (t.TotalDays < 1) return t.Minutes > 0 ? Tr($"{(int)t.TotalHours}시간 {t.Minutes}분", $"{(int)t.TotalHours} hr {t.Minutes} min") : Tr($"{(int)t.TotalHours}시간", $"{(int)t.TotalHours}h");
+        if (t.TotalDays < 1) return t.Minutes > 0 ? Tr($"{(int)t.TotalHours}시간 {t.Minutes}분", $"{(int)t.TotalHours} hr {t.Minutes} min") : Tr($"{(int)t.TotalHours}시간", $"{(int)t.TotalHours} hr");
         return t.Hours > 0 ? Tr($"{(int)t.TotalDays}일 {t.Hours}시간", $"{(int)t.TotalDays}d {t.Hours}h") : Tr($"{(int)t.TotalDays}일", $"{(int)t.TotalDays}d");
     }
 }

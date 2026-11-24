@@ -56,7 +56,7 @@ internal sealed partial class Engine
         Search.Detail Preview()
         {
             var d = new Search.Detail { Text = text };
-            d.Add(Tr("줄", "Lines"), Tr($"{r.Lines.Count}줄", $"{r.Lines.Count} lines")).Add(Tr("글자 수", "Characters"), Tr($"{text.Length:#,0}자", $"{text.Length:#,0} chars")).Add(Tr("인식 언어", "Recognition language"), r.Language);
+            d.Add(Tr("줄", "Lines"), Tr($"{r.Lines.Count}줄", $"{r.Lines.Count} lines")).Add(Tr("글자 수", "Characters"), Tr($"{text.Length:#,0}자", $"{text.Length:#,0} chars")).Add(Tr("인식 언어", "Language"), r.Language);
             return d;
         }
         ResultItem Item(string id, string title, string? sub, char glyph, bool accent, string label, System.Action run, bool stay = false) => new()

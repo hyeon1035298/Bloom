@@ -350,7 +350,7 @@ This question has already ended	该提问已结束
 Failed to send	发送失败
 Question	提问
 Completed	已完成
-Quota reset	额度已恢复
+Limit reset	额度已恢复
 {0} limit has reset	{0}额度已重置
 Limit Reached	额度用尽
 {0} limit reached	{0}额度已用尽
@@ -367,6 +367,7 @@ Choose Allow or Deny	请选择允许或拒绝
 Open AI Chat	打开 AI 聊天
 {0}s	{0}秒
 {0} hr {1} min	{0} 小时 {1} 分钟
+{0} hr	{0} 小时
 {0}d {1}h	{0}天 {1}小时
 Bug Report · Bloom {0}	问题报告 · Bloom {0}
 Describe what happened and paste the copied diagnostic info below (Ctrl+V).	请描述发生的情况，并将复制的诊断信息粘贴在下方 (Ctrl+V)。
@@ -495,7 +496,7 @@ Name	名称
 Name used for searching	用于搜索的名称
 Enter a name	请输入名称
 Keyword	简写
-Keyword (optional) — e.g. Set bk to run with input like “bk D:\\Photos”	简写 (可选) — 例：设为 bk 后可像 “bk D:\\照片” 这样带参数运行
+Keyword (optional) — e.g. Set bk to run with input like “bk C:\\Photos”	简写 (可选) — 例：设为 bk 后可像 “bk C:\\照片” 这样带参数运行
 Enter a keyword to use {input}	使用 {input} 时必须设置简写
 Enter a keyword without spaces	请输入不含空格的简写
 Keyword '{0}' is already in use · Enter a different keyword	简写“{0}”已被占用 · 请输入其他简写
@@ -696,6 +697,7 @@ Recognized Text	识别出的文字
 {0} lines · Windows OCR · Recognized on device	{0} 行 · Windows OCR · 本地识别完成
 Lines	行数
 {0} lines	{0} 行
+Language	语言
 Copy text	复制文本
 Copied	已复制
 1 Claude/ChatGPT credit	消耗 1 次 Claude/ChatGPT 额度
@@ -830,7 +832,7 @@ Default microphone	默认麦克风
 Mute mic	麦克风静音
 Unmute mic	取消麦克风静音
 Enter +10% · Ctrl+K lower · Or type e.g. "volume 30"	按 Enter 调高 10% · Ctrl+K 调低 · 也可直接输入"音量 30"
-Large	大
+Louder	调大
 10% lower	调低 10%
 Set to 50%	设为 50%
 Volume 50%	音量 50%
@@ -921,7 +923,7 @@ Uninstall it from Windows App Settings	请在 Windows 应用设置中卸载
 Open Windows	已打开的窗口
 No matching windows	未找到匹配的窗口
 Minimized	已最小化
-Windows	窗口
+Window	窗口
 Switch	切换
 Close window	关闭窗口
 Minimize	最小化
@@ -950,7 +952,8 @@ App Install · Done	应用安装 · 完成
 App Install · Failed	应用安装 · 失败
 Search and install ‘{0}’ via winget	在 winget 中查找并安装‘{0}’
 winget · Microsoft Store catalog	winget · Microsoft Store 应用列表
-All Data	全部
+All	全部
+Documents	文档
 Unity	Unity
 Blender	Blender
 Adobe	Adobe
@@ -1350,7 +1353,8 @@ Change translation engine (also saved to Settings)	切换翻译引擎（同时�
 Target language (Auto: Korean to English, other languages to Korean)	目标语言（自动：韩语译为英语，其他语言译为韩语）
 Thinking: {0}	思考 {0}
 Thinking level (higher levels are slower and use more quota · also saved to Settings)	思考深度（越高越慢且消耗更多额度 · 同时保存至设置）
-Reload	重新加载
+Resume	继续
+Pause	暂停
 Retranslate	重新翻译
 {0} · 1 call	{0} · 调用 1 次
 {0} · {1} calls	{0} · 调用 {1} 次
@@ -1438,7 +1442,7 @@ Recently opened files and folders from Windows history	Windows 记录的最近�
 Dark Mode · Audio · Bluetooth · Wi-Fi · Sleep …	深色模式 · 声音 · 蓝牙 · Wi-Fi · 睡眠 …
 Summarize, translate, or polish selected or copied text	总结、翻译或润色选中或复制的文本
 Notification Center	通知中心
-Task completions, usage limits, pending approvals, and custom command results in one place	将任务完成、额度提醒、待批准项与自定义命令结果汇总在一处
+Finished tasks, limits, approvals, and command results in one place	将任务完成、额度提醒、待批准项与自定义命令结果汇总在一处
 Bloom Tour	了解 Bloom
 View the initial setup and usage guide again	重新查看初始设置与使用指南
 Export Settings	导出设置
@@ -1455,6 +1459,7 @@ Night light	夜间模式
 Sound	声音
 Sound devices	声音设备
 App volume and device preferences	应用音量和设备首选项
+Notifications	通知
 Power & sleep	电源和睡眠
 Storage	存储
 Multitasking	多任务处理
@@ -1462,11 +1467,13 @@ About	关于
 Bluetooth & devices	蓝牙和其他设备
 Printers & scanners	打印机和扫描仪
 Mouse	鼠标
+Typing	输入
 Network & internet	网络和 Internet
 Proxy	代理
 Mobile hotspot	移动热点
 Background	背景
-Theme	主题
+Colors	颜色
+Themes	主题
 Lock screen	锁屏界面
 Taskbar	任务栏
 Fonts	字体
@@ -1504,6 +1511,7 @@ System Properties	系统属性
 Environment Variables	环境变量
 Power Options	电源选项
 Desktop	桌面
+Pictures	图片
 Videos	视频
 This PC	此电脑
 Recycle Bin	回收站
@@ -1577,7 +1585,7 @@ Moved to Recycle Bin: {0}	已移至回收站：{0}
 {0:#,0} small files	{0} 个小文件
 Scanning…	正在读取…
 Search actions…	搜索操作…
-Bloom Notification	Bloom 提醒
+Bloom Reminder	Bloom 提醒
 Timer Finished	计时结束
 Snooze 5 min	5 分钟后再提醒
 Failed to attach {0} file(s) · Select up to {1} files under 50 MB each. Folders cannot be attached.	{0} 个文件添加失败 · 单次最多选择 {1} 个 50 MB 以下的文件，不支持添加文件夹。
@@ -1628,6 +1636,7 @@ Allow: {0}	允许：{0}
 End session · Start new chat	结束会话 · 开启新对话
 Delete this chat	删除此对话
 OK	确定
+Reload	重新加载
 Save my edits	保存我的修改
 Could not save · File is in use by another program · Retrying soon	无法保存 · 其他程序正在使用此文件 · 即将重试
 Could not save	无法保存
@@ -1638,7 +1647,7 @@ Auto-saved · {0}	已自动保存 · {0}
 Unsaved Changes	未保存的修改
 Your edits have not been saved to the file yet. Saving will overwrite the file with this text.	修改尚未保存到文件。保存后将用当前内容覆盖文件。
 Don't save	不保存
-Restore	向下还原
+Restore	还原
 Checking AI usage…	正在查询 AI 用量…
 Failed to fetch usage · Check your Claude Code or Codex sign-in and click ↻ to retry	获取用量失败 · 请检查 Claude Code 或 Codex 的登录状态，并点击 ↻ 重试
 Move earlier	前移
@@ -1710,6 +1719,7 @@ Check CPU and memory usage and quit unresponsive apps	查看 CPU 与内存占用
 Run scripts, text snippets, and multi-step macros with keywords	通过快捷词运行脚本、常用语与组合命令
 Welcome to Bloom	欢迎使用 Bloom
 Skip	跳过
+Previous	上一步
 Open Bloom	打开 Bloom
 Get Started	开始使用
 Search & Launch	搜索与启动
@@ -1718,7 +1728,7 @@ Import settings from another PC	从其他电脑导入设置
 How to Open Bloom	如何打开 Bloom
 You can enable both shortcuts at the same time.	可以同时启用这两个快捷键。
 Open with Win Key	按 Win 键打开
-Tap and release the Win key alone to open Bloom. Shortcuts like Win+E continue to work normally.	单独按下并松开 Win 键即可打开 Bloom，Win+E 等组合快捷键不受影响。
+Tap the Win key alone to open Bloom. Shortcuts like Win+E still work.	单独按下并松开 Win 键即可打开 Bloom，Win+E 等组合快捷键不受影响。
 Open with Alt+Space	使用 Alt+Space 打开
 Press Alt+Space to open Bloom.	按下 Alt+Space 打开 Bloom。
 Launch at Windows startup	开机时自动启动
@@ -1733,7 +1743,8 @@ Add only the features you need to Favorites · {0} selected	仅将常用功能�
 Appearance	外观
 Applied immediately	选择后立即生效
 Light	浅色
-Dim	变暗
+Dark	深色
+Theme	主题
 CPU (Default)	CPU (默认)
 GPU (Experimental)	GPU (实验性)
 CPU rendering is used by default. GPU rendering is experimental and may cause stutter or brief freezes on some PCs. Takes effect on next restart.	默认使用 CPU 渲染。GPU 渲染为实验性功能，在部分电脑上可能会出现卡顿或短暂冻结。重启后生效。
@@ -1764,7 +1775,7 @@ Essential Shortcuts	基础快捷键
 Open and type — Apps, settings, math (12*3), files, web search	打开即输 — 应用、设置、计算 (12*3)、文件、网页搜索
 Ask AI what you just typed	将输入的内容直接提问给 AI
 More Actions — Everything you can do with the selected item	更多操作 — 对所选项可执行的所有操作
-Bloom Lens — Select a screen region to ask AI, translate, or copy text	Bloom Lens — 框选屏幕区域以询问 AI、翻译或复制文字
+Bloom Lens — Select a region to ask AI, translate, or copy text	Bloom Lens — 框选屏幕区域以询问 AI、翻译或复制文字
 Natural phrases work too:  "10m timer"  "3:30 meeting reminder"  "#ff5a8a"	也支持自然语句输入:  "10分钟计时器"  "3点半会议提醒"  "#ff5a8a"
 Setup Complete	设置完成
 Open Bloom anytime with your shortcut. You can reopen Settings and the guide from the launcher.	随时使用所选快捷键打开 Bloom。您可以从启动器中再次打开设置和使用指南。
@@ -1782,6 +1793,7 @@ Open Mini Player	打开迷你播放器
 Previous Track	上一曲
 Play · Pause	播放 · 暂停
 Next Track	下一曲
+Info	信息
 Muted preview · Click to pause	静音预览 · 点击暂停
 Est. Cost	折算费用
 Estimated at API rates: {0}	按 API 价格折算 {0}
@@ -1850,7 +1862,7 @@ Could not load release notes. Check your internet connection or view them on Git
 Context used: {0:0.#}% · omp automatically compacts the chat when it gets long	模型上下文占用 {0}% · 对话较长时 omp 会自动摘要压缩
 Context usage — shown after the next reply finishes · omp automatically compacts long chats	模型记忆的对话量 — 将在下次回复完成后显示 · 对话较长时 omp 会自动摘要压缩
 Compacting…	正在整理…
-Clean	清理
+Compact	整理
 Cannot compact right now	当前无法整理
 Summarizes earlier messages to free up model context — on-screen chat history stays intact (unavailable while replying)	摘要早期对话以减少模型上下文占用 — 屏幕上的聊天记录保持不变（回复进行中不可用）
 Groups	分组
@@ -1874,7 +1886,6 @@ Deleted {0} chats	已删除 {0} 个对话
 Deleted {0} groups	已删除 {0} 个分组
 {0} groups selected	已选 {0} 个分组
 No items selected	未选择任何项
-All	全选
 Select all visible chats · Click again to deselect all (Ctrl+A)	全选当前可见对话 · 再次点击取消全选 (Ctrl+A)
 Confirm delete	确认删除
 Delete	删除
@@ -1906,6 +1917,7 @@ T3 account · {0}	T3 账号 · {0}
 Which folder would you like to work in?	要在哪个文件夹中工作？
 Projects registered in T3 · Sending a message creates a new thread in T3	已在 T3 中注册的项目 · 发送消息后将在 T3 中创建新线程
 Loading folders from T3…	正在读取 T3 中的文件夹…
+ · 1 thread	 · 1 个线程
  · {0} threads	 · {0} 个线程
 Empty scratch workspace	空白工作区 (scratch)
 Stop (Esc)	停止 (Esc)
@@ -1928,7 +1940,6 @@ Saturation and brightness	饱和度与亮度
 Hue	色相
 Pick from screen	从屏幕取色
 Recent colors	最近选取的颜色
-Dark	深色
 Active switches blend into the background	开启状态的开关容易与背景混淆
 Adjust for visibility	自动调整对比度
 Contrast {0}	对比度 {0}
@@ -2013,7 +2024,7 @@ File name · Everything syntax (ext:pdf, dm:today)	文件名 · Everything 语�
 File Search · Everything	文件搜索 · Everything
 File Search · Everything Off	文件搜索 · Everything 已关闭
 Search chats or ask a new question	搜索对话或提出新问题
-Search snippets · Type text and press Enter to create	搜索常用语 · 输入文本并按 Enter 新建
+Search snippets · Type text, Enter to create	搜索常用语 · 输入文本并按 Enter 新建
 Search copied items	搜索复制的内容
 Snippets · {0}	常用语 · {0} 个
 Clipboard History · {0}	剪贴板历史 · {0} 条
@@ -2023,7 +2034,7 @@ Calendar · {0} reminders	日历 · {0} 个提醒
 Calendar · Reminders	日历 · 提醒
 Search shortcuts · Type a URL and press Enter to create	搜索快捷方式 · 输入网址并按 Enter 新建
 Browser · {0} · Keyword + Space + Query	浏览器 · {0} · 快捷词 + 空格 + 搜索词
-Search commands · Scripts · Snippets · Macros · AI Commands	搜索命令 · 脚本 · 常用语 · 组合命令 · AI 命令
+Search scripts, snippets, batches, AI commands	搜索命令 · 脚本 · 常用语 · 组合命令 · AI 命令
 Custom Commands · {0} · Keyword + Space + Input	自定义命令 · {0} 个 · 快捷词 + 空格 + 输入
 Search notifications · Press Enter to open	搜索通知 · 按 Enter 打开
 Notification Center · {0}	通知中心 · {0} 条
@@ -2040,7 +2051,7 @@ Color Picker · {0} recent colors	取色器 · {0} 个最近颜色
 Color Palette · {0} colors · Extracted locally	调色板 · {0} 种颜色 · 本地提取
 Search in folder · Enter to open	在文件夹中搜索 · 按 Enter 打开
 Favorites Folder · Ctrl+K Remove · Reorder	收藏文件夹 · Ctrl+K 移除 · 排序
-Window title or app name · Enter to switch · Ctrl+W to close	窗口标题或应用名称 · 按 Enter 切换 · 按 Ctrl+W 关闭
+Window title or app · Enter to switch · Ctrl+W to close	窗口标题或应用名称 · 按 Enter 切换 · 按 Ctrl+W 关闭
 Switch Windows · {0} open	切换窗口 · {0} 个打开的窗口
 heart, smile, arrow, unit … · Enter to paste	爱心、笑脸、箭头、单位 … · 按 Enter 粘贴
 Emoji · {0} symbols	表情 · 符号 {0} 个
@@ -2053,7 +2064,7 @@ Install Apps · winget	安装应用 · winget
 Dark mode, mute, volume 30, Bluetooth …	深色模式、静音、音量 30、蓝牙 …
 System · Controls & Toggles	系统 · 开关与控制
 Choose an action for this result	选择要对结果执行的操作
-Choose an action · or type a custom instruction and press Enter	选择操作 · 或输入自定义指令后按 Enter
+Choose an action · or type an instruction and press Enter	选择操作 · 或输入自定义指令后按 Enter
 AI Quick Action · {0} selected chars	AI 快捷操作 · 已选文本 {0} 字
 AI Quick Action · {0} copied chars	AI 快捷操作 · 已复制文本 {0} 字
 File Type · Ctrl+Tab to switch	文件类型 · 按 Ctrl+Tab 切换
@@ -2068,6 +2079,7 @@ Dock Tool (Ctrl+J)	停靠工具 (Ctrl+J)
 Attach files or images — Ctrl+O, paste, or drag and drop	添加文件或图片 — Ctrl+O，也支持粘贴或拖放
 Settings (Ctrl+,)	设置 (Ctrl+,)
 Pin on Top (Ctrl+P) · Stays above other windows. Drag the search bar or bottom bar to move.	置顶固定 (Ctrl+P) · 点击其他窗口时仍保持在最前。拖动搜索栏或底部栏可移动位置。
+Tools	工具
 Close {0}	关闭{0}
 Dock {0}	停靠{0}
 Previous Track (restarts track if past 3s)	上一曲 (播放超过 3 秒则从头播放)
@@ -2123,6 +2135,7 @@ Click by {0}%	点击每次调节 {0}%
 On the taskbar	在任务栏上
 While in use	使用期间
 Idle for {0} min	{0} 分钟无操作
+Dim	变暗
 Mouse · Keyboard	鼠标·键盘
 Back	恢复原状
 Left-click	左键点击
@@ -2211,6 +2224,7 @@ Light: Frees idle memory held by apps	轻度：释放程序闲置占用的内存
 Normal: Frees spare memory from apps and cache	标准：释放程序和缓存中的多余内存
 Deep: Clears all seven areas. May briefly pause the system	深度：清理全部七项内容，可能会短暂卡顿
 Custom: Choose which areas to clean below	自定义：在下方选择要清理的项目
+Gentle	轻度
 Normal	标准
 Deep	深度
 {0} of {1}	{1} 项中的 {0} 项
@@ -2377,6 +2391,7 @@ Logs	日志
 Diagnostic logs used for reporting issues	用于问题反馈的诊断日志
 Clear diagnostic logs used for reporting issues.	清空用于问题反馈的诊断日志。
 Clear Logs	清空日志
+All Data	全部
 Clear all data and restart from initial setup	清除所有数据并从初始设置界面重新开始
 Reset…	重置…
 Uninstall Bloom from this PC. You can choose whether to keep your data	从此电脑卸载 Bloom，可选择是否保留数据
@@ -2391,7 +2406,7 @@ Deleted {0}	已删除 {0}
 Clear Recovered Documents	清除已恢复的文档
 These are unsaved document edits and may be your only copy. Open the folder to check them before moving to the Recycle Bin.	这是未保存的文档编辑内容，可能是唯一副本。移至回收站前请先打开查看。
 Other	其他
-Total	总计
+all	全部
 Custom Input…	手动输入…
 Enter an unlisted model as provider/model	按“提供商/模型”格式输入不在列表中的模型
 Custom Model	手动输入模型
@@ -2446,7 +2461,6 @@ No thinking levels	无思考档位
 Type in Search above to narrow results	在上方查找框中输入文字以缩小范围
 General	常规
 How Bloom opens and looks	Bloom 的打开方式与外观
-Language	语言
 Changing language restarts Bloom · Auto uses the Windows display language	更改语言后将重启 Bloom · 自动将使用 Windows 显示语言
 Bloom needs to restart to apply the language change.	需要重启 Bloom 以应用语言更改。
 Opens when you press and release the Win key alone (shortcuts like Win+E work normally)	单独按下并松开 Win 键时打开（Win+E 等组合键不受影响）
@@ -2461,8 +2475,8 @@ Opens with the Win key even when an administrator app is in front · Requires ad
 System follows your Windows theme setting	“跟随系统”将使用 Windows 的深浅色设置
 Scales Launcher · Tool windows · AI Chat · Settings together · Ctrl+= / Ctrl+- / Ctrl+0 in Launcher	同时缩放启动器 · 工具窗口 · AI 聊天 · 设置窗口 · 在启动器中按 Ctrl+= / Ctrl+- / Ctrl+0
 Animations	动画
-Reduce: Fade in and out only · Off: No motion	减弱：仅保留淡入淡出 · 关闭：无动画效果
-Reduce	减弱
+Reduced: Fade in and out only · Off: No motion	减弱：仅保留淡入淡出 · 关闭：无动画效果
+Reduced	减弱
 Glass Effect	毛玻璃效果
 Follows Windows transparency effects. Uses a solid background when turned off.	跟随 Windows 透明效果。关闭后使用纯色背景。
 Reset to Default Size	恢复默认大小
@@ -2528,6 +2542,7 @@ System Toggle	系统开关
 Token counts cleared	已清除 Token 统计
 Deleted {0} saved captures	已删除 {0} 张保存的截图
 Global shortcuts available in any app	在任何应用中均可使用的全局快捷键
+Windows	窗口
 Open AI Chat window · Minimize if already in front	打开 AI 聊天窗口 · 若已在前台则最小化
 Opens Clipboard History directly	按下后直接打开剪贴板历史
 Opens the Snippets tab in Clipboard. Press Enter to paste into the active window.	按下后打开剪贴板的常用语标签页，按 Enter 粘贴到当前活动窗口。
@@ -2677,6 +2692,7 @@ Selecting a position shows a preview card there	选择后将在对应位置显�
 Move freely	自由拖动位置
 Drag the notification card on screen · Snaps to center and edges	在屏幕上拖动通知卡片以移动位置 · 自动吸附到中心和边缘
 Small	小
+Large	大
 Extra large	特大
 Duration	显示时长
 Stays while hovered · Approval requests stay until resumed	鼠标悬停时保持显示 · 等待批准的通知会保留至任务继续
@@ -2686,6 +2702,8 @@ Stays while hovered · Approval requests stay until resumed	鼠标悬停时保�
 20s	20秒
 Sound effect	音效
 Short distinct sound for each notification type	不同通知播放各自简短的提示音
+Quiet	小
+Loud	大
 When card is clicked	点击卡片时
 Go to app	跳转到应用
 Taskbar AI panel	任务栏 AI 面板
@@ -2727,7 +2745,7 @@ Press Enter to check for Bloom and add-on updates from GitHub Releases	按 Enter
 Check for updates on startup	启动时检查更新
 Checks once after launch · Downloads new versions and applies them on next launch	启动后检查一次 · 下载新版本并在下次启动时应用
 Press Ctrl+K › ‘Play in Mini Player’ on an audio file in search results. Audio files are only read, never modified.	在文件搜索结果的音频文件上按 Ctrl+K › 选择“在迷你播放器中播放”。音乐文件仅作只读访问。
-Playback backend	播放方式
+Playback method	播放方式
 Plays and controls music via JRiver Media Center's web service (MCWS). Uses JRiver's queue.	通过 JRiver Media Center 的 Web 服务 (MCWS) 播放并控制音乐，使用 JRiver 的播放队列。
 Starts playback via command line and reads/controls the current track via Windows Media Session. Follows foobar2000's file-opening behavior.	通过命令行播放，并通过 Windows 媒体会话读取和控制当前曲目。播放时遵循 foobar2000 打开文件的方式。
 Plays and controls via command line. Reads the current track from the window title.	通过命令行播放和控制，从窗口标题读取当前曲目。
@@ -2742,7 +2760,7 @@ Saved · Encrypted on this PC only · Used only for requests to JRiver · Click 
 None · Click to enter	无 · 点击输入
 Auto-detected: {0} · Click to enter path if installed elsewhere	已自动找到：{0} · 如在其他位置请点击输入路径
 Not found · Click to enter .exe path	未找到 · 点击输入 .exe 路径
-{0} executable	{0} 程序
+{0} program	{0} 程序
 {0} executable path	{0} 程序路径
 Full path to {0}.exe. If left blank, Bloom looks for a running instance or checks standard install folders.	{0}.exe 的完整路径。留空时，Bloom 会从正在运行的进程或常规安装文件夹中查找。
 Must be the full path to an existing .exe file	必须是现有 .exe 文件的完整路径
@@ -2875,8 +2893,8 @@ Taskbar could not process the command	任务栏无法处理该命令
 {0} failed · {1}	{0}失败 · {1}
 Fit to content	适应内容
 Windows default	Windows 默认
-Subtle Glass	微光轮廓
-Smart Light	流光玻璃
+Faint outline	微光轮廓
+Lit glass	流光玻璃
 No border	无边框
 Follow Windows	跟随 Windows
 On hover	鼠标悬停时

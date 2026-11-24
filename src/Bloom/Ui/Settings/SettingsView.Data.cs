@@ -172,7 +172,7 @@ internal sealed partial class SettingsView
                     Tr("모든 설정을 기본값으로 되돌리고 Bloom을 다시 시작합니다. Windows 시작 시 실행도 다시 켜집니다. 즐겨찾기, 대화, 추가한 계정, API 키, 항목 단축키, omp 모델 목록은 남습니다.", "Reset all settings to their defaults and restart Bloom. Launch at Windows startup will also be re-enabled. Favorites, chats, added accounts, API keys, item shortcuts, and the omp model list will remain."),
                     Tr("기본값으로 되돌리기", "Reset to Default"), ButtonTone.Danger))
                 host.RestoreDefaults(Window.GetWindow(this));
-        }, Tr("기본값으로", "Restore"));
+        }, Tr("기본값으로", "Reset"));
         if (live && File.Exists(DataParts.Prices))
             Clearable("prices", Tr("고친 가격표", "Custom Price Table"), Tr("직접 고친 토큰 가격", "Custom token pricing"), false,
                 Tr("직접 고친 토큰 가격을 지우고 내장 가격으로 되돌립니다.", "Clear custom token pricing and restore built-in pricing."),
@@ -489,7 +489,7 @@ internal sealed partial class SettingsView
     private static string Join(string what, string more) => what.Length == 0 ? more : what + " · " + more;
 
     /// The measured size of a line in words, for the question before it goes.
-    private string SizeOf(string key) => dataSizes is { } d ? Engine.Size(d.GetValueOrDefault(key)) : Tr("전부", "Total");
+    private string SizeOf(string key) => dataSizes is { } d ? Engine.Size(d.GetValueOrDefault(key)) : Tr("전부", "all");
 
     /// A data folder as %APPDATA%\Bloom rather than with the user's name in it.
     private static string Short(string path)

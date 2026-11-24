@@ -149,8 +149,8 @@ internal static class TaskbarMap
     /// The page's own name for an option whose schema name is a description (else null: the schema's name).
     public static string? OptionLabel(string key, string value) => (key, value) switch
     {
-        ("pill.style", "bloom") => Tr("옅은 윤곽선", "Subtle Glass"),
-        ("pill.style", "glass") => Tr("빛 받는 유리", "Smart Light"),
+        ("pill.style", "bloom") => Tr("옅은 윤곽선", "Faint outline"),
+        ("pill.style", "glass") => Tr("빛 받는 유리", "Lit glass"),
         ("pill.style", "windowGlass") => Tr("테두리 없음", "No border"),
         ("pill.edge", "windows") => Tr("Windows대로", "Follow Windows"),
         ("island.reveal", "hover") => Tr("포인터를 대면", "On hover"),

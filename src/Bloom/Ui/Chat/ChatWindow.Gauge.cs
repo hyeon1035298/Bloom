@@ -50,7 +50,7 @@ internal sealed partial class ChatWindow
             : Tr("모델이 기억하는 대화의 양 — 다음 답이 끝나면 표시됩니다 · 대화가 길어지면 omp가 스스로 요약합니다", "Context usage — shown after the next reply finishes · omp automatically compacts long chats");
         gaugeBox.Children.Add(numbers);
         if (thread.Messages.Count == 0) return; // nothing to tidy in a new chat
-        var tidy = TextButton(G.Refresh, tidying ? Tr("정리 중…", "Compacting…") : Tr("정리", "Clean"), () =>
+        var tidy = TextButton(G.Refresh, tidying ? Tr("정리 중…", "Compacting…") : Tr("정리", "Compact"), () =>
         {
             if (thread.Busy || host.Chats.IsCompacting(thread)) return;
             if (!host.Chats.Compact(thread)) ShowToast(Tr("지금은 정리할 수 없습니다", "Cannot compact right now"));

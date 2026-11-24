@@ -312,7 +312,7 @@ internal static class HomeViews
     {
         if (t.TotalMinutes < 1) return Tr("곧", "Soon");
         if (t.TotalMinutes < 60) return Tr($"{(int)t.TotalMinutes}분", $"{(int)t.TotalMinutes} min");
-        if (t.TotalHours < 24) return Tr($"{(int)t.TotalHours}시간", $"{(int)t.TotalHours}h");
+        if (t.TotalHours < 24) return Tr($"{(int)t.TotalHours}시간", $"{(int)t.TotalHours} hr");
         return Tr($"{(int)t.TotalDays}일", $"{(int)t.TotalDays}d");
     }
 

@@ -215,7 +215,7 @@ internal sealed partial class SettingsView
             "strong" => Tr("강하게: 일곱 가지를 모두 비웁니다. 잠깐 멈칫할 수 있습니다", "Deep: Clears all seven areas. May briefly pause the system"),
             _ => Tr("직접: 정리할 곳을 아래에서 고릅니다", "Custom: Choose which areas to clean below"),
         };
-        var steps = new[] { ("light", Tr("가볍게", "Light")), ("normal", Tr("보통", "Normal")), ("strong", Tr("강하게", "Deep")), ("custom", Tr("직접", "Custom")) };
+        var steps = new[] { ("light", Tr("가볍게", "Gentle")), ("normal", Tr("보통", "Normal")), ("strong", Tr("강하게", "Deep")), ("custom", Tr("직접", "Custom")) };
         var pictures = steps.Select(o => AddonPictures.Option(schema, "clean.strength", o.Item1)).ToArray();
         // how many of the seven kinds the value cleans, a square each (its name on the pointer)
         var squares = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(0, 6, 0, 0) };

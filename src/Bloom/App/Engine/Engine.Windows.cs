@@ -41,7 +41,7 @@ internal sealed partial class Engine
             Kind = ItemKind.Window,
             Title = w.Title,
             Subtitle = w.App == w.Title ? null : w.App,
-            Accessory = w.Minimized ? Tr("최소화됨", "Minimized") : Tr("창", "Windows"),
+            Accessory = w.Minimized ? Tr("최소화됨", "Minimized") : Tr("창", "Window"),
             Icon = w.Exe is not null ? IconSpec.Shell(w.Exe) : IconSpec.Of(G.NewWindow),
             Data = w,
             PrimaryLabel = Tr("전환", "Switch"),

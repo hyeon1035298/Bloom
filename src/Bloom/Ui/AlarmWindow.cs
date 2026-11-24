@@ -20,7 +20,7 @@ internal sealed class AlarmWindow : Window
 
     public AlarmWindow(TimerEntry e, Action<TimerEntry> snooze, bool sound)
     {
-        Title = Tr("Bloom 알림", "Bloom Notification");
+        Title = Tr("Bloom 알림", "Bloom Reminder");
         WindowStyle = WindowStyle.None;
         ResizeMode = ResizeMode.NoResize;
         ShowInTaskbar = false;

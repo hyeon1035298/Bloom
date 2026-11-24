@@ -136,7 +136,7 @@ internal sealed class OnboardingWindow : Window
         for (int k = 0; k < steps.Count; k++) // the step marks: Row's selection bar, lying down
             petals.Children.Add(new Rectangle { Width = 16, Height = 3, RadiusX = 1.5, RadiusY = 1.5, Fill = k == step ? Theme.P.Accent : Theme.P.Track, Margin = new Thickness(0, 0, 6, 0), VerticalAlignment = VerticalAlignment.Center, SnapsToDevicePixels = true });
         buttons.Children.Clear();
-        if (step > 0) buttons.Children.Add(ActionButton.Make(Tr("이전", "Older"), false, () => Go(step - 1)));
+        if (step > 0) buttons.Children.Add(ActionButton.Make(Tr("이전", "Previous"), false, () => Go(step - 1)));
         bool last = step == steps.Count - 1;
         buttons.Children.Add(ActionButton.Make(last ? Tr("Bloom 열기", "Open Bloom") : step == 0 ? Tr("시작하기", "Get Started") : Tr("다음", "Next"), true, Next));
         skip.Visibility = last || step == 0 ? Visibility.Hidden : Visibility.Visible;
@@ -210,7 +210,7 @@ internal sealed class OnboardingWindow : Window
     {
         var s = Settings.Current;
         var sp = Column(Tr("Bloom 실행 방법", "How to Open Bloom"), Tr("두 단축키를 함께 사용할 수 있습니다.", "You can enable both shortcuts at the same time."));
-        sp.Children.Add(SwitchRow(Tr("Win 키로 열기", "Open with Win Key"), Tr("Win 키만 눌렀다 떼면 Bloom이 열립니다. Win+E 같은 조합은 그대로입니다.", "Tap and release the Win key alone to open Bloom. Shortcuts like Win+E continue to work normally."), s.WinKey, v =>
+        sp.Children.Add(SwitchRow(Tr("Win 키로 열기", "Open with Win Key"), Tr("Win 키만 눌렀다 떼면 Bloom이 열립니다. Win+E 같은 조합은 그대로입니다.", "Tap the Win key alone to open Bloom. Shortcuts like Win+E still work."), s.WinKey, v =>
         {
             s.WinKey = v;
             host.ApplyHotkeys();
@@ -313,7 +313,7 @@ internal sealed class OnboardingWindow : Window
     {
         var s = Settings.Current;
         var sp = Column(Tr("화면 모양", "Appearance"), Tr("선택 즉시 적용", "Applied immediately"));
-        var seg = new Segmented(new[] { ("system", Tr("시스템", "System")), ("light", Tr("밝게", "Light")), ("dark", Tr("어둡게", "Dim")) }, s.Theme);
+        var seg = new Segmented(new[] { ("system", Tr("시스템", "System")), ("light", Tr("밝게", "Light")), ("dark", Tr("어둡게", "Dark")) }, s.Theme);
         seg.Picked += v =>
         {
             s.Theme = v;
@@ -502,7 +502,7 @@ internal sealed class OnboardingWindow : Window
         sp.Children.Add(Tip("Win", Tr("열고 적기 — 앱, 설정, 계산(12*3), 파일, 웹 검색", "Open and type — Apps, settings, math (12*3), files, web search")));
         sp.Children.Add(Tip("Tab", Tr("적은 말을 그대로 AI에게 묻기", "Ask AI what you just typed")));
         sp.Children.Add(Tip("Ctrl+K", Tr("더보기 — 고른 항목으로 할 수 있는 일 전부", "More Actions — Everything you can do with the selected item")));
-        sp.Children.Add(Tip("Ctrl+Alt+L", Tr("Bloom Lens — 화면 영역을 AI에게 묻기 · 번역 · 글자 복사", "Bloom Lens — Select a screen region to ask AI, translate, or copy text")));
+        sp.Children.Add(Tip("Ctrl+Alt+L", Tr("Bloom Lens — 화면 영역을 AI에게 묻기 · 번역 · 글자 복사", "Bloom Lens — Select a region to ask AI, translate, or copy text")));
         sp.Children.Add(Tip("Ctrl+Alt+V", Tr("클립보드 기록", "Clipboard History")));
         var line = Theme.T(Tr("문장으로도 됩니다:  \"10분 타이머\"  \"3시 반에 회의 알림\"  \"#ff5a8a\"", "Natural phrases work too:  \"10m timer\"  \"3:30 meeting reminder\"  \"#ff5a8a\""), 13, Theme.P.TextDim, Theme.Regular, false);
         line.Margin = new Thickness(0, 14, 0, 0);

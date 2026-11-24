@@ -76,7 +76,7 @@ internal sealed partial class Launcher
                 bool last = form is { } ff && ff.Step == ff.Fields.Count - 1;
                 Foot(last ? Tr("저장", "Save") : Tr("다음", "Next"), "Enter");
                 Divider();
-                Foot(form is { Step: > 0 } ? Tr("이전", "Older") : Tr("취소", "Cancel"), form is { Step: > 0 } ? "Backspace" : "Esc");
+                Foot(form is { Step: > 0 } ? Tr("이전", "Previous") : Tr("취소", "Cancel"), form is { Step: > 0 } ? "Backspace" : "Esc");
                 footContext.Text = form is { } fs ? $"{fs.Title} · {fs.Current.Label}" : "";
                 break;
             default:

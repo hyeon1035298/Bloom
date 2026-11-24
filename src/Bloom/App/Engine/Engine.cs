@@ -57,9 +57,9 @@ internal sealed partial class Engine
     /// The work tools have their own (유니티 · 블렌더 · 어도비), so .unitypackage is not 압축 and .psd not 사진.
     public static readonly (string key, string name, char glyph, string filter)[] FileKinds =
     {
-        ("all", Tr("전체", "All Data"), G.Search, ""),
+        ("all", Tr("전체", "All"), G.Search, ""),
         ("folder", Tr("폴더", "Folder"), G.Folder, "folder:"),
-        ("doc", Tr("문서", "Document"), G.Document, "file: ext:pdf;doc;docx;hwp;hwpx;txt;md;rtf;odt;xls;xlsx;csv;ppt;pptx"),
+        ("doc", Tr("문서", "Documents"), G.Document, "file: ext:pdf;doc;docx;hwp;hwpx;txt;md;rtf;odt;xls;xlsx;csv;ppt;pptx"),
         ("pic", Tr("사진", "Photo"), '\uEB9F', "file: ext:jpg;jpeg;png;gif;webp;bmp;tif;tiff;heic;avif;svg;ico"),
         ("video", Tr("영상", "Video"), '\uE714', "file: ext:mp4;mkv;mov;avi;webm;wmv;m4v;flv;ts"),
         ("audio", Tr("음악", "Music"), '\uE8D6', "file: ext:mp3;wav;flac;m4a;aac;ogg;opus;wma"),

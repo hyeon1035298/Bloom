@@ -59,7 +59,7 @@ internal sealed partial class SettingsView
         More("open", filter, open);
         Header(Tr("모양", "Appearance"));
         Choice(Tr("테마", "Theme"), Tr("시스템은 Windows의 밝기 설정을 따릅니다", "System follows your Windows theme setting"), G.Palette,
-            new[] { ("system", Tr("시스템", "System")), ("light", Tr("밝게", "Light")), ("dark", Tr("어둡게", "Dim")) }, s.Theme, v =>
+            new[] { ("system", Tr("시스템", "System")), ("light", Tr("밝게", "Light")), ("dark", Tr("어둡게", "Dark")) }, s.Theme, v =>
             {
                 s.Theme = v;
                 Theme.Apply(v);
@@ -69,8 +69,8 @@ internal sealed partial class SettingsView
         var inv = System.Globalization.CultureInfo.InvariantCulture;
         Choice(Tr("크기", "Size"), Tr("런처 · 도구 창 · AI 채팅 · 설정 창을 함께 · 런처에서 Ctrl+= / Ctrl+- / Ctrl+0", "Scales Launcher · Tool windows · AI Chat · Settings together · Ctrl+= / Ctrl+- / Ctrl+0 in Launcher"), G.Screen,
             Theme.Scales.Select(x => (x.ToString(inv), $"{x * 100:0}%")).ToArray(), Theme.Scale.ToString(inv), v => Theme.SetScale(double.Parse(v, inv)), filter);
-        Choice(Tr("애니메이션", "Animations"), Tr("줄이기: 나타나고 사라지기만 · 끄기: 움직임 없음", "Reduce: Fade in and out only · Off: No motion"), G.Bolt,
-            new[] { ("system", Tr("시스템", "System")), ("on", Tr("켜기", "Turn On")), ("reduced", Tr("줄이기", "Reduce")), ("off", Tr("끄기", "Turn off")) }, s.Animation, v => s.Animation = v, filter);
+        Choice(Tr("애니메이션", "Animations"), Tr("줄이기: 나타나고 사라지기만 · 끄기: 움직임 없음", "Reduced: Fade in and out only · Off: No motion"), G.Bolt,
+            new[] { ("system", Tr("시스템", "System")), ("on", Tr("켜기", "On")), ("reduced", Tr("줄이기", "Reduced")), ("off", Tr("끄기", "Off")) }, s.Animation, v => s.Animation = v, filter);
         bool glass = s.Transparency != "off";
         var glassSw = Toggle(glass, v =>
         {
@@ -657,7 +657,7 @@ internal sealed partial class SettingsView
 
     private void PageTools(Settings s, string filter)
     {
-        Page("tools", Tr("도구", "Tool"), G.Stopwatch, Tr("클립보드 기록, Bloom Lens, 타이머, 컬러 피커, 미니 플레이어", "Clipboard history, Bloom Lens, Timer, Color Picker, Mini Player"), filter);
+        Page("tools", Tr("도구", "Tools"), G.Stopwatch, Tr("클립보드 기록, Bloom Lens, 타이머, 컬러 피커, 미니 플레이어", "Clipboard history, Bloom Lens, Timer, Color Picker, Mini Player"), filter);
         Header(Tr("클립보드 기록", "Clipboard History"));
         int clips = collected is null ? host.Clipboard.Items.Count : 0; // collecting starts no history
         var clSw = Toggle(s.ClipHistory, v =>
@@ -744,7 +744,7 @@ internal sealed partial class SettingsView
         }, filter);
         Choice(Tr("보이는 시간", "Duration"), Tr("마우스를 올리면 유지 · 승인 대기는 작업 재개까지", "Stays while hovered · Approval requests stay until resumed"), G.Stopwatch,
             new[] { ("4", Tr("4초", "4s")), ("6", Tr("6초", "6s")), ("10", Tr("10초", "10s")), ("20", Tr("20초", "20s")) }, s.NoticeSeconds.ToString(System.Globalization.CultureInfo.InvariantCulture), v => s.NoticeSeconds = int.Parse(v, System.Globalization.CultureInfo.InvariantCulture), filter);
-        Choice(Tr("효과음", "Sound effect"), Tr("알림마다 다른 짧은 소리", "Short distinct sound for each notification type"), G.Volume, new[] { ("off", Tr("끔", "Off")), ("s", Tr("작게", "Small")), ("m", Tr("보통", "Normal")), ("l", Tr("크게", "Large")) }, s.NoticeSound, v =>
+        Choice(Tr("효과음", "Sound effect"), Tr("알림마다 다른 짧은 소리", "Short distinct sound for each notification type"), G.Volume, new[] { ("off", Tr("끔", "Off")), ("s", Tr("작게", "Quiet")), ("m", Tr("보통", "Normal")), ("l", Tr("크게", "Loud")) }, s.NoticeSound, v =>
         {
             s.NoticeSound = v;
             Chimes.Play("done");
@@ -776,7 +776,7 @@ internal sealed partial class SettingsView
             ClaudeApprovals.Apply();
         });
         Kind(Tr("한도 임박", "Limit almost reached"), Tr("5시간 · 주간 한도가 20% 남았을 때와 다 썼을 때", "When 5-hour or weekly quota reaches 20% remaining or is exhausted"), G.Warning, s.NoticeLimit, v => s.NoticeLimit = v);
-        Kind(Tr("한도 복구", "Quota reset"), Tr("모자랐던 한도가 초기화되어 다시 찼을 때", "When a low or depleted quota resets"), G.Sync, s.NoticeRecover, v => s.NoticeRecover = v);
+        Kind(Tr("한도 복구", "Limit reset"), Tr("모자랐던 한도가 초기화되어 다시 찼을 때", "When a low or depleted quota resets"), G.Sync, s.NoticeRecover, v => s.NoticeRecover = v);
         Kind(Tr("Windows 알림", "Windows notifications"), Tr("다른 앱의 Windows 알림 배너 대신 이 카드로 · 클릭하면 Windows 알림 센터 · 작업표시줄 애드온 PillTaskbar가 켜져 있어야 합니다", "Show other apps' Windows notification banners as this card · Click to open Notification Center · Requires taskbar add-on PillTaskbar to be enabled"), G.Bell, s.NoticeWindows, v =>
         {
             s.NoticeWindows = v;
@@ -827,7 +827,7 @@ internal sealed partial class SettingsView
     {
         var parts = new System.Collections.Generic.List<string>();
         if (minutes / 1440 > 0) parts.Add(Tr($"{minutes / 1440}일", $"{minutes / 1440}d"));
-        if (minutes / 60 % 24 > 0) parts.Add(Tr($"{minutes / 60 % 24}시간", $"{minutes / 60 % 24}h"));
+        if (minutes / 60 % 24 > 0) parts.Add(Tr($"{minutes / 60 % 24}시간", $"{minutes / 60 % 24} hr"));
         if (minutes % 60 > 0) parts.Add(Tr($"{minutes % 60}분", $"{minutes % 60} min"));
         return string.Join(" ", parts);
     }

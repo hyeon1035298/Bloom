@@ -243,7 +243,7 @@ internal sealed class TranslateWindow : Window
 
         actionsBar.Children.Clear();
         actionsBar.Children.Add(Button(Tr("복사", "Copy"), "Ctrl+C", Copy));
-        if (live) actionsBar.Children.Add(Button(paused ? Tr("다시 읽기", "Reload") : Tr("멈춤", "Stop"), "Space", TogglePause));
+        if (live) actionsBar.Children.Add(Button(paused ? Tr("다시 읽기", "Resume") : Tr("멈춤", "Pause"), "Space", TogglePause));
         else actionsBar.Children.Add(Button(Tr("다시 번역", "Retranslate"), "Ctrl+R", Again));
         Status();
     }

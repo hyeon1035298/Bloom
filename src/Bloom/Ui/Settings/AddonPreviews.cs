@@ -295,7 +295,7 @@ internal static class AddonPreviews
     }
 
     /// 45 → "45분", 120 → "2시간", 90 → "1시간 30분".
-    internal static string Minutes(int m) => m % 60 == 0 && m >= 60 ? Tr($"{m / 60}시간", $"{m / 60}h")
+    internal static string Minutes(int m) => m % 60 == 0 && m >= 60 ? Tr($"{m / 60}시간", $"{m / 60} hr")
         : m > 60 ? Tr($"{m / 60}시간 {m % 60}분", $"{m / 60} hr {m % 60} min") : Tr($"{m}분", $"{m} min");
 
     private static string Invariant(FormattableString s) => s.ToString(CultureInfo.InvariantCulture);

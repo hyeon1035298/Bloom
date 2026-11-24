@@ -565,7 +565,7 @@ internal sealed partial class Launcher : Window, IChatHost
     public void OpenTools()
     {
         if (!Features.On("notes") && !Features.On("player")) return; // switched off in 설정 > 기능
-        if (actions.IsOpen && actions.Heading == Tr("도구", "Tool"))
+        if (actions.IsOpen && actions.Heading == Tr("도구", "Tools"))
         {
             actions.Close();
             return;
@@ -577,7 +577,7 @@ internal sealed partial class Launcher : Window, IChatHost
             StayOpen = true,
             Run = () => host.Tools.Toggle(k.key),
         }).ToList();
-        actions.Open(Tr("도구", "Tool"), items);
+        actions.Open(Tr("도구", "Tools"), items);
     }
 
     private SmoothBorder BarButton(char glyph, string tip, Action click)

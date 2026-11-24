@@ -107,7 +107,7 @@ internal sealed class Timers
     public static string DurationText(TimeSpan t)
     {
         var parts = new List<string>();
-        if (t.Hours + t.Days * 24 > 0) parts.Add(Tr($"{t.Hours + t.Days * 24}시간", $"{t.Hours + t.Days * 24}h"));
+        if (t.Hours + t.Days * 24 > 0) parts.Add(Tr($"{t.Hours + t.Days * 24}시간", $"{t.Hours + t.Days * 24} hr"));
         if (t.Minutes > 0) parts.Add(Tr($"{t.Minutes}분", $"{t.Minutes} min"));
         if (t.Seconds > 0 && t.TotalMinutes < 10) parts.Add(Tr($"{t.Seconds}초", $"{t.Seconds}s"));
         return parts.Count == 0 ? Tr("0초", "0s") : string.Join(" ", parts);

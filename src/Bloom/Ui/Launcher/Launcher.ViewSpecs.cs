@@ -55,7 +55,7 @@ internal sealed partial class Launcher
         {
             Chip = () => Tr("클립보드", "Clipboard"),
             // 기록 | 상용구 (Launcher.ClipTabs)
-            Placeholder = () => OnSnippets ? Tr("상용구 찾기 · 내용을 입력하고 Enter로 새로 만들기", "Search snippets · Type text and press Enter to create") : Tr("복사한 내용 찾기", "Search copied items"),
+            Placeholder = () => OnSnippets ? Tr("상용구 찾기 · 내용을 입력하고 Enter로 새로 만들기", "Search snippets · Type text, Enter to create") : Tr("복사한 내용 찾기", "Search copied items"),
             Context = () => OnSnippets ? Tr($"상용구 · {Engine.SnippetCount}개", $"Snippets · {Engine.SnippetCount}")
                 : Settings.Current.ClipHistory
                 ? Tr($"클립보드 기록 · {host.Clipboard.Items.Count}개", $"Clipboard History · {host.Clipboard.Items.Count}")
@@ -90,7 +90,7 @@ internal sealed partial class Launcher
         [Mode.Commands] = new()
         {
             Chip = () => Tr("사용자 명령", "Custom Commands"),
-            Placeholder = () => Tr("명령 찾기 · 스크립트 · 상용구 · 묶음 · AI 명령", "Search commands · Scripts · Snippets · Macros · AI Commands"),
+            Placeholder = () => Tr("명령 찾기 · 스크립트 · 상용구 · 묶음 · AI 명령", "Search scripts, snippets, batches, AI commands"),
             Context = () => Tr($"사용자 명령 · {UserCommands.Current.Items.Count}개 · 단축어 + 스페이스 + 입력", $"Custom Commands · {UserCommands.Current.Items.Count} · Keyword + Space + Input"),
             Build = Engine.CommandsView,
             Live = true,
@@ -167,7 +167,7 @@ internal sealed partial class Launcher
         [Mode.Windows] = new()
         {
             Chip = () => Tr("창 전환", "Window Switcher"),
-            Placeholder = () => Tr("창 제목이나 앱 이름 · Enter 전환 · Ctrl+W 닫기", "Window title or app name · Enter to switch · Ctrl+W to close"),
+            Placeholder = () => Tr("창 제목이나 앱 이름 · Enter 전환 · Ctrl+W 닫기", "Window title or app · Enter to switch · Ctrl+W to close"),
             Context = () => Tr($"창 전환 · 열린 창 {OpenWindows.Count}개", $"Switch Windows · {OpenWindows.Count} open"),
             Build = Engine.WindowsView,
             KeepScroll = true,
@@ -217,7 +217,7 @@ internal sealed partial class Launcher
             Chip = () => Tr("AI 빠른 동작", "AI Quick Actions"),
             Placeholder = () => host.Quick.Result is not null || host.Quick.Busy
                 ? Tr("결과로 할 작업 선택", "Choose an action for this result")
-                : Tr("동작 선택 · 또는 원하는 작업을 적고 Enter", "Choose an action · or type a custom instruction and press Enter"),
+                : Tr("동작 선택 · 또는 원하는 작업을 적고 Enter", "Choose an action · or type an instruction and press Enter"),
             Context = () => host.Quick.Source.Length > 0
                 ? (host.Quick.FromSelection ? Tr($"AI 빠른 동작 · 선택한 글 {host.Quick.Source.Length}자", $"AI Quick Action · {host.Quick.Source.Length} selected chars") : Tr($"AI 빠른 동작 · 복사한 글 {host.Quick.Source.Length}자", $"AI Quick Action · {host.Quick.Source.Length} copied chars"))
                 : Tr("AI 빠른 동작", "AI Quick Actions"),

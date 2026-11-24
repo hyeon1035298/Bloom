@@ -157,7 +157,7 @@ internal static class WorldClock
     {
         var diff = zone.GetUtcOffset(utc) - TimeZoneInfo.Local.GetUtcOffset(utc);
         if (diff == TimeSpan.Zero) return Tr("여기와 같은 시간", "Same time as here");
-        string span = diff.Minutes == 0 ? Tr($"{Math.Abs(diff.Hours)}시간", $"{Math.Abs(diff.Hours)}h") : Tr($"{Math.Abs(diff.Hours)}시간 {Math.Abs(diff.Minutes)}분", $"{Math.Abs(diff.Hours)} hr {Math.Abs(diff.Minutes)} min");
+        string span = diff.Minutes == 0 ? Tr($"{Math.Abs(diff.Hours)}시간", $"{Math.Abs(diff.Hours)} hr") : Tr($"{Math.Abs(diff.Hours)}시간 {Math.Abs(diff.Minutes)}분", $"{Math.Abs(diff.Hours)} hr {Math.Abs(diff.Minutes)} min");
         return diff > TimeSpan.Zero ? Tr($"현재 위치보다 {span} 빠름", $"{span} ahead of current location") : Tr($"현재 위치보다 {span} 느림", $"{span} behind current location");
     }
 }
