@@ -120,8 +120,10 @@ internal sealed partial class SettingsView : ScrollViewer
     /// A line: its title, a faint line under it, its control at the end, and no icon (the sidebar carries the page's).
     /// Its height grows with a second line under it. `folded`: a match from under a 자세히 fold, marked so after its title.
     /// `below`: a row of keys under the title and its line, inside the line, so its highlight takes them in too.
-    /// `lead`: a small picture before the title (what a switch turns on, AddonPictures.Tile).
-    private static Row Line(string title, string? sub, FrameworkElement? control, bool folded = false, FrameworkElement? below = null, FrameworkElement? lead = null)
+    /// `lead`: a small picture before the title (what a switch turns on, AddonPictures.Tile). `picked`: what is picked now,
+    /// after the title in the accent ("자리 · 오른쪽 아래").
+    private static Row Line(string title, string? sub, FrameworkElement? control, bool folded = false, FrameworkElement? below = null, FrameworkElement? lead = null,
+        string? picked = null)
     {
         var r = new Row(null) { Height = double.NaN, MinHeight = 56, Margin = new Thickness(0), Padding = new Thickness(0, 9, 12, 9), Selectable = false };
         if (lead is not null)
@@ -131,10 +133,12 @@ internal sealed partial class SettingsView : ScrollViewer
         }
         FrameworkElement Title()
         {
-            var t = Theme.T(title, 13, Theme.P.Text, Theme.Medium);
-            if (!folded) return t;
+            var t = Theme.T(picked is null ? title : title + " · ", 13, Theme.P.Text, Theme.Medium);
+            if (!folded && picked is null) return t;
             var line = new StackPanel { Orientation = Orientation.Horizontal, VerticalAlignment = VerticalAlignment.Center };
             line.Children.Add(t);
+            if (picked is not null) line.Children.Add(Theme.T(picked, 13, Theme.P.AccentText, Theme.Medium));
+            if (!folded) return line;
             var more = Theme.T(Tr("자세히", "More"), 11, Theme.P.TextFaint);
             more.Margin = new Thickness(8, 1, 0, 0);
             more.VerticalAlignment = VerticalAlignment.Center;
@@ -143,7 +147,7 @@ internal sealed partial class SettingsView : ScrollViewer
         }
         if (sub is null && below is null)
         {
-            r.Add(folded ? Title() : Theme.Label(title, 13, Theme.P.Text, Theme.Medium, true), new GridLength(1, GridUnitType.Star));
+            r.Add(folded || picked is not null ? Title() : Theme.Label(title, 13, Theme.P.Text, Theme.Medium, true), new GridLength(1, GridUnitType.Star));
         }
         else
         {
@@ -437,10 +441,11 @@ internal sealed partial class SettingsView : ScrollViewer
         return sw;
     }
 
-    /// A segmented choice: click or ←→ picks, Enter goes round. Past four options, a list that opens under the value (Menu).
-    private void Choice(string title, string? sub, char glyph, (string value, string label)[] options, string value, Action<string> set, string filter)
+    /// A segmented choice: click or ←→ picks, Enter goes round. Past `most` options (four), a list that opens under the value
+    /// (Menu).
+    private void Choice(string title, string? sub, char glyph, (string value, string label)[] options, string value, Action<string> set, string filter, int most = 4)
     {
-        if (options.Length > 4)
+        if (options.Length > most)
         {
             Menu(title, sub, glyph, options.Select(o => (o.value, o.label, (string?)null)).ToArray(), value, set, filter);
             return;

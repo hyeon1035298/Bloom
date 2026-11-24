@@ -7,7 +7,6 @@ using System.Windows;
 using System.Windows.Controls;
 using Bloom.Addons;
 using Bloom.App;
-using Bloom.Core;
 using Bloom.Search;
 
 namespace Bloom.Ui;
@@ -123,6 +122,19 @@ internal sealed partial class SettingsView
                 case ("memory-clean", "auto.percent", _):
                     int now = AddonPreviews.MemoryNow();
                     SchemaRow(schema, v, key, G.Sliders, filter, easy: easy, mark: now, sub: now >= 0 ? Tr($"세로 눈금이 지금 사용량 {now}%입니다", $"The upright mark is the {now}% in use now") : null);
+                    break;
+                case ("run-card", "card.monitor", _):
+                    if (!RunCardMonitor(item, v, filter)) SchemaRow(schema, v, key, Glyph(item), filter, rebuild: true, easy: easy);
+                    break;
+                case ("run-card", "card.position", _):
+                    RunCardPlace(item, v, filter);
+                    break;
+                case ("run-card", "card.size", _):
+                    RunCardSize(item, v, filter);
+                    break;
+                case ("run-card", "card.arrange", _):
+                case ("run-card", "pill.width", _):
+                    SchemaRow(schema, v, key, Glyph(item), filter, rebuild: true, easy: easy); // the place's picture follows
                     break;
                 case (_, _, "flags"):
                     AddonFlags(item, v, filter);

@@ -49,6 +49,10 @@ internal sealed record AddonSetting(string Key, string Type, JsonNode Default, i
     /// A choice whose options are numbers (written as numbers).
     public bool Numeric { get; init; }
 
+    /// A choice of monitor ("monitors": true; options "primary" and "display1", "display2"… for \\.\DISPLAY1, \\.\DISPLAY2…): the page
+    /// puts each monitor's own name under its number, and says which are not connected.
+    public bool Monitors { get; init; }
+
     /// What a list's entries end with (".exe"; kept lower-case), and the record field that names a record on its line.
     public string? Suffix { get; init; }
     public string? Label { get; init; }
@@ -245,6 +249,7 @@ internal sealed class AddonSchema
             File = file,
             Field = field,
             Numeric = numeric,
+            Monitors = type == "choice" && i["monitors"] is JsonValue m && m.GetValueKind() == JsonValueKind.True,
             Suffix = suffix,
             Label = label,
             Fields = fields,

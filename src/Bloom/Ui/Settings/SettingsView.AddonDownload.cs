@@ -1,7 +1,6 @@
 using System;
 using Bloom.Addons;
 using Bloom.App;
-using Bloom.Core;
 using Bloom.Search;
 
 namespace Bloom.Ui;

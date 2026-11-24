@@ -1,14 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using Bloom.Addons;
 using Bloom.Ai;
-using Bloom.App;
 using Bloom.Core;
 using Bloom.Search;
 using static Bloom.Ui.TaskbarMap;
@@ -314,6 +312,17 @@ internal sealed partial class SettingsView
         foreach (var e in items) SchemaRow(schema, v, e.Key, Glyph(schema[e.Key]!), filter);
     }
 
+    /// What a monitor choice's option says under its name: the monitor's own name and whether it is the main one, or that
+    /// no monitor has that number now (null for another option, and for a monitor that gives no name).
+    internal static string? MonitorDetail(string value, IReadOnlyList<Native.MonitorNames.Screen> screens)
+    {
+        if (value == "primary") return screens.FirstOrDefault(x => x.Primary) is { Name.Length: > 0 } main ? main.Name : null;
+        if (!value.StartsWith("display", StringComparison.Ordinal) || !int.TryParse(value.AsSpan(7), NumberStyles.None, CultureInfo.InvariantCulture, out int n)) return null;
+        if (screens.FirstOrDefault(x => x.Number == n) is not { } s) return Tr("연결 안 됨", "Not connected");
+        string name = s.Name.Length > 0 ? s.Name : Tr("이름 없는 모니터", "Unnamed monitor");
+        return s.Primary ? Tr($"{name} · 주 모니터", $"{name} · main monitor") : name;
+    }
+
     /// "Bloom 버튼 (누르면 Bloom을 열고 닫습니다)" → the name, and the bracketed detail (null without one).
     internal static (string name, string? detail) OptionName(string text)
     {
@@ -376,6 +385,12 @@ internal sealed partial class SettingsView
                 break;
             case "choice":
                 var options = item.Options.Select(o => (o.Value, parts: (easy?.Option?.Invoke(o.Value) ?? OptionLabel(key, o.Value)) is { } own ? (name: own, detail: (string?)null) : OptionName(o.Name.Shown))).ToArray();
+                if (item.Monitors)
+                {
+                    // a monitor choice: each number with the name its monitor gives, read now
+                    var screens = Native.MonitorNames.Read();
+                    options = options.Select(o => (o.Value, parts: (o.parts.name, detail: MonitorDetail(o.Value, screens) ?? o.parts.detail))).ToArray();
+                }
                 var pictures = options.Select(o => AddonPictures.Option(schema, key, o.Value)).ToArray();
                 if (options.Length <= 4 && pictures.All(p => p is not null))
                 {
