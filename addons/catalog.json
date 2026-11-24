@@ -53,6 +53,16 @@
         "ja": "タスクバーのコーヒーカップで PC と画面がスリープしないように保ちます",
         "zh": "任务栏上的咖啡杯让电脑和屏幕保持唤醒"
       }
+    },
+    {
+      "id": "run-card",
+      "repo": "hyeon1035298/RunCard_BloomAddon",
+      "minVersion": "0.1.0",
+      "name": { "ko": "작업 카드", "en": "Run Card" },
+      "about": {
+        "ko": "Claude Code 세션마다 지금 하는 일과 단계를 카드로 띄우고, 승인과 질문은 카드에서 답합니다",
+        "en": "A live card for each Claude Code session: what it does now and its steps, with approvals and questions answered on the card"
+      }
     }
   ]
 }

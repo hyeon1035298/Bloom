@@ -34,5 +34,9 @@ case "$1" in
   for lang in ko en; do
     node "$here/capture.mjs" auto "$out/auto-$lang.webp" --lang $lang
   done ;;
+1.5.0)
+  for lang in ko en; do
+    node "$here/capture.mjs" runcard "$out/runcard-$lang.webp" --lang $lang
+  done ;;
 *) echo "no pictures listed for $1"; exit 2 ;;
 esac

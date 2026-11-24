@@ -314,6 +314,39 @@ body { font-family: "Wanted Sans Variable", "Wanted Sans", "Pretendard", "Malgun
 .ask .qc__btns { margin-top: calc(6 * var(--u)); }
 .ask .qc__btn { height: calc(19 * var(--u)); font-size: calc(8.5 * var(--u)); }
 .slot .tc__tool { position: absolute; left: 0; top: 0; }
+/* ---------- runcard: the Run card add-on's pill opens into an approval, 허용 is clicked, it folds back and finishes ---------- */
+/* --open 0–1 grows the pill (--pw wide, 32 high, round) into the card (272 wide, 126 high), kept to its right edge */
+.rk { position: absolute; z-index: 5; right: calc(24 * var(--u)); top: calc(18 * var(--u)); overflow: hidden; color: #ecedee; font-size: calc(10 * var(--u));
+  width: calc((var(--pw, 160) + (272 - var(--pw, 160)) * var(--open, 0)) * var(--u)); height: calc((32 + 94 * var(--open, 0)) * var(--u));
+  border-radius: calc((16 - 4 * var(--open, 0)) * var(--u)); opacity: var(--in, 0); transform: translateY(calc((1 - var(--in, 0)) * -8 * var(--u))); }
+.rk__row { position: absolute; right: 0; top: 0; height: calc(32 * var(--u)); display: flex; align-items: center; gap: calc(7 * var(--u)); padding: 0 calc(13 * var(--u)) 0 calc(7 * var(--u)); white-space: nowrap; opacity: var(--on, 0); }
+.rk__mk { flex: none; display: grid; place-items: center; width: calc(19 * var(--u)); height: calc(19 * var(--u)); border-radius: 50%; corner-shape: round; background: rgba(255, 255, 255, 0.1); }
+.rk__mk svg { width: calc(12 * var(--u)); height: calc(12 * var(--u)); fill: none; stroke: #ecedee; stroke-width: 2.2; stroke-linecap: round; }
+.rk__ok { flex: none; display: grid; place-items: center; width: calc(19 * var(--u)); height: calc(19 * var(--u)); color: #4ade80; }
+.rk__ok svg { width: calc(17 * var(--u)); height: calc(17 * var(--u)); fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.rk__t { font-weight: 600; font-size: calc(10.5 * var(--u)); }
+/* a working headline: its resting tone with light swept across it (--sh 0–1) */
+.rk__shine { background: linear-gradient(90deg, #a1a1aa calc(var(--sh, 0) * 140% - 40%), #fafafa calc(var(--sh, 0) * 140% - 20%), #a1a1aa calc(var(--sh, 0) * 140%)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.rk__tm { margin-left: calc(4 * var(--u)); color: #acacb4; font-size: calc(9 * var(--u)); }
+.rk__card { position: absolute; left: 0; top: 0; width: calc(272 * var(--u)); padding: calc(7 * var(--u)) calc(12 * var(--u)) calc(10 * var(--u)) calc(7 * var(--u)); display: flex; flex-direction: column; gap: calc(6 * var(--u)); opacity: var(--co, 0); }
+.rk__hd { display: flex; align-items: center; gap: calc(7 * var(--u)); height: calc(19 * var(--u)); }
+.rk__hd .rk__tm { margin-left: auto; }
+.rk__sub, .rk__bar, .rk__code, .rk__btns { margin-left: calc(4 * var(--u)); }
+.rk__sub { display: flex; margin-top: calc(-3 * var(--u)); color: #acacb4; font-size: calc(8.5 * var(--u)); }
+.rk__sub span { margin-left: auto; }
+.rk__bar { display: flex; gap: calc(3 * var(--u)); }
+.rk__bar i { flex: 1; height: calc(2.5 * var(--u)); border-radius: calc(1.5 * var(--u)); background: rgba(255, 255, 255, 0.78); }
+.rk__bar i.off { background: rgba(255, 255, 255, 0.14); }
+.rk__code { border-radius: calc(6 * var(--u)); padding: calc(5 * var(--u)) calc(8 * var(--u)); background: rgba(0, 0, 0, 0.3); font-family: "Cascadia Mono", Consolas, monospace; font-size: calc(8.5 * var(--u)); line-height: 1.5; color: #e4e4e7; white-space: nowrap; }
+.rk__code span { color: #8a8a92; }
+.rk__btns { display: flex; align-items: center; gap: calc(5 * var(--u)); }
+.rk__btn { display: inline-flex; align-items: center; gap: calc(4 * var(--u)); height: calc(20 * var(--u)); padding: 0 calc(10 * var(--u)); border-radius: calc(10 * var(--u)); corner-shape: round; background: rgba(255, 255, 255, 0.1); font-size: calc(9 * var(--u)); font-weight: 600; white-space: nowrap; }
+.rk__btn svg { width: calc(10 * var(--u)); height: calc(10 * var(--u)); fill: none; stroke: currentColor; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+.rk__btn--go { background: color-mix(in srgb, #ffffff calc(var(--press, 0) * 22%), var(--pink)); color: #18181b; }
+.rk__away { margin-left: auto; color: #d4d4d8; font-size: calc(9 * var(--u)); white-space: nowrap; }
+.rterm .doc__body > div { opacity: var(--in, 0); }
+.rterm .ok { color: #4ade80; }
+.rterm .said { color: #fafafa; }
 </style>
 </head>
 <body>
@@ -993,6 +1026,85 @@ scenes.auto = {
       const home = [570, 236];
       const cx = [[0, home[0]], [3.8, home[0]], [4.6, P.cx], [click + 0.3, P.cx], [6.6, home[0]], [9.0, home[0]]];
       const cy = [[0, home[1]], [3.8, home[1]], [4.6, P.cy], [click + 0.3, P.cy], [6.6, home[1]], [9.0, home[1]]];
+      point(cur, at(cx, t), at(cy, t), at([[0, 0], [click - 0.08, 0], [click, 1, 'none'], [click + 0.16, 0, 'out2']], t));
+    };
+  },
+};
+
+// The Run card add-on beside Claude Code's terminal: its pill glows while the session works; an approval opens it into a
+// card with the command, 허용 is clicked there, it folds back into the pill, the work goes on and finishes. The
+// add-on's own words.
+const LRC = {
+  ko: { prompt: '결제 모듈 테스트 고쳐 줘', read: '파일 4개 읽음', edit: '파일 2개 편집함', waiting: '명령 실행 승인을 기다리는 중',
+    ran: '명령 실행: npm test', passed: '테스트 12개 통과', said: '테스트를 고쳤습니다.',
+    editing: '파일 2개 편집하는 중', running: '명령 실행 중', ask: '승인 요청 · Bash', step: '단계 3',
+    allow: '허용', deny: '거절', away: '터미널에서 ↗', done: '13초 만에 완료 · 파일 2개 바뀜' },
+  en: { prompt: 'Fix the billing tests', read: 'Read 4 files', edit: 'Edited 2 files', waiting: 'Waiting for approval to run a command',
+    ran: 'Ran: npm test', passed: '12 tests passed', said: 'Fixed the tests.',
+    editing: 'Editing 2 files', running: 'Running', ask: 'Needs your approval · Bash', step: 'Step 3',
+    allow: 'Allow', deny: 'Deny', away: 'In terminal ↗', done: 'Done in 13s · 2 files changed' },
+}[LANG];
+scenes.runcard = {
+  dur: 9.0,
+  build(s) {
+    s.style.setProperty('--pink', '#FF7A9E');
+    s.style.setProperty('--orange', '#F0924F');
+    const SPARK = '<svg viewBox="0 0 24 24"><path d="M12 4v16M4 12h16M6.3 6.3l11.4 11.4M17.7 6.3L6.3 17.7"/></svg>';
+    const OK = '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 12.3l2.8 2.8 5.4-5.6"/></svg>';
+    const X = '<svg viewBox="0 0 24 24"><path d="M7 7l10 10M17 7L7 17"/></svg>';
+    s.innerHTML = `<div class="desk"><div class="u win" ${box(40, 214, 200, 60)}></div></div>
+      <div class="doc qterm rterm" style="left:calc(22*var(--u));top:calc(40*var(--u));width:calc(300*var(--u));height:calc(180*var(--u))">
+        <div class="w__bar"><img src="assets/terminal.svg" alt=""><span>Claude Code</span></div>
+        <div class="doc__body"><div class="you">› ${LRC.prompt}</div><div><span class="ok">●</span> ${LRC.read}</div><div><span class="ok">●</span> ${LRC.edit}</div>
+          <div data-wait><span class="dot">●</span> <span data-ask>${LRC.waiting}</span></div>
+          <div><span class="ok">●</span> ${LRC.ran}</div><div><span class="ok">●</span> ${LRC.passed}</div><div class="said">${LRC.said}</div></div>
+      </div>
+      <div class="rk glass">
+        <div class="rk__row" data-work><span class="rk__mk">${SPARK}</span><span class="rk__t rk__shine" data-title>${LRC.editing}</span><span class="rk__tm" data-time>0:04</span></div>
+        <div class="rk__row" data-done><span class="rk__ok">${OK}</span><span class="rk__t">${LRC.done}</span><span class="rk__tm">0:13</span></div>
+        <div class="rk__card">
+          <div class="rk__hd"><span class="rk__mk">${SPARK}</span><span class="rk__t">${LRC.ask}</span><span class="rk__tm">0:07</span></div>
+          <div class="rk__sub">Claude Sonnet 5.5<span>${LRC.step}</span></div>
+          <div class="rk__bar"><i></i><i></i><i></i><i class="off"></i></div>
+          <div class="rk__code">command: npm test -- --run billing<br><span>description: Run the billing tests</span></div>
+          <div class="rk__btns"><span class="rk__btn rk__btn--go">${ico('check', '')}${LRC.allow}</span><span class="rk__btn">${X}${LRC.deny}</span><span class="rk__away">${LRC.away}</span></div>
+        </div>
+      </div>${CURSOR}`;
+    const q = sel => s.querySelector(sel);
+    const cur = q('.cursor'), rk = q('.rk'), work = q('[data-work]'), fin = q('[data-done]'), card = q('.rk__card'), go = q('.rk__btn--go');
+    const title = q('[data-title]'), time = q('[data-time]'), ask = q('[data-ask]');
+    const lines = [...s.querySelectorAll('.rterm .doc__body > div')];
+    let P;
+    const click = 4.3, end = [8.3, 1], gone = [8.31, 0, 'none'];
+    const inAt = a => [[0, 0], [a, 0], [a + 0.3, 1, 'out3'], end, gone];
+    return t => {
+      // the pill's widths, working and done, and 허용 with the card open (measured once, their own moves aside)
+      P ??= (() => {
+        set(rk, { in: 1, open: 1, pw: 160 });
+        const b = unitsOf(go, s), w = unitsOf(work, s).w;
+        title.textContent = LRC.running;
+        return { w, w2: unitsOf(work, s).w, d: unitsOf(fin, s).w, cx: b.x + b.h * 0.6, cy: b.cy };
+      })();
+      const open = at([[0, 0], [1.9, 0], [2.4, 1, 'out3'], [click + 0.25, 1], [click + 0.7, 0, 'io2']], t);
+      const done = at([[0, 0], [6.2, 0], [6.5, 1, 'io2'], end, gone], t);
+      // the pill as wide as its words: editing, then running (changed while the card covers it), then done
+      const pw = t < click ? P.w : P.w2;
+      set(rk, { in: at([[0, 0], [0.2, 0], [0.6, 1, 'out3'], [8.2, 1], [8.7, 0, 'in2']], t), open, pw: pw + (P.d - pw) * done });
+      set(work, { on: (1 - done) * at([[0, 1], [1.9, 1], [2.05, 0], [click + 0.45, 0], [click + 0.7, 1]], t) });
+      set(fin, { on: done });
+      set(card, { co: at([[0, 0], [2.1, 0], [2.4, 1, 'out2'], [click + 0.2, 1], [click + 0.4, 0, 'in2']], t) });
+      set(go, { press: at([[0, 0], [click - 0.08, 0], [click, 1, 'none'], [click + 0.2, 0, 'out2']], t) });
+      // the working headline: editing, then running the command once it is allowed; the light sweeps every 1.6 s
+      title.textContent = t < click ? LRC.editing : LRC.running;
+      set(title, { sh: t % 1.6 / 1.6 });
+      time.textContent = `0:${two(Math.min(13, 4 + Math.floor(t * 1.2)))}`;
+      // the terminal: the prompt and the work so far, the wait (its dots while it lasts), then the rest
+      const shows = [0.3, 0.8, 1.3, 1.9, click + 0.5, 5.4, 6.2];
+      lines.forEach((l, i) => set(l, { in: at(inAt(shows[i]), t) }));
+      ask.textContent = LRC.waiting + (t >= 1.9 && t < click ? '.'.repeat(1 + Math.floor(t / 0.4) % 3) : '');
+      const home = [560, 236];
+      const cx = [[0, home[0]], [2.8, home[0]], [3.8, P.cx], [click + 0.3, P.cx], [6.0, home[0]], [9.0, home[0]]];
+      const cy = [[0, home[1]], [2.8, home[1]], [3.8, P.cy], [click + 0.3, P.cy], [6.0, home[1]], [9.0, home[1]]];
       point(cur, at(cx, t), at(cy, t), at([[0, 0], [click - 0.08, 0], [click, 1, 'none'], [click + 0.16, 0, 'out2']], t));
     };
   },
