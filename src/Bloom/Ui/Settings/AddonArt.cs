@@ -1,12 +1,11 @@
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Globalization;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Threading;
 using Bloom.Addons;
 using Bloom.Core;
+using static Bloom.Ui.ArtKit;
 
 namespace Bloom.Ui;
 
@@ -25,12 +24,14 @@ internal sealed class AddonArt : FrameworkElement
     private readonly Kind kind;
     private readonly double still;
     private readonly Stopwatch clock = new();
+    private readonly ArtKit.Words words;
     private DispatcherTimer? timer;
 
     private AddonArt(Kind kind, double still)
     {
         this.kind = kind;
         this.still = still;
+        words = new(this);
         Width = W;
         Height = H;
         IsHitTestVisible = false;
@@ -574,32 +575,9 @@ internal sealed class AddonArt : FrameworkElement
         dc.DrawRoundedRectangle(B(ink.Win), P(ink.WinLine, 1), r, 5, 5);
     }
 
-    /// A soft shadow under a floating shape, without an effect (two widening layers).
-    private void Shadow(DrawingContext dc, Rect r, double radius)
-    {
-        for (int i = 1; i <= 2; i++)
-        {
-            var s = new Rect(r.Left - i * .5, r.Top + 1 + i, r.Width + i, r.Height);
-            dc.DrawRoundedRectangle(B(ink.Shade), null, s, radius + i, radius + i);
-        }
-    }
+    private void Shadow(DrawingContext dc, Rect r, double radius) => ArtKit.Shadow(dc, r, radius, ink.Shade);
 
-    private static readonly Geometry arrow = MakeArrow();
-
-    private static Geometry MakeArrow()
-    {
-        var g = Geometry.Parse("M1,1 L1,16 L5,12 L8,19 L10.5,18 L7.5,11 L13,11 Z").Clone();
-        g.Transform = new ScaleTransform(8 / 14.0, 12 / 20.0);
-        g.Freeze();
-        return g;
-    }
-
-    private void Pointer(DrawingContext dc, double x, double y)
-    {
-        dc.PushTransform(new TranslateTransform(x, y));
-        dc.DrawGeometry(B(0xFFFFFFFF), P(0xFF111111, .8), arrow);
-        dc.Pop();
-    }
+    private void Pointer(DrawingContext dc, double x, double y) => ArtKit.Pointer(dc, x, y, 0xFFFFFFFF, 0xFF111111, .8);
 
     // ---- colours per theme; the bars and Bloom's tile in the theme's accent
 
@@ -626,86 +604,11 @@ internal sealed class AddonArt : FrameworkElement
         public uint Code => Dark ? 0x47000000u : 0x0F111111u;
     }
 
-    private static uint Accent => Argb(Theme.P.Accent.Color);
-
-    /// The ink on the accent (dark or light, whichever reads).
-    private static uint AccentInk => Argb(Theme.P.AccentInk.Color);
-
-    private static uint Argb(Color c) => (uint)c.A << 24 | (uint)c.R << 16 | (uint)c.G << 8 | c.B;
-
-    private static uint Fade(uint argb, double share) => (uint)Math.Round((argb >> 24) * share) << 24 | argb & 0xFFFFFF;
-
-    private static uint Mix(uint a, uint b, double t)
-    {
-        uint Ch(int s) => (uint)Math.Round(((a >> s) & 0xFF) * (1 - t) + ((b >> s) & 0xFF) * t) << s;
-        return Ch(24) | Ch(16) | Ch(8) | Ch(0);
-    }
-
-    private static readonly Dictionary<uint, SolidColorBrush> brushes = new();
-    private static readonly Dictionary<(uint, double), Pen> pens = new();
-
-    private static SolidColorBrush B(uint argb)
-    {
-        if (brushes.TryGetValue(argb, out var b)) return b;
-        b = new SolidColorBrush(Color.FromArgb((byte)(argb >> 24), (byte)(argb >> 16), (byte)(argb >> 8), (byte)argb));
-        b.Freeze();
-        return brushes[argb] = b;
-    }
-
-    private static Pen P(uint argb, double thickness)
-    {
-        if (pens.TryGetValue((argb, thickness), out var p)) return p;
-        p = new Pen(B(argb), thickness);
-        p.Freeze();
-        return pens[(argb, thickness)] = p;
-    }
-
-    private static readonly Dictionary<(uint, double), Pen> roundPens = new();
-
-    /// A pen with round ends, for strokes drawn as marks (the spark, the check).
-    private static Pen Round(uint argb, double thickness)
-    {
-        if (roundPens.TryGetValue((argb, thickness), out var p)) return p;
-        p = new Pen(B(argb), thickness) { StartLineCap = PenLineCap.Round, EndLineCap = PenLineCap.Round };
-        p.Freeze();
-        return roundPens[(argb, thickness)] = p;
-    }
-
     // ---- words, kept while the same words, size, colour and font come again
 
-    private readonly Dictionary<(string, double, FontWeight, uint, FontFamily), FormattedText> words = new();
+    private FormattedText Text(string s, double size, FontWeight weight, uint argb) => words.Text(s, size, weight, argb);
 
-    private FormattedText Text(string s, double size, FontWeight weight, uint argb) => Words(s, size, weight, argb, Theme.Sans);
+    private FormattedText Glyph(char g, double size, uint argb) => words.Glyph(g, size, argb);
 
-    private FormattedText Glyph(char g, double size, uint argb) => Words(g.ToString(), size, FontWeights.Normal, argb, Theme.IconFont);
-
-    private FormattedText Words(string s, double size, FontWeight weight, uint argb, FontFamily family)
-    {
-        var key = (s, size, weight, argb, family);
-        if (words.TryGetValue(key, out var t)) return t;
-        if (words.Count > 200) words.Clear();
-        t = new FormattedText(s, CultureInfo.CurrentUICulture, FlowDirection.LeftToRight,
-            new Typeface(family, FontStyles.Normal, weight, FontStretches.Normal), size, B(argb),
-            VisualTreeHelper.GetDpi(this).PixelsPerDip);
-        return words[key] = t;
-    }
-
-    // ---- time
-
-    /// The value at p between keyframes (share of the loop, value), eased; held before the first and after the last.
-    private static double K(double p, params (double At, double V)[] keys)
-    {
-        if (p <= keys[0].At) return keys[0].V;
-        for (int i = 1; i < keys.Length; i++)
-            if (p <= keys[i].At)
-            {
-                var (a, b) = (keys[i - 1], keys[i]);
-                double t = (p - a.At) / (b.At - a.At);
-                return a.V + (b.V - a.V) * t * t * (3 - 2 * t);
-            }
-        return keys[^1].V;
-    }
-
-    private static Rect Lerp(Rect a, Rect b, double t) =>
-        new(a.X + (b.X - a.X) * t, a.Y + (b.Y - a.Y) * t, a.Width + (b.Width - a.Width) * t, a.Height + (b.Height - a.Height) * t);
+    private FormattedText Words(string s, double size, FontWeight weight, uint argb, FontFamily family) => words.Of(s, size, weight, argb, family);
 }
