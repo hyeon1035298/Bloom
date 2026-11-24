@@ -123,10 +123,25 @@ internal static class ArtKit
             var key = (s, size, weight, argb, family);
             if (words.TryGetValue(key, out var t)) return t;
             if (words.Count > 200) words.Clear();
-            t = new FormattedText(s, CultureInfo.CurrentUICulture, FlowDirection.LeftToRight,
+            return words[key] = Make(s, size, weight, argb, family);
+        }
+
+        /// The words on one line, ending in an ellipsis where they pass `max`. Not kept: the width is this place's alone.
+        public FormattedText Trimmed(string s, double size, FontWeight weight, uint argb, FontFamily family, double max)
+        {
+            var t = Make(s, size, weight, argb, family);
+            t.MaxTextWidth = max;
+            t.MaxLineCount = 1;
+            t.Trimming = TextTrimming.CharacterEllipsis;
+            return t;
+        }
+
+        /// The kept words were made for another scale of the screen.
+        public void Forget() => words.Clear();
+
+        private FormattedText Make(string s, double size, FontWeight weight, uint argb, FontFamily family) =>
+            new(s, CultureInfo.CurrentUICulture, FlowDirection.LeftToRight,
                 new Typeface(family, FontStyles.Normal, weight, FontStretches.Normal), size, B(argb),
                 VisualTreeHelper.GetDpi(owner).PixelsPerDip);
-            return words[key] = t;
-        }
     }
 }
