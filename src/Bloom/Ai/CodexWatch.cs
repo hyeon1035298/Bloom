@@ -12,7 +12,8 @@ namespace Bloom.Ai;
 /// Codex's turns, read from the session logs Codex writes itself (the desktop app, CLI and IDE all do; nothing is
 /// started): CODEX_HOME\sessions\YYYY\MM\DD\rollout-*-<thread id>.jsonl, where a turn runs from event_msg task_started to
 /// task_complete | turn_aborted with approval requests in between; thread names in session_index.jsonl. Each look reads
-/// only what was added since the last one.
+/// only what was added since the last one. Every Codex folder is followed (Homes): T3 Code runs its Codex threads with
+/// folders of their own (~/.codex-local-*).
 internal sealed partial class CodexWatch
 {
     private const int FirstRead = 256 * 1024; // a log seen for the first time: only its end, without news
@@ -30,10 +31,10 @@ internal sealed partial class CodexWatch
         public bool Skip; // Bloom's own run or a subagent: never news, so its lines are never read
     }
 
-    private readonly string sessions, index;
+    private string[] homes = [];
     private readonly Dictionary<string, Thread> threads = new(StringComparer.OrdinalIgnoreCase);
     private readonly Dictionary<string, string> names = new();
-    private long indexOffset = -1;
+    private readonly Dictionary<string, long> indexOffsets = new(StringComparer.OrdinalIgnoreCase); // a folder → how far its session_index.jsonl is read
     private DateTime lastScan;
 
     [GeneratedRegex(@"([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})\.jsonl$", RegexOptions.IgnoreCase)]
@@ -51,18 +52,30 @@ internal sealed partial class CodexWatch
     /// A turn completed (not stopped), seen as it happened: the task and how long it took.
     public event Action<AgentTask, TimeSpan>? Finished;
 
-    public CodexWatch()
+    /// Every Codex folder: CODEX_HOME (or ~/.codex) and the user's other ~/.codex-* folders.
+    public static IEnumerable<string> Homes()
     {
-        string home = CodexAuth.DefaultHome();
-        sessions = Path.Combine(home, "sessions");
-        index = Path.Combine(home, "session_index.jsonl");
+        string main = CodexAuth.DefaultHome();
+        var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { Path.TrimEndingDirectorySeparator(main) };
+        yield return main;
+        string[] found;
+        try
+        {
+            found = Directory.GetDirectories(Core.Paths.Home, ".codex-*");
+        }
+        catch (Exception e) when (e is IOException or UnauthorizedAccessException)
+        {
+            found = [];
+        }
+        foreach (string d in found)
+            if (seen.Add(Path.TrimEndingDirectorySeparator(d))) yield return d;
     }
 
     /// The turns working or waiting now (subagents and Bloom's own runs left out).
     public List<AgentTask> Poll()
     {
         if (DateTime.UtcNow - lastScan > TimeSpan.FromSeconds(10)) Scan();
-        ReadNames();
+        foreach (string home in homes) ReadNames(home);
         var now = DateTime.Now;
         var list = new List<AgentTask>();
         foreach (var (file, t) in threads)
@@ -77,10 +90,11 @@ internal sealed partial class CodexWatch
     private void Scan()
     {
         lastScan = DateTime.UtcNow;
+        homes = Homes().ToArray();
         var today = DateTime.Today;
-        foreach (var day in new[] { today, today.AddDays(-1) })
+        foreach (var (home, day) in homes.SelectMany(h => new[] { (h, today), (h, today.AddDays(-1)) }))
         {
-            string dir = Path.Combine(sessions, day.Year.ToString(CultureInfo.InvariantCulture), day.Month.ToString("00", CultureInfo.InvariantCulture), day.Day.ToString("00", CultureInfo.InvariantCulture));
+            string dir = Path.Combine(home, "sessions", day.Year.ToString(CultureInfo.InvariantCulture), day.Month.ToString("00", CultureInfo.InvariantCulture), day.Day.ToString("00", CultureInfo.InvariantCulture));
             if (!Directory.Exists(dir)) continue;
             try
             {
@@ -241,12 +255,14 @@ internal sealed partial class CodexWatch
     }
 
     /// Thread names (session_index.jsonl: id, thread_name), following the file like a log.
-    private void ReadNames()
+    private void ReadNames(string home)
     {
+        string index = Path.Combine(home, "session_index.jsonl");
         try
         {
             if (!File.Exists(index)) return;
             long length = new FileInfo(index).Length;
+            long indexOffset = indexOffsets.GetValueOrDefault(home, -1);
             if (length == indexOffset) return;
             if (indexOffset < 0 || length < indexOffset) indexOffset = Math.Max(0, length - (1024 * 1024));
             using var fs = new FileStream(index, FileMode.Open, FileAccess.Read, FileShare.ReadWrite | FileShare.Delete);
@@ -255,7 +271,7 @@ internal sealed partial class CodexWatch
             int got = fs.ReadAtLeast(buf, buf.Length, false);
             int end = got > 0 ? Array.LastIndexOf(buf, (byte)'\n', got - 1) : -1;
             if (end < 0) return;
-            indexOffset += end + 1;
+            indexOffsets[home] = indexOffset + end + 1;
             foreach (string line in Encoding.UTF8.GetString(buf, 0, end + 1).Split('\n'))
             {
                 if (!line.StartsWith('{')) continue;

@@ -299,11 +299,14 @@ internal sealed class NoticeWindow : Window
                 Dismiss(card, true);
             };
             card.MouseEnter += (_, _) => life.Stop();
-            card.MouseLeave += (_, _) =>
+            void Later()
             {
+                if (card.IsMouseOver || card.IsKeyboardFocusWithin) return; // pointed at, or typed in (a reply row)
                 life.Interval = TimeSpan.FromSeconds(2);
                 life.Start();
-            };
+            }
+            card.MouseLeave += (_, _) => Later();
+            card.LostKeyboardFocus += (_, _) => Dispatcher.BeginInvoke(Later); // the focus moved on: once it settled
             card.Unloaded += (_, _) => Forget(card);
             lives[card] = life;
             if (!held) life.Start(); // a card that comes while held starts its time when it shows
@@ -326,7 +329,26 @@ internal sealed class NoticeWindow : Window
             Child = Theme.Glyph(Glyph(n.Kind), 17, new SolidColorBrush(tint)),
         };
         var text = new StackPanel();
-        text.Children.Add(Theme.T(n.Head, 12, new SolidColorBrush(tint), Theme.Semi));
+        var head = Theme.T(n.Head, 12, new SolidColorBrush(tint), Theme.Semi);
+        if (n.Badge is { Length: > 0 } badge)
+            text.Children.Add(new StackPanel
+            {
+                Orientation = Orientation.Horizontal,
+                Children =
+                {
+                    head,
+                    new SmoothBorder
+                    {
+                        Background = Theme.P.Hover,
+                        CornerRadius = new CornerRadius(4),
+                        Padding = new Thickness(4, 0, 4, 1),
+                        Margin = new Thickness(6, 0, 0, 0),
+                        VerticalAlignment = VerticalAlignment.Center,
+                        Child = Theme.T(badge, 9.5, Theme.P.Text, Theme.Semi),
+                    },
+                },
+            });
+        else text.Children.Add(head);
         var title = Theme.T(n.Title, 14, Theme.P.Text, Theme.Medium); // one line each, then … (the tooltip has it all)
         title.Margin = new Thickness(0, 3, 0, 0);
         text.Children.Add(title);
@@ -360,7 +382,9 @@ internal sealed class NoticeWindow : Window
             button.Margin = new Thickness(0, 8, 0, 0);
             text.Children.Add(button);
         }
+        NoticeReplyView? replyView = n.Questions is null && n.Reply is { } reply ? new NoticeReplyView(reply, n.Buttons) : null; // its buttons under the line
         if (n.Questions is { } questions) text.Children.Add(NoticeQuestionsView.Build(questions, n.Buttons)); // its buttons after 답하기
+        else if (replyView is not null) text.Children.Add(replyView);
         else if (n.Buttons is { Count: > 0 } choices)
         {
             var row2 = new WrapPanel { Margin = new Thickness(0, 8, 0, 0) };
@@ -390,9 +414,10 @@ internal sealed class NoticeWindow : Window
             Cursor = Cursors.Hand,
             Child = row,
             Tag = n,
-            // questions show whole on the card, and a tooltip would cover their choices
-            ToolTip = n.Questions is not null ? null : (n.Detail is { Length: > 0 } ? $"{n.Title}\n{n.Detail}" : n.Title) + (n.Body is { Length: > 0 } ? "\n" + n.Body : "") + (n.Click is null ? "" : "\n" + (n.Kind == "windows" ? Tr("클릭하면 Windows 알림 센터를 엽니다", "Click to open Windows' notification center") : Tr("클릭하면 세션 창으로 이동합니다", "Click to go to the session window"))),
+            // questions show whole on the card, and a tooltip would cover their choices (and a reply row its field)
+            ToolTip = n.Questions is not null || n.Reply is not null ? null : (n.Detail is { Length: > 0 } ? $"{n.Title}\n{n.Detail}" : n.Title) + (n.Body is { Length: > 0 } ? "\n" + n.Body : "") + (n.Click is null ? "" : "\n" + (n.Kind == "windows" ? Tr("클릭하면 Windows 알림 센터를 엽니다", "Click to open Windows' notification center") : Tr("클릭하면 세션 창으로 이동합니다", "Click to go to the session window"))),
         };
+        replyView?.Follow(card);
         card.Lift(16, 2, 0.3);
         return card;
     }

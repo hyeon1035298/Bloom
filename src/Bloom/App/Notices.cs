@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Threading;
 using Bloom.Addons;
@@ -15,9 +16,12 @@ namespace Bloom.App;
 /// button under the card; Click is what a click on the card itself does before it closes (a turn's card: go to its
 /// session window). Gone runs when the card leaves for any reason; Buttons are a row of choices (an approval's 허용 · 거절);
 /// Body is text shown whole, wrapped (what an approval would allow); Sample marks a made-up card of 미리 보기. Questions
-/// are shown in place of Body, to answer on the card (AskUserQuestion), with Buttons after their 답하기.
+/// are shown in place of Body, to answer on the card (AskUserQuestion), with Buttons after their 답하기. Badge is a small
+/// tag after the head ("T3": a T3 Code session's card). Reply opens a row to type in when the card is pointed at (a T3
+/// session's 진행 중: words into its turn), Buttons beside it; it answers with what came of the words.
 internal sealed record Notice(string Kind, string Head, string Title, string? Detail, string? Key = null, string? ActionText = null, Action? Action = null, Action? Click = null,
-    Action? Gone = null, IReadOnlyList<(string Text, Action Run)>? Buttons = null, string? Body = null, bool Sample = false, CardQuestions? Questions = null);
+    Action? Gone = null, IReadOnlyList<(string Text, Action Run)>? Buttons = null, string? Body = null, bool Sample = false, CardQuestions? Questions = null,
+    string? Badge = null, Func<string, Task<(bool Ok, string Note)>>? Reply = null);
 
 /// 알림: Claude Code and Codex turns (ClaudeWatch, CodexWatch — 진행 중, 작업 완료, 승인 대기) and the plan limits
 /// (AiUsage — 한도 임박 · 소진, 한도 복구) as cards (NoticeWindow) with a sound each (Chimes). Every kind has its switch
@@ -144,10 +148,15 @@ internal static class Notices
         }
     }
 
+    /// A turn of a session started or ended, or began or stopped waiting (the AI chat's T3 side reads its thread then:
+    /// T3Chats.Wake). Raised where Notices polls (the UI thread).
+    public static event Action? TurnsChanged;
+
     /// 진행 중 for a turn that is new (after a moment), 승인 대기 for one that started waiting; a wait card goes when it ends.
     private static void Compare(List<AgentTask> tasks)
     {
         var now = tasks.ToDictionary(t => t.Key);
+        bool changed = !first && (now.Count != last.Count || tasks.Any(t => !last.TryGetValue(t.Key, out var was) || was.Waiting != t.Waiting));
         foreach (var t in tasks)
         {
             last.TryGetValue(t.Key, out var before);
@@ -155,12 +164,7 @@ internal static class Notices
             if (t.Waiting && before?.Waiting != true)
             {
                 Cancel(t.Key);
-                if (!first && !approving.ContainsKey(t.Key))
-                {
-                    var n = new Notice("waiting", Head(t.Tool, Tr("승인 대기", "Needs approval")), t.Title, Tr("승인 대기", "Approval pending"), t.Key, Click: Jump(t));
-                    NoticeLog.Wait(t.Key, n.Head, n.Title, n.Detail, n.Click);
-                    if (Settings.Current.NoticeWaiting && !OnRunCard(t.Key)) Show(n);
-                }
+                if (!first && !approving.ContainsKey(t.Key)) _ = Waiting(t);
             }
             else if (!t.Waiting && before?.Waiting == true) Settled(t.Key);
         }
@@ -171,6 +175,7 @@ internal static class Notices
         }
         last = now;
         first = false;
+        if (changed) TurnsChanged?.Invoke();
     }
 
     /// A wait (or the turn) ended: its card goes, and 알림 센터's waiting line with it.
@@ -184,16 +189,136 @@ internal static class Notices
     {
         if (!Settings.Current.NoticeStart || tick is null) return;
         var wait = new DispatcherTimer(DispatcherPriority.Background, tick.Dispatcher) { Interval = t.Headless ? HeadlessStartDelay : StartDelay };
-        wait.Tick += (_, _) =>
+        wait.Tick += async (_, _) =>
         {
             Cancel(t.Key);
             // done already, or asking; or the add-on took the turns meanwhile (one that started while it showed them gets
             // no late card when it goes)
-            if (!last.TryGetValue(t.Key, out var now) || now.Waiting || OnRunCard(t.Key)) return;
-            Show(new Notice("start", Head(now.Tool, Tr("진행 중", "Working")), now.Title, now.Prompt is { } p ? $"“{p}”" : null, Click: Jump(now)));
+            if (!Still(t.Key, out _)) return;
+            string? t3 = await T3Session(t.Key);
+            if (!Still(t.Key, out var now)) return; // it ended while T3 was looked up
+            var n = new Notice("start", Head(now.Tool, Tr("진행 중", "Working")), now.Title, now.Prompt is { } p ? $"“{p}”" : null, Click: Jump(now));
+            Show(t3 is null ? n : n with { Badge = "T3", Reply = words => Said(t3, words), Buttons = T3Buttons(now, t3) });
         };
         starting[t.Key] = wait;
         wait.Start();
+    }
+
+    /// The turn `key` still runs and asks nothing, and no add-on shows it.
+    private static bool Still(string key, out AgentTask now) => last.TryGetValue(key, out now!) && !now.Waiting && !OnRunCard(key);
+
+    // ---- a session T3 Code runs: words, answers and 정지 on its cards (T3Agent; 설정 > AI 'T3 Code 연결') ----
+
+    /// The session of the turn `key` when T3 runs it and takes words through Bloom; null otherwise (looked up off the
+    /// UI thread: T3's state file is read).
+    private static async Task<string?> T3Session(string key)
+    {
+        if (!Settings.Current.T3Link || TaskbarChat.Session(key)?.session is not { Length: > 0 } session) return null; // off: the card at once
+        try
+        {
+            return await Task.Run(() => T3Agent.Can(session)) ? session : null;
+        }
+        catch (Exception e)
+        {
+            Log.Error("notice t3", e);
+            return null;
+        }
+    }
+
+    /// A T3 card's buttons: 정지 (its turn interrupted; a card says so when it couldn't be) and T3에서 열기.
+    private static List<(string Text, Action Run)> T3Buttons(AgentTask t, string session) =>
+    [
+        (Tr("정지", "Stop"), () => _ = StopT3(t, session)),
+        (Tr("T3에서 열기", "Open in T3"), () => ToSession(session, null)),
+    ];
+
+    private static async Task StopT3(AgentTask t, string session)
+    {
+        var stopped = await Task.Run(() => T3Agent.Stop(session, CancellationToken.None));
+        if (!stopped.Ok)
+            Result(false, Head(t.Tool, Tr("정지", "Stop")), t.Title, StopNote(stopped));
+    }
+
+    /// Why a T3 stop didn't go, as a card or the AI chat says it: T3 not running, a view-only or unchecked thread
+    /// (SentNote's words), else that it couldn't.
+    internal static string StopNote(T3Agent.Sent stopped) => stopped.How switch
+    {
+        "t3-off" => Tr("T3가 꺼져 있어 못 멈췄어요", "T3 isn't running"),
+        T3Agent.ViewOnly or T3Agent.Unchecked => SentNote(stopped),
+        _ => Tr("멈추지 못했어요", "Couldn't stop"),
+    };
+
+    /// Words typed on a T3 card into its thread, and how they went as the card says it (the Run Card's words).
+    private static async Task<(bool Ok, string Note)> Said(string session, string words)
+    {
+        var sent = await Task.Run(() => T3Agent.Say(session, words, null, CancellationToken.None));
+        return (sent.Ok, SentNote(sent));
+    }
+
+    internal static string SentNote(T3Agent.Sent sent) => sent.Ok
+        ? sent.How switch
+        {
+            "answered" => Tr("질문에 답했어요", "Answered"),
+            "steered" => Tr("지금 턴에 넣었어요", "Added to this turn"),
+            "started" => Tr("보냈어요", "Sent"),
+            _ => Tr("다음 턴으로 보냈어요", "Sent for the next turn"),
+        }
+        : sent.How switch
+        {
+            "t3-off" => Tr("T3가 꺼져 있어 못 보냈어요", "T3 isn't running"),
+            "no-thread" => Tr("T3에서 이 세션을 못 찾았어요", "T3 has no thread for this session"),
+            "no-question" => Tr("질문이 이미 끝났어요", "The question is over"),
+            T3Agent.ViewOnly => T3Threads.ViewOnlyNote,
+            T3Agent.Unchecked => T3Threads.UncheckedNote,
+            _ => Tr("보내지 못했어요", "Couldn't send"),
+        };
+
+    /// A session started waiting: a T3 session's question asked on its card (답하기 sends the answers to T3), else
+    /// today's 승인 대기 card.
+    private static async Task Waiting(AgentTask t)
+    {
+        try
+        {
+            await Ask(t);
+        }
+        catch (Exception e)
+        {
+            Log.Error("notice waiting", e);
+        }
+    }
+
+    private static async Task Ask(AgentTask t)
+    {
+        var n = new Notice("waiting", Head(t.Tool, Tr("승인 대기", "Needs approval")), t.Title, Tr("승인 대기", "Approval pending"), t.Key, Click: Jump(t));
+        if (await T3Session(t.Key) is { } session
+            && await Task.Run(() => T3Agent.Question(session, CancellationToken.None)) is { Count: > 0 } asked)
+            n = n with
+            {
+                Head = Head(t.Tool, Tr("질문", "Question")),
+                Detail = null,
+                Badge = "T3",
+                Questions = new CardQuestions(asked, given => _ = AnswerT3(t, session, given)),
+                Buttons = [(Tr("T3에서 열기", "Open in T3"), () => ToSession(session, null))],
+            };
+        // the wait ended, or an approval card took its place, while T3 was asked
+        if (!last.TryGetValue(t.Key, out var now) || !now.Waiting || approving.ContainsKey(t.Key)) return;
+        NoticeLog.Wait(t.Key, n.Head, n.Title, n.Detail, n.Click);
+        if (Settings.Current.NoticeWaiting && !OnRunCard(t.Key)) Show(n);
+    }
+
+    /// The answers of a T3 question card to its thread: the card goes when they went; else a card says why, and the
+    /// question shows again while it is still asked.
+    private static async Task AnswerT3(AgentTask t, string session, IReadOnlyDictionary<string, string> given)
+    {
+        var sent = await Task.Run(() => T3Agent.Answer(session, given, CancellationToken.None));
+        if (sent.Ok)
+        {
+            Settled(t.Key);
+            return;
+        }
+        window?.Remove(t.Key);
+        Result(false, Head(t.Tool, Tr("질문", "Question")), t.Title, SentNote(sent));
+        if (sent.How != "no-question" && last.TryGetValue(t.Key, out var now) && now.Waiting) _ = Waiting(now);
     }
 
     private static void Cancel(string key)
@@ -212,10 +337,24 @@ internal static class Notices
     /// The click of a turn's card: to the window its CLI runs in, or with 카드를 누르면 at 작업표시줄 AI 패널 to its chat
     /// in the taskbar add-on (TaskbarChat), the window while the add-on can't show it. A headless run (a program's
     /// `claude -p`, `codex exec`) has no session window, and a turn whose process isn't known only closes.
-    private static Action? Jump(AgentTask t) => TaskbarChat.Click(t.Key, t.Pid is { } pid && !t.Headless ? () => _ = Raise(pid) : null);
+    private static Action? Jump(AgentTask t)
+    {
+        string session = TaskbarChat.Session(t.Key)?.session ?? "";
+        int? pid = t.Headless ? null : t.Pid;
+        return TaskbarChat.Click(t.Key, pid is not null || T3Threads.Link(session) is not null ? () => ToSession(session, pid) : null);
+    }
 
-    /// The Run Card add-on's 열기 on a session's card (RunCardLink): what a click on that turn's card does.
-    public static void Open(string session, int pid) => TaskbarChat.Click("claude:" + session, pid > 0 ? () => _ = Raise(pid) : null)?.Invoke();
+    /// The Run Card add-on's 열기 on a session's card (RunCardLink): the session's own window, never the taskbar's chat
+    /// panel that 카드를 누르면 may pick for Bloom's cards.
+    public static void Open(string session, int pid) => ToSession(session, pid > 0 ? pid : null);
+
+    /// A session's own window: its thread in T3 Code when T3 runs it, else the window of the
+    /// program behind its process (a terminal, an editor).
+    private static void ToSession(string session, int? pid)
+    {
+        if (T3Threads.Open(session)) return;
+        if (pid is { } p) _ = Raise(p);
+    }
 
     private static async Task Raise(int pid)
     {

@@ -246,6 +246,41 @@ internal static class Win32
     public static IntPtr ConsoleWindowOf(int pid) => AttachConsole((uint)pid) ? GetConsoleWindow() : IntPtr.Zero;
 
     [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
+    private struct KEY_INPUT_RECORD
+    {
+        public ushort EventType; // KEY_EVENT
+        public int bKeyDown;
+        public ushort wRepeatCount, wVirtualKeyCode, wVirtualScanCode;
+        public char UnicodeChar;
+        public uint dwControlKeyState;
+    }
+
+    [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
+    private static extern IntPtr CreateFile(string name, uint access, uint share, IntPtr security, uint disposition, uint flags, IntPtr template);
+
+    [DllImport("kernel32.dll", CharSet = CharSet.Unicode, EntryPoint = "WriteConsoleInputW", SetLastError = true)]
+    private static extern bool WriteConsoleInput(IntPtr input, [In] KEY_INPUT_RECORD[] records, uint count, out uint written);
+
+    /// Esc pressed and let go in another process's console, as if typed there (Claude Code stops its turn on it). The
+    /// same rule as ConsoleWindowOf: only the helper run (`Bloom.exe --console-esc`, SessionStop) attaches.
+    public static bool SendEscape(int pid)
+    {
+        if (!AttachConsole((uint)pid)) return false;
+        IntPtr input = CreateFile("CONIN$", 0xC0000000 /* GENERIC_READ | GENERIC_WRITE */, 3 /* FILE_SHARE_READ | WRITE */, IntPtr.Zero, 3 /* OPEN_EXISTING */, 0, IntPtr.Zero);
+        if (input == new IntPtr(-1)) return false;
+        try
+        {
+            KEY_INPUT_RECORD Key(bool down) => new() { EventType = 1, bKeyDown = down ? 1 : 0, wRepeatCount = 1, wVirtualKeyCode = 0x1B, wVirtualScanCode = 0x01, UnicodeChar = '\x1b' };
+            var keys = new[] { Key(true), Key(false) };
+            return WriteConsoleInput(input, keys, (uint)keys.Length, out uint written) && written == keys.Length;
+        }
+        finally
+        {
+            CloseHandle(input);
+        }
+    }
+
+    [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
     private struct PROCESSENTRY32
     {
         public uint dwSize, cntUsage, th32ProcessID;

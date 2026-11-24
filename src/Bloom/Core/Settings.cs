@@ -47,6 +47,7 @@ internal sealed class Settings
     public bool GpuDrawing { get; set; } // WPF draws with the GPU; off = software drawing, ~30 MB less, read at start. Off by default: GPU drawing froze the whole screen for seconds on one PC, software drawing kept the same fps there
     public int AiIdleMinutes { get; set; } = 10; // a chat's CLI closes after this long unused (its memory back); 0 = stays open
     public bool AiTitles { get; set; } = true; // the AI names each task "[◆ Opus • Code ] …" (ChatTitles)
+    public bool T3Link { get; set; } = true; // T3 Code 연결: the add-ons (Run Card, PillTaskbar) send to, answer and stop T3 Code's threads through Bloom (Ai\T3Agent.cs); off = no call to T3 at all
     public bool AiTools { get; set; } = true; // Claude chats get Bloom's MCP tools (actions asked in the chat first)
     public bool AiToolsGpt { get; set; } = true; // ChatGPT (Codex) chats get them too (Bloom asks in the chat itself)
     public bool AiToolsApi { get; set; } = true; // API chats get them too, as a function (Bloom asks in the chat itself)

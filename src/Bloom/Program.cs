@@ -42,6 +42,8 @@ internal static class Program
         // a notice card's click asking which console window a CLI runs in (Native\SessionWindow.cs): this run attaches to
         // that console instead of the running Bloom, answers in its exit code and ends
         if (args.Length == 2 && args[0] == Native.SessionWindow.ProbeArg) return Native.SessionWindow.Probe(args[1]);
+        // the Run Card's 정지 (Native\SessionStop.cs): Esc into that console from this run, never the running Bloom
+        if (args.Length == 2 && args[0] == Native.SessionStop.EscArg) return Native.SessionStop.Esc(args[1]);
         // Claude Code's PermissionRequest hook (설정 > 알림 > 알림 카드에서 승인): carries the request to the running Bloom's card
         // and prints its answer; no answer (Bloom not running, 터미널에서 답하기) leaves the terminal's own question
         if (args.Length >= 1 && args[0] == App.ClaudeApprovalHook.Arg) return App.ClaudeApprovalHook.Run(args);

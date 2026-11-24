@@ -403,6 +403,13 @@ internal sealed partial class SettingsView
             }, out var titleT);
             Add(Tr("AI로 대화 제목 생성", "Generate chat titles with AI"), Tr("대화 내용으로 제목을 짓습니다. 새 작업을 시작할 때만 바뀝니다.", "Titles a chat from what it says. It changes only when a new task starts."), titleSw, G.Tag, titleT, null, filter);
         }
+        // the add-ons' 보내기 · 정지 for T3 Code's threads go through Bloom (Ai\T3Agent.cs): off, Bloom asks T3 nothing
+        var t3Sw = Toggle(s.T3Link, v =>
+        {
+            s.T3Link = v;
+            App.T3Lines.Changed(); // the cards' 보내기 and 정지 come and go at once
+        }, out var t3T);
+        Add(Tr("T3 Code 연결", "T3 Code link"), Tr("작업 카드·작업표시줄 애드온에서 T3 Code 스레드에 보내고, 질문에 답하고, 정지합니다", "The Run Card and taskbar add-ons send to, answer and stop T3 Code threads"), t3Sw, G.Link, t3T, null, filter);
 
         TranslationGroup(s, filter);
 

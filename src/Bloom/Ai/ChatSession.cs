@@ -76,7 +76,8 @@ internal interface IContextGauge
 /// Models and thinking levels as the launcher names them. A model id is a Claude model ("sonnet",
 /// "opus", "haiku"), a ChatGPT one: "chatgpt:<Codex slug>" ("chatgpt" alone, from older threads,
 /// is Codex's own default model), an omp one: "omp:<provider/model>" ("omp:" alone is omp's own default model),
-/// or an API one: "api:<provider id>:<the provider's model id>".
+/// an API one: "api:<provider id>:<the provider's model id>", or a T3 Code thread's: "t3:<T3's provider instance>/<model>"
+/// (T3Chats; T3 runs it, so it is never in the pickers' lists nor turned through).
 internal static class AiModels
 {
     public static readonly string[] Claude = { "sonnet", "opus", "haiku" };
@@ -87,7 +88,7 @@ internal static class AiModels
     /// An API model's level that sends none: the model's own default (the only one for a model that has no levels).
     public const string Auto = "auto";
 
-    private const string GptPrefix = "chatgpt:", ApiPrefix = "api:", OmpPrefix = "omp:";
+    private const string GptPrefix = "chatgpt:", ApiPrefix = "api:", OmpPrefix = "omp:", T3Prefix = "t3:";
 
     /// Every level name from lowest to highest, to find the nearest one a model takes.
     private static readonly string[] Rank = { Auto, "fast", "none", "off", "minimal", "low", "medium", "high", "xhigh", "max", "ultra" };
@@ -98,8 +99,22 @@ internal static class AiModels
 
     public static bool IsOmp(string model) => model.StartsWith(OmpPrefix, StringComparison.Ordinal);
 
-    /// The side a model is on: "claude", "chatgpt", "omp" or "api" (Settings.AiProvider's values).
-    public static string Provider(string model) => IsChatGpt(model) ? "chatgpt" : IsApi(model) ? "api" : IsOmp(model) ? "omp" : "claude";
+    public static bool IsT3(string model) => model.StartsWith(T3Prefix, StringComparison.Ordinal);
+
+    /// "t3:" + T3's provider instance ("claudeAgent", an account's name) + "/" + its model ("claude-opus-5-5").
+    public static string T3(string instance, string model) => T3Prefix + instance + "/" + model;
+
+    /// A T3 model id's provider instance and model; null for the others (or one without both).
+    public static (string Instance, string Model)? T3Parts(string model)
+    {
+        if (!IsT3(model)) return null;
+        int slash = model.IndexOf('/', T3Prefix.Length);
+        return slash <= T3Prefix.Length || slash == model.Length - 1 ? null : (model[T3Prefix.Length..slash], model[(slash + 1)..]);
+    }
+
+    /// The side a model is on: "claude", "chatgpt", "omp" or "api" (Settings.AiProvider's values), or "t3" (never one of
+    /// the settings' sides).
+    public static string Provider(string model) => IsT3(model) ? "t3" : IsChatGpt(model) ? "chatgpt" : IsApi(model) ? "api" : IsOmp(model) ? "omp" : "claude";
 
     /// ChatGPT, omp (in a chat) and the APIs have no file tools: attachments go into the message, files come back as ```file: blocks.
     public static bool Inline(string model) => IsChatGpt(model) || IsApi(model) || IsOmp(model);
@@ -138,11 +153,12 @@ internal static class AiModels
     public static string Normalize(string model) => model == "chatgpt" && GptCatalog.DefaultSlug() is { } s ? Gpt(s) : model;
 
     /// Haiku has no effort setting, nor an API or omp model that takes no reasoning level.
-    public static bool HasEffort(string model) => IsApi(model) || IsOmp(model) ? Efforts(model).Length > 1 : model != "haiku";
+    public static bool HasEffort(string model) => IsT3(model) ? false : IsApi(model) || IsOmp(model) ? Efforts(model).Length > 1 : model != "haiku";
 
     /// The levels a model takes: Claude's six, the ChatGPT model's own list from Codex, or the API model's (its
     /// provider's rule for it, Auto first; ApiClient sends only these).
-    public static string[] Efforts(string model) => IsOmp(model) ? OmpCatalog.LevelsOf(OmpSlug(model)!)
+    public static string[] Efforts(string model) => IsT3(model) ? new[] { Auto }
+        : IsOmp(model) ? OmpCatalog.LevelsOf(OmpSlug(model)!)
         : IsChatGpt(model) ? GptCatalog.Levels(GptSlug(model))
         : IsApi(model) ? ApiParts(model) is { } p && ApiProviders.Find(p.provider) is { } provider ? ApiProviders.EffortsFor(provider, p.id) : new[] { Auto }
         : ClaudeEfforts;
@@ -198,14 +214,41 @@ internal static class AiModels
     /// The settings' level for that side, fitted to the model.
     public static string DefaultEffort(string model) => Fit(model, IsOmp(model) ? OmpModelList.EffortOf(OmpSlug(model)!) ?? Settings.Current.OmpChatEffort : IsChatGpt(model) ? Settings.Current.GptEffort : IsApi(model) ? Settings.Current.ApiEffort : Settings.Current.AiEffort);
 
-    public static string Name(string m) => IsOmp(m) ? OmpModelList.NameOf(OmpSlug(m)!)
+    public static string Name(string m) => T3Parts(m) is { } t3 ? T3Name(t3.Model)
+        : IsT3(m) ? Tr("모델 없음", "No model")
+        : IsOmp(m) ? OmpModelList.NameOf(OmpSlug(m)!)
         : IsChatGpt(m) ? GptCatalog.Name(GptSlug(m))
         : ApiParts(m) is { } api ? ApiCatalog.Find(api.provider, api.id)?.Name ?? api.id
         : IsApi(m) ? Tr("모델 없음", "No model")
         : m switch { "opus" => "Opus", "haiku" => "Haiku", _ => "Sonnet" };
 
-    /// "Claude · Sonnet" / "ChatGPT · GPT-6-Astra" / "omp · Sonnet 5.5" / "OpenRouter · Kimi K3"
-    public static string Who(string m) => (IsOmp(m) ? "omp" : IsChatGpt(m) ? "ChatGPT" : IsApi(m) ? ApiProviderOf(m)?.Name ?? "API" : "Claude") + " · " + Name(m);
+    /// "Claude · Sonnet" / "ChatGPT · GPT-6-Astra" / "omp · Sonnet 5.5" / "OpenRouter · Kimi K3"; a T3 thread's by its
+    /// model's maker: "Claude · Opus 5.5", "ChatGPT · GPT-6", else "T3 · <model>".
+    public static string Who(string m) => (IsT3(m) ? T3Maker(T3Parts(m)?.Model ?? "") : IsOmp(m) ? "omp" : IsChatGpt(m) ? "ChatGPT" : IsApi(m) ? ApiProviderOf(m)?.Name ?? "API" : "Claude") + " · " + Name(m);
+
+    /// Who makes a model T3 runs, by its id.
+    private static string T3Maker(string model) =>
+        model.StartsWith("claude", StringComparison.OrdinalIgnoreCase) ? "Claude"
+        : model.StartsWith("gpt", StringComparison.OrdinalIgnoreCase) || model.StartsWith("o", StringComparison.OrdinalIgnoreCase) && model.Length > 1 && char.IsDigit(model[1]) ? "ChatGPT"
+        : "T3";
+
+    /// A model id of T3's as people read it: "claude-opus-5-5" → "Opus 5.5", "gpt-6-astra" → "GPT-6 Astra"; one of
+    /// another shape stays as it is.
+    internal static string T3Name(string model)
+    {
+        var parts = model.Split('-', StringSplitOptions.RemoveEmptyEntries);
+        if (parts.Length == 0) return model;
+        if (parts[0].Equals("gpt", StringComparison.OrdinalIgnoreCase) && parts.Length > 1)
+            return "GPT-" + parts[1] + string.Concat(parts[2..].Select(p => " " + Cap(p)));
+        if (!parts[0].Equals("claude", StringComparison.OrdinalIgnoreCase) || parts.Length < 2) return model;
+        var words = new List<string> { Cap(parts[1]) };
+        var digits = parts[2..].TakeWhile(p => p.Length < 8 && p.All(char.IsDigit)).ToList();
+        if (digits.Count > 0) words.Add(string.Join(".", digits));
+        words.AddRange(parts[(2 + digits.Count)..].Where(p => !(p.Length == 8 && p.All(char.IsDigit))).Select(Cap)); // a date stamp goes
+        return string.Join(" ", words);
+    }
+
+    private static string Cap(string w) => w.Length == 0 ? w : char.ToUpperInvariant(w[0]) + w[1..];
 
     public static string EffortName(string e) => e switch
     {

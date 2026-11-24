@@ -11,13 +11,18 @@ using Bloom.Core;
 namespace Bloom.Ai;
 
 /// Claude Code's turns, read from what Claude Code writes itself (nothing is started): every running Claude Code — the
-/// CLI or the desktop app's Code tab — keeps ~/.claude/sessions/<pid>.json up to date with its session id, title, folder
-/// and status (busy / idle / waiting); the transcript under ~/.claude/projects says what was asked.
+/// CLI, the desktop app's Code tab, T3 Code's threads — keeps <folder>/sessions/<pid>.json up to date with its session
+/// id, title, folder and status (busy / idle / waiting); the transcript under <folder>/projects says what was asked.
+/// The folders are all of Homes(): T3 Code gives its Claude Code a folder of its own (a ~/.claude-* one).
 internal sealed partial class ClaudeWatch
 {
-    private sealed record Info(string SessionId, int Pid, long ProcStart, string Status, string? Name, string? Cwd, long StatusAt, bool Headless);
+    private sealed record Info(string SessionId, int Pid, long ProcStart, string Status, string? Name, string? Cwd, long StatusAt, bool Headless)
+    {
+        public string Home { get; init; } = "";
+    }
 
-    private readonly string sessions, projects;
+    private string[] homes = [];
+    private DateTime homesAt;
     private readonly Dictionary<string, (DateTime write, Info? info)> files = new(StringComparer.OrdinalIgnoreCase);
     private readonly Dictionary<int, (DateTime at, bool alive)> alive = new();
     private readonly Dictionary<string, string?> prompts = new(); // session id + turn start → what was asked
@@ -34,12 +39,6 @@ internal sealed partial class ClaudeWatch
 
     /// Claude Code's own folder: CLAUDE_CONFIG_DIR, else ~/.claude.
     public static string Home => Environment.GetEnvironmentVariable("CLAUDE_CONFIG_DIR") is { Length: > 0 } h ? h : Path.Combine(Paths.Home, ".claude");
-
-    public ClaudeWatch()
-    {
-        sessions = Path.Combine(Home, "sessions");
-        projects = Path.Combine(Home, "projects");
-    }
 
     /// The running Claude Code with this process id, from its session file: typed in (not a program's `claude -p`), its
     /// name and folder; null when it has none.
@@ -59,6 +58,71 @@ internal sealed partial class ClaudeWatch
         catch (Exception e) when (e is IOException or UnauthorizedAccessException or JsonException)
         {
             return null;
+        }
+    }
+
+    /// Every Claude Code folder a session may keep its file in: Home, the user's other ~/.claude-* folders (a
+    /// CLAUDE_CONFIG_DIR of their own) and Bloom's own Claude accounts (Local\accounts\claude-*), as the Run Card add-on
+    /// looks for them.
+    public static IEnumerable<string> Homes()
+    {
+        var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { Path.TrimEndingDirectorySeparator(Home) };
+        yield return Home;
+        foreach (var (dir, pattern) in new[] { (Paths.Home, ".claude-*"), (Path.Combine(Paths.Local, "accounts"), "claude-*") })
+        {
+            string[] found;
+            try
+            {
+                found = Directory.Exists(dir) ? Directory.GetDirectories(dir, pattern) : [];
+            }
+            catch (Exception e) when (e is IOException or UnauthorizedAccessException)
+            {
+                found = [];
+            }
+            foreach (string d in found)
+                if (seen.Add(Path.TrimEndingDirectorySeparator(d))) yield return d;
+        }
+    }
+
+    /// The running Claude Code `pid` is `session` typed in a terminal, its session file in one of the folders says: started
+    /// from the CLI (entrypoint "cli"), interactive, and the process that wrote it still runs. Only such a one reads its
+    /// console, where Esc stops its turn (Run Card's 정지); the desktop app, an SDK host (T3 Code) or an editor's panel
+    /// read none.
+    public static bool InTerminal(string session, int pid) => InTerminal(session, pid, Homes(), Running);
+
+    internal static bool InTerminal(string session, int pid, IEnumerable<string> homes, Func<int, long, bool> running)
+    {
+        if (pid <= 0 || session.Length == 0) return false;
+        string name = pid.ToString(System.Globalization.CultureInfo.InvariantCulture) + ".json";
+        foreach (string home in homes)
+        {
+            try
+            {
+                using var fs = new FileStream(Path.Combine(home, "sessions", name), FileMode.Open, FileAccess.Read, FileShare.ReadWrite | FileShare.Delete);
+                using var doc = JsonDocument.Parse(fs);
+                var r = doc.RootElement;
+                if (Str(r, "sessionId") == session && Str(r, "entrypoint") == "cli" && (Str(r, "kind") is not { } kind || kind == "interactive"))
+                    return running(pid, Num(r, "procStart"));
+            }
+            catch (Exception e) when (e is IOException or UnauthorizedAccessException or JsonException)
+            {
+                /* none in this folder */
+            }
+        }
+        return false;
+    }
+
+    /// The process runs and is the one that started at `procStart` (0: not known), not another that took its id.
+    private static bool Running(int pid, long procStart)
+    {
+        try
+        {
+            using var p = Process.GetProcessById(pid);
+            return !p.HasExited && (procStart <= 0 || Math.Abs(p.StartTime.ToFileTimeUtc() - procStart) < 20_000_000);
+        }
+        catch (Exception e) when (e is ArgumentException or InvalidOperationException or System.ComponentModel.Win32Exception)
+        {
+            return false;
         }
     }
 
@@ -86,14 +150,24 @@ internal sealed partial class ClaudeWatch
     {
         var now = new Dictionary<string, AgentTask>();
         var infos = new Dictionary<string, Info>();
-        string[] all;
-        try
+        // the folders looked for again each half minute (a new account, T3 Code's first thread)
+        if (DateTime.UtcNow - homesAt > TimeSpan.FromSeconds(30))
         {
-            all = Directory.GetFiles(sessions, "*.json");
+            homes = Homes().ToArray();
+            homesAt = DateTime.UtcNow;
         }
-        catch (Exception e) when (e is IOException or UnauthorizedAccessException)
+        var all = new List<string>();
+        foreach (string home in homes)
         {
-            all = Array.Empty<string>();
+            try
+            {
+                string dir = Path.Combine(home, "sessions");
+                if (Directory.Exists(dir)) all.AddRange(Directory.GetFiles(dir, "*.json"));
+            }
+            catch (Exception e) when (e is IOException or UnauthorizedAccessException)
+            {
+                /* this folder on the next look */
+            }
         }
         foreach (string f in all)
         {
@@ -139,7 +213,10 @@ internal sealed partial class ClaudeWatch
             using var doc = JsonDocument.Parse(fs);
             var r = doc.RootElement;
             if (Str(r, "sessionId") is { } id && r.TryGetProperty("pid", out var pid) && pid.TryGetInt32(out int p))
-                info = new Info(id, p, Num(r, "procStart"), (Str(r, "status") ?? "").ToLowerInvariant(), Str(r, "name"), Str(r, "cwd"), Num(r, "statusUpdatedAt"), Str(r, "kind") is { } kind && kind != "interactive");
+                info = new Info(id, p, Num(r, "procStart"), (Str(r, "status") ?? "").ToLowerInvariant(), Str(r, "name"), Str(r, "cwd"), Num(r, "statusUpdatedAt"), Str(r, "kind") is { } kind && kind != "interactive")
+                {
+                    Home = Path.GetDirectoryName(Path.GetDirectoryName(file)) ?? Home, // <folder>\sessions\<pid>.json
+                };
         }
         catch (Exception e) when (e is IOException or UnauthorizedAccessException or JsonException)
         {
@@ -179,7 +256,7 @@ internal sealed partial class ClaudeWatch
         string? found = null;
         try
         {
-            string file = Path.Combine(projects, NotSlug().Replace(info.Cwd ?? "", "-"), info.SessionId + ".jsonl");
+            string file = Path.Combine(info.Home, "projects", NotSlug().Replace(info.Cwd ?? "", "-"), info.SessionId + ".jsonl");
             if (File.Exists(file)) found = LastPrompt(Tail(file, 256 * 1024));
         }
         catch (Exception e) when (e is IOException or UnauthorizedAccessException)

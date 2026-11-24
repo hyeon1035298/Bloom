@@ -214,6 +214,7 @@ internal sealed partial class Host
             if (!Opt.Demo) StartSchedule(); // 내 AI 명령's own runs
             if (!Opt.Demo) ClaudeApprovals.Start(ui);
             if (!Opt.Demo) RunCardLink.Start(ui); // the Run Card add-on's cards: turns and approval requests
+            if (!Opt.Demo) T3Link.Start(); // the other add-ons' 보내기 · 정지 for T3 Code's threads (PillTaskbar)
             if (!Opt.Demo) WindowsToasts.Apply(ui);
             if (Opt.MeasureSeconds is { } measure) MeasureLater(measure);
             if (Opt.SummonRounds is { } rounds) _ = SummonBench.Run(this, ui, rounds);
@@ -735,6 +736,7 @@ internal sealed partial class Host
         winKeyAdmin?.Dispose();
         WindowsToasts.Stop(); // PillTaskbar shows Windows' banners again
         RunCardLink.Stop();
+        T3Link.Stop();
         Addons.AddonHub.Quit(); // let go, not stopped: the host unloads by itself unless the next Bloom takes it over
         Clipboard.Dispose();
         Shortcuts?.Dispose();

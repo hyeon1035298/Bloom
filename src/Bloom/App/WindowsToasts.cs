@@ -4,7 +4,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Net;
 using System.Runtime.InteropServices;
-using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Interop;
@@ -152,48 +151,19 @@ internal static partial class WindowsToasts
     private static (long newest, List<Toast> found) Since(long after)
     {
         var found = new List<Toast>();
-        if (sqlite3_open_v2(Store, out IntPtr db, 1 /* READONLY */, IntPtr.Zero) != 0)
+        long newest = -1;
+        bool opened = Native.SystemSqlite.ReadOnly(Store, db =>
         {
-            _ = sqlite3_close(db);
-            return (-1, found);
-        }
-        try
-        {
-            _ = sqlite3_busy_timeout(db, 500);
-            long newest = -1;
-            Query(db, "select max(Id) from Notification", s => newest = sqlite3_column_int64(s, 0));
-            if (after < 0 || newest <= after) return (newest, found);
-            Query(db, "select h.PrimaryId, n.Payload from Notification n join NotificationHandler h on h.RecordId = n.HandlerId " +
-                      $"where n.Id > {after} and n.Type = 'toast' order by n.Id limit 4", s =>
+            Native.SystemSqlite.Query(db, "select max(Id) from Notification", s => newest = Native.SystemSqlite.Int64(s, 0));
+            if (after < 0 || newest <= after) return;
+            Native.SystemSqlite.Query(db, "select h.PrimaryId, n.Payload from Notification n join NotificationHandler h on h.RecordId = n.HandlerId " +
+                                          $"where n.Id > {after} and n.Type = 'toast' order by n.Id limit 4", s =>
             {
-                string app = Text(s, 0) ?? "";
-                int size = sqlite3_column_bytes(s, 1);
-                IntPtr blob = sqlite3_column_blob(s, 1);
-                string xml = size > 0 && blob != IntPtr.Zero ? Marshal.PtrToStringUTF8(blob, size) : "";
-                if (Parse(app, xml) is { } t) found.Add(t);
+                if (Parse(Native.SystemSqlite.Text(s, 0) ?? "", Native.SystemSqlite.BlobText(s, 1)) is { } t) found.Add(t);
             });
-            return (newest, found);
-        }
-        finally
-        {
-            _ = sqlite3_close(db);
-        }
+        });
+        return (opened ? newest : -1, found);
     }
-
-    private static void Query(IntPtr db, string sql, Action<IntPtr> row)
-    {
-        if (sqlite3_prepare_v2(db, sql, -1, out IntPtr s, IntPtr.Zero) != 0) throw new InvalidDataException("wpndatabase: " + Marshal.PtrToStringUTF8(sqlite3_errmsg(db)));
-        try
-        {
-            while (sqlite3_step(s) == 100 /* ROW */) row(s);
-        }
-        finally
-        {
-            _ = sqlite3_finalize(s);
-        }
-    }
-
-    private static string? Text(IntPtr s, int col) => sqlite3_column_text(s, col) is var p && p != IntPtr.Zero ? Marshal.PtrToStringUTF8(p) : null;
 
     [GeneratedRegex(@"<text\b([^>]*)>(.*?)</text>", RegexOptions.Singleline)]
     private static partial Regex TextTag();
@@ -241,17 +211,4 @@ internal static partial class WindowsToasts
     [LibraryImport("user32.dll", EntryPoint = "GetPropW", StringMarshalling = StringMarshalling.Utf16)] private static partial IntPtr GetProp(IntPtr hwnd, string name);
     [LibraryImport("user32.dll", EntryPoint = "SetPropW", StringMarshalling = StringMarshalling.Utf16)][return: MarshalAs(UnmanagedType.Bool)] private static partial bool SetProp(IntPtr hwnd, string name, IntPtr data);
     [LibraryImport("user32.dll", EntryPoint = "RemovePropW", StringMarshalling = StringMarshalling.Utf16)] private static partial IntPtr RemoveProp(IntPtr hwnd, string name);
-
-    // the system's SQLite (Windows' own, no package)
-    [LibraryImport("winsqlite3.dll", StringMarshalling = StringMarshalling.Utf8)] private static partial int sqlite3_open_v2(string file, out IntPtr db, int flags, IntPtr vfs);
-    [LibraryImport("winsqlite3.dll")] private static partial int sqlite3_close(IntPtr db);
-    [LibraryImport("winsqlite3.dll")] private static partial int sqlite3_busy_timeout(IntPtr db, int ms);
-    [LibraryImport("winsqlite3.dll", StringMarshalling = StringMarshalling.Utf8)] private static partial int sqlite3_prepare_v2(IntPtr db, string sql, int bytes, out IntPtr stmt, IntPtr tail);
-    [LibraryImport("winsqlite3.dll")] private static partial int sqlite3_step(IntPtr stmt);
-    [LibraryImport("winsqlite3.dll")] private static partial int sqlite3_finalize(IntPtr stmt);
-    [LibraryImport("winsqlite3.dll")] private static partial long sqlite3_column_int64(IntPtr stmt, int col);
-    [LibraryImport("winsqlite3.dll")] private static partial IntPtr sqlite3_column_text(IntPtr stmt, int col);
-    [LibraryImport("winsqlite3.dll")] private static partial IntPtr sqlite3_column_blob(IntPtr stmt, int col);
-    [LibraryImport("winsqlite3.dll")] private static partial int sqlite3_column_bytes(IntPtr stmt, int col);
-    [LibraryImport("winsqlite3.dll")] private static partial IntPtr sqlite3_errmsg(IntPtr db);
 }
