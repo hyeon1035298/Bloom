@@ -12,7 +12,8 @@ namespace Bloom.Ui;
 /// The glass Bloom draws itself: the host backdrop (the screen behind, blurred) under a luminosity layer (GlassEffect),
 /// in a Windows.UI.Composition visual, called through its vtables as Native.WinRt does (no projection). A window's composition visuals always lie over its own drawing, so the glass is
 /// drawn in a window of its own just under the glass window: a plain popup the same size, shown, hidden, moved and
-/// cloaked with it, never active and never hit (the glass window covers it). The glass window shows it through its Tint
+/// cloaked with it, kept out of screen captures with it and gone with it to another virtual desktop, never active and
+/// never hit (the glass window covers it). The glass window shows it through its Tint
 /// as it showed DWM's acrylic. One compositor on the UI thread serves every window; when composition fails, the
 /// windows keep DWM's acrylic (Glass.Apply).
 internal static unsafe class OwnGlass
@@ -25,6 +26,7 @@ internal static unsafe class OwnGlass
         public IntPtr Brush; // ICompositionEffectBrush
         public (bool Dark, float Amount) PaintedFor = (false, -1);
         public bool On, Topmost, Zoomed;
+        public uint Affinity; // the glass window's display affinity, as last given to the glass
         public HwndSourceHook? Hook;
     }
 
@@ -34,6 +36,7 @@ internal static unsafe class OwnGlass
     private static bool broken; // composition failed: DWM's acrylic from then on
     private static readonly Dictionary<IntPtr, Layer> layers = [];
     private static readonly Dictionary<bool, (float Amount, IntPtr Factory)> factories = []; // ICompositionEffectFactory
+    private static WinEventProc? onCloak; // held: Windows calls it for as long as Bloom runs
 
     private static float Amount => GlassEffect.Amount(Settings.Current.GlassTransparency);
 
@@ -49,6 +52,7 @@ internal static unsafe class OwnGlass
                 if (c == IntPtr.Zero || HwndSource.FromHwnd(hwnd) is not { } source) return false;
                 layer = Make(c, hwnd);
                 layers[hwnd] = layer;
+                WatchCloaks();
                 layer.Hook = (IntPtr h, int msg, IntPtr wp, IntPtr lp, ref bool handled) =>
                 {
                     if (msg == WM_WINDOWPOSCHANGED) Follow(layer);
@@ -116,11 +120,28 @@ internal static unsafe class OwnGlass
         }
     }
 
-    /// The glass window moved, was resized, shown, hidden or restacked: the glass goes just under it at its size, or
-    /// hides with it.
+    /// Windows cloaks a window it moves to another virtual desktop (and every window of a desktop the user leaves) and
+    /// tells nobody but the cloak's listeners: the glass, a window of its own that would stay behind, hides with its
+    /// window and comes back with it, on the desktop that is then shown. One listener for Bloom's windows, on this thread.
+    private static void WatchCloaks()
+    {
+        if (onCloak is not null) return;
+        onCloak = (_, _, hwnd, obj, _, _, _) =>
+        {
+            if (obj == 0 /* the window itself */ && layers.TryGetValue(hwnd, out var layer)) Follow(layer);
+        };
+        _ = SetWinEventHook(EVENT_OBJECT_CLOAKED, EVENT_OBJECT_UNCLOAKED, IntPtr.Zero, onCloak, (uint)Environment.ProcessId, 0, 0 /* out of context: called on this thread */);
+    }
+
+    /// Cloaked by Windows (another virtual desktop), not by Glass.Cloak, under which the glass stays as it is.
+    private static bool AwayOnAnotherDesktop(IntPtr hwnd) =>
+        Win32.DwmGetWindowAttribute(hwnd, 14 /* DWMWA_CLOAKED */, out int cloaked, sizeof(int)) == 0 && (cloaked & 2 /* DWM_CLOAKED_SHELL */) != 0;
+
+    /// The glass window moved, was resized, shown, hidden, restacked or cloaked by Windows: the glass goes just under it
+    /// at its size, or hides with it.
     private static void Follow(Layer layer)
     {
-        bool shown = layer.On && Win32.IsWindowVisible(layer.Glass) && !IsIconic(layer.Glass);
+        bool shown = layer.On && Win32.IsWindowVisible(layer.Glass) && !IsIconic(layer.Glass) && !AwayOnAnotherDesktop(layer.Glass);
         if (!shown || !Win32.GetWindowRect(layer.Glass, out var r))
         {
             Win32.SetWindowPos(layer.Under, IntPtr.Zero, 0, 0, 0, 0, Win32.SWP_NOMOVE | Win32.SWP_NOSIZE | Win32.SWP_NOZORDER | Win32.SWP_NOACTIVATE | SWP_HIDEWINDOW);
@@ -140,6 +161,9 @@ internal static unsafe class OwnGlass
             _ = Win32.DwmSetWindowAttribute(layer.Under, Win32.DWMWA_WINDOW_CORNER_PREFERENCE, ref corner, 4);
             layer.Zoomed = zoomed;
         }
+        // a window kept out of screen captures (the translation window, over the text it reads) has its glass kept out too
+        if (GetWindowDisplayAffinity(layer.Glass, out uint affinity) && affinity != layer.Affinity && SetWindowDisplayAffinity(layer.Under, affinity))
+            layer.Affinity = affinity;
         var info = new Win32.MONITORINFO { cbSize = Marshal.SizeOf<Win32.MONITORINFO>() };
         if (zoomed && Win32.GetMonitorInfo(Win32.MonitorFromWindow(layer.Glass, 2 /* nearest */), ref info))
         {
@@ -393,6 +417,7 @@ internal static unsafe class OwnGlass
     }
 
     private const int WM_WINDOWPOSCHANGED = 0x0047;
+    private const uint EVENT_OBJECT_CLOAKED = 0x8017, EVENT_OBJECT_UNCLOAKED = 0x8018;
     private const int DWMWCP_DONOTROUND = 1;
     private const uint WS_POPUP = 0x80000000, WS_DISABLED = 0x08000000;
     private const uint WS_EX_TOPMOST = 0x8, WS_EX_TOOLWINDOW = 0x80, WS_EX_NOACTIVATE = 0x08000000, WS_EX_NOREDIRECTIONBITMAP = 0x00200000;
@@ -430,8 +455,12 @@ internal static unsafe class OwnGlass
     [DllImport("user32.dll", CharSet = CharSet.Unicode, SetLastError = true)] private static extern ushort RegisterClassEx(ref WNDCLASSEX wc);
     [DllImport("user32.dll", CharSet = CharSet.Unicode, SetLastError = true)] private static extern IntPtr CreateWindowEx(uint ex, string cls, string? name, uint style, int x, int y, int w, int h, IntPtr parent, IntPtr menu, IntPtr inst, IntPtr param);
     [DllImport("user32.dll")] private static extern bool DestroyWindow(IntPtr hwnd);
+    private delegate void WinEventProc(IntPtr hook, uint ev, IntPtr hwnd, int obj, int child, uint thread, uint time);
+    [DllImport("user32.dll")] private static extern IntPtr SetWinEventHook(uint first, uint last, IntPtr module, WinEventProc proc, uint process, uint thread, uint flags);
     [DllImport("user32.dll")] private static extern bool IsIconic(IntPtr hwnd);
     [DllImport("user32.dll")] private static extern bool IsZoomed(IntPtr hwnd);
+    [DllImport("user32.dll")] private static extern bool GetWindowDisplayAffinity(IntPtr hwnd, out uint affinity);
+    [DllImport("user32.dll")] private static extern bool SetWindowDisplayAffinity(IntPtr hwnd, uint affinity);
     [DllImport("dwmapi.dll")] private static extern int DwmEnableBlurBehindWindow(IntPtr hwnd, ref DWM_BLURBEHIND bb);
     [DllImport("gdi32.dll")] private static extern IntPtr CreateRectRgn(int l, int t, int r, int b);
     [DllImport("kernel32.dll", CharSet = CharSet.Unicode)] private static extern IntPtr GetModuleHandle(string? name);
