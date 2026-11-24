@@ -79,7 +79,7 @@ internal sealed partial class ChatWindow
         {
             deleteArmed = true;
             Running();
-            ShowToast(Tr("한 번 더 누르면 영구 삭제됩니다.", "Click again to delete — this can't be undone"));
+            ShowToast(Tr("한 번 더 누르면 영구 삭제됩니다.", "Click again to permanently delete."));
             return;
         }
         selecting = deleteArmed = false;
@@ -94,12 +94,12 @@ internal sealed partial class ChatWindow
     private static string Counted(int threads, int groups, bool deleted)
     {
         if (threads > 0 && groups > 0)
-            return deleted ? Tr($"대화 {threads}개 · 그룹 {groups}개 삭제 완료", $"Deleted chats: {threads} · groups: {groups}") : Tr($"대화 {threads}개 · 그룹 {groups}개 선택", $"Selected chats: {threads} · groups: {groups}");
+            return deleted ? Tr($"대화 {threads}개 · 그룹 {groups}개 삭제 완료", $"Deleted {threads} chats · {groups} groups") : Tr($"대화 {threads}개 · 그룹 {groups}개 선택", $"{threads} chats · {groups} groups selected");
         if (threads > 0)
-            return deleted ? Tr($"대화 {threads}개 삭제 완료", $"Deleted chats: {threads}") : Tr($"대화 {threads}개 선택", $"Selected chats: {threads}");
+            return deleted ? Tr($"대화 {threads}개 삭제 완료", $"Deleted {threads} chats") : Tr($"대화 {threads}개 선택", $"{threads} chats selected");
         if (groups > 0)
-            return deleted ? Tr($"그룹 {groups}개 삭제 완료", $"Deleted groups: {groups}") : Tr($"그룹 {groups}개 선택", $"Selected groups: {groups}");
-        return Tr("선택된 항목 없음", "Nothing picked");
+            return deleted ? Tr($"그룹 {groups}개 삭제 완료", $"Deleted {groups} groups") : Tr($"그룹 {groups}개 선택", $"{groups} groups selected");
+        return Tr("선택된 항목 없음", "No items selected");
     }
 
     /// The tick box before a line while picking.
@@ -134,11 +134,11 @@ internal sealed partial class ChatWindow
         g.Children.Add(count);
         var buttons = new StackPanel { Orientation = Orientation.Horizontal, HorizontalAlignment = HorizontalAlignment.Right };
         var all = TextButton(null, Tr("모두", "All"), PickAll);
-        all.ToolTip = Tr("보이는 대화를 모두 고르기 · 다시 누르면 모두 풀기 (Ctrl+A)", "Pick every chat shown · again to pick none (Ctrl+A)");
+        all.ToolTip = Tr("보이는 대화를 모두 고르기 · 다시 누르면 모두 풀기 (Ctrl+A)", "Select all visible chats · Click again to deselect all (Ctrl+A)");
         var cancel = TextButton(null, Tr("취소", "Cancel"), EndSelect);
         cancel.ToolTip = "Esc";
         cancel.Margin = new Thickness(6, 0, 0, 0);
-        var delete = TextButton(G.Delete, deleteArmed ? Tr("정말 삭제", "Really delete") : Tr("삭제", "Delete"), DeletePicked, threads + groups > 0 ? Theme.P.Danger : null);
+        var delete = TextButton(G.Delete, deleteArmed ? Tr("정말 삭제", "Confirm delete") : Tr("삭제", "Delete"), DeletePicked, threads + groups > 0 ? Theme.P.Danger : null);
         delete.Margin = new Thickness(6, 0, 0, 0);
         if (threads + groups == 0) delete.Opacity = 0.45;
         buttons.Children.Add(all);

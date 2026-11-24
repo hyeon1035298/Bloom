@@ -27,11 +27,11 @@ internal sealed class ToolDock
     public static readonly (string key, string name, char glyph)[] Kinds =
     {
         ("notes", Tr("메모", "Notes"), G.Document),
-        ("timers", Tr("타이머 · 알림", "Timers"), G.Stopwatch),
+        ("timers", Tr("타이머 · 알림", "Timers · Reminders"), G.Stopwatch),
         ("calc", Tr("계산기", "Calculator"), G.Calculator),
         ("clipboard", Tr("클립보드", "Clipboard"), G.Paste),
         ("keys", Tr("단축키", "Shortcuts"), G.Keyboard),
-        ("player", Tr("미니 플레이어", "Mini player"), Music.PlayerGlyph.Music),
+        ("player", Tr("미니 플레이어", "Mini Player"), Music.PlayerGlyph.Music),
     };
 
     public ToolDock(Host host)

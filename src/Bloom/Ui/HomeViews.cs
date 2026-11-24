@@ -22,7 +22,7 @@ internal static class HomeViews
     {
         if (accounts.Count == 0)
         {
-            var none = Theme.T(AiUsage.Busy ? Tr("AI 사용량 조회 중…", "Checking AI usage…") : Tr("사용량 조회 실패 · Claude Code 또는 Codex 로그인 상태를 확인하고 ↻로 다시 조회하세요", "Could not get usage. Check the Claude Code or Codex sign-in, then press ↻."), 12.5, Theme.P.TextFaint);
+            var none = Theme.T(AiUsage.Busy ? Tr("AI 사용량 조회 중…", "Checking AI usage…") : Tr("사용량 조회 실패 · Claude Code 또는 Codex 로그인 상태를 확인하고 ↻로 다시 조회하세요", "Failed to fetch usage · Check your Claude Code or Codex sign-in and click ↻ to retry"), 12.5, Theme.P.TextFaint);
             none.Margin = new Thickness(22, 2, 22, 8);
             return none;
         }
@@ -59,7 +59,7 @@ internal static class HomeViews
         return EditBar(
             (G.Left, Tr("앞으로", "Move earlier"), i > 0, () => Swap(i - 1)),
             (G.Right, Tr("뒤로", "Move later"), i < accounts.Count - 1, () => Swap(i + 1)),
-            (G.Pen, Tr("표시 이름 바꾸기", "Rename"), true, () => edit.Rename(id)));
+            (G.Pen, Tr("표시 이름 바꾸기", "Change display name"), true, () => edit.Rename(id)));
     }
 
     /// 홈 편집's small bar of glyph buttons (a block's ▲ ▼ ✕, a usage card's ‹ › ✎), at the right of where it is put.
@@ -89,7 +89,7 @@ internal static class HomeViews
     /// (컬러 팔레트's colours).
     public static SmoothBorder Stepper(int value, int min, int max, Action<int> set, (string tip, string fewer, string more)? words = null)
     {
-        var (tip, fewer, more) = words ?? (Tr($"표시 개수 ({min}–{max})", $"Rows shown ({min}–{max})"), Tr("개수 줄이기", "Fewer rows"), Tr("개수 늘리기", "More rows"));
+        var (tip, fewer, more) = words ?? (Tr($"표시 개수 ({min}–{max})", $"Item count ({min}–{max})"), Tr("개수 줄이기", "Show fewer"), Tr("개수 늘리기", "Show more"));
         var n = Theme.T(value.ToString(System.Globalization.CultureInfo.InvariantCulture), 11.5, Theme.P.Text, Theme.Medium, false);
         n.MinWidth = 16;
         n.TextAlignment = TextAlignment.Center;
@@ -126,7 +126,7 @@ internal static class HomeViews
     {
         var g = new Grid { Height = 44, Margin = new Thickness(16, 8, 16, 4) };
         g.Children.Add(Dashes(Theme.P.Line));
-        var t = Theme.T(Tr("숨긴 블록 없음 · 블록의 ✕로 숨기면 여기서 다시 추가할 수 있습니다", "No hidden blocks · hide one with its ✕ to add it back here"), 12, Theme.P.TextFaint);
+        var t = Theme.T(Tr("숨긴 블록 없음 · 블록의 ✕로 숨기면 여기서 다시 추가할 수 있습니다", "No hidden blocks · Blocks hidden via ✕ can be re-added here"), 12, Theme.P.TextFaint);
         t.Margin = new Thickness(16, 0, 16, 1);
         g.Children.Add(t);
         return g;
@@ -179,7 +179,7 @@ internal static class HomeViews
         if (stale)
         {
             var age = Theme.T(Tr($"{Ago(DateTime.Now - a.Fetched)} 전", $"{Ago(DateTime.Now - a.Fetched)} ago"), 11, Theme.P.TextFaint, Theme.Regular, false);
-            age.ToolTip = Tr("마지막으로 받은 때", "Last fetched");
+            age.ToolTip = Tr("마지막으로 받은 때", "Last updated");
             age.Margin = new Thickness(6, 0, 0, 0);
             Grid.SetColumn(age, 3);
             head.Children.Add(age);
@@ -197,7 +197,7 @@ internal static class HomeViews
         var limits = a.Limits.Take(3).ToList();
         if (account is not null && AiUsage.Failed(a.Id)) // signed out: no old bars, the way back instead
         {
-            var need = Theme.T(Tr("로그인이 풀려 사용량을 받지 못했습니다", "Signed out, so usage can't be fetched"), 11, Theme.P.TextDim, Theme.Regular, false);
+            var need = Theme.T(Tr("로그인이 풀려 사용량을 받지 못했습니다", "Signed out — could not fetch usage"), 11, Theme.P.TextDim, Theme.Regular, false);
             need.TextWrapping = TextWrapping.Wrap;
             need.Margin = new Thickness(0, 0, 0, 8);
             stack.Children.Add(need);
@@ -267,7 +267,7 @@ internal static class HomeViews
     /// one is signed in from Claude Code or Codex itself, so it opens 설정 > AI 계정.
     private static FrameworkElement SignInAgain(Core.AiAccount account, Action? openAccounts)
     {
-        var button = ToolUi.TextButton(Tr("다시 로그인", "Sign in again"), () => { });
+        var button = ToolUi.TextButton(Tr("다시 로그인", "Sign In Again"), () => { });
         button.Height = 24;
         button.Margin = new Thickness(0, 0, 0, 2);
         button.MouseLeftButtonUp += async (_, _) =>
@@ -288,7 +288,7 @@ internal static class HomeViews
     private static string Tip(UsageLimit l, bool left)
     {
         string line = $"{l.Title}: {Shown(l.Percent, left)}%" + (left ? Tr(" 남음", " left") : "");
-        return l.Resets is { } r ? line + Tr($" · {r:M/d HH:mm} 초기화", $" · resets {r:M/d HH:mm}") : line;
+        return l.Resets is { } r ? line + Tr($" · {r:M/d HH:mm} 초기화", $" · Resets {r:M/d HH:mm}") : line;
     }
 
     /// The whole percent a card shows: used, or what's left (the two always add up to 100).
@@ -310,13 +310,13 @@ internal static class HomeViews
 
     private static string Ago(TimeSpan t)
     {
-        if (t.TotalMinutes < 1) return Tr("곧", "now");
+        if (t.TotalMinutes < 1) return Tr("곧", "Soon");
         if (t.TotalMinutes < 60) return Tr($"{(int)t.TotalMinutes}분", $"{(int)t.TotalMinutes} min");
-        if (t.TotalHours < 24) return Tr($"{(int)t.TotalHours}시간", $"{(int)t.TotalHours} h");
-        return Tr($"{(int)t.TotalDays}일", $"{(int)t.TotalDays} d");
+        if (t.TotalHours < 24) return Tr($"{(int)t.TotalHours}시간", $"{(int)t.TotalHours}h");
+        return Tr($"{(int)t.TotalDays}일", $"{(int)t.TotalDays}d");
     }
 
-    private static readonly string[] Weekdays = { Tr("일", "Su"), Tr("월", "Mo"), Tr("화", "Tu"), Tr("수", "We"), Tr("목", "Th"), Tr("금", "Fr"), Tr("토", "Sa") };
+    private static readonly string[] Weekdays = { Tr("일", "Sun"), Tr("월", "Mon"), Tr("화", "Tue"), Tr("수", "Wed"), Tr("목", "Thu"), Tr("금", "Fri"), Tr("토", "Sat") };
 
     /// Today and the next six days, each with up to two marks; a click opens the calendar on that day.
     public static FrameworkElement Week(IReadOnlyDictionary<DateTime, List<DayMark>> marks, Action<DateTime> open)
@@ -368,7 +368,7 @@ internal static class HomeViews
                 Margin = new Thickness(2, 0, 2, 0),
                 Background = i == 0 ? Theme.P.Card : Brushes.Transparent,
                 Cursor = Cursors.Hand,
-                ToolTip = list is { Count: > 0 } ? string.Join("\n", list.Select(x => (x.Deadline ? Tr($"마감 · {x.Label}", $"Due · {x.Label}") : Tr($"할 일 · {x.Label}", $"To do · {x.Label}")))) : null,
+                ToolTip = list is { Count: > 0 } ? string.Join("\n", list.Select(x => (x.Deadline ? Tr($"마감 · {x.Label}", $"Due · {x.Label}") : Tr($"할 일 · {x.Label}", $"To-do · {x.Label}")))) : null,
             };
             var bg = cell.Background;
             cell.MouseEnter += (_, _) => cell.Background = Theme.P.Hover;

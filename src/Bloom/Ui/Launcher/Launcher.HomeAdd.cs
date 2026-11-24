@@ -47,11 +47,11 @@ internal sealed partial class Launcher
         {
             Id = "home:tile:" + (col ? "right" : "left"),
             Kind = ItemKind.Command,
-            Title = Tr("블록 추가", "Add a block"),
-            Subtitle = open ? Tr("카드를 누르면 이 열 끝에, 끌면 놓은 자리에 추가", "Click a card to add it here, or drag it into place")
+            Title = Tr("블록 추가", "Add Block"),
+            Subtitle = open ? Tr("카드를 누르면 이 열 끝에, 끌면 놓은 자리에 추가", "Click a card to add to the end of this column, or drag it into place")
                 : hidden.Count == 1 ? Tr("숨긴 블록 1개", "1 hidden block") : Tr($"숨긴 블록 {hidden.Count}개", $"{hidden.Count} hidden blocks"),
             Icon = IconSpec.Of(G.Add),
-            PrimaryLabel = open ? Tr("목록 닫기", "Close list") : Tr("목록 열기", "Open list"),
+            PrimaryLabel = open ? Tr("목록 닫기", "Close List") : Tr("목록 열기", "Open List"),
             StayOpen = true,
             Data = new HomeAdd(null, right, open),
             Run = () => ToggleAdd(col),
@@ -95,7 +95,7 @@ internal sealed partial class Launcher
     {
         if (add.Key is null) return Row.AddTile(item, add.Open);
         var card = Row.Card(item);
-        card.ToolTip = Tr("누르면 이 열 끝에 추가 · 끌어서 원하는 자리에 놓기", "Click to add at this column's end · drag it into place");
+        card.ToolTip = Tr("누르면 이 열 끝에 추가 · 끌어서 원하는 자리에 놓기", "Click to add to column end · Drag to place anywhere");
         WireCard(card, add.Key);
         return card;
     }
@@ -140,7 +140,7 @@ internal sealed partial class Launcher
         int i = Home.Hidden().FindIndex(w => w.Key == key);
         if (at is { } t) Home.AddAt(key, t.above, t.below, t.right);
         else Home.Add(key, right);
-        ShowToast(Tr($"‘{Home.Name(key)}’ 블록 추가 완료", $"Added ‘{Home.Name(key)}’"));
+        ShowToast(Tr($"‘{Home.Name(key)}’ 블록 추가 완료", $"Added ‘{Home.Name(key)}’ block"));
         var hidden = Home.Hidden();
         if (hidden.Count == 0) addOpen = null;
         if (hidden.Count == 0 || at is not null) Refresh(true);

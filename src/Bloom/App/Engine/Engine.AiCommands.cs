@@ -10,7 +10,7 @@ internal sealed partial class Engine
     private static string NewTitle(string kind) => kind switch
     {
         "snippet" => Tr("새 상용구", "New snippet"),
-        "chain" => Tr("새 묶음", "New chain"),
+        "chain" => Tr("새 묶음", "New batch command"),
         "ai" => Tr("새 AI 명령", "New AI command"),
         _ => Tr("새 스크립트", "New script"),
     };
@@ -21,9 +21,9 @@ internal sealed partial class Engine
         f.Fields.Add(new FormField
         {
             Label = Tr("입력", "Input"),
-            Hint = Tr("선택 · 클립보드 · 없음 — Enter만 누르면 선택한 글", "selection · clipboard · none — Enter alone takes the selection"),
+            Hint = Tr("선택 · 클립보드 · 없음 — Enter만 누르면 선택한 글", "Selection · Clipboard · None — Press Enter for selected text"),
             Value = edit is null ? "" : AiInput.Name(edit.Input),
-            Check = v => AiInput.Parse(v) is { } input ? (input, null) : (null, Tr("선택, 클립보드, 없음 중에서 입력하세요", "Enter selection, clipboard or none")),
+            Check = v => AiInput.Parse(v) is { } input ? (input, null) : (null, Tr("선택, 클립보드, 없음 중에서 입력하세요", "Enter one of: Selection, Clipboard, or None")),
         });
         f.Fields.Add(ScheduleField(edit?.Every, () => f[3]));
     }
@@ -32,14 +32,14 @@ internal sealed partial class Engine
     private static FormField ScheduleField(string? every, Func<string> input) => new()
     {
         Label = Tr("주기", "Schedule"),
-        Hint = Tr("주기 (선택) — 예) 30분, 2시간, 3일, 매일 09:00 · 입력이 ‘없음’일 때만", "Schedule (optional) — e.g. 30m, 2h, 3d, daily 09:00 · only with no input"),
+        Hint = Tr("주기 (선택) — 예) 30분, 2시간, 3일, 매일 09:00 · 입력이 ‘없음’일 때만", "Schedule (optional) — e.g. 30m, 2h, 3d, daily 09:00 · Only when input is 'None'"),
         Value = every is null ? "" : AiSchedule.Name(every),
         Optional = true,
         Check = v =>
         {
             var (parsed, error) = AiSchedule.Parse(v);
             if (error is not null) return (null, error);
-            if (parsed is not null && input() != AiInput.None) return (null, Tr("주기는 입력이 ‘없음’인 명령에만 정할 수 있습니다", "Only a command with no input can run on a schedule"));
+            if (parsed is not null && input() != AiInput.None) return (null, Tr("주기는 입력이 ‘없음’인 명령에만 정할 수 있습니다", "Schedules can only be set for commands with 'None' as input"));
             return (parsed ?? "", null);
         },
     };
@@ -65,11 +65,11 @@ internal sealed partial class Engine
     private List<ActionItem> AiCommandActions(UserCommand c)
     {
         var list = new List<ActionItem>();
-        if (c.Thread is { } thread) list.Add(new ActionItem { Title = Tr("결과 채팅 열기", "Open the results chat"), Glyph = G.Chat, Run = () => host.OpenThread(thread) });
+        if (c.Thread is { } thread) list.Add(new ActionItem { Title = Tr("결과 채팅 열기", "Open result chat"), Glyph = G.Chat, Run = () => host.OpenThread(thread) });
         if (c.Input == AiInput.None)
             list.Add(new ActionItem
             {
-                Title = c.Every is null ? Tr("주기 정하기", "Set a schedule") : Tr("주기 바꾸기", "Change the schedule"),
+                Title = c.Every is null ? Tr("주기 정하기", "Set schedule") : Tr("주기 바꾸기", "Change schedule"),
                 Glyph = G.Clock,
                 StayOpen = true,
                 Run = () => host.Window.StartForm(ScheduleForm(c)),
@@ -77,7 +77,7 @@ internal sealed partial class Engine
         if (c.Every is not null && c.Paused)
             list.Add(new ActionItem
             {
-                Title = Tr("주기 실행 켜기", "Turn the schedule on"),
+                Title = Tr("주기 실행 켜기", "Enable scheduled run"),
                 Glyph = G.Clock,
                 StayOpen = true,
                 Run = () =>
@@ -91,7 +91,7 @@ internal sealed partial class Engine
         if (c.Every is not null)
             list.Add(new ActionItem
             {
-                Title = Tr("주기 실행 끄기", "Stop the schedule"),
+                Title = Tr("주기 실행 끄기", "Disable scheduled run"),
                 Glyph = G.Stop,
                 StayOpen = true,
                 Run = () =>
@@ -99,7 +99,7 @@ internal sealed partial class Engine
                     c.Every = null;
                     c.Paused = false;
                     UserCommands.Upsert(c);
-                    host.Window.ShowToast(Tr("주기 실행 끔", "Schedule off"));
+                    host.Window.ShowToast(Tr("주기 실행 끔", "Scheduled run disabled"));
                 },
             });
         return list;
@@ -107,7 +107,7 @@ internal sealed partial class Engine
 
     private FormSpec ScheduleForm(UserCommand c)
     {
-        var f = new FormSpec { Title = Tr($"‘{c.Name}’ 주기", $"‘{c.Name}’ schedule"), Back = Mode.Commands };
+        var f = new FormSpec { Title = Tr($"‘{c.Name}’ 주기", $"Schedule for '{c.Name}'"), Back = Mode.Commands };
         f.Fields.Add(ScheduleField(c.Every, () => c.Input));
         f.Done = form =>
         {
@@ -117,7 +117,7 @@ internal sealed partial class Engine
             c.LastRun = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
             UserCommands.Upsert(c);
             host.Window.Go(Mode.Commands);
-            host.Window.ShowToast(c.Every is null ? Tr("주기 실행 끔", "Schedule off") : AiSchedule.Name(c.Every) + " · " + NextRunText(c));
+            host.Window.ShowToast(c.Every is null ? Tr("주기 실행 끔", "Scheduled run disabled") : AiSchedule.Name(c.Every) + " · " + NextRunText(c));
         };
         return f;
     }

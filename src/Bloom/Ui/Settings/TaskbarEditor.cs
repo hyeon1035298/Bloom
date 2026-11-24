@@ -67,7 +67,7 @@ internal sealed class TaskbarEditor : Border
         Padding = new Thickness(14, 12, 14, 14);
         var root = new StackPanel();
         if (readOnlyWhy is not null) root.Children.Add(Note(readOnlyWhy, G.Lock, Theme.P.TextDim));
-        if (edit.Busy) root.Children.Add(Note(Tr("작업표시줄에 보내는 중…", "Sending to the taskbar…"), G.Sync, Theme.P.TextDim));
+        if (edit.Busy) root.Children.Add(Note(Tr("작업표시줄에 보내는 중…", "Sending to taskbar…"), G.Sync, Theme.P.TextDim));
         else if (edit.Error is { } error) root.Children.Add(Note(error, G.Warning, Theme.P.Danger));
         if (state is not null) root.Children.Add(Preview());
         var grid = new Grid { Margin = new Thickness(0, 12, 0, 0) };
@@ -266,7 +266,7 @@ internal sealed class TaskbarEditor : Border
             sp.Children.Add(ListRow(FolderIcon(f, 24), f, (state!.Items[f].Apps.Count).ToString(System.Globalization.CultureInfo.CurrentCulture), f == current, () => Select(f)));
         sp.Children.Add(ListRow(Icons.Tile(G.Add, false, 24), Tr("새 폴더", "New folder"), "", edit.New, readOnly ? null : StartNew));
         sp.Children.Add(new SmoothBorder { Height = 1, Background = Theme.P.Line, Margin = new Thickness(8, 6, 8, 6) });
-        var label = Theme.T(Tr("자동 폴더", "Automatic folder"), 11.5, Theme.P.TextFaint, Theme.Semi);
+        var label = Theme.T(Tr("자동 폴더", "Auto folder"), 11.5, Theme.P.TextFaint, Theme.Semi);
         label.Margin = new Thickness(8, 0, 0, 4);
         sp.Children.Add(label);
         bool on = values.Bool("folders.autoRunning");
@@ -297,7 +297,7 @@ internal sealed class TaskbarEditor : Border
         if (edit.New) return NewFolder();
         string? current = Current;
         if (current == Running) return RunningDetail();
-        if (current is null) return state is null ? Faint(Tr("작업표시줄 꾸미기가 작동하면 고정한 폴더가 여기에 보입니다", "The folders pinned to the taskbar show here while taskbar customization runs")) : Empty();
+        if (current is null) return state is null ? Faint(Tr("작업표시줄 꾸미기가 작동하면 고정한 폴더가 여기에 보입니다", "Pinned folders appear here when taskbar styling is active")) : Empty();
         var d = FolderDetail(current);
         d.IsEnabled = !readOnly;
         return d;
@@ -359,7 +359,7 @@ internal sealed class TaskbarEditor : Border
         cell.Children.Add(new SmoothBorder { CornerRadius = new CornerRadius(10), Padding = new Thickness(0, 8, 0, 6), Background = picked ? Theme.P.AccentSoft : Brushes.Transparent, Child = sp });
         if (takeOut is not null)
         {
-            var x = new SmoothBorder { Width = 20, Height = 20, CornerRadius = new CornerRadius(6), Background = Theme.P.Btn, Cursor = Cursors.Hand, HorizontalAlignment = HorizontalAlignment.Right, VerticalAlignment = VerticalAlignment.Top, Margin = new Thickness(0, 2, 10, 0), ToolTip = Tr("빼기", "Take out"), Child = Theme.Glyph(G.Close, 9, Theme.P.TextDim) };
+            var x = new SmoothBorder { Width = 20, Height = 20, CornerRadius = new CornerRadius(6), Background = Theme.P.Btn, Cursor = Cursors.Hand, HorizontalAlignment = HorizontalAlignment.Right, VerticalAlignment = VerticalAlignment.Top, Margin = new Thickness(0, 2, 10, 0), ToolTip = Tr("빼기", "Remove"), Child = Theme.Glyph(G.Close, 9, Theme.P.TextDim) };
             ((FrameworkElement)x.Child).HorizontalAlignment = HorizontalAlignment.Center;
             ((FrameworkElement)x.Child).VerticalAlignment = VerticalAlignment.Center;
             x.MouseLeftButtonUp += (_, e) =>
@@ -413,7 +413,7 @@ internal sealed class TaskbarEditor : Border
         foreach (var a in f.Apps)
         {
             string file = a.File ?? a.Name;
-            var tile = AppTile(a.IconPath, a.Name, () => Send(TaskbarCommands.TakeOut(folder, file), Tr("앱 빼기", "Take out"), folder));
+            var tile = AppTile(a.IconPath, a.Name, () => Send(TaskbarCommands.TakeOut(folder, file), Tr("앱 빼기", "Remove app"), folder));
             Draggable(tile, folder, file, files);
             apps.Children.Add(tile);
         }
@@ -426,9 +426,9 @@ internal sealed class TaskbarEditor : Border
             bool delete = act == "delete";
             string question = delete
                 ? f.Apps.Count > 0
-                    ? Tr($"‘{folder}’ 폴더를 지웁니다. 안의 앱 {f.Apps.Count}개도 작업표시줄에서 빠지고, 폴더는 휴지통으로 갑니다.", $"Deletes ‘{folder}’. Its {f.Apps.Count} apps leave the taskbar too, and the folder goes to the Recycle Bin.")
-                    : Tr($"‘{folder}’ 폴더를 지웁니다. 폴더는 휴지통으로 갑니다.", $"Deletes ‘{folder}’. The folder goes to the Recycle Bin.")
-                : Tr($"‘{folder}’ 폴더를 풉니다. 안의 앱 {f.Apps.Count}개는 작업표시줄로 돌아갑니다.", $"Ungroups ‘{folder}’. Its {f.Apps.Count} apps go back to the taskbar.");
+                    ? Tr($"‘{folder}’ 폴더를 지웁니다. 안의 앱 {f.Apps.Count}개도 작업표시줄에서 빠지고, 폴더는 휴지통으로 갑니다.", $"Delete folder ‘{folder}’? Its {f.Apps.Count} apps will also be unpinned from the taskbar, and the folder will be moved to the Recycle Bin.")
+                    : Tr($"‘{folder}’ 폴더를 지웁니다. 폴더는 휴지통으로 갑니다.", $"Delete folder ‘{folder}’? The folder will be moved to the Recycle Bin.")
+                : Tr($"‘{folder}’ 폴더를 풉니다. 안의 앱 {f.Apps.Count}개는 작업표시줄로 돌아갑니다.", $"Ungroup folder ‘{folder}’? Its {f.Apps.Count} apps will be returned to the taskbar.");
             var q = Theme.T(question, 12.5, Theme.P.Text, Theme.Medium);
             q.VerticalAlignment = VerticalAlignment.Center;
             q.Margin = new Thickness(0, 0, 8, 0);
@@ -438,12 +438,12 @@ internal sealed class TaskbarEditor : Border
                 edit.Confirm = null;
                 rebuild();
             }));
-            foot.Children.Add(ActionButton.Make(delete ? Tr("지우기", "Delete") : Tr("풀기", "Ungroup"), true, () =>
+            foot.Children.Add(ActionButton.Make(delete ? Tr("지우기", "Clear") : Tr("풀기", "Ungroup"), true, () =>
             {
                 edit.Confirm = null;
                 edit.Selected = null;
                 if (delete) Send(TaskbarCommands.Delete(folder), Tr("폴더 지우기", "Delete folder"), null);
-                else Send(TaskbarCommands.Dissolve(folder), Tr("폴더 풀기", "Ungroup"), null);
+                else Send(TaskbarCommands.Dissolve(folder), Tr("폴더 풀기", "Ungroup folder"), null);
             }));
         }
         else
@@ -461,8 +461,8 @@ internal sealed class TaskbarEditor : Border
             if (f.Apps.Count > 0) Ask(Tr("폴더 풀기", "Ungroup folder"), "dissolve");
             Ask(Tr("폴더 지우기", "Delete folder"), "delete");
             var hint = Faint(f.Apps.Count > 0
-                ? Tr("풀면 앱이 작업표시줄로 돌아가고, 지우면 앱도 빠집니다. 폴더는 휴지통으로 갑니다", "Ungrouping puts the apps back on the taskbar; deleting takes them off too. The folder goes to the Recycle Bin")
-                : Tr("빈 폴더는 지우면 작업표시줄에서 빠지고 휴지통으로 갑니다", "An empty folder, deleted, leaves the taskbar for the Recycle Bin"));
+                ? Tr("풀면 앱이 작업표시줄로 돌아가고, 지우면 앱도 빠집니다. 폴더는 휴지통으로 갑니다", "Ungrouping returns apps to the taskbar; deleting removes the apps as well. The folder moves to the Recycle Bin")
+                : Tr("빈 폴더는 지우면 작업표시줄에서 빠지고 휴지통으로 갑니다", "Deleting an empty folder removes it from the taskbar and moves it to the Recycle Bin"));
             hint.VerticalAlignment = VerticalAlignment.Center;
             foot.Children.Add(hint);
         }
@@ -502,7 +502,7 @@ internal sealed class TaskbarEditor : Border
             rebuild();
         }
         int n = edit.Picks.Count;
-        sp.Children.Add(SubLine(Tr("넣을 앱을 고르세요", "Pick the apps to put in it"), n > 0 ? Tr($"{n}개 고름", $"{n} picked") : Tr("하나 이상", "One or more")));
+        sp.Children.Add(SubLine(Tr("넣을 앱을 고르세요", "Select apps to include"), n > 0 ? Tr($"{n}개 고름", $"{n} selected") : Tr("하나 이상", "Select at least one")));
         var apps = new WrapPanel();
         // the pinned apps first (a click picks or unpicks), then what was picked from the Start menu
         var pool = (state?.Pinned ?? new()).Where(p => p.Kind == "app" && p.Path is { Length: > 0 }).Select(p => (path: p.Path!, name: p.Name ?? Path.GetFileNameWithoutExtension(p.Path!))).ToList();
@@ -530,7 +530,7 @@ internal sealed class TaskbarEditor : Border
         var foot = new Grid { Margin = new Thickness(0, 8, 0, 0) };
         foot.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
         foot.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
-        var hint = Faint(Tr("고정한 앱과 시작 메뉴의 앱을 넣을 수 있습니다", "Pinned apps and Start menu apps can go in"));
+        var hint = Faint(Tr("고정한 앱과 시작 메뉴의 앱을 넣을 수 있습니다", "You can add pinned apps and apps from the Start menu"));
         hint.VerticalAlignment = VerticalAlignment.Center;
         foot.Children.Add(hint);
         var buttons = new StackPanel { Orientation = Orientation.Horizontal };
@@ -572,7 +572,7 @@ internal sealed class TaskbarEditor : Border
             Settings.Save();
             rebuild();
         };
-        var sw = new Switch(on) { Cursor = Cursors.Hand, ToolTip = Tr("실행 중 폴더 쓰기", "Use the running folder") };
+        var sw = new Switch(on) { Cursor = Cursors.Hand, ToolTip = Tr("실행 중 폴더 쓰기", "Use Running folder") };
         sw.MouseLeftButtonUp += (_, e) =>
         {
             values.Set("folders.autoRunning", !on);
@@ -581,18 +581,18 @@ internal sealed class TaskbarEditor : Border
             e.Handled = true;
         };
         sp.Children.Add(Head(FolderIcon(Running, 48), name, sw));
-        var about = Faint(Tr("고정하지 않고 켠 앱 가운데 어느 폴더에도 없는 앱을 이 폴더에 모읍니다. 앱을 끄면 빠지고, 그런 앱이 없으면 작업표시줄에서 폴더도 사라집니다.", "Gathers the apps you run without pinning that aren't in any folder. A closed app leaves it, and with none left the folder leaves the taskbar."));
+        var about = Faint(Tr("고정하지 않고 켠 앱 가운데 어느 폴더에도 없는 앱을 이 폴더에 모읍니다. 앱을 끄면 빠지고, 그런 앱이 없으면 작업표시줄에서 폴더도 사라집니다.", "Collects unpinned running apps that aren't in any folder. Apps leave when closed, and the folder disappears when empty."));
         about.Margin = new Thickness(0, 14, 0, 0);
         sp.Children.Add(about);
         var apps = state?.Running?.Apps ?? new();
-        sp.Children.Add(SubLine(Tr("지금 들어 있는 앱", "Apps in it now"), on ? Tr($"{apps.Count}개", $"{apps.Count}") : Tr("꺼짐", "Off")));
+        sp.Children.Add(SubLine(Tr("지금 들어 있는 앱", "Current apps"), on ? Tr($"{apps.Count}개", $"{apps.Count}") : Tr("꺼짐", "Off")));
         if (on)
         {
             var wrap = new WrapPanel();
             foreach (var a in apps) wrap.Children.Add(AppTile(a.IconPath, a.Name, null));
             sp.Children.Add(wrap);
         }
-        else sp.Children.Add(Faint(Tr("꺼 두면 고정하지 않은 앱이 Windows처럼 따로 버튼을 만듭니다.", "While off, unpinned apps get their own buttons, as in Windows.")));
+        else sp.Children.Add(Faint(Tr("꺼 두면 고정하지 않은 앱이 Windows처럼 따로 버튼을 만듭니다.", "When off, unpinned running apps appear as separate buttons on the taskbar like standard Windows.")));
         return sp;
     }
 
@@ -606,7 +606,7 @@ internal sealed class TaskbarEditor : Border
         t.HorizontalAlignment = HorizontalAlignment.Center;
         t.Margin = new Thickness(0, 10, 0, 4);
         sp.Children.Add(t);
-        var s = Faint(Tr("앱 몇 개를 골라 폴더를 만드세요. 작업표시줄에서 앱을 다른 앱 위에 끌어 잠깐 두어도 폴더가 됩니다.", "Pick a few apps to make a folder. Dragging an app onto another on the taskbar and holding it there briefly makes one too."), 12.5);
+        var s = Faint(Tr("앱 몇 개를 골라 폴더를 만드세요. 작업표시줄에서 앱을 다른 앱 위에 끌어 잠깐 두어도 폴더가 됩니다.", "Select a few apps to create a folder, or drag an app onto another on the taskbar and hold briefly."), 12.5);
         s.TextAlignment = TextAlignment.Center;
         sp.Children.Add(s);
         if (!readOnly)
@@ -647,7 +647,7 @@ internal sealed class TaskbarEditor : Border
         var (popup, body) = Pop(under, 320);
         var search = new TextBox { FontFamily = Theme.Sans, FontSize = 13, Foreground = Theme.P.Text, CaretBrush = Theme.P.Accent, Background = Theme.P.Well, BorderThickness = new Thickness(0), Padding = new Thickness(8, 5, 8, 6), Template = Launcher.BareTextBox(), Tag = (Func<Key, bool>)(_ => false) };
         body.Children.Add(new SmoothBorder { CornerRadius = new CornerRadius(8), Background = Theme.P.Well, Child = search });
-        var label = Theme.T(Tr("시작 메뉴의 앱", "Start menu apps"), 11.5, Theme.P.TextFaint, Theme.Semi);
+        var label = Theme.T(Tr("시작 메뉴의 앱", "Start Menu Apps"), 11.5, Theme.P.TextFaint, Theme.Semi);
         label.Margin = new Thickness(4, 10, 0, 4);
         body.Children.Add(label);
         var list = new StackPanel();
@@ -710,7 +710,7 @@ internal sealed class TaskbarEditor : Border
     private void IconPopup(string folder, FrameworkElement under)
     {
         var (popup, body) = Pop(under, 330);
-        var tabs = new Segmented(new[] { ("auto", Tr("앱 모음", "Apps")), ("set", Tr("아이콘", "Icons")), ("glyph", Tr("기호", "Symbol")), ("file", Tr("파일", "File")) }, edit.IconTab) { HorizontalAlignment = HorizontalAlignment.Left };
+        var tabs = new Segmented(new[] { ("auto", Tr("앱 모음", "App grid")), ("set", Tr("아이콘", "Icon")), ("glyph", Tr("기호", "Symbol")), ("file", Tr("파일", "File")) }, edit.IconTab) { HorizontalAlignment = HorizontalAlignment.Left };
         body.Children.Add(tabs);
         var inner = new StackPanel { Margin = new Thickness(0, 12, 0, 0) };
         body.Children.Add(inner);
@@ -720,9 +720,9 @@ internal sealed class TaskbarEditor : Border
             switch (edit.IconTab)
             {
                 case "auto":
-                    var a = Faint(Tr("안의 앱 넷을 모아 보입니다. 앱 순서를 바꾸면 아이콘도 따라 바뀝니다.", "Shows the first four apps together. Reordering the apps changes it too."));
+                    var a = Faint(Tr("안의 앱 넷을 모아 보입니다. 앱 순서를 바꾸면 아이콘도 따라 바뀝니다.", "Shows a 2×2 grid of the first four apps. Reordering the apps updates the folder icon."));
                     inner.Children.Add(a);
-                    var use = ActionButton.Make(Tr("앱 모음으로", "Use the apps"), true, () =>
+                    var use = ActionButton.Make(Tr("앱 모음으로", "Use app grid"), true, () =>
                     {
                         popup.IsOpen = false;
                         Send(TaskbarCommands.IconAuto(folder), Tr("아이콘 바꾸기", "Change icon"), folder);
@@ -747,7 +747,7 @@ internal sealed class TaskbarEditor : Border
                         set.Children.Add(b);
                     }
                     inner.Children.Add(set);
-                    var s = Faint(Tr("작업표시줄 테마에 따라 밝은 판과 어두운 판이 바뀝니다.", "Switches between its light and dark look with the taskbar's theme."));
+                    var s = Faint(Tr("작업표시줄 테마에 따라 밝은 판과 어두운 판이 바뀝니다.", "Switches between light and dark plates based on the taskbar theme."));
                     s.Margin = new Thickness(0, 6, 0, 0);
                     inner.Children.Add(s);
                     break;
@@ -768,19 +768,19 @@ internal sealed class TaskbarEditor : Border
                         grid.Children.Add(b);
                     }
                     inner.Children.Add(grid);
-                    var tone = new Segmented(new[] { ("light", Tr("밝은 바탕", "Light")), ("dark", Tr("어두운 바탕", "Dark")) }, edit.DarkTone ? "dark" : "light") { HorizontalAlignment = HorizontalAlignment.Left, Margin = new Thickness(0, 6, 0, 0) };
+                    var tone = new Segmented(new[] { ("light", Tr("밝은 바탕", "Light plate")), ("dark", Tr("어두운 바탕", "Dark plate")) }, edit.DarkTone ? "dark" : "light") { HorizontalAlignment = HorizontalAlignment.Left, Margin = new Thickness(0, 6, 0, 0) };
                     tone.Picked += v => edit.DarkTone = v == "dark";
                     inner.Children.Add(tone);
                     break;
                 default:
-                    var pick = ActionButton.Make(Tr("파일 고르기", "Choose a file"), true, () =>
+                    var pick = ActionButton.Make(Tr("파일 고르기", "Choose file"), true, () =>
                     {
                         popup.IsOpen = false;
                         UseFile(folder);
                     });
                     pick.HorizontalAlignment = HorizontalAlignment.Left;
                     inner.Children.Add(pick);
-                    var f = Faint(Tr(".ico, .png, .exe, .dll 파일의 아이콘을 씁니다.", "Uses the icon of an .ico, .png, .exe or .dll file."));
+                    var f = Faint(Tr(".ico, .png, .exe, .dll 파일의 아이콘을 씁니다.", "Uses an icon from an .ico, .png, .exe, or .dll file."));
                     f.Margin = new Thickness(0, 10, 0, 0);
                     inner.Children.Add(f);
                     break;
@@ -829,8 +829,8 @@ internal sealed class TaskbarEditor : Border
     {
         var dlg = new Microsoft.Win32.OpenFileDialog
         {
-            Title = Tr("폴더 아이콘", "Folder icon"),
-            Filter = Tr("아이콘 (*.ico;*.png;*.exe;*.dll)|*.ico;*.png;*.exe;*.dll", "Icons (*.ico;*.png;*.exe;*.dll)|*.ico;*.png;*.exe;*.dll"),
+            Title = Tr("폴더 아이콘", "Folder Icon"),
+            Filter = Tr("아이콘 (*.ico;*.png;*.exe;*.dll)|*.ico;*.png;*.exe;*.dll", "Icon (*.ico;*.png;*.exe;*.dll)|*.ico;*.png;*.exe;*.dll"),
         };
         if (dlg.ShowDialog(Window.GetWindow(this)) != true) return;
         try
@@ -870,13 +870,13 @@ internal sealed class TaskbarEditor : Border
     {
         string why = error switch
         {
-            "foldersOff" => Tr("작업표시줄 폴더가 꺼져 있습니다", "Taskbar folders are off"),
-            "noFolder" => Tr("폴더를 찾지 못했습니다", "The folder wasn't found"),
-            "exists" => Tr("같은 이름의 폴더가 이미 있습니다", "A folder with that name already exists"),
-            "badName" => Tr("폴더 이름에 쓸 수 없는 글자가 있습니다", "The name has characters a folder can't have"),
-            "notFound" => Tr("앱이나 항목을 찾지 못했습니다", "The app or item wasn't found"),
-            CommandResult.Timeout => Tr("작업표시줄이 5초 안에 답하지 않았습니다", "The taskbar didn't answer within 5 seconds"),
-            _ => Tr("작업표시줄이 명령을 처리하지 못했습니다", "The taskbar couldn't carry it out"),
+            "foldersOff" => Tr("작업표시줄 폴더가 꺼져 있습니다", "Taskbar folders are disabled"),
+            "noFolder" => Tr("폴더를 찾지 못했습니다", "Folder not found"),
+            "exists" => Tr("같은 이름의 폴더가 이미 있습니다", "A folder with this name already exists"),
+            "badName" => Tr("폴더 이름에 쓸 수 없는 글자가 있습니다", "Folder name contains invalid characters"),
+            "notFound" => Tr("앱이나 항목을 찾지 못했습니다", "App or item not found"),
+            CommandResult.Timeout => Tr("작업표시줄이 5초 안에 답하지 않았습니다", "Taskbar did not respond within 5 seconds"),
+            _ => Tr("작업표시줄이 명령을 처리하지 못했습니다", "Taskbar could not process the command"),
         };
         return Tr($"{what} 실패 · {why}", $"{what} failed · {why}");
     }

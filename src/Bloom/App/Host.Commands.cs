@@ -127,7 +127,7 @@ internal sealed partial class Host
                 break;
             case "cmd:reindex":
                 Apps.Rescan();
-                Window.ShowToast(Tr("앱 목록을 다시 읽는 중…", "Reading the app list again…"));
+                Window.ShowToast(Tr("앱 목록을 다시 읽는 중…", "Refreshing app list…"));
                 break;
             case "cmd:lock":
                 Window.Dismiss();
@@ -137,9 +137,9 @@ internal sealed partial class Host
             case "cmd:shutdown":
                 // asked once more, as the Start menu's power button is two clicks away
                 bool restart = id == "cmd:restart";
-                Window.Confirm(restart ? Tr("PC를 다시 시작합니다. 저장하지 않은 내용이 사라질 수 있습니다.", "Restarting the PC may discard unsaved work.") : Tr("PC를 종료합니다. 저장하지 않은 내용이 사라질 수 있습니다.", "Shutting down the PC may discard unsaved work."), new ActionItem
+                Window.Confirm(restart ? Tr("PC를 다시 시작합니다. 저장하지 않은 내용은 사라질 수 있습니다.", "Your PC will restart. Unsaved work may be lost.") : Tr("PC를 종료합니다. 저장하지 않은 내용은 사라질 수 있습니다.", "Your PC will shut down. Unsaved work may be lost."), new ActionItem
                 {
-                    Title = restart ? Tr("다시 시작", "Restart") : Tr("시스템 종료", "Shut down"),
+                    Title = restart ? Tr("다시 시작", "Restart") : Tr("시스템 종료", "Shut Down"),
                     Keys = "Enter",
                     Glyph = restart ? G.Restart : G.Power,
                     Danger = true,
@@ -159,6 +159,6 @@ internal sealed partial class Host
         if (Win32.ExitWindows(restart)) return;
         Log.Write("power: refused");
         Summon();
-        Window.ShowToast(restart ? Tr("다시 시작 실패 · 작업을 저장하고 Windows 시작 메뉴에서 다시 시작하세요", "Restart failed. Save your work and restart from the Windows Start menu.") : Tr("시스템 종료 실패 · 작업을 저장하고 Windows 시작 메뉴에서 종료하세요", "Shutdown failed. Save your work and shut down from the Windows Start menu."));
+        Window.ShowToast(restart ? Tr("다시 시작 실패 · 작업 내용을 저장하고 Windows 시작 메뉴에서 다시 시작하세요", "Restart failed · Save your work and restart from the Windows Start menu") : Tr("시스템 종료 실패 · 작업 내용을 저장하고 Windows 시작 메뉴에서 종료하세요", "Shut down failed · Save your work and shut down from the Windows Start menu"));
     }
 }

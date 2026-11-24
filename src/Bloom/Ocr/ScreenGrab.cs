@@ -160,7 +160,7 @@ internal static class ScreenGrab
             VerticalAlignment = VerticalAlignment.Top,
             Margin = new Thickness(0, 28, 0, 0),
             IsHitTestVisible = false,
-            Child = Theme.T(Tr($"{hint}  ·  Esc 취소", $"{hint}  ·  Esc cancels"), 13, Brushes.White, Theme.Medium, false),
+            Child = Theme.T(Tr($"{hint}  ·  Esc 취소", $"{hint}  ·  Esc to cancel"), 13, Brushes.White, Theme.Medium, false),
         };
         root.Children.Add(tip);
         w.Content = root;

@@ -140,7 +140,7 @@ internal sealed partial class Chats
         bool removed = sessions.Remove(t.Id, out var s);
         if (!pending && !removed && !completing) return;
         s?.Dispose();
-        if (t.Busy) Finish(t, t.Messages[^1], false, Tr("세션 종료 · 답변 중지됨", "Session ended · answer stopped"), collectFiles, immediate: true);
+        if (t.Busy) Finish(t, t.Messages[^1], false, Tr("세션 종료 · 답변 중지됨", "Session ended · Response stopped"), collectFiles, immediate: true);
         SessionsChanged?.Invoke();
     }
 
@@ -266,11 +266,11 @@ internal sealed partial class Chats
     {
         if (command == "resume")
             // each Bloom conversation keeps its own omp session: an older one is picked from the list, not swapped in here
-            return Tr("Bloom에서는 대화마다 omp 세션이 따로 있습니다 — 지난 대화는 **왼쪽 목록**(또는 `Ctrl+F` 대화 찾기)에서 고르면 그 세션으로 이어집니다. 터미널 omp의 세션은 omp에서 `/resume`으로 여세요.",
-                "Each Bloom conversation has its own omp session — pick an earlier one in the **list on the left** (or `Ctrl+F`) and it carries on in that session. Sessions from omp in a terminal open with `/resume` there.");
+            return Tr("Bloom에서는 대화마다 개별 omp 세션이 있습니다 — 지난 대화는 **왼쪽 목록**(또는 `Ctrl+F` 대화 찾기)에서 선택하면 해당 세션으로 이어집니다. 터미널 omp의 세션은 omp에서 `/resume`으로 여세요.",
+                "Each chat in Bloom has its own omp session — select a past chat from the **left sidebar** (or press `Ctrl+F` to search chats) to resume it. To open a terminal omp session, run `/resume` in omp.");
         if (!OmpCli.SlashRefused.Contains(command)) return null;
         return Tr($"`/{command}` 명령은 Bloom 채팅에서 쓰지 않습니다 — omp 설정은 다른 omp 세션과 함께 쓰이므로, 설정을 바꾸는 명령은 omp 터미널에서 실행하세요. 여기서 쓸 수 있는 명령: ",
-            $"`/{command}` isn't used in a Bloom chat — omp's settings are shared with your other omp sessions, so commands that change them belong in an omp terminal. Here you can use: ")
+            $"The `/{command}` command is not used in Bloom chat — since omp settings are shared across omp sessions, run configuration commands in the omp terminal. Commands available here: ")
             + string.Join(" ", OmpCli.SlashAllowed.Select(c => "`/" + c + "`"));
     }
 
@@ -278,7 +278,7 @@ internal sealed partial class Chats
     internal static string UnavailableNote()
     {
         string nameSlot = "{0}";
-        return Tr($"\n\n<attachment name=\"{nameSlot}\">(이 형식은 여기서 열 수 없어요 — 내용을 읽지 못했다고 알려 주세요)</attachment>", $"\n\n<attachment name=\"{nameSlot}\">(This format can't be opened here — tell the user its contents didn't come through)</attachment>");
+        return Tr($"\n\n<attachment name=\"{nameSlot}\">(이 형식은 여기서 열 수 없습니다 — 내용을 읽지 못했다고 알려 주세요)</attachment>", $"\n\n<attachment name=\"{nameSlot}\">(This format cannot be opened here — please let the user know the content could not be read)</attachment>");
     }
 
     internal Task WhenPrepared(ChatThread t) => preparing.TryGetValue(t.Id, out var pending) ? pending.Completion.Task : Task.CompletedTask;
@@ -345,7 +345,7 @@ internal sealed partial class Chats
                     sessions.Remove(t.Id);
                     session.Dispose();
                 }
-                if (!sent) Finish(t, pending.Answer, false, started.Error ?? Tr("메시지를 보내지 못했습니다. 다시 보내세요.", "Could not send the message. Send it again."), pending.Sending);
+                if (!sent) Finish(t, pending.Answer, false, started.Error ?? Tr("메시지를 보내지 못했습니다. 다시 보내세요.", "Failed to send message. Please send again."), pending.Sending);
                 else idle.Start();
                 SessionsChanged?.Invoke();
                 return Task.FromResult(true);
@@ -678,7 +678,7 @@ internal sealed partial class Chats
         outputWork[t.Id] = pending.Completion.Task;
         if (immediate) Complete(t, m, ok, error);
         string nameSlot = "{0}";
-        string saved = Tr($"**{nameSlot}** — 파일 저장 완료", $"**{nameSlot}** — file saved");
+        string saved = Tr($"**{nameSlot}** — 파일 저장 완료", $"**{nameSlot}** — File saved");
         var snapshot = new ChatOutputRequest(m.Text, Path.Combine(ThreadFiles(t), "out"), since, fenced, saved);
         if (fenced && write == ToolPermissions.Ask && !t.AlwaysAllowed.Contains(ToolPermissions.Write))
         {
@@ -703,16 +703,16 @@ internal sealed partial class Chats
             foreach (var (name, content) in files)
             {
                 bool replaces = File.Exists(Path.Combine(request.Directory, name));
-                detail.Append(detail.Length > 0 ? "\n" : "").Append(ToolText.Block(replaces ? Tr($"{name} · 이미 있는 파일을 덮어씁니다", $"{name} · replaces the file that is there") : Tr($"{name} · 새 파일", $"{name} · a new file"), content));
+                detail.Append(detail.Length > 0 ? "\n" : "").Append(ToolText.Block(replaces ? Tr($"{name} · 이미 있는 파일을 덮어씁니다", $"{name} · Overwrites existing file") : Tr($"{name} · 새 파일", $"{name} · New file"), content));
             }
         if (!fits || detail.Length > ToolText.MaxPayload * 2)
         {
-            (pending.Answer.Done ??= new()).Add("✕ " + Tr("승인 카드에 다 보여 줄 수 없을 만큼 커서 거절했습니다", "Declined: too big to show in full on the approval card"));
+            (pending.Answer.Done ??= new()).Add("✕ " + Tr("내용이 너무 커서 승인 카드에 모두 표시할 수 없어 거절했습니다", "Declined because the content is too large to display in the approval card"));
             _ = FinishOutput(t, pending, request with { Fenced = false }, ok, error);
             return;
         }
         string names = ToolText.Line(string.Join(", ", files.Select(f => f.Name)));
-        var ask = new ToolAsk(Guid.NewGuid().ToString("N"), "file", "{}", Tr($"파일 저장: {names}", $"Save files: {names}"), ToolPermissions.Write) { Detail = detail.ToString() };
+        var ask = new ToolAsk(Guid.NewGuid().ToString("N"), "file", "{}", Tr($"파일 저장: {names}", $"Save file: {names}"), ToolPermissions.Write) { Detail = detail.ToString() };
         pending.SaveAsk = ask.RequestId;
         saveAsks[ask.RequestId] = allow =>
         {
@@ -723,7 +723,7 @@ internal sealed partial class Chats
         // a finish that ends here (a stop, the session's end, the chat deleted) completes at once: whatever waits for it goes on
         pending.Cancellation.Token.Register(() => pending.Completion.TrySetResult());
         pending.Answer.Asks.Add(ask);
-        pending.Answer.Status = Tr("승인 대기", "Approval pending");
+        pending.Answer.Status = Tr("승인 대기", "Awaiting approval");
         Updated?.Invoke(t);
         AskWaiting?.Invoke(t, ask);
     }

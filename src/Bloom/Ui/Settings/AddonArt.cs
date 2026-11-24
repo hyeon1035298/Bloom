@@ -245,7 +245,7 @@ internal sealed class AddonArt : FrameworkElement
 
             var btn = new Rect(103, top + 26, 50, 13);
             dc.DrawRoundedRectangle(B(p >= .30 && p < .36 ? Fade(Accent, .22) : ink.Hover), null, btn, 4, 4);
-            var label = Text("✦ " + Lang.Tr("지금 정리", "Clean now"), 7, FontWeights.SemiBold, ink.Text);
+            var label = Text("✦ " + Lang.Tr("지금 정리", "Clean Now"), 7, FontWeights.SemiBold, ink.Text);
             dc.DrawText(label, new Point(btn.Left + (btn.Width - label.Width) / 2, btn.Top + (btn.Height - label.Height) / 2));
 
             double fo = K(p, (.46, 0), (.52, 1), (.72, 1), (.78, 0));
@@ -288,7 +288,7 @@ internal sealed class AddonArt : FrameworkElement
             dc.DrawEllipse(B(0xFFFFFFFF), null, new Point(track.Left + 4.5 + 7 * on, track.Top + 4.5), 3.5, 3.5);
 
             double left = Math.Max(0, 3600 - Math.Floor((p - .58) * Loop));
-            string big = p < .32 ? Lang.Tr("잠들 수 있음", "Free to sleep")
+            string big = p < .32 ? Lang.Tr("잠들 수 있음", "Can sleep")
                 : p < .58 ? Lang.Tr("끌 때까지 깨어 있음", "Awake until turned off")
                 : string.Format(Lang.Tr("{0} 남음", "{0} left"), left >= 3600 ? "1:00:00" : $"{left / 60 % 60:0}:{left % 60:00}");
             dc.DrawText(Text(big, 9, FontWeights.SemiBold, ink.Text), new Point(103, top + 12));
@@ -299,7 +299,7 @@ internal sealed class AddonArt : FrameworkElement
             double at = K(p, (.54, 0), (.60, 2));
             var pick = new Rect(row.Left + 1 + at * cw, row.Top + 1, cw - 2, row.Height - 2);
             dc.DrawRoundedRectangle(B(ink.Icon), P(ink.PillEdge, 1), pick, 3.5, 3.5);
-            string[] times = [Lang.Tr("계속", "Always"), Lang.Tr("30분", "30 min"), Lang.Tr("1시간", "1 h"), Lang.Tr("2시간", "2 h")];
+            string[] times = [Lang.Tr("계속", "Indefinitely"), Lang.Tr("30분", "30 min"), Lang.Tr("1시간", "1 hr"), Lang.Tr("2시간", "2 hr")];
             for (int i = 0; i < times.Length; i++)
             {
                 var t = Text(times[i], 6.5, FontWeights.Normal, ink.Text);

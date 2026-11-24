@@ -124,14 +124,14 @@ internal static class ClaudeApprovals
             if (answer.TrySetResult("") && window != IntPtr.Zero) OpenWindows.Switch(window);
         }
         string key = "approve:" + Guid.NewGuid().ToString("N"), session = "claude:" + r.Session;
-        var decline = (Tr("거절", "Decline"), (Action)(() => answer.TrySetResult("deny")));
-        var terminal = (Tr("터미널에서 답하기", "Answer in terminal"), (Action)Terminal);
+        var decline = (Tr("거절", "Deny"), (Action)(() => answer.TrySetResult("deny")));
+        var terminal = (Tr("터미널에서 답하기", "Answer in Terminal"), (Action)Terminal);
         // AskUserQuestion: its questions and choices to pick from, in place of 허용
         var card = r.Questions is { } questions
-            ? new Notice("waiting", Tr("Claude Code · 질문", "Claude Code · Question"), questions.Count == 1 ? Tr("Claude의 질문", "Claude's question") : Tr($"Claude의 질문 {questions.Count}개", $"Claude's {questions.Count} questions"), about, key,
+            ? new Notice("waiting", Tr("Claude Code · 질문", "Claude Code · Question"), questions.Count == 1 ? Tr("Claude의 질문", "Question from Claude") : Tr($"Claude의 질문 {questions.Count}개", $"{questions.Count} Questions from Claude"), about, key,
                 Click: Terminal, Gone: () => answer.TrySetResult(""), Buttons: new[] { decline, terminal }, Body: r.Body,
                 Questions: new CardQuestions(questions, given => answer.TrySetResult(ClaudeApprovalHook.Answers + JsonSerializer.Serialize(given))))
-            : new Notice("waiting", Tr("Claude Code · 승인 요청", "Claude Code · Approval request"), r.Tool, about, key, Click: Terminal, Gone: () => answer.TrySetResult(""),
+            : new Notice("waiting", Tr("Claude Code · 승인 요청", "Claude Code · Approval Request"), r.Tool, about, key, Click: Terminal, Gone: () => answer.TrySetResult(""),
                 Buttons: new[] { (Tr("허용", "Allow"), (Action)(() => answer.TrySetResult("allow"))), decline, terminal }, Body: r.Body);
         if (!Notices.Approval(session, card)) return "";
         open.Add(answer);

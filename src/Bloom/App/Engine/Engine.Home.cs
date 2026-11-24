@@ -14,11 +14,11 @@ internal sealed partial class Engine
     private void RenameAccount(string id)
     {
         if (AiAccounts.Find(id) is not { } a) return; // a made-up QA card
-        var f = new FormSpec { Title = Tr("AI 계정 표시 이름", "AI account name") };
+        var f = new FormSpec { Title = Tr("AI 계정 표시 이름", "AI account display name") };
         f.Fields.Add(new FormField
         {
-            Label = Tr("표시 이름", "Name"),
-            Hint = a.Email is { Length: > 0 } mail ? Tr($"카드에 이메일 대신 보일 문구 — 비우면 이메일 ({mail})", $"Shown on the card instead of the e-mail — empty: the e-mail ({mail})") : Tr("카드에 보일 문구", "Shown on the card"),
+            Label = Tr("표시 이름", "Display Name"),
+            Hint = a.Email is { Length: > 0 } mail ? Tr($"카드에 이메일 대신 보일 문구 — 비우면 이메일 ({mail})", $"Text shown on card instead of email — Leave blank to show email ({mail})") : Tr("카드에 보일 문구", "Text shown on card"),
             Value = a.Alias ?? "",
             Optional = true,
             Check = v => (v.Trim(), null),
@@ -51,13 +51,13 @@ internal sealed partial class Engine
                     var accounts = AiUsage.Accounts;
                     string? asked = AiUsage.Busy ? Tr("불러오는 중…", "Loading…") : AiUsage.Fetched is { } fetched ? Ago(fetched) : null;
                     (Action Moved, Action<string> Rename)? edit = host.Window.HomeEditing ? (() => host.Window.Refresh(true), RenameAccount) : null;
-                    sections.Add(new Section(Tr("AI 사용량", "AI usage"), asked) { Widget = () => Ui.HomeViews.Usage(accounts, edit, () => host.OpenSettings("accounts")), Reload = () => _ = AiUsage.Refresh() });
+                    sections.Add(new Section(Tr("AI 사용량", "AI Usage"), asked) { Widget = () => Ui.HomeViews.Usage(accounts, edit, () => host.OpenSettings("accounts")), Reload = () => _ = AiUsage.Refresh() });
                     break;
                 case "tokens" or "tokenchart" or "tokenmodels" or "tokensessions":
                     sections.Add(TokenBlock(w));
                     break;
                 case "timers":
-                    var timers = new Section(Tr("타이머 · 알림", "Timers · reminders"), Tr("Ctrl+K 5분 더 · 취소", "Ctrl+K 5 more min · cancel"));
+                    var timers = new Section(Tr("타이머 · 알림", "Timers · Reminders"), Tr("Ctrl+K 5분 더 · 취소", "Ctrl+K +5 min · Cancel"));
                     foreach (var e in Timers.Waiting.Take(Home.Count(w))) timers.Items.Add(FromTimer(e));
                     if (timers.Items.Count > 0) sections.Add(timers);
                     break;
@@ -74,7 +74,7 @@ internal sealed partial class Engine
                     sections.Add(new Section(Tr("이번 주", "This week"), count > 0 ? count == 1 ? Tr("알림 1개", "1 reminder") : Tr($"알림 {count}개", $"{count} reminders") : Tr("알림 없음", "No reminders")) { Widget = () => Ui.HomeViews.Week(marks, d => host.Window.OpenCalendar(d)) });
                     break;
                 case "recent":
-                    var recent = new Section(Tr("최근 사용", "Recent"));
+                    var recent = new Section(Tr("최근 사용", "Recent Items"));
                     foreach (var (id, _) in Usage.Current.Items.OrderByDescending(kv => kv.Value.Last))
                     {
                         if (shown.Contains(id)) continue;
@@ -86,12 +86,12 @@ internal sealed partial class Engine
                     if (recent.Items.Count > 0) sections.Add(recent);
                     break;
                 case "recentfiles":
-                    var files = new Section(Tr("최근 파일", "Recent files"));
+                    var files = new Section(Tr("최근 파일", "Recent Files"));
                     foreach (var f in RecentFiles.List().Where(f => !shown.Contains((f.Folder ? "folder:" : "file:") + f.Path.ToLowerInvariant())).Take(Home.Count(w))) files.Items.Add(FromRecent(f));
                     if (files.Items.Count > 0) sections.Add(files);
                     break;
                 case "clipboard":
-                    var clips = new Section(Tr("최근 복사", "Recently copied"), Tr("Ctrl+Alt+V 전체", "Ctrl+Alt+V all"));
+                    var clips = new Section(Tr("최근 복사", "Recently copied"), Tr("Ctrl+Alt+V 전체", "Ctrl+Alt+V All"));
                     foreach (var c in host.Clipboard.Items.OrderByDescending(c => c.Copied).Take(Home.Count(w))) clips.Items.Add(FromClip(c));
                     if (clips.Items.Count > 0) sections.Add(clips);
                     break;

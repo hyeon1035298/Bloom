@@ -25,9 +25,9 @@ internal sealed partial class SettingsView
         var accent = Accents.Current ?? Accents.All[0];
         bool customOk = Accents.TryParse(s.AccentCustom, out var customColour, out _);
         bool dark = Theme.P.Dark;
-        string colourTitle = Tr("색", "Colour"), customTitle = Tr("직접 고른 색", "Custom colour");
-        string colourSub = Tr($"{accent.Name} · 켠 스위치, 고른 줄, 글자 커서에 쓰입니다", $"{accent.Name} · for switches that are on, the chosen line and the text cursor");
-        string customSub = Tr("#RRGGBB 로 적습니다 (예: #3A7BD5) · 라이트는 그 색, 다크는 같은 색을 밝게", "Type #RRGGBB (like #3A7BD5) · the light theme uses it, the dark one a lighter take");
+        string colourTitle = Tr("색", "Color"), customTitle = Tr("직접 고른 색", "Custom Color");
+        string colourSub = Tr($"{accent.Name} · 켠 스위치, 고른 줄, 글자 커서에 쓰입니다", $"{accent.Name} · Used for active toggles, selected rows, and the text cursor");
+        string customSub = Tr("#RRGGBB 로 적습니다 (예: #3A7BD5) · 라이트는 그 색, 다크는 같은 색을 밝게", "Enter as #RRGGBB (e.g. #3A7BD5) · Used as-is in Light theme, brightened in Dark theme");
         if (Record(colourTitle, colourSub, filter))
         {
             Record(customTitle, customSub, filter);
@@ -85,7 +85,7 @@ internal sealed partial class SettingsView
         var recent = ColorBook.Current.Recent.Select(ColorBook.Parse).OfType<Color>().ToArray();
         var picker = new AccentPicker(pair, at, dark, recent) { Done = () => FocusFilter?.Invoke() };
         bool Differs((string key, string? custom) now) => accentStart is { } st && (st.key != now.key || (now.key == Accents.CustomKey && st.custom != now.custom));
-        var back = ToolUi.TextButton(Tr("처음 색으로", "Back to the first colour"), () =>
+        var back = ToolUi.TextButton(Tr("처음 색으로", "Reset Color"), () =>
         {
             if (accentStart is not { } st) return;
             accentOpen = st.key != Accents.CustomKey; // the picker stays open on the colour it started from
@@ -153,7 +153,7 @@ internal sealed partial class SettingsView
         head.Children.Add(back);
         var text = new StackPanel { VerticalAlignment = VerticalAlignment.Center };
         text.Children.Add(Theme.T(title, 13, Theme.P.Text, Theme.Medium));
-        var sub = Theme.T(Hangul.KeepAll(Tr("지금 테마에서 보일 색을 고릅니다. 다른 테마의 색은 같은 색을 밝게 또는 어둡게 맞춥니다", "Pick the colour this theme shows; the other theme gets the same colour, lighter or darker")), 12, Theme.P.TextFaint);
+        var sub = Theme.T(Hangul.KeepAll(Tr("지금 테마에서 보일 색을 고릅니다. 다른 테마의 색은 같은 색을 밝게 또는 어둡게 맞춥니다", "Pick the color shown in the current theme. The other theme adjusts the same color brighter or darker.")), 12, Theme.P.TextFaint);
         sub.TextWrapping = TextWrapping.Wrap;
         sub.Margin = new Thickness(0, 2, 0, 0);
         text.Children.Add(sub);

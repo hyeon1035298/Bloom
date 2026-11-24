@@ -172,7 +172,7 @@ internal sealed class ApiSession : IChatSession
                 if (request.TakesTools)
                 {
                     var defs = servers?.Invoke() ?? [];
-                    if (defs.Count > 0) Status?.Invoke(Tr("MCP 서버 준비 중…", "Starting MCP servers…"));
+                    if (defs.Count > 0) Status?.Invoke(Tr("MCP 서버 준비 중…", "Preparing MCP servers…"));
                     foreach (string note in await mcp.PrepareAsync(defs, ApiToolbox.Reserved, stop.Token, life).ConfigureAwait(false)) Noted?.Invoke(note);
                     if (defs.Count > 0) Status?.Invoke(null);
                     tools = new ApiToolbox(folder, pc, rules, ask => Ask(pending, ask), ApiToolbox.Secrets(), life.IsCancellationRequested ? null : mcp);

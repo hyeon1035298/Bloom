@@ -58,13 +58,13 @@ internal sealed class WhatsNewWindow : Window
         Dropdown? pick = null;
         if (versions.Count > 1)
         {
-            pick = new Dropdown(versions.Select(v => (v, v == current ? Tr($"{v} · 설치됨", $"{v} · installed") : v, (string?)null)).ToArray(), first) { Margin = new Thickness(16, 0, 0, 0) };
+            pick = new Dropdown(versions.Select(v => (v, v == current ? Tr($"{v} · 설치됨", $"{v} · Installed") : v, (string?)null)).ToArray(), first) { Margin = new Thickness(16, 0, 0, 0) };
             pick.Picked += v => _ = Show(v);
             Grid.SetColumn(pick, 1);
             top.Children.Add(pick);
         }
         stack.Children.Add(top);
-        sub = Theme.T(Tr("이번 버전의 변경 사항", "Changes in this version"), 13, Theme.P.TextFaint);
+        sub = Theme.T(Tr("이번 버전의 변경 사항", "What's new in this version"), 13, Theme.P.TextFaint);
         sub.Margin = new Thickness(0, 6, 0, 0);
         stack.Children.Add(sub);
         scroll = new ScrollViewer
@@ -78,7 +78,7 @@ internal sealed class WhatsNewWindow : Window
         };
         stack.Children.Add(scroll);
         var buttons = new StackPanel { Orientation = Orientation.Horizontal, HorizontalAlignment = HorizontalAlignment.Right, Margin = new Thickness(0, 22, 0, 0) };
-        buttons.Children.Add(ActionButton.Make(Tr("GitHub에서 보기", "See it on GitHub"), false, () => Launch.Open(Updates.Page)));
+        buttons.Children.Add(ActionButton.Make(Tr("GitHub에서 보기", "View on GitHub"), false, () => Launch.Open(Updates.Page)));
         buttons.Children.Add(ActionButton.Make(Tr("확인", "OK"), true, Close));
         stack.Children.Add(buttons);
         Content = new Border { Background = Theme.P.Solid, Child = stack }; // one surface with the title bar (SolidCaption)
@@ -105,8 +105,8 @@ internal sealed class WhatsNewWindow : Window
         shown = new CancellationTokenSource();
         var cut = shown.Token;
         bool mine = version == current;
-        Title = Tr($"Bloom {version} · 바뀐 점", $"Bloom {version} · What's new");
-        heading.Text = mine ? Tr($"Bloom {version} 업데이트 완료", $"Bloom {version} update complete") : "Bloom " + version;
+        Title = Tr($"Bloom {version} · 바뀐 점", $"Bloom {version} · What's New");
+        heading.Text = mine ? Tr($"Bloom {version} 업데이트 완료", $"Updated to Bloom {version}") : "Bloom " + version;
         sub.Visibility = mine ? Visibility.Visible : Visibility.Collapsed;
         string? notes = null;
         if (listed)
@@ -115,7 +115,7 @@ internal sealed class WhatsNewWindow : Window
             notes = await ReleaseNotes.For(version) ?? Tr("이번 버전의 변경 기록 없음", "No release notes for this version");
             if (cut.IsCancellationRequested) return; // another version was picked meanwhile, or the window closed
         }
-        notes ??= Tr("변경 기록을 불러오지 못했습니다. 인터넷 연결을 확인하거나 GitHub에서 보세요.", "Couldn't load the release notes. Check the connection, or see them on GitHub.");
+        notes ??= Tr("변경 기록을 불러오지 못했습니다. 인터넷 연결을 확인하거나 GitHub에서 보세요.", "Could not load release notes. Check your internet connection or view them on GitHub.");
         scroll.Content = Markdown.Render(notes, Open, picture: span => Picture(span, cut));
         scroll.ScrollToTop();
     }

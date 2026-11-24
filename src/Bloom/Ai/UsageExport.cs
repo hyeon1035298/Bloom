@@ -92,7 +92,7 @@ internal static class UsageExport
         var list = new List<(string, string)>();
         foreach (var l in Ordered(card.Limits))
             if (Key(l, taken) is { } key)
-                list.Add((key, key == "session" ? Tr("5시간", "5 hours") : l.Model is { } m ? Tr($"{m} 주간", $"{m} weekly") : Tr("주간", "Weekly")));
+                list.Add((key, key == "session" ? Tr("5시간", "5-hour") : l.Model is { } m ? Tr($"{m} 주간", $"{m} Weekly") : Tr("주간", "Weekly")));
         return list;
     }
 

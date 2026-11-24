@@ -76,11 +76,11 @@ internal static partial class ClaudeUsage
             string name = m.Groups[1].Value;
             double used = double.Parse(m.Groups[2].Value, CultureInfo.InvariantCulture);
             var resets = ParseReset(m.Groups[3].Success ? m.Groups[3].Value : null, now);
-            if (SessionName().IsMatch(name)) session ??= new UsageLimit(Tr("5시간", "5h"), used, resets, UsageLimit.SessionMins);
+            if (SessionName().IsMatch(name)) session ??= new UsageLimit(Tr("5시간", "5-hour"), used, resets, UsageLimit.SessionMins);
             else if (IsAllModelsWeek(name)) week ??= new UsageLimit(Tr("주간", "Weekly"), used, resets, UsageLimit.WeekMins);
             else if (name.Contains("week", StringComparison.OrdinalIgnoreCase) && Parens().Match(name) is { Success: true } p
                 && p.Groups[1].Value.Trim() is { Length: > 0 } model && !models.Exists(x => x.Model!.Equals(model, StringComparison.OrdinalIgnoreCase)))
-                models.Add(new UsageLimit(Tr($"{model} 주간", $"{model} weekly"), used, resets, UsageLimit.WeekMins, model));
+                models.Add(new UsageLimit(Tr($"{model} 주간", $"{model} Weekly"), used, resets, UsageLimit.WeekMins, model));
         }
         var list = new List<UsageLimit>(2 + models.Count);
         if (session is not null) list.Add(session);

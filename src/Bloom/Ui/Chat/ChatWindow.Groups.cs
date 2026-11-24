@@ -118,7 +118,7 @@ internal sealed partial class ChatWindow
             Cursor = Cursors.Hand,
             Child = g,
             Tag = group,
-            ToolTip = open ? null : Tr("눌러서 펼치기", "Click to open"),
+            ToolTip = open ? null : Tr("눌러서 펼치기", "Click to expand"),
         };
         header.MouseEnter += (_, _) =>
         {
@@ -150,7 +150,7 @@ internal sealed partial class ChatWindow
     /// Under a group without conversations: how one gets in.
     private static Border EmptyGroup(ChatGroup group)
     {
-        var t = Theme.T(Core.Hangul.KeepAll(Tr("대화를 끌어다 놓거나 ⋯에서 추가합니다", "Drag a chat here, or use its ⋯")), 11.5, Theme.P.TextFaint, null, false);
+        var t = Theme.T(Core.Hangul.KeepAll(Tr("대화를 끌어다 놓거나 ⋯에서 추가합니다", "Drag chats here or add them via ⋯")), 11.5, Theme.P.TextFaint, null, false);
         t.TextWrapping = TextWrapping.Wrap;
         return new Border { Child = t, Padding = new Thickness(46, 4, 14, 8), Background = Brushes.Transparent, Tag = group };
     }
@@ -192,17 +192,17 @@ internal sealed partial class ChatWindow
     {
         new() { Title = Tr("이 그룹에서 새 대화", "New chat in this group"), Glyph = G.Add, Run = () => Open(NewIn(group)) },
         new() { Title = Tr("이름 바꾸기", "Rename"), Glyph = Rename, Run = () => StartRename(group) },
-        new() { Title = Tr("선택 — 여러 개 골라 지우기", "Select — delete several"), Glyph = G.Check, Run = () => StartSelect(g: group) },
+        new() { Title = Tr("선택 — 여러 개 골라 지우기", "Select — bulk delete"), Glyph = G.Check, Run = () => StartSelect(g: group) },
         new() { Title = "" },
         new()
         {
-            Title = Tr("그룹 삭제 — 대화는 유지됩니다", "Delete group — the chats stay"),
+            Title = Tr("그룹 삭제 — 대화는 유지됩니다", "Delete group — keeps chats"),
             Glyph = G.Delete,
             Danger = true,
             Run = () =>
             {
                 host.Chats.DeleteGroup(group);
-                ShowToast(Tr($"‘{group.Name}’ 그룹 삭제 완료 · 대화 기록 유지", $"Deleted ‘{group.Name}’ — its chats are still in the list"));
+                ShowToast(Tr($"‘{group.Name}’ 그룹 삭제 완료 · 대화 기록 유지", $"Deleted group ‘{group.Name}’ · Chat history kept"));
             },
         },
     };
@@ -218,7 +218,7 @@ internal sealed partial class ChatWindow
         }
         list.Add(new ActionItem
         {
-            Title = Tr("새 그룹을 만들어 넣기", "Move to a new group"),
+            Title = Tr("새 그룹을 만들어 넣기", "Move to new group"),
             Glyph = G.Add,
             Run = () =>
             {
@@ -227,10 +227,10 @@ internal sealed partial class ChatWindow
                 StartRename(g);
             },
         });
-        if (t.Group is not null) list.Add(new ActionItem { Title = Tr("그룹에서 빼기", "Take out of the group"), Glyph = Out, Run = () => host.Chats.MoveTo(t, null) });
-        if (host.Chats.Threads.Contains(t)) list.Add(new ActionItem { Title = Tr("선택 — 여러 개 골라 지우기", "Select — delete several"), Glyph = G.Check, Run = () => StartSelect(t) });
+        if (t.Group is not null) list.Add(new ActionItem { Title = Tr("그룹에서 빼기", "Remove from group"), Glyph = Out, Run = () => host.Chats.MoveTo(t, null) });
+        if (host.Chats.Threads.Contains(t)) list.Add(new ActionItem { Title = Tr("선택 — 여러 개 골라 지우기", "Select — bulk delete"), Glyph = G.Check, Run = () => StartSelect(t) });
         if (host.Chats.IsLive(t) || host.Chats.Threads.Contains(t)) list.Add(new ActionItem { Title = "" });
-        if (host.Chats.IsLive(t)) list.Add(new ActionItem { Title = Tr("세션 종료 — 대화는 유지됩니다", "End session — the chat stays"), Glyph = G.Stop, Run = () => EndSession(t) });
+        if (host.Chats.IsLive(t)) list.Add(new ActionItem { Title = Tr("세션 종료 — 대화는 유지됩니다", "End session — keeps chat history"), Glyph = G.Stop, Run = () => EndSession(t) });
         if (host.Chats.Threads.Contains(t))
             list.Add(new ActionItem
             {

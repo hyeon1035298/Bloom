@@ -170,7 +170,7 @@ internal sealed class MdPane : Grid, IComposerHost
             if (value == inView) return;
             if (value && editor.Text.Length > MaxView)
             {
-                Flash(Tr("너무 긴 글 · 편집 화면으로만 표시", "Too long to view as Markdown · editor only"), 2500);
+                Flash(Tr("너무 긴 글 · 편집 화면으로만 표시", "Text too long · Shown in editor view only"), 2500);
                 return;
             }
             Switch(value, Fraction());
@@ -187,7 +187,7 @@ internal sealed class MdPane : Grid, IComposerHost
             Settings.Save();
             Resized?.Invoke();
         }
-        Flash(Tr($"글자 크기 {n}", $"Text size {n}"), 1200);
+        Flash(Tr($"글자 크기 {n}", $"Font size {n}"), 1200);
     }
 
     // ReadText in the view: there is no composer to give the keyboard back to, it stays in the view (selecting, Ctrl+C)

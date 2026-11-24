@@ -20,7 +20,7 @@ internal sealed partial class Engine
         if (q.Lower.Length < SettingsMinChars) return null;
         var found = Score(SettingsCatalog.All(host), l => l.Match, q).Take(SettingsRows).ToList();
         if (found.Count == 0) return null;
-        var s = new Section(Tr("Bloom 설정", "Bloom settings"));
+        var s = new Section(Tr("Bloom 설정", "Bloom Settings"));
         foreach (var line in found)
             s.Items.Add(new ResultItem
             {
@@ -28,7 +28,7 @@ internal sealed partial class Engine
                 Kind = ItemKind.Setting,
                 Title = line.Title,
                 Subtitle = Tr($"설정 › {line.PageTitle}", $"Settings › {line.PageTitle}"),
-                Accessory = Tr("설정", "Setting"),
+                Accessory = Tr("설정", "Settings"),
                 Icon = IconSpec.Of(G.Settings),
                 Run = () => host.OpenSettings(line.PageKey, line.Title),
             });

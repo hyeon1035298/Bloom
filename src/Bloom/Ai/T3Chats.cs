@@ -177,7 +177,7 @@ internal sealed class T3Chats
             int at = groups.FindIndex(g => g.ProjectId == row.ProjectId);
             if (at < 0)
             {
-                string title = row.ProjectId is null ? Tr("폴더 없이", "No folder") : projects.FirstOrDefault(p => p.Id == row.ProjectId)?.Title ?? Tr("다른 폴더", "Other folder");
+                string title = row.ProjectId is null ? Tr("폴더 없이", "No folder") : projects.FirstOrDefault(p => p.Id == row.ProjectId)?.Title ?? Tr("다른 폴더", "Other Folders");
                 groups.Add((row.ProjectId, title, new List<T3Row>()));
                 at = groups.Count - 1;
             }
@@ -208,7 +208,7 @@ internal sealed class T3Chats
         bool scratch = project == ScratchKey;
         if (!scratch && project is not null && Projects.Count > 0 && Projects.All(p => p.Id != project)) project = null;
         project ??= Projects.FirstOrDefault()?.Id;
-        var t = new ChatThread { Id = "t3:new:" + Guid.NewGuid().ToString("N")[..12], Title = Tr("새 T3 스레드", "New T3 thread"), T3 = new T3Ref { ProjectId = scratch ? null : project, Scratch = scratch || project is null } };
+        var t = new ChatThread { Id = "t3:new:" + Guid.NewGuid().ToString("N")[..12], Title = Tr("새 T3 스레드", "New T3 Thread"), T3 = new T3Ref { ProjectId = scratch ? null : project, Scratch = scratch || project is null } };
         t.Model = ModelFor(t) ?? "t3:";
         return t;
     }
@@ -382,7 +382,7 @@ internal sealed class T3Chats
             failures++;
             if (opening && t.Messages.Count == 0)
             {
-                t.Messages.Add(new ChatMessage { Role = "assistant", Error = true, Text = got.Why == "t3-off" ? Tr("T3에 닿지 못했어요. T3 Code가 켜져 있는지, 설정 > AI의 'T3 Code 연결'이 켜져 있는지 보세요.", "Couldn't reach T3. Check that T3 Code is running and 설정 > AI 'T3 Code 연결' is on.") : Tr("스레드를 읽지 못했어요. 잠시 뒤 다시 읽어요.", "Couldn't read the thread. Trying again shortly.") });
+                t.Messages.Add(new ChatMessage { Role = "assistant", Error = true, Text = got.Why == "t3-off" ? Tr("T3에 연결할 수 없습니다. T3 Code가 켜져 있는지, 설정 > AI에서 'T3 Code 연결'이 켜져 있는지 확인하세요.", "Could not reach T3. Make sure T3 Code is running and 'T3 Code connection' is turned on in Settings > AI.") : Tr("스레드를 읽지 못했습니다. 잠시 후 다시 시도하세요.", "Could not load the thread. Please try again shortly.") });
                 updated(t);
             }
             Next(false);
@@ -464,7 +464,7 @@ internal sealed class T3Chats
             host.Question = question;
             host.ApprovalWait = approval && question is null;
             if (host.Streaming)
-                host.Status = question is not null ? Tr("답을 기다리는 중", "Waiting for your answer") : t.T3.ViewOnly ? Tr("T3에서 기다리는 중", "Waiting in T3") : Tr("승인을 기다리는 중", "Waiting for approval");
+                host.Status = question is not null ? Tr("답을 기다리는 중", "Waiting for reply") : t.T3.ViewOnly ? Tr("T3에서 기다리는 중", "Waiting in T3") : Tr("승인을 기다리는 중", "Waiting for approval");
         }
         if (T3Mirror.Apply(t.Messages, fresh)) updated(t);
     }
@@ -559,7 +559,7 @@ internal sealed class T3Chats
         var r = t.T3!;
         if (AiModels.T3Parts(t.Model) is not { } model)
         {
-            Noted?.Invoke(t, Tr("모델을 먼저 고르세요", "Pick a model first"));
+            Noted?.Invoke(t, Tr("먼저 모델을 선택하세요", "Select a model first"));
             return;
         }
         if (t.Messages.Any(m => m.Streaming)) return; // the launch before is still out
@@ -572,7 +572,7 @@ internal sealed class T3Chats
         t.Title = TitleOf(text);
         t.Messages.Clear();
         t.Messages.Add(new ChatMessage { Role = "user", Text = text });
-        t.Messages.Add(new ChatMessage { Role = "assistant", Streaming = true, Status = Tr("T3에 스레드를 만드는 중…", "Making the thread in T3…") });
+        t.Messages.Add(new ChatMessage { Role = "assistant", Streaming = true, Status = Tr("T3에 스레드를 만드는 중…", "Creating thread in T3…") });
         updated(t);
         var project = Projects.FirstOrDefault(p => p.Id == r.ProjectId);
         var got = await Link.Act("t3_thread_launch", LaunchArgs(t.Title, text, r.Scratch ? null : r.ProjectId, model.Instance, model.Model, project, r.LaunchId), life.Token);
@@ -582,8 +582,8 @@ internal sealed class T3Chats
             t.Messages[^1].Streaming = false;
             t.Messages[^1].Status = null;
             t.Messages[^1].Error = true;
-            t.Messages[^1].Text = got.Why == "t3-off" ? Tr("T3에 닿지 못해 스레드를 만들지 못했어요.", "Couldn't reach T3, so no thread was made.")
-                : got.Why is T3Agent.ViewOnly or T3Agent.Unchecked ? Notices.SentNote(new T3Agent.Sent(false, got.Why)) : Tr("T3가 스레드를 만들지 못했어요. 같은 글을 다시 보내면 같은 요청으로 다시 시도해요.", "T3 couldn't make the thread. Sending the same again retries the same request.");
+            t.Messages[^1].Text = got.Why == "t3-off" ? Tr("T3에 연결할 수 없어 스레드를 만들지 못했습니다.", "Could not reach T3 to create a thread.")
+                : got.Why is T3Agent.ViewOnly or T3Agent.Unchecked ? Notices.SentNote(new T3Agent.Sent(false, got.Why)) : Tr("T3에서 스레드를 만들지 못했습니다. 같은 메시지를 다시 보내면 동일한 요청으로 다시 시도합니다.", "T3 could not create the thread. Send the same message again to retry the request.");
             t.Messages.RemoveAt(0);
             updated(t);
             return;
@@ -631,7 +631,7 @@ internal sealed class T3Chats
     private static string TitleOf(string text)
     {
         string first = text.Trim().Split('\n')[0].Trim();
-        return first.Length > 60 ? first[..60] + "…" : first.Length == 0 ? Tr("새 T3 스레드", "New T3 thread") : first;
+        return first.Length > 60 ? first[..60] + "…" : first.Length == 0 ? Tr("새 T3 스레드", "New T3 Thread") : first;
     }
 
     /// T3 brought forward at the chat's thread (t3code://…, as the notices' T3에서 열기).

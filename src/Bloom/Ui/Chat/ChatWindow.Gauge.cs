@@ -46,17 +46,17 @@ internal sealed partial class ChatWindow
             : Theme.T("— / —", 12, Theme.P.TextFaint, Theme.Medium, false);
         numbers.VerticalAlignment = VerticalAlignment.Center;
         numbers.ToolTip = usage is { } v
-            ? Tr($"모델이 기억하는 대화 {v.Percent:0.#}% · 대화가 길어지면 omp가 스스로 요약합니다", $"{v.Percent:0.#}% of what the model remembers · omp summarises by itself when it gets long")
-            : Tr("모델이 기억하는 대화의 양 — 다음 답이 끝나면 표시됩니다 · 대화가 길어지면 omp가 스스로 요약합니다", "How much the model remembers — shown after the next answer · omp summarises by itself when it gets long");
+            ? Tr($"모델이 기억하는 대화 {v.Percent:0.#}% · 대화가 길어지면 omp가 스스로 요약합니다", $"Context used: {v.Percent:0.#}% · omp automatically compacts the chat when it gets long")
+            : Tr("모델이 기억하는 대화의 양 — 다음 답이 끝나면 표시됩니다 · 대화가 길어지면 omp가 스스로 요약합니다", "Context usage — shown after the next reply finishes · omp automatically compacts long chats");
         gaugeBox.Children.Add(numbers);
         if (thread.Messages.Count == 0) return; // nothing to tidy in a new chat
-        var tidy = TextButton(G.Refresh, tidying ? Tr("정리 중…", "Tidying…") : Tr("정리", "Tidy"), () =>
+        var tidy = TextButton(G.Refresh, tidying ? Tr("정리 중…", "Compacting…") : Tr("정리", "Clean"), () =>
         {
             if (thread.Busy || host.Chats.IsCompacting(thread)) return;
-            if (!host.Chats.Compact(thread)) ShowToast(Tr("지금은 정리할 수 없습니다", "Can't tidy right now"));
+            if (!host.Chats.Compact(thread)) ShowToast(Tr("지금은 정리할 수 없습니다", "Cannot compact right now"));
         });
         tidy.Margin = new Thickness(8, 0, 0, 0);
-        tidy.ToolTip = Tr("대화 앞부분을 요약해 모델이 기억하는 분량을 줄입니다 — 화면의 대화 기록은 그대로입니다 (답하는 중에는 사용할 수 없습니다)", "Summarises the earlier part so the model remembers less — the chat on screen stays as it is (not while it answers)");
+        tidy.ToolTip = Tr("대화 앞부분을 요약해 모델이 기억하는 분량을 줄입니다 — 화면의 대화 기록은 그대로입니다 (답하는 중에는 사용할 수 없습니다)", "Summarizes earlier messages to free up model context — on-screen chat history stays intact (unavailable while replying)");
         if (busy || tidying) tidy.Opacity = 0.45;
         gaugeBox.Children.Add(tidy);
     }

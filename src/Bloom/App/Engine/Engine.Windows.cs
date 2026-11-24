@@ -14,10 +14,10 @@ internal sealed partial class Engine
         var q = new Query(text);
         var all = OpenWindows.List();
         var list = q.IsEmpty ? all : Score(all, w => w.Match, q).ToList();
-        var s = new Section(Tr("열린 창", "Open windows"), Tr($"{list.Count}개", $"{list.Count}"));
+        var s = new Section(Tr("열린 창", "Open Windows"), Tr($"{list.Count}개", $"{list.Count}"));
         foreach (var w in list) s.Items.Add(FromWindow(w));
         if (s.Items.Count == 0)
-            s.Items.Add(new ResultItem { Id = "win:none", Kind = ItemKind.Info, Title = Tr("검색된 창 없음", "No window matches"), Icon = IconSpec.Of(G.Info) });
+            s.Items.Add(new ResultItem { Id = "win:none", Kind = ItemKind.Info, Title = Tr("검색된 창 없음", "No matching windows"), Icon = IconSpec.Of(G.Info) });
         return new List<Section> { s };
     }
 
@@ -27,7 +27,7 @@ internal sealed partial class Engine
         if (!Settings.Current.WindowsInRoot || q.Lower.Length < 2) return null;
         var found = Score(OpenWindows.List(), w => w.Match, q).Take(3).ToList();
         if (found.Count == 0) return null;
-        var s = new Section(Tr("열린 창", "Open windows"));
+        var s = new Section(Tr("열린 창", "Open Windows"));
         foreach (var w in found) s.Items.Add(FromWindow(w));
         return s;
     }
@@ -41,7 +41,7 @@ internal sealed partial class Engine
             Kind = ItemKind.Window,
             Title = w.Title,
             Subtitle = w.App == w.Title ? null : w.App,
-            Accessory = w.Minimized ? Tr("최소화됨", "Minimized") : Tr("창", "Window"),
+            Accessory = w.Minimized ? Tr("최소화됨", "Minimized") : Tr("창", "Windows"),
             Icon = w.Exe is not null ? IconSpec.Shell(w.Exe) : IconSpec.Of(G.NewWindow),
             Data = w,
             PrimaryLabel = Tr("전환", "Switch"),
@@ -58,8 +58,8 @@ internal sealed partial class Engine
             if (Features.On("layout")) list.AddRange(LayoutActions(h));
             if (w.Exe is { } exe)
             {
-                list.Add(new ActionItem { Title = Tr("파일 위치 열기", "Show the program file"), Keys = "Ctrl+Enter", Glyph = G.Folder, Run = () => Launch.Reveal(exe) });
-                list.Add(new ActionItem { Title = Tr("제목 복사", "Copy the title"), Keys = "Ctrl+Shift+C", Glyph = G.Copy, Run = () => Launch.Copy(w.Title) });
+                list.Add(new ActionItem { Title = Tr("파일 위치 열기", "Open file location"), Keys = "Ctrl+Enter", Glyph = G.Folder, Run = () => Launch.Reveal(exe) });
+                list.Add(new ActionItem { Title = Tr("제목 복사", "Copy title"), Keys = "Ctrl+Shift+C", Glyph = G.Copy, Run = () => Launch.Copy(w.Title) });
             }
             return list;
         };
@@ -69,7 +69,7 @@ internal sealed partial class Engine
     private void CloseWindow(IntPtr h, string title)
     {
         OpenWindows.Close(h);
-        host.Window.ShowToast(Tr($"‘{Clip(title, 24)}’ 창 닫기 요청 완료", $"Close requested for ‘{Clip(title, 24)}’"));
+        host.Window.ShowToast(Tr($"‘{Clip(title, 24)}’ 창 닫기 요청 완료", $"Requested to close ‘{Clip(title, 24)}’"));
         // the app may ask to save first; the list catches up a moment later
         _ = System.Threading.Tasks.Task.Delay(500).ContinueWith(_ => host.Window.Dispatcher.BeginInvoke(() =>
         {

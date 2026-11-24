@@ -81,12 +81,12 @@ internal static class Notices
         var s = Settings.Current;
         var all = new (bool on, Notice n)[]
         {
-            (s.NoticeStart, new Notice("start", Tr("Claude Code · 진행 중", "Claude Code · Working"), Tr("알림 미리 보기", "Notice preview"), Tr("현재 작업 표시", "Current task"), Sample: true)),
-            (s.NoticeDone, new Notice("done", Tr("Codex · 작업 완료", "Codex · Done"), Tr("알림 미리 보기", "Notice preview"), Tr("소요 시간 3분", "Elapsed: 3 min"), Sample: true)),
-            (s.NoticeWaiting, new Notice("waiting", Tr("Claude Code · 승인 대기", "Claude Code · Needs approval"), Tr("알림 미리 보기", "Notice preview"), Tr("승인 대기 · 클릭하여 세션으로 이동", "Approval pending · click to go to session"), Click: () => { }, Sample: true)), // no session behind a preview: the click only closes it
-            (s.NoticeLimit, new Notice("limit", Tr("Claude · 한도 임박", "Claude · Limit near"), Tr("주간 한도 18% 남음", "18% of the weekly limit left"), Tr("2일 뒤 초기화", "Resets in 2 d"), Sample: true)),
-            (s.NoticeWindows, new Notice("windows", Tr("메일", "Mail"), Tr("알림 미리 보기", "Notice preview"), Tr("다른 앱의 Windows 알림 · 클릭하면 알림 센터", "Another app's Windows notification · click for the notification center"), Click: () => { }, Sample: true)),
-            (s.NoticeRecover, new Notice("recover", Tr("ChatGPT · 한도 복구", "ChatGPT · Limit reset"), Tr("5시간 한도 초기화 완료", "5-hour limit reset"), null, Sample: true)),
+            (s.NoticeStart, new Notice("start", Tr("Claude Code · 진행 중", "Claude Code · In Progress"), Tr("알림 미리 보기", "Notification Preview"), Tr("현재 작업 표시", "Shows current task"), Sample: true)),
+            (s.NoticeDone, new Notice("done", Tr("Codex · 작업 완료", "Codex · Task Completed"), Tr("알림 미리 보기", "Notification Preview"), Tr("소요 시간 3분", "Duration: 3m"), Sample: true)),
+            (s.NoticeWaiting, new Notice("waiting", Tr("Claude Code · 승인 대기", "Claude Code · Waiting for Approval"), Tr("알림 미리 보기", "Notification Preview"), Tr("승인 대기 · 클릭하여 세션으로 이동", "Waiting for approval · Click to go to session"), Click: () => { }, Sample: true)), // no session behind a preview: the click only closes it
+            (s.NoticeLimit, new Notice("limit", Tr("Claude · 한도 임박", "Claude · Limit Almost Reached"), Tr("주간 한도 18% 남음", "18% of weekly limit remaining"), Tr("2일 뒤 초기화", "Resets in 2 days"), Sample: true)),
+            (s.NoticeWindows, new Notice("windows", Tr("메일", "Mail"), Tr("알림 미리 보기", "Notification Preview"), Tr("다른 앱의 Windows 알림 · 클릭하면 알림 센터", "Windows notifications from other apps · Click to open Notification Center"), Click: () => { }, Sample: true)),
+            (s.NoticeRecover, new Notice("recover", Tr("ChatGPT · 한도 복구", "ChatGPT · Limit Reset"), Tr("5시간 한도 초기화 완료", "5-hour limit has reset"), null, Sample: true)),
         };
         var shown = all.Where(x => x.on).Select(x => x.n).ToList();
         if (shown.Count == 0) shown.Add(all[1].n);
@@ -197,7 +197,7 @@ internal static class Notices
             if (!Still(t.Key, out _)) return;
             string? t3 = await T3Session(t.Key);
             if (!Still(t.Key, out var now)) return; // it ended while T3 was looked up
-            var n = new Notice("start", Head(now.Tool, Tr("진행 중", "Working")), now.Title, now.Prompt is { } p ? $"“{p}”" : null, Click: Jump(now));
+            var n = new Notice("start", Head(now.Tool, Tr("진행 중", "In progress")), now.Title, now.Prompt is { } p ? $"“{p}”" : null, Click: Jump(now));
             Show(t3 is null ? n : n with { Badge = "T3", Reply = words => Said(t3, words), Buttons = T3Buttons(now, t3) });
         };
         starting[t.Key] = wait;
@@ -243,9 +243,9 @@ internal static class Notices
     /// (SentNote's words), else that it couldn't.
     internal static string StopNote(T3Agent.Sent stopped) => stopped.How switch
     {
-        "t3-off" => Tr("T3가 꺼져 있어 못 멈췄어요", "T3 isn't running"),
+        "t3-off" => Tr("T3가 꺼져 있어 중단하지 못했습니다", "Could not stop because T3 is not running"),
         T3Agent.ViewOnly or T3Agent.Unchecked => SentNote(stopped),
-        _ => Tr("멈추지 못했어요", "Couldn't stop"),
+        _ => Tr("중단하지 못했습니다", "Could not stop"),
     };
 
     /// Words typed on a T3 card into its thread, and how they went as the card says it (the Run Card's words).
@@ -258,19 +258,19 @@ internal static class Notices
     internal static string SentNote(T3Agent.Sent sent) => sent.Ok
         ? sent.How switch
         {
-            "answered" => Tr("질문에 답했어요", "Answered"),
-            "steered" => Tr("지금 턴에 넣었어요", "Added to this turn"),
-            "started" => Tr("보냈어요", "Sent"),
-            _ => Tr("다음 턴으로 보냈어요", "Sent for the next turn"),
+            "answered" => Tr("질문에 답변했습니다", "Answered the question"),
+            "steered" => Tr("현재 턴에 전달했습니다", "Sent to the current turn"),
+            "started" => Tr("보냈습니다", "Sent"),
+            _ => Tr("다음 턴으로 보냈습니다", "Queued for the next turn"),
         }
         : sent.How switch
         {
-            "t3-off" => Tr("T3가 꺼져 있어 못 보냈어요", "T3 isn't running"),
-            "no-thread" => Tr("T3에서 이 세션을 못 찾았어요", "T3 has no thread for this session"),
-            "no-question" => Tr("질문이 이미 끝났어요", "The question is over"),
+            "t3-off" => Tr("T3가 꺼져 있어 보내지 못했습니다", "Could not send because T3 is not running"),
+            "no-thread" => Tr("T3에서 이 세션을 찾을 수 없습니다", "Could not find this session in T3"),
+            "no-question" => Tr("이미 종료된 질문입니다", "This question has already ended"),
             T3Agent.ViewOnly => T3Threads.ViewOnlyNote,
             T3Agent.Unchecked => T3Threads.UncheckedNote,
-            _ => Tr("보내지 못했어요", "Couldn't send"),
+            _ => Tr("보내지 못했어요", "Failed to send"),
         };
 
     /// A session started waiting: a T3 session's question asked on its card (답하기 sends the answers to T3), else
@@ -289,7 +289,7 @@ internal static class Notices
 
     private static async Task Ask(AgentTask t)
     {
-        var n = new Notice("waiting", Head(t.Tool, Tr("승인 대기", "Needs approval")), t.Title, Tr("승인 대기", "Approval pending"), t.Key, Click: Jump(t));
+        var n = new Notice("waiting", Head(t.Tool, Tr("승인 대기", "Awaiting approval")), t.Title, Tr("승인 대기", "Awaiting approval"), t.Key, Click: Jump(t));
         if (await T3Session(t.Key) is { } session
             && await Task.Run(() => T3Agent.Question(session, CancellationToken.None)) is { Count: > 0 } asked)
             n = n with
@@ -331,7 +331,7 @@ internal static class Notices
         Cancel(t.Key);
         window?.Remove(t.Key);
         if (!Settings.Current.Notices || took < ShortestDone) return;
-        Card(Settings.Current.NoticeDone && !OnRunCard(t.Key), new Notice("done", Head(t.Tool, Tr("작업 완료", "Done")), t.Title, Tr($"소요 시간 {Span(took)}", $"Elapsed: {Span(took)}"), Click: Jump(t)), true);
+        Card(Settings.Current.NoticeDone && !OnRunCard(t.Key), new Notice("done", Head(t.Tool, Tr("작업 완료", "Completed")), t.Title, Tr($"소요 시간 {Span(took)}", $"Duration: {Span(took)}"), Click: Jump(t)), true);
     }
 
     /// The click of a turn's card: to the window its CLI runs in, or with 카드를 누르면 at 작업표시줄 AI 패널 to its chat
@@ -387,13 +387,13 @@ internal static class Notices
                 if (level == 0)
                 {
                     if (before.resets is { } r && DateTime.Now >= r.AddMinutes(-1))
-                        Card(s.NoticeRecover, new Notice("recover", Head(who, Tr("한도 복구", "Limit reset")), Tr($"{l.Title} 한도 초기화 완료", $"{l.Title} limit reset"), null), true);
+                        Card(s.NoticeRecover, new Notice("recover", Head(who, Tr("한도 복구", "Quota reset")), Tr($"{l.Title} 한도 초기화 완료", $"{l.Title} limit has reset"), null), true);
                     continue;
                 }
                 if (level < before.level) continue;
                 Card(s.NoticeLimit, level == 2
-                    ? new Notice("limit", Head(who, Tr("한도 소진", "Limit used up")), Tr($"{l.Title} 한도 소진", $"{l.Title} limit used up"), ResetsIn(l))
-                    : new Notice("limit", Head(who, Tr("한도 임박", "Limit near")), Tr($"{l.Title} 한도 {Math.Round(left)}% 남음", $"{l.Title} limit · {Math.Round(left)}% left"), ResetsIn(l)), false);
+                    ? new Notice("limit", Head(who, Tr("한도 소진", "Limit Reached")), Tr($"{l.Title} 한도 소진", $"{l.Title} limit reached"), ResetsIn(l))
+                    : new Notice("limit", Head(who, Tr("한도 임박", "Limit almost reached")), Tr($"{l.Title} 한도 {Math.Round(left)}% 남음", $"{Math.Round(left)}% of {l.Title} limit remaining"), ResetsIn(l)), false);
             }
     }
 
@@ -430,9 +430,9 @@ internal static class Notices
     {
         var choices = new List<(string Text, Action Run)>();
         if (UpdateNow is { } now) choices.Add((Tr("다시 시작해서 업데이트", "Restart to update"), now));
-        if (OpenUpdates is { } open) choices.Add((Tr("업데이트 설정", "Update settings"), open));
-        Show(new Notice("done", Tr("Bloom · 업데이트", "Bloom · Update"), Tr($"새 버전 {version} 다운로드 완료", $"Version {version} downloaded"),
-            Tr("다음 실행 시 적용", "Applies at next start"), Buttons: choices), sound: false);
+        if (OpenUpdates is { } open) choices.Add((Tr("업데이트 설정", "Update Settings"), open));
+        Show(new Notice("done", Tr("Bloom · 업데이트", "Bloom · Update"), Tr($"새 버전 {version} 다운로드 완료", $"New version {version} downloaded"),
+            Tr("다음 실행 시 적용", "Will be applied on next launch"), Buttons: choices), sound: false);
     }
 
     /// Another app's notification that Windows would have shown as its banner (WindowsToasts): the card, without
@@ -451,7 +451,7 @@ internal static class Notices
         Show(new Notice("done", head, title, detail, Buttons: buttons));
     }
 
-    public static void Ask(string what, Action? action = null) => Show(new Notice("waiting", Tr("Bloom AI · 승인 대기", "Bloom AI · Approval pending"), what, Tr("허용 또는 거절을 선택하세요", "Choose Allow or Decline"), ActionText: Tr("AI 채팅 열기", "Open AI chat"), Action: action));
+    public static void Ask(string what, Action? action = null) => Show(new Notice("waiting", Tr("Bloom AI · 승인 대기", "Bloom AI · Waiting for Approval"), what, Tr("허용 또는 거절을 선택하세요", "Choose Allow or Deny"), ActionText: Tr("AI 채팅 열기", "Open AI Chat"), Action: action));
 
     /// Claude Code asks through Bloom's hook (ClaudeApprovals): its card, in place of the session's 승인 대기 card. False
     /// when no card can show now (알림 off, a full-screen app in front): the terminal asks.
@@ -492,9 +492,9 @@ internal static class Notices
     /// "40초", "12분", "3시간 5분", "2일 4시간".
     public static string Span(TimeSpan t)
     {
-        if (t.TotalMinutes < 1) return Tr($"{Math.Max(1, (int)t.TotalSeconds)}초", $"{Math.Max(1, (int)t.TotalSeconds)} s");
+        if (t.TotalMinutes < 1) return Tr($"{Math.Max(1, (int)t.TotalSeconds)}초", $"{Math.Max(1, (int)t.TotalSeconds)}s");
         if (t.TotalHours < 1) return Tr($"{(int)t.TotalMinutes}분", $"{(int)t.TotalMinutes} min");
-        if (t.TotalDays < 1) return t.Minutes > 0 ? Tr($"{(int)t.TotalHours}시간 {t.Minutes}분", $"{(int)t.TotalHours} h {t.Minutes} min") : Tr($"{(int)t.TotalHours}시간", $"{(int)t.TotalHours} h");
-        return t.Hours > 0 ? Tr($"{(int)t.TotalDays}일 {t.Hours}시간", $"{(int)t.TotalDays} d {t.Hours} h") : Tr($"{(int)t.TotalDays}일", $"{(int)t.TotalDays} d");
+        if (t.TotalDays < 1) return t.Minutes > 0 ? Tr($"{(int)t.TotalHours}시간 {t.Minutes}분", $"{(int)t.TotalHours} hr {t.Minutes} min") : Tr($"{(int)t.TotalHours}시간", $"{(int)t.TotalHours}h");
+        return t.Hours > 0 ? Tr($"{(int)t.TotalDays}일 {t.Hours}시간", $"{(int)t.TotalDays}d {t.Hours}h") : Tr($"{(int)t.TotalDays}일", $"{(int)t.TotalDays}d");
     }
 }

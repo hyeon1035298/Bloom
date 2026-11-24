@@ -32,7 +32,7 @@ internal sealed class PinWindow : Window
         this.shot = shot with { Bgra = [] }; // the pixels live in `picture` only
         picture = BitmapSource.Create(shot.Rect.Width, shot.Rect.Height, 96, 96, PixelFormats.Bgra32, null, shot.Pixels(), shot.Rect.Width * 4);
         picture.Freeze();
-        Title = Tr("Bloom 화면 고정", "Bloom pinned picture");
+        Title = Tr("Bloom 화면 고정", "Bloom Screen Pin");
         WindowStyle = WindowStyle.None;
         AllowsTransparency = true; // Ctrl+wheel fades it
         ResizeMode = ResizeMode.NoResize;
@@ -50,7 +50,7 @@ internal sealed class PinWindow : Window
             BorderThickness = new Thickness(1),
             Child = image,
             ToolTip = Tr("끌어서 옮기기 · 휠 크기 · Ctrl+휠 투명도 · 0 원래 크기 · 더블클릭 · Esc 닫기 · 오른쪽 클릭 메뉴",
-                "Drag to move · wheel to size · Ctrl+wheel to fade · 0 back to size · double click · Esc closes · right click for more"),
+                "Drag to move · Wheel to resize · Ctrl+Wheel opacity · 0 original size · Double-click · Esc to close · Right-click menu"),
         };
         SourceInitialized += (_, _) =>
         {
@@ -104,10 +104,10 @@ internal sealed class PinWindow : Window
 
     private List<ActionItem> Actions() => new()
     {
-        new() { Title = Tr("그림 복사", "Copy the picture"), Keys = "Ctrl+C", Glyph = G.Copy, Run = Copy },
-        new() { Title = Tr("그림 저장…", "Save the picture…"), Keys = "Ctrl+S", Glyph = G.Document, Run = Save },
-        new() { Title = Tr("글자 읽어 복사", "Read and copy the text"), Glyph = G.Page, Run = ReadText },
-        new() { Title = Tr("원래 크기로", "Back to its size"), Keys = "0", Glyph = G.Refresh, Run = () => { Resize(1); Opacity = 1; } },
+        new() { Title = Tr("그림 복사", "Copy Image"), Keys = "Ctrl+C", Glyph = G.Copy, Run = Copy },
+        new() { Title = Tr("그림 저장…", "Save Image…"), Keys = "Ctrl+S", Glyph = G.Document, Run = Save },
+        new() { Title = Tr("글자 읽어 복사", "Recognize & Copy Text"), Glyph = G.Page, Run = ReadText },
+        new() { Title = Tr("원래 크기로", "Restore Size"), Keys = "0", Glyph = G.Refresh, Run = () => { Resize(1); Opacity = 1; } },
         new() { Title = "" },
         new() { Title = Tr("닫기", "Close"), Keys = "Esc", Glyph = G.Close, Run = Close },
     };
@@ -137,10 +137,10 @@ internal sealed class PinWindow : Window
         var r = await WinOcr.Recognize(px, w, h, host.OcrLanguage());
         if (r is null || r.Text.Trim().Length == 0)
         {
-            Notices.Result(false, "Bloom Lens", Tr("인식된 글자 없음", "No text found"), null);
+            Notices.Result(false, "Bloom Lens", Tr("인식된 글자 없음", "No text recognized"), null);
             return;
         }
         Launch.Copy(r.Text);
-        Notices.Result(true, "Bloom Lens", Tr($"{r.Lines.Count}줄 인식·복사 완료", $"Read and copied {r.Lines.Count} lines"), null);
+        Notices.Result(true, "Bloom Lens", Tr($"{r.Lines.Count}줄 인식·복사 완료", $"Recognized and copied {r.Lines.Count} line(s)"), null);
     }
 }

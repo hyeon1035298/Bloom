@@ -449,9 +449,9 @@ internal sealed class CodexSession : IChatSession, IAsksInChat
                     {
                         "reasoning" => Tr("생각하는 중…", "Thinking…"),
                         "web_search" => Tr("웹 검색 중…", "Searching the web…"),
-                        "command_execution" => Tr("파일 다루는 중…", "Working with files…"),
-                        "mcp_tool_call" when Str(it, "server") == "bloom" => Tr("PC에서 작업하는 중…", "Working on the PC…"),
-                        "mcp_tool_call" => Tr("도구 쓰는 중…", "Using a tool…"),
+                        "command_execution" => Tr("파일 다루는 중…", "Handling files…"),
+                        "mcp_tool_call" when Str(it, "server") == "bloom" => Tr("PC에서 작업하는 중…", "Working on PC…"),
+                        "mcp_tool_call" => Tr("도구 쓰는 중…", "Using tools…"),
                         _ => null,
                     });
                 break;

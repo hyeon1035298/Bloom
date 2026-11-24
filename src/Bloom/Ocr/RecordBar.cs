@@ -83,9 +83,9 @@ internal sealed class RecordBar : Window
         Top = -32000;
         UseLayoutRounding = true;
 
-        systemKey = Key(Tr("시스템 소리", "System sound"), () => SystemAudio, v => SystemAudio = v);
+        systemKey = Key(Tr("시스템 소리", "System Audio"), () => SystemAudio, v => SystemAudio = v);
         micKey = Key(Tr("마이크", "Microphone"), () => Mic, v => Mic = v);
-        menu = Row(StartButton(), Faint(Tr("3초 뒤", "In 3 s"), new Thickness(6, 0, 6, 0)), Separator(), systemKey, Gap(4), micKey, Separator(),
+        menu = Row(StartButton(), Faint(Tr("3초 뒤", "3s delay"), new Thickness(6, 0, 6, 0)), Separator(), systemKey, Gap(4), micKey, Separator(),
             IconButton(G.Close, Tr("취소 (Esc)", "Cancel (Esc)"), () => CancelClicked?.Invoke()));
         time = Time();
         rec = RecordingRow(time, !capsule);
@@ -332,8 +332,8 @@ internal sealed class RecordBar : Window
         dot.Margin = new Thickness(6, 0, 8, 0);
         dots.Add(dot);
         var parts = new List<UIElement> { dot, clockText };
-        if (SystemAudio) parts.Add(SoundGlyph(G.Volume, Tr("시스템 소리 녹음 중", "Recording system sound")));
-        if (Mic) parts.Add(SoundGlyph(Microphone, Tr("마이크 녹음 중", "Recording the microphone")));
+        if (SystemAudio) parts.Add(SoundGlyph(G.Volume, Tr("시스템 소리 녹음 중", "Recording system audio")));
+        if (Mic) parts.Add(SoundGlyph(Microphone, Tr("마이크 녹음 중", "Recording microphone")));
         if (named)
         {
             parts.Add(Separator());
@@ -375,7 +375,7 @@ internal sealed class RecordBar : Window
         var dot = Dot(9);
         dot.Margin = new Thickness(0, 0, 7, 0);
         sp.Children.Add(dot);
-        sp.Children.Add(Theme.Label(Tr("녹화 시작", "Start recording"), 13, ink.Text, Theme.Medium, inBorder: true));
+        sp.Children.Add(Theme.Label(Tr("녹화 시작", "Start Recording"), 13, ink.Text, Theme.Medium, inBorder: true));
         var b = ButtonLook.Apply(new SmoothBorder
         {
             Height = 32,
@@ -383,7 +383,7 @@ internal sealed class RecordBar : Window
             CornerRadius = new CornerRadius(capsule ? 16 : 8),
             Cursor = Cursors.Hand,
             Child = sp,
-            ToolTip = Tr("시작 (Enter) · 3초 뒤 녹화합니다", "Start (Enter) · records in 3 s"),
+            ToolTip = Tr("시작 (Enter) · 3초 뒤 녹화합니다", "Start (Enter) · Recording starts in 3 seconds"),
         }, ink);
         b.MouseLeftButtonUp += (_, e) =>
         {

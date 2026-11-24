@@ -30,9 +30,9 @@ internal static class DocHandoff
     public static void Tell(string path, string why)
     {
         Log.Write("open: failed " + path + " · " + why);
-        MessageBox.Show(Tr("Bloom이 파일을 열지 못했습니다", "Bloom couldn't open the file") + "\n\n" + path + "\n\n" + why, "Bloom", MessageBoxButton.OK, MessageBoxImage.Warning);
+        MessageBox.Show(Tr("Bloom에서 파일을 열지 못했습니다", "Bloom could not open the file") + "\n\n" + path + "\n\n" + why, "Bloom", MessageBoxButton.OK, MessageBoxImage.Warning);
     }
 
     /// Why: the file isn't there, isn't a full path, or the running Bloom said no.
-    public static string Refused => Tr("파일이 없거나 열 수 없는 파일입니다", "The file isn't there, or it can't be opened");
+    public static string Refused => Tr("파일이 없거나 열 수 없는 파일입니다", "The file does not exist or cannot be opened");
 }

@@ -8,7 +8,7 @@ namespace Bloom.App;
 /// Favorites as results, and their pictured or AI-drawn icons.
 internal sealed partial class Engine
 {
-    private static readonly MatchTarget NewGroupMatch = new(Tr("즐겨찾기 폴더 만들기", "New favorites folder"), new[] { "new folder group favorites 폴더 만들기 새 폴더 앱 묶기 작업 폴더" });
+    private static readonly MatchTarget NewGroupMatch = new(Tr("즐겨찾기 폴더 만들기", "Create favorites folder"), new[] { "new folder group favorites 폴더 만들기 새 폴더 앱 묶기 작업 폴더" });
     private static string Clip(string s, int n) => s.Length > n ? s[..n] + "…" : s;
 
     /// A favorite as a result; its name icon (when one was made) replaces the app's own.
@@ -38,11 +38,11 @@ internal sealed partial class Engine
     /// "AI로 아이콘 그리기": what to draw, in a few words (empty = Claude decides from the name).
     public FormSpec AiIconForm(string id, string name)
     {
-        var f = new FormSpec { Title = Tr("AI로 아이콘 그리기", "Draw an icon with AI") };
+        var f = new FormSpec { Title = Tr("AI로 아이콘 그리기", "Generate Icons with AI") };
         f.Fields.Add(new FormField
         {
-            Label = Tr("그림", "Picture"),
-            Hint = Tr($"예: 고양이 발바닥, 번개 · 비우면 ‘{(name.Length > 14 ? name[..14] + "…" : name)}’ 이름 사용 (사용량 1회)", $"E.g. a cat paw or lightning bolt · empty uses ‘{(name.Length > 14 ? name[..14] + "…" : name)}’ (1 use)"),
+            Label = Tr("그림", "Image prompt"),
+            Hint = Tr($"예: 고양이 발바닥, 번개 · 비우면 ‘{(name.Length > 14 ? name[..14] + "…" : name)}’ 이름 사용 (사용량 1회)", $"e.g. cat paw, lightning · Leave blank to use '{(name.Length > 14 ? name[..14] + "…" : name)}' (uses 1 credit)"),
             Optional = true,
             Check = v => (v.Trim(), null),
         });

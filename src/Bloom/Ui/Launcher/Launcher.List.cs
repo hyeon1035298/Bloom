@@ -253,7 +253,7 @@ internal sealed partial class Launcher
                 ShowPreview(null);
                 var empty = new StackPanel { HorizontalAlignment = HorizontalAlignment.Center, Margin = new Thickness(0, 64, 0, 0) };
                 empty.Children.Add(Theme.Glyph(G.Search, 26, Theme.P.TextFaint));
-                var t = Theme.T(Mode == Mode.Root && box.Text.Length == 0 ? Tr("검색어를 입력하세요", "Type to search") : Tr("검색 결과 없음", "Nothing found"), 13.5, Theme.P.TextFaint);
+                var t = Theme.T(Mode == Mode.Root && box.Text.Length == 0 ? Tr("검색어를 입력하세요", "Type to search") : Tr("검색 결과 없음", "No results found"), 13.5, Theme.P.TextFaint);
                 t.Margin = new Thickness(0, 12, 0, 0);
                 t.HorizontalAlignment = HorizontalAlignment.Center;
                 empty.Children.Add(t);

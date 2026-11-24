@@ -23,8 +23,8 @@ internal sealed partial class Engine
                     {
                         Id = "quick:none",
                         Kind = ItemKind.Info,
-                        Title = Tr("선택·복사된 글 없음", "No selected or copied text"),
-                        Subtitle = Tr($"앱에서 글을 선택하고 {Hotkeys.Label(Settings.Current.QuickHotkey)}를 누르세요. 또는 글을 복사한 뒤 다시 여세요.", $"Select text in any app and press {Hotkeys.Label(Settings.Current.QuickHotkey)}, or copy it and come back"),
+                        Title = Tr("선택·복사된 글 없음", "No text selected or copied"),
+                        Subtitle = Tr($"앱에서 글을 선택하고 {Hotkeys.Label(Settings.Current.QuickHotkey)}를 누르세요. 또는 글을 복사한 뒤 다시 여세요.", $"Select text in an app and press {Hotkeys.Label(Settings.Current.QuickHotkey)}, or copy text and open again."),
                         Icon = IconSpec.Of(G.Info),
                     },
                 },
@@ -33,7 +33,7 @@ internal sealed partial class Engine
         }
         if (st.Busy)
         {
-            sections.Add(new Section(Tr("하는 중", "Working"))
+            sections.Add(new Section(Tr("작업 중", "Working"))
             {
                 Items =
                 {
@@ -41,7 +41,7 @@ internal sealed partial class Engine
                     {
                         Id = "quick:busy",
                         Kind = ItemKind.Quick,
-                        Title = st.Progress is { } step ? Tr($"‘{st.ActionTitle}’ 하는 중… {step}단계", $"‘{st.ActionTitle}’ in progress… step {step}") : Tr($"‘{st.ActionTitle}’ 하는 중…", $"‘{st.ActionTitle}’ in progress…"),
+                        Title = st.Progress is { } step ? Tr($"‘{st.ActionTitle}’ 실행 중… {step}단계", $"Running ‘{st.ActionTitle}’… Step {step}") : Tr($"‘{st.ActionTitle}’ 실행 중…", $"Running ‘{st.ActionTitle}’…"),
                         Subtitle = RunsOn(st),
                         Icon = IconSpec.Of(G.Sparkle, true),
                         PrimaryLabel = Tr("취소", "Cancel"),
@@ -55,7 +55,7 @@ internal sealed partial class Engine
         }
         if (st.Result is not null || st.Error is not null)
         {
-            var done = new Section(st.Error is null ? Tr($"‘{st.ActionTitle}’ 결과", $"‘{st.ActionTitle}’ result") : Tr("실패", "Failed"));
+            var done = new Section(st.Error is null ? Tr($"‘{st.ActionTitle}’ 결과", $"‘{st.ActionTitle}’ Result") : Tr("실패", "Failed"));
             if (st.Result is { } result)
             {
                 Detail Answer()
@@ -65,16 +65,16 @@ internal sealed partial class Engine
                     d.Add(Tr("길이", "Length"), Tr($"{st.Source.Length}자 → {result.Length}자", $"{st.Source.Length} → {result.Length} chars"));
                     return d;
                 }
-                done.Items.Add(QuickRow("quick:paste", st.FromSelection ? Tr("선택한 글을 이걸로 바꾸기", "Replace the selection") : Tr("앞의 창에 붙여넣기", "Paste into the window"), st.FromSelection ? Tr("원래 앱에 붙여넣기 (Ctrl+V)", "Pastes back into the app (Ctrl+V)") : null, G.Paste, host.PasteQuick, Answer, false));
+                done.Items.Add(QuickRow("quick:paste", st.FromSelection ? Tr("선택한 글을 결과로 바꾸기", "Replace selected text with result") : Tr("앞의 창에 붙여넣기", "Paste into active window"), st.FromSelection ? Tr("원래 앱에 붙여넣기 (Ctrl+V)", "Paste into original app (Ctrl+V)") : null, G.Paste, host.PasteQuick, Answer, false));
                 done.Items.Add(QuickRow("quick:copy", Tr("복사", "Copy"), null, G.Copy, () => { Launch.Copy(result); host.Window.ShowToast(Tr("복사 완료", "Copied")); }, Answer, true));
-                done.Items.Add(QuickRow("quick:chat", Tr("채팅으로 이어 가기", "Continue in a chat"), null, G.Chat, host.QuickToChat, Answer, true));
+                done.Items.Add(QuickRow("quick:chat", Tr("채팅으로 이어 가기", "Continue in chat"), null, G.Chat, host.QuickToChat, Answer, true));
                 done.Items.Add(QuickRow("quick:again", Tr("다시 하기", "Try again"), null, G.Refresh, () => host.RunQuick(st.Action ?? "summarize", st.Custom), Answer, true));
-                done.Items.Add(QuickRow("quick:back", Tr("다른 동작 고르기", "Pick another action"), null, G.Back, host.CancelQuick, Answer, true));
+                done.Items.Add(QuickRow("quick:back", Tr("다른 동작 고르기", "Choose another action"), null, G.Back, host.CancelQuick, Answer, true));
             }
             else
             {
-                done.Items.Add(QuickRow("quick:error", st.Error ?? "", Tr("Enter로 다시 하기", "Enter tries again"), G.Info, () => host.RunQuick(st.Action ?? "summarize", st.Custom), SourceDetail, true));
-                done.Items.Add(QuickRow("quick:back", Tr("다른 동작 고르기", "Pick another action"), null, G.Back, host.CancelQuick, SourceDetail, true));
+                done.Items.Add(QuickRow("quick:error", st.Error ?? "", Tr("Enter로 다시 하기", "Press Enter to retry"), G.Info, () => host.RunQuick(st.Action ?? "summarize", st.Custom), SourceDetail, true));
+                done.Items.Add(QuickRow("quick:back", Tr("다른 동작 고르기", "Choose another action"), null, G.Back, host.CancelQuick, SourceDetail, true));
             }
             sections.Add(done);
             return sections;
@@ -82,24 +82,24 @@ internal sealed partial class Engine
 
         // the actions, filtered by what is typed; anything else typed becomes the user's own request
         var q = new Query(text);
-        var list = new Section(Tr("동작", "Actions"), Tr("결과는 오른쪽에 · 원래 글은 그대로", "The answer shows on the right"));
+        var list = new Section(Tr("동작", "Action"), Tr("결과는 오른쪽에 · 원래 글은 그대로", "Preview on the right · Original text unchanged"));
         if (!q.IsEmpty && !QuickActions.Known(text))
         {
             string ask = text.Trim();
             sections.Add(new Section(null)
             {
-                Items = { QuickRow("quick:custom", Tr($"“{ask}”", $"“{ask}”"), Tr("AI 작업 지시 입력", "Enter an AI instruction"), G.Sparkle, () => host.RunQuick("custom", ask), SourceDetail, true) },
+                Items = { QuickRow("quick:custom", Tr($"“{ask}”", $"“{ask}”"), Tr("AI 작업 지시 입력", "Enter custom AI instruction"), G.Sparkle, () => host.RunQuick("custom", ask), SourceDetail, true) },
             });
         }
         foreach (var a in QuickActions.All)
         {
             if (!q.IsEmpty && Matcher.Score(q, QuickActions.Match(a)) < 560) continue;
             string key = a.Key;
-            string? sub = key == "translate" ? Tr($"{Translator.TargetName(Translator.TargetFor(st.Source, Settings.Current.TranslateTo))}로", $"into {Translator.TargetName(Translator.TargetFor(st.Source, Settings.Current.TranslateTo))}") : null;
+            string? sub = key == "translate" ? Tr($"{Translator.TargetName(Translator.TargetFor(st.Source, Settings.Current.TranslateTo))}로", $"To {Translator.TargetName(Translator.TargetFor(st.Source, Settings.Current.TranslateTo))}") : null;
             list.Items.Add(QuickRow("quick:" + key, QuickActions.Title(a), sub, a.Glyph, () => host.RunQuick(key), SourceDetail, true));
         }
         // 내 AI 명령 that work on a text, above the built-in ones: the user made them for this
-        var mine = new Section(Tr("내 AI 명령", "My AI commands"), AiCommandRun.Who());
+        var mine = new Section(Tr("내 AI 명령", "My AI Commands"), AiCommandRun.Who());
         foreach (var c in Features.On("mine") ? UserCommands.Current.Items : new())
         {
             if (!c.IsAi || c.Input == AiInput.None || (!q.IsEmpty && Matcher.Score(q, c.Match) <= 0)) continue;
@@ -120,7 +120,7 @@ internal sealed partial class Engine
     {
         var st = host.Quick;
         var d = new Detail { Text = st.Source };
-        d.Add(Tr("가져온 곳", "From"), st.FromSelection ? Tr("선택한 글", "The selection") : Tr("클립보드", "The clipboard"));
+        d.Add(Tr("가져온 곳", "Source"), st.FromSelection ? Tr("선택한 글", "Selected text") : Tr("클립보드", "Clipboard"));
         d.Add(Tr("길이", "Length"), Tr($"{st.Source.Length}자", $"{st.Source.Length} chars"));
         d.Add(Tr("엔진", "Engine"), engine);
         return d;

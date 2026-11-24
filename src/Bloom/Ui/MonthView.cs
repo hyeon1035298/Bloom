@@ -14,7 +14,7 @@ internal readonly record struct DayMark(string Label, bool Deadline, bool Hit);
 /// two marks each. The selected day has the rose frame, today the rose number. Click picks a day.
 internal sealed class MonthView : SmoothBorder
 {
-    private static readonly string[] Weekdays = { Tr("일", "Su"), Tr("월", "Mo"), Tr("화", "Tu"), Tr("수", "We"), Tr("목", "Th"), Tr("금", "Fr"), Tr("토", "Sa") };
+    private static readonly string[] Weekdays = { Tr("일", "Sun"), Tr("월", "Mon"), Tr("화", "Tue"), Tr("수", "Wed"), Tr("목", "Thu"), Tr("금", "Fri"), Tr("토", "Sat") };
 
     public Action<DateTime>? DayClicked;
     public Action<int>? MonthStepped;
@@ -42,22 +42,22 @@ internal sealed class MonthView : SmoothBorder
         head.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
         head.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
         var title = new StackPanel { Orientation = Orientation.Horizontal, VerticalAlignment = VerticalAlignment.Center };
-        title.Children.Add(Theme.T(month.ToString(Tr("yyyy년 M월", "MMMM yyyy"), Culture), 15, Theme.P.Text, Theme.Semi, false));
+        title.Children.Add(Theme.T(month.ToString(Tr("yyyy년 M월", "MMM yyyy"), Culture), 15, Theme.P.Text, Theme.Semi, false));
         int count = 0;
         foreach (var (d, list) in marks)
             if (d.Year == month.Year && d.Month == month.Month) count += list.Count;
         if (count > 0)
         {
-            var c = Theme.T(count == 1 ? Tr("일정 1개", "1 reminder") : Tr($"일정 {count}개", $"{count} reminders"), 12, Theme.P.TextFaint, Theme.Regular, false);
+            var c = Theme.T(count == 1 ? Tr("일정 1개", "1 event") : Tr($"일정 {count}개", $"{count} events"), 12, Theme.P.TextFaint, Theme.Regular, false);
             c.Margin = new Thickness(10, 2, 0, 0);
             c.VerticalAlignment = VerticalAlignment.Center;
             title.Children.Add(c);
         }
         head.Children.Add(title);
         var nav = new StackPanel { Orientation = Orientation.Horizontal };
-        nav.Children.Add(NavButton(Theme.Glyph('', 10, Theme.P.TextDim), Tr("지난달 (PgUp)", "Last month (PgUp)"), () => MonthStepped?.Invoke(-1)));
-        nav.Children.Add(NavButton(Theme.T(Tr("오늘", "Today"), 12, Theme.P.TextDim, Theme.Medium, false), Tr("오늘로 (Home)", "To today (Home)"), () => TodayClicked?.Invoke()));
-        nav.Children.Add(NavButton(Theme.Glyph('', 10, Theme.P.TextDim), Tr("다음 달 (PgDn)", "Next month (PgDn)"), () => MonthStepped?.Invoke(1)));
+        nav.Children.Add(NavButton(Theme.Glyph('', 10, Theme.P.TextDim), Tr("지난달 (PgUp)", "Previous Month (PgUp)"), () => MonthStepped?.Invoke(-1)));
+        nav.Children.Add(NavButton(Theme.T(Tr("오늘", "Today"), 12, Theme.P.TextDim, Theme.Medium, false), Tr("오늘로 (Home)", "Go to Today (Home)"), () => TodayClicked?.Invoke()));
+        nav.Children.Add(NavButton(Theme.Glyph('', 10, Theme.P.TextDim), Tr("다음 달 (PgDn)", "Next Month (PgDn)"), () => MonthStepped?.Invoke(1)));
         Grid.SetColumn(nav, 1);
         head.Children.Add(nav);
         root.Children.Add(head);

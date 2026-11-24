@@ -55,7 +55,7 @@ internal sealed class PreviewPane : Grid
         if (d is null) return;
 
         // facts
-        if (d.Meta.Count > 0) meta.Children.Add(Pad(Section2.Header(Tr("정보", "Details"), null)));
+        if (d.Meta.Count > 0) meta.Children.Add(Pad(Section2.Header(Tr("정보", "About"), null)));
         foreach (var (label, value) in d.Meta) meta.Children.Add(MetaLine(label, value));
 
         // the big one
@@ -190,7 +190,7 @@ internal sealed class PreviewPane : Grid
         if (h > 0 && w < 900) img.MaxHeight = h;
         stage.Children.Clear();
         stage.Children.Add(img);
-        if (w > 0) meta.Children.Insert(Math.Min(3, meta.Children.Count), MetaLine(Tr("해상도", "Resolution"), $"{w} × {h}"));
+        if (w > 0) meta.Children.Insert(Math.Min(3, meta.Children.Count), MetaLine(Tr("해상도", "Dimensions"), $"{w} × {h}"));
     }
 
     private void Play(string path, Grid stage, int v)
@@ -204,7 +204,7 @@ internal sealed class PreviewPane : Grid
             Stretch = Stretch.Uniform,
             ScrubbingEnabled = false,
             Cursor = Cursors.Hand,
-            ToolTip = Tr("소리 없이 미리 보기 · 클릭하면 멈춤", "Muted preview · click to pause"),
+            ToolTip = Tr("소리 없이 미리 보기 · 클릭하면 멈춤", "Muted preview · Click to pause"),
         };
         bool paused = false;
         p.MediaOpened += (_, _) =>
@@ -215,7 +215,7 @@ internal sealed class PreviewPane : Grid
                 var t = p.NaturalDuration.TimeSpan;
                 meta.Children.Insert(Math.Min(3, meta.Children.Count), MetaLine(Tr("길이", "Length"), t.TotalHours >= 1 ? t.ToString(@"h\:mm\:ss") : t.ToString(@"m\:ss")));
             }
-            if (p.NaturalVideoWidth > 0) meta.Children.Insert(Math.Min(3, meta.Children.Count), MetaLine(Tr("해상도", "Resolution"), $"{p.NaturalVideoWidth} × {p.NaturalVideoHeight}"));
+            if (p.NaturalVideoWidth > 0) meta.Children.Insert(Math.Min(3, meta.Children.Count), MetaLine(Tr("해상도", "Dimensions"), $"{p.NaturalVideoWidth} × {p.NaturalVideoHeight}"));
             // the thumbnail underneath goes once real frames come
             if (stage.Children.Count > 1) stage.Children.RemoveAt(0);
         };

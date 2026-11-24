@@ -13,9 +13,9 @@ namespace Bloom.Ui;
 /// The field's Tag answers the keys while it is typed in, the way 설정's HandleKey asks number fields.
 internal sealed class DurationField : StackPanel
 {
-    public static (string key, string label, int minutes)[] MinutesHours => new[] { ("min", Tr("분", "min"), 1), ("h", Tr("시간", "h"), 60) };
+    public static (string key, string label, int minutes)[] MinutesHours => new[] { ("min", Tr("분", "min"), 1), ("h", Tr("시간", "hr"), 60) };
 
-    public static (string key, string label, int minutes)[] MinutesHoursDays => new[] { ("min", Tr("분", "min"), 1), ("h", Tr("시간", "h"), 60), ("d", Tr("일", "d"), 1440) };
+    public static (string key, string label, int minutes)[] MinutesHoursDays => new[] { ("min", Tr("분", "min"), 1), ("h", Tr("시간", "hr"), 60), ("d", Tr("일", "days"), 1440) };
 
     private readonly TextBox box;
     private readonly Segmented unit;

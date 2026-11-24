@@ -269,8 +269,8 @@ internal static class MusicPlayer
     public static bool OpenPlaylist(string path, bool add = false)
     {
         string why;
-        if (External) why = Tr("재생목록은 직접 재생에서만 열 수 있음 — 설정 > 도구 > 미니 플레이어", "Playlists open only with direct playing — Settings > Tools > Mini player");
-        else if (Playlists.Read(path) is not { Count: > 0 } tracks) why = Tr("재생할 곡이 없는 재생목록", "A playlist with no song to play");
+        if (External) why = Tr("재생목록은 직접 재생에서만 열 수 있습니다 — 설정 > 도구 > 미니 플레이어", "Playlists can only be opened in Direct Playback mode — Settings > Tools > Mini Player");
+        else if (Playlists.Read(path) is not { Count: > 0 } tracks) why = Tr("재생할 곡이 없는 재생목록", "Playlist has no playable tracks");
         else
         {
             if (add) EnqueueAll(tracks);
@@ -278,7 +278,7 @@ internal static class MusicPlayer
             return true;
         }
         Note = why;
-        Notices.Result(false, Tr("미니 플레이어", "Mini player"), Path.GetFileName(path), why);
+        Notices.Result(false, Tr("미니 플레이어", "Mini Player"), Path.GetFileName(path), why);
         Changed?.Invoke();
         return false;
     }
@@ -439,7 +439,7 @@ internal static class MusicPlayer
             if (!ReferenceEquals(s, media)) return;
             var t = Queue.Current;
             playing = paused = false;
-            if (t is not null) Skipped(new List<(Track, string)> { (t, Tr("열 수 없는 파일이에요", "The file cannot be opened") + (e.ErrorException is { } ex ? " · " + ex.Message : "")) }, true);
+            if (t is not null) Skipped(new List<(Track, string)> { (t, Tr("열 수 없는 파일입니다", "Cannot open this file") + (e.ErrorException is { } ex ? " · " + ex.Message : "")) }, true);
             if (++failedRun < Queue.Items.Count) Advance(1);
             else Changed?.Invoke(); // none of them opens
         };
@@ -523,10 +523,10 @@ internal static class MusicPlayer
     private static void Skipped(List<(Track track, string reason)> list, bool passedOver)
     {
         if (list.Count == 0) return;
-        string title = list.Count == 1 ? list[0].track.Line : Tr($"{list.Count}곡", $"{list.Count} songs");
-        string head = passedOver ? Tr("건너뛰었어요", "Skipped") : Tr("재생하지 않았어요", "Not played");
+        string title = list.Count == 1 ? list[0].track.Line : Tr($"{list.Count}곡", $"{list.Count} tracks");
+        string head = passedOver ? Tr("건너뛰었습니다", "Skipped") : Tr("재생하지 않았습니다", "Not played");
         Note = list[0].reason;
-        Notices.Result(false, Tr("미니 플레이어", "Mini player"), $"{head} · {title}", list[0].reason);
+        Notices.Result(false, Tr("미니 플레이어", "Mini Player"), $"{head} · {title}", list[0].reason);
         Changed?.Invoke();
     }
 
@@ -584,7 +584,7 @@ internal static class MusicPlayer
         {
             if (!IsRunning(way))
             {
-                Note = Tr($"{Name}이(가) 꺼져 있어요 — 곡을 고르면 함께 켜져요", $"{Name} is not running — picking a song starts it");
+                Note = Tr($"{Name}이(가) 꺼져 있습니다 — 곡을 선택하면 함께 실행됩니다", $"{Name} is not running — selecting a track will launch it");
                 return false;
             }
             if (await MediaSession.ControlAsync(way, op))
@@ -596,7 +596,7 @@ internal static class MusicPlayer
         string? exe = FindExe(way);
         if (exe is null)
         {
-            Note = Tr($"{Name}을(를) 찾지 못했어요 — 설정 > 도구 > 미니 플레이어에서 실행 파일 경로를 알려 주세요", $"Could not find {Name} — set its program path in Settings > Tools > Mini player");
+            Note = Tr($"{Name}을(를) 찾을 수 없습니다 — 설정 > 도구 > 미니 플레이어에서 실행 파일 경로를 지정하세요", $"Could not find {Name} — set the executable path in Settings > Tools > Mini Player");
             return false;
         }
         if (PlayerCommands.Args(way, op, file) is not { } args) return false;
@@ -614,7 +614,7 @@ internal static class MusicPlayer
         }
         catch (Exception e) when (e is System.ComponentModel.Win32Exception or InvalidOperationException)
         {
-            Note = Tr($"{Name}을(를) 실행하지 못했어요 · {e.Message}", $"Could not start {Name} · {e.Message}");
+            Note = Tr($"{Name}을(를) 실행하지 못했습니다 · {e.Message}", $"Could not launch {Name} · {e.Message}");
             Log.Write("player: " + e.Message);
             return false;
         }
@@ -671,7 +671,7 @@ internal static class MusicPlayer
         exPlaying = running && exPlaying; // a player that does not say whether it plays: what we sent holds while it is on (it is starting)
         exTitle = exArtist = "";
         exPosition = exLength = TimeSpan.Zero;
-        Note = running ? Tr($"{Name}이(가) 지금 곡을 알려 주지 않아요", $"{Name} does not tell which song is on") : Tr($"{Name}이(가) 꺼져 있어요", $"{Name} is not running");
+        Note = running ? Tr($"{Name}에서 현재 곡 정보를 가져올 수 없습니다", $"{Name} is not reporting the current track") : Tr($"{Name}이(가) 꺼져 있습니다", $"{Name} is not running");
     }
 
     // ── JRiver (MCWS) ───────────────────────────────────────────────────────────────────────────
@@ -694,7 +694,7 @@ internal static class MusicPlayer
     {
         if (Mcws.Base(Settings.Current.JriverAddress) is not { } baseUrl)
         {
-            Note = Tr("JRiver 주소가 올바르지 않아요 — 설정 > 도구 > 미니 플레이어", "The JRiver address is not valid — Settings > Tools > Mini player");
+            Note = Tr("JRiver 주소가 올바르지 않습니다 — 설정 > 도구 > 미니 플레이어", "Invalid JRiver address — Settings > Tools > Mini Player");
             return null;
         }
         string? auth = await Task.Run(JriverAuth);
@@ -705,19 +705,19 @@ internal static class MusicPlayer
             using var res = await Http().SendAsync(req);
             if (res.StatusCode == HttpStatusCode.Unauthorized)
             {
-                Note = Tr("JRiver가 사용자 이름이나 비밀번호를 받아 주지 않아요 — 설정 > 도구 > 미니 플레이어", "JRiver did not accept the user name or password — Settings > Tools > Mini player");
+                Note = Tr("JRiver 사용자 이름 또는 비밀번호가 올바르지 않습니다 — 설정 > 도구 > 미니 플레이어", "JRiver rejected the username or password — Settings > Tools > Mini Player");
                 return null;
             }
             if (!res.IsSuccessStatusCode)
             {
-                Note = Tr($"JRiver가 요청을 거절했어요 (HTTP {(int)res.StatusCode})", $"JRiver refused the request (HTTP {(int)res.StatusCode})");
+                Note = Tr($"JRiver에서 요청을 거부했습니다 (HTTP {(int)res.StatusCode})", $"JRiver rejected the request (HTTP {(int)res.StatusCode})");
                 return null;
             }
             return await res.Content.ReadAsStringAsync();
         }
         catch (Exception e) when (e is HttpRequestException or TaskCanceledException)
         {
-            Note = Tr("JRiver에 닿지 않아요 — JRiver가 켜져 있고 웹 서비스(Media Network)가 켜져 있나요?", "Cannot reach JRiver — is it running with its web service (Media Network) on?");
+            Note = Tr("JRiver에 연결할 수 없습니다 — JRiver와 웹 서비스(Media Network)가 켜져 있는지 확인하세요", "Cannot reach JRiver — is JRiver running with Web Service (Media Network) enabled?");
             return null;
         }
     }
@@ -743,7 +743,7 @@ internal static class MusicPlayer
             Via = "MCWS";
             return true;
         }
-        Note = Tr("JRiver가 이 요청을 받아들이지 않았어요", "JRiver did not accept this request");
+        Note = Tr("JRiver에서 이 요청을 받아들이지 않았습니다", "JRiver did not accept this request");
         return false;
     }
 
@@ -757,7 +757,7 @@ internal static class MusicPlayer
             return;
         }
         var info = Mcws.ParseInfo(body);
-        Note = info.Ok ? null : Tr("JRiver의 답을 읽지 못했어요", "Could not read JRiver's answer");
+        Note = info.Ok ? null : Tr("JRiver의 응답을 읽지 못했습니다", "Could not read the response from JRiver");
         exHas = info.Has;
         exPlaying = info.Playing;
         exTitle = info.Title;

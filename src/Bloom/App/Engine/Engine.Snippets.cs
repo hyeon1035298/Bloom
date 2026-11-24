@@ -36,8 +36,8 @@ internal sealed partial class Engine
         {
             Id = "snip:new",
             Kind = ItemKind.Command,
-            Title = typed.Length > 0 ? Tr($"‘{Clip(typed, SnippetNameRoom)}’ 상용구로 저장", $"Save ‘{Clip(typed, SnippetNameRoom)}’ as a snippet") : NewTitle(SnippetKind),
-            Subtitle = Tr("자주 쓰는 글 · Enter로 앞의 창에 붙여넣기 · {date} {time} {clipboard} {input}", "A text you use often · Enter pastes it into the window in front · {date} {time} {clipboard} {input}"),
+            Title = typed.Length > 0 ? Tr($"‘{Clip(typed, SnippetNameRoom)}’ 상용구로 저장", $"Save ‘{Clip(typed, SnippetNameRoom)}’ as snippet") : NewTitle(SnippetKind),
+            Subtitle = Tr("자주 쓰는 글 · Enter로 앞의 창에 붙여넣기 · {date} {time} {clipboard} {input}", "Reusable text · Press Enter to paste into active window · {date} {time} {clipboard} {input}"),
             Icon = IconSpec.Of(G.Add, true),
             PrimaryLabel = Tr("만들기", "Create"),
             StayOpen = true,
@@ -54,7 +54,7 @@ internal sealed partial class Engine
         var item = FromCommand(c, null);
         item.Accessory = c.Keyword;
         string text = UserCommands.SnippetText(c.Body);
-        item.Detail = () => TextDetail(text, Tr("상용구", "Snippet")).Add(Tr("단축어", "Keyword"), c.Keyword);
+        item.Detail = () => TextDetail(text, Tr("상용구", "Snippets")).Add(Tr("단축어", "Keyword"), c.Keyword);
         // the list keeps the file's order: a row dragged to another place stays there (row ids are "my:" + the command's)
         item.MoveTo = (target, after) => UserCommands.Move(c.Id, target[(target.IndexOf(':') + 1)..], after);
         return item;
@@ -67,7 +67,7 @@ internal sealed partial class Engine
         string body = SnippetBody(text);
         if (UserCommands.Current.Items.Find(c => c.Kind == SnippetKind && c.Body == body) is { } same)
         {
-            host.Window.ShowToast(Tr($"‘{same.Name}’ 상용구에 이미 있음", $"Already a snippet: ‘{same.Name}’"));
+            host.Window.ShowToast(Tr($"‘{same.Name}’ 상용구에 이미 있음", $"‘{same.Name}’ is already in snippets"));
             return;
         }
         if (body.Contains("{input}", StringComparison.OrdinalIgnoreCase))
@@ -76,9 +76,9 @@ internal sealed partial class Engine
             return;
         }
         string name = SuggestCommandName(SnippetKind, SnippetBody(text.Trim()));
-        var c = UserCommands.New(SnippetKind, name.Length > 0 ? name : Tr("상용구", "Snippet"), body, null);
+        var c = UserCommands.New(SnippetKind, name.Length > 0 ? name : Tr("상용구", "Snippets"), body, null);
         UserCommands.Upsert(c);
-        host.Window.ShowToast(Tr($"‘{c.Name}’ 상용구로 저장 완료", $"Saved ‘{c.Name}’ as a snippet"));
+        host.Window.ShowToast(Tr($"‘{c.Name}’ 상용구로 저장 완료", $"Saved ‘{c.Name}’ as snippet"));
     }
 
     /// A snippet keeps its lines in one as "\n" (UserCommands.SnippetText turns them back).

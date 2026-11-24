@@ -446,9 +446,9 @@ internal sealed class ClaudeSession : IChatSession
                         Status?.Invoke(tool switch
                         {
                             "WebSearch" or "web_search" => Tr("웹 검색 중…", "Searching the web…"),
-                            "WebFetch" or "web_fetch" => Tr("페이지 읽는 중…", "Reading a page…"),
-                            "Read" => Tr("첨부 파일 읽는 중…", "Reading the attachments…"),
-                            "Write" => Tr("파일 만드는 중…", "Making a file…"),
+                            "WebFetch" or "web_fetch" => Tr("페이지 읽는 중…", "Reading page…"),
+                            "Read" => Tr("첨부 파일 읽는 중…", "Reading attachment…"),
+                            "Write" => Tr("파일 만드는 중…", "Creating file…"),
                             _ => doing?.Invoke(tool) ?? Tr($"{tool} 사용 중…", $"Using {tool}…"),
                         });
                     }

@@ -23,7 +23,7 @@ internal sealed partial class SettingsView
         if (screens.Count == 0) return false;
         string value = v.Text(key);
         var chosen = RunCardPictures.Chosen(value, screens);
-        var options = screens.Select(s => (RunCardScreenValue(s), $"{s.Number} · {RunCardPictures.NameOf(s)}" + (s.Primary ? Tr(" (주)", " (main)") : ""))).ToList();
+        var options = screens.Select(s => (RunCardScreenValue(s), $"{s.Number} · {RunCardPictures.NameOf(s)}" + (s.Primary ? Tr(" (주)", " (Primary)") : ""))).ToList();
         if (chosen is null && RunCardPictures.Number(value) is > 0 and var n) options.Add((value, $"{n} · {Tr("연결 안 됨", "Not connected")}"));
         void Pick(string x)
         {
@@ -59,7 +59,7 @@ internal sealed partial class SettingsView
         var screen = RunCardPictures.Chosen(v.Text("card.monitor"), screens) ?? screens.FirstOrDefault(s => s.Primary);
         int size = int.TryParse(v.Text("card.size"), out int z) ? z : 100;
         var stage = RunCardPictures.Stage(screen, places[at], Name, v.Int("card.margin"), size, v.Text("card.arrange") == "row", v.Text("pill.width") != "fit", Pick,
-            Tr("자리를 누르면 카드가 그리로 옮겨 갑니다 · 여백과 크기를 바꾸면 그림도 따라 바뀝니다", "Click a place to move the cards there · The picture follows the margin and size"));
+            Tr("자리를 누르면 카드가 그리로 옮겨 갑니다 · 여백과 크기를 바꾸면 그림도 따라 바뀝니다", "Click a position to move the card there · Preview updates as you adjust margins and size"));
         Place(title, sub, () => Line(title, sub, null, folding && filter.Length > 0, stage, picked: Name(places[at])), () => Pick(places[(at + 1) % places.Length]), d =>
         {
             Pick(places[Math.Clamp(at + d, 0, places.Length - 1)]);

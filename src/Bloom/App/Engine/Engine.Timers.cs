@@ -16,14 +16,14 @@ internal sealed partial class Engine
     {
         bool timer = ask.Kind == "timer";
         string title = timer
-            ? ask.Label.EndsWith(Tr("타이머", "timer"), StringComparison.OrdinalIgnoreCase) ? Tr($"{ask.Label} 시작", $"Start {ask.Label}") : Tr($"{Timers.DurationText(ask.Length ?? TimeSpan.Zero)} 타이머 시작 · {ask.Label}", $"Start a {Timers.DurationText(ask.Length ?? TimeSpan.Zero)} timer · {ask.Label}")
-            : ask.Length is { } len ? Tr($"{Timers.DurationText(len)} 뒤 알림 · {ask.Label}", $"Remind in {Timers.DurationText(len)} · {ask.Label}") : Tr($"{Timers.WhenText(ask.Due)} 알림 · {ask.Label}", $"Remind {Timers.WhenText(ask.Due)} · {ask.Label}");
+            ? ask.Label.EndsWith(Tr("타이머", "Timer"), StringComparison.OrdinalIgnoreCase) ? Tr($"{ask.Label} 시작", $"Start {ask.Label}") : Tr($"{Timers.DurationText(ask.Length ?? TimeSpan.Zero)} 타이머 시작 · {ask.Label}", $"Start {Timers.DurationText(ask.Length ?? TimeSpan.Zero)} timer · {ask.Label}")
+            : ask.Length is { } len ? Tr($"{Timers.DurationText(len)} 뒤 알림 · {ask.Label}", $"Remind in {Timers.DurationText(len)} · {ask.Label}") : Tr($"{Timers.WhenText(ask.Due)} 알림 · {ask.Label}", $"Remind at {Timers.WhenText(ask.Due)} · {ask.Label}");
         return new ResultItem
         {
             Id = "timer:start",
             Kind = ItemKind.Command,
             Title = title,
-            Subtitle = timer ? Tr($"{Timers.WhenText(ask.Due)} 종료", $"Ends {Timers.WhenText(ask.Due)}") : ask.Length is null ? Tr($"{Timers.LeftText(ask.Due - DateTime.Now)} 남음", $"{Timers.LeftText(ask.Due - DateTime.Now)} left") : Tr($"{Timers.WhenText(ask.Due)} 알림", $"Reminds you {Timers.WhenText(ask.Due)}"),
+            Subtitle = timer ? Tr($"{Timers.WhenText(ask.Due)} 종료", $"Ends at {Timers.WhenText(ask.Due)}") : ask.Length is null ? Tr($"{Timers.LeftText(ask.Due - DateTime.Now)} 남음", $"{Timers.LeftText(ask.Due - DateTime.Now)} left") : Tr($"{Timers.WhenText(ask.Due)} 알림", $"Reminder at {Timers.WhenText(ask.Due)}"),
             Icon = IconSpec.Of(timer ? G.Stopwatch : G.Calendar, true),
             PrimaryLabel = Tr("시작", "Start"),
             StayOpen = stay,
@@ -33,7 +33,7 @@ internal sealed partial class Engine
                 var due = ask.Length is { } l ? DateTime.Now + l : ask.Due;
                 Timers.Add(ask.Kind, ask.Label, due);
                 if (stay) host.Window.Go(Mode.Timers);
-                host.Window.ShowToast(timer ? Tr($"타이머 시작 · {Timers.WhenText(due)} 종료", $"Timer started · ends {Timers.WhenText(due)}") : Tr($"{Timers.WhenText(due)} 알림 설정됨", $"Reminder set for {Timers.WhenText(due)}"));
+                host.Window.ShowToast(timer ? Tr($"타이머 시작 · {Timers.WhenText(due)} 종료", $"Timer started · Ends at {Timers.WhenText(due)}") : Tr($"{Timers.WhenText(due)} 알림 설정됨", $"Reminder set for {Timers.WhenText(due)}"));
             },
         };
     }
@@ -46,12 +46,12 @@ internal sealed partial class Engine
         Subtitle = (e.Kind == "timer" ? Tr($"타이머 · {Timers.WhenText(e.DueAt)}", $"Timer · {Timers.WhenText(e.DueAt)}") : Tr($"알림 · {Timers.WhenText(e.DueAt)}", $"Reminder · {Timers.WhenText(e.DueAt)}")),
         Live = () => Timers.LeftText(e.Left),
         Icon = IconSpec.Of(e.Kind == "timer" ? G.Stopwatch : G.Calendar, true),
-        PrimaryLabel = Tr("5분 더", "5 more min"),
+        PrimaryLabel = Tr("5분 더", "+5 min"),
         StayOpen = true,
         Run = () => Timers.Extend(e.Id, TimeSpan.FromMinutes(5)),
         MoreActions = () => new List<ActionItem>
         {
-            new() { Title = Tr("1분 더", "1 more min"), Glyph = G.Add, StayOpen = true, Run = () => Timers.Extend(e.Id, TimeSpan.FromMinutes(1)) },
+            new() { Title = Tr("1분 더", "+1 min"), Glyph = G.Add, StayOpen = true, Run = () => Timers.Extend(e.Id, TimeSpan.FromMinutes(1)) },
             new() { Title = Tr("취소", "Cancel"), Glyph = G.Delete, Danger = true, StayOpen = true, Run = () => Timers.Remove(e.Id) },
         },
     };
@@ -64,20 +64,20 @@ internal sealed partial class Engine
         {
             // in this view a bare length or time is enough: "10분", "15:30 회의" (as in the 타이머 · 알림 tool)
             var ask = TimeParse.Read(t, timerField: true);
-            var s = new Section(Tr("새로 시작", "Start new"));
+            var s = new Section(Tr("새로 시작", "Start New"));
             if (ask is not null) s.Items.Add(StartTimerItem(ask, true));
-            else s.Items.Add(new ResultItem { Id = "timer:help", Kind = ItemKind.Info, Title = Tr("시간 인식 실패 · ‘10분’ 또는 ‘오후 3시 회의’처럼 입력하세요", "Time not recognized. Enter ‘10 min’ or ‘3pm meeting’."), Subtitle = Tr("예: 10분 · 1시간 30분 · 15:30 회의 · 내일 9시 업로드", "e.g. 10 min · 1h 30m · 15:30 meeting · tomorrow 9am upload"), Icon = IconSpec.Of(G.Info), PrimaryLabel = "" });
+            else s.Items.Add(new ResultItem { Id = "timer:help", Kind = ItemKind.Info, Title = Tr("시간 인식 실패 · ‘10분’ 또는 ‘오후 3시 회의’처럼 입력하세요", "Could not recognize time · Try ‘10m’ or ‘3pm meeting’"), Subtitle = Tr("예: 10분 · 1시간 30분 · 15:30 회의 · 내일 9시 업로드", "e.g. 10m · 1h 30m · 15:30 meeting · tomorrow 9am upload"), Icon = IconSpec.Of(G.Info), PrimaryLabel = "" });
             sections.Add(s);
         }
         else
         {
-            var quick = new Section(Tr("바로 시작", "Quick start"), Tr("또는 \"25분 집중\", \"6시 퇴근 알림\"처럼 적기", "or type \"25 min focus\", \"remind me at 6pm to leave\""));
+            var quick = new Section(Tr("바로 시작", "Quick Start"), Tr("또는 \"25분 집중\", \"6시 퇴근 알림\"처럼 적기", "Or type e.g. \"25m focus\" or \"6pm leave work\""));
             foreach (int m in new[] { 5, 10, 25, 60 })
                 quick.Items.Add(StartTimerItem(new TimerAsk("timer", TimeSpan.FromMinutes(m), DateTime.Now.AddMinutes(m), Tr($"{Timers.DurationText(TimeSpan.FromMinutes(m))} 타이머", $"{Timers.DurationText(TimeSpan.FromMinutes(m))} timer")), true));
             for (int i = 0; i < quick.Items.Count; i++) quick.Items[i].Id = "timer:quick" + i;
             sections.Add(quick);
         }
-        var waiting = new Section(Tr("진행 중", "Running"), Tr("Enter 5분 더 · Ctrl+K 취소", "Enter 5 more min · Ctrl+K cancel"));
+        var waiting = new Section(Tr("진행 중", "In progress"), Tr("Enter 5분 더 · Ctrl+K 취소", "Enter +5 min · Ctrl+K Cancel"));
         foreach (var e in Timers.Waiting) waiting.Items.Add(FromTimer(e));
         if (waiting.Items.Count > 0) sections.Insert(t.Length > 0 ? 1 : 0, waiting);
         return sections;
@@ -88,7 +88,7 @@ internal sealed partial class Engine
     {
         var d = new Search.Detail { Fill = new SolidColorBrush(c) };
         d.Add("HEX", ColorBook.Hex(c)).Add("RGB", ColorBook.Rgb(c)).Add("HSL", ColorBook.Hsl(c)).Add(Tr("이름", "Name"), ColorBook.Name(c));
-        d.Add(Tr("흰 글자 대비", "Contrast with white text"), $"{ColorBook.Contrast(c, System.Windows.Media.Colors.White):0.0}:1").Add(Tr("검은 글자 대비", "Contrast with black text"), $"{ColorBook.Contrast(c, System.Windows.Media.Colors.Black):0.0}:1");
+        d.Add(Tr("흰 글자 대비", "Contrast on white text"), $"{ColorBook.Contrast(c, System.Windows.Media.Colors.White):0.0}:1").Add(Tr("검은 글자 대비", "Contrast on black text"), $"{ColorBook.Contrast(c, System.Windows.Media.Colors.Black):0.0}:1");
         return d;
     }
 
@@ -109,7 +109,7 @@ internal sealed partial class Engine
             {
                 new() { Title = Tr("RGB 복사", "Copy RGB"), Glyph = G.Copy, Run = () => Search.Launch.Copy(ColorBook.Rgb(c)) },
                 new() { Title = Tr("HSL 복사", "Copy HSL"), Glyph = G.Copy, Run = () => Search.Launch.Copy(ColorBook.Hsl(c)) },
-                new() { Title = Tr("이 색으로 그라데이션 보기", "Gradients from this colour"), Glyph = G.Palette, StayOpen = true, Run = () => host.ShowColor(c) },
+                new() { Title = Tr("이 색으로 그라데이션 보기", "View gradients with this color"), Glyph = G.Palette, StayOpen = true, Run = () => host.ShowColor(c) },
             },
         };
     }
@@ -136,9 +136,9 @@ internal sealed partial class Engine
             },
             MoreActions = () =>
             {
-                var list = new List<ActionItem> { new() { Title = Tr("색 코드만 복사", "Copy the colour codes only"), Glyph = G.Copy, Run = () => Search.Launch.Copy(string.Join(", ", stops.Select(ColorBook.Hex))) } };
+                var list = new List<ActionItem> { new() { Title = Tr("색 코드만 복사", "Copy color codes only"), Glyph = G.Copy, Run = () => Search.Launch.Copy(string.Join(", ", stops.Select(ColorBook.Hex))) } };
                 foreach (var c in stops.Distinct())
-                    list.Add(new() { Title = Tr($"{ColorBook.Hex(c)}에서 다시 추천", $"Suggest again from {ColorBook.Hex(c)}"), Glyph = G.Palette, StayOpen = true, Run = () => host.ShowColor(c) });
+                    list.Add(new() { Title = Tr($"{ColorBook.Hex(c)}에서 다시 추천", $"More suggestions from {ColorBook.Hex(c)}"), Glyph = G.Palette, StayOpen = true, Run = () => host.ShowColor(c) });
                 return list;
             },
         };
@@ -147,18 +147,18 @@ internal sealed partial class Engine
     public List<Section> ColorView(string text)
     {
         var typed = ColorBook.Parse(text);
-        var pickItem = new ResultItem { Id = "color:pick", Kind = ItemKind.Command, Title = Tr("화면에서 색 찍기", "Pick a colour from the screen"), Subtitle = Tr("돋보기로 한 픽셀까지 · 방향키로 미세 이동", "A magnifier down to one pixel · arrow keys nudge"), Icon = IconSpec.Of(G.Eyedrop, true), PrimaryLabel = Tr("찍기", "Pick"), Run = () => host.StartColor() };
+        var pickItem = new ResultItem { Id = "color:pick", Kind = ItemKind.Command, Title = Tr("화면에서 색 찍기", "Pick color from screen"), Subtitle = Tr("돋보기로 한 픽셀까지 · 방향키로 미세 이동", "Pixel-accurate magnifier · Arrow keys to nudge"), Icon = IconSpec.Of(G.Eyedrop, true), PrimaryLabel = Tr("찍기", "Pick"), Run = () => host.StartColor() };
         if ((typed ?? ColorBook.Now) is not { } c)
         {
-            var empty = new Section(Tr("컬러 피커", "Color picker"));
+            var empty = new Section(Tr("컬러 피커", "Color Picker"));
             empty.Items.Add(pickItem);
-            empty.Items.Add(new ResultItem { Id = "color:help", Kind = ItemKind.Info, Title = Tr("색 코드 입력 가능", "You can type a colour code too"), Subtitle = "#ff5a8a · rgb(255, 90, 138) · hsl(342, 100%, 68%)", Icon = IconSpec.Of(G.Info), PrimaryLabel = "" });
+            empty.Items.Add(new ResultItem { Id = "color:help", Kind = ItemKind.Info, Title = Tr("색 코드 입력 가능", "Enter a color code"), Subtitle = "#ff5a8a · rgb(255, 90, 138) · hsl(342, 100%, 68%)", Icon = IconSpec.Of(G.Info), PrimaryLabel = "" });
             var none = new List<Section> { empty };
             if (SavedPalettes(null, 4) is { } palettes) none.Add(palettes);
             return none;
         }
         var sections = new List<Section>();
-        var now = new Section(typed is null ? Tr("찍은 색", "Picked colour") : Tr("적은 색", "Typed colour"), ColorBook.Name(c));
+        var now = new Section(typed is null ? Tr("찍은 색", "Picked Color") : Tr("입력한 색", "Entered Color"), ColorBook.Name(c));
         string key = ColorBook.Hex(c);
         now.Items.Add(FromColor(c, "color:hex:" + key));
         var rgb = FromColor(c, "color:rgb:" + key, ColorBook.Rgb(c));
@@ -171,9 +171,9 @@ internal sealed partial class Engine
         now.Items.Add(hsl);
         if (typed is not null)
         {
-            var keep = FromColor(c, "color:keep:" + key, Tr("최근 색에 넣기", "Add to recent colours"));
+            var keep = FromColor(c, "color:keep:" + key, Tr("최근 색에 추가", "Add to recent colors"));
             keep.Icon = IconSpec.Of(G.Add);
-            keep.PrimaryLabel = Tr("넣기", "Add");
+            keep.PrimaryLabel = Tr("추가", "Add");
             keep.StayOpen = true;
             keep.Run = () => host.ShowColor(c);
             now.Items.Add(keep);
@@ -182,7 +182,7 @@ internal sealed partial class Engine
         sections.Add(now);
         sections.AddRange(Suggestions(c));
 
-        var recent = new Section(Tr("최근 색", "Recent colours"), Tr("Enter HEX 복사", "Enter copies HEX"));
+        var recent = new Section(Tr("최근 색", "Recent Colors"), Tr("Enter HEX 복사", "Enter to copy HEX"));
         foreach (string hex in ColorBook.Current.Recent.Skip(typed is null ? 1 : 0).Take(8))
             if (ColorBook.Parse(hex) is { } rc)
             {
@@ -199,11 +199,11 @@ internal sealed partial class Engine
     private List<Section> Suggestions(Color c)
     {
         string key = ColorBook.Hex(c);
-        var grads = new Section(Tr("그라데이션 추천", "Suggested gradients"), Tr("Enter CSS 복사", "Enter copies CSS"));
+        var grads = new Section(Tr("그라데이션 추천", "Suggested Gradients"), Tr("Enter CSS 복사", "Enter to copy CSS"));
         int n = 0;
         foreach (var (name, about, stops) in ColorBook.Suggest(c)) grads.Items.Add(GradientItem($"grad:{key}:{n++}", name, about, stops));
         var sections = new List<Section> { grads };
-        var named = new Section(Tr("어울리는 프리셋", "Matching presets"));
+        var named = new Section(Tr("어울리는 프리셋", "Matching Presets"));
         foreach (var (name, a, b) in ColorBook.PresetsNear(c, 4)) named.Items.Add(GradientItem("preset:" + name, name, Tr("Bloom 프리셋", "Bloom preset"), new[] { a, b }));
         if (named.Items.Count > 0) sections.Add(named);
         return sections;
@@ -215,10 +215,10 @@ internal sealed partial class Engine
         if (ColorBook.Parse(text) is not { } c) return null;
         var item = FromColor(c, "color:typed:" + ColorBook.Hex(c));
         item.Subtitle = $"{ColorBook.Name(c)} · {ColorBook.Rgb(c)}";
-        item.PrimaryLabel = Tr("색 보기", "Show colour");
+        item.PrimaryLabel = Tr("색 보기", "View color");
         item.StayOpen = true;
         item.Run = () => host.ShowColor(c);
-        var s = new Section(Tr("색", "Colour"));
+        var s = new Section(Tr("색", "Color"));
         s.Items.Add(item);
         return s;
     }

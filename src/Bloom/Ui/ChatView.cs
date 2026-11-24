@@ -133,8 +133,8 @@ internal sealed class ChatView : Grid, IComposerHost
             return;
         }
         Launch.Reveal(path);
-        Notices.Result(false, Tr("Bloom · AI 파일", "Bloom · AI file"), Tr($"‘{Path.GetFileName(path)}’ 폴더에서 표시", $"Showing ‘{Path.GetFileName(path)}’ in its folder"),
-            Tr("열면 실행되는 파일이라 바로 열지 않습니다. 내용을 확인한 뒤 직접 여세요.", "Opening this file would run it. Check it first, then open it yourself."));
+        Notices.Result(false, Tr("Bloom · AI 파일", "Bloom · AI File"), Tr($"‘{Path.GetFileName(path)}’ 폴더에서 표시", $"Showing ‘{Path.GetFileName(path)}’ in folder"),
+            Tr("열면 실행되는 파일이라 바로 열지 않습니다. 내용을 확인한 뒤 직접 여세요.", "Executable files are not opened directly. Verify the file and open it manually."));
     }
 
     /// A link in an AI answer: a web address in the browser, a file or folder on this PC shown in its folder (never run);
@@ -152,11 +152,11 @@ internal sealed class ChatView : Grid, IComposerHost
         if (DocLink.IsNetwork(target))
         {
             Log.Write("chat: refused a link to another computer");
-            Notices.Result(false, Tr("Bloom · 링크", "Bloom · Link"), Tr("링크 열지 않음", "Link not opened"), Tr("다른 컴퓨터의 파일 링크는 열지 않습니다", "Links to files on other computers don't open"));
+            Notices.Result(false, Tr("Bloom · 링크", "Bloom · Link"), Tr("링크 열지 않음", "Link blocked"), Tr("다른 컴퓨터의 파일 링크는 열지 않습니다", "File links pointing to other computers are blocked"));
             return;
         }
         if (File.Exists(target) || Directory.Exists(target)) Launch.Reveal(target);
-        else Notices.Result(false, Tr("Bloom · 링크", "Bloom · Link"), Tr($"‘{Path.GetFileName(target)}’ 파일 없음", $"‘{Path.GetFileName(target)}’ isn't there"), null);
+        else Notices.Result(false, Tr("Bloom · 링크", "Bloom · Link"), Tr($"‘{Path.GetFileName(target)}’ 파일 없음", $"File ‘{Path.GetFileName(target)}’ not found"), null);
     }
 
     /// A file the AI made: a card with 열기 · 저장 · 폴더.
@@ -171,12 +171,12 @@ internal sealed class ChatView : Grid, IComposerHost
         g.Children.Add(icon);
         var text = new StackPanel { VerticalAlignment = VerticalAlignment.Center };
         text.Children.Add(Theme.T(Path.GetFileName(path), 13, Theme.P.Text, Theme.Medium));
-        text.Children.Add(Theme.T(File.Exists(path) ? Tr($"{Engine.Size(new FileInfo(path).Length)} · AI 생성 파일", $"{Engine.Size(new FileInfo(path).Length)} · made by AI") : Tr("파일이 없습니다. 다시 생성하거나 위치를 확인하세요.", "File not found. Create it again or check its location."), 11.5, Theme.P.TextFaint));
+        text.Children.Add(Theme.T(File.Exists(path) ? Tr($"{Engine.Size(new FileInfo(path).Length)} · AI 생성 파일", $"{Engine.Size(new FileInfo(path).Length)} · AI-generated file") : Tr("파일이 없습니다. 다시 생성하거나 위치를 확인하세요.", "File not found. Generate it again or check its location."), 11.5, Theme.P.TextFaint));
         Grid.SetColumn(text, 1);
         g.Children.Add(text);
         var acts = new StackPanel { Orientation = Orientation.Horizontal, VerticalAlignment = VerticalAlignment.Center };
         acts.Children.Add(Small(Tr("열기", "Open"), () => OpenMade(path)));
-        acts.Children.Add(Small(Tr("저장…", "Save…"), () => SaveCopy(path)));
+        acts.Children.Add(Small(Tr("저장…", "Save as…"), () => SaveCopy(path)));
         acts.Children.Add(Small(Tr("폴더", "Folder"), () => Launch.Reveal(path)));
         Grid.SetColumn(acts, 2);
         g.Children.Add(acts);
@@ -218,7 +218,7 @@ internal sealed class ChatView : Grid, IComposerHost
     {
         var dlg = new Microsoft.Win32.SaveFileDialog
         {
-            Title = Tr("파일 저장", "Save file"),
+            Title = Tr("파일 저장", "Save File"),
             FileName = Path.GetFileName(path),
             InitialDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Downloads"),
         };
@@ -230,7 +230,7 @@ internal sealed class ChatView : Grid, IComposerHost
         catch (Exception e) when (e is IOException or UnauthorizedAccessException)
         {
             Log.Error("save made file", e);
-            MessageBox.Show(Tr("파일을 저장하지 못했습니다. 저장 위치와 권한을 확인하고 다시 시도하세요.", "Could not save the file. Check the destination and permissions, then retry."), "Bloom", MessageBoxButton.OK, MessageBoxImage.Warning);
+            MessageBox.Show(Tr("파일을 저장하지 못했습니다. 저장 위치와 권한을 확인하고 다시 시도하세요.", "Could not save the file. Check the destination and permissions, then try again."), "Bloom", MessageBoxButton.OK, MessageBoxImage.Warning);
         }
     }
 
@@ -301,10 +301,10 @@ internal sealed class ChatView : Grid, IComposerHost
     private static FrameworkElement TokensLine(ApiTokens used, ChatThread t)
     {
         var all = t.Messages.Aggregate(default(ApiTokens), (sum, x) => x.Tokens is { } n ? sum + n : sum);
-        var line = Theme.T(Tr($"토큰 입력 {ApiTokens.Short(used.In)} · 출력 {ApiTokens.Short(used.Out)}", $"Tokens in {ApiTokens.Short(used.In)} · out {ApiTokens.Short(used.Out)}"),
+        var line = Theme.T(Tr($"토큰 입력 {ApiTokens.Short(used.In)} · 출력 {ApiTokens.Short(used.Out)}", $"Tokens: {ApiTokens.Short(used.In)} in · {ApiTokens.Short(used.Out)} out"),
             11, Theme.P.TextFaint, Theme.Regular, false);
         line.Margin = new Thickness(0, 6, 0, 0);
-        line.ToolTip = Tr($"이 대화 전체: 입력 {all.In:N0} · 출력 {all.Out:N0} 토큰", $"This whole chat: {all.In:N0} in · {all.Out:N0} out tokens");
+        line.ToolTip = Tr($"이 대화 전체: 입력 {all.In:N0} · 출력 {all.Out:N0} 토큰", $"Chat total: {all.In:N0} in · {all.Out:N0} out tokens");
         return line;
     }
 
@@ -391,7 +391,7 @@ internal sealed class ChatView : Grid, IComposerHost
             lt.HorizontalAlignment = HorizontalAlignment.Center;
             lt.Margin = new Thickness(0, 16, 0, 6);
             lens.Children.Add(lt);
-            var ls = Theme.T(Tr("빈 입력에서 Enter로 화면 설명 · 질문마다 사용량 1회", "Empty + Enter explains the screen · each question is 1 use"), 12.5, Theme.P.TextFaint, Theme.Regular, false);
+            var ls = Theme.T(Tr("빈 입력에서 Enter로 화면 설명 · 질문마다 사용량 1회", "Press Enter while empty to describe the screen · Uses 1 request per question"), 12.5, Theme.P.TextFaint, Theme.Regular, false);
             ls.HorizontalAlignment = HorizontalAlignment.Center;
             lens.Children.Add(ls);
             return lens;
@@ -403,7 +403,7 @@ internal sealed class ChatView : Grid, IComposerHost
         t.HorizontalAlignment = HorizontalAlignment.Center;
         t.Margin = new Thickness(0, 16, 0, 6);
         sp.Children.Add(t);
-        var s = Theme.T(Tr("최신 정보는 웹에서 찾아 답합니다 · 파일은 끌어다 놓거나 Ctrl+O", "Looks up recent things on the web · drop files or press Ctrl+O"), 12.5, Theme.P.TextFaint, Theme.Regular, false);
+        var s = Theme.T(Tr("최신 정보는 웹에서 찾아 답합니다 · 파일은 끌어다 놓거나 Ctrl+O", "Searches the web for up-to-date answers · Drag files here or press Ctrl+O"), 12.5, Theme.P.TextFaint, Theme.Regular, false);
         s.HorizontalAlignment = HorizontalAlignment.Center;
         sp.Children.Add(s);
         return sp;
@@ -434,7 +434,7 @@ internal sealed class ChatView : Grid, IComposerHost
                     Margin = new Thickness(0, 0, 0, 5),
                     ClipToBounds = true,
                     Child = view,
-                    ToolTip = Tr("Bloom Lens 화면", "Bloom Lens picture"),
+                    ToolTip = Tr("Bloom Lens 화면", "Bloom Lens capture"),
                 });
             }
             if (m.Files is { Count: > 0 } files)
@@ -531,8 +531,8 @@ internal sealed class ChatView : Grid, IComposerHost
         shield.VerticalAlignment = VerticalAlignment.Center;
         shield.Margin = new Thickness(0, 1, 7, 0);
         top.Children.Add(shield);
-        string title = ToolPermissions.IsMcp(ask.Key) ? Tr("MCP 도구 승인", "Approve MCP tool")
-            : ToolPermissions.IsFileOrCommand(ask.Key) ? Tr("파일 · 명령 승인", "Approve file or command") : Tr("PC 작업 승인", "Approve PC action");
+        string title = ToolPermissions.IsMcp(ask.Key) ? Tr("MCP 도구 승인", "MCP Tool Approval")
+            : ToolPermissions.IsFileOrCommand(ask.Key) ? Tr("파일 · 명령 승인", "File & Command Approval") : Tr("PC 작업 승인", "PC Action Approval");
         top.Children.Add(Theme.T(title, 12, Theme.P.TextDim, Theme.Medium, false));
         col.Children.Add(top);
         int colon = ask.Says.IndexOf(": ", StringComparison.Ordinal); // "옮기기: a.pdf → …" → 항상 허용 names just 옮기기
@@ -547,9 +547,9 @@ internal sealed class ChatView : Grid, IComposerHost
         buttons.Children.Add(AskButton(Tr("허용", "Allow"), true, () => host.Chats.Answer(t, ask, true)));
         // a question that is always put (MustAsk) has no "always": it would not be kept
         if (!ask.MustAsk)
-            buttons.Children.Add(AskButton(verb.Length > 0 ? Tr($"이 대화에서 ‘{verb}’ 항상 허용", $"Always allow ‘{verb}’ in this chat") : Tr("이 대화에서 항상 허용", "Always in this chat"),
+            buttons.Children.Add(AskButton(verb.Length > 0 ? Tr($"이 대화에서 ‘{verb}’ 항상 허용", $"Always allow ‘{verb}’ in this chat") : Tr("이 대화에서 항상 허용", "Always allow in this chat"),
                 false, () => host.Chats.Answer(t, ask, true, true)));
-        buttons.Children.Add(AskButton(Tr("거절", "Decline"), false, () => host.Chats.Answer(t, ask, false)));
+        buttons.Children.Add(AskButton(Tr("거절", "Deny"), false, () => host.Chats.Answer(t, ask, false)));
         col.Children.Add(buttons);
         return new SmoothBorder
         {
@@ -568,7 +568,7 @@ internal sealed class ChatView : Grid, IComposerHost
     private SmoothBorder QuestionBox(ChatThread t, T3Question question)
     {
         var col = new StackPanel();
-        col.Children.Add(WaitHead('\uE897', Tr("질문 · 답을 기다리는 중", "Question · waiting for your answer")));
+        col.Children.Add(WaitHead('\uE897', Tr("질문 · 답을 기다리는 중", "Question · Waiting for answer")));
         col.Children.Add(NoticeQuestionsView.Build(new CardQuestions(question.Items, given => host.Chats.Answer(t, given)),
             [(Tr("T3에서 열기", "Open in T3"), () => T3Chats.OpenInT3(t))]));
         return WaitBox(col);
@@ -580,8 +580,8 @@ internal sealed class ChatView : Grid, IComposerHost
     {
         var col = new StackPanel();
         bool viewOnly = t.T3 is { ViewOnly: true };
-        col.Children.Add(WaitHead(G.Shield, viewOnly ? Tr("T3에서 답을 기다려요", "Waiting for an answer in T3") : Tr("T3에서 승인을 기다려요", "Waiting for approval in T3")));
-        var about = Theme.T(Hangul.KeepAll(viewOnly ? T3Threads.ViewOnlyNote : Tr("권한 승인은 T3 앱에서만 할 수 있어요.", "Only the T3 app can give this approval.")), 12.5, Theme.P.TextDim, Theme.Regular, false);
+        col.Children.Add(WaitHead(G.Shield, viewOnly ? Tr("T3에서 답을 기다려요", "Waiting for answer in T3") : Tr("T3에서 승인을 기다려요", "Waiting for approval in T3")));
+        var about = Theme.T(Hangul.KeepAll(viewOnly ? T3Threads.ViewOnlyNote : Tr("권한 승인은 T3 앱에서만 할 수 있어요.", "Permission requests can only be approved in the T3 app.")), 12.5, Theme.P.TextDim, Theme.Regular, false);
         about.TextWrapping = TextWrapping.Wrap;
         about.Margin = new Thickness(0, 6, 0, 10);
         col.Children.Add(about);
@@ -699,7 +699,7 @@ internal sealed class ChatView : Grid, IComposerHost
             Margin = new Thickness(-7, 6, 0, 0),
             HorizontalAlignment = HorizontalAlignment.Left,
             Cursor = System.Windows.Input.Cursors.Hand,
-            ToolTip = Tr("답변 전체 복사 · Ctrl+Shift+C는 마지막 답변", "Copy the whole answer · Ctrl+Shift+C copies the last one"),
+            ToolTip = Tr("답변 전체 복사 · Ctrl+Shift+C는 마지막 답변", "Copy full reply · Ctrl+Shift+C copies the last reply"),
         };
         b.MouseEnter += (_, _) => b.Background = Theme.P.Hover;
         b.MouseLeave += (_, _) => b.Background = Brushes.Transparent;
@@ -724,23 +724,23 @@ internal sealed class ChatView : Grid, IComposerHost
         var list = new List<ActionItem>
         {
             new() { Title = Tr("보내기", "Send"), Keys = "Enter", Glyph = G.Send, StayOpen = true, Run = owner.SendChat },
-            new() { Title = Tr("파일 · 사진 첨부", "Attach files or pictures"), Keys = "Ctrl+O", Glyph = G.Paste, StayOpen = true, Run = owner.PickFiles },
+            new() { Title = Tr("파일 · 사진 첨부", "Attach files or images"), Keys = "Ctrl+O", Glyph = G.Paste, StayOpen = true, Run = owner.PickFiles },
             new() { Title = Tr("새 대화", "New chat"), Keys = "Ctrl+N", Glyph = G.Add, StayOpen = true, Run = () => owner.ShowChat(host.Chats.New()) },
-            new() { Title = Tr("대화 목록", "Chats"), Keys = "Ctrl+L", Glyph = G.History, StayOpen = true, Run = owner.ShowThreads },
-            new() { Title = Tr("모델과 생각 수준 선택", "Choose model and thinking level"), Keys = "Ctrl+M", Glyph = G.Model, StayOpen = true, Run = owner.PickModel },
+            new() { Title = Tr("대화 목록", "Chat history"), Keys = "Ctrl+L", Glyph = G.History, StayOpen = true, Run = owner.ShowThreads },
+            new() { Title = Tr("모델과 생각 수준 선택", "Select model and thinking effort"), Keys = "Ctrl+M", Glyph = G.Model, StayOpen = true, Run = owner.PickModel },
             new() { Title = Tr($"{AiModels.NextSideName(t?.Model ?? AiModels.DefaultModel())}로 바꾸기", $"Switch to {AiModels.NextSideName(t?.Model ?? AiModels.DefaultModel())}"), Keys = "Ctrl+Shift+M", Glyph = G.Chat, StayOpen = true, Run = owner.SwitchProvider },
-            new() { Title = Tr("생각 수준 바꾸기", "Change thinking level"), Keys = "Ctrl+E", Glyph = G.Bulb, StayOpen = true, Run = owner.CycleEffort },
+            new() { Title = Tr("생각 수준 바꾸기", "Cycle thinking effort"), Keys = "Ctrl+E", Glyph = G.Bulb, StayOpen = true, Run = owner.CycleEffort },
         };
         if (t?.Messages.LastOrDefault(x => x.Role == "assistant" && x.Text.Length > 0) is { } last)
-            list.Add(new ActionItem { Title = Tr("마지막 답변 복사", "Copy the last answer"), Keys = "Ctrl+Shift+C", Glyph = G.Copy, StayOpen = true, Run = () => { Launch.Copy(last.Text); owner.ShowToast(Tr("답변 복사 완료", "Answer copied")); } });
-        if (t?.Busy == true) list.Insert(0, new ActionItem { Title = Tr("답변 멈추기", "Stop the answer"), Keys = "Ctrl+.", Glyph = G.Stop, StayOpen = true, Run = () => host.Chats.Stop(t) });
+            list.Add(new ActionItem { Title = Tr("마지막 답변 복사", "Copy last reply"), Keys = "Ctrl+Shift+C", Glyph = G.Copy, StayOpen = true, Run = () => { Launch.Copy(last.Text); owner.ShowToast(Tr("답변 복사 완료", "Reply copied")); } });
+        if (t?.Busy == true) list.Insert(0, new ActionItem { Title = Tr("답변 멈추기", "Stop generating"), Keys = "Ctrl+.", Glyph = G.Stop, StayOpen = true, Run = () => host.Chats.Stop(t) });
         if (t?.Messages.LastOrDefault()?.Asks.FirstOrDefault() is { } ask)
         {
-            list.Insert(0, new ActionItem { Title = Tr($"거절: {ask.Says}", $"Decline: {ask.Says}"), Glyph = G.Close, StayOpen = true, Run = () => host.Chats.Answer(t, ask, false) });
+            list.Insert(0, new ActionItem { Title = Tr($"거절: {ask.Says}", $"Deny: {ask.Says}"), Glyph = G.Close, StayOpen = true, Run = () => host.Chats.Answer(t, ask, false) });
             list.Insert(0, new ActionItem { Title = Tr($"허용: {ask.Says}", $"Allow: {ask.Says}"), Glyph = G.Shield, StayOpen = true, Run = () => host.Chats.Answer(t, ask, true) });
         }
         if (t is not null && host.Chats.IsLive(t))
-            list.Add(new ActionItem { Title = Tr("세션 종료 · 새 대화 열기", "End session · open a new chat"), Glyph = G.Stop, StayOpen = true, Run = () => { host.Chats.EndSession(t); owner.ShowChat(host.Chats.New()); } });
+            list.Add(new ActionItem { Title = Tr("세션 종료 · 새 대화 열기", "End session · Start new chat"), Glyph = G.Stop, StayOpen = true, Run = () => { host.Chats.EndSession(t); owner.ShowChat(host.Chats.New()); } });
         if (t is { Messages.Count: > 0 })
             list.Add(new ActionItem { Title = Tr("이 대화 삭제", "Delete this chat"), Glyph = G.Delete, Danger = true, StayOpen = true, Run = () => { host.DeleteThread(t); owner.ShowChat(host.Chats.New()); } });
         return list;

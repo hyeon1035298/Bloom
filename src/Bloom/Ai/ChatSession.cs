@@ -258,7 +258,7 @@ internal static class AiModels
         "low" => Tr("낮음", "Low"),
         "medium" => Tr("중간", "Medium"),
         "high" => Tr("높음", "High"),
-        "xhigh" => Tr("더 높음", "Extra high"),
+        "xhigh" => Tr("더 높음", "Extra High"),
         "max" => Tr("최대", "Max"),
         "ultra" => Tr("울트라", "Ultra"),
         _ => Tr("빠름", "Fast"),

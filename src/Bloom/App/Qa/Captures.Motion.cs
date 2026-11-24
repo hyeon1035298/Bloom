@@ -35,7 +35,7 @@ internal static partial class Captures
         static UsageAccount Plan(string name, string plan, double? fiveHour, double week)
         {
             var limits = new System.Collections.Generic.List<UsageLimit>();
-            if (fiveHour is { } h) limits.Add(new UsageLimit(Tr("5시간", "5h"), h, DateTime.Now.AddHours(3).AddMinutes(12)));
+            if (fiveHour is { } h) limits.Add(new UsageLimit(Tr("5시간", "5-hour"), h, DateTime.Now.AddHours(3).AddMinutes(12)));
             limits.Add(new UsageLimit(Tr("주간", "Weekly"), week, DateTime.Now.AddDays(4)));
             return new(name, plan, limits, DateTime.Now);
         }
@@ -104,7 +104,7 @@ internal static partial class Captures
         }
         string move = Tr(@"옮기기: 견적서_1007.pdf → C:\Users\me\Documents", @"Move: quote_1007.pdf → C:\Users\me\Documents");
         job.Messages.Add(new ChatMessage { Role = "user", Text = jobAsk });
-        var did = new ChatMessage { Role = "assistant", Text = Tr("`견적서_1007.pdf`를 찾았습니다. 문서 폴더로 옮깁니다.", "Found `quote_1007.pdf`. Moving it to Documents."), Streaming = true, Status = Tr("승인 대기", "Approval pending") };
+        var did = new ChatMessage { Role = "assistant", Text = Tr("`견적서_1007.pdf`를 찾았습니다. 문서 폴더로 옮깁니다.", "Found `quote_1007.pdf`. Moving it to Documents."), Streaming = true, Status = Tr("승인 대기", "Awaiting approval") };
         did.Asks.Add(new ToolAsk("motion", "mcp__bloom__pc", "{}", move));
         job.Messages.Add(did);
         host.Chats.SetLiveForQa(job, true);

@@ -169,14 +169,14 @@ internal sealed partial class Launcher : Window, IChatHost
         var corner = new StackPanel { Orientation = Orientation.Horizontal, VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(8, 0, 0, 0) };
         // the bar's right end (CornerButtons): 도구 붙이기 outside the quick AI (Ctrl+J's menu), 📎 and 📌 in it, ⚙ 설정
         // outside it; elsewhere 📌 only while the launcher is pinned (Ctrl+P), a click lets it go
-        toolsButton = BarButton(G.NewWindow, Tr("도구 붙이기 (Ctrl+J)", "Attach tools (Ctrl+J)"), OpenTools);
+        toolsButton = BarButton(G.NewWindow, Tr("도구 붙이기 (Ctrl+J)", "Dock Tool (Ctrl+J)"), OpenTools);
         corner.Children.Add(toolsButton);
-        attachButton = BarButton(G.Attach, Tr("파일 · 사진 첨부 — Ctrl+O, 붙여넣기나 끌어 놓기도 됩니다", "Attach files or pictures — Ctrl+O, pasting or dropping works too"), PickFiles);
+        attachButton = BarButton(G.Attach, Tr("파일 · 사진 첨부 — Ctrl+O, 붙여넣기나 끌어 놓기도 됩니다", "Attach files or images — Ctrl+O, paste, or drag and drop"), PickFiles);
         attachButton.Visibility = Visibility.Collapsed;
         corner.Children.Add(attachButton);
         settingsButton = BarButton(G.Settings, Tr("설정 (Ctrl+,)", "Settings (Ctrl+,)"), host.OpenSettings);
         corner.Children.Add(settingsButton);
-        pinButton = BarButton('', Tr("맨 위에 고정 (Ctrl+P) · 다른 창을 눌러도 맨 위에 유지됩니다. 검색줄이나 아래 바를 끌어서 옮기세요.", "Keep on top (Ctrl+P) — stays above other windows when you click elsewhere · drag the search line or the bottom bar to move it"), () => SetPinned(!Pinned));
+        pinButton = BarButton('', Tr("맨 위에 고정 (Ctrl+P) · 다른 창을 눌러도 맨 위에 유지됩니다. 검색줄이나 아래 바를 끌어서 옮기세요.", "Pin on Top (Ctrl+P) · Stays above other windows. Drag the search bar or bottom bar to move."), () => SetPinned(!Pinned));
         pinButton.Visibility = Visibility.Collapsed;
         corner.Children.Add(pinButton);
         Grid.SetColumn(corner, 4);
@@ -565,19 +565,19 @@ internal sealed partial class Launcher : Window, IChatHost
     public void OpenTools()
     {
         if (!Features.On("notes") && !Features.On("player")) return; // switched off in 설정 > 기능
-        if (actions.IsOpen && actions.Heading == Tr("도구", "Tools"))
+        if (actions.IsOpen && actions.Heading == Tr("도구", "Tool"))
         {
             actions.Close();
             return;
         }
         var items = ToolDock.Kinds.Where(k => Features.On(k.key == "player" ? "player" : "notes")).Select(k => new ActionItem
         {
-            Title = host.Tools.IsOpen(k.key) ? Tr($"{k.name} 닫기", $"Close {k.name}") : Tr($"{k.name} 붙이기", $"Attach {k.name}"),
+            Title = host.Tools.IsOpen(k.key) ? Tr($"{k.name} 닫기", $"Close {k.name}") : Tr($"{k.name} 붙이기", $"Dock {k.name}"),
             Glyph = k.glyph,
             StayOpen = true,
             Run = () => host.Tools.Toggle(k.key),
         }).ToList();
-        actions.Open(Tr("도구", "Tools"), items);
+        actions.Open(Tr("도구", "Tool"), items);
     }
 
     private SmoothBorder BarButton(char glyph, string tip, Action click)

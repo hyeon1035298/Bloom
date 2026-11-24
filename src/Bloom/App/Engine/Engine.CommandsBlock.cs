@@ -32,12 +32,12 @@ internal sealed partial class Engine
         {
             Id = CommandTileId,
             Kind = ItemKind.Command,
-            Title = Tr("명령 추가", "Add a command"),
-            Subtitle = missing.Count == 0 ? Tr("모든 명령이 이 블록에 있음", "Every command is in this block")
-                : open ? Tr("카드를 누르면 이 블록에 추가", "Click a card to add it to this block")
-                : missing.Count == 1 ? Tr("뺀 명령 1개", "1 command left out") : Tr($"뺀 명령 {missing.Count}개", $"{missing.Count} commands left out"),
+            Title = Tr("명령 추가", "Add command"),
+            Subtitle = missing.Count == 0 ? Tr("모든 명령이 이 블록에 있음", "All commands are in this block")
+                : open ? Tr("카드를 누르면 이 블록에 추가", "Click a card to add to this block")
+                : missing.Count == 1 ? Tr("뺀 명령 1개", "1 hidden command") : Tr($"뺀 명령 {missing.Count}개", $"{missing.Count} hidden commands"),
             Icon = IconSpec.Of(G.Add),
-            PrimaryLabel = open ? Tr("목록 닫기", "Close list") : Tr("목록 열기", "Open list"),
+            PrimaryLabel = open ? Tr("목록 닫기", "Close List") : Tr("목록 열기", "Open List"),
             StayOpen = true,
             Data = new HomeCommands.Tile(open),
             Run = () =>
@@ -65,7 +65,7 @@ internal sealed partial class Engine
                 {
                     HomeCommands.Set(e.Id, true);
                     if (next is null) commandCards = false;
-                    host.Window.ShowToast(Tr($"‘{e.Title}’ 명령 추가 완료", $"Added ‘{e.Title}’"));
+                    host.Window.ShowToast(Tr($"‘{e.Title}’ 명령 추가 완료", $"Added command '{e.Title}'"));
                     host.Window.RefreshTo(next ?? CommandTileId);
                 },
             });
@@ -89,7 +89,7 @@ internal sealed partial class Engine
         void Remove()
         {
             HomeCommands.Set(id, false);
-            host.Window.ShowToast(Tr($"‘{title}’ 명령 뺌 · ‘+ 명령 추가’로 다시 넣기", $"‘{title}’ left out · ‘+ Add a command’ puts it back"));
+            host.Window.ShowToast(Tr($"‘{title}’ 명령 뺌 · ‘+ 명령 추가’로 다시 넣기", $"Removed '{title}' · Re-add via '+ Add command'"));
             host.Window.Refresh(true);
         }
         item.Remove = Remove;
@@ -97,7 +97,7 @@ internal sealed partial class Engine
         item.MoreActions = () =>
         {
             var list = more?.Invoke() ?? [];
-            list.Add(new ActionItem { Title = Tr("명령 블록에서 빼기", "Remove from the Commands block"), Glyph = G.Close, StayOpen = true, Run = Remove });
+            list.Add(new ActionItem { Title = Tr("명령 블록에서 빼기", "Remove from commands block"), Glyph = G.Close, StayOpen = true, Run = Remove });
             return list;
         };
     }

@@ -47,7 +47,7 @@ internal sealed partial class Launcher
     private Segmented ClipTabs()
     {
         var tabs = new Segmented(new[] { (ClipHistoryTab, Tr("기록", "History")), (ClipSnippetsTab, Tr("상용구", "Snippets")) }, clipTab);
-        tabs.ToolTip = Tr("Ctrl+Tab으로 넘기기", "Ctrl+Tab switches");
+        tabs.ToolTip = Tr("Ctrl+Tab으로 전환", "Ctrl+Tab to switch");
         tabs.Picked += v => Dispatcher.BeginInvoke(new Action(() => SetClipTab(v))); // after the click: the chrome is rebuilt
         return tabs;
     }

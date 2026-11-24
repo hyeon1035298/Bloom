@@ -21,12 +21,12 @@ internal sealed partial class Engine
             {
                 Items = { new ResultItem { Id = "path:loading", Kind = ItemKind.Info, Title = Tr("불러오는 중…", "Loading…"), Subtitle = full, Icon = IconSpec.Of(G.Info) } },
             };
-        var s = new Section(Tr("경로", "Path"), PathInput.IsNetwork(p.Full) ? Tr("네트워크", "Network") : p.Children.Count > 0 ? Tr("Tab으로 들어가기", "Tab goes in") : null);
+        var s = new Section(Tr("경로", "Path"), PathInput.IsNetwork(p.Full) ? Tr("네트워크", "Network") : p.Children.Count > 0 ? Tr("Tab으로 들어가기", "Tab to open folder") : null);
         if (p.Exists) s.Items.Add(OpenPathItem(p.Full, p.IsFolder));
         else if (PathInput.IsNetwork(p.Full)) s.Items.Add(OpenPathItem(p.Full, true));
         foreach (var (path, folder) in p.Children) s.Items.Add(FromPath(path, folder));
         if (s.Items.Count == 0)
-            s.Items.Add(new ResultItem { Id = "path:none", Kind = ItemKind.Info, Title = Tr("경로 없음 · 경로를 확인하세요", "Path not found. Check the path."), Subtitle = p.Full, Icon = IconSpec.Of(G.Info) });
+            s.Items.Add(new ResultItem { Id = "path:none", Kind = ItemKind.Info, Title = Tr("경로 없음 · 경로를 확인하세요", "Path not found · Check the path"), Subtitle = p.Full, Icon = IconSpec.Of(G.Info) });
         return s;
     }
 
@@ -35,8 +35,8 @@ internal sealed partial class Engine
     {
         var item = FromPath(full, folder);
         item.Title = full;
-        item.Subtitle = folder ? Tr("탐색기에서 열기", "Open in Explorer") : Tr("파일 열기", "Open the file");
-        item.PrimaryLabel = folder ? Tr("폴더 열기", "Open folder") : Tr("열기", "Open");
+        item.Subtitle = folder ? Tr("탐색기에서 열기", "Open in File Explorer") : Tr("파일 열기", "Open file");
+        item.PrimaryLabel = folder ? Tr("폴더 열기", "Open Folder") : Tr("열기", "Open");
         item.Score = int.MaxValue;
         if (PathInput.IsNetwork(full)) item.Detail = item.ReadDetail = null; // a server may not answer: no preview
         return item;

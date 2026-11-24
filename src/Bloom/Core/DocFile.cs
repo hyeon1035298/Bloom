@@ -82,7 +82,7 @@ internal sealed class DocFile : IDisposable
             }
             catch (Exception e) when (e is IOException or UnauthorizedAccessException)
             {
-                t = new DocText("", Utf8, false, Tr("파일을 열지 못함", "Couldn't open the file") + " · " + e.Message, false, []);
+                t = new DocText("", Utf8, false, Tr("파일을 열지 못함", "Could not open file") + " · " + e.Message, false, []);
             }
             Adopt(t);
             return t;
@@ -137,7 +137,7 @@ internal sealed class DocFile : IDisposable
             }
             catch (EncoderFallbackException)
             {
-                return (DocSaved.Failed, Tr("이 파일에 저장할 수 없는 글자가 있음", "Has characters this file can't hold"));
+                return (DocSaved.Failed, Tr("이 파일에 저장할 수 없는 글자가 있음", "File contains characters that cannot be saved in this encoding"));
             }
             byte[] next = SHA256.HashData(bytes);
             try
@@ -163,7 +163,7 @@ internal sealed class DocFile : IDisposable
             }
             catch (UnauthorizedAccessException)
             {
-                return (DocSaved.Failed, Tr("이 파일을 고칠 권한 없음", "No permission to change this file"));
+                return (DocSaved.Failed, Tr("이 파일을 수정할 권한 없음", "No permission to edit this file"));
             }
             catch (IOException e)
             {
@@ -223,13 +223,13 @@ internal sealed class DocFile : IDisposable
     {
         try
         {
-            if ((File.GetAttributes(Path) & FileAttributes.ReadOnly) != 0) return Tr("읽기 전용 파일", "The file is read-only");
+            if ((File.GetAttributes(Path) & FileAttributes.ReadOnly) != 0) return Tr("읽기 전용 파일", "Read-only file");
             using var _ = new FileStream(Path, FileMode.Open, FileAccess.Write, FileShare.ReadWrite | FileShare.Delete); // opened, nothing written
             return null;
         }
         catch (UnauthorizedAccessException)
         {
-            return Tr("이 파일을 고칠 권한 없음", "No permission to change this file");
+            return Tr("이 파일을 수정할 권한 없음", "No permission to edit this file");
         }
         catch (IOException)
         {
@@ -322,10 +322,10 @@ internal sealed class DocFile : IDisposable
             else
             {
                 raw = (skip == 0 ? Legacy() : Lenient(enc)).GetString(bytes, skip, bytes.Length - skip);
-                reason = skip == 0 ? Tr("UTF-8이 아니라 고칠 수 없음", "Not UTF-8, so it can't be edited") : Tr("읽을 수 없는 글자가 있어 고칠 수 없음", "Has unreadable characters, so it can't be edited");
+                reason = skip == 0 ? Tr("UTF-8이 아니라 편집할 수 없음", "Cannot edit non-UTF-8 file") : Tr("읽을 수 없는 글자가 있어 편집할 수 없음", "Cannot edit file with unreadable characters");
             }
         }
-        if (large) reason = Tr("10 MB 초과 · 앞부분만 텍스트로 표시", "Over 10 MB · only its start, as plain text");
+        if (large) reason = Tr("10 MB 초과 · 앞부분만 텍스트로 표시", "Over 10 MB · Showing first part as text");
         reason ??= notWritable;
         return new DocText(Lf(raw), enc, MostlyCrlf(raw), reason, large, SHA256.HashData(bytes));
     }
@@ -358,7 +358,7 @@ internal sealed class DocFile : IDisposable
                 bytes = Encode(text, new UTF8Encoding(true), crlf); // a character the file's encoding can't hold: UTF-8 with its BOM
             }
         }
-        string name = System.IO.Path.GetFileNameWithoutExtension(Path) + " (" + Tr("Bloom 복구", "Bloom recovery") + " " + now.ToString("yyyy-MM-dd HHmm", System.Globalization.CultureInfo.InvariantCulture) + ")";
+        string name = System.IO.Path.GetFileNameWithoutExtension(Path) + " (" + Tr("Bloom 복구", "Bloom Recovery") + " " + now.ToString("yyyy-MM-dd HHmm", System.Globalization.CultureInfo.InvariantCulture) + ")";
         string ext = System.IO.Path.GetExtension(Path);
         foreach (string? dir in new[] { System.IO.Path.GetDirectoryName(Path), fallbackDir })
         {

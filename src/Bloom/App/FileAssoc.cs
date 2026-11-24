@@ -30,7 +30,7 @@ internal static class FileAssoc
     internal static List<Value> Plan(string exe)
     {
         string command = $"\"{exe}\" {DocHandoff.Arg} \"%1\"", app = AppKey(exe);
-        string type = Tr("Markdown 문서", "Markdown document");
+        string type = Tr("Markdown 문서", "Markdown Document");
         const RegistryValueKind Text = RegistryValueKind.String;
         return new()
         {
@@ -43,7 +43,7 @@ internal static class FileAssoc
             new(app + @"\SupportedTypes", ".md", "", Text),
             new(app + @"\shell\open\command", "", command, Text),
             new(Capabilities, "ApplicationName", "Bloom", Text),
-            new(Capabilities, "ApplicationDescription", Tr("Markdown 문서(.md)를 보고 고치는 Bloom 문서 창", "Bloom's document window to read and edit Markdown (.md) files"), Text),
+            new(Capabilities, "ApplicationDescription", Tr("Markdown 문서(.md)를 보고 편집하는 Bloom 문서 창", "Bloom document window for viewing and editing Markdown (.md) files"), Text),
             new(Capabilities + @"\FileAssociations", ".md", ProgId, Text),
             new(Registered, "Bloom", Capabilities, Text),
         };

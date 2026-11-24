@@ -37,29 +37,29 @@ internal readonly record struct OmpEvent(OmpKind Kind, string Text = "", bool Ok
     /// old part printed as pictures), "shake" (long tool results cut out, nothing summarised).
     public static string CompactStartText(string action) => action switch
     {
-        "shake" => Tr("대화가 길어져 긴 도구 결과를 덜어내는 중…", "The chat got long — trimming long tool results…"),
-        _ => Tr("대화가 길어져 앞부분을 정리하는 중…", "The chat got long — summarising the earlier part…"),
+        "shake" => Tr("대화가 길어져 긴 도구 결과를 정리하는 중…", "Trimming long tool outputs as the chat grew long…"),
+        _ => Tr("대화가 길어져 앞부분을 요약하는 중…", "Summarizing earlier messages as the chat grew long…"),
     };
 
     /// omp's refusal of a compact in words Bloom's user can act on.
     public static string CompactFailText(string error)
     {
         string l = error.ToLowerInvariant();
-        if (l.Contains("too small")) return Tr("아직 정리할 만큼 길지 않습니다", "The chat isn't long enough to tidy yet");
-        if (l.Contains("already compacted")) return Tr("이미 정리했습니다 — 더 줄일 내용이 없습니다", "Already tidied — nothing more to cut");
-        return Tr("정리하지 못했습니다: ", "Couldn't tidy: ") + error;
+        if (l.Contains("too small")) return Tr("아직 정리할 만큼 대화가 길지 않습니다", "The chat is not long enough to compact yet");
+        if (l.Contains("already compacted")) return Tr("이미 정리했습니다 — 더 줄일 내용이 없습니다", "Already compacted — nothing more to trim");
+        return Tr("정리하지 못했습니다: ", "Failed to compact: ") + error;
     }
 
     /// The line when it is over; `before`/`after` are the model's tokens around it (-1 = unknown). `skipped`: omp found nothing to gain.
     public static string CompactEndText(string action, long before, long after, bool aborted, bool skipped, bool failed = false)
     {
-        if (aborted) return Tr("정리를 멈췄습니다", "Tidying stopped");
-        if (skipped) return Tr("정리할 만큼 줄어들지 않아 그대로 두었습니다", "Nothing worth cutting, left as it was");
-        if (failed) return Tr("앞부분을 정리하지 못했습니다", "Couldn't tidy the earlier part");
+        if (aborted) return Tr("정리를 중단했습니다", "Compaction stopped");
+        if (skipped) return Tr("정리할 만큼 줄어들지 않아 그대로 두었습니다", "Kept as-is because compaction would not reduce enough");
+        if (failed) return Tr("앞부분을 정리하지 못했습니다", "Could not summarize earlier messages");
         string span = before >= 0 && after >= 0 ? $" ({OmpUsage.Count(before)}→{OmpUsage.Count(after)} {Tr("토큰", "tokens")})" : before >= 0 ? $" ({Tr("이전", "was")} {OmpUsage.Count(before)} {Tr("토큰", "tokens")})" : "";
         return action == "shake"
-            ? Tr("긴 도구 결과를 덜어냈습니다", "Trimmed long tool results") + span
-            : Tr("앞부분을 요약했습니다", "Summarised the earlier part") + span;
+            ? Tr("긴 도구 결과를 정리했습니다", "Trimmed long tool outputs") + span
+            : Tr("앞부분을 요약했습니다", "Summarized earlier messages") + span;
     }
 
     /// The tool status line ("웹 검색 중…") for a tool name.
@@ -103,7 +103,7 @@ internal readonly record struct OmpEvent(OmpKind Kind, string Text = "", bool Ok
                         return fail.Length == 0 ? new OmpEvent(OmpKind.TurnEnded) : new OmpEvent(OmpKind.TurnEnded, fail, false, Detail: "agent_end");
                     }
                 case "auto_retry_start":
-                    return new OmpEvent(OmpKind.Retry, Tr("다시 시도하는 중…", "Trying again…"));
+                    return new OmpEvent(OmpKind.Retry, Tr("다시 시도하는 중…", "Retrying…"));
                 case "prompt_result":
                     string status = Str(r, "status");
                     if (status is "completed" or "aborted") return new OmpEvent(OmpKind.TurnEnded);

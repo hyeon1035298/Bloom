@@ -25,7 +25,7 @@ internal sealed partial class Launcher
                 leadEl = Theme.Sparkle(17, Theme.P.Accent);
                 chipLabel = attachedImage is not null ? Tr("화면 · Bloom Lens", "Screen · Bloom Lens") : attachedFiles.Count > 0 ? Tr($"첨부 {attachedFiles.Count}개", $"{attachedFiles.Count} attached") : attachment is { } a ? (a.url.Length > 0 ? Tr($"페이지 · {ClipText(a.title, 16)}", $"Page · {ClipText(a.title, 16)}") : ClipText(a.title, 16)) : null;
                 bool busy = thread?.Busy == true;
-                ph = attachedImage is not null ? Tr("이 화면에 대해 물어보세요 (비우고 Enter = 설명해 줘)", "Ask about this screen (empty + Enter = explain it)")
+                ph = attachedImage is not null ? Tr("이 화면에 대해 물어보세요 (비우고 Enter = 설명해 줘)", "Ask about this screen (press Enter empty to describe)")
                     : attachedFiles.Count > 0 ? Tr("첨부한 파일에 대해 물어보세요", "Ask about the attached files")
                     : thread is { Messages.Count: > 0 } ? Tr("이어서 묻기…", "Ask a follow-up…") : Tr("무엇이든 물어보세요…", "Ask anything…");
                 // few chips, so what is typed keeps the room: [■ 정지] while it answers, else [model · level ▾] (PickModel),
@@ -33,7 +33,7 @@ internal sealed partial class Launcher
                 if (busy)
                 {
                     var stop = HeadChip("■  " + Tr("중지", "Stop"), StopChat, true);
-                    stop.ToolTip = Tr("답변 중지 (Ctrl+.) · Esc는 홈으로 이동하며 답변은 계속됩니다.", "Stops the answer (Ctrl+.) · Esc returns home while the answer continues.");
+                    stop.ToolTip = Tr("답변 중지 (Ctrl+.) · Esc는 홈으로 이동하며 답변은 계속됩니다.", "Stop generating (Ctrl+.) · Esc returns to Home while reply continues.");
                     hint.Children.Add(stop);
                 }
                 else
@@ -41,7 +41,7 @@ internal sealed partial class Launcher
                     string curModel = CurrentModel;
                     string level = Ai.AiModels.HasEffort(curModel) ? " · " + Ai.AiModels.EffortName(thread is null ? Ai.AiModels.DefaultEffort(curModel) : Chats.EffortOf(thread)) : "";
                     var modelChip = HeadChip(Engine.ModelName(curModel) + level + "  ▾", PickModel);
-                    modelChip.ToolTip = Tr("모델 · 생각 수준 (Ctrl+M · Ctrl+E · Ctrl+Shift+M AI 전환)", "Model and thinking level (Ctrl+M · Ctrl+E · Ctrl+Shift+M switches AI)");
+                    modelChip.ToolTip = Tr("모델 · 생각 수준 (Ctrl+M · Ctrl+E · Ctrl+Shift+M AI 전환)", "Model · Thinking Level (Ctrl+M · Ctrl+E · Ctrl+Shift+M Switch AI)");
                     hint.Children.Add(modelChip);
                 }
                 if (thread is not null && host.Chats.IsLive(thread))
@@ -51,10 +51,10 @@ internal sealed partial class Launcher
                     {
                         host.Chats.EndSession(t);
                         ShowChat(host.Chats.New());
-                        ShowToast(Tr("세션 종료 · 새 대화 열림 · 지난 대화 기록 유지", "Session closed, a new chat is open — the last one stays in the list"));
+                        ShowToast(Tr("세션 종료 · 새 대화 열림 · 지난 대화 기록 유지", "Session ended · New chat started · Chat history saved"));
                     });
                     endChip.Margin = new Thickness(6, 0, 0, 0);
-                    endChip.ToolTip = Tr("대화 메모리를 해제하고 새 대화를 엽니다. 대화 기록은 유지됩니다.", "Frees chat memory and opens a new chat. History stays.");
+                    endChip.ToolTip = Tr("대화 메모리를 해제하고 새 대화를 엽니다. 대화 기록은 유지됩니다.", "Unloads chat memory and opens a new chat. Chat history is kept.");
                     hint.Children.Add(endChip);
                 }
                 quickUnseen = false;
@@ -66,7 +66,7 @@ internal sealed partial class Launcher
                 Foot(Tr("새 대화", "New chat"), "Ctrl+N", () => ShowChat(host.Chats.New()));
                 Divider();
                 Foot(Tr("더보기", "More"), "Ctrl+K", OpenActions);
-                footContext.Text = thread is { Messages.Count: > 0 } ? thread.Title : Tr("AI 채팅", "AI chat"); // trimmed to the footer's room
+                footContext.Text = thread is { Messages.Count: > 0 } ? thread.Title : Tr("AI 채팅", "AI Chat"); // trimmed to the footer's room
                 work.Working = busy;
                 break;
             case Mode.Form:
@@ -76,7 +76,7 @@ internal sealed partial class Launcher
                 bool last = form is { } ff && ff.Step == ff.Fields.Count - 1;
                 Foot(last ? Tr("저장", "Save") : Tr("다음", "Next"), "Enter");
                 Divider();
-                Foot(form is { Step: > 0 } ? Tr("이전", "Back") : Tr("취소", "Cancel"), form is { Step: > 0 } ? "Backspace" : "Esc");
+                Foot(form is { Step: > 0 } ? Tr("이전", "Older") : Tr("취소", "Cancel"), form is { Step: > 0 } ? "Backspace" : "Esc");
                 footContext.Text = form is { } fs ? $"{fs.Title} · {fs.Current.Label}" : "";
                 break;
             default:
@@ -90,7 +90,7 @@ internal sealed partial class Launcher
                 if (Mode == Mode.Root && QuickPending)
                 {
                     var t = thread!;
-                    var back = HeadChip("✦  " + (t.Busy ? Tr("빠른 AI 답 쓰는 중 · Tab", "Quick AI answering · Tab") : Tr("빠른 AI 답변 완료 · Tab", "Quick AI answer ready · Tab")), () => ShowChat(t), true);
+                    var back = HeadChip("✦  " + (t.Busy ? Tr("빠른 AI 답변 작성 중 · Tab", "Quick AI replying · Tab") : Tr("빠른 AI 답변 완료 · Tab", "Quick AI reply ready · Tab")), () => ShowChat(t), true);
                     back.ToolTip = ClipText(t.Title, 60);
                     hint.Children.Add(back);
                 }
@@ -189,7 +189,7 @@ internal sealed partial class Launcher
         g.VerticalAlignment = VerticalAlignment.Center;
         g.Margin = new Thickness(0, 1, 5, 0);
         sp.Children.Add(g);
-        sp.Children.Add(Theme.T(on ? Tr("편집 끝", "Done") : Tr("홈 편집", "Edit home"), 12, on ? Theme.P.AccentInk : Theme.P.TextDim, Theme.Medium, false));
+        sp.Children.Add(Theme.T(on ? Tr("편집 완료", "Done") : Tr("홈 편집", "Edit Home"), 12, on ? Theme.P.AccentInk : Theme.P.TextDim, Theme.Medium, false));
         var b = new SmoothBorder
         {
             Child = sp,
@@ -197,7 +197,7 @@ internal sealed partial class Launcher
             Padding = new Thickness(8, 3, 9, 4),
             Background = on ? Theme.P.Accent : Theme.P.Key,
             Cursor = Cursors.Hand,
-            ToolTip = on ? Tr("편집 끝 (Esc · Ctrl+E)", "Done (Esc · Ctrl+E)") : Tr("홈 화면 블록 순서 · 숨기기 (Ctrl+E)", "Order or hide the home blocks (Ctrl+E)"),
+            ToolTip = on ? Tr("편집 완료 (Esc · Ctrl+E)", "Finish Editing (Esc · Ctrl+E)") : Tr("홈 화면 블록 순서 · 숨기기 (Ctrl+E)", "Reorder or hide Home blocks (Ctrl+E)"),
             VerticalAlignment = VerticalAlignment.Center,
         };
         if (!on)

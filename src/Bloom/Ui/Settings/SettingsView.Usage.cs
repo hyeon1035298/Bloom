@@ -17,7 +17,7 @@ internal sealed partial class SettingsView
 {
     /// 아이콘 색: Settings.UsageLogo, written to the add-on's usage.logoColor too; each choice drawn (AddonPictures).
     private void UsageLogoRow(AddonValues? values, string sub, string filter) =>
-        Pictures(Tr("아이콘 색", "Icon colour"), sub, G.Palette, new[] { ("brand", Tr("원래 색", "Original")), ("mono", Tr("단색", "Single colour")) }
+        Pictures(Tr("아이콘 색", "Icon color"), sub, G.Palette, new[] { ("brand", Tr("원래 색", "Original color")), ("mono", Tr("단색", "Single colour")) }
             .Select(o => (o.Item1, o.Item2, AddonPictures.Logo(o.Item1))).ToArray(),
             Settings.Current.UsageLogo == "mono" ? "mono" : "brand", v =>
             {
@@ -33,7 +33,7 @@ internal sealed partial class SettingsView
 
     /// 이름표: the usage file's tag; each choice drawn (AddonPictures).
     private void UsageTagRow(string filter) =>
-        Pictures(Tr("이름표", "Label"), Tr("아이콘 옆에 적습니다. 이름이 없는 계정은 요금제를 적습니다", "Written beside the icon; an account without a name shows its plan"), G.Tag,
+        Pictures(Tr("이름표", "Label"), Tr("아이콘 옆에 적습니다. 이름이 없는 계정은 요금제를 적습니다", "Shown next to the icon. Accounts without a custom name show their plan"), G.Tag,
             new[] { ("none", Tr("없음", "None")), ("name", Tr("이름", "Name")), ("plan", Tr("요금제", "Plan")) }
                 .Select(o => (o.Item1, o.Item2, AddonPictures.Tag(o.Item1))).ToArray(),
             Settings.Current.UsageTag is "name" or "plan" ? Settings.Current.UsageTag : "none", v =>
@@ -55,7 +55,7 @@ internal sealed partial class SettingsView
             string title = a.Alias is { Length: > 0 } alias && !Demo.On ? alias : card.Name;
             if (bars.Count == 1)
             {
-                Add(title, Tr($"이 요금제는 {bars[0].name} 한도만 있습니다", $"This plan has only the {bars[0].name} limit"), null, G.Speed, null, null, filter);
+                Add(title, Tr($"이 요금제는 {bars[0].name} 한도만 있습니다", $"This plan only has a {bars[0].name} limit"), null, G.Speed, null, null, filter);
                 continue;
             }
             string now = bars.Exists(b => b.key == a.Bar) ? a.Bar! : bars.Exists(b => b.key == "week") ? "week" : bars[0].key;
@@ -79,10 +79,10 @@ internal sealed partial class SettingsView
             logo.VerticalAlignment = VerticalAlignment.Center;
             end.Children.Add(logo);
         }
-        end.Children.Add(RowButton(Tr("파일 고르기…", "Choose a file…"), () => PickUsageIcon(a)));
+        end.Children.Add(RowButton(Tr("파일 고르기…", "Choose file…"), () => PickUsageIcon(a)));
         if (a.Icon is not null)
         {
-            var clear = ToolUi.Button(G.Close, Tr("아이콘 지우기", "Clear the icon"), () =>
+            var clear = ToolUi.Button(G.Close, Tr("아이콘 지우기", "Clear icon"), () =>
             {
                 UsageIcons.Clear(a);
                 host.Window.Refresh(true);
@@ -91,15 +91,15 @@ internal sealed partial class SettingsView
             clear.Margin = new Thickness(6, 0, 0, 0);
             end.Children.Add(clear);
         }
-        string sub = a.Icon is not null ? Tr("홈 카드와 작업표시줄에 이 그림을 씁니다", "The home card and the taskbar use this picture")
-            : shown is not null ? Tr("회사 로고를 씁니다. 다른 그림을 쓰려면 파일을 고르세요", "Uses the company's logo. Choose a file to use another picture")
-            : Tr("글자로 보입니다. 로고 파일(SVG, PNG, ICO)을 고를 수 있습니다", "A letter shows. You can choose a logo file (SVG, PNG, ICO)");
+        string sub = a.Icon is not null ? Tr("홈 카드와 작업표시줄에 이 그림을 씁니다", "Uses this image on the Home card and taskbar")
+            : shown is not null ? Tr("회사 로고를 씁니다. 다른 그림을 쓰려면 파일을 고르세요", "Uses the provider logo. Choose a file to use a custom image")
+            : Tr("글자로 보입니다. 로고 파일(SVG, PNG, ICO)을 고를 수 있습니다", "Displayed as text. You can choose a logo file (SVG, PNG, ICO)");
         Add(Tr("아이콘", "Icon"), sub, end, G.Palette, () => PickUsageIcon(a), null, filter);
     }
 
     private void PickUsageIcon(AiAccount a)
     {
-        var dlg = new Microsoft.Win32.OpenFileDialog { Title = AiAccounts.Label(a), Filter = Tr("로고 (*.svg;*.png;*.ico)|*.svg;*.png;*.ico", "Logos (*.svg;*.png;*.ico)|*.svg;*.png;*.ico") };
+        var dlg = new Microsoft.Win32.OpenFileDialog { Title = AiAccounts.Label(a), Filter = Tr("로고 (*.svg;*.png;*.ico)|*.svg;*.png;*.ico", "Logo (*.svg;*.png;*.ico)|*.svg;*.png;*.ico") };
         if (dlg.ShowDialog(Window.GetWindow(this)) != true) return;
         try
         {
@@ -108,7 +108,7 @@ internal sealed partial class SettingsView
         catch (Exception e) when (e is IOException or UnauthorizedAccessException)
         {
             Log.Error("usage icon", e);
-            ConfirmWindow.Tell(Window.GetWindow(this), AiAccounts.Label(a), Tr("그 파일을 아이콘으로 가져오지 못했습니다.", "That file couldn't be brought in as the icon."));
+            ConfirmWindow.Tell(Window.GetWindow(this), AiAccounts.Label(a), Tr("그 파일을 아이콘으로 가져오지 못했습니다.", "Could not import that file as an icon."));
             return;
         }
         host.Window.Refresh(true);

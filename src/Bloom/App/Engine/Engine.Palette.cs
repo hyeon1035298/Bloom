@@ -15,8 +15,8 @@ internal sealed partial class Engine
     {
         if (host.Palette is not { Colors.Count: > 0 } p)
         {
-            var none = new Section(Tr("컬러 팔레트", "Color palette"));
-            none.Items.Add(new ResultItem { Id = "palette:none", Kind = ItemKind.Info, Title = Tr("팔레트 없음", "No palette yet"), Subtitle = Tr("Enter로 영역 고르기", "Enter picks an area"), Icon = IconSpec.Of(G.Palette), PrimaryLabel = Tr("고르기", "Pick"), Run = () => host.StartLens("palette") });
+            var none = new Section(Tr("컬러 팔레트", "Color Palette"));
+            none.Items.Add(new ResultItem { Id = "palette:none", Kind = ItemKind.Info, Title = Tr("팔레트 없음", "No palette"), Subtitle = Tr("Enter로 영역 고르기", "Press Enter to select region"), Icon = IconSpec.Of(G.Palette), PrimaryLabel = Tr("고르기", "Select"), Run = () => host.StartLens("palette") });
             var empty = new List<Section> { none };
             if (SavedPalettes(null, 5) is { } kept) empty.Add(kept);
             return empty;
@@ -27,7 +27,7 @@ internal sealed partial class Engine
         string hex = ColorBook.Hex(c);
         var sections = new List<Section>
         {
-            new(Tr("컬러 팔레트", "Color palette"), p.Busy ? Tr("색 추출 중…", "Extracting colours…") : Tr($"{colors.Count}색 · 많이 차지한 순", $"{colors.Count} colours · largest first"))
+            new(Tr("컬러 팔레트", "Color Palette"), p.Busy ? Tr("색 추출 중…", "Extracting colors…") : Tr($"{colors.Count}색 · 많이 차지한 순", $"{colors.Count} colors · By dominance"))
             {
                 Widget = () =>
                 {
@@ -48,11 +48,11 @@ internal sealed partial class Engine
             Id = "palette:copy",
             Kind = ItemKind.Command,
             Title = Tr("전체 복사", "Copy all"),
-            Subtitle = Tr("HEX 목록 · CSS 변수 · 팔레트 이미지(PNG)", "HEX list · CSS variables · palette image (PNG)"),
+            Subtitle = Tr("HEX 목록 · CSS 변수 · 팔레트 이미지(PNG)", "HEX list · CSS variables · Palette image (PNG)"),
             Icon = IconSpec.Swatch(ColorBook.Stripes(colors)),
-            PrimaryLabel = Tr("고르기", "Choose"),
+            PrimaryLabel = Tr("고르기", "Select"),
             StayOpen = true,
-            Run = () => host.Window.Choose(Tr($"전체 복사 · {colors.Count}색", $"Copy all · {colors.Count} colours"), CopyChoices(colors)),
+            Run = () => host.Window.Choose(Tr($"전체 복사 · {colors.Count}색", $"Copy All · {colors.Count} colors"), CopyChoices(colors)),
             MoreActions = () => CopyChoices(colors),
         });
         sections.Add(picked);
@@ -68,10 +68,10 @@ internal sealed partial class Engine
         new() { Title = Tr("CSS 변수 (--color-1: …)", "CSS variables (--color-1: …)"), Glyph = G.Code, StayOpen = true, Run = () => Copied(ColorBook.CssVariables(colors), Tr($"CSS 변수 {colors.Count}개 복사 완료", $"Copied {colors.Count} CSS variables")) },
         new()
         {
-            Title = Tr("팔레트 이미지 (PNG · HEX 표시)", "Palette image (PNG with HEX labels)"),
+            Title = Tr("팔레트 이미지 (PNG · HEX 표시)", "Palette image (PNG · with HEX)"),
             Glyph = G.Camera,
             StayOpen = true,
-            Run = () => host.Window.ShowToast(Launch.Copied(Launch.CopyDrawn(Ui.PaletteViews.Picture(colors)), Tr("팔레트 이미지 복사 완료 · Ctrl+V로 붙여넣으세요", "Palette image copied · paste it with Ctrl+V"))),
+            Run = () => host.Window.ShowToast(Launch.Copied(Launch.CopyDrawn(Ui.PaletteViews.Picture(colors)), Tr("팔레트 이미지 복사 완료 · Ctrl+V로 붙여넣으세요", "Palette image copied · Press Ctrl+V to paste"))),
         },
     };
 
@@ -80,7 +80,7 @@ internal sealed partial class Engine
     /// The palettes kept in the colour history (but `except`, the one shown), newest first; Enter opens one again.
     private Section? SavedPalettes(SavedPalette? except, int count)
     {
-        var s = new Section(Tr("최근 팔레트", "Recent palettes"), Tr("Enter 다시 열기", "Enter opens it again"));
+        var s = new Section(Tr("최근 팔레트", "Recent Palettes"), Tr("Enter 다시 열기", "Enter to reopen"));
         foreach (var saved in ColorBook.Current.Palettes.Where(x => !ReferenceEquals(x, except)).Take(count)) s.Items.Add(FromPalette(saved));
         return s.Items.Count > 0 ? s : null;
     }
@@ -93,7 +93,7 @@ internal sealed partial class Engine
             Id = "palette:saved:" + saved.At.Ticks.ToString(System.Globalization.CultureInfo.InvariantCulture),
             Kind = ItemKind.Command,
             Title = string.Join("  ", colors.Take(5).Select(ColorBook.Hex)) + (colors.Count > 5 ? "  …" : ""),
-            Subtitle = Tr($"{colors.Count}색 · {Ago(saved.At)}", $"{colors.Count} colours · {Ago(saved.At)}"),
+            Subtitle = Tr($"{colors.Count}색 · {Ago(saved.At)}", $"{colors.Count} colors · {Ago(saved.At)}"),
             Icon = IconSpec.Swatch(ColorBook.Stripes(colors)),
             PrimaryLabel = Tr("열기", "Open"),
             StayOpen = true,

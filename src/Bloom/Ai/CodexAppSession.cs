@@ -676,9 +676,9 @@ internal sealed class CodexAppSession : IChatSession, IAsksInChat
                 {
                     "reasoning" => Tr("생각하는 중…", "Thinking…"),
                     "webSearch" => Tr("웹 검색 중…", "Searching the web…"),
-                    "commandExecution" or "fileChange" => Tr("파일 다루는 중…", "Working with files…"),
-                    "mcpToolCall" when Str(it, "server") == "bloom" => Tr("PC에서 작업하는 중…", "Working on the PC…"),
-                    "mcpToolCall" or "dynamicToolCall" => Tr("도구 쓰는 중…", "Using a tool…"),
+                    "commandExecution" or "fileChange" => Tr("파일 다루는 중…", "Handling files…"),
+                    "mcpToolCall" when Str(it, "server") == "bloom" => Tr("PC에서 작업하는 중…", "Working on PC…"),
+                    "mcpToolCall" or "dynamicToolCall" => Tr("도구 쓰는 중…", "Using tools…"),
                     "agentMessage" => null,
                     _ => "",
                 };

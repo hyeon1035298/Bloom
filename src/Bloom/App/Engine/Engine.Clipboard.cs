@@ -25,9 +25,9 @@ internal sealed partial class Engine
                 Id = "clip:off",
                 Kind = ItemKind.Info,
                 Title = Tr("클립보드 기록 꺼짐", "Clipboard history is off"),
-                Subtitle = Tr("Enter로 켜기 · 켠 뒤에 복사한 것부터 저장됩니다", "Enter turns it on · it keeps what you copy from then on"),
+                Subtitle = Tr("Enter로 켜기 · 켠 뒤에 복사한 것부터 저장됩니다", "Press Enter to enable · Items copied after enabling will be saved"),
                 Icon = IconSpec.Of(G.Paste),
-                PrimaryLabel = Tr("켜기", "Turn on"),
+                PrimaryLabel = Tr("켜기", "Turn On"),
                 StayOpen = true,
                 Run = () =>
                 {
@@ -47,7 +47,7 @@ internal sealed partial class Engine
             (Tr("오늘", "Today"), e => !e.Pinned && e.CopiedAt >= today),
             (Tr("어제", "Yesterday"), e => !e.Pinned && e.CopiedAt >= today.AddDays(-1) && e.CopiedAt < today),
             (Tr("이번 주", "This week"), e => !e.Pinned && e.CopiedAt >= today.AddDays(-7) && e.CopiedAt < today.AddDays(-1)),
-            (Tr("이전", "Earlier"), e => !e.Pinned && e.CopiedAt < today.AddDays(-7)),
+            (Tr("이전", "Older"), e => !e.Pinned && e.CopiedAt < today.AddDays(-7)),
         };
         bool first = true;
         foreach (var (title, has) in groups)
@@ -65,8 +65,8 @@ internal sealed partial class Engine
             {
                 Id = "clip:none",
                 Kind = ItemKind.Info,
-                Title = text.Trim().Length > 0 ? Tr("검색 결과 없음", "Nothing found") : Tr("클립보드 기록 없음", "Nothing copied yet"),
-                Subtitle = Tr("복사한 텍스트·이미지·파일 기록 · 비밀번호 관리자가 숨긴 내용 제외", "Text, images and files you copy gather here (not what password managers hide)"),
+                Title = text.Trim().Length > 0 ? Tr("검색 결과 없음", "No results found") : Tr("클립보드 기록 없음", "No clipboard history"),
+                Subtitle = Tr("복사한 텍스트·이미지·파일 기록 · 비밀번호 관리자가 숨긴 내용 제외", "Copied text, images, and files · Excludes items hidden by password managers"),
                 Icon = IconSpec.Of(G.Info),
             });
             sections.Add(s);
@@ -108,13 +108,13 @@ internal sealed partial class Engine
             {
                 new() { Title = Tr("복사만 하기", "Copy only"), Keys = "Ctrl+Enter", Glyph = G.Copy, Run = () => clip.Put(e) },
             };
-            if (url is not null) list.Add(new ActionItem { Title = Tr("브라우저에서 열기", "Open in the browser"), Glyph = G.Globe, Run = () => Browser.Web.Open(url) });
-            if (e.Kind == "image") list.Add(new ActionItem { Title = Tr("이미지 열기", "Open the image"), Glyph = G.NewWindow, Run = () => Launch.Open(ClipboardHistory.ImagePath(e)) });
-            if (e.Kind == "files" && e.Files is { Count: > 0 } files) list.Add(new ActionItem { Title = Tr("파일 위치 열기", "Show in folder"), Glyph = G.Folder, Run = () => Launch.Reveal(files[0]) });
+            if (url is not null) list.Add(new ActionItem { Title = Tr("브라우저에서 열기", "Open in browser"), Glyph = G.Globe, Run = () => Browser.Web.Open(url) });
+            if (e.Kind == "image") list.Add(new ActionItem { Title = Tr("이미지 열기", "Open image"), Glyph = G.NewWindow, Run = () => Launch.Open(ClipboardHistory.ImagePath(e)) });
+            if (e.Kind == "files" && e.Files is { Count: > 0 } files) list.Add(new ActionItem { Title = Tr("파일 위치 열기", "Open file location"), Glyph = G.Folder, Run = () => Launch.Reveal(files[0]) });
             if (e.Kind == "text")
                 list.Add(new ActionItem
                 {
-                    Title = Tr("AI에게 이 텍스트로 묻기", "Ask AI about this text"),
+                    Title = Tr("AI에게 이 텍스트로 묻기", "Ask AI with this text"),
                     Glyph = G.Sparkle,
                     StayOpen = true,
                     Run = () => host.Window.ShowChat(host.Chats.New(), null, (Tr("복사한 텍스트", "Copied text"), "", e.Text ?? "")),
@@ -122,11 +122,11 @@ internal sealed partial class Engine
             if (e.Kind == "text" && !string.IsNullOrWhiteSpace(e.Text))
             {
                 string text = e.Text;
-                list.Add(new ActionItem { Title = Tr("상용구로 저장", "Save as a snippet"), Glyph = KindGlyph("snippet"), StayOpen = true, Run = () => SaveSnippet(text) });
+                list.Add(new ActionItem { Title = Tr("상용구로 저장", "Save as snippet"), Glyph = KindGlyph("snippet"), StayOpen = true, Run = () => SaveSnippet(text) });
             }
             list.Add(new ActionItem
             {
-                Title = e.Pinned ? Tr("고정 해제", "Unpin") : Tr("위에 고정", "Pin to the top"),
+                Title = e.Pinned ? Tr("고정 해제", "Unpin") : Tr("위에 고정", "Pin to top"),
                 Keys = "Ctrl+D",
                 Glyph = e.Pinned ? UnpinGlyph : PinGlyph,
                 StayOpen = true,
@@ -138,7 +138,7 @@ internal sealed partial class Engine
             });
             list.Add(new ActionItem
             {
-                Title = Tr("이 항목 지우기", "Delete this entry"),
+                Title = Tr("이 항목 지우기", "Delete this item"),
                 Keys = "Ctrl+Delete",
                 Glyph = G.Delete,
                 Danger = true,
@@ -151,13 +151,13 @@ internal sealed partial class Engine
             });
             list.Add(new ActionItem
             {
-                Title = Tr("기록 모두 지우기 (고정 빼고)", "Clear the history (not the pinned)"),
+                Title = Tr("기록 모두 지우기 (고정 빼고)", "Clear all history (except pinned)"),
                 Glyph = G.Delete,
                 Danger = true,
                 StayOpen = true,
-                Run = () => host.Window.Confirm(Tr("고정되지 않은 클립보드 기록을 모두 삭제합니다.", "Deletes all unpinned clipboard entries."), new ActionItem
+                Run = () => host.Window.Confirm(Tr("고정되지 않은 클립보드 기록을 모두 삭제합니다.", "Delete all unpinned clipboard history items."), new ActionItem
                 {
-                    Title = Tr("모두 지우기", "Delete all"),
+                    Title = Tr("모두 지우기", "Clear all"),
                     Keys = "Enter",
                     Glyph = G.Delete,
                     Danger = true,
@@ -166,7 +166,7 @@ internal sealed partial class Engine
                     {
                         int n = clip.Clear();
                         host.Window.Refresh(false);
-                        host.Window.ShowToast(Tr($"{n}개 삭제 완료", $"Deleted {n}"));
+                        host.Window.ShowToast(Tr($"{n}개 삭제 완료", $"Deleted {n} items"));
                     },
                 }),
             });
@@ -186,7 +186,7 @@ internal sealed partial class Engine
             case "image":
                 string path = e.ImagePath;
                 d = new Search.Detail { Image = path, Shell = path };
-                d.Add(Tr("종류", "Kind"), Tr("이미지", "Image")).Add(Tr("해상도", "Resolution"), $"{e.Width} × {e.Height}");
+                d.Add(Tr("종류", "Type"), Tr("이미지", "Image")).Add(Tr("해상도", "Dimensions"), $"{e.Width} × {e.Height}");
                 try
                 {
                     d.Add(Tr("크기", "Size"), Size(new FileInfo(path).Length));
@@ -201,13 +201,13 @@ internal sealed partial class Engine
                 break;
             case "files":
                 d = new Search.Detail { Text = string.Join("\n", e.Files), Icon = IconSpec.Of(G.Folder) };
-                d.Add(Tr("종류", "Kind"), Tr($"파일 {e.Files.Length}개", $"{e.Files.Length} files"));
+                d.Add(Tr("종류", "Type"), Tr($"파일 {e.Files.Length}개", $"{e.Files.Length} files"));
                 break;
             default:
                 d = TextDetail(e.Text ?? "", e.IsLink ? Tr("링크", "Link") : Tr("텍스트", "Text"));
                 break;
         }
-        d.Add(Tr("가져온 곳", "From"), e.Source).Add(Tr("복사한 시각", "Copied at"), e.CopiedAt.ToString("yyyy. M. d. HH:mm:ss"));
+        d.Add(Tr("가져온 곳", "Source"), e.Source).Add(Tr("복사한 시각", "Copied at"), e.CopiedAt.ToString("yyyy. M. d. HH:mm:ss"));
         if (e.Pinned) d.Add(Tr("고정", "Pinned"), Tr("예", "Yes"));
         return d;
     }
@@ -217,6 +217,6 @@ internal sealed partial class Engine
     {
         var d = new Search.Detail { Text = text };
         int lines = text.TrimEnd('\r', '\n').Split('\n').Length;
-        return d.Add(Tr("종류", "Kind"), kind).Add(Tr("글자 수", "Characters"), Tr($"{text.Length:#,0}자", $"{text.Length:#,0}") + (lines > 1 ? Tr($" · {lines}줄", $" · {lines} lines") : ""));
+        return d.Add(Tr("종류", "Type"), kind).Add(Tr("글자 수", "Characters"), Tr($"{text.Length:#,0}자", $"{text.Length:#,0} chars") + (lines > 1 ? Tr($" · {lines}줄", $" · {lines} lines") : ""));
     }
 }

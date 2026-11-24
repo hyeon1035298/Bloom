@@ -24,14 +24,14 @@ internal sealed partial class Engine
             {
                 Id = "note:new",
                 Kind = ItemKind.Command,
-                Title = Tr($"메모로 남기기: {body}", $"Keep as a note: {body}"),
-                Subtitle = Tr("Enter로 메모 저장", "Enter keeps it · it goes into Notes"),
+                Title = Tr($"메모로 남기기: {body}", $"Save as note: {body}"),
+                Subtitle = Tr("Enter로 메모 저장", "Press Enter to save note"),
                 Icon = IconSpec.Of(G.Document, true),
-                PrimaryLabel = Tr("저장", "Keep"),
+                PrimaryLabel = Tr("저장", "Save"),
                 Run = () =>
                 {
                     Notes.New(body);
-                    host.Window.ShowToast(Tr("메모 저장 완료", "Kept as a note"));
+                    host.Window.ShowToast(Tr("메모 저장 완료", "Note saved"));
                 },
             });
         }

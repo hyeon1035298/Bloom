@@ -37,15 +37,15 @@ internal sealed partial class Host
             await Task.Delay(150); // the launcher is off the screen before the picture is taken
             string hint = kind switch
             {
-                "ask" => Tr("AI에게 보여줄 영역을 끌어서 고르세요", "Drag over the area to show AI"),
-                "live" => Tr("실시간으로 번역할 영역을 끌어서 고르세요", "Drag over the area to translate live"),
-                "translate" => Tr("번역할 영역을 끌어서 고르세요", "Drag over the area to translate"),
-                "text" => Tr("글자를 읽을 영역을 끌어서 고르세요", "Drag over the area to read"),
-                "pin" => Tr("화면에 고정할 영역을 끌어서 고르세요", "Drag over the area to pin"),
-                "capture" => Tr("캡처할 영역을 끌어서 고르세요", "Drag over the area to capture"),
-                "record" => Tr("녹화할 영역을 끌어서 고르세요", "Drag over the area to record"),
-                "palette" => Tr("팔레트를 만들 영역을 끌어서 고르세요", "Drag over the area to make a palette of"),
-                _ => Tr("영역을 끌어서 고르세요 — 고른 뒤 할 일을 선택하세요", "Drag over an area — then pick what to do"),
+                "ask" => Tr("AI에게 보여 줄 영역을 드래그해 선택하세요", "Drag to select an area to show AI"),
+                "live" => Tr("실시간으로 번역할 영역을 드래그해 선택하세요", "Drag to select an area for live translation"),
+                "translate" => Tr("번역할 영역을 드래그해 선택하세요", "Drag to select an area to translate"),
+                "text" => Tr("글자를 읽을 영역을 드래그해 선택하세요", "Drag to select an area to recognize text"),
+                "pin" => Tr("화면에 고정할 영역을 드래그해 선택하세요", "Drag to select an area to pin to screen"),
+                "capture" => Tr("캡처할 영역을 드래그해 선택하세요", "Drag to select an area to capture"),
+                "record" => Tr("녹화할 영역을 드래그해 선택하세요", "Drag to select an area to record"),
+                "palette" => Tr("팔레트를 만들 영역을 드래그해 선택하세요", "Drag to select an area to create a color palette"),
+                _ => Tr("영역을 드래그해 선택하세요 — 선택한 뒤 작업을 고를 수 있습니다", "Drag to select an area — then choose an action"),
             };
             var pick = await Ocr.ScreenGrab.Pick(hint, kind == "capture"); // 화면 캡처 draws on the area before it goes anywhere
             if (pick is not { } p) return;
@@ -117,8 +117,8 @@ internal sealed partial class Host
             {
                 Summon();
                 if (r is null)
-                    Notices.Result(false, "Bloom Lens", Tr("글자 인식 실패", "Text recognition failed"), Tr("설치된 인식 언어를 확인하세요", "Check installed recognition languages"), Tr("인식 언어 설정", "Recognition language settings"), () => OpenSettings("tools", Tr("인식 언어", "Recognition language")));
-                else Window.ShowToast(Tr("인식된 글자 없음", "No text found"));
+                    Notices.Result(false, "Bloom Lens", Tr("글자 인식 실패", "Text Recognition Failed"), Tr("설치된 인식 언어를 확인하세요", "Check your installed recognition languages"), Tr("인식 언어 설정", "Recognition Language Settings"), () => OpenSettings("tools", Tr("인식 언어", "Recognition language")));
+                else Window.ShowToast(Tr("인식된 글자 없음", "No text recognized"));
                 return;
             }
             if (kind == "translate")
@@ -130,7 +130,7 @@ internal sealed partial class Host
             LastOcr = r;
             if (Settings.Current.OcrCopy) Launch.Copy(r.Text);
             OpenView(Mode.Ocr);
-            Window.ShowToast(Settings.Current.OcrCopy ? Tr($"{r.Lines.Count}줄 인식·복사 완료", $"Read and copied {r.Lines.Count} lines") : Tr($"{r.Lines.Count}줄 인식 완료", $"Read {r.Lines.Count} lines"));
+            Window.ShowToast(Settings.Current.OcrCopy ? Tr($"{r.Lines.Count}줄 인식·복사 완료", $"Recognized and copied {r.Lines.Count} line(s)") : Tr($"{r.Lines.Count}줄 인식 완료", $"Recognized {r.Lines.Count} line(s)"));
         }
         catch (Exception e)
         {
@@ -183,8 +183,8 @@ internal sealed partial class Host
     {
         bool ok = Launch.CopyImage(Picture(l), l.Png);
         bool saved = SaveScreenshot(l);
-        Notices.Result(ok, "Bloom Lens", ok ? Tr("캡처 복사 완료", "Capture copied") : Tr("클립보드에 복사하지 못했습니다. 다시 시도하세요.", "Could not copy to the clipboard. Try again."),
-            ok ? (saved ? Tr($"{l.Rect.Width} × {l.Rect.Height} · Ctrl+V로 붙여넣으세요 · 스크린샷 폴더에 저장됨", $"{l.Rect.Width} × {l.Rect.Height} · paste it with Ctrl+V · saved in Screenshots") : Tr($"{l.Rect.Width} × {l.Rect.Height} · Ctrl+V로 붙여넣으세요", $"{l.Rect.Width} × {l.Rect.Height} · paste it with Ctrl+V")) : Tr("다른 앱이 클립보드를 쓰고 있습니다 — 다시 시도하세요", "Another app holds the clipboard — try again"));
+        Notices.Result(ok, "Bloom Lens", ok ? Tr("캡처 복사 완료", "Capture Copied") : Tr("클립보드에 복사하지 못했습니다. 다시 시도하세요.", "Could not copy to clipboard. Please try again."),
+            ok ? (saved ? Tr($"{l.Rect.Width} × {l.Rect.Height} · Ctrl+V로 붙여넣으세요 · 스크린샷 폴더에 저장됨", $"{l.Rect.Width} × {l.Rect.Height} · Press Ctrl+V to paste · Saved to Screenshots folder") : Tr($"{l.Rect.Width} × {l.Rect.Height} · Ctrl+V로 붙여넣으세요", $"{l.Rect.Width} × {l.Rect.Height} · Press Ctrl+V to paste")) : Tr("다른 앱에서 클립보드를 사용 중입니다 — 다시 시도하세요", "Another app is using the clipboard — please try again"));
     }
 
     /// The capture's PNG copied into the user's Screenshots folder as "Bloom <date> <time>.png" (" (2)" … when that name

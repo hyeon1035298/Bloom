@@ -44,7 +44,7 @@ internal static class NoticeQuestionsView
         var scroll = ToolUi.Scroll(list);
         scroll.MaxHeight = 420;
         var row = new WrapPanel { Margin = new Thickness(0, 8, 0, 0) };
-        send = ToolUi.TextButton(Tr("답하기", "Answer"), Send);
+        send = ToolUi.TextButton(Tr("답하기", "Reply"), Send);
         send.Margin = new Thickness(0, 0, 6, 0);
         row.Children.Add(send);
         foreach (var (label, run) in buttons ?? [])
@@ -68,7 +68,7 @@ internal static class NoticeQuestionsView
         var picked = new HashSet<int>();
         bool typedOn = false;
         var stack = new StackPanel();
-        string top = q.Header.Length > 0 && q.Multi ? $"{q.Header} · {Tr("여러 개 선택", "Pick any")}" : q.Header.Length > 0 ? q.Header : q.Multi ? Tr("여러 개 선택", "Pick any") : "";
+        string top = q.Header.Length > 0 && q.Multi ? $"{q.Header} · {Tr("여러 개 선택", "Pick any")}" : q.Header.Length > 0 ? q.Header : q.Multi ? Tr("여러 개 선택", "Select multiple") : "";
         if (top.Length > 0) stack.Children.Add(Theme.T(top, 11, Theme.P.TextFaint, Theme.Semi));
         var text = Theme.T(Hangul.KeepAll(q.Text), 13, Theme.P.Text, Theme.Medium, false);
         text.TextWrapping = TextWrapping.Wrap;

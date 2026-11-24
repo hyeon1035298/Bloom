@@ -43,7 +43,7 @@ internal sealed partial class ChatWindow : Window, IChatHost
     {
         this.host = host;
         thread = first;
-        Title = Tr("Bloom AI 채팅", "Bloom AI chat");
+        Title = Tr("Bloom AI 채팅", "Bloom AI Chat");
         Width = 1060;
         Height = 720;
         MinWidth = 780;
@@ -102,7 +102,7 @@ internal sealed partial class ChatWindow : Window, IChatHost
             Padding = new Thickness(0, 2, 0, 2),
             Template = Launcher.BareTextBox(),
         };
-        inputHint = Theme.T(Tr("메시지 입력 — Enter로 보내고 Shift+Enter로 줄을 변경합니다", "Message — Enter sends, Shift+Enter adds a line"), 14, Theme.P.TextFaint);
+        inputHint = Theme.T(Tr("메시지 입력 — Enter로 보내고 Shift+Enter로 줄을 변경합니다", "Type a message — Enter to send, Shift+Enter for new line"), 14, Theme.P.TextFaint);
         inputHint.IsHitTestVisible = false;
         inputHint.VerticalAlignment = VerticalAlignment.Center;
         var field = new Grid();
@@ -112,7 +112,7 @@ internal sealed partial class ChatWindow : Window, IChatHost
         composer.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
         composer.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
         composer.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
-        var attach = attachKey = IconButton('', Tr("파일 · 사진 첨부 (Ctrl+O)", "Attach files or pictures (Ctrl+O)"), PickFiles, false);
+        var attach = attachKey = IconButton('', Tr("파일 · 사진 첨부 (Ctrl+O)", "Attach files or images (Ctrl+O)"), PickFiles, false);
         attach.VerticalAlignment = VerticalAlignment.Bottom;
         composer.Children.Add(attach);
         field.Margin = new Thickness(6, 0, 10, 0);
@@ -144,7 +144,7 @@ internal sealed partial class ChatWindow : Window, IChatHost
         Grid.SetRow(composerCard, 3);
         main.Children.Add(composerCard);
         main.Children.Add(Rule(4));
-        var foot = Hints((Tr("첨부", "Attach"), "Ctrl+O"), (Tr("새 대화", "New chat"), "Ctrl+N"), (Tr("대화 찾기", "Find a chat"), "Ctrl+F"), (Tr("중지", "Stop"), "Esc"));
+        var foot = Hints((Tr("첨부", "Attach"), "Ctrl+O"), (Tr("새 대화", "New chat"), "Ctrl+N"), (Tr("대화 찾기", "Search chats"), "Ctrl+F"), (Tr("중지", "Stop"), "Esc"));
         attachFoot = (FrameworkElement)foot.Children[0]; // goes with the 📎 button (PaintComposer)
         findFoot = (TextBlock)((Panel)foot.Children[2]).Children[0]; // the list's side names it (Hints)
         Hints();
@@ -344,7 +344,7 @@ internal sealed partial class ChatWindow : Window, IChatHost
         string model = AiModels.Normalize(thread.Model);
         if (!AiModels.HasEffort(model)) return;
         Chats.SetEffort(thread, AiModels.Next(AiModels.Efforts(model), Chats.EffortOf(thread)));
-        ShowToast(Tr($"생각 수준: {AiModels.EffortName(Chats.EffortOf(thread))}", $"Thinking level: {AiModels.EffortName(Chats.EffortOf(thread))}"));
+        ShowToast(Tr($"생각 수준: {AiModels.EffortName(Chats.EffortOf(thread))}", $"Thinking effort: {AiModels.EffortName(Chats.EffortOf(thread))}"));
         host.Chats.PreStart(thread);
         Header();
     }
@@ -402,7 +402,7 @@ internal sealed partial class ChatWindow : Window, IChatHost
         tools.Children.Add(models);
         if (AiModels.HasEffort(model))
         {
-            var levels = new Dropdown(AiModels.Efforts(model).Select(e => (e, AiModels.EffortName(e), (string?)null)).ToArray(), Chats.EffortOf(thread)) { ToolTip = Tr("생각 수준 (Ctrl+E)", "Thinking level (Ctrl+E)"), Margin = new Thickness(8, 0, 0, 0) };
+            var levels = new Dropdown(AiModels.Efforts(model).Select(e => (e, AiModels.EffortName(e), (string?)null)).ToArray(), Chats.EffortOf(thread)) { ToolTip = Tr("생각 수준 (Ctrl+E)", "Thinking effort (Ctrl+E)"), Margin = new Thickness(8, 0, 0, 0) };
             levels.Picked += e =>
             {
                 Chats.SetEffort(thread, e);
@@ -414,7 +414,7 @@ internal sealed partial class ChatWindow : Window, IChatHost
         if (host.Chats.IsLive(thread))
         {
             var end = TextButton(G.Stop, Tr("세션 종료", "End session"), () => EndSession(thread));
-            end.ToolTip = Tr("대화 메모리를 해제하고 새 대화를 엽니다. 대화 기록은 유지됩니다.", "Frees chat memory and opens a new chat. History stays.");
+            end.ToolTip = Tr("대화 메모리를 해제하고 새 대화를 엽니다. 대화 기록은 유지됩니다.", "Unloads chat memory and opens a new chat. Chat history is kept.");
             end.Margin = new Thickness(8, 0, 0, 0);
             tools.Children.Add(end);
         }
@@ -503,7 +503,7 @@ internal sealed partial class ChatWindow : Window, IChatHost
         chat.ShowPending(files, Unattach);
     }
 
-    private static string T3NoFiles => Tr("T3 스레드에는 여기서 파일을 붙일 수 없어요", "Files can't be attached to a T3 thread here");
+    private static string T3NoFiles => Tr("T3 스레드에는 여기서 파일을 붙일 수 없어요", "Files cannot be attached to T3 threads from here");
 
     // ── what the conversations do ───────────────────────────────────────────────────────────────
     private void OnUpdated(ChatThread t)

@@ -46,7 +46,7 @@ internal sealed partial class Launcher
             bool fav = Favorites.Has(item.Id);
             list.Add(new ActionItem
             {
-                Title = fav ? Tr("즐겨찾기에서 빼기", "Remove from favorites") : Tr("즐겨찾기에 추가", "Add to favorites"),
+                Title = fav ? Tr("즐겨찾기에서 빼기", "Remove from Favorites") : Tr("즐겨찾기에 추가", "Add to Favorites"),
                 Keys = "Ctrl+D",
                 Glyph = fav ? G.Unstar : G.Star,
                 StayOpen = true,
@@ -56,15 +56,15 @@ internal sealed partial class Launcher
             // moves with Ctrl+Shift+←→ or a drag in the row, and AI drawing and the original icon sit in 아이콘 바꾸기
             if (fav)
                 list.Add(new ActionItem { Title = Tr("아이콘 바꾸기…", "Change icon…"), Glyph = G.Palette, StayOpen = true, Run = () => PickPicture(item.Id, item.Title) });
-            list.Add(new ActionItem { Title = Tr("즐겨찾기 폴더에 넣기…", "Add to a favorites folder…"), Glyph = G.Folder, StayOpen = true, Run = () => PickGroup(item) });
+            list.Add(new ActionItem { Title = Tr("즐겨찾기 폴더에 넣기…", "Add to Favorites folder…"), Glyph = G.Folder, StayOpen = true, Run = () => PickGroup(item) });
             list.AddRange(Engine.ItemKeyActions(item));
             if (Home.ForCommand(item.Id) is { } widget)
             {
                 bool on = Home.IsOn(widget);
-                list.Add(new ActionItem { Title = on ? Tr($"홈에서 빼기 ({Home.Name(widget)})", $"Remove from home ({Home.Name(widget)})") : Tr($"홈에 고정 ({Home.Name(widget)})", $"Pin to home ({Home.Name(widget)})"), Glyph = on ? G.Unstar : G.Star, StayOpen = true, Run = () => { Home.Set(widget, !on); ShowToast(on ? Tr($"홈에서 ‘{Home.Name(widget)}’ 제거 완료", $"Removed ‘{Home.Name(widget)}’ from home") : Tr($"홈에 ‘{Home.Name(widget)}’ 고정 완료", $"Pinned ‘{Home.Name(widget)}’ to home")); Refresh(true); } });
+                list.Add(new ActionItem { Title = on ? Tr($"홈에서 빼기 ({Home.Name(widget)})", $"Remove from Home ({Home.Name(widget)})") : Tr($"홈에 고정 ({Home.Name(widget)})", $"Pin to Home ({Home.Name(widget)})"), Glyph = on ? G.Unstar : G.Star, StayOpen = true, Run = () => { Home.Set(widget, !on); ShowToast(on ? Tr($"홈에서 ‘{Home.Name(widget)}’ 제거 완료", $"Removed ‘{Home.Name(widget)}’ from Home") : Tr($"홈에 ‘{Home.Name(widget)}’ 고정 완료", $"Pinned ‘{Home.Name(widget)}’ to Home")); Refresh(true); } });
             }
             if (Usage.Current.Items.ContainsKey(item.Id) && Mode == Mode.Root && box.Text.Length == 0 && !fav)
-                list.Add(new ActionItem { Title = Tr("최근 사용에서 지우기", "Remove from recent"), Glyph = G.Delete, StayOpen = true, Run = () => { Usage.Forget(item.Id); Refresh(false); } });
+                list.Add(new ActionItem { Title = Tr("최근 사용에서 지우기", "Remove from Recent"), Glyph = G.Delete, StayOpen = true, Run = () => { Usage.Forget(item.Id); Refresh(false); } });
         }
         if (Mode == Mode.Root && HiddenResults.CanHide(item) && !(box.Text.Length == 0 && Favorites.Has(item.Id))) // a favorite stays on the home
             list.Add(new ActionItem { Title = Tr("검색에서 숨기기", "Hide from search"), Glyph = G.Hide, StayOpen = true, Run = () => HideResult(item) });
@@ -75,7 +75,7 @@ internal sealed partial class Launcher
     private void HideResult(ResultItem item)
     {
         HiddenResults.Add(item);
-        ShowToast(Tr($"‘{ClipText(item.Title, 16)}’ 숨김 · 설정 › 런처 › 숨긴 항목에서 되돌리기", $"‘{ClipText(item.Title, 16)}’ hidden · bring it back in Settings › Launcher › Hidden items"));
+        ShowToast(Tr($"‘{ClipText(item.Title, 16)}’ 숨김 · 설정 › 런처 › 숨긴 항목에서 되돌리기", $"Hidden ‘{ClipText(item.Title, 16)}’ · Restore in Settings › Launcher › Hidden Items"));
         Refresh(false);
     }
 
@@ -94,9 +94,9 @@ internal sealed partial class Launcher
                 Refresh(true);
             },
         }).ToList();
-        list.Insert(0, new ActionItem { Title = Tr("AI로 그리기… (원하는 그림을 말로)", "Draw with AI… (describe the picture)"), Glyph = G.Sparkle, StayOpen = true, Run = () => StartForm(Engine.AiIconForm(id, title)) });
-        if (now is not null) list.Add(new ActionItem { Title = Tr("원래 아이콘으로", "Back to the original icon"), Glyph = G.Refresh, StayOpen = true, Run = () => { Favorites.SetMono(id, null); Refresh(true); } });
-        actions.Open(Tr($"‘{ClipText(title, 16)}’ 그림 아이콘", $"Picture icon for ‘{ClipText(title, 16)}’"), list, Math.Max(0, Array.FindIndex(Icons.Pictures, p => p.value == now) + 1));
+        list.Insert(0, new ActionItem { Title = Tr("AI로 그리기… (원하는 그림을 말로)", "Generate with AI… (describe the icon)"), Glyph = G.Sparkle, StayOpen = true, Run = () => StartForm(Engine.AiIconForm(id, title)) });
+        if (now is not null) list.Add(new ActionItem { Title = Tr("원래 아이콘으로", "Reset to original icon"), Glyph = G.Refresh, StayOpen = true, Run = () => { Favorites.SetMono(id, null); Refresh(true); } });
+        actions.Open(Tr($"‘{ClipText(title, 16)}’ 그림 아이콘", $"Graphic icon for ‘{ClipText(title, 16)}’"), list, Math.Max(0, Array.FindIndex(Icons.Pictures, p => p.value == now) + 1));
     }
 
     public static bool ShowHomeToolsForQa;
@@ -111,7 +111,7 @@ internal sealed partial class Launcher
         addOpen = null;
         if (HomeEditing && (Mode != Mode.Root || box.Text.Length > 0)) Go(Mode.Root);
         else Refresh(true);
-        if (HomeEditing) ShowToast(Tr("홈 편집 · 블록 제목 줄을 끌어 옮기고 제목을 눌러 접기 · ▲ ▼ ‹ › 이동, − + 개수, ✕ 숨기기 · ‘+ 블록 추가’로 다시 넣기 · 끝내려면 Esc", "Editing home · drag a block by its title row, click the title to fold it · ▲ ▼ ‹ › move, − + rows, ✕ hides · ‘+ Add a block’ puts one back · Esc to finish"));
+        if (HomeEditing) ShowToast(Tr("홈 편집 · 블록 제목 줄을 끌어 옮기고 제목을 눌러 접기 · ▲ ▼ ‹ › 이동, − + 개수, ✕ 숨기기 · ‘+ 블록 추가’로 다시 넣기 · 끝내려면 Esc", "Edit Home · Drag block headers to move, click title to collapse · ▲ ▼ ‹ › move, − + count, ✕ hide · Re-add via ‘+ Add Block’ · Esc to finish"));
     }
 
     /// The home blocks shown as last drawn (their ▲ ▼ ‹ › go past these only).
@@ -130,16 +130,16 @@ internal sealed partial class Launcher
     /// AI draws a favorite's icon (one Claude call); the toast says when it starts and how it ended.
     public async void DrawIcon(string id, string name, string? idea)
     {
-        ShowToast(Tr($"‘{ClipText(name, 14)}’ 아이콘 생성 중… (사용량 1회)", $"Creating icon for ‘{ClipText(name, 14)}’… (1 use)"));
+        ShowToast(Tr($"‘{ClipText(name, 14)}’ 아이콘 생성 중… (사용량 1회)", $"Generating icon for ‘{ClipText(name, 14)}’… (uses 1 request)"));
         var (icon, error) = await Ai.IconMaker.Draw(name, idea, System.Threading.CancellationToken.None);
         if (icon is null)
         {
-            ShowToast(error ?? Tr("아이콘 생성 실패 · 다시 시도하세요", "Icon creation failed. Try again."));
+            ShowToast(error ?? Tr("아이콘 생성 실패 · 다시 시도하세요", "Failed to generate icon · Please try again"));
             return;
         }
         Favorites.SetMono(id, icon);
         if (IsVisible && Mode == Mode.Root) Refresh(true);
-        ShowToast(Tr($"‘{ClipText(name, 14)}’ 아이콘 변경 완료 · Ctrl+K로 다시 그리기", $"Icon changed for ‘{ClipText(name, 14)}’ · Ctrl+K to draw again"));
+        ShowToast(Tr($"‘{ClipText(name, 14)}’ 아이콘 변경 완료 · Ctrl+K로 다시 그리기", $"‘{ClipText(name, 14)}’ icon updated · Ctrl+K to redraw"));
     }
 
     /// A home block's tools (top right, over its header): − n + for a list's rows, ≡ to drag it (as its whole header row
@@ -158,17 +158,17 @@ internal sealed partial class Launcher
         void Hide()
         {
             Home.Set(key, false);
-            ShowToast(Tr($"‘{Home.Name(key)}’ 숨김 · ‘+ 블록 추가’로 다시 넣기", $"‘{Home.Name(key)}’ hidden · ‘+ Add a block’ puts it back"));
+            ShowToast(Tr($"‘{Home.Name(key)}’ 숨김 · ‘+ 블록 추가’로 다시 넣기", $"‘{Home.Name(key)}’ hidden · Re-add via ‘+ Add Block’"));
             Refresh(true);
         }
         var grip = HomeViews.EditButton(G.Grip, Tr("끌어서 옮기기", "Drag to move"), true, null);
         grip.Cursor = Cursors.SizeAll;
         var bar = HomeViews.Pill(grip,
-            HomeViews.EditButton(G.Up, Tr("위로", "Up"), Home.CanStep(key, -1, wide, shownNow), () => Then(() => Home.Step(key, -1, wide, shownNow))),
-            HomeViews.EditButton(G.Down, Tr("아래로", "Down"), Home.CanStep(key, 1, wide, shownNow), () => Then(() => Home.Step(key, 1, wide, shownNow))),
-            HomeViews.EditButton(G.Left, Tr("왼쪽 열로", "To the left column"), right, () => Then(() => Home.MoveAcross(key, shownNow))),
-            HomeViews.EditButton(G.Right, Tr("오른쪽 열로", "To the right column"), !right, () => Then(() => Home.MoveAcross(key, shownNow))),
-            HomeViews.EditButton(G.Close, Tr("홈에서 숨기기", "Hide from home"), true, Hide));
+            HomeViews.EditButton(G.Up, Tr("위로", "Move Up"), Home.CanStep(key, -1, wide, shownNow), () => Then(() => Home.Step(key, -1, wide, shownNow))),
+            HomeViews.EditButton(G.Down, Tr("아래로", "Move Down"), Home.CanStep(key, 1, wide, shownNow), () => Then(() => Home.Step(key, 1, wide, shownNow))),
+            HomeViews.EditButton(G.Left, Tr("왼쪽 열로", "Move to left column"), right, () => Then(() => Home.MoveAcross(key, shownNow))),
+            HomeViews.EditButton(G.Right, Tr("오른쪽 열로", "Move to right column"), !right, () => Then(() => Home.MoveAcross(key, shownNow))),
+            HomeViews.EditButton(G.Close, Tr("홈에서 숨기기", "Hide from Home"), true, Hide));
         var tools = new StackPanel { Orientation = Orientation.Horizontal, HorizontalAlignment = HorizontalAlignment.Right, VerticalAlignment = VerticalAlignment.Top, Margin = new Thickness(0, 6, 16, 0) };
         if (s.HomeCount > 0)
         {
@@ -188,7 +188,7 @@ internal sealed partial class Launcher
         string? now = Favorites.GroupOf(item.Id)?.Id;
         var list = groups.Select(g => new ActionItem
         {
-            Title = g.Title + (g.Id == now ? Tr("  (지금 여기)", "  (here now)") : Tr($"  · {g.Items?.Count ?? 0}개", $"  · {g.Items?.Count ?? 0}")),
+            Title = g.Title + (g.Id == now ? Tr("  (지금 여기)", "  (current)") : Tr($"  · {g.Items?.Count ?? 0}개", $"  · {g.Items?.Count ?? 0} items")),
             Glyph = g.Id == now ? G.Check : G.Folder,
             StayOpen = true,
             Run = () =>
@@ -198,8 +198,8 @@ internal sealed partial class Launcher
                 Refresh(true);
             },
         }).ToList();
-        list.Add(new ActionItem { Title = Tr("새 폴더 만들기…", "New folder…"), Glyph = G.Add, StayOpen = true, Run = () => StartForm(Engine.GroupForm(null, entry)) });
-        actions.Open(Tr($"즐겨찾기 폴더에 넣기 · {ClipText(item.Title, 20)}", $"Add to a favorites folder · {ClipText(item.Title, 20)}"), list);
+        list.Add(new ActionItem { Title = Tr("새 폴더 만들기…", "New Folder…"), Glyph = G.Add, StayOpen = true, Run = () => StartForm(Engine.GroupForm(null, entry)) });
+        actions.Open(Tr($"즐겨찾기 폴더에 넣기 · {ClipText(item.Title, 20)}", $"Add to Favorites Folder · {ClipText(item.Title, 20)}"), list);
     }
 
     private void ToggleFavorite(ResultItem item)
@@ -208,12 +208,12 @@ internal sealed partial class Launcher
         if (Favorites.Has(item.Id))
         {
             Favorites.Remove(item.Id);
-            ShowToast(Tr("즐겨찾기에서 제거 완료", "Removed from favorites"));
+            ShowToast(Tr("즐겨찾기에서 제거 완료", "Removed from Favorites"));
         }
         else
         {
             Favorites.Add(e);
-            ShowToast(Tr("즐겨찾기 추가 완료", "Added to favorites"));
+            ShowToast(Tr("즐겨찾기 추가 완료", "Added to Favorites"));
         }
         Refresh(true);
     }
@@ -231,8 +231,8 @@ internal sealed partial class Launcher
         if (Mode == Mode.Chat)
         {
             var items = chat.Actions(thread);
-            items.Insert(Math.Min(4, items.Count), new ActionItem { Title = Tr("AI 채팅 창에서 열기", "Open in the chat window"), Keys = "Ctrl+Shift+O", Glyph = G.NewWindow, Run = OpenInWindow });
-            actions.Open(Tr("AI 채팅", "AI chat"), items);
+            items.Insert(Math.Min(4, items.Count), new ActionItem { Title = Tr("AI 채팅 창에서 열기", "Open in AI Chat Window"), Keys = "Ctrl+Shift+O", Glyph = G.NewWindow, Run = OpenInWindow });
+            actions.Open(Tr("AI 채팅", "AI Chat"), items);
             return;
         }
         if (Selected is not { } item) return;

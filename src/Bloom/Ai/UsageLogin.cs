@@ -31,7 +31,7 @@ internal static class UsageLogin
     /// account is added, so a failed start leaves no empty account behind.
     public static string? Blocked(string kind)
     {
-        if (Running is not null) return Tr("다른 계정 로그인 진행 중", "Another sign-in is running");
+        if (Running is not null) return Tr("다른 계정 로그인 진행 중", "Another account sign-in is in progress");
         return CliFor(kind) is null ? AiErrors.Missing(kind == "chatgpt") : null;
     }
 
@@ -40,8 +40,8 @@ internal static class UsageLogin
     /// → null when signed in, else what went wrong (shown under the account).
     public static async Task<string?> Run(AiAccount account)
     {
-        if (account.Home is null) return Tr("기본 계정은 Claude Code · Codex에서 직접 로그인하세요", "Sign the default account in from Claude Code or Codex itself");
-        if (LoginMarker.Alive(account.Home)) return Tr("이 계정의 로그인 터미널이 아직 열려 있습니다. 먼저 닫으세요.", "This account's sign-in terminal is still open. Close it first.");
+        if (account.Home is null) return Tr("기본 계정은 Claude Code · Codex에서 직접 로그인하세요", "Sign in to the default account directly in Claude Code · Codex");
+        if (LoginMarker.Alive(account.Home)) return Tr("이 계정의 로그인 터미널이 아직 열려 있습니다. 먼저 닫아 주세요.", "The sign-in terminal for this account is still open. Close it first.");
         if (Blocked(account.Kind) is { } why) return why;
         bool claude = account.Kind == "claude";
         string cli = CliFor(account.Kind)!;
@@ -71,7 +71,7 @@ internal static class UsageLogin
             while (!p.HasExited && !Fresh() && DateTime.Now - started < Longest)
                 await Task.Delay(1500);
             if (!Fresh()) await Task.Delay(1000); // written just as the CLI ended
-            if (!Fresh()) return Tr("로그인 안 됨 · 다시 시도하세요", "Not signed in · Try again");
+            if (!Fresh()) return Tr("로그인 안 됨 · 다시 시도하세요", "Not signed in · Please try again");
             AiUsage.SignedIn(account.Id);
             return null;
         }

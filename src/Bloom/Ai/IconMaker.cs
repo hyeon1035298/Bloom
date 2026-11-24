@@ -22,7 +22,7 @@ internal static partial class IconMaker
     /// → ("svg:<d>", null) or (null, error).
     public static async Task<(string? icon, string? error)> Draw(string name, string? idea, CancellationToken ct)
     {
-        if (Demo.On) return (null, Tr("녹화 모드에서 아이콘 생성 불가", "Icon creation unavailable in recording mode"));
+        if (Demo.On) return (null, Tr("녹화 모드에서는 아이콘을 생성할 수 없습니다", "Cannot generate icons in recording mode"));
         string? cli = ClaudeSession.FindCli(Settings.Current.ClaudePath);
         if (cli is null) return (null, AiErrors.ClaudeMissing);
         var psi = OneShot.Psi(cli);
@@ -36,9 +36,9 @@ internal static partial class IconMaker
         string ask = idea is { Length: > 0 } ? $"An icon for \"{name}\": {idea}" : $"An icon for the app or shortcut \"{name}\" (pick the symbol people would recognise for it).";
         var (code, output, error) = await OneShot.RunCli(psi, ask, ct);
         if (ct.IsCancellationRequested) return (null, null);
-        if (code != 0 || output.Trim().Length == 0) return (null, error.Trim().Length > 0 ? AiErrors.Friendly(error, false) : Tr("Claude 답변이 없습니다. 다시 시도하세요.", "No answer from Claude. Try again."));
+        if (code != 0 || output.Trim().Length == 0) return (null, error.Trim().Length > 0 ? AiErrors.Friendly(error, false) : Tr("Claude의 응답이 없습니다. 다시 시도하세요.", "No response from Claude. Please try again."));
         string? d = PathData(output);
-        if (d is null) return (null, Tr("아이콘을 읽지 못했습니다. 다시 그리세요.", "Could not read the icon. Draw it again."));
+        if (d is null) return (null, Tr("아이콘을 읽지 못했습니다. 다시 그려 주세요.", "Could not read the icon. Please draw it again."));
         return ("svg:" + d, null);
     }
 

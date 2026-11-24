@@ -121,7 +121,7 @@ internal sealed class KeyRecorder : SmoothBorder
             Finish(combo);
             return;
         }
-        error = none ? Tr("Ctrl · Alt · Shift · Win과 함께", "With Ctrl, Alt, Shift or Win") : Tr("다른 키 조합을 누르세요", "Press another key combination");
+        error = none ? Tr("Ctrl · Alt · Shift · Win과 함께", "Combine with Ctrl · Alt · Shift · Win") : Tr("다른 키 조합을 누르세요", "Press a different key combination");
         Show("");
     }
 
@@ -168,6 +168,6 @@ internal sealed class KeyRecorder : SmoothBorder
             Child = row;
         }
         else Child = text;
-        ToolTip = on ? Tr("Esc 취소 · Backspace 끄기", "Esc cancels · Backspace turns it off") : Tr("눌러서 바꾸기", "Click to change");
+        ToolTip = on ? Tr("Esc 취소 · Backspace 끄기", "Esc to cancel · Backspace to clear") : Tr("눌러서 바꾸기", "Click to change");
     }
 }

@@ -44,7 +44,7 @@ internal static class Winget
     {
         if (Exe is not { } exe) return (false, Tr("winget이 없습니다", "winget is not installed"));
         var (code, output) = await Run(exe, InstallArgs(p), CancellationToken.None);
-        if (code == AlreadyInstalled) return (true, Tr("최신 버전 설치됨", "The latest version is already installed"));
+        if (code == AlreadyInstalled) return (true, Tr("최신 버전 설치됨", "Latest version installed"));
         return (code == 0, UserCommands.LastLine(output) ?? (code == 0 ? null : Tr($"코드 {code}", $"Code {code}")));
     }
 

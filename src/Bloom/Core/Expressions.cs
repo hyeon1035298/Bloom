@@ -31,58 +31,58 @@ internal static class Expressions
     /// Every kind in the order of the list, in the language of the run, whether its feature is on or not.
     public static List<Kind> All() => new()
     {
-        new("calc", "calc", Tr("계산 · 단위 · 환율", "Maths · units · currency"), G.Calculator, new Example[]
+        new("calc", "calc", Tr("계산 · 단위 · 환율", "Math · Units · Currency"), G.Calculator, new Example[]
         {
-            new("45000*1.1", "45000*1.1", Tr("식을 적으면 바로 계산합니다", "Calculates a sum as you type")),
-            new("5km to mi", "5km to mi", Tr("단위를 변환합니다", "Converts between units"), true),
-            new("100 usd", "100 usd", Tr("최신 환율로 변환합니다", "Converts at the latest exchange rate")),
+            new("45000*1.1", "45000*1.1", Tr("식을 적으면 바로 계산합니다", "Type an expression to calculate immediately")),
+            new("5km to mi", "5km to mi", Tr("단위를 변환합니다", "Convert units"), true),
+            new("100 usd", "100 usd", Tr("최신 환율로 변환합니다", "Convert using live exchange rates")),
         }),
-        new("timer", "timers", Tr("타이머 · 알림", "Timers · reminders"), G.Stopwatch, new Example[]
+        new("timer", "timers", Tr("타이머 · 알림", "Timers · Reminders"), G.Stopwatch, new Example[]
         {
-            new("10분 타이머", "timer 10m", Tr("타이머를 시작합니다", "Starts a timer")),
-            new("30분 뒤 빨래", "laundry in 30 min", Tr("정한 시간이 지나면 알림을 표시합니다", "Shows a reminder after that time"), true),
-            new("오후 3시 반에 회의 알림", "remind me at 3pm to call", Tr("정한 시각에 알림을 표시합니다", "Shows a reminder at that time")),
+            new("10분 타이머", "timer 10m", Tr("타이머를 시작합니다", "Start a timer")),
+            new("30분 뒤 빨래", "laundry in 30 min", Tr("정한 시간이 지나면 알림을 표시합니다", "Remind you after a set duration"), true),
+            new("오후 3시 반에 회의 알림", "remind me at 3pm to call", Tr("정한 시각에 알림을 표시합니다", "Remind you at a specific time")),
         }),
-        new("date", "dates", Tr("날짜 · 세계 시간", "Dates · world clock"), G.Calendar, new Example[]
+        new("date", "dates", Tr("날짜 · 세계 시간", "Dates · World Clock"), G.Calendar, new Example[]
         {
-            new("100일 뒤", "in 100 days", Tr("며칠 뒤의 날짜를 표시합니다", "Shows the date that far ahead"), true),
-            new("크리스마스까지", "days until christmas", Tr("남은 날수를 셉니다", "Counts the days left")),
-            new("뉴욕 시간", "new york time", Tr("다른 도시의 시각을 표시합니다", "Shows another city's clock")),
-            new("도쿄 오후 3시", "tokyo 3pm", Tr("그 도시의 시각을 이 PC의 시각으로 변환합니다", "Converts that city's time to local time")),
+            new("100일 뒤", "in 100 days", Tr("며칠 뒤의 날짜를 표시합니다", "Find the date N days from now"), true),
+            new("크리스마스까지", "days until christmas", Tr("남은 날수를 셉니다", "Count days remaining until a date")),
+            new("뉴욕 시간", "new york time", Tr("다른 도시의 시각을 표시합니다", "Show current time in another city")),
+            new("도쿄 오후 3시", "tokyo 3pm", Tr("그 도시의 시각을 이 PC의 시각으로 변환합니다", "Convert a city’s time to your local time")),
         }),
-        new("layout", "layout", Tr("창 배치", "Window layout"), G.Screen, new Example[]
+        new("layout", "layout", Tr("창 배치", "Window Layout"), G.Screen, new Example[]
         {
-            new("왼쪽 절반", "left half", Tr("앞의 창을 화면 왼쪽 절반에 맞춥니다", "Fits the window in front to the left half"), true),
-            new("최대화", "maximize", Tr("앞의 창을 최대화합니다", "Maximizes the window in front")),
-            new("다음 화면으로", "next screen", Tr("앞의 창을 다음 화면으로 옮깁니다", "Moves the window in front to the next screen")),
+            new("왼쪽 절반", "left half", Tr("앞의 창을 화면 왼쪽 절반에 맞춥니다", "Snap the active window to the left half"), true),
+            new("최대화", "maximize", Tr("앞의 창을 최대화합니다", "Maximize the active window")),
+            new("다음 화면으로", "next screen", Tr("앞의 창을 다음 화면으로 옮깁니다", "Move the active window to the next display")),
         }),
-        new("path", null, Tr("경로", "Paths"), G.Folder, new Example[]
+        new("path", null, Tr("경로", "Path"), G.Folder, new Example[]
         {
-            new(@"~\Downloads", @"~\Downloads", Tr("폴더와 안의 항목을 표시합니다", "Shows the folder and what is in it")),
-            new("%APPDATA%", "%APPDATA%", Tr("환경 변수가 든 경로도 읽습니다", "Reads paths with environment variables too")),
+            new(@"~\Downloads", @"~\Downloads", Tr("폴더와 안의 항목을 표시합니다", "Browse folders and their contents")),
+            new("%APPDATA%", "%APPDATA%", Tr("환경 변수가 든 경로도 읽습니다", "Supports paths with environment variables")),
         }),
-        new("quicklink", "quicklinks", Tr("사이트 바로 가기", "Site shortcuts"), G.Link, new Example[]
+        new("quicklink", "quicklinks", Tr("사이트 바로 가기", "Site Shortcuts"), G.Link, new Example[]
         {
-            new("yt 고양이", "yt cats", Tr("YouTube에서 검색합니다", "Searches YouTube"), true),
-            new("map 성수역", "map central park", Tr("지도에서 검색합니다", "Searches the map")),
+            new("yt 고양이", "yt cats", Tr("YouTube에서 검색합니다", "Search on YouTube"), true),
+            new("map 성수역", "map central park", Tr("지도에서 검색합니다", "Search on Maps")),
         }),
-        new("emoji", "emoji", Tr("이모지 · 기호", "Emoji · symbols"), EmojiGlyph, new Example[]
+        new("emoji", "emoji", Tr("이모지 · 기호", "Emoji · Symbols"), EmojiGlyph, new Example[]
         {
-            new(":하트", ":heart", Tr("이모지를 찾아 붙여 넣습니다", "Finds an emoji to paste"), true),
-            new(":화살표", ":arrow", Tr("기호도 찾아 붙여 넣습니다", "Finds symbols to paste too")),
+            new(":하트", ":heart", Tr("이모지를 찾아 붙여넣습니다", "Find and paste emojis"), true),
+            new(":화살표", ":arrow", Tr("기호도 찾아 붙여넣습니다", "Find and paste symbols")),
         }),
-        new("install", "winget", Tr("앱 설치", "Install apps"), G.Download, new Example[]
+        new("install", "winget", Tr("앱 설치", "Install Apps"), G.Download, new Example[]
         {
-            new("설치 vlc", "install vlc", Tr("winget에서 찾아 설치합니다", "Finds the app in winget to install"), true),
+            new("설치 vlc", "install vlc", Tr("winget에서 찾아 설치합니다", "Search and install via winget"), true),
         }),
         new("system", "system", Tr("시스템", "System"), G.Volume, new Example[]
         {
-            new("볼륨 30", "volume 30", Tr("볼륨을 맞춥니다", "Sets the volume"), true),
-            new("다크 모드", "dark mode", Tr("다크 모드를 켜고 끕니다", "Switches dark mode")),
+            new("볼륨 30", "volume 30", Tr("볼륨을 맞춥니다", "Set the system volume"), true),
+            new("다크 모드", "dark mode", Tr("다크 모드를 켜고 끕니다", "Toggle Dark Mode")),
         }),
         new("note", "notes", Tr("메모", "Notes"), G.Document, new Example[]
         {
-            new("메모 우유 사기", "note buy milk", Tr("바로 메모로 저장합니다", "Saves it as a note"), true),
+            new("메모 우유 사기", "note buy milk", Tr("바로 메모로 저장합니다", "Quickly save as a note"), true),
         }),
         new("ai", "chat", "AI (Tab)", G.Sparkle, new Example[]
         {

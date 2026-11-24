@@ -61,7 +61,7 @@ internal sealed class ToolWindow : Window
             WindowChrome.SetIsHitTestVisibleInChrome(own, true);
             buttons.Children.Add(own);
         }
-        attachButton = GlassFrame.HeadButton(Undock, Tr("런처에서 떼기", "Detach from the launcher"), () => dock.ToggleAttach(this));
+        attachButton = GlassFrame.HeadButton(Undock, Tr("런처에서 떼기", "Detach from launcher"), () => dock.ToggleAttach(this));
         topButton = GlassFrame.HeadButton('', Tr("항상 위", "Always on top"), () => SetOnTop(!OnTop));
         buttons.Children.Add(attachButton);
         buttons.Children.Add(topButton);
@@ -146,7 +146,7 @@ internal sealed class ToolWindow : Window
         Edge = edge;
         if (edge != "free") Spot = null;
         ((TextBlock)attachButton.Child).Text = (edge is null ? DockOn : Undock).ToString();
-        attachButton.ToolTip = edge is null ? Tr("런처에 붙이기", "Attach to the launcher") : Tr("런처에서 떼기", "Detach from the launcher");
+        attachButton.ToolTip = edge is null ? Tr("런처에 붙이기", "Attach to launcher") : Tr("런처에서 떼기", "Detach from launcher");
         topButton.Visibility = edge is null ? Visibility.Visible : Visibility.Collapsed;
         Paint();
     }

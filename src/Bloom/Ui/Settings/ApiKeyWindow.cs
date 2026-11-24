@@ -16,7 +16,7 @@ internal sealed class ApiKeyWindow : Window
 
     private ApiKeyWindow(Window? owner, ApiProvider provider)
     {
-        Title = Tr($"{provider.Name} API 키", $"{provider.Name} API key");
+        Title = Tr($"{provider.Name} API 키", $"{provider.Name} API Key");
         Width = 460;
         SizeToContent = SizeToContent.Height;
         ResizeMode = ResizeMode.NoResize;
@@ -31,7 +31,7 @@ internal sealed class ApiKeyWindow : Window
         var stack = new StackPanel { Margin = new Thickness(28, 22, 28, 20) };
         stack.Children.Add(Theme.T(Title, 17, Theme.P.Text, Theme.Semi));
         var body = Theme.T(Tr($"키는 이 PC에만 암호화하여 저장하며 {provider.Name}에 보내는 요청에만 사용합니다. 사용 요금은 {provider.Name} 계정에 청구됩니다.",
-            $"The key is stored encrypted on this PC only and used only for requests to {provider.Name}. Usage is billed to your {provider.Name} account."), 13.5, Theme.P.TextDim, Theme.Regular, false);
+            $"Your key is encrypted and stored only on this PC, and used only for requests to {provider.Name}. Usage is billed to your {provider.Name} account."), 13.5, Theme.P.TextDim, Theme.Regular, false);
         body.TextWrapping = TextWrapping.Wrap;
         body.Margin = new Thickness(0, 8, 0, 0);
         stack.Children.Add(body);
@@ -46,7 +46,7 @@ internal sealed class ApiKeyWindow : Window
             CaretBrush = Theme.P.Text,
         };
         stack.Children.Add(field);
-        var page = ToolUi.TextButton(Tr("키 발급 페이지 열기", "Open the key page"), () => Launch.Open(provider.KeyPage));
+        var page = ToolUi.TextButton(Tr("키 발급 페이지 열기", "Open Key Page"), () => Launch.Open(provider.KeyPage));
         page.HorizontalAlignment = HorizontalAlignment.Left;
         page.Margin = new Thickness(0, 10, 0, 0);
         stack.Children.Add(page);

@@ -95,13 +95,13 @@ internal static class GptCatalog
     {
         string d = m.Description;
         bool Has(string start) => d.StartsWith(start, StringComparison.OrdinalIgnoreCase);
-        if (Has("Latest workhorse")) return Tr("코딩과 일반 작업용 모델", "Model for coding and everyday tasks");
+        if (Has("Latest workhorse")) return Tr("코딩 및 일반 작업용 모델", "Model for coding and general tasks");
         if (Has("Frontier")) return Tr("복잡한 작업용 모델", "Model for complex tasks");
-        if (Has("Previous generation workhorse")) return Tr("이전 세대 모델", "Previous generation model");
+        if (Has("Previous generation workhorse")) return Tr("이전 세대 모델", "Previous-generation model");
         if (Has("Fast and affordable")) return Tr("간단한 작업용 모델", "Model for simple tasks");
-        if (Has("Older generation workhorse")) return Tr("이전 모델", "Older model");
-        if (Has("Older balanced")) return Tr("구세대 균형형 모델", "Older balanced model");
-        if (Has("Older fast")) return Tr("구세대 빠른 모델", "Older fast model");
+        if (Has("Older generation workhorse")) return Tr("이전 모델", "Legacy model");
+        if (Has("Older balanced")) return Tr("이전 세대 균형형 모델", "Previous-generation balanced model");
+        if (Has("Older fast")) return Tr("이전 세대 빠른 모델", "Previous-generation fast model");
         return d;
     }
 

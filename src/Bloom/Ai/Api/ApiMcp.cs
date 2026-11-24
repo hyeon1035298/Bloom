@@ -120,9 +120,9 @@ internal sealed class ApiMcp : IDisposable
                     {
                         failed[def.Key] = def.ConfigHash;
                         notes.Add(error is { Refused: true }
-                            ? Tr($"MCP 서버 {def.Name}은(는) 안전하지 않은 설정(암호화되지 않은 http 주소이거나 보낼 수 없는 헤더)이라 이번 대화에서는 빼고 답합니다.",
-                                $"The MCP server {def.Name} has an unsafe setup (an unencrypted http address, or a header Bloom doesn't send); this chat goes on without it.")
-                            : Tr($"MCP 서버 {def.Name}을(를) 시작하지 못해 이번 대화에서는 빼고 답합니다.", $"The MCP server {def.Name} did not start; this chat goes on without it."));
+                            ? Tr($"MCP 서버 {def.Name}의 설정이 안전하지 않아(암호화되지 않은 http 주소 또는 허용되지 않는 헤더) 이번 대화에서는 제외합니다.",
+                                $"Skipped MCP server {def.Name} for this chat due to an insecure configuration (unencrypted http URL or restricted headers).")
+                            : Tr($"MCP 서버 {def.Name}을(를) 시작하지 못해 이번 대화에서는 제외합니다.", $"Could not start MCP server {def.Name}, so it was skipped for this chat."));
                     }
                     continue;
                 }
@@ -138,8 +138,8 @@ internal sealed class ApiMcp : IDisposable
         {
             toldLeftOut = total;
             int left = total - MaxTools;
-            notes.Add(Tr($"MCP 도구가 {total}개로 많아 {MaxTools}개만 제공하고 {left}개는 뺐습니다. 덜 쓰는 서버를 끄면 모두 제공합니다.",
-                $"The MCP servers have {total} tools; {MaxTools} are offered and {left} left out. Switch off a server you need less to offer them all."));
+            notes.Add(Tr($"MCP 도구가 총 {total}개로 많아 {MaxTools}개만 활성화하고 {left}개는 제외했습니다. 자주 쓰지 않는 서버를 끄면 모두 제공됩니다.",
+                $"Too many MCP tools ({total} total); enabled {MaxTools} and skipped {left}. Turn off unused servers to include all tools."));
         }
         return notes;
     }

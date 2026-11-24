@@ -15,7 +15,7 @@ internal sealed partial class SettingsView
 {
     private void ApiKeyRows(string filter)
     {
-        Header(Tr("API 키", "API keys"));
+        Header(Tr("API 키", "API Keys"));
         var missing = new List<ApiProvider>();
         foreach (var p in ApiProviders.All)
         {
@@ -25,24 +25,24 @@ internal sealed partial class SettingsView
                 continue;
             }
             int count = ApiCatalog.Models(p.Id).Count;
-            string status = ApiCatalog.Refreshing(p.Id) ? Tr("모델 목록 불러오는 중…", "Loading the model list…")
+            string status = ApiCatalog.Refreshing(p.Id) ? Tr("모델 목록 불러오는 중…", "Loading model list…")
                 : ApiCatalog.Failure(p.Id) is { } failure ? failure.Split('\n')[0]
-                : Tr($"키 저장됨 · 모델 {count}개 · 이 PC에만 암호화 저장", $"Key saved · {count} models · encrypted on this PC only");
+                : Tr($"키 저장됨 · 모델 {count}개 · 이 PC에만 암호화 저장", $"Key saved · {count} models · Encrypted on this PC only");
             var provider = p;
             Add(p.Name, status, null, G.Lock, () => ApiKeyMenu(provider), null, filter);
         }
         if (missing.Count == 0) return;
         // the providers with no key in one list: picking one asks for its key (ApiKeyWindow); their names find the line
-        string sub = Tr($"키가 없는 제공자: {string.Join(", ", missing.Select(p => p.Name))}", $"Providers with no key: {string.Join(", ", missing.Select(p => p.Name))}");
-        if (Record(Tr("API 키 추가…", "Add an API key…"), sub, filter)) return;
-        var dd = new Dropdown(missing.Select(p => (p.Id, p.Name, (string?)null)).ToArray(), Tr("제공자 고르기", "Pick a provider"));
+        string sub = Tr($"키가 없는 제공자: {string.Join(", ", missing.Select(p => p.Name))}", $"Providers without a key: {string.Join(", ", missing.Select(p => p.Name))}");
+        if (Record(Tr("API 키 추가…", "Add API Key…"), sub, filter)) return;
+        var dd = new Dropdown(missing.Select(p => (p.Id, p.Name, (string?)null)).ToArray(), Tr("제공자 고르기", "Choose Provider"));
         dd.Picked += id =>
         {
             if (missing.Find(p => p.Id == id) is { } p) EnterApiKey(p);
             Dispatcher.BeginInvoke(() => Build(lastFilter)); // the list shows its prompt again (or the new key's line)
         };
         dropdowns.Add(dd);
-        Add(Tr("API 키 추가…", "Add an API key…"), sub, dd, G.Add, dd.Open, null, filter);
+        Add(Tr("API 키 추가…", "Add API Key…"), sub, dd, G.Add, dd.Open, null, filter);
     }
 
     /// No key yet: the key entry. Else: test (the model list asked again), another key, or no key.
@@ -54,10 +54,10 @@ internal sealed partial class SettingsView
             EnterApiKey(p);
             return;
         }
-        switch (ConfirmWindow.Ask(owner, p.Name, Tr($"이 PC에만 암호화하여 저장된 키 · {p.Name}에 보내는 요청에만 사용", $"Stored encrypted on this PC only · used only for requests to {p.Name}"),
-            (Tr("연결 테스트 · 모델 새로 고침", "Test · refresh models"), MessageBoxResult.OK),
-            (Tr("키 바꾸기", "Change key"), MessageBoxResult.Yes),
-            (Tr("키 삭제", "Remove key"), MessageBoxResult.No),
+        switch (ConfirmWindow.Ask(owner, p.Name, Tr($"이 PC에만 암호화하여 저장된 키 · {p.Name}에 보내는 요청에만 사용", $"Key encrypted and stored only on this PC · Used only for requests to {p.Name}"),
+            (Tr("연결 테스트 · 모델 새로 고침", "Test Connection · Refresh Models"), MessageBoxResult.OK),
+            (Tr("키 바꾸기", "Change Key"), MessageBoxResult.Yes),
+            (Tr("키 삭제", "Delete Key"), MessageBoxResult.No),
             (Tr("닫기", "Close"), MessageBoxResult.Cancel)))
         {
             case MessageBoxResult.OK:
@@ -67,8 +67,8 @@ internal sealed partial class SettingsView
                 EnterApiKey(p);
                 break;
             case MessageBoxResult.No:
-                if (ConfirmWindow.Ask(owner, Tr("키 삭제", "Remove key"), Tr($"이 PC에서 {p.Name} API 키와 모델 목록을 삭제합니다.", $"Deletes the {p.Name} API key and model list from this PC."),
-                    (Tr("삭제", "Remove"), MessageBoxResult.Yes), (Tr("취소", "Cancel"), MessageBoxResult.No)) != MessageBoxResult.Yes) break;
+                if (ConfirmWindow.Ask(owner, Tr("키 삭제", "Delete Key"), Tr($"이 PC에서 {p.Name} API 키와 모델 목록을 삭제합니다.", $"Delete the {p.Name} API key and model list from this PC."),
+                    (Tr("삭제", "Delete"), MessageBoxResult.Yes), (Tr("취소", "Cancel"), MessageBoxResult.No)) != MessageBoxResult.Yes) break;
                 ApiCatalog.Forget(p.Id); // at once: a refresh under way publishes nothing
                 _ = RemoveApiKey(p);
                 break;
@@ -110,6 +110,6 @@ internal sealed partial class SettingsView
         if (!current) return;
         Build(lastFilter);
         int count = ApiCatalog.Models(p.Id).Count;
-        ConfirmWindow.Tell(Window.GetWindow(this), p.Name, error ?? Tr($"연결되었습니다. 모델 {count}개를 불러왔습니다.", $"Connected. {count} models loaded."));
+        ConfirmWindow.Tell(Window.GetWindow(this), p.Name, error ?? Tr($"연결되었습니다. 모델 {count}개를 불러왔습니다.", $"Connected. Loaded {count} models."));
     }
 }

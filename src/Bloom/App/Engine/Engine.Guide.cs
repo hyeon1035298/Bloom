@@ -25,7 +25,7 @@ internal sealed partial class Engine
                     Title = input,
                     Subtitle = example.Does,
                     Icon = IconSpec.Of(kind.Glyph),
-                    PrimaryLabel = Tr("검색줄에 넣기", "Put in the search line"),
+                    PrimaryLabel = Tr("검색줄에 넣기", "Insert into search bar"),
                     StayOpen = true,
                     Run = () => host.Window.Go(Mode.Root, input),
                 });

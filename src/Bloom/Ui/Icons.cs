@@ -431,11 +431,11 @@ internal static class Icons
     /// The symbols a favorite can wear (Segoe Fluent Icons; "sparkle" = the AI mark), for the picker.
     public static readonly (string value, string name)[] Pictures =
     {
-        ("pic:sparkle", Tr("AI 반짝임", "AI sparkle")), ("pic:E8BD", Tr("대화", "Chat")), ("pic:E774", Tr("웹", "Web")), ("pic:E721", Tr("검색", "Search")), ("pic:E8B7", Tr("폴더", "Folder")),
-        ("pic:E8A5", Tr("문서", "Documents")), ("pic:E70F", Tr("메모 · 편집", "Notes · editing")), ("pic:E943", Tr("코드", "Code")), ("pic:E756", Tr("터미널", "Terminal")), ("pic:E7FC", Tr("게임", "Games")),
-        ("pic:E81E", Tr("3D · 레이어", "3D · layers")), ("pic:E790", Tr("색 · 디자인", "Colour · design")), ("pic:E714", Tr("영상", "Video")), ("pic:EB9F", Tr("사진", "Photos")), ("pic:E722", Tr("카메라", "Camera")),
-        ("pic:E8D6", Tr("음악", "Music")), ("pic:E720", Tr("마이크", "Microphone")), ("pic:E896", Tr("다운로드", "Downloads")), ("pic:E716", Tr("사람 · 메신저", "People · messenger")), ("pic:E715", Tr("메일", "Mail")),
-        ("pic:E787", Tr("달력", "Calendar")), ("pic:EC4A", Tr("사용량 · 속도", "Usage · speed")), ("pic:E8EF", Tr("계산", "Calculator")), ("pic:E713", Tr("설정", "Settings")), ("pic:EB51", Tr("하트", "Heart")),
+        ("pic:sparkle", Tr("AI 반짝임", "AI Sparkle")), ("pic:E8BD", Tr("대화", "Chat")), ("pic:E774", Tr("웹", "Web")), ("pic:E721", Tr("검색", "Search")), ("pic:E8B7", Tr("폴더", "Folder")),
+        ("pic:E8A5", Tr("문서", "Document")), ("pic:E70F", Tr("메모 · 편집", "Notes · Edit")), ("pic:E943", Tr("코드", "Code")), ("pic:E756", Tr("터미널", "Terminal")), ("pic:E7FC", Tr("게임", "Game")),
+        ("pic:E81E", Tr("3D · 레이어", "3D · Layers")), ("pic:E790", Tr("색 · 디자인", "Color · Design")), ("pic:E714", Tr("영상", "Video")), ("pic:EB9F", Tr("사진", "Photo")), ("pic:E722", Tr("카메라", "Camera")),
+        ("pic:E8D6", Tr("음악", "Music")), ("pic:E720", Tr("마이크", "Microphone")), ("pic:E896", Tr("다운로드", "Downloads")), ("pic:E716", Tr("사람 · 메신저", "People · Messenger")), ("pic:E715", Tr("메일", "Mail")),
+        ("pic:E787", Tr("달력", "Calendar")), ("pic:EC4A", Tr("사용량 · 속도", "Usage · Speed")), ("pic:E8EF", Tr("계산", "Calculator")), ("pic:E713", Tr("설정", "Settings")), ("pic:EB51", Tr("하트", "Heart")),
         ("pic:E734", Tr("별", "Star")), ("pic:E753", Tr("클라우드", "Cloud")), ("pic:E719", Tr("쇼핑", "Shopping")), ("pic:E72E", Tr("잠금", "Lock")), ("pic:E71D", Tr("앱", "App")),
     };
 

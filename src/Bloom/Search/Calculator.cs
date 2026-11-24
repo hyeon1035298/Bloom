@@ -213,7 +213,7 @@ internal static partial class Calculator
         string digits = System.Convert.ToString(n, radix).ToUpperInvariant();
         string prefix = radix switch { 16 => "0x", 2 => "0b", 8 => "0o", _ => "" };
         string label = radix switch { 16 => "16진수", 2 => "2진수", 8 => "8진수", _ => "" };
-        return new CalcAnswer { Expr = expr, Value = prefix + digits, Copy = prefix + digits, Detail = Tr($"{label} · 10진수 {n:#,0}", $"{label} · decimal {n:#,0}") };
+        return new CalcAnswer { Expr = expr, Value = prefix + digits, Copy = prefix + digits, Detail = Tr($"{label} · 10진수 {n:#,0}", $"{label} · Decimal {n:#,0}") };
     }
 
     private static CalcAnswer Money(double amount, string from, string to, string expr)

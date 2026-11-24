@@ -16,7 +16,7 @@ internal sealed partial class Engine
         bool Hit(NoticeEntry e) => q.IsEmpty || Matcher.Score(q, new MatchTarget(e.Title, new List<string> { e.Head, e.Detail ?? "" })) > 0;
         var sections = new List<Section>();
         // approvals still waiting, above everything: they need the user now
-        var waiting = new Section(Tr("승인 대기", "Waiting for approval"));
+        var waiting = new Section(Tr("승인 대기", "Awaiting approval"));
         foreach (var e in NoticeLog.Waiting)
             if (Hit(e)) waiting.Items.Add(FromWaiting(e));
         if (waiting.Items.Count > 0) sections.Add(waiting);
@@ -28,8 +28,8 @@ internal sealed partial class Engine
             {
                 Id = "inbox:none",
                 Kind = ItemKind.Info,
-                Title = items.Count == 0 ? Tr("알림 없음", "No notifications") : Tr("찾는 알림 없음", "No matching notifications"),
-                Subtitle = items.Count == 0 ? Tr("작업 완료 · 한도 · 승인 대기 · 사용자 명령 결과가 여기에 쌓입니다", "Finished tasks, limits, approvals and command results collect here") : null,
+                Title = items.Count == 0 ? Tr("알림 없음", "No reminders") : Tr("찾는 알림 없음", "No matching notifications"),
+                Subtitle = items.Count == 0 ? Tr("작업 완료 · 한도 · 승인 대기 · 사용자 명령 결과가 여기에 쌓입니다", "Task completions, limits, pending approvals, and custom command outputs appear here") : null,
                 Icon = IconSpec.Of(G.Bell),
             });
         if (list.Items.Count > 0) sections.Add(list);
@@ -67,21 +67,21 @@ internal sealed partial class Engine
             Icon = IconSpec.Of(e.Ok ? G.Done : G.Warning, !e.Ok),
             PrimaryLabel = thread is not null ? Tr("채팅 열기", "Open chat") : e.Open is not null ? Tr("열기", "Open") : Tr("복사", "Copy"),
             Run = thread is not null ? () => host.OpenThread(thread) : e.Open ?? (() => Launch.Copy(e.Detail ?? e.Title)),
-            Detail = () => new Detail { Text = e.Detail ?? "" }.Add(Tr("결과", "Result"), e.Head).Add(Tr("시각", "Time"), NoticeWhen(e.At)),
+            Detail = () => new Detail { Text = e.Detail ?? "" }.Add(Tr("결과", "Results"), e.Head).Add(Tr("시각", "Time"), NoticeWhen(e.At)),
         };
         item.MoreActions = () => new List<ActionItem>
         {
-            new() { Title = Tr("미리보기 복사", "Copy the preview"), Glyph = G.Copy, Run = () => Launch.Copy(e.Detail ?? e.Title) },
-            new() { Title = Tr("이 알림 지우기", "Delete this notification"), Glyph = G.Delete, Danger = true, StayOpen = true, Run = () => NoticeLog.Remove(e.Id) },
+            new() { Title = Tr("미리보기 복사", "Copy preview"), Glyph = G.Copy, Run = () => Launch.Copy(e.Detail ?? e.Title) },
+            new() { Title = Tr("이 알림 지우기", "Dismiss notification"), Glyph = G.Delete, Danger = true, StayOpen = true, Run = () => NoticeLog.Remove(e.Id) },
             new()
             {
-                Title = Tr("모두 지우기", "Delete all"),
+                Title = Tr("모두 지우기", "Clear all"),
                 Glyph = G.Delete,
                 Danger = true,
                 StayOpen = true,
-                Run = () => host.Window.Confirm(Tr($"알림 {NoticeLog.Current.Items.Count}개를 모두 지웁니다.", $"Deletes all {NoticeLog.Current.Items.Count} notifications."), new ActionItem
+                Run = () => host.Window.Confirm(Tr($"알림 {NoticeLog.Current.Items.Count}개를 모두 지웁니다.", $"Clear all {NoticeLog.Current.Items.Count} notifications?"), new ActionItem
                 {
-                    Title = Tr("모두 지우기", "Delete all"),
+                    Title = Tr("모두 지우기", "Clear all"),
                     Keys = "Enter",
                     Glyph = G.Delete,
                     Danger = true,

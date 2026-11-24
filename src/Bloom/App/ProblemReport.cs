@@ -82,8 +82,8 @@ internal static class ProblemReport
     /// long for an address, and what is in the address is sent to GitHub as soon as the page opens.
     public static string IssueUrl()
     {
-        string title = Tr($"문제 보고 · Bloom {ReleaseNotes.Current}", $"Problem report · Bloom {ReleaseNotes.Current}");
-        string body = Tr("무슨 일이 있었는지 적고, 복사한 진단 정보를 아래에 붙여넣으세요 (Ctrl+V).", "Describe what happened, then paste the copied report below (Ctrl+V).") + "\n\n";
+        string title = Tr($"문제 보고 · Bloom {ReleaseNotes.Current}", $"Bug Report · Bloom {ReleaseNotes.Current}");
+        string body = Tr("무슨 일이 있었는지 적고, 복사한 진단 정보를 아래에 붙여넣으세요 (Ctrl+V).", "Describe what happened and paste the copied diagnostic info below (Ctrl+V).") + "\n\n";
         return $"{Updates.Repo}/issues/new?title={Uri.EscapeDataString(title)}&body={Uri.EscapeDataString(body)}";
     }
 }

@@ -34,7 +34,7 @@ internal sealed class NoticePlacer : Window
     private NoticePlacer(Rect work, Rect? islandBox, Action<bool>? done)
     {
         this.done = done;
-        Title = Tr("알림 위치", "Notice position");
+        Title = Tr("알림 위치", "Notification Position");
         WindowStyle = WindowStyle.None;
         ResizeMode = ResizeMode.NoResize;
         AllowsTransparency = true;
@@ -58,7 +58,7 @@ internal sealed class NoticePlacer : Window
         if (island is { } box) IslandMark(box);
         help = Help();
         canvas.Children.Add(help);
-        sheet = NoticeWindow.Sheet(new Notice("done", Tr("Bloom · 알림 위치", "Bloom · Notice position"), Tr("여기에 알림이 표시됩니다", "Notices show here"), Tr("끌어서 옮기세요", "Drag it to move"), Sample: true));
+        sheet = NoticeWindow.Sheet(new Notice("done", Tr("Bloom · 알림 위치", "Bloom · Notification Position"), Tr("여기에 알림이 표시됩니다", "Notifications will appear here"), Tr("끌어서 옮기세요", "Drag to reposition"), Sample: true));
         sheet.Cursor = Cursors.SizeAll;
         sheet.ToolTip = null;
         canvas.Children.Add(sheet);
@@ -205,13 +205,13 @@ internal sealed class NoticePlacer : Window
     private FrameworkElement Help()
     {
         var text = new StackPanel();
-        text.Children.Add(Theme.T(Tr("알림 위치", "Notice position"), 15, Theme.P.Text, Theme.Semi));
+        text.Children.Add(Theme.T(Tr("알림 위치", "Notification Position"), 15, Theme.P.Text, Theme.Semi));
         // one sentence a line: Korean wraps between any two letters
         foreach (var (line, size, colour, gap) in new[]
         {
-            (Tr("알림 카드를 끌어 원하는 곳에 놓으세요.", "Drag the notice card where you want it."), 13.0, Theme.P.TextDim, 8.0),
-            (Tr("가운데와 가장자리에 가까이 가면 붙습니다.", "It sticks to the middle and the edges nearby."), 13.0, Theme.P.TextDim, 2.0),
-            (Tr("Ctrl을 누른 채 끌면 붙지 않습니다.", "Hold Ctrl while dragging to place it freely."), 12.0, Theme.P.TextFaint, 6.0),
+            (Tr("알림 카드를 끌어 원하는 곳에 놓으세요.", "Drag the notification card to your preferred position."), 13.0, Theme.P.TextDim, 8.0),
+            (Tr("가운데와 가장자리에 가까이 가면 붙습니다.", "Snaps automatically near the center and screen edges."), 13.0, Theme.P.TextDim, 2.0),
+            (Tr("Ctrl을 누른 채 끌면 붙지 않습니다.", "Hold Ctrl while dragging to disable snapping."), 12.0, Theme.P.TextFaint, 6.0),
         })
         {
             var t = Theme.T(line, size, colour, Theme.Regular, false);

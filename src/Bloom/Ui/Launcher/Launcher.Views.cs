@@ -156,7 +156,7 @@ internal sealed partial class Launcher
             StayOpen = true,
             Run = () => SetFileKind(k.key),
         }).ToList();
-        actions.Open(Tr("파일 종류 · Ctrl+Tab으로 넘기기", "File kind · Ctrl+Tab steps"), list, Array.FindIndex(Engine.FileKinds, k => k.key == fileKind));
+        actions.Open(Tr("파일 종류 · Ctrl+Tab으로 전환", "File Type · Ctrl+Tab to switch"), list, Array.FindIndex(Engine.FileKinds, k => k.key == fileKind));
     }
 
     /// Views with the preview pane on the right.
@@ -221,10 +221,10 @@ internal sealed partial class Launcher
             Run = () => Set($"glyph:{(int)x.glyph:X4}"),
         }).ToList();
         // the picture icons (and AI drawing) live here too, so the folder's own menu has one icon line
-        list.Insert(0, new ActionItem { Title = Tr("아이콘 그림 고르기…", "Pick an icon picture…"), Glyph = G.Palette, StayOpen = true, Run = () => PickPicture(id, g.Title) });
-        list.Add(new ActionItem { Title = Tr("파일에서 고르기… (이미지 · 아이콘 · 프로그램)", "From a file… (image, icon or program)"), Glyph = G.Folder, StayOpen = true, Run = () => PickIconFile(id) });
-        if (g.Icon is not null) list.Add(new ActionItem { Title = Tr("기본으로 (안의 앱 아이콘)", "Default (the icons inside)"), Glyph = G.Refresh, StayOpen = true, Run = () => Set(null) });
-        actions.Open(Tr($"‘{ClipText(g.Title, 16)}’ 아이콘", $"Icon for ‘{ClipText(g.Title, 16)}’"), list);
+        list.Insert(0, new ActionItem { Title = Tr("아이콘 그림 고르기…", "Choose Icon Graphic…"), Glyph = G.Palette, StayOpen = true, Run = () => PickPicture(id, g.Title) });
+        list.Add(new ActionItem { Title = Tr("파일에서 고르기… (이미지 · 아이콘 · 프로그램)", "Choose from File… (Image · Icon · Program)"), Glyph = G.Folder, StayOpen = true, Run = () => PickIconFile(id) });
+        if (g.Icon is not null) list.Add(new ActionItem { Title = Tr("기본으로 (안의 앱 아이콘)", "Reset to Default (App Icons Inside)"), Glyph = G.Refresh, StayOpen = true, Run = () => Set(null) });
+        actions.Open(Tr($"‘{ClipText(g.Title, 16)}’ 아이콘", $"‘{ClipText(g.Title, 16)}’ Icon"), list);
     }
 
     /// The launcher steps aside for the file dialog (it hides when another window takes the focus).
@@ -233,8 +233,8 @@ internal sealed partial class Launcher
         Dismiss();
         var dlg = new Microsoft.Win32.OpenFileDialog
         {
-            Title = Tr("폴더 아이콘으로 쓸 파일", "A file for the folder icon"),
-            Filter = Tr("이미지 · 아이콘 · 프로그램|*.png;*.jpg;*.jpeg;*.bmp;*.gif;*.webp;*.ico;*.exe;*.lnk|모든 파일|*.*", "Images, icons, programs|*.png;*.jpg;*.jpeg;*.bmp;*.gif;*.webp;*.ico;*.exe;*.lnk|All files|*.*"),
+            Title = Tr("폴더 아이콘으로 쓸 파일", "Select File for Folder Icon"),
+            Filter = Tr("이미지 · 아이콘 · 프로그램|*.png;*.jpg;*.jpeg;*.bmp;*.gif;*.webp;*.ico;*.exe;*.lnk|모든 파일|*.*", "Images · Icons · Programs|*.png;*.jpg;*.jpeg;*.bmp;*.gif;*.webp;*.ico;*.exe;*.lnk|All Files|*.*"),
         };
         bool ok = dlg.ShowDialog() == true;
         host.Summon();
@@ -260,7 +260,7 @@ internal sealed partial class Launcher
         var (value, error) = field.Check?.Invoke(box.Text) ?? (box.Text.Trim(), null);
         if (error is not null || value is null)
         {
-            f.Error = error ?? Tr("다시 시도하세요", "Try again");
+            f.Error = error ?? Tr("다시 시도하세요", "Please try again");
             Refresh(false);
             return;
         }

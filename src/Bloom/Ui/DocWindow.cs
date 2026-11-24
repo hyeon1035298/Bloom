@@ -105,7 +105,7 @@ internal sealed class DocWindow : Window
         barText.VerticalAlignment = VerticalAlignment.Center;
         reloadButton = ToolUi.TextButton(Tr("다시 읽기", "Reload"), Reload);
         reloadButton.Margin = new Thickness(10, 0, 0, 0);
-        var mine = ToolUi.TextButton(Tr("고친 내용 저장", "Save mine"), SaveMine);
+        var mine = ToolUi.TextButton(Tr("고친 내용 저장", "Save my edits"), SaveMine);
         mine.Margin = new Thickness(6, 0, 0, 0);
         var barRow = new DockPanel();
         var warn = Theme.Glyph(G.Warning, 13, Theme.P.Accent);
@@ -303,11 +303,11 @@ internal sealed class DocWindow : Window
                 Ask("gone");
                 break;
             case DocSaved.Busy:
-                status.Text = Tr("저장 못 함 · 다른 프로그램이 파일을 쓰는 중 · 곧 다시 저장", "Not saved · another program is using the file, trying again");
+                status.Text = Tr("저장 못 함 · 다른 프로그램이 파일을 쓰는 중 · 곧 다시 저장", "Could not save · File is in use by another program · Retrying soon");
                 saver.Touch();
                 break;
             default:
-                status.Text = Tr("저장 못 함", "Not saved") + " · " + reason;
+                status.Text = Tr("저장 못 함", "Could not save") + " · " + reason;
                 break;
         }
     }
@@ -384,8 +384,8 @@ internal sealed class DocWindow : Window
         bar.Visibility = paused ? Visibility.Visible : Visibility.Collapsed;
         reloadButton.Visibility = why == "changed" ? Visibility.Visible : Visibility.Collapsed;
         barText.Text = why == "gone"
-            ? Tr("파일이 삭제되었거나 이동됨 · 글은 여기에 그대로 있음", "The file was deleted or moved · the text is still here")
-            : Tr("다른 프로그램이 이 파일을 바꿈", "Another program changed this file");
+            ? Tr("파일이 삭제되었거나 이동됨 · 글은 여기에 그대로 있음", "File was deleted or moved · Your text is still here")
+            : Tr("다른 프로그램이 이 파일을 바꿈", "Modified by another program");
         barText.ToolTip = barText.Text;
     }
 
@@ -394,11 +394,11 @@ internal sealed class DocWindow : Window
     {
         if (shown.ReadOnly is { } why)
         {
-            status.Text = Tr("보기 전용", "View only") + " · " + why;
+            status.Text = Tr("보기 전용", "Read-only") + " · " + why;
             return;
         }
         DateTime when = at ?? (File.Exists(FilePath) ? File.GetLastWriteTime(FilePath) : DateTime.Now);
-        status.Text = Tr($"자동 저장 · {ToolUi.Ago(when)}", $"Saved as you type · {ToolUi.Ago(when)}");
+        status.Text = Tr($"자동 저장 · {ToolUi.Ago(when)}", $"Auto-saved · {ToolUi.Ago(when)}");
     }
 
     /// Closing: what waits is written; what can't be (the bar asks, the file is held, no permission) is asked about.
@@ -421,9 +421,9 @@ internal sealed class DocWindow : Window
     {
         saver.Flush();
         if (!Unwritten) return true;
-        var answer = ConfirmWindow.Ask(this, Tr("저장하지 않은 내용", "Unsaved changes"),
-            Tr("고친 내용이 아직 파일에 저장되지 않았습니다. 고친 내용을 저장하면 파일이 이 글로 바뀝니다.", "What you changed isn't in the file yet. Saving yours puts this text in the file."),
-            (Tr("고친 내용 저장", "Save mine"), MessageBoxResult.OK), (Tr("저장 안 함", "Don't save"), MessageBoxResult.No), (Tr("취소", "Cancel"), MessageBoxResult.Cancel));
+        var answer = ConfirmWindow.Ask(this, Tr("저장하지 않은 내용", "Unsaved Changes"),
+            Tr("고친 내용이 아직 파일에 저장되지 않았습니다. 고친 내용을 저장하면 파일이 이 글로 바뀝니다.", "Your edits have not been saved to the file yet. Saving will overwrite the file with this text."),
+            (Tr("고친 내용 저장", "Save my edits"), MessageBoxResult.OK), (Tr("저장 안 함", "Don't save"), MessageBoxResult.No), (Tr("취소", "Cancel"), MessageBoxResult.Cancel));
         if (answer == MessageBoxResult.Cancel) return false;
         if (answer == MessageBoxResult.OK)
         {
@@ -453,7 +453,7 @@ internal sealed class DocWindow : Window
         var (file, folder) = DocLink.IsNetwork(target) ? await System.Threading.Tasks.Task.Run(() => Look(target)) : Look(target);
         if (kind == DocLink.Kind.Doc && file) Show(target);
         else if (file || folder) Launch.Reveal(target);
-        else toast.ShowToast(Tr($"‘{Path.GetFileName(target)}’ 파일 없음", $"‘{Path.GetFileName(target)}’ isn't there"));
+        else toast.ShowToast(Tr($"‘{Path.GetFileName(target)}’ 파일 없음", $"File ‘{Path.GetFileName(target)}’ not found"));
     }
 
     // ── the window ──────────────────────────────────────────────────────────────────────────────

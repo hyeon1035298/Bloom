@@ -138,7 +138,7 @@ internal sealed class AccentPicker : Grid
         if (recent.Length > 0)
         {
             var row = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(0, 12, 0, 0) };
-            var label = Theme.T(Tr("최근 찍은 색", "Recent picks"), 12, Theme.P.TextFaint, Theme.Regular, false);
+            var label = Theme.T(Tr("최근 찍은 색", "Recent colors"), 12, Theme.P.TextFaint, Theme.Regular, false);
             label.Margin = new Thickness(0, 0, 10, 0);
             row.Children.Add(label);
             foreach (var c in recent.Take(8))
@@ -185,11 +185,11 @@ internal sealed class AccentPicker : Grid
         sign.VerticalAlignment = VerticalAlignment.Center;
         sign.Margin = new Thickness(0, 1, 6, 0);
         warnLine.Children.Add(sign);
-        var why = Theme.T(Core.Hangul.KeepAll(Tr("켠 스위치가 배경에 묻힙니다", "A switch that is on gets lost on its background")), 12, Theme.P.Warn, Theme.Regular, false);
+        var why = Theme.T(Core.Hangul.KeepAll(Tr("켠 스위치가 배경에 묻힙니다", "Active switches blend into the background")), 12, Theme.P.Warn, Theme.Regular, false);
         why.TextWrapping = TextWrapping.Wrap;
         SetColumn(why, 1);
         warnLine.Children.Add(why);
-        var fix = ToolUi.TextButton(Tr("보이게 맞추기", "Make it stand out"), () =>
+        var fix = ToolUi.TextButton(Tr("보이게 맞추기", "Adjust for visibility"), () =>
         {
             var light = Accents.MakeVisible(Light);
             Set(dark ? Accents.DarkOf(light) : light);
@@ -424,7 +424,7 @@ internal sealed class AccentPicker : Grid
             if (low)
             {
                 contrast.Inlines.Add(new LineBreak());
-                contrast.Inlines.Add(new Run(Tr("잘 안 보임", "Hard to see")));
+                contrast.Inlines.Add(new Run(Tr("잘 안 보임", "Low contrast")));
             }
             contrast.Foreground = low ? p.Warn : p.TextFaint;
         }

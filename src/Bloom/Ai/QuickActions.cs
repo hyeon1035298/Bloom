@@ -15,15 +15,15 @@ internal static class QuickActions
     {
         new("summarize", "요약하기", "Summarize", '', "summarize summary tldr 요약 줄이기 정리", "Summarize the text concisely: a short paragraph, or 3–5 bullet points when it has several separate points."),
         new("translate", "번역하기", "Translate", '', "translate translation 번역 영어 한국어 일본어", ""), // the target comes from the translation settings
-        new("fix", "맞춤법 · 문법 고치기", "Fix spelling & grammar", '', "fix spelling grammar proofread typo 맞춤법 문법 오타 띄어쓰기 고치기 교정", "Fix spelling, grammar, spacing and punctuation only. Change nothing else — not the wording, not the tone."),
-        new("improve", "자연스럽게 다듬기", "Improve writing", '', "improve rewrite polish better 다듬기 자연스럽게 고쳐쓰기 윤문", "Rewrite the text so it reads naturally and clearly, keeping its meaning, language and tone."),
-        new("shorter", "짧게 줄이기", "Make shorter", '', "shorter shorten concise 짧게 줄이기 간결", "Make it about half as long, keeping the key points and the tone."),
-        new("longer", "자세히 늘리기", "Make longer", '', "longer expand elaborate 길게 늘리기 자세히", "Expand it with more detail and explanation, keeping the tone and language."),
-        new("formal", "정중하게", "Make formal", '', "formal polite professional 정중 공손 존댓말 격식 비즈니스", "Rewrite it in a polite, professional tone. In Korean, use natural polite speech (해요체 or 하십시오체, whichever fits)."),
-        new("casual", "편하게", "Make casual", '', "casual friendly 편하게 친근 반말", "Rewrite it in a friendly, casual tone, keeping the language."),
-        new("bullets", "핵심만 목록으로", "Key points as a list", '', "bullet list key points 목록 핵심 정리 글머리", "Turn it into a concise bullet list of the key points (markdown \"- \" bullets)."),
-        new("explain", "쉽게 설명하기", "Explain simply", '', "explain meaning what code 설명 뜻 쉽게 코드", "Explain what the text means in simple words. If it is code, explain what it does step by step. Answer in {ui}."),
-        new("reply", "답장 초안 쓰기", "Draft a reply", '', "reply answer respond email message 답장 답변 회신 메일", "The user received this message. Draft a reply they could send, in the message's language and a matching tone."),
+        new("fix", "맞춤법 · 문법 고치기", "Spelling · Grammar", '', "fix spelling grammar proofread typo 맞춤법 문법 오타 띄어쓰기 고치기 교정", "Fix spelling, grammar, spacing and punctuation only. Change nothing else — not the wording, not the tone."),
+        new("improve", "자연스럽게 다듬기", "Polish Writing", '', "improve rewrite polish better 다듬기 자연스럽게 고쳐쓰기 윤문", "Rewrite the text so it reads naturally and clearly, keeping its meaning, language and tone."),
+        new("shorter", "짧게 줄이기", "Make Shorter", '', "shorter shorten concise 짧게 줄이기 간결", "Make it about half as long, keeping the key points and the tone."),
+        new("longer", "자세히 늘리기", "Expand Details", '', "longer expand elaborate 길게 늘리기 자세히", "Expand it with more detail and explanation, keeping the tone and language."),
+        new("formal", "정중하게", "More Polite", '', "formal polite professional 정중 공손 존댓말 격식 비즈니스", "Rewrite it in a polite, professional tone. In Korean, use natural polite speech (해요체 or 하십시오체, whichever fits)."),
+        new("casual", "편하게", "More Casual", '', "casual friendly 편하게 친근 반말", "Rewrite it in a friendly, casual tone, keeping the language."),
+        new("bullets", "핵심만 목록으로", "Key Bullet Points", '', "bullet list key points 목록 핵심 정리 글머리", "Turn it into a concise bullet list of the key points (markdown \"- \" bullets)."),
+        new("explain", "쉽게 설명하기", "Explain Simply", '', "explain meaning what code 설명 뜻 쉽게 코드", "Explain what the text means in simple words. If it is code, explain what it does step by step. Answer in {ui}."),
+        new("reply", "답장 초안 쓰기", "Draft a Reply", '', "reply answer respond email message 답장 답변 회신 메일", "The user received this message. Draft a reply they could send, in the message's language and a matching tone."),
     };
 
     public static QuickAction? Find(string key) => Array.Find(All, a => a.Key == key);

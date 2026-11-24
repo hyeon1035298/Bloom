@@ -21,10 +21,10 @@ internal sealed partial class Engine
             Kind = ItemKind.Group,
             Title = g.Title,
             Subtitle = kids.Count == 0 ? Tr("비어 있음", "Empty") : string.Join(", ", kids.Take(3).Select(k => k.Title)) + (kids.Count > 3 ? Tr($" 외 {kids.Count - 3}개", $" and {kids.Count - 3} more") : ""),
-            Accessory = Tr($"폴더 · {kids.Count}개", $"Folder · {kids.Count}"),
+            Accessory = Tr($"폴더 · {kids.Count}개", $"Folder · {kids.Count} items"),
             Icon = own ?? IconSpec.Of(G.Folder),
             Data = own is null ? kids : null, // FavStrip draws the small icons only when the folder has no icon of its own
-            PrimaryLabel = Tr("폴더 열기", "Open folder"),
+            PrimaryLabel = Tr("폴더 열기", "Open Folder"),
             StayOpen = true,
             Run = () => host.Window.OpenGroup(g.Id),
         };
@@ -39,7 +39,7 @@ internal sealed partial class Engine
         list.Add(new ActionItem { Title = Tr("아이콘 바꾸기…", "Change icon…"), Glyph = G.Palette, StayOpen = true, Run = () => host.Window.PickGroupIcon(g.Id) });
         list.Add(new ActionItem
         {
-            Title = Tr("폴더 풀기 (안의 항목은 즐겨찾기 줄로)", "Ungroup (the items go back to the favorites row)"),
+            Title = Tr("폴더 풀기 (안의 항목은 즐겨찾기 줄로)", "Ungroup folder (move items to favorites bar)"),
             Glyph = G.Folder,
             StayOpen = true,
             Run = () =>
@@ -50,13 +50,13 @@ internal sealed partial class Engine
         });
         list.Add(new ActionItem
         {
-            Title = Tr("폴더 지우기 (안의 항목도 즐겨찾기에서 제외됩니다)", "Delete folder (its items leave the favorites too)"),
+            Title = Tr("폴더 지우기 (안의 항목도 즐겨찾기에서 제외됩니다)", "Delete folder (also removes items from favorites)"),
             Glyph = G.Delete,
             Danger = true,
             StayOpen = true,
-            Run = () => host.Window.Confirm(Tr($"‘{g.Title}’ 폴더와 항목 {kids.Count}개를 즐겨찾기에서 제거합니다. 앱은 유지됩니다.", $"Removes ‘{g.Title}’ and its {kids.Count} items from favorites. Apps stay installed."), new ActionItem
+            Run = () => host.Window.Confirm(Tr($"‘{g.Title}’ 폴더와 항목 {kids.Count}개를 즐겨찾기에서 제거합니다. 앱은 유지됩니다.", $"Remove folder '{g.Title}' and {kids.Count} items from favorites. The apps themselves will not be uninstalled."), new ActionItem
             {
-                Title = Tr("지우기", "Delete"),
+                Title = Tr("지우기", "Clear"),
                 Keys = "Enter",
                 Glyph = G.Delete,
                 Danger = true,
@@ -74,8 +74,8 @@ internal sealed partial class Engine
     /// Icons a folder can wear (Segoe Fluent): kinds of work.
     public static readonly (char glyph, string name)[] GroupGlyphs =
     {
-        ('\uE714', Tr("영상", "Video")), ('\uE722', Tr("카메라", "Camera")), ('\uEB9F', Tr("사진", "Photo")), ('\uE790', Tr("색", "Colour")), ('\uE70F', Tr("그리기", "Drawing")), ('\uE943', Tr("코드", "Code")),
-        ('\uE7FC', Tr("게임", "Games")), ('\uE8D6', Tr("음악", "Music")), ('\uE720', Tr("마이크", "Microphone")), ('\uE8A5', Tr("문서", "Documents")), ('\uE821', Tr("작업", "Work")), ('\uE77B', Tr("사람", "People")),
+        ('\uE714', Tr("영상", "Video")), ('\uE722', Tr("카메라", "Camera")), ('\uEB9F', Tr("사진", "Photo")), ('\uE790', Tr("색", "Color")), ('\uE70F', Tr("그리기", "Drawing")), ('\uE943', Tr("코드", "Code")),
+        ('\uE7FC', Tr("게임", "Game")), ('\uE8D6', Tr("음악", "Music")), ('\uE720', Tr("마이크", "Microphone")), ('\uE8A5', Tr("문서", "Document")), ('\uE821', Tr("작업", "Work")), ('\uE77B', Tr("사람", "People")),
         ('\uE774', Tr("웹", "Web")), ('\uE8BD', Tr("대화", "Chat")), ('\uE734', Tr("별", "Star")), ('\uEB51', Tr("하트", "Heart")),
     };
 
@@ -97,7 +97,7 @@ internal sealed partial class Engine
         if (Favorites.Group(groupId) is not { } g)
         {
             var gone = new Section(null);
-            gone.Items.Add(new ResultItem { Id = "group:gone", Kind = ItemKind.Info, Title = Tr("폴더 없음", "The folder is gone"), Icon = IconSpec.Of(G.Info) });
+            gone.Items.Add(new ResultItem { Id = "group:gone", Kind = ItemKind.Info, Title = Tr("폴더 없음", "No folders"), Icon = IconSpec.Of(G.Info) });
             sections.Add(gone);
             return sections;
         }
@@ -112,23 +112,23 @@ internal sealed partial class Engine
             item.MoreActions = () =>
             {
                 var list = more?.Invoke() ?? new List<ActionItem>();
-                list.Add(new ActionItem { Title = Tr("위로", "Up"), Keys = "Ctrl+Shift+Up", Glyph = G.Up, StayOpen = true, Run = () => { Favorites.MoveInGroup(groupId, id, -1); host.Window.Refresh(true); } });
-                list.Add(new ActionItem { Title = Tr("아래로", "Down"), Keys = "Ctrl+Shift+Down", Glyph = G.Down, StayOpen = true, Run = () => { Favorites.MoveInGroup(groupId, id, 1); host.Window.Refresh(true); } });
-                list.Add(new ActionItem { Title = Tr("즐겨찾기 줄로 꺼내기", "Take out to the favorites row"), Glyph = G.Up, StayOpen = true, Run = () => { Favorites.TakeOut(groupId, id); host.Window.Refresh(false); } });
+                list.Add(new ActionItem { Title = Tr("위로", "Move Up"), Keys = "Ctrl+Shift+Up", Glyph = G.Up, StayOpen = true, Run = () => { Favorites.MoveInGroup(groupId, id, -1); host.Window.Refresh(true); } });
+                list.Add(new ActionItem { Title = Tr("아래로", "Move Down"), Keys = "Ctrl+Shift+Down", Glyph = G.Down, StayOpen = true, Run = () => { Favorites.MoveInGroup(groupId, id, 1); host.Window.Refresh(true); } });
+                list.Add(new ActionItem { Title = Tr("즐겨찾기 줄로 꺼내기", "Move out to favorites bar"), Glyph = G.Up, StayOpen = true, Run = () => { Favorites.TakeOut(groupId, id); host.Window.Refresh(false); } });
                 list.Add(new ActionItem { Title = Tr("이 폴더에서 빼기", "Remove from this folder"), Keys = "Ctrl+Delete", Glyph = G.Delete, Danger = true, StayOpen = true, Run = () => { Favorites.Remove(id); host.Window.Refresh(false); } });
                 return list;
             };
             kids.Add(item);
         }
-        var s = new Section(g.Title, Tr($"{(g.Items?.Count ?? 0)}개 · 검색 결과에서 Ctrl+K → 폴더에 넣기", $"{(g.Items?.Count ?? 0)} · from search results: Ctrl+K → add to a folder"));
+        var s = new Section(g.Title, Tr($"{(g.Items?.Count ?? 0)}개 · 검색 결과에서 Ctrl+K → 폴더에 넣기", $"{(g.Items?.Count ?? 0)} items · Press Ctrl+K on a search result → Add to folder"));
         foreach (var k in kids) s.Items.Add(k);
         if (kids.Count == 0)
             s.Items.Add(new ResultItem
             {
                 Id = "group:empty",
                 Kind = ItemKind.Info,
-                Title = q.IsEmpty ? Tr("비어 있음", "Empty") : Tr("검색 결과 없음", "Nothing found"),
-                Subtitle = Tr("앱을 검색하고 Ctrl+K → ‘즐겨찾기 폴더에 넣기’를 선택하세요", "Search for an app, then Ctrl+K → ‘Add to a favorites folder’"),
+                Title = q.IsEmpty ? Tr("비어 있음", "Empty") : Tr("검색 결과 없음", "No results found"),
+                Subtitle = Tr("앱을 검색하고 Ctrl+K → ‘즐겨찾기 폴더에 넣기’를 선택하세요", "Search for an app, press Ctrl+K, and select 'Add to favorites folder'"),
                 Icon = IconSpec.Of(G.Info),
                 MoreActions = () => GroupActions(g, kids),
             });
@@ -143,7 +143,7 @@ internal sealed partial class Engine
         f.Fields.Add(new FormField
         {
             Label = Tr("이름", "Name"),
-            Hint = Tr("폴더 이름 — 예) 영상 편집, 디자인", "Folder name — e.g. Video editing, Design"),
+            Hint = Tr("폴더 이름 — 예) 영상 편집, 디자인", "Folder name — e.g. Video Editing, Design"),
             Value = existing?.Title ?? "",
             Check = v => v.Trim().Length > 0 ? (v.Trim(), null) : (null, Tr("이름을 입력하세요", "Enter a name")),
         });
@@ -158,7 +158,7 @@ internal sealed partial class Engine
             var g = Favorites.AddGroup(form[0]);
             if (first is not null) Favorites.AddToGroup(g.Id, first);
             host.Window.Go(Mode.Root);
-            host.Window.ShowToast(Tr($"‘{g.Title}’ 폴더 생성 완료", $"Made the folder ‘{g.Title}’"));
+            host.Window.ShowToast(Tr($"‘{g.Title}’ 폴더 생성 완료", $"Created folder '{g.Title}'"));
         };
         return f;
     }
@@ -167,8 +167,8 @@ internal sealed partial class Engine
     {
         Id = "group:new",
         Kind = ItemKind.Command,
-        Title = Tr("즐겨찾기 폴더 만들기", "New favorites folder"),
-        Subtitle = Tr("작업별로 앱을 묶어 두는 폴더", "A folder to group apps by task"),
+        Title = Tr("즐겨찾기 폴더 만들기", "Create favorites folder"),
+        Subtitle = Tr("작업별로 앱을 묶어 두는 폴더", "Folder for grouping apps by workflow or task"),
         Accessory = Tr("명령", "Command"),
         Icon = IconSpec.Of(G.Folder),
         PrimaryLabel = Tr("만들기", "Create"),

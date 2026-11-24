@@ -139,7 +139,7 @@ internal sealed partial class SettingsView : ScrollViewer
             line.Children.Add(t);
             if (picked is not null) line.Children.Add(Theme.T(picked, 13, Theme.P.AccentText, Theme.Medium));
             if (!folded) return line;
-            var more = Theme.T(Tr("자세히", "More"), 11, Theme.P.TextFaint);
+            var more = Theme.T(Tr("자세히", "Details"), 11, Theme.P.TextFaint);
             more.Margin = new Thickness(8, 1, 0, 0);
             more.VerticalAlignment = VerticalAlignment.Center;
             line.Children.Add(more);
@@ -340,7 +340,7 @@ internal sealed partial class SettingsView : ScrollViewer
         if (!all)
         {
             int changed = lines.Count(l => l.changed);
-            Disclose(Tr($"자세히 · {lines.Count}개", $"More · {lines.Count}"), !open && changed > 0 ? Tr($"바꾼 값 {changed}개", $"{changed} changed") : null, open, () =>
+            Disclose(Tr($"자세히 · {lines.Count}개", $"Details · {lines.Count}"), !open && changed > 0 ? Tr($"바꾼 값 {changed}개", $"{changed} modified") : null, open, () =>
             {
                 if (!unfolded.Remove(key)) unfolded.Add(key);
                 TaskbarRebuild();
@@ -358,7 +358,7 @@ internal sealed partial class SettingsView : ScrollViewer
     {
         if (keys.Any(Features.On)) return false;
         string names = string.Join(", ", keys.Select(k => Features.All.First(f => f.key == k).name));
-        Add(names, Tr("꺼진 기능 · 기능에서 켜기", "Off · turn it on in Features"), null, G.Sliders, () => Go("features"), null, filter);
+        Add(names, Tr("꺼진 기능 · 기능에서 켜기", "Feature disabled · Enable in Features"), null, G.Sliders, () => Go("features"), null, filter);
         return true;
     }
 
@@ -531,16 +531,16 @@ internal sealed partial class SettingsView : ScrollViewer
     {
         string sub = host.Shortcuts?.Status(name) switch
         {
-            "taken" => Tr("다른 앱이 이미 쓰고 있습니다 — 다른 조합을 누르세요", "Another app already uses it — press another combination"),
+            "taken" => Tr("다른 앱이 이미 쓰고 있습니다 — 다른 조합을 누르세요", "Already in use by another app — press a different combination"),
             _ when value != "off" => what, // "ok", or set but not registered (its feature is off)
-            _ => Tr("꺼짐 · 클릭하여 단축키 지정", "Off — click to set a shortcut"),
+            _ => Tr("꺼짐 · 클릭하여 단축키 지정", "Off · Click to set shortcut"),
         };
         if (Record(title, sub, filter)) return;
         var keys = new KeyRecorder(value)
         {
             Listening = on => host.Shortcuts?.Pause(on),
             Done = () => FocusFilter?.Invoke(),
-            Check = combo => host.Shortcuts?.Owner(combo) is { } owner && owner != name ? Tr("Bloom에서 사용 중인 키", "Bloom already uses it") : null,
+            Check = combo => host.Shortcuts?.Owner(combo) is { } owner && owner != name ? Tr("Bloom에서 사용 중인 키", "Shortcut already used by Bloom") : null,
         };
         keys.Picked += v =>
         {
@@ -624,7 +624,7 @@ internal sealed partial class SettingsView : ScrollViewer
 
         if (filter.Length > 0 && rows.Count == 0)
         {
-            var none = Theme.T(Tr("검색된 설정 없음", "No settings found"), 13, Theme.P.TextFaint);
+            var none = Theme.T(Tr("검색된 설정 없음", "No matching settings"), 13, Theme.P.TextFaint);
             none.Margin = new Thickness(32, 26, 28, 0);
             stack.Children.Add(none);
         }
@@ -637,7 +637,7 @@ internal sealed partial class SettingsView : ScrollViewer
     /// for Build and Collect).
     private void BuildPages(Settings s, string filter)
     {
-        section = Tr("기본", "Basics");
+        section = Tr("기본", "Default");
         PageGeneral(s, filter);
         PageLauncher(s, filter);
         PageFeatures(s, filter);
@@ -647,7 +647,7 @@ internal sealed partial class SettingsView : ScrollViewer
         PageAccounts(s, filter);
         PageMcp(s, filter);
         PageNotices(s, filter);
-        section = Tr("도구", "Tools");
+        section = Tr("도구", "Tool");
         PageTools(s, filter);
         PageAddons(s, filter);
         section = "";

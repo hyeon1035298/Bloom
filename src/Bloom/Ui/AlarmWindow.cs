@@ -20,7 +20,7 @@ internal sealed class AlarmWindow : Window
 
     public AlarmWindow(TimerEntry e, Action<TimerEntry> snooze, bool sound)
     {
-        Title = Tr("Bloom 알림", "Bloom reminder");
+        Title = Tr("Bloom 알림", "Bloom Notification");
         WindowStyle = WindowStyle.None;
         ResizeMode = ResizeMode.NoResize;
         ShowInTaskbar = false;
@@ -31,7 +31,7 @@ internal sealed class AlarmWindow : Window
         Background = System.Windows.Media.Brushes.Transparent;
         UseLayoutRounding = true;
 
-        var title = Theme.T(e.Kind == "timer" ? Tr("타이머 끝", "Timer done") : Tr("알림", "Reminder"), 12, Theme.P.AccentText, Theme.Semi, false);
+        var title = Theme.T(e.Kind == "timer" ? Tr("타이머 끝", "Timer Finished") : Tr("알림", "Reminder"), 12, Theme.P.AccentText, Theme.Semi, false);
         var label = Theme.T(Hangul.KeepAll(e.Label), 15, Theme.P.Text, Theme.Medium);
         label.MaxWidth = 300;
         label.TextWrapping = TextWrapping.Wrap;
@@ -43,12 +43,12 @@ internal sealed class AlarmWindow : Window
         text.Children.Add(when);
 
         var buttons = new StackPanel { Orientation = Orientation.Horizontal, HorizontalAlignment = HorizontalAlignment.Right, Margin = new Thickness(0, 12, 0, 0) };
-        buttons.Children.Add(Button(Tr("5분 뒤 다시", "Again in 5 min"), false, () =>
+        buttons.Children.Add(Button(Tr("5분 뒤 다시", "Snooze 5 min"), false, () =>
         {
             snooze(e);
             Close();
         }));
-        buttons.Children.Add(Button(Tr("끄기", "Dismiss"), true, Close));
+        buttons.Children.Add(Button(Tr("끄기", "Turn off"), true, Close));
 
         var head = new Grid();
         head.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });

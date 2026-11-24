@@ -55,8 +55,8 @@ internal static partial class Captures
         ob.Close();
 
         // the question window (초기화 · 삭제 · 다시 시작) and a corner card with its button
-        var cw = ConfirmWindow.ForQa(Tr("Bloom 삭제", "Uninstall Bloom"), Tr("이 PC에서 Bloom과 시작 메뉴 바로 가기를 삭제하고 Windows 시작 시 자동 실행을 해제합니다.", "Removes Bloom and its Start menu shortcut from this PC and stops it starting with Windows."),
-            (Tr("데이터 유지", "Keep data"), MessageBoxResult.No), (Tr("데이터 삭제", "Delete data"), MessageBoxResult.Yes), (Tr("취소", "Cancel"), MessageBoxResult.Cancel));
+        var cw = ConfirmWindow.ForQa(Tr("Bloom 삭제", "Uninstall Bloom"), Tr("이 PC에서 Bloom과 시작 메뉴 바로 가기를 삭제하고 Windows 시작 시 자동 실행을 해제합니다.", "Uninstall Bloom and its Start menu shortcut from this PC, and disable launch at Windows startup."),
+            (Tr("데이터 유지", "Keep Data"), MessageBoxResult.No), (Tr("데이터 삭제", "Delete Data"), MessageBoxResult.Yes), (Tr("취소", "Cancel"), MessageBoxResult.Cancel));
         cw.WindowStartupLocation = WindowStartupLocation.Manual;
         cw.Left = cw.Top = -32000;
         cw.ShowActivated = false;
@@ -65,7 +65,7 @@ internal static partial class Captures
         await cw.Dispatcher.InvokeAsync(() => Shots.Save((FrameworkElement)cw.Content, Path.Combine(dir, $"{l}-x1-confirm.png")), System.Windows.Threading.DispatcherPriority.ApplicationIdle);
         cw.Close();
         var nw = new NoticeWindow { Offscreen = true };
-        nw.Add(new Notice("limit", "Bloom Lens", Tr("글자 인식 실패", "Text recognition failed"), Tr("설치된 인식 언어를 확인하세요", "Check installed recognition languages"), ActionText: Tr("인식 언어 설정", "Recognition language settings"), Action: () => { }));
+        nw.Add(new Notice("limit", "Bloom Lens", Tr("글자 인식 실패", "Text Recognition Failed"), Tr("설치된 인식 언어를 확인하세요", "Check your installed recognition languages"), ActionText: Tr("인식 언어 설정", "Recognition Language Settings"), Action: () => { }));
         await Task.Delay(400);
         await nw.Dispatcher.InvokeAsync(() => nw.Capture(Path.Combine(dir, $"{l}-x2-notice-action.png")), System.Windows.Threading.DispatcherPriority.ApplicationIdle);
         nw.Close();

@@ -158,7 +158,7 @@ internal static partial class Captures
         static UsageAccount Plan(string name, string plan, string who, double? fiveHour, double week)
         {
             var limits = new System.Collections.Generic.List<UsageLimit>();
-            if (fiveHour is { } h) limits.Add(new UsageLimit(Tr("5시간", "5h"), h, DateTime.Now.AddHours(3).AddMinutes(12), UsageLimit.SessionMins));
+            if (fiveHour is { } h) limits.Add(new UsageLimit(Tr("5시간", "5-hour"), h, DateTime.Now.AddHours(3).AddMinutes(12), UsageLimit.SessionMins));
             limits.Add(new UsageLimit(Tr("주간", "Weekly"), week, DateTime.Now.AddDays(4), UsageLimit.WeekMins)); return new UsageAccount(name, plan, limits, DateTime.Now) { Who = who };
         }
         var four = new[] { Plan("Claude", "Ultra", "work@example.com", 32, 47), Plan("Claude", "Pro", "side@example.com", 81, 64), Plan("ChatGPT", "Pro 200", "work@example.com", null, 21), Plan("ChatGPT", "Plus", "home@example.com", 12, 5) };
@@ -178,16 +178,16 @@ internal static partial class Captures
     private static Notice SampleDone(string tool, string task, int minutes)
     {
         string took = Notices.Span(TimeSpan.FromMinutes(minutes));
-        return new Notice("done", $"{tool} · {Tr("작업 완료", "Done")}", task, Tr($"소요 시간 {took}", $"Elapsed: {took}"));
+        return new Notice("done", $"{tool} · {Tr("작업 완료", "Done")}", task, Tr($"소요 시간 {took}", $"Duration: {took}"));
     }
 
     private static Notice SampleWaiting(string tool, string task, string key) =>
-        new("waiting", $"{tool} · {Tr("승인 대기", "Needs approval")}", task, Tr("승인 대기", "Approval pending"), key);
+        new("waiting", $"{tool} · {Tr("승인 대기", "Needs approval")}", task, Tr("승인 대기", "Awaiting approval"), key);
 
     // AskUserQuestion's card as ClaudeApprovals words it: one question to pick one, one to pick several
     private static Notice SampleQuestion() =>
         new("waiting", Tr("Claude Code · 질문", "Claude Code · Question"), Tr("Claude의 질문 2개", "Claude's 2 questions"), "Bloom", "qa-question",
-            Buttons: new (string, Action)[] { (Tr("거절", "Decline"), () => { }), (Tr("터미널에서 답하기", "Answer in terminal"), () => { }) },
+            Buttons: new (string, Action)[] { (Tr("거절", "Deny"), () => { }), (Tr("터미널에서 답하기", "Answer in Terminal"), () => { }) },
             Questions: new CardQuestions(new[]
             {
                 new CardQuestion(Tr("알림 센터와 작업표시줄을 어떻게 묶을까요?", "How should the notification center and the taskbar go together?"), Tr("묶는 방식", "Pairing"), new[]
@@ -205,11 +205,11 @@ internal static partial class Captures
     private static Notice SampleLimit(string who, string limit, int left, TimeSpan resets)
     {
         string when = Notices.Span(resets);
-        return new Notice("limit", $"{who} · {Tr("한도 임박", "Limit near")}", Tr($"{limit} 한도 {left}% 남음", $"{limit} limit · {left}% left"), Tr($"{when} 뒤 초기화", $"Resets in {when}"));
+        return new Notice("limit", $"{who} · {Tr("한도 임박", "Limit near")}", Tr($"{limit} 한도 {left}% 남음", $"{left}% of {limit} limit remaining"), Tr($"{when} 뒤 초기화", $"Resets in {when}"));
     }
 
     private static Notice SampleRecover(string who, string limit) =>
-        new("recover", $"{who} · {Tr("한도 복구", "Limit reset")}", Tr($"{limit} 한도 초기화 완료", $"{limit} limit reset"), null);
+        new("recover", $"{who} · {Tr("한도 복구", "Limit reset")}", Tr($"{limit} 한도 초기화 완료", $"{limit} limit has reset"), null);
 
     /// `--qa-set notices`: one card of each kind (made-up tasks), dark and light, then the large size.
     private static async Task NoticeScreens(Host host, Launcher w, string dir)
@@ -217,11 +217,11 @@ internal static partial class Captures
         string l = En ? "en" : "ko";
         var samples = new[]
         {
-            new Notice("start", Tr("Claude Code · 진행 중", "Claude Code · Working"), Tr("로그인 화면 리팩터링과 세션 만료 처리, 오류 문구까지 한 번에 정리", "Refactor the sign-in screen, session expiry and the error wording in one go"), Tr("“세션이 끊기면 다시 로그인하는 흐름도 같이 고쳐 줘, 테스트도 추가하고”", "“Also fix signing in again after the session drops, and add tests”")),
+            new Notice("start", Tr("Claude Code · 진행 중", "Claude Code · In Progress"), Tr("로그인 화면 리팩터링과 세션 만료 처리, 오류 문구까지 한 번에 정리", "Refactor the sign-in screen, session expiry and the error wording in one go"), Tr("“세션이 끊기면 다시 로그인하는 흐름도 같이 고쳐 줘, 테스트도 추가하고”", "“Also fix signing in again after the session drops, and add tests”")),
             SampleDone("Codex", Tr("결제 모듈 테스트 추가", "Add payment module tests"), 12),
             SampleWaiting("Claude Code", Tr("빌드 스크립트 정리", "Tidy the build script"), "qa"),
             SampleLimit("Claude Ultra", Tr("주간", "Weekly"), 18, new TimeSpan(2, 4, 0, 0)),
-            SampleRecover("ChatGPT Plus", Tr("5시간", "5h")),
+            SampleRecover("ChatGPT Plus", Tr("5시간", "5-hour")),
         };
         var nw = new NoticeWindow { Offscreen = true };
         foreach (string theme in new[] { "dark", "light" })
@@ -353,7 +353,7 @@ internal static partial class Captures
         static UsageAccount Plan(string name, string plan, double? fiveHour, double week)
         {
             var limits = new System.Collections.Generic.List<UsageLimit>();
-            if (fiveHour is { } h) limits.Add(new UsageLimit(Tr("5시간", "5h"), h, DateTime.Now.AddHours(3).AddMinutes(12)));
+            if (fiveHour is { } h) limits.Add(new UsageLimit(Tr("5시간", "5-hour"), h, DateTime.Now.AddHours(3).AddMinutes(12)));
             limits.Add(new UsageLimit(Tr("주간", "Weekly"), week, DateTime.Now.AddDays(4)));
             return new(name, plan, limits, DateTime.Now);
         }

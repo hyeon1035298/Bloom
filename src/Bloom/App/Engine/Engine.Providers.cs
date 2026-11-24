@@ -30,7 +30,7 @@ internal sealed partial class Engine
         var s = new Section(p.Name, p.Keyword);
         if (words.Length < p.MinChars)
         {
-            s.Items.Add(ProviderInfo(p, "hint", Tr($"{p.Name} — 검색어 입력", $"{p.Name} — enter words"), p.MinChars > 1 ? Tr($"{p.MinChars}글자 이상", $"At least {p.MinChars} characters") : null));
+            s.Items.Add(ProviderInfo(p, "hint", Tr($"{p.Name} — 검색어 입력", $"{p.Name} — Enter search query"), p.MinChars > 1 ? Tr($"{p.MinChars}글자 이상", $"At least {p.MinChars} characters") : null));
             provAsked = null;
             provStop?.Cancel();
             return s;
@@ -39,13 +39,13 @@ internal sealed partial class Engine
         if (key != provAsked) AskProvider(p, words, key);
         if (provReply is not { } reply)
         {
-            s.Items.Add(ProviderInfo(p, "busy", Tr($"‘{words}’ 찾는 중…", $"Looking for ‘{words}’…"), null));
+            s.Items.Add(ProviderInfo(p, "busy", Tr($"‘{words}’ 찾는 중…", $"Searching for ‘{words}’…"), null));
             return s;
         }
         for (int i = 0; i < reply.Items.Count; i++) s.Items.Add(ProviderItemRow(p, reply.Items[i], i));
         if (reply.Error is { } err) s.Items.Add(ProviderInfo(p, "error", err, null, G.Info));
         else if (reply.Items.Count == 0) s.Items.Add(ProviderInfo(p, "none", Tr("결과 없음", "No results"), null));
-        if (reply.Items.Count > 0) s.Note = Tr($"{reply.Items.Count}개 · {p.Keyword}", $"{reply.Items.Count} · {p.Keyword}");
+        if (reply.Items.Count > 0) s.Note = Tr($"{reply.Items.Count}개 · {p.Keyword}", $"{reply.Items.Count} results · {p.Keyword}");
         return s;
     }
 
@@ -61,11 +61,11 @@ internal sealed partial class Engine
             {
                 Id = "prov:" + p.Keyword,
                 Kind = ItemKind.Command,
-                Title = Tr($"{p.Name} — 검색어 입력", $"{p.Name} — enter words"),
-                Subtitle = p.Keyword + " " + Tr("＋ 스페이스 ＋ 검색어", "+ space + words"),
+                Title = Tr($"{p.Name} — 검색어 입력", $"{p.Name} — Enter search query"),
+                Subtitle = p.Keyword + " " + Tr("＋ 스페이스 ＋ 검색어", "＋ Space ＋ query"),
                 Accessory = p.Keyword,
                 Icon = IconSpec.Of(G.Search),
-                PrimaryLabel = Tr("검색어 입력", "Enter words"),
+                PrimaryLabel = Tr("검색어 입력", "Enter query"),
                 Score = sc + 6,
                 StayOpen = true,
                 Run = () => host.OpenView(Mode.Root, pp.Keyword + " "),
@@ -103,7 +103,7 @@ internal sealed partial class Engine
                 {
                     if (!Providers.IsSafeUrl(a.Text))
                     {
-                        Notices.Result(false, p.Name, Tr("열기 실패", "Not opened"), Tr("http·https 주소만 열 수 있습니다", "Only http and https addresses open"));
+                        Notices.Result(false, p.Name, Tr("열기 실패", "Failed to open"), Tr("http·https 주소만 열 수 있습니다", "Only http and https URLs can be opened"));
                         return;
                     }
                     Web.Open(a.Text!.Trim());
@@ -128,7 +128,7 @@ internal sealed partial class Engine
                     }
                     catch (Exception e) when (e is System.ComponentModel.Win32Exception or InvalidOperationException)
                     {
-                        Notices.Result(false, p.Name, Tr("실행 실패", "Could not run"), e.Message);
+                        Notices.Result(false, p.Name, Tr("실행 실패", "Failed to run"), e.Message);
                     }
                 };
                 break;

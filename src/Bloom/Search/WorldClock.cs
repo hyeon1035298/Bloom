@@ -81,7 +81,7 @@ internal static class WorldClock
         {
             var there0 = TimeZoneInfo.ConvertTimeFromUtc(nowUtc, z0);
             var here0 = TimeZoneInfo.ConvertTimeFromUtc(nowUtc, local);
-            return new CalcAnswer { Caption = Tr("세계 시간", "World clock"), Expr = Tr($"{City(m)} 지금", $"Now in {City(m)}"), Value = Time(there0), Copy = Time(there0), Detail = Day(there0, here0) + " · " + Gap(z0, nowUtc) };
+            return new CalcAnswer { Caption = Tr("세계 시간", "World Clock"), Expr = Tr($"{City(m)} 지금", $"{City(m)} now"), Value = Time(there0), Copy = Time(there0), Detail = Day(there0, here0) + " · " + Gap(z0, nowUtc) };
         }
         if ((m = there!.Match(t)).Success && Zone(m) is { } z1 && ClockOf(m) is { } c1)
         {
@@ -90,7 +90,7 @@ internal static class WorldClock
             var cityAt = cityNow.Date + c1;
             var utc = TimeZoneInfo.ConvertTimeToUtc(DateTime.SpecifyKind(cityAt, DateTimeKind.Unspecified), z1);
             var hereAt = TimeZoneInfo.ConvertTimeFromUtc(utc, local);
-            return new CalcAnswer { Caption = Tr("세계 시간", "World clock"), Expr = $"{City(m)} {Time(cityAt)}", Value = Tr($"여기 {Rel(hereAt, cityAt)}{Time(hereAt)}", $"Here, {Rel(hereAt, cityAt)}{Time(hereAt)}"), Copy = Time(hereAt), Detail = Gap(z1, utc) };
+            return new CalcAnswer { Caption = Tr("세계 시간", "World Clock"), Expr = $"{City(m)} {Time(cityAt)}", Value = Tr($"여기 {Rel(hereAt, cityAt)}{Time(hereAt)}", $"Here {Rel(hereAt, cityAt)}{Time(hereAt)}"), Copy = Time(hereAt), Detail = Gap(z1, utc) };
         }
         if ((m = here!.Match(t)).Success && Zone(m) is { } z2 && ClockOf(m) is { } c2)
         {
@@ -98,7 +98,7 @@ internal static class WorldClock
             var hereAt = hereNow.Date + c2;
             var utc = TimeZoneInfo.ConvertTimeToUtc(DateTime.SpecifyKind(hereAt, DateTimeKind.Unspecified), local);
             var cityAt = TimeZoneInfo.ConvertTimeFromUtc(utc, z2);
-            return new CalcAnswer { Caption = Tr("세계 시간", "World clock"), Expr = Tr($"여기 {Time(hereAt)}", $"Here {Time(hereAt)}"), Value = $"{City(m)} {Rel(cityAt, hereAt)}{Time(cityAt)}", Copy = Time(cityAt), Detail = Gap(z2, utc) };
+            return new CalcAnswer { Caption = Tr("세계 시간", "World Clock"), Expr = Tr($"여기 {Time(hereAt)}", $"Here {Time(hereAt)}"), Value = $"{City(m)} {Rel(cityAt, hereAt)}{Time(cityAt)}", Copy = Time(cityAt), Detail = Gap(z2, utc) };
         }
         return null;
     }
@@ -140,15 +140,15 @@ internal static class WorldClock
     private static string Rel(DateTime t, DateTime from) => (t.Date - from.Date).Days switch
     {
         0 => "",
-        1 => Tr("다음 날 ", "next day "),
-        -1 => Tr("전날 ", "previous day "),
+        1 => Tr("다음 날 ", "Next day "),
+        -1 => Tr("전날 ", "Previous day "),
         _ => t.ToString(Tr("M월 d일 ", "MMM d "), Lang.Culture),
     };
 
-    private static string Day(DateTime there, DateTime here) => there.ToString(Tr("M월 d일 (ddd)", "ddd, MMM d"), Lang.Culture) + ((there.Date - here.Date).Days switch
+    private static string Day(DateTime there, DateTime here) => there.ToString(Tr("M월 d일 (ddd)", "MMM d (ddd)"), Lang.Culture) + ((there.Date - here.Date).Days switch
     {
-        1 => Tr(" · 여기보다 하루 앞", " · a day ahead of here"),
-        -1 => Tr(" · 여기보다 하루 뒤", " · a day behind here"),
+        1 => Tr(" · 여기보다 하루 앞", " · 1 day ahead"),
+        -1 => Tr(" · 여기보다 하루 뒤", " · 1 day behind"),
         _ => "",
     });
 
@@ -157,7 +157,7 @@ internal static class WorldClock
     {
         var diff = zone.GetUtcOffset(utc) - TimeZoneInfo.Local.GetUtcOffset(utc);
         if (diff == TimeSpan.Zero) return Tr("여기와 같은 시간", "Same time as here");
-        string span = diff.Minutes == 0 ? Tr($"{Math.Abs(diff.Hours)}시간", $"{Math.Abs(diff.Hours)} h") : Tr($"{Math.Abs(diff.Hours)}시간 {Math.Abs(diff.Minutes)}분", $"{Math.Abs(diff.Hours)} h {Math.Abs(diff.Minutes)} min");
-        return diff > TimeSpan.Zero ? Tr($"현재 위치보다 {span} 빠름", $"{span} ahead of here") : Tr($"현재 위치보다 {span} 느림", $"{span} behind here");
+        string span = diff.Minutes == 0 ? Tr($"{Math.Abs(diff.Hours)}시간", $"{Math.Abs(diff.Hours)}h") : Tr($"{Math.Abs(diff.Hours)}시간 {Math.Abs(diff.Minutes)}분", $"{Math.Abs(diff.Hours)} hr {Math.Abs(diff.Minutes)} min");
+        return diff > TimeSpan.Zero ? Tr($"현재 위치보다 {span} 빠름", $"{span} ahead of current location") : Tr($"현재 위치보다 {span} 느림", $"{span} behind current location");
     }
 }

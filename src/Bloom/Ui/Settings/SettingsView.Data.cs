@@ -33,7 +33,7 @@ internal sealed partial class SettingsView
 
     private void PageData(Settings s, string filter)
     {
-        Page("data", Tr("데이터", "Data"), G.Save, Tr("Bloom이 이 PC에 저장한 것을 보고 지웁니다. 크기는 이 페이지를 열 때 잽니다.", "What Bloom keeps on this PC, to see and delete. The sizes are measured when this page opens."), filter);
+        Page("data", Tr("데이터", "Data"), G.Save, Tr("Bloom이 이 PC에 저장한 것을 보고 지웁니다. 크기는 이 페이지를 열 때 잽니다.", "View and clear data stored by Bloom on this PC. Sizes are calculated when you open this page."), filter);
         if (collected is null && filter.Length == 0 && current != "data")
         {
             dataSizes = null; // measured again at the next visit
@@ -43,88 +43,88 @@ internal sealed partial class SettingsView
         var added = Host.AddedHomes();
         bool live = collected is null; // collecting reads no disk and no counts
 
-        Header(Tr("저장 위치", "Storage"));
+        Header(Tr("저장 위치", "Storage Locations"));
         string where = Demo.On // the recording mode: an installed copy's folders, not this run's
             ? $"{Short(Path.Combine(Paths.AppData, "Bloom"))} · {Short(Path.Combine(Paths.LocalAppData, "Bloom"))}"
             : $"{Short(Paths.Data)} · {Short(Paths.Local)}";
-        DataOpen("data", Tr("Bloom 데이터", "Bloom data"), where, Paths.Data, filter);
+        DataOpen("data", Tr("Bloom 데이터", "Bloom Data"), where, Paths.Data, filter);
         if (live && filter.Length == 0 && dataSizes is { } sizes) Card(filter).Children.Add(SpaceBar(sizes));
         // the add-ons' files are in use while their hosts run (a run copy loaded in Explorer): shown, not deleted here
         if (!live || DataParts.Addons.Any(Directory.Exists))
-            DataOpen("addons", Tr("애드온 데이터", "Add-on data"), Tr("애드온의 설정, 상태, 실행 사본", "The add-ons' settings, state and run copies"), DataParts.Addons[0], filter);
+            DataOpen("addons", Tr("애드온 데이터", "Add-on Data"), Tr("애드온의 설정, 상태, 실행 사본", "Add-on settings, state, and runtime copies"), DataParts.Addons[0], filter);
 
-        Header(Tr("대화와 기록", "Chats and history"));
+        Header(Tr("대화와 기록", "Chats & History"));
         int chats = live ? host.Chats.Threads.Count : 0;
-        Clearable("chats", Tr("AI 채팅 기록", "AI chat history"), live ? Tr($"대화 {chats}개와 첨부 파일", $"{chats} chats and their attachments") : Tr("대화와 첨부 파일", "Chats and their attachments"), chats == 0,
-            Tr($"AI 채팅 대화 {chats}개와 첨부 파일을 지웁니다. 열린 AI 채팅 창은 닫힙니다. Claude Code와 Codex가 자기 폴더에 저장한 기록은 남습니다. 되돌릴 수 없습니다.", $"Deletes {chats} AI chats and their attachments. An open AI chat window closes. What Claude Code and Codex saved in their own folders stays. This can't be undone."),
+        Clearable("chats", Tr("AI 채팅 기록", "AI Chat History"), live ? Tr($"대화 {chats}개와 첨부 파일", $"{chats} chats and attachments") : Tr("대화와 첨부 파일", "Chats and attachments"), chats == 0,
+            Tr($"AI 채팅 대화 {chats}개와 첨부 파일을 지웁니다. 열린 AI 채팅 창은 닫힙니다. Claude Code와 Codex가 자기 폴더에 저장한 기록은 남습니다. 되돌릴 수 없습니다.", $"Clear {chats} AI Chat conversations and their attachments. Open AI Chat windows will close. History saved by Claude Code and Codex in their own folders will remain. This cannot be undone."),
             () => Task.FromResult(host.ClearChats()), filter);
         if (added.Count > 0)
         {
             string cli = SizeOf("cli");
-            Clearable("cli", Tr("추가 계정의 CLI 기록", "Added accounts' CLI history"), Tr("Bloom에서 추가한 계정이 Claude Code와 Codex에 남긴 대화", "Chats the accounts added in Bloom left in Claude Code and Codex"), null,
-                Tr($"Bloom에서 추가한 계정으로 나눈 대화가 Claude Code와 Codex 쪽에 남긴 기록 {cli}을 지웁니다. 그 대화는 더 이상 이어 갈 수 없습니다. 기본 계정의 기록은 남습니다. 되돌릴 수 없습니다.", $"Deletes the {cli} of history that chats with the accounts added in Bloom left in Claude Code and Codex. Those chats can't be continued any more. The default accounts' history stays. This can't be undone."),
+            Clearable("cli", Tr("추가 계정의 CLI 기록", "CLI History for Added Accounts"), Tr("Bloom에서 추가한 계정이 Claude Code와 Codex에 남긴 대화", "Conversations left in Claude Code and Codex by accounts added in Bloom"), null,
+                Tr($"Bloom에서 추가한 계정으로 나눈 대화가 Claude Code와 Codex 쪽에 남긴 기록 {cli}을 지웁니다. 그 대화는 더 이상 이어 갈 수 없습니다. 기본 계정의 기록은 남습니다. 되돌릴 수 없습니다.", $"Clear {cli} of history left in Claude Code and Codex by accounts added in Bloom. Those conversations can no longer be resumed. History for default accounts will remain. This cannot be undone."),
                 host.ClearCliHistory, filter);
         }
         int clips = live ? host.Clipboard.Items.Count(e => !e.Pinned) : 0;
-        Clearable("clipboard", Tr("클립보드 기록", "Clipboard history"), live ? Tr($"복사한 내용 {clips}개 · 고정한 항목은 남음", $"{clips} copies · pinned ones stay") : Tr("복사한 내용 · 고정한 항목은 남음", "Copies · pinned ones stay"), clips == 0,
-            Tr($"복사한 내용 {clips}개를 지웁니다. 고정한 항목은 남습니다. 되돌릴 수 없습니다.", $"Deletes {clips} copies. Pinned ones stay. This can't be undone."),
+        Clearable("clipboard", Tr("클립보드 기록", "Clipboard History"), live ? Tr($"복사한 내용 {clips}개 · 고정한 항목은 남음", $"{clips} copied items · Pinned items remain") : Tr("복사한 내용 · 고정한 항목은 남음", "Copied items · Pinned items remain"), clips == 0,
+            Tr($"복사한 내용 {clips}개를 지웁니다. 고정한 항목은 남습니다. 되돌릴 수 없습니다.", $"Clear {clips} copied items. Pinned items will remain. This cannot be undone."),
             Done(() => host.Clipboard.Clear()), filter);
         int notes = Notes.Current.Items.Count;
         Clearable("notes", Tr("메모", "Notes"), live ? Tr($"메모 {notes}개", $"{notes} notes") : Tr("메모", "Notes"), notes == 0,
-            Tr($"메모 {notes}개를 휴지통으로 보냅니다. 휴지통에서 복원할 수 있습니다.", $"Sends {notes} notes to the Recycle Bin. They can be restored from there."),
+            Tr($"메모 {notes}개를 휴지통으로 보냅니다. 휴지통에서 복원할 수 있습니다.", $"Move {notes} notes to the Recycle Bin. You can restore them from the Recycle Bin."),
             Done(() => Notes.DeleteAll()), filter, trash: true);
         int timers = Timers.Current.Items.Count;
-        Clearable("timers", Tr("타이머 · 알림", "Timers · reminders"), live ? Tr($"진행 중 {timers}개", $"{timers} running") : Tr("진행 중인 타이머와 알림", "Running timers and reminders"), timers == 0,
-            Tr($"진행 중인 타이머와 알림 {timers}개를 취소합니다. 되돌릴 수 없습니다.", $"Cancels {timers} running timers and reminders. This can't be undone."),
+        Clearable("timers", Tr("타이머 · 알림", "Timers · Reminders"), live ? Tr($"진행 중 {timers}개", $"{timers} active") : Tr("진행 중인 타이머와 알림", "Active timers and reminders"), timers == 0,
+            Tr($"진행 중인 타이머와 알림 {timers}개를 취소합니다. 되돌릴 수 없습니다.", $"Cancel {timers} active timers and reminders. This cannot be undone."),
             Done(() => Timers.Clear()), filter);
-        Clearable("usage", Tr("최근 사용", "Recently used"), Tr("최근 사용 목록과 실행 횟수", "The recent list and how often each item was opened"), Usage.Current.Items.Count == 0,
-            Tr("최근 사용 목록과 실행 횟수를 지웁니다. 검색 결과 순서가 처음 상태로 돌아갑니다. 되돌릴 수 없습니다.", "Deletes the recent list and how often each item was opened. The search results go back to their first order. This can't be undone."),
+        Clearable("usage", Tr("최근 사용", "Recent Items"), Tr("최근 사용 목록과 실행 횟수", "Recent items list and launch counts"), Usage.Current.Items.Count == 0,
+            Tr("최근 사용 목록과 실행 횟수를 지웁니다. 검색 결과 순서가 처음 상태로 돌아갑니다. 되돌릴 수 없습니다.", "Clear the recent items list and launch counts. Search result ranking will reset to default. This cannot be undone."),
             Done(() =>
             {
                 Usage.Clear();
                 host.Window.Refresh(true);
             }), filter);
         int learned = live ? QueryMemory.Count : 0;
-        Clearable("learned", Tr("검색 학습", "Search learning"), live ? Tr($"고른 결과 기록 {learned}개", $"{learned} picked results") : Tr("고른 결과 기록", "Picked results"), learned == 0,
-            Tr($"고른 결과 기록 {learned}개를 지웁니다. 되돌릴 수 없습니다.", $"Deletes {learned} picked results. This can't be undone."),
+        Clearable("learned", Tr("검색 학습", "Search Learning"), live ? Tr($"고른 결과 기록 {learned}개", $"{learned} selected result records") : Tr("고른 결과 기록", "Selected result records"), learned == 0,
+            Tr($"고른 결과 기록 {learned}개를 지웁니다. 되돌릴 수 없습니다.", $"Clear {learned} selected result records. This cannot be undone."),
             Done(QueryMemory.Clear), filter);
         int colours = ColorBook.Current.Recent.Count, palettes = ColorBook.Current.Palettes.Count;
-        Clearable("colors", Tr("최근 색 · 팔레트", "Recent colours · palettes"), live ? Tr($"최근 색 {colours}개와 팔레트 {palettes}개", $"{colours} recent colours and {palettes} palettes") : Tr("최근 색과 팔레트", "Recent colours and palettes"), colours + palettes == 0,
-            Tr($"최근 색 {colours}개와 팔레트 {palettes}개를 지웁니다. 되돌릴 수 없습니다.", $"Deletes {colours} recent colours and {palettes} palettes. This can't be undone."),
+        Clearable("colors", Tr("최근 색 · 팔레트", "Recent Colors · Palettes"), live ? Tr($"최근 색 {colours}개와 팔레트 {palettes}개", $"{colours} recent colors and {palettes} palettes") : Tr("최근 색과 팔레트", "Recent colors and palettes"), colours + palettes == 0,
+            Tr($"최근 색 {colours}개와 팔레트 {palettes}개를 지웁니다. 되돌릴 수 없습니다.", $"Clear {colours} recent colors and {palettes} palettes. This cannot be undone."),
             Done(ColorBook.Clear), filter);
         long? shots = dataSizes is { } ls && ls.TryGetValue("lens#", out long n) ? n : null;
-        Clearable("lens", Tr("Bloom Lens 캡처", "Bloom Lens captures"), shots is { } k ? Tr($"캡처 {k}장", $"{k} captures") : Tr("캡처한 그림", "Captured pictures"), shots is null ? null : shots == 0,
-            Tr($"캡처 {shots}장을 지웁니다. 화면에 고정한 그림은 남고, AI 채팅의 그림 미리보기는 사라집니다. 되돌릴 수 없습니다.", $"Deletes {shots} captures. Pinned pictures stay; the picture previews in AI chats go. This can't be undone."),
+        Clearable("lens", Tr("Bloom Lens 캡처", "Bloom Lens Captures"), shots is { } k ? Tr($"캡처 {k}장", $"{k} captures") : Tr("캡처한 그림", "Captured images"), shots is null ? null : shots == 0,
+            Tr($"캡처 {shots}장을 지웁니다. 화면에 고정한 그림은 남고, AI 채팅의 그림 미리보기는 사라집니다. 되돌릴 수 없습니다.", $"Clear {shots} captures. Images pinned to the screen will remain, while image previews in AI Chat will be removed. This cannot be undone."),
             () =>
             {
                 host.ClearLensFiles();
                 return Task.FromResult(Host.LensFiles().count);
             }, filter, extra: live ? OpenButton(Host.LensDir) : null);
 
-        Header(Tr("만든 항목", "Things you made"));
+        Header(Tr("만든 항목", "Created Items"));
         int favs = Favorites.All().Count(e => e.Kind != Favorites.GroupKind);
-        Clearable("favorites", Tr("즐겨찾기", "Favorites"), live ? Tr($"즐겨찾기 {favs}개와 폴더 묶음, 그린 아이콘", $"{favs} favorites, their folders and picture icons") : Tr("즐겨찾기와 폴더 묶음, 그린 아이콘", "Favorites, their folders and picture icons"), Favorites.Current.Items.Count == 0,
-            Tr($"즐겨찾기 {favs}개와 폴더 묶음, 그린 아이콘을 지웁니다. 항목 단축키는 남습니다. 되돌릴 수 없습니다.", $"Deletes {favs} favorites, their folders and picture icons. Item shortcuts stay. This can't be undone."),
+        Clearable("favorites", Tr("즐겨찾기", "Favorites"), live ? Tr($"즐겨찾기 {favs}개와 폴더 묶음, 그린 아이콘", $"{favs} favorites, folder groups, and custom icons") : Tr("즐겨찾기와 폴더 묶음, 그린 아이콘", "Favorites, folder groups, and custom icons"), Favorites.Current.Items.Count == 0,
+            Tr($"즐겨찾기 {favs}개와 폴더 묶음, 그린 아이콘을 지웁니다. 항목 단축키는 남습니다. 되돌릴 수 없습니다.", $"Clear {favs} favorites, folder groups, and custom icons. Item shortcuts will remain. This cannot be undone."),
             Done(() =>
             {
                 Favorites.Clear();
                 host.Window.Refresh(true);
             }), filter);
         int links = Quicklinks.Current.Items.Count;
-        Clearable("quicklinks", Tr("사이트 바로 가기", "Site shortcuts"), live ? Tr($"바로 가기 {links}개", $"{links} shortcuts") : Tr("직접 만든 바로 가기", "Shortcuts you made"), false,
-            Tr("직접 만든 바로 가기를 지우고 기본 바로 가기로 되돌립니다. 되돌릴 수 없습니다.", "Deletes the shortcuts you made and brings back the built-in ones. This can't be undone."),
+        Clearable("quicklinks", Tr("사이트 바로 가기", "Site Shortcuts"), live ? Tr($"바로 가기 {links}개", $"{links} shortcuts") : Tr("직접 만든 바로 가기", "Custom shortcuts"), false,
+            Tr("직접 만든 바로 가기를 지우고 기본 바로 가기로 되돌립니다. 되돌릴 수 없습니다.", "Clear custom shortcuts and restore default shortcuts. This cannot be undone."),
             Done(Quicklinks.Reset), filter);
         int commands = UserCommands.Current.Items.Count;
-        Clearable("commands", Tr("사용자 명령", "Custom commands"), live ? Tr($"스크립트, 상용구, 묶음 {commands}개", $"{commands} scripts, snippets and chains") : Tr("스크립트, 상용구, 묶음", "Scripts, snippets and chains"), commands == 0,
-            Tr($"스크립트, 상용구, 묶음 {commands}개와 그 단축키를 지웁니다. 되돌릴 수 없습니다.", $"Deletes {commands} scripts, snippets and chains and their shortcuts. This can't be undone."),
+        Clearable("commands", Tr("사용자 명령", "Custom Commands"), live ? Tr($"스크립트, 상용구, 묶음 {commands}개", $"{commands} scripts, snippets, and bundles") : Tr("스크립트, 상용구, 묶음", "Scripts, snippets, and bundles"), commands == 0,
+            Tr($"스크립트, 상용구, 묶음 {commands}개와 그 단축키를 지웁니다. 되돌릴 수 없습니다.", $"Clear {commands} scripts, snippets, and bundles along with their shortcuts. This cannot be undone."),
             Done(() =>
             {
                 UserCommands.Clear();
                 host.ApplyHotkeys();
             }), filter);
         int names = live ? AppNames.Count : 0;
-        Clearable("names", Tr("바꾼 앱 이름", "Changed app names"), live ? Tr($"앱 이름 {names}개", $"{names} app names") : Tr("Bloom에서 바꾼 앱 이름", "App names changed in Bloom"), names == 0,
-            Tr($"앱 이름 {names}개를 원래 이름으로 되돌립니다.", $"Puts {names} app names back to their own."),
+        Clearable("names", Tr("바꾼 앱 이름", "Renamed Apps"), live ? Tr($"앱 이름 {names}개", $"{names} app names") : Tr("Bloom에서 바꾼 앱 이름", "App names renamed in Bloom"), names == 0,
+            Tr($"앱 이름 {names}개를 원래 이름으로 되돌립니다.", $"Restore {names} app names to their original names."),
             Done(() =>
             {
                 AppNames.ClearAll();
@@ -133,27 +133,27 @@ internal sealed partial class SettingsView
         var lists = live ? Playlists.All() : new();
         if (lists.Count > 0)
             Clearable("playlists", Tr("재생목록", "Playlists"), Tr($"재생목록 {lists.Count}개", $"{lists.Count} playlists"), false,
-                Tr($"재생목록 {lists.Count}개를 휴지통으로 보냅니다.", $"Sends {lists.Count} playlists to the Recycle Bin."),
+                Tr($"재생목록 {lists.Count}개를 휴지통으로 보냅니다.", $"Move {lists.Count} playlists to the Recycle Bin."),
                 () => Task.FromResult(lists.Count(l => !Playlists.Delete(l))), filter, trash: true);
         if (live && HasEntries(DataParts.Recovered))
-            DataLine("recovered", Tr("복구한 문서", "Recovered documents"), Tr("저장하지 못한 문서 편집분", "Document edits that could not be saved"), false, filter, ClearRecovered, Tr("휴지통으로", "To the Recycle Bin"));
+            DataLine("recovered", Tr("복구한 문서", "Recovered Documents"), Tr("저장하지 못한 문서 편집분", "Unsaved document edits"), false, filter, ClearRecovered, Tr("휴지통으로", "To the Recycle Bin"));
 
-        Header(Tr("로그인 정보", "Sign-ins"));
+        Header(Tr("로그인 정보", "Sign-in Info"));
         int accounts = AiAccounts.All.Count(a => !a.IsDefault);
-        Clearable("accounts", Tr("추가한 AI 계정", "Added AI accounts"), Tr($"계정 {accounts}개의 로그인", $"Sign-ins of {accounts} accounts"), accounts == 0,
-            Tr($"Bloom에서 추가한 계정 {accounts}개에서 로그아웃하고 그 로그인 폴더를 휴지통으로 보냅니다. Claude Code와 Codex의 기본 계정은 그대로입니다.", $"Signs out of the {accounts} accounts added in Bloom and sends their sign-in folders to the Recycle Bin. The default Claude Code and Codex accounts stay."),
+        Clearable("accounts", Tr("추가한 AI 계정", "Added AI Accounts"), Tr($"계정 {accounts}개의 로그인", $"{accounts} account sign-ins"), accounts == 0,
+            Tr($"Bloom에서 추가한 계정 {accounts}개에서 로그아웃하고 그 로그인 폴더를 휴지통으로 보냅니다. Claude Code와 Codex의 기본 계정은 그대로입니다.", $"Sign out of {accounts} accounts added in Bloom and move their sign-in folders to the Recycle Bin. Default accounts for Claude Code and Codex will remain untouched."),
             async () =>
             {
                 await host.SignOutAdded(TimeSpan.FromSeconds(45));
                 return 0;
             }, filter, trash: true);
         int keys = live ? ApiProviders.All.Count(p => ApiKeys.Has(p.Id)) : 0; // collecting reads no keys
-        Clearable("apikeys", Tr("API 키", "API keys"), live ? Tr($"키 {keys}개", $"{keys} keys") : Tr("API 공급자의 키", "The API providers' keys"), keys == 0,
-            Tr($"저장한 API 키 {keys}개를 지웁니다. API 대화와 API 번역을 쓰려면 키를 다시 넣어야 합니다. 되돌릴 수 없습니다.", $"Deletes {keys} saved API keys. API chats and API translation need a key again. This can't be undone."),
+        Clearable("apikeys", Tr("API 키", "API Keys"), live ? Tr($"키 {keys}개", $"{keys} keys") : Tr("API 제공자의 키", "API provider keys"), keys == 0,
+            Tr($"저장한 API 키 {keys}개를 지웁니다. API 대화와 API 번역을 쓰려면 키를 다시 넣어야 합니다. 되돌릴 수 없습니다.", $"Clear {keys} saved API keys. To use API chat and API translation, you will need to enter your keys again. This cannot be undone."),
             () => ClearApiKeys(s), filter);
         if (live && ApiKeys.Has(MusicPlayer.JriverKey))
-            Clearable(null, Tr("JRiver 비밀번호", "JRiver password"), Tr("미니 플레이어가 JRiver에 보내는 비밀번호", "The password the mini player sends to JRiver"), false,
-                Tr("저장한 JRiver 비밀번호를 지웁니다.", "Deletes the saved JRiver password."),
+            Clearable(null, Tr("JRiver 비밀번호", "JRiver Password"), Tr("미니 플레이어가 JRiver에 보내는 비밀번호", "Password sent to JRiver by Mini Player"), false,
+                Tr("저장한 JRiver 비밀번호를 지웁니다.", "Clear the saved JRiver password."),
                 async () =>
                 {
                     await StoreJriverPassword("");
@@ -161,21 +161,21 @@ internal sealed partial class SettingsView
                 }, filter);
 
         Header(Tr("설정", "Settings"));
-        Add(Tr("설정 내보내기", "Export settings"), Tr("설정, 즐겨찾기, 앱 이름, 사이트 바로 가기, 최근 색을 파일 하나로", "Settings, favorites, app names, site shortcuts and recent colours in one file"),
+        Add(Tr("설정 내보내기", "Export Settings"), Tr("설정, 즐겨찾기, 앱 이름, 사이트 바로 가기, 최근 색을 파일 하나로", "Save settings, favorites, app names, site shortcuts, and recent colors to a single file"),
             DataButton(Tr("내보내기", "Export"), () => host.ExportSettings(Window.GetWindow(this))), G.Send, () => host.ExportSettings(Window.GetWindow(this)), null, filter);
-        Add(Tr("설정 불러오기", "Import settings"), Tr("내보낸 설정 파일에서 불러옵니다. 지금 설정은 데이터 폴더에 백업합니다.", "Brings in an exported settings file. The current settings are backed up in the data folder."),
+        Add(Tr("설정 불러오기", "Import Settings"), Tr("내보낸 설정 파일에서 불러옵니다. 지금 설정은 데이터 폴더에 백업합니다.", "Import from an exported settings file. Current settings are backed up to the data folder."),
             DataButton(Tr("불러오기", "Import"), () => host.ImportSettings(Window.GetWindow(this))), G.Import, () => host.ImportSettings(Window.GetWindow(this)), null, filter);
-        DataLine("settings", Tr("설정 기본값으로", "Default settings"), Tr("즐겨찾기, 대화, 계정, API 키는 남습니다", "Favorites, chats, accounts and API keys stay"), false, filter, () =>
+        DataLine("settings", Tr("설정 기본값으로", "Reset Settings to Default"), Tr("즐겨찾기, 대화, 계정, API 키는 남습니다", "Favorites, chats, accounts, and API keys will remain"), false, filter, () =>
         {
             if (Demo.On) return;
-            if (AskData(Tr("설정 기본값으로", "Default settings"),
-                    Tr("모든 설정을 기본값으로 되돌리고 Bloom을 다시 시작합니다. Windows 시작 시 실행도 다시 켜집니다. 즐겨찾기, 대화, 추가한 계정, API 키, 항목 단축키, omp 모델 목록은 남습니다.", "Puts every setting back to its default and restarts Bloom. Start with Windows turns on again. Favorites, chats, added accounts, API keys, item shortcuts and the omp model list stay."),
-                    Tr("기본값으로 되돌리기", "Restore defaults"), ButtonTone.Danger))
+            if (AskData(Tr("설정 기본값으로", "Reset Settings to Default"),
+                    Tr("모든 설정을 기본값으로 되돌리고 Bloom을 다시 시작합니다. Windows 시작 시 실행도 다시 켜집니다. 즐겨찾기, 대화, 추가한 계정, API 키, 항목 단축키, omp 모델 목록은 남습니다.", "Reset all settings to their defaults and restart Bloom. Launch at Windows startup will also be re-enabled. Favorites, chats, added accounts, API keys, item shortcuts, and the omp model list will remain."),
+                    Tr("기본값으로 되돌리기", "Reset to Default"), ButtonTone.Danger))
                 host.RestoreDefaults(Window.GetWindow(this));
         }, Tr("기본값으로", "Restore"));
         if (live && File.Exists(DataParts.Prices))
-            Clearable("prices", Tr("고친 가격표", "Edited prices"), Tr("직접 고친 토큰 가격", "Token prices you edited"), false,
-                Tr("직접 고친 토큰 가격을 지우고 내장 가격으로 되돌립니다.", "Deletes the token prices you edited and goes back to the built-in ones."),
+            Clearable("prices", Tr("고친 가격표", "Custom Price Table"), Tr("직접 고친 토큰 가격", "Custom token pricing"), false,
+                Tr("직접 고친 토큰 가격을 지우고 내장 가격으로 되돌립니다.", "Clear custom token pricing and restore built-in pricing."),
                 () =>
                 {
                     int left = DataWipe.Delete(DataParts.Prices);
@@ -185,29 +185,29 @@ internal sealed partial class SettingsView
                 }, filter);
         int backups = live ? BackupCount() : 0;
         if (backups > 0)
-            Clearable("backups", Tr("설정 백업", "Settings backups"), Tr($"옛 설정 사본 {backups}개", $"{backups} old copies of the settings"), false,
-                Tr($"설정을 불러오기 전에 만든 옛 설정 사본 {backups}개를 지웁니다.", $"Deletes {backups} old copies of the settings made before an import."),
+            Clearable("backups", Tr("설정 백업", "Settings Backups"), Tr($"옛 설정 사본 {backups}개", $"{backups} previous settings backups"), false,
+                Tr($"설정을 불러오기 전에 만든 옛 설정 사본 {backups}개를 지웁니다.", $"Clear {backups} previous settings backups created before importing settings."),
                 () => Task.Run(() => DataWipe.Delete(DataParts.Backups().ToList())), filter);
 
-        Header(Tr("캐시와 로그", "Cache and logs"));
-        Clearable("cache", Tr("캐시", "Cache"), Tr("모델 목록, 환율, ChatGPT 연결 데이터", "Model lists, exchange rates and ChatGPT's connection data"), null,
-            Tr("다시 만들 수 있는 파일을 지웁니다. 모델 목록, 환율, ChatGPT 연결 데이터입니다. 다음 ChatGPT 대화의 첫 답은 기록을 다시 읽느라 수십 초 늦을 수 있습니다.", "Deletes files that can be made again: model lists, exchange rates and ChatGPT's connection data. The first answer of the next ChatGPT chat may take tens of seconds while the history is read again."),
-            host.ClearCache, filter, step: Tr("비우기", "Clear"), heading: Tr("캐시 비우기", "Clear the cache"), tone: ButtonTone.Plain);
-        Clearable("tokens", Tr("토큰 집계", "Token counts"), Tr("사용량 화면의 토큰 숫자", "The token numbers on the usage screen"), null,
-            Tr("Bloom이 센 토큰 숫자를 지우고 남은 기록에서 다시 셉니다. Claude Code가 이미 지운 30일 넘은 기록은 돌아오지 않습니다.", "Clears the token counts Bloom made and counts again from the logs that are left. Logs Claude Code already removed after 30 days do not come back."),
+        Header(Tr("캐시와 로그", "Cache & Logs"));
+        Clearable("cache", Tr("캐시", "Cache"), Tr("모델 목록, 환율, ChatGPT 연결 데이터", "Model lists, exchange rates, and ChatGPT connection data"), null,
+            Tr("다시 만들 수 있는 파일을 지웁니다. 모델 목록, 환율, ChatGPT 연결 데이터입니다. 다음 ChatGPT 대화의 첫 답은 기록을 다시 읽느라 수십 초 늦을 수 있습니다.", "Clear files that can be regenerated, including model lists, exchange rates, and ChatGPT connection data. The first reply in your next ChatGPT conversation may take longer while history is reloaded."),
+            host.ClearCache, filter, step: Tr("비우기", "Clear"), heading: Tr("캐시 비우기", "Clear Cache"), tone: ButtonTone.Plain);
+        Clearable("tokens", Tr("토큰 집계", "Token Counts"), Tr("사용량 화면의 토큰 숫자", "Token counts shown in Usage"), null,
+            Tr("Bloom이 센 토큰 숫자를 지우고 남은 기록에서 다시 셉니다. Claude Code가 이미 지운 30일 넘은 기록은 돌아오지 않습니다.", "Clear token counts calculated by Bloom and recount from remaining history. Logs older than 30 days already deleted by Claude Code cannot be recovered."),
             Done(() =>
             {
                 TokenStats.Reset();
                 host.Window.Refresh(true);
-            }), filter, heading: Tr("토큰 집계 지우기", "Clear the token counts"));
-        Clearable("logs", Tr("로그", "Logs"), Tr("문제 보고에 쓰는 기록", "What problem reports are made from"), null,
-            Tr("문제 보고에 쓰는 기록을 비웁니다.", "Clears what problem reports are made from."),
-            () => Task.FromResult((Log.Clear() ? 0 : 1) + DataWipe.Delete(Paths.In("memory.txt"))), filter, step: Tr("비우기", "Clear"), heading: Tr("로그 비우기", "Clear the logs"));
+            }), filter, heading: Tr("토큰 집계 지우기", "Clear Token Counts"));
+        Clearable("logs", Tr("로그", "Logs"), Tr("문제 보고에 쓰는 기록", "Diagnostic logs used for reporting issues"), null,
+            Tr("문제 보고에 쓰는 기록을 비웁니다.", "Clear diagnostic logs used for reporting issues."),
+            () => Task.FromResult((Log.Clear() ? 0 : 1) + DataWipe.Delete(Paths.In("memory.txt"))), filter, step: Tr("비우기", "Clear"), heading: Tr("로그 비우기", "Clear Logs"));
 
-        Header(Tr("전체", "Everything"));
-        Add(Tr("Bloom 초기화", "Reset Bloom"), Tr("모든 데이터를 지우고 처음 설정 화면부터 다시 시작합니다", "Deletes all data and starts again from the first-run screens"),
+        Header(Tr("전체", "All Data"));
+        Add(Tr("Bloom 초기화", "Reset Bloom"), Tr("모든 데이터를 지우고 처음 설정 화면부터 다시 시작합니다", "Clear all data and restart from initial setup"),
             DataButton(Tr("초기화…", "Reset…"), ResetBloom), G.Delete, ResetBloom, null, filter);
-        Add(Tr("Bloom 삭제", "Uninstall Bloom"), Tr("이 PC에서 Bloom을 삭제합니다. 데이터를 남길지 고릅니다", "Removes Bloom from this PC. You choose whether the data stays"),
+        Add(Tr("Bloom 삭제", "Uninstall Bloom"), Tr("이 PC에서 Bloom을 삭제합니다. 데이터를 남길지 고릅니다", "Uninstall Bloom from this PC. You can choose whether to keep your data"),
             DataButton(Tr("삭제…", "Uninstall…"), UninstallBloom), G.Delete, UninstallBloom, null, filter);
     }
 
@@ -225,7 +225,7 @@ internal sealed partial class SettingsView
     private void DataOpen(string key, string title, string what, string folder, string filter)
     {
         if (Record(title, what, filter)) return;
-        string sub = dataSizes is { } d ? Join(what, Engine.Size(d.GetValueOrDefault(key))) : Join(what, Tr("크기 계산 중", "Measuring"));
+        string sub = dataSizes is { } d ? Join(what, Engine.Size(d.GetValueOrDefault(key))) : Join(what, Tr("크기 계산 중", "Calculating size"));
         Add(title, sub, OpenButton(folder), G.Folder, () => OpenFolder(folder), null, filter);
     }
 
@@ -235,11 +235,11 @@ internal sealed partial class SettingsView
     private void Clearable(string? key, string title, string what, bool? empty, string body, Func<Task<int>> delete, string filter,
         bool trash = false, string? step = null, string? heading = null, ButtonTone? tone = null, FrameworkElement? extra = null)
     {
-        string label = step ?? (trash ? Tr("휴지통으로", "To the Recycle Bin") : Tr("지우기", "Delete"));
+        string label = step ?? (trash ? Tr("휴지통으로", "To the Recycle Bin") : Tr("지우기", "Clear"));
         DataLine(key, title, what, empty, filter, () =>
         {
             if (Demo.On) return; // the recording mode shows the page and deletes nothing
-            if (AskData(heading ?? Tr($"{title} 지우기", $"Delete {title}"), body, label, tone ?? (trash ? ButtonTone.Plain : ButtonTone.Danger))) Wipe(key, title, trash, delete);
+            if (AskData(heading ?? Tr($"{title} 지우기", $"Clear {title}"), body, label, tone ?? (trash ? ButtonTone.Plain : ButtonTone.Danger))) Wipe(key, title, trash, delete);
         }, label, extra);
     }
 
@@ -253,7 +253,7 @@ internal sealed partial class SettingsView
         bool measuring = key is not null && dataSizes is null;
         bool none = empty ?? bytes is 0;
         bool off = none || empty is null && measuring;
-        string sub = none ? Tr("없음", "None") : measuring ? Join(what, Tr("크기 계산 중", "Measuring")) : bytes is { } size ? Join(what, Engine.Size(size)) : what;
+        string sub = none ? Tr("없음", "None") : measuring ? Join(what, Tr("크기 계산 중", "Calculating size")) : bytes is { } size ? Join(what, Engine.Size(size)) : what;
         var act = DataButton(button, run);
         if (off)
         {
@@ -301,14 +301,14 @@ internal sealed partial class SettingsView
         }
         string head = Tr("Bloom · 데이터", "Bloom · Data");
         if (left > 0)
-            Notices.Result(false, head, Tr($"{title} 일부를 지우지 못함", $"Part of {title} stayed"), Tr("다른 프로그램이 쓰고 있는 파일이 남았습니다. 그 프로그램을 닫고 다시 시도하세요.", "Files another program has open stayed. Close that program and try again."));
-        else if (trash) Notices.Result(true, head, Tr($"{title} 휴지통으로 이동", $"{title} moved to the Recycle Bin"), null);
+            Notices.Result(false, head, Tr($"{title} 일부를 지우지 못함", $"Could not clear part of {title}"), Tr("다른 프로그램이 쓰고 있는 파일이 남았습니다. 그 프로그램을 닫고 다시 시도하세요.", "Some files are in use by another program. Close that program and try again."));
+        else if (trash) Notices.Result(true, head, Tr($"{title} 휴지통으로 이동", $"Moved {title} to Recycle Bin"), null);
         else if (before is { } was && key is not null)
         {
             string freed = Engine.Size(Math.Max(0, was - fresh.GetValueOrDefault(key)));
-            Notices.Result(true, head, Tr($"{title} 삭제 · {freed} 확보", $"{title} deleted · {freed} freed"), null);
+            Notices.Result(true, head, Tr($"{title} 삭제 · {freed} 확보", $"Deleted {title} · {freed} freed"), null);
         }
-        else Notices.Result(true, head, Tr($"{title} 삭제", $"{title} deleted"), null);
+        else Notices.Result(true, head, Tr($"{title} 삭제", $"Deleted {title}"), null);
     }
 
     /// 복구한 문서: its copy may be the only one, so the default is to open the folder and look first.
@@ -316,15 +316,15 @@ internal sealed partial class SettingsView
     {
         if (Demo.On) return;
         string dir = DataParts.Recovered;
-        var pick = ConfirmWindow.Ask(Window.GetWindow(this), Tr("복구한 문서 지우기", "Delete recovered documents"),
-            Tr("저장하지 못한 문서 편집분입니다. 이 사본이 유일할 수 있습니다. 보내기 전에 열어 확인하세요.", "Document edits that could not be saved. This copy may be the only one. Open it and check before sending it away."),
+        var pick = ConfirmWindow.Ask(Window.GetWindow(this), Tr("복구한 문서 지우기", "Clear Recovered Documents"),
+            Tr("저장하지 못한 문서 편집분입니다. 이 사본이 유일할 수 있습니다. 보내기 전에 열어 확인하세요.", "These are unsaved document edits and may be your only copy. Open the folder to check them before moving to the Recycle Bin."),
             MessageBoxResult.Yes,
-            (Tr("폴더 열기", "Open folder"), MessageBoxResult.Yes, ButtonTone.Plain),
+            (Tr("폴더 열기", "Open Folder"), MessageBoxResult.Yes, ButtonTone.Plain),
             (Tr("휴지통으로", "To the Recycle Bin"), MessageBoxResult.OK, ButtonTone.Danger),
             (Tr("취소", "Cancel"), MessageBoxResult.Cancel, ButtonTone.Plain));
         if (pick == MessageBoxResult.Yes) OpenFolder(dir);
         else if (pick == MessageBoxResult.OK)
-            Wipe("recovered", Tr("복구한 문서", "Recovered documents"), true, () => Task.FromResult(DataWipe.Inside(dir) && Native.ShellFiles.Recycle(dir, IntPtr.Zero) ? 0 : 1));
+            Wipe("recovered", Tr("복구한 문서", "Recovered Documents"), true, () => Task.FromResult(DataWipe.Inside(dir) && Native.ShellFiles.Recycle(dir, IntPtr.Zero) ? 0 : 1));
     }
 
     /// API 키: every API provider's key and model list goes (JRiver's password is not one); a side that was the API goes
@@ -431,11 +431,11 @@ internal sealed partial class SettingsView
         long total = Math.Max(1, sizes.GetValueOrDefault("data"));
         var parts = new List<(string name, long bytes)>
         {
-            (Tr("추가 계정의 CLI 기록", "Added accounts' CLI history"), sizes.GetValueOrDefault("cli")),
+            (Tr("추가 계정의 CLI 기록", "CLI History for Added Accounts"), sizes.GetValueOrDefault("cli")),
             (Tr("캐시", "Cache"), sizes.GetValueOrDefault("cache")),
-            (Tr("추가한 AI 계정", "Added AI accounts"), sizes.GetValueOrDefault("accounts")),
-            (Tr("토큰 집계", "Token counts"), sizes.GetValueOrDefault("tokens")),
-            (Tr("Bloom Lens 캡처", "Bloom Lens captures"), sizes.GetValueOrDefault("lens")),
+            (Tr("추가한 AI 계정", "Added AI Accounts"), sizes.GetValueOrDefault("accounts")),
+            (Tr("토큰 집계", "Token Counts"), sizes.GetValueOrDefault("tokens")),
+            (Tr("Bloom Lens 캡처", "Bloom Lens Captures"), sizes.GetValueOrDefault("lens")),
         };
         parts.Add((Tr("나머지", "Other"), Math.Max(0, total - parts.Sum(p => p.bytes))));
         double[] tones = { 0.62, 0.44, 0.3, 0.2, 0.13, 0.08 };
@@ -469,7 +469,7 @@ internal sealed partial class SettingsView
 
     private static FrameworkElement OpenButton(string folder)
     {
-        var b = ToolUi.TextButton(Tr("폴더 열기", "Open folder"), () => OpenFolder(folder));
+        var b = ToolUi.TextButton(Tr("폴더 열기", "Open Folder"), () => OpenFolder(folder));
         b.VerticalAlignment = VerticalAlignment.Center;
         return b;
     }
@@ -489,7 +489,7 @@ internal sealed partial class SettingsView
     private static string Join(string what, string more) => what.Length == 0 ? more : what + " · " + more;
 
     /// The measured size of a line in words, for the question before it goes.
-    private string SizeOf(string key) => dataSizes is { } d ? Engine.Size(d.GetValueOrDefault(key)) : Tr("전부", "all");
+    private string SizeOf(string key) => dataSizes is { } d ? Engine.Size(d.GetValueOrDefault(key)) : Tr("전부", "Total");
 
     /// A data folder as %APPDATA%\Bloom rather than with the user's name in it.
     private static string Short(string path)

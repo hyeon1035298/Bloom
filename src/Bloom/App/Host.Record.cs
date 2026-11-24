@@ -152,8 +152,8 @@ internal sealed partial class Host
             bool copied = CopyFile(result.File);
             string length = Length(result.Duration);
             string name = Path.GetFileName(result.File);
-            Notices.Done("Bloom Lens", Tr("녹화 저장 완료", "Recording saved"),
-                copied ? Tr($"{length} · 파일을 클립보드에 복사함 · Screen Recordings", $"{length} · file copied to the clipboard · Screen Recordings")
+            Notices.Done("Bloom Lens", Tr("녹화 저장 완료", "Recording Saved"),
+                copied ? Tr($"{length} · 파일을 클립보드에 복사함 · Screen Recordings", $"{length} · Copied file to clipboard · Screen Recordings")
                     : Tr($"{length} · {name} · Screen Recordings", $"{length} · {name} · Screen Recordings"),
                 new (string, Action)[]
                 {
@@ -176,14 +176,14 @@ internal sealed partial class Host
             Log.Write($"record failed: {code} {message}");
             string what = code switch
             {
-                "audio" => Tr("소리를 녹음하지 못했습니다", "Could not record the sound"),
-                "capture" => Tr("화면을 읽지 못했습니다", "Could not read the screen"),
+                "audio" => Tr("소리를 녹음하지 못했습니다", "Could not record audio"),
+                "capture" => Tr("화면을 읽지 못했습니다", "Could not capture the screen"),
                 "io" => Tr("파일을 저장하지 못했습니다", "Could not save the file"),
-                _ => Tr("영상을 만들지 못했습니다", "Could not make the video"),
+                _ => Tr("영상을 만들지 못했습니다", "Could not create the video"),
             };
             Notices.Result(false, "Bloom Lens", what, code == "audio"
-                ? Tr("소리 장치를 확인하거나 소리 없이 다시 녹화하세요", "Check the sound devices, or record again without sound")
-                : Tr("다시 시도하세요", "Try again"));
+                ? Tr("소리 장치를 확인하거나 소리 없이 다시 녹화하세요", "Check your audio device or record again without audio")
+                : Tr("다시 시도하세요", "Please try again"));
         }
 
         private async Task Close()

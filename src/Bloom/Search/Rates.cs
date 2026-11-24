@@ -40,7 +40,7 @@ internal static class Rates
     {
         r = rates ?? new();
         var span = DateTime.UtcNow - fetchedUtc;
-        age = span.TotalMinutes < 60 ? Tr("방금 받은 환율", "Rates just fetched") : span.TotalHours < 24 ? Tr($"{(int)span.TotalHours}시간 전 환율", $"Rates from {(int)span.TotalHours} h ago") : Tr($"{(int)span.TotalDays}일 전 환율", $"Rates from {(int)span.TotalDays} days ago");
+        age = span.TotalMinutes < 60 ? Tr("방금 받은 환율", "Exchange rate updated just now") : span.TotalHours < 24 ? Tr($"{(int)span.TotalHours}시간 전 환율", $"Exchange rate from {(int)span.TotalHours}h ago") : Tr($"{(int)span.TotalDays}일 전 환율", $"Exchange rate from {(int)span.TotalDays}d ago");
         return rates is { Count: > 0 };
     }
 

@@ -73,7 +73,7 @@ internal sealed partial class SettingsView
         if (!all)
         {
             int monitors = items.Where(i => i.Type == "records").Sum(i => v.Records(i.Key).Count);
-            string words = monitors > 0 ? Tr($"자세히 · 모니터 {monitors}대", $"More · {monitors} monitors") : Tr($"자세히 · {items.Count}개", $"More · {items.Count}");
+            string words = monitors > 0 ? Tr($"자세히 · 모니터 {monitors}대", $"Details · {monitors} monitors") : Tr($"자세히 · {items.Count}개", $"Details · {items.Count}");
             Disclose(words, null, open, () =>
             {
                 if (!unfolded.Remove(key)) unfolded.Add(key);
@@ -121,7 +121,7 @@ internal sealed partial class SettingsView
                     break;
                 case ("memory-clean", "auto.percent", _):
                     int now = AddonPreviews.MemoryNow();
-                    SchemaRow(schema, v, key, G.Sliders, filter, easy: easy, mark: now, sub: now >= 0 ? Tr($"세로 눈금이 지금 사용량 {now}%입니다", $"The upright mark is the {now}% in use now") : null);
+                    SchemaRow(schema, v, key, G.Sliders, filter, easy: easy, mark: now, sub: now >= 0 ? Tr($"세로 눈금이 지금 사용량 {now}%입니다", $"The vertical mark shows current usage at {now}%") : null);
                     break;
                 case ("run-card", "card.monitor", _):
                     if (!RunCardMonitor(item, v, filter)) SchemaRow(schema, v, key, Glyph(item), filter, rebuild: true, easy: easy);
@@ -170,8 +170,8 @@ internal sealed partial class SettingsView
     /// 'Win+Alt+Tab도 같게': on, Win+Alt+Tab takes Alt+Tab's two choices and follows them; off, its own two lines show.
     private void WinSame(AddonValues v, string filter)
     {
-        string title = Tr("Win+Alt+Tab도 같게", "Win+Alt+Tab the same");
-        string sub = Tr("끄면 Win+Alt+Tab을 따로 정합니다", "Off, Win+Alt+Tab is set on its own");
+        string title = Tr("Win+Alt+Tab도 같게", "Use for Win+Alt+Tab too");
+        string sub = Tr("끄면 Win+Alt+Tab을 따로 정합니다", "Turn off to configure Win+Alt+Tab separately");
         if (Record(title, sub, filter)) return;
         var sw = Toggle(AddonEasy.SameWin(v), on =>
         {
@@ -207,15 +207,15 @@ internal sealed partial class SettingsView
         string key = item.Key;
         int bits = v.Int(key);
         string now = AddonEasy.CustomAreas ? "custom" : AddonEasy.Strengths.FirstOrDefault(s => s.bits == bits).key ?? "custom";
-        string title = Tr("정리 세기", "Cleaning strength");
+        string title = Tr("정리 세기", "Cleanup Level");
         string sub = now switch
         {
-            "light" => Tr("가볍게: 프로그램이 쥐고만 있는 메모리를 비웁니다", "Light: frees what programs hold but don't use"),
-            "normal" => Tr("보통: 프로그램과 캐시의 남는 메모리를 비웁니다", "Normal: frees what programs and caches don't use"),
-            "strong" => Tr("강하게: 일곱 가지를 모두 비웁니다. 잠깐 멈칫할 수 있습니다", "Strong: frees all seven kinds; things may pause a moment"),
-            _ => Tr("직접: 정리할 곳을 아래에서 고릅니다", "Custom: pick what to clean below"),
+            "light" => Tr("가볍게: 프로그램이 쥐고만 있는 메모리를 비웁니다", "Light: Frees idle memory held by apps"),
+            "normal" => Tr("보통: 프로그램과 캐시의 남는 메모리를 비웁니다", "Normal: Frees spare memory from apps and cache"),
+            "strong" => Tr("강하게: 일곱 가지를 모두 비웁니다. 잠깐 멈칫할 수 있습니다", "Deep: Clears all seven areas. May briefly pause the system"),
+            _ => Tr("직접: 정리할 곳을 아래에서 고릅니다", "Custom: Choose which areas to clean below"),
         };
-        var steps = new[] { ("light", Tr("가볍게", "Light")), ("normal", Tr("보통", "Normal")), ("strong", Tr("강하게", "Strong")), ("custom", Tr("직접", "Custom")) };
+        var steps = new[] { ("light", Tr("가볍게", "Light")), ("normal", Tr("보통", "Normal")), ("strong", Tr("강하게", "Deep")), ("custom", Tr("직접", "Custom")) };
         var pictures = steps.Select(o => AddonPictures.Option(schema, "clean.strength", o.Item1)).ToArray();
         // how many of the seven kinds the value cleans, a square each (its name on the pointer)
         var squares = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(0, 6, 0, 0) };
@@ -225,7 +225,7 @@ internal sealed partial class SettingsView
             squares.Children.Add(new SmoothBorder { Width = 8, Height = 8, CornerRadius = new CornerRadius(2), Margin = new Thickness(0, 0, 3, 0), Background = on ? Theme.P.Accent : Theme.P.Edge, ToolTip = o.Name.Shown, VerticalAlignment = VerticalAlignment.Center });
         }
         int count = item.Options.Count(o => (bits & int.Parse(o.Value, CultureInfo.InvariantCulture)) != 0);
-        var countText = Theme.T(Tr($"{item.Options.Count}가지 중 {count}가지", $"{count} of {item.Options.Count} kinds"), 12, Theme.P.TextFaint);
+        var countText = Theme.T(Tr($"{item.Options.Count}가지 중 {count}가지", $"{count} of {item.Options.Count}"), 12, Theme.P.TextFaint);
         countText.Margin = new Thickness(5, 0, 0, 0);
         squares.Children.Add(countText);
         void Pick(string k)
@@ -240,7 +240,7 @@ internal sealed partial class SettingsView
         else Choice(title, sub, G.Sliders, steps, now, Pick, filter);
         if (now != "custom" && collected is null && filter.Length == 0) return;
         indenting = true;
-        AddonFlags(item, v, filter, Tr("정리할 곳", "What to clean"));
+        AddonFlags(item, v, filter, Tr("정리할 곳", "Areas to Clean"));
         indenting = false;
     }
 
@@ -286,20 +286,20 @@ internal sealed partial class SettingsView
                 v.SetList(key, v.List(key).Where(x => x != e));
                 Dispatcher.BeginInvoke(TaskbarRebuild);
             }
-            Add(e, null, RowButton(Tr("지우기", "Remove"), Remove), G.Delete, null, null, filter);
+            Add(e, null, RowButton(Tr("지우기", "Clear"), Remove), G.Delete, null, null, filter);
         }
         int max = item.Max ?? 200;
         string name = easy?.Title ?? item.Name.Shown;
-        string title = Tr($"{name} 더하기", $"Add: {name}");
+        string title = Tr($"{name} 더하기", $"Add {name}");
         if (list.Count >= max)
         {
-            Add(title, Tr($"{max}개까지 넣을 수 있습니다", $"Up to {max} can be added"), null, G.Add, null, null, filter);
+            Add(title, Tr($"{max}개까지 넣을 수 있습니다", $"Up to {max} items can be added"), null, G.Add, null, null, filter);
             return;
         }
         string? suffix = item.Suffix;
         if (suffix == ".exe")
         {
-            string pickTitle = Tr("실행 중에서 고르기", "Pick from running");
+            string pickTitle = Tr("실행 중에서 고르기", "Pick from Running Apps");
             FrameworkElement? button = null;
             void Pick()
             {
@@ -327,12 +327,12 @@ internal sealed partial class SettingsView
                 running.Open(items, button);
             }
             button = RowButton(pickTitle, Pick);
-            Add(title, Tr("실행 중인 프로그램에서 고르거나, 아래에 이름을 입력하세요", "Pick a running program, or type its name below"), button, G.Add, Pick, null, filter);
+            Add(title, Tr("실행 중인 프로그램에서 고르거나, 아래에 이름을 입력하세요", "Pick from running apps or enter a name below"), button, G.Add, Pick, null, filter);
         }
         string sub = suffix is null
-            ? Tr("이름을 입력하고 Enter를 누릅니다", "Type a name and press Enter")
-            : Tr($"{suffix}로 끝나는 파일 이름을 입력하고 Enter를 누릅니다", $"Type a file name ending in {suffix} and press Enter");
-        Field(suffix == ".exe" ? Tr("이름으로 더하기", "Add by name") : title, sub, G.Add, "", suffix is null ? "" : "name" + suffix, x =>
+            ? Tr("이름을 입력하고 Enter를 누릅니다", "Enter a name and press Enter")
+            : Tr($"{suffix}로 끝나는 파일 이름을 입력하고 Enter를 누릅니다", $"Enter a file name ending with {suffix} and press Enter");
+        Field(suffix == ".exe" ? Tr("이름으로 더하기", "Add by Name") : title, sub, G.Add, "", suffix is null ? "" : "name" + suffix, x =>
         {
             string entryName = ListEntry(x, suffix);
             if (entryName.Length > 0 && !v.List(key).Contains(entryName)) v.SetList(key, v.List(key).Append(entryName));
@@ -341,7 +341,7 @@ internal sealed partial class SettingsView
             string entryName = ListEntry(x, suffix);
             if (x.Trim().Length == 0) return null;
             if (entryName.Length == 0)
-                return suffix is null ? Tr("쓸 수 없는 이름입니다", "That name can't be used") : Tr($"{suffix}로 끝나는 파일 이름만 됩니다", $"Only a file name ending in {suffix}");
+                return suffix is null ? Tr("쓸 수 없는 이름입니다", "Invalid name") : Tr($"{suffix}로 끝나는 파일 이름만 됩니다", $"Must be a file name ending with {suffix}");
             return v.List(key).Contains(entryName) ? Tr("이미 목록에 있습니다", "Already in the list") : null;
         });
     }
@@ -362,15 +362,15 @@ internal sealed partial class SettingsView
         string key = item.Key, title = easy?.Title ?? item.Name.Shown;
         var (mods, vk) = v.Key(key);
         string combo = Hotkeys.Combo(mods, vk);
-        string? sub = combo == "off" ? Tr("꺼짐 · 클릭하여 단축키 지정", "Off — click to set a shortcut")
+        string? sub = combo == "off" ? Tr("꺼짐 · 클릭하여 단축키 지정", "Off · Click to set shortcut")
             : easy?.Sub is { } own ? own.Length > 0 ? own : null
-            : item.About?.Shown ?? Tr("클릭하여 다른 조합을 누르고, Delete로 지웁니다", "Click and press another combination; Delete clears it");
+            : item.About?.Shown ?? Tr("클릭하여 다른 조합을 누르고, Delete로 지웁니다", "Click and press another key combination, or press Delete to clear");
         if (Record(title, sub, filter)) return;
         var keys = new KeyRecorder(combo)
         {
             Listening = on => host.Shortcuts?.Pause(on),
             Done = () => FocusFilter?.Invoke(),
-            Check = c => host.Shortcuts?.Owner(c) is not null ? Tr("Bloom에서 사용 중인 키", "Bloom already uses it") : null,
+            Check = c => host.Shortcuts?.Owner(c) is not null ? Tr("Bloom에서 사용 중인 키", "Shortcut already used by Bloom") : null,
             Caps = true,
         };
         keys.Picked += c =>
@@ -390,7 +390,7 @@ internal sealed partial class SettingsView
         var records = v.Records(key);
         if (records.Count == 0)
         {
-            Add(item.Name.Shown, Tr("애드온이 한 번 실행되면 여기에 보입니다", "They show here once the add-on has run"), null, G.Screen, null, null, filter);
+            Add(item.Name.Shown, Tr("애드온이 한 번 실행되면 여기에 보입니다", "Appears here once the add-on has run"), null, G.Screen, null, null, filter);
             return;
         }
         var lo = item.Fields.FirstOrDefault(f => f.Key == "lo" && f.Type == "int");
@@ -430,8 +430,8 @@ internal sealed partial class SettingsView
         int min = lo.Min ?? 0, max = hi.Max ?? 100;
         int low = Math.Clamp(AddonSchema.Int(v.Record(key, id, lo.Key)) ?? AddonSchema.Int(lo.Default) ?? min, min, max);
         int high = Math.Clamp(AddonSchema.Int(v.Record(key, id, hi.Key)) ?? AddonSchema.Int(hi.Default) ?? max, min, max);
-        string title = Tr("밝기 범위", "Brightness range");
-        string sub = Tr($"밝기 0은 실제 {low}%, 100은 실제 {high}%입니다", $"0 is {low}% and 100 is {high}% of the monitor's own");
+        string title = Tr("밝기 범위", "Brightness Range");
+        string sub = Tr($"밝기 0은 실제 {low}%, 100은 실제 {high}%입니다", $"Brightness 0 maps to {low}%, and 100 maps to {high}%");
         if (Record(title, sub, filter)) return;
         var range = new RangeSlider(low, high, min, max, 1, (a, b) => $"{a}–{b}%");
         range.Picked += (a, b) =>

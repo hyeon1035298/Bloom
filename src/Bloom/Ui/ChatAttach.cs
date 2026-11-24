@@ -28,7 +28,7 @@ internal static class ChatAttach
         return skipped;
     }
 
-    public static string Skipped(int n) => Tr($"{n}개 첨부 실패 · 50 MB 이하 파일을 한 번에 {Chats.MaxFiles}개까지 선택하세요. 폴더는 첨부할 수 없습니다.", $"Could not attach {n}. Choose up to {Chats.MaxFiles} files of 50 MB or less; folders cannot be attached.");
+    public static string Skipped(int n) => Tr($"{n}개 첨부 실패 · 50 MB 이하 파일을 한 번에 {Chats.MaxFiles}개까지 선택하세요. 폴더는 첨부할 수 없습니다.", $"Failed to attach {n} file(s) · Select up to {Chats.MaxFiles} files under 50 MB each. Folders cannot be attached.");
 
     /// What a Ctrl+V in a conversation attaches: copied files, or a copied picture saved as a PNG first; null when the
     /// clipboard holds text (it pastes as usual) or nothing to attach.
@@ -66,6 +66,6 @@ internal static class ChatAttach
 
     /// The words sent when only files or a picture go: the AI is asked to look at them.
     public static string DefaultText(bool image, bool files) =>
-        image ? Tr("이 화면에 뭐가 있는지 설명해줘", "Explain what is on this screen")
-        : files ? Tr("첨부한 파일을 살펴보고 무엇인지 알려줘", "Look at the attached files and tell me what they are") : "";
+        image ? Tr("이 화면에 뭐가 있는지 설명해줘", "Describe what is on this screen")
+        : files ? Tr("첨부한 파일을 살펴보고 무엇인지 알려줘", "Examine the attached file and tell me what it is") : "";
 }

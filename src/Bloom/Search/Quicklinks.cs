@@ -47,13 +47,13 @@ internal sealed class Quicklinks
 
     private static List<Quicklink> Defaults() => new()
     {
-        New(Tr("구글 검색", "Google search"), "https://www.google.com/search?q={query}", "g"),
-        New(Tr("네이버 검색", "Naver search"), "https://search.naver.com/search.naver?query={query}", "n"),
-        New(Tr("유튜브 검색", "YouTube search"), "https://www.youtube.com/results?search_query={query}", "yt"),
-        New(Tr("나무위키", "Namu Wiki"), "https://namu.wiki/Go?q={query}", "nw"),
-        New(Tr("파파고 번역", "Papago translate"), "https://papago.naver.com/?sk=auto&tk=ko&st={query}", "pp"),
-        New(Tr("BOOTH 검색", "BOOTH search"), "https://booth.pm/ko/search/{query}", "bt"),
-        New(Tr("깃허브 검색", "GitHub search"), "https://github.com/search?q={query}", "gh"),
+        New(Tr("구글 검색", "Google Search"), "https://www.google.com/search?q={query}", "g"),
+        New(Tr("네이버 검색", "Naver Search"), "https://search.naver.com/search.naver?query={query}", "n"),
+        New(Tr("유튜브 검색", "YouTube Search"), "https://www.youtube.com/results?search_query={query}", "yt"),
+        New(Tr("나무위키", "Namuwiki"), "https://namu.wiki/Go?q={query}", "nw"),
+        New(Tr("파파고 번역", "Papago Translate"), "https://papago.naver.com/?sk=auto&tk=ko&st={query}", "pp"),
+        New(Tr("BOOTH 검색", "BOOTH Search"), "https://booth.pm/ko/search/{query}", "bt"),
+        New(Tr("깃허브 검색", "GitHub Search"), "https://github.com/search?q={query}", "gh"),
         New(Tr("구글 지도", "Google Maps"), "https://www.google.com/maps/search/{query}", "map"),
     };
 

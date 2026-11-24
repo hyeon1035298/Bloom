@@ -113,15 +113,15 @@ internal static class ApiBalances
     /// OpenRouter's GET /credits: {"data":{"total_credits","total_usage"}} → what is left.
     internal static UsageBalance? OpenRouterCredits(string json) => Read(json, data =>
         Num(data, "total_credits") is { } credits && Num(data, "total_usage") is { } usage
-            ? new UsageBalance(Tr("잔액", "Balance"), Money(credits - usage, "USD"), Tr("OpenRouter 계정의 남은 크레딧입니다.", "The credits left on the OpenRouter account."))
+            ? new UsageBalance(Tr("잔액", "Balance"), Money(credits - usage, "USD"), Tr("OpenRouter 계정의 남은 크레딧입니다.", "Remaining credits in your OpenRouter account."))
             : null);
 
     /// OpenRouter's GET /key: the key's own limit left (limit_remaining) when it has one, else what it has spent (usage).
     internal static UsageBalance? OpenRouterKey(string json) => Read(json, data =>
         Num(data, "limit_remaining") is { } left
-            ? new UsageBalance(Tr("잔액", "Balance"), Money(left, "USD"), Tr("이 API 키의 사용 한도에서 남은 금액입니다.", "What is left of this API key's spending limit."))
+            ? new UsageBalance(Tr("잔액", "Balance"), Money(left, "USD"), Tr("이 API 키의 사용 한도에서 남은 금액입니다.", "Remaining amount on this API key's usage limit."))
             : Num(data, "usage") is { } used
-                ? new UsageBalance(Tr("사용", "Used"), Money(used, "USD"), Tr("이 API 키로 지금까지 쓴 금액입니다. 계정 잔액은 관리 키로만 조회할 수 있습니다.", "What this API key has spent so far. The account's balance needs a management key."))
+                ? new UsageBalance(Tr("사용", "Used"), Money(used, "USD"), Tr("이 API 키로 지금까지 사용한 금액입니다. 계정 잔액은 관리 키로만 조회할 수 있습니다.", "Total amount spent with this API key. Account balance can only be checked with a management key."))
                 : null);
 
     /// DeepSeek's GET /user/balance: {"balance_infos":[{"currency","total_balance"}]} → each currency's total.
@@ -136,7 +136,7 @@ internal static class ApiBalances
                 if (decimal.TryParse(ApiJson.Str(b, "total_balance"), NumberStyles.Number, CultureInfo.InvariantCulture, out decimal total))
                     amounts.Add(Money(total, ApiJson.Str(b, "currency")));
             return amounts.Count == 0 ? null
-                : new UsageBalance(Tr("잔액", "Balance"), string.Join(" · ", amounts), Tr("DeepSeek 계정의 잔액입니다 (충전액과 지급액 포함).", "The DeepSeek account's balance (topped up and granted)."));
+                : new UsageBalance(Tr("잔액", "Balance"), string.Join(" · ", amounts), Tr("DeepSeek 계정의 잔액입니다 (충전액과 지급액 포함).", "DeepSeek account balance (including topped-up and granted balance)."));
         }
         catch (JsonException)
         {

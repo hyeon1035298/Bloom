@@ -424,8 +424,8 @@ internal sealed partial class Host
     /// The installed helper speaks another protocol (an update changed it): installing it again needs the admin.
     private async void OfferWinKeyReinstall()
     {
-        if (ConfirmWindow.Ask(null, Tr("Win 키 도우미 업데이트", "Update the Win-key helper"),
-                Tr("이 버전의 Bloom에 맞게 Win 키 도우미를 다시 설치해야 합니다. 설치 전까지 관리자 앱 위에서는 Win 키로 Bloom이 열리지 않습니다.", "This version of Bloom needs the Win-key helper installed again. Until then, Win does not open Bloom over admin apps."),
+        if (ConfirmWindow.Ask(null, Tr("Win 키 도우미 업데이트", "Update Win-Key Helper"),
+                Tr("이 버전의 Bloom에 맞게 Win 키 도우미를 다시 설치해야 합니다. 설치 전까지 관리자 앱 위에서는 Win 키로 Bloom이 열리지 않습니다.", "The Win-key helper needs to be reinstalled for this version of Bloom. Until then, pressing the Win key over administrator apps will not open Bloom."),
                 (Tr("다시 설치", "Reinstall"), MessageBoxResult.Yes), (Tr("나중에", "Later"), MessageBoxResult.No)) != MessageBoxResult.Yes) return;
         var r = await ElevatedWinKey.RunElevated("--install");
         if (r == ElevatedWinKey.Elevated.Done) ApplyHotkeys();
@@ -453,14 +453,14 @@ internal sealed partial class Host
         Settings.Save();
         ApplyHotkeys(); // the helper is told to stop before it is removed
         if (await ElevatedWinKey.RunElevated("--remove") != ElevatedWinKey.Elevated.Done)
-            ConfirmWindow.Tell(owner, WinKeyLeftTitle, Tr("관리자 승인을 받지 못해 도우미가 설치된 채로 남았습니다. 꺼진 동안에는 동작하지 않습니다. Windows 설정 › 앱에서 ‘Bloom Win-key helper’를 삭제할 수 있습니다.", "Without admin approval the helper stays installed. It does nothing while off. Remove ‘Bloom Win-key helper’ in Windows Settings › Apps."));
+            ConfirmWindow.Tell(owner, WinKeyLeftTitle, Tr("관리자 승인을 받지 못해 도우미가 설치된 상태로 남았습니다. 꺼진 동안에는 동작하지 않습니다. Windows 설정 › 앱에서 ‘Bloom Win-key helper’를 삭제할 수 있습니다.", "The helper remains installed because administrator approval was not granted. It will not run while turned off. You can uninstall ‘Bloom Win-key helper’ in Windows Settings › Apps."));
         return false;
     }
 
-    private static string WinKeyLeftTitle => Tr("Win 키 도우미 남음", "Win-key helper still installed");
+    private static string WinKeyLeftTitle => Tr("Win 키 도우미 유지됨", "Win-Key Helper Still Installed");
 
     private static void TellWinKeyInstallFailed(System.Windows.Window? owner) =>
-        ConfirmWindow.Tell(owner, Tr("Win 키 도우미 설치 실패", "Win-key helper install failed"), Tr("도우미를 설치하지 못했습니다. 다시 시도하세요.", "Could not install the helper. Try again."));
+        ConfirmWindow.Tell(owner, Tr("Win 키 도우미 설치 실패", "Win-Key Helper Installation Failed"), Tr("도우미를 설치하지 못했습니다. 다시 시도하세요.", "Could not install the helper. Please try again."));
 
     public void OpenView(Mode mode, string text = "")
     {
@@ -512,9 +512,9 @@ internal sealed partial class Host
     public void EndProcess(ProcGroup g, bool force)
     {
         var (ended, refused) = Processes.End(g, force);
-        string msg = refused > 0 && ended == 0 ? Tr($"‘{g.Name}’ 종료 실패 · 관리자 권한으로 실행 중이면 작업 관리자에서 종료하세요", $"Could not end ‘{g.Name}’. If it runs as administrator, close it in Task Manager.")
-            : refused > 0 ? Tr($"{ended}개 종료 · {refused}개 종료 실패", $"{ended} ended · {refused} could not be ended")
-            : force ? Tr($"‘{g.Name}’ 강제 종료 완료", $"Force-quit ‘{g.Name}’") : Tr($"‘{g.Name}’ 창 닫기 요청 완료", $"Close requested for ‘{g.Name}’");
+        string msg = refused > 0 && ended == 0 ? Tr($"‘{g.Name}’ 종료 실패 · 관리자 권한으로 실행 중이면 작업 관리자에서 종료하세요", $"Failed to close ‘{g.Name}’ · If it is running as administrator, end it from Task Manager")
+            : refused > 0 ? Tr($"{ended}개 종료 · {refused}개 종료 실패", $"{ended} closed · {refused} failed to close")
+            : force ? Tr($"‘{g.Name}’ 강제 종료 완료", $"Force closed ‘{g.Name}’") : Tr($"‘{g.Name}’ 창 닫기 요청 완료", $"Requested to close ‘{g.Name}’");
         Window.ShowToast(msg);
         _ = Task.Delay(400).ContinueWith(_ =>
         {

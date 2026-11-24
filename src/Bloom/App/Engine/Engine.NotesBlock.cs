@@ -14,7 +14,7 @@ internal sealed partial class Engine
     private Section NotesBlock(HomeWidget w)
     {
         var shown = Latest(Notes.Current.Items, Home.Count(w), out int all);
-        var s = new Section(Home.Name(w.Key), all > shown.Count ? Tr($"{all}개", $"{all} notes") : null);
+        var s = new Section(Home.Name(w.Key), all > shown.Count ? Tr($"{all}개", $"{all}") : null);
         foreach (var n in shown)
             s.Items.Add(NoteItem(n, n.Pinned ? Tr("고정", "Pinned") + " · " + Ui.ToolUi.Ago(n.UpdatedAt) : Ui.ToolUi.Ago(n.UpdatedAt)));
         s.Items.Add(new ResultItem

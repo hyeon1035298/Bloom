@@ -19,11 +19,11 @@ internal sealed partial class Engine
         yield return new ActionItem { Title = Tr("다른 폴더에 복사…", "Copy to another folder…"), Glyph = G.Copy, Run = () => host.MoveOrCopy(path, false) };
         yield return new ActionItem
         {
-            Title = Tr("휴지통으로 보내기", "Move to the Recycle Bin"),
+            Title = Tr("휴지통으로 보내기", "Move to Recycle Bin"),
             Glyph = G.Delete,
             Danger = true,
             StayOpen = true,
-            Run = () => host.Window.Confirm(Tr($"‘{name}’을 휴지통으로 옮깁니다.", $"Moves ‘{name}’ to the Recycle Bin."), new ActionItem
+            Run = () => host.Window.Confirm(Tr($"‘{name}’을 휴지통으로 옮깁니다.", $"Move '{name}' to the Recycle Bin."), new ActionItem
             {
                 Title = Tr("휴지통으로", "Move to bin"),
                 Keys = "Enter",
@@ -34,8 +34,8 @@ internal sealed partial class Engine
                 {
                     bool ok = host.Recycle(path);
                     host.Window.Refresh(false);
-                    host.Window.ShowToast(ok ? Tr($"‘{name}’ 휴지통 이동 완료 · 휴지통에서 복원 가능", $"Moved ‘{name}’ to the Recycle Bin — you can restore it from there")
-                        : Tr("휴지통 이동 실패 · 파일을 사용하는 앱을 닫고 권한을 확인한 뒤 다시 시도하세요", "Could not move to the Recycle Bin. Close apps using the file, check permissions and retry."));
+                    host.Window.ShowToast(ok ? Tr($"‘{name}’ 휴지통 이동 완료 · 휴지통에서 복원 가능", $"Moved '{name}' to Recycle Bin · Can be restored from Recycle Bin")
+                        : Tr("휴지통 이동 실패 · 파일을 사용하는 앱을 닫고 권한을 확인한 뒤 다시 시도하세요", "Failed to move to Recycle Bin · Close any app using the file, check permissions, and try again"));
                 },
             }),
         };
@@ -50,17 +50,17 @@ internal sealed partial class Engine
         f.Fields.Add(new FormField
         {
             Label = Tr("새 이름", "New name"),
-            Hint = folder ? Tr("새 폴더 이름", "The folder's new name") : Tr("새 파일 이름 — 확장자까지 적은 그대로 바뀝니다", "The file's new name — the extension changes as typed too"),
+            Hint = folder ? Tr("새 폴더 이름", "New folder name") : Tr("새 파일 이름 — 확장자까지 적은 그대로 바뀝니다", "New file name — Changes exactly as typed, including extension"),
             Value = name,
             Check = v =>
             {
                 string n = v.Trim();
                 if (n.Length == 0) return (null, Tr("이름을 입력하세요", "Enter a name"));
-                if (n.IndexOfAny(Path.GetInvalidFileNameChars()) >= 0) return (null, Tr("이름에 \\ / : * ? \" < > | 는 쓸 수 없습니다", "A name can't have \\ / : * ? \" < > |"));
-                if (n == name) return (null, Tr("현재 이름과 같습니다. 다른 이름을 입력하거나 Esc를 누르세요.", "Name unchanged. Enter another name or press Esc."));
+                if (n.IndexOfAny(Path.GetInvalidFileNameChars()) >= 0) return (null, Tr("이름에 \\ / : * ? \" < > | 는 쓸 수 없습니다", "Names cannot contain \\ / : * ? \" < > |"));
+                if (n == name) return (null, Tr("현재 이름과 같습니다. 다른 이름을 입력하거나 Esc를 누르세요.", "Same as the current name. Enter a different name or press Esc."));
                 string to = Path.Combine(dir, n);
                 if (!string.Equals(n, name, StringComparison.OrdinalIgnoreCase) && (File.Exists(to) || Directory.Exists(to)))
-                    return (null, Tr($"‘{n}’ 이름이 이미 있습니다. 다른 이름을 입력하세요.", $"‘{n}’ already exists. Enter another name."));
+                    return (null, Tr($"‘{n}’ 이름이 이미 있습니다. 다른 이름을 입력하세요.", $"'{n}' already exists. Enter a different name."));
                 return (n, null);
             },
         });
@@ -69,7 +69,7 @@ internal sealed partial class Engine
             string n = form[0];
             bool ok = ShellFiles.Rename(path, n, IntPtr.Zero);
             host.Window.Go(back, ok ? Path.GetFileNameWithoutExtension(n) : "");
-            host.Window.ShowToast(ok ? Tr($"‘{name}’ → ‘{n}’", $"‘{name}’ → ‘{n}’") : Tr("이름 변경 실패 · 파일을 사용하는 앱을 닫고 권한을 확인한 뒤 다시 시도하세요", "Could not rename the file. Close apps using it, check permissions and retry."));
+            host.Window.ShowToast(ok ? Tr($"‘{name}’ → ‘{n}’", $"‘{name}’ → ‘{n}’") : Tr("이름 변경 실패 · 파일을 사용하는 앱을 닫고 권한을 확인한 뒤 다시 시도하세요", "Rename failed · Close any app using the file, check permissions, and try again"));
         };
         return f;
     }

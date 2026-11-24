@@ -96,11 +96,11 @@ internal static class ClaudeLaunch
             /* asked about as it came */
         }
         string line = ToolText.Line(url);
-        string detail = Tr("주소", "Address") + ": " + ToolText.Visible(url)
-            + (prompt.Length > 0 ? "\n" + Tr("읽을 내용", "What to read") + ": " + ToolText.Visible(prompt) : "");
+        string detail = Tr("주소", "URL") + ": " + ToolText.Visible(url)
+            + (prompt.Length > 0 ? "\n" + Tr("읽을 내용", "Target to read") + ": " + ToolText.Visible(prompt) : "");
         return Host(url) is { } host
-            ? ask with { Says = Tr($"{host} 페이지 열기: {line}", $"Open a page on {host}: {line}"), Key = "WebFetch:" + host, Detail = detail }
-            : ask with { Says = Tr($"페이지 열기: {line}", $"Open a page: {line}"), Key = "WebFetch", Detail = detail, MustAsk = true };
+            ? ask with { Says = Tr($"{host} 페이지 열기: {line}", $"Open {host} page: {line}"), Key = "WebFetch:" + host, Detail = detail }
+            : ask with { Says = Tr($"페이지 열기: {line}", $"Open page: {line}"), Key = "WebFetch", Detail = detail, MustAsk = true };
     }
 
     /// The host a fetch goes to, as the card names it and 항상 허용 keeps it: in ASCII (an internationalized name in its

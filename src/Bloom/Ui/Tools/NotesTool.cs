@@ -35,7 +35,7 @@ internal sealed class NotesTool : ITool
         // the list: a search field, a new note, the notes
         listPage.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
         listPage.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
-        var (field, box) = ToolUi.Field(Tr("메모 찾기 · Enter로 새 메모", "Find a note · Enter for a new one"));
+        var (field, box) = ToolUi.Field(Tr("메모 찾기 · Enter로 새 메모", "Search notes · Press Enter for new note"));
         search = box;
         field.Margin = new Thickness(12, 10, 12, 4);
         listPage.Children.Add(field);
@@ -63,8 +63,8 @@ internal sealed class NotesTool : ITool
         view.Children.Add(listPage);
         view.Children.Add(page);
 
-        backButton = ToolUi.Button('', Tr("메모 목록", "All notes"), () => Open(null));
-        deleteButton = ToolUi.Button(G.Delete, Tr("이 메모 지우기 (휴지통으로)", "Delete this note (to the Recycle Bin)"), () =>
+        backButton = ToolUi.Button('', Tr("메모 목록", "Notes list"), () => Open(null));
+        deleteButton = ToolUi.Button(G.Delete, Tr("이 메모 지우기 (휴지통으로)", "Delete this note (to Recycle Bin)"), () =>
         {
             if (note is { } n) Notes.Delete(n);
             note = null;
@@ -122,7 +122,7 @@ internal sealed class NotesTool : ITool
             pane.Edited += Typed;
             page.Children.Insert(0, pane);
             modeSlot.Child = pane.ToggleButton;
-            saved.Text = Tr($"자동 저장 · {ToolUi.Ago(n.UpdatedAt)}", $"Saved as you type · {ToolUi.Ago(n.UpdatedAt)}");
+            saved.Text = Tr($"자동 저장 · {ToolUi.Ago(n.UpdatedAt)}", $"Auto-saved · {ToolUi.Ago(n.UpdatedAt)}");
         }
         FocusFirst();
     }
@@ -156,7 +156,7 @@ internal sealed class NotesTool : ITool
         var notes = (q.Length == 0 ? Notes.Ordered : Matching(q)).ToList();
         if (notes.Count == 0)
         {
-            list.Children.Add(ToolUi.Empty(q.Length == 0 ? Tr("저장된 메모 없음 · 위에 입력하고 Enter로 저장하세요", "No saved notes. Type above and press Enter.") : Tr("검색된 메모 없음 · Enter로 새 메모 저장", "No note matches · Enter saves a new note")));
+            list.Children.Add(ToolUi.Empty(q.Length == 0 ? Tr("저장된 메모 없음 · 위에 입력하고 Enter로 저장하세요", "No saved notes · Type above and press Enter to save") : Tr("검색된 메모 없음 · Enter로 새 메모 저장", "No matching notes · Press Enter to save as new note")));
             return;
         }
         foreach (var n in notes)
@@ -172,8 +172,8 @@ internal sealed class NotesTool : ITool
             text.Children.Add(sub);
             g.Children.Add(text);
             var buttons = new StackPanel { Orientation = Orientation.Horizontal, VerticalAlignment = VerticalAlignment.Center };
-            var pin = ToolUi.Button(n.Pinned ? '' : '', n.Pinned ? Tr("고정 풀기", "Unpin") : Tr("맨 위에 고정", "Pin to the top"), () => Notes.SetPinned(n, !n.Pinned), n.Pinned ? Theme.P.Accent : null);
-            var delete = ToolUi.Button(G.Delete, Tr("지우기 (휴지통으로)", "Delete (to the Recycle Bin)"), () => Notes.Delete(n));
+            var pin = ToolUi.Button(n.Pinned ? '' : '', n.Pinned ? Tr("고정 풀기", "Unpin") : Tr("맨 위에 고정", "Pin to top"), () => Notes.SetPinned(n, !n.Pinned), n.Pinned ? Theme.P.Accent : null);
+            var delete = ToolUi.Button(G.Delete, Tr("지우기 (휴지통으로)", "Delete (to Recycle Bin)"), () => Notes.Delete(n));
             // a pinned note shows its pin; the rest of the buttons come under the mouse
             delete.Visibility = Visibility.Hidden;
             if (!n.Pinned) pin.Visibility = Visibility.Hidden;

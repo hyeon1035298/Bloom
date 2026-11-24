@@ -12,10 +12,10 @@ namespace Bloom.Ai;
 internal static partial class T3Threads
 {
     /// What Bloom says when it sends nothing to an Antigravity thread.
-    public static string ViewOnlyNote => Tr("Antigravity 스레드는 보기만 돼요. T3에서 직접 입력하세요", "Antigravity threads are view-only here. Type in T3.");
+    public static string ViewOnlyNote => Tr("Antigravity 스레드는 읽기 전용입니다. T3에서 직접 입력하세요", "Antigravity threads are view-only. Please type directly in T3");
 
     /// What it says when T3's state can't tell what a thread runs on (so nothing went to it).
-    public static string UncheckedNote => Tr("T3 스레드가 어떤 모델인지 확인하지 못해 보내지 않았어요", "Couldn't tell what the T3 thread runs on, so nothing was sent.");
+    public static string UncheckedNote => Tr("T3 스레드의 모델을 확인하지 못해 보내지 못했습니다", "Could not identify the T3 thread's model, so the message was not sent");
 
     /// A T3 driver of Antigravity; where Bloom knows no driver, a provider instance id (T3's default one is "antigravity").
     internal static bool Antigravity(string? driver) => driver?.Contains("antigravity", StringComparison.OrdinalIgnoreCase) == true;

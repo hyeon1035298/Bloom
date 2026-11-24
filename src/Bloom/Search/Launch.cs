@@ -92,7 +92,7 @@ internal static class Launch
     public static bool Copy(string text) => Put(text, "clipboard");
 
     /// The toast after a copy: `done`, or that the clipboard couldn't be had.
-    public static string Copied(bool ok, string done) => ok ? done : Tr("클립보드에 복사하지 못했습니다. 다시 시도하세요.", "Could not copy to the clipboard. Try again.");
+    public static string Copied(bool ok, string done) => ok ? done : Tr("클립보드에 복사하지 못했습니다. 다시 시도하세요.", "Could not copy to clipboard. Please try again.");
 
     /// What puts data on the clipboard (to stay after Bloom quits); a test puts in one that fails.
     internal static Action<object> SetClipboard { get; set; } = data => Clipboard.SetDataObject(data, true);

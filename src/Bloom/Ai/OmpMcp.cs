@@ -118,8 +118,8 @@ internal static class OmpMcp
     /// The status line while one of these tools runs; null for tools that aren't MCP.
     public static string? Doing(string tool) =>
         !tool.StartsWith("mcp__", StringComparison.Ordinal) ? null
-        : tool == ToolName("bloom", App.Mcp.BloomTools.Name) ? Tr("PC에서 작업하는 중…", "Working on the PC…")
-        : Tr("도구 쓰는 중…", "Using a tool…");
+        : tool == ToolName("bloom", App.Mcp.BloomTools.Name) ? Tr("PC에서 작업하는 중…", "Working on PC…")
+        : Tr("도구 쓰는 중…", "Using tools…");
 
     /// What the chat's instructions say about these tools: the PC tool's hint (BloomTools.Hint names it as Claude sees it; omp
     /// joins the server and tool with one "_").

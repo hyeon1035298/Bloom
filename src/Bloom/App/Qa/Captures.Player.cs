@@ -216,7 +216,7 @@ internal static partial class Captures
             Theme.Apply(theme);
             var sw = new SettingsWindow(host) { WindowStartupLocation = System.Windows.WindowStartupLocation.Manual, Left = -32000, Top = -32000, ShowActivated = false };
             sw.Show();
-            sw.Filter(Tr("미니 플레이어", "Mini player"));
+            sw.Filter(Tr("미니 플레이어", "Mini Player"));
             await Task.Delay(400);
             await sw.Dispatcher.InvokeAsync(() => sw.Capture(Path.Combine(dir, $"{theme}-p5-settings.png")), System.Windows.Threading.DispatcherPriority.ApplicationIdle);
             sw.Close();

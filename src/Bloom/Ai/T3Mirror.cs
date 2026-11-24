@@ -84,7 +84,7 @@ internal sealed class T3Mirror
             {
                 // the older ones fold: "도구 3개 더" and the last ones as they were
                 int folded = tools - (MaxToolLines - 1);
-                answer.Done = new List<string> { "ℹ " + Tr($"도구 {folded}개 더 씀", $"{folded} more tool calls") }.Concat(lines.Skip(lines.Count - (MaxToolLines - 1))).ToList();
+                answer.Done = new List<string> { "ℹ " + Tr($"도구 {folded}개 더 사용", $"{folded} more tool(s) used") }.Concat(lines.Skip(lines.Count - (MaxToolLines - 1))).ToList();
             }
         }
         if (!running) return list;

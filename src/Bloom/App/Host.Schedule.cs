@@ -85,7 +85,7 @@ internal sealed partial class Host
         var (text, error, model) = await AiCommandRun.RunAsync(c, "", UserCommands.Current.Items, null, scheduleStop.Token);
         if (scheduleStop.IsCancellationRequested) return;
         bool ok = text is not null;
-        string answer = text ?? error ?? Tr("응답 없음 · 다시 시도하세요", "No response. Try again.");
+        string answer = text ?? error ?? Tr("응답 없음 · 다시 시도하세요", "No response · Please try again");
         string asked = $"{c.Name} · {AiSchedule.Name(c.Every!)}\n\n" + string.Join("\n→ ", AiCommandRun.Split(c.Body));
         var thread = Chats.Record(c.Thread, c.Name, model, asked, answer, !ok);
         // the command may have been changed or deleted while it ran: the chat goes to the one that is there now
@@ -100,7 +100,7 @@ internal sealed partial class Host
     /// The end of an AI command run the user wasn't watching: 알림 센터 and a card; both open the chat.
     private void AiCommandDone(bool ok, string name, string answer, string? thread)
     {
-        string head = ok ? Tr("AI 명령 · 완료", "AI command · Done") : Tr("AI 명령 · 실패", "AI command · Failed");
+        string head = ok ? Tr("AI 명령 · 완료", "AI Command · Completed") : Tr("AI 명령 · 실패", "AI Command · Failed");
         Action? open = thread is null ? null : () => OpenThread(thread);
         Notices.Result(ok, head, name, NoticeLog.Preview(answer), open is null ? null : Tr("채팅 열기", "Open chat"), open, open, keep: true, thread: thread);
     }
@@ -109,7 +109,7 @@ internal sealed partial class Host
     public void OpenThread(string id)
     {
         if (Chats.Threads.Find(t => t.Id == id) is { } t) OpenChatWindow(t);
-        else Window.ShowToast(Tr("대화가 삭제되었습니다", "The chat was deleted"));
+        else Window.ShowToast(Tr("대화가 삭제되었습니다", "Chat has been deleted"));
     }
 
     private void StopSchedule()

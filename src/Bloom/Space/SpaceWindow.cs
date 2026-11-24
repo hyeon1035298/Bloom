@@ -69,10 +69,10 @@ internal sealed class SpaceWindow : Window
         top.Children.Add(crumbScroll);
         var right = new StackPanel { Orientation = Orientation.Horizontal, VerticalAlignment = VerticalAlignment.Center };
         right.Children.Add(drives);
-        var pick = TextButton(Tr("폴더 고르기…", "Pick a folder…"), PickFolder);
+        var pick = TextButton(Tr("폴더 고르기…", "Select Folder…"), PickFolder);
         pick.Margin = new Thickness(10, 0, 0, 0);
         right.Children.Add(pick);
-        var again = Button(G.Refresh, Tr("다시 읽기 (F5)", "Scan again (F5)"), Rescan);
+        var again = Button(G.Refresh, Tr("다시 읽기 (F5)", "Rescan (F5)"), Rescan);
         again.Margin = new Thickness(6, 0, 0, 0);
         right.Children.Add(again);
         Grid.SetColumn(right, 2);
@@ -89,7 +89,7 @@ internal sealed class SpaceWindow : Window
         var side = new Grid();
         side.RowDefinitions.Add(new RowDefinition { Height = new GridLength(38) });
         side.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
-        bigTitle = Theme.T(Tr("큰 파일", "Big files"), 11.5, Theme.P.TextFaint, Theme.Semi);
+        bigTitle = Theme.T(Tr("큰 파일", "Large Files"), 11.5, Theme.P.TextFaint, Theme.Semi);
         bigTitle.Margin = new Thickness(16, 0, 12, 0);
         side.Children.Add(bigTitle);
         var bigScroll = new ScrollViewer { Content = bigList, VerticalScrollBarVisibility = ScrollBarVisibility.Auto, HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled, Template = Launcher.ThinScroll(), Focusable = false };
@@ -183,8 +183,8 @@ internal sealed class SpaceWindow : Window
         long size = Volatile.Read(ref scan.Root.Size);
         string status = running ? Tr("읽는 중", "Scanning") : Tr("읽기 완료", "Scan complete");
         scanText.Text = scan.DeniedFolders > 0
-            ? Tr($"{status} · {TreemapView.Size(size)} · 폴더 {scan.Folders:#,0}개 · {secs:0.0}초 · 읽기 실패 폴더 {scan.DeniedFolders:#,0}개", $"{status} · {TreemapView.Size(size)} · {scan.Folders:#,0} folders · {secs:0.0} s · {scan.DeniedFolders:#,0} folders unreadable")
-            : Tr($"{status} · {TreemapView.Size(size)} · 폴더 {scan.Folders:#,0}개 · {secs:0.0}초", $"{status} · {TreemapView.Size(size)} · {scan.Folders:#,0} folders · {secs:0.0} s");
+            ? Tr($"{status} · {TreemapView.Size(size)} · 폴더 {scan.Folders:#,0}개 · {secs:0.0}초 · 읽기 실패 폴더 {scan.DeniedFolders:#,0}개", $"{status} · {TreemapView.Size(size)} · {scan.Folders:#,0} folders · {secs:0.0}s · {scan.DeniedFolders:#,0} unreadable folders")
+            : Tr($"{status} · {TreemapView.Size(size)} · 폴더 {scan.Folders:#,0}개 · {secs:0.0}초", $"{status} · {TreemapView.Size(size)} · {scan.Folders:#,0} folders · {secs:0.0}s");
         map.Redraw();
         if (DateTime.UtcNow - bigAt > TimeSpan.FromSeconds(running ? 2 : 0) || !running) Big();
         if (!running) tick.Stop();
@@ -248,7 +248,7 @@ internal sealed class SpaceWindow : Window
                 CornerRadius = new CornerRadius(7),
                 Background = on ? Theme.P.Selected : Theme.P.Tile,
                 Cursor = Cursors.Hand,
-                ToolTip = Tr($"{d.Name}  {(string.IsNullOrEmpty(d.VolumeLabel) ? "" : d.VolumeLabel + "  ")}남은 공간 {TreemapView.Size(d.AvailableFreeSpace)} / {TreemapView.Size(d.TotalSize)}", $"{d.Name}  {(string.IsNullOrEmpty(d.VolumeLabel) ? "" : d.VolumeLabel + "  ")}free {TreemapView.Size(d.AvailableFreeSpace)} / {TreemapView.Size(d.TotalSize)}"),
+                ToolTip = Tr($"{d.Name}  {(string.IsNullOrEmpty(d.VolumeLabel) ? "" : d.VolumeLabel + "  ")}남은 공간 {TreemapView.Size(d.AvailableFreeSpace)} / {TreemapView.Size(d.TotalSize)}", $"{d.Name}  {(string.IsNullOrEmpty(d.VolumeLabel) ? "" : d.VolumeLabel + "  ")}Free {TreemapView.Size(d.AvailableFreeSpace)} / {TreemapView.Size(d.TotalSize)}"),
             };
             string name = d.Name;
             chip.MouseLeftButtonUp += (_, _) => Scan(name);
@@ -258,7 +258,7 @@ internal sealed class SpaceWindow : Window
 
     private void PickFolder()
     {
-        var dlg = new Microsoft.Win32.OpenFolderDialog { Title = Tr("크기를 볼 폴더", "A folder to see the size of"), InitialDirectory = current?.Path };
+        var dlg = new Microsoft.Win32.OpenFolderDialog { Title = Tr("크기를 볼 폴더", "Select Folder to Analyze Size"), InitialDirectory = current?.Path };
         if (dlg.ShowDialog(this) == true) Scan(dlg.FolderName);
     }
 
@@ -277,7 +277,7 @@ internal sealed class SpaceWindow : Window
         var top = await System.Threading.Tasks.Task.Run(() => at.Largest(40, 400_000));
         if (run != bigRun || current != at) return; // a newer one is on its way
         bigList.Children.Clear();
-        bigTitle.Text = Tr($"큰 파일 · {at.Name.TrimEnd('\\')} 안에서", $"Big files · in {at.Name.TrimEnd('\\')}");
+        bigTitle.Text = Tr($"큰 파일 · {at.Name.TrimEnd('\\')} 안에서", $"Large Files · in {at.Name.TrimEnd('\\')}");
         foreach (var f in top) bigList.Children.Add(BigRow(f));
     }
 
@@ -315,11 +315,11 @@ internal sealed class SpaceWindow : Window
     private void OpenMenu(SpaceNode n)
     {
         var items = new List<(string label, char glyph, bool danger, Action run)>();
-        if (n is SpaceDir nd) items.Add((Tr("이 폴더로 들어가기", "Go into this folder"), '\uE8A7', false, () => Show(nd)));
-        items.Add((n.IsDir ? Tr("폴더 열기", "Open folder") : Tr("열기", "Open"), G.NewWindow, false, () => Launch.Open(n.Path)));
+        if (n is SpaceDir nd) items.Add((Tr("이 폴더로 들어가기", "Open This Folder"), '\uE8A7', false, () => Show(nd)));
+        items.Add((n.IsDir ? Tr("폴더 열기", "Open Folder") : Tr("열기", "Open"), G.NewWindow, false, () => Launch.Open(n.Path)));
         items.Add((Tr("탐색기에서 보기", "Show in Explorer"), G.Folder, false, () => Launch.Reveal(n.Path)));
         items.Add((Tr("경로 복사", "Copy path"), G.Copy, false, () => Launch.Copy(n.Path)));
-        if (Deletable(n.Path)) items.Add((Tr("휴지통으로 보내기…", "Move to the recycle bin…"), G.Delete, true, () => AskDelete(n)));
+        if (Deletable(n.Path)) items.Add((Tr("휴지통으로 보내기…", "Move to Recycle Bin…"), G.Delete, true, () => AskDelete(n)));
         var panel = new StackPanel { Margin = new Thickness(4) };
         var head = Theme.T(n.Name + "  ·  " + TreemapView.Size(Volatile.Read(ref n.Size)), 11.5, Theme.P.TextFaint, Theme.Semi);
         head.Margin = new Thickness(10, 6, 10, 6);
@@ -373,8 +373,8 @@ internal sealed class SpaceWindow : Window
     private void AskDelete(SpaceNode n)
     {
         long size = Volatile.Read(ref n.Size);
-        string what = n.IsDir ? Tr($"‘{n.Name}’ 폴더 (파일 {n.FileCount:#,0}개, {TreemapView.Size(size)})", $"The folder ‘{n.Name}’ ({n.FileCount:#,0} files, {TreemapView.Size(size)})") : $"‘{n.Name}’ ({TreemapView.Size(size)})";
-        Ask(Tr($"{what} — 휴지통 이동", $"{what} — move to the Recycle Bin"), Tr("휴지통에서 복원할 수 있습니다. 크기가 너무 커서 휴지통에 넣을 수 없으면 Windows 확인 창이 표시됩니다.", "Items can be restored from the Recycle Bin. Windows shows another confirmation if they are too large for it."), Tr("휴지통으로", "Move to bin"), () => Delete(n, size));
+        string what = n.IsDir ? Tr($"‘{n.Name}’ 폴더 (파일 {n.FileCount:#,0}개, {TreemapView.Size(size)})", $"Folder ‘{n.Name}’ ({n.FileCount:#,0} files, {TreemapView.Size(size)})") : $"‘{n.Name}’ ({TreemapView.Size(size)})";
+        Ask(Tr($"{what} — 휴지통 이동", $"{what} — Move to Recycle Bin"), Tr("휴지통에서 복원할 수 있습니다. 크기가 너무 커서 휴지통에 넣을 수 없으면 Windows 확인 창이 표시됩니다.", "You can restore it from the Recycle Bin. If it is too large for the Recycle Bin, Windows will show a confirmation dialog."), Tr("휴지통으로", "Move to bin"), () => Delete(n, size));
     }
 
     /// A question over the window (Enter = yes, Esc = no), in the window's own look.
@@ -424,7 +424,7 @@ internal sealed class SpaceWindow : Window
     {
         if (!Recycle(n.Path))
         {
-            hoverText.Text = Tr("휴지통 이동 실패 · 파일을 사용하는 앱을 닫고 권한을 확인한 뒤 다시 시도하세요", "Could not move to the Recycle Bin. Close apps using the file, check permissions and retry.");
+            hoverText.Text = Tr("휴지통 이동 실패 · 파일을 사용하는 앱을 닫고 권한을 확인한 뒤 다시 시도하세요", "Failed to move to Recycle Bin · Close any app using the file, check permissions, and try again");
             return;
         }
         // the map forgets it at once
@@ -436,7 +436,7 @@ internal sealed class SpaceWindow : Window
             map.Redraw();
             Big();
         }
-        hoverText.Text = Tr($"휴지통 이동 완료: {n.Path}", $"Moved to the recycle bin: {n.Path}");
+        hoverText.Text = Tr($"휴지통 이동 완료: {n.Path}", $"Moved to Recycle Bin: {n.Path}");
         Drives();
     }
 

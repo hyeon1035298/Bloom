@@ -27,7 +27,7 @@ internal sealed partial class SettingsView
         {
             long done = fetch.Done, total = fetch.Total;
             if (total < 0 && done == 0)
-                Add(Tr($"{name} 새 버전 확인 중", $"Looking for a new {name}"), Tr("GitHub 릴리스", "GitHub release"), null, G.Download, null, null, filter);
+                Add(Tr($"{name} 새 버전 확인 중", $"Checking for {name} updates"), Tr("GitHub 릴리스", "GitHub Releases"), null, G.Download, null, null, filter);
             else
                 Add(Tr($"{name} 받는 중", $"Downloading {name}"), total > 0 ? $"{fetch.Percent}% · {Engine.Size(done)} / {Engine.Size(total)}" : Engine.Size(done),
                     null, G.Download, null, null, filter);
@@ -39,19 +39,19 @@ internal sealed partial class SettingsView
         // look while the version here is the latest is said nowhere: it is tried again tomorrow
         bool here = addon.Manifest is not null || addon.Broken;
         if (fetch.Failed is { } why && (offer is not null || addon.Manifest is null))
-            Add(Tr($"{name} 받기 실패", $"Couldn't download {name}"), FailureText(why), here ? null : RowButton(Tr("다시 받기", "Try again"), Get), G.Warning,
+            Add(Tr($"{name} 받기 실패", $"Failed to download {name}"), FailureText(why), here ? null : RowButton(Tr("다시 받기", "Retry Download"), Get), G.Warning,
                 here ? null : Get, null, filter);
         else if (!here && offer is { } first)
-            Add(Tr($"{name} {first.Version} 받기", $"Download {name} {first.Version}"), Tr("GitHub 릴리스에서 받아 Bloom이 확인한 뒤 설치합니다", "From its GitHub release, checked by Bloom before it is installed"),
+            Add(Tr($"{name} {first.Version} 받기", $"Download {name} {first.Version}"), Tr("GitHub 릴리스에서 받아 Bloom이 확인한 뒤 설치합니다", "Downloaded from GitHub Releases, verified by Bloom, and installed"),
                 RowButton($"{get} · {Engine.Size(first.Size)}", Get), G.Download, Get, null, filter);
         else if (!here)
-            Add(Tr($"{name} 받기", $"Download {name}"), Tr("GitHub 릴리스에서 받아 Bloom이 확인한 뒤 설치합니다", "From its GitHub release, checked by Bloom before it is installed"),
+            Add(Tr($"{name} 받기", $"Download {name}"), Tr("GitHub 릴리스에서 받아 Bloom이 확인한 뒤 설치합니다", "Downloaded from GitHub Releases, verified by Bloom, and installed"),
                 RowButton(get, Get), G.Download, Get, null, filter);
         if (addon.Manifest is { } m && status.State is AddonState.SafeMode or AddonState.Stopped or AddonState.Broken or AddonState.PortCrashed)
         {
             void Report() => Launch.Open(IssueUrl(catalog, m.Version, status.State));
-            Add(Tr("GitHub에 문제 알리기", "Report it on GitHub"), Tr("이 애드온 저장소에 이슈를 엽니다 · 버전과 상태가 미리 채워집니다", "Opens an issue in this add-on's repository, with its version and status filled in"),
-                RowButton(Tr("이슈 열기", "Open an issue"), Report), G.Chat, Report, null, filter);
+            Add(Tr("GitHub에 문제 알리기", "Report an Issue on GitHub"), Tr("이 애드온 저장소에 이슈를 엽니다 · 버전과 상태가 미리 채워집니다", "Opens an issue in this add-on's repository · Version and status are pre-filled"),
+                RowButton(Tr("이슈 열기", "Open Issue"), Report), G.Chat, Report, null, filter);
         }
     }
 
@@ -66,10 +66,10 @@ internal sealed partial class SettingsView
 
     private static string FailureText(AddonFailure why) => why switch
     {
-        AddonFailure.Network => Tr("인터넷 연결을 확인하고 다시 받으세요", "Check your connection and try again"),
-        AddonFailure.Missing => Tr("아직 받을 수 있는 릴리스가 없습니다", "There is no release to download yet"),
-        AddonFailure.Hash => Tr("받은 파일이 릴리스가 알린 파일과 달라 설치하지 않았습니다", "The downloaded file isn't the one its release names, so it wasn't installed"),
-        AddonFailure.Content => Tr("받은 파일 안의 내용이 올바르지 않아 설치하지 않았습니다", "What the download holds isn't valid, so it wasn't installed"),
-        _ => Tr("받은 파일을 저장하지 못했습니다 · 디스크 공간을 확인하세요", "Couldn't save the download · check the free disk space"),
+        AddonFailure.Network => Tr("인터넷 연결을 확인하고 다시 받으세요", "Check your internet connection and try downloading again"),
+        AddonFailure.Missing => Tr("아직 받을 수 있는 릴리스가 없습니다", "No release is available for download yet"),
+        AddonFailure.Hash => Tr("받은 파일이 릴리스가 알린 파일과 달라 설치하지 않았습니다", "The downloaded file did not match the release checksum and was not installed"),
+        AddonFailure.Content => Tr("받은 파일 안의 내용이 올바르지 않아 설치하지 않았습니다", "The downloaded archive contents were invalid and were not installed"),
+        _ => Tr("받은 파일을 저장하지 못했습니다 · 디스크 공간을 확인하세요", "Could not save the downloaded file · Check your disk space"),
     };
 }

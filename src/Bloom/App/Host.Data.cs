@@ -88,7 +88,7 @@ internal sealed partial class Host
         if (!StartSuccessor("--restart-from"))
         {
             Settings.KeepCurrent();
-            Tell(owner, Tr("설정 기본값으로", "Default settings"), Tr("Bloom을 다시 시작하지 못해 설정을 그대로 두었습니다. Bloom을 다시 열고 시도하세요.", "Could not restart Bloom, so the settings stay as they were. Reopen Bloom and try again."));
+            Tell(owner, Tr("설정 기본값으로", "Reset Settings to Default"), Tr("Bloom을 다시 시작하지 못해 설정을 그대로 두었습니다. Bloom을 다시 열고 시도하세요.", "Could not restart Bloom, so your settings were left unchanged. Reopen Bloom and try again."));
             return;
         }
         Log.Write("settings: back to the defaults, restarting");
@@ -103,7 +103,7 @@ internal sealed partial class Host
         int added = AiAccounts.All.Count(a => !a.IsDefault);
         if (added > 0)
         {
-            Notices.Result(true, head, Tr($"추가한 AI 계정 {added}개에서 로그아웃하는 중", $"Signing out of {added} added AI accounts"), null);
+            Notices.Result(true, head, Tr($"추가한 AI 계정 {added}개에서 로그아웃하는 중", $"Signing out of {added} added AI account(s)"), null);
             await SignOutAdded(TimeSpan.FromSeconds(45));
         }
         ClaudeHooks.Remove();

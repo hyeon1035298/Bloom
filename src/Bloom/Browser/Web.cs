@@ -83,10 +83,10 @@ internal static class Web
         }
     }
 
-    public static string BrowserName => Picked?.Name ?? Tr("기본 브라우저", "Default browser");
+    public static string BrowserName => Picked?.Name ?? Tr("기본 브라우저", "Default Browser");
 
     /// The choices for the settings and the first-run screens: the Windows default first, then what is installed.
-    public static (string value, string label)[] Choices => new[] { ("default", Tr("Windows 기본 브라우저", "Windows' default browser")) }.Concat(Installed.Select(b => (b.Key, b.Name))).ToArray();
+    public static (string value, string label)[] Choices => new[] { ("default", Tr("Windows 기본 브라우저", "Windows Default Browser")) }.Concat(Installed.Select(b => (b.Key, b.Name))).ToArray();
 
     public static void Search(string text)
     {
@@ -112,7 +112,7 @@ internal static class Web
         if (Address(url) is not { } address)
         {
             Log.Write($"web: refused a link ({(Uri.TryCreate(url.Trim(), UriKind.Absolute, out var u) ? u.Scheme + ":" : "no scheme")})");
-            System.Windows.Application.Current?.Dispatcher.BeginInvoke(() => Notices.Result(false, Tr("Bloom · 링크", "Bloom · Link"), Tr("링크 열지 않음", "Link not opened"), Tr("http·https 주소만 열 수 있습니다", "Only http and https addresses open")));
+            System.Windows.Application.Current?.Dispatcher.BeginInvoke(() => Notices.Result(false, Tr("Bloom · 링크", "Bloom · Link"), Tr("링크 열지 않음", "Link blocked"), Tr("http·https 주소만 열 수 있습니다", "Only http and https URLs can be opened")));
             return;
         }
         Win32.AllowSetForegroundWindow(-1);

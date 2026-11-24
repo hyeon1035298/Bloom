@@ -185,7 +185,7 @@ internal static class AddonPreviews
             Margin = new Thickness(14, 0, 0, 0),
         };
         var line = new DockPanel { LastChildFill = false };
-        var note = Caption(row.Children.Count == 0 ? Tr("보일 것을 아래에서 고르세요", "Pick what it shows below") : Tr("고른 것만 보입니다", "Only what is picked shows"));
+        var note = Caption(row.Children.Count == 0 ? Tr("보일 것을 아래에서 고르세요", "Choose what to show below") : Tr("고른 것만 보입니다", "Only selected items are shown"));
         DockPanel.SetDock(note, Dock.Right);
         line.Children.Add(note);
         line.Children.Add(Caption(Tr("아일랜드", "Island")));
@@ -207,7 +207,7 @@ internal static class AddonPreviews
         var mouse = Theme.Glyph('\uE962', 12, Theme.P.TextDim);
         mouse.Margin = new Thickness(0, 0, 6, 0);
         wheel.Children.Add(mouse);
-        wheel.Children.Add(Caption(Tr($"휠을 돌리면 {v.Int("taskbar.wheelStep")}%씩", $"The wheel: {v.Int("taskbar.wheelStep")}% a notch"), Theme.P.TextDim));
+        wheel.Children.Add(Caption(Tr($"휠을 돌리면 {v.Int("taskbar.wheelStep")}%씩", $"Scroll wheel by {v.Int("taskbar.wheelStep")}%"), Theme.P.TextDim));
         lines.Children.Add(wheel);
         var (mods, vk) = v.Key("keys.up");
         string combo = Hotkeys.Combo(mods, vk);
@@ -220,7 +220,7 @@ internal static class AddonPreviews
                 if (keys.Children.Count == 0) cap.Margin = new Thickness(0);
                 keys.Children.Add(cap);
             }
-            var by = Caption(Tr($"누르면 {v.Int("keys.step")}%씩", $"{v.Int("keys.step")}% a press"), Theme.P.TextDim);
+            var by = Caption(Tr($"누르면 {v.Int("keys.step")}%씩", $"Click by {v.Int("keys.step")}%"), Theme.P.TextDim);
             by.Margin = new Thickness(8, 0, 0, 0);
             keys.Children.Add(by);
             lines.Children.Add(keys);
@@ -244,12 +244,12 @@ internal static class AddonPreviews
                 .Text(caption, x + 32, 60, 11, false, 0.7, width: 100);
         }
         void Arrow(double from, double to) => p.Stroke(Invariant($"M {from},28 H {to} M {to - 6},23 L {to},28 {to - 6},33"), 1.3, 0.35);
-        Monitor(10, 0.55, "100", false, Tr("쓰는 동안", "In use"));
+        Monitor(10, 0.55, "100", false, Tr("쓰는 동안", "While in use"));
         Arrow(88, 232);
-        p.Acc(118, 17, 84, 22, 6).Text(Tr($"{minutes}분 그대로", $"{minutes} min idle"), 160, 28, 11, paint: "accentInk", width: 84);
-        Monitor(246, 0.1, level.ToString(CultureInfo.CurrentCulture), true, Tr("어둡게", "Dimmed"));
+        p.Acc(118, 17, 84, 22, 6).Text(Tr($"{minutes}분 그대로", $"Idle for {minutes} min"), 160, 28, 11, paint: "accentInk", width: 84);
+        Monitor(246, 0.1, level.ToString(CultureInfo.CurrentCulture), true, Tr("어둡게", "Dim"));
         Arrow(324, 430);
-        p.Text(Tr("마우스·키보드", "Mouse or keys"), 377, 18, 11, false, 0.7, width: 110);
+        p.Text(Tr("마우스·키보드", "Mouse · Keyboard"), 377, 18, 11, false, 0.7, width: 110);
         Monitor(444, 0.55, "100", false, Tr("원래대로", "Back"));
         return Stage(Fit(p), indent: true);
     }
@@ -270,22 +270,22 @@ internal static class AddonPreviews
                 .Text(caption, x + 11, 50, 11, false, 0.75, width: 80);
         }
         void Arrow(double x) => p.Stroke(Invariant($"M {x},21 H {x + 18} M {x + 13},16 L {x + 18},21 {x + 13},26"), 1.3, 0.4);
-        Mouse(60, true, Tr("왼쪽 클릭", "Left click"));
+        Mouse(60, true, Tr("왼쪽 클릭", "Left-click"));
         Arrow(98);
-        p.Box(124, 6, 108, 30, 7, 0.06).Outline(124, 6, 108, 30, 7, 1, 0.18).Text(Tr("30분 · 1시간 …", "30 min · 1 h …"), 178, 21, 11, false, width: 104)
-            .Text(Tr("그때그때 고르기", "Pick each time"), 178, 50, 11, false, 0.75, width: 110);
-        Mouse(256, false, Tr("오른쪽 클릭", "Right click"));
+        p.Box(124, 6, 108, 30, 7, 0.06).Outline(124, 6, 108, 30, 7, 1, 0.18).Text(Tr("30분 · 1시간 …", "30 min · 1 hr …"), 178, 21, 11, false, width: 104)
+            .Text(Tr("그때그때 고르기", "Choose each time"), 178, 50, 11, false, 0.75, width: 110);
+        Mouse(256, false, Tr("오른쪽 클릭", "Right-click"));
         Arrow(294);
         string set = v.Text("awake.duration") switch
         {
-            "m30" => Tr("바로 30분 켜기", "On for 30 min"),
-            "h1" => Tr("바로 1시간 켜기", "On for 1 hour"),
-            "h2" => Tr("바로 2시간 켜기", "On for 2 hours"),
-            "custom" => Tr($"바로 {Minutes(v.Int("awake.minutes"))} 켜기", $"On for {Minutes(v.Int("awake.minutes"))}"),
-            _ => Tr("끌 때까지 켜기", "On until turned off"),
+            "m30" => Tr("바로 30분 켜기", "Turn on for 30 min"),
+            "h1" => Tr("바로 1시간 켜기", "Turn on for 1 hr"),
+            "h2" => Tr("바로 2시간 켜기", "Turn on for 2 hr"),
+            "custom" => Tr($"바로 {Minutes(v.Int("awake.minutes"))} 켜기", $"Turn on for {Minutes(v.Int("awake.minutes"))}"),
+            _ => Tr("끌 때까지 켜기", "Turn on until turned off"),
         };
         p.Acc(320, 6, 120, 30, 7).Text(set, 380, 21, 11, paint: "accentInk", width: 116)
-            .Text(Tr("아래에서 정한 시간", "The time set below"), 380, 50, 11, false, 0.75, width: 120);
+            .Text(Tr("아래에서 정한 시간", "Duration set below"), 380, 50, 11, false, 0.75, width: 120);
         var row = new StackPanel { Orientation = Orientation.Horizontal };
         var how = Caption(Tr("쓰는 법", "How to use"));
         how.Margin = new Thickness(0, 0, 14, 0);
@@ -295,8 +295,8 @@ internal static class AddonPreviews
     }
 
     /// 45 → "45분", 120 → "2시간", 90 → "1시간 30분".
-    internal static string Minutes(int m) => m % 60 == 0 && m >= 60 ? Tr($"{m / 60}시간", $"{m / 60} h")
-        : m > 60 ? Tr($"{m / 60}시간 {m % 60}분", $"{m / 60} h {m % 60} min") : Tr($"{m}분", $"{m} min");
+    internal static string Minutes(int m) => m % 60 == 0 && m >= 60 ? Tr($"{m / 60}시간", $"{m / 60}h")
+        : m > 60 ? Tr($"{m / 60}시간 {m % 60}분", $"{m / 60} hr {m % 60} min") : Tr($"{m}분", $"{m} min");
 
     private static string Invariant(FormattableString s) => s.ToString(CultureInfo.InvariantCulture);
 

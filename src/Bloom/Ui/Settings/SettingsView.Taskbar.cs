@@ -52,20 +52,20 @@ internal sealed partial class SettingsView
     // ── 폴더 ─────────────────────────────────────────────────────────────────────────────────────
     private void TaskbarFolders(Addon addon, AddonSchema schema, AddonValues v, AddonStatus status, string filter)
     {
-        Header(Tr("작업표시줄 폴더", "Taskbar folders"));
+        Header(Tr("작업표시줄 폴더", "Taskbar Folders"));
         bool on = v.Bool("folders.enabled");
         SchemaRow(schema, v, "folders.enabled", G.Folder, filter, sub: on
-            ? Tr("앱을 다른 앱 위에 끌어 놓으면 폴더가 됩니다", "Dropping an app onto another makes a folder")
-            : Tr("켜면 고정한 앱을 폴더로 묶습니다", "On, pinned apps can be grouped into folders"), rebuild: true);
+            ? Tr("앱을 다른 앱 위에 끌어 놓으면 폴더가 됩니다", "Drag an app onto another app to create a folder")
+            : Tr("켜면 고정한 앱을 폴더로 묶습니다", "Group pinned apps into folders on the taskbar"), rebuild: true);
         if (on && collected is null && filter.Length == 0)
         {
             if (pageKey == current)
             {
                 var state = addon.State();
-                string? why = status.State != AddonState.Running ? Tr("작업표시줄 꾸미기가 작동하는 동안 폴더를 고칠 수 있습니다", "Folders can be edited while taskbar customization runs")
-                    : state is null ? Tr("작업표시줄에서 아직 폴더 정보가 오지 않았습니다", "The taskbar hasn't sent its folders yet")
-                    : addon.Commands.TimedOut ? Tr("작업표시줄이 5초 안에 답하지 않아 지금은 볼 수만 있습니다", "The taskbar didn't answer within 5 seconds, so for now this is read only")
-                    : state.Folders is { Enabled: false } ? Tr("작업표시줄 폴더가 아직 켜지지 않았습니다", "Taskbar folders haven't turned on yet")
+                string? why = status.State != AddonState.Running ? Tr("작업표시줄 꾸미기가 작동하는 동안 폴더를 고칠 수 있습니다", "Folders can be edited while taskbar styling is active")
+                    : state is null ? Tr("작업표시줄에서 아직 폴더 정보가 오지 않았습니다", "Folder data has not arrived from the taskbar yet")
+                    : addon.Commands.TimedOut ? Tr("작업표시줄이 5초 안에 답하지 않아 지금은 볼 수만 있습니다", "Taskbar did not respond within 5s; currently view-only")
+                    : state.Folders is { Enabled: false } ? Tr("작업표시줄 폴더가 아직 켜지지 않았습니다", "Taskbar folders are not enabled yet")
                     : null;
                 Block(new TaskbarEditor(host, addon, v, state, taskbarEdit, why, TaskbarRebuild), filter, true);
             }
@@ -73,7 +73,7 @@ internal sealed partial class SettingsView
         else if (on)
         {
             // the editor isn't a line: the search finds it, and the running folder's two settings, by these
-            Add(Tr("폴더 편집", "Edit folders"), Tr("폴더를 만들고 이름, 아이콘, 안의 앱을 바꿉니다", "Make folders and change their names, icons and apps"), null, G.Folder, () => Go(AddonPageKey(addon.Id)), null, filter);
+            Add(Tr("폴더 편집", "Edit folders"), Tr("폴더를 만들고 이름, 아이콘, 안의 앱을 바꿉니다", "Create folders and change their names, icons, and apps"), null, G.Folder, () => Go(AddonPageKey(addon.Id)), null, filter);
             foreach (var e in In(Section.Folders).Where(e => e.Control == Control.Running))
                 if (schema[e.Key] is { } item && AddonEasy.Of(schema, e.Key) is var easy)
                     Add(easy?.Title ?? item.Split().name, easy?.Sub is { Length: > 0 } s ? s : item.About?.Shown, null, G.Folder, () => Go(AddonPageKey(addon.Id)), null, filter);
@@ -84,10 +84,10 @@ internal sealed partial class SettingsView
     // ── 모양 ─────────────────────────────────────────────────────────────────────────────────────
     private void TaskbarLook(AddonSchema schema, AddonValues v, string filter)
     {
-        Header(Tr("작업표시줄 모양", "Taskbar look"));
+        Header(Tr("작업표시줄 모양", "Taskbar Appearance"));
         Block(AddonPreviews.Taskbar(v), filter, false);
         string size = SizeNow(v);
-        var sizes = Sizes.Select(p => (p.key, p.key switch { "s" => Tr("작게", "Small"), "m" => Tr("보통", "Medium"), _ => Tr("크게", "Large") })).ToList();
+        var sizes = Sizes.Select(p => (p.key, p.key switch { "s" => Tr("작게", "Small"), "m" => Tr("보통", "Normal"), _ => Tr("크게", "Large") })).ToList();
         if (size == "custom") sizes.Add(("custom", Tr("직접", "Custom")));
         void PickSize(string k)
         {
@@ -98,16 +98,16 @@ internal sealed partial class SettingsView
             v.Set("size.iconSpacing", p.spacing);
             Dispatcher.BeginInvoke(TaskbarRebuild); // 직접 goes, and 자세히's numbers follow
         }
-        string sizeTitle = Tr("크기", "Size"), sizeSub = Tr("작업표시줄 높이와 아이콘 크기", "The taskbar's height and icon size");
+        string sizeTitle = Tr("크기", "Size"), sizeSub = Tr("작업표시줄 높이와 아이콘 크기", "Taskbar height and icon size");
         var sizePictures = sizes.Select(o => AddonPictures.Option(schema, "size", o.key)).ToArray();
         // an add-on without the pictures: the sizes side by side
         if (sizePictures.All(p => p is not null)) Pictures(sizeTitle, sizeSub, G.Screen, sizes.Select((o, i) => (o.key, o.Item2, sizePictures[i]!)).ToArray(), size, PickSize, filter);
         else Choice(sizeTitle, sizeSub, G.Screen, sizes.ToArray(), size, PickSize, filter);
-        SchemaRow(schema, v, "pill.style", G.Palette, filter, Tr("배경", "Background"), Tr("알약 뒤를 흐리게 비춥니다", "Blurs what is behind the pill"), rebuild: true);
-        SchemaRow(schema, v, "start.mode", G.Power, filter, sub: Tr("꽃 버튼은 누르면 Bloom을 열고 닫습니다", "The flower button opens and closes Bloom"), rebuild: true);
-        SchemaRow(schema, v, "pill.edge", G.Screen, filter, Tr("화면의 어디에", "Where on the screen"), Tr("Windows 설정은 바꾸지 않습니다", "Windows' own setting stays as it is"), rebuild: true);
+        SchemaRow(schema, v, "pill.style", G.Palette, filter, Tr("배경", "Background"), Tr("알약 뒤를 흐리게 비춥니다", "Blurs the backdrop behind pills"), rebuild: true);
+        SchemaRow(schema, v, "start.mode", G.Power, filter, sub: Tr("꽃 버튼은 누르면 Bloom을 열고 닫습니다", "Clicking the flower button opens or closes Bloom"), rebuild: true);
+        SchemaRow(schema, v, "pill.edge", G.Screen, filter, Tr("화면의 어디에", "Position on screen"), Tr("Windows 설정은 바꾸지 않습니다", "Does not change Windows Settings"), rebuild: true);
         SchemaRow(schema, v, "pill.align", G.Screen, filter, Tr("알약 정렬", "Pill alignment"), "", rebuild: true);
-        Fold("look", Section.LookMore, schema, v, filter, Tr("숫자로 바꾸면 위의 크기는 ‘직접’이 됩니다", "A number changed here makes the size above ‘Custom’"));
+        Fold("look", Section.LookMore, schema, v, filter, Tr("숫자로 바꾸면 위의 크기는 ‘직접’이 됩니다", "Changing a number sets the size above to ‘Custom’"));
     }
 
     /// The size preset the three numbers match ("m" while the add-on leaves the size to Windows), else "custom".
@@ -121,8 +121,8 @@ internal sealed partial class SettingsView
     // ── 트레이 ───────────────────────────────────────────────────────────────────────────────────
     private void TaskbarTray(AddonSchema schema, AddonValues v, string filter)
     {
-        Header(Tr("작업표시줄 트레이", "Taskbar tray"));
-        IconChips(schema, v, Section.Tray, Tr("보일 아이콘", "Icons shown"), Tr("끈 아이콘은 자리도 남기지 않습니다", "An icon turned off leaves no gap"), filter);
+        Header(Tr("작업표시줄 트레이", "Taskbar Tray"));
+        IconChips(schema, v, Section.Tray, Tr("보일 아이콘", "Visible icons"), Tr("끈 아이콘은 자리도 남기지 않습니다", "Hidden icons take up no space"), filter);
         SchemaRow(schema, v, "tray.clock", G.Clock, filter, sub: "", rebuild: true);
         if (v.Text("tray.clock") != "hidden" || collected is not null || filter.Length > 0)
         {
@@ -130,8 +130,8 @@ internal sealed partial class SettingsView
             SchemaRow(schema, v, "tray.clockFormat", G.Clock, filter, sub: "", rebuild: true);
             indenting = false;
         }
-        SchemaRow(schema, v, "media.enabled", G.Volume, filter, Tr("재생 중인 곡", "Now playing"), Tr("앨범 아트, 제목, 재생 단추", "Album art, title and play buttons"), rebuild: true);
-        SchemaRow(schema, v, "usage.enabled", G.Speed, filter, Tr("AI 사용량", "AI usage"), Tr("계정마다 막대 하나. 숨김 아일랜드에도 나옵니다", "A bar per account; the island shows it too"), rebuild: true);
+        SchemaRow(schema, v, "media.enabled", G.Volume, filter, Tr("재생 중인 곡", "Now playing"), Tr("앨범 아트, 제목, 재생 단추", "Album art, title, and playback controls"), rebuild: true);
+        SchemaRow(schema, v, "usage.enabled", G.Speed, filter, Tr("AI 사용량", "AI Usage"), Tr("계정마다 막대 하나. 숨김 아일랜드에도 나옵니다", "One bar per account. Also shown on the Hidden Island"), rebuild: true);
         // the add-on reads the usage file Bloom writes (설정 > 홈 화면 > AI 사용량), which is off by default
         if (collected is null && v.Bool("usage.enabled") && !UsageExport.On)
         {
@@ -142,8 +142,8 @@ internal sealed partial class SettingsView
                 Settings.Save();
                 TaskbarRebuild();
             }
-            Add(Tr("사용량 파일 내보내기 꺼짐", "Usage file export is off"), Tr("작업표시줄은 Bloom이 내보낸 사용량 파일을 읽습니다. 켜야 사용량이 보입니다", "The taskbar reads the usage file Bloom exports; turn it on to see the usage"),
-                RowButton(Tr("켜기", "Turn on"), Export), G.Warning, Export, null, filter);
+            Add(Tr("사용량 파일 내보내기 꺼짐", "Usage file export is off"), Tr("작업표시줄은 Bloom이 내보낸 사용량 파일을 읽습니다. 켜야 사용량이 보입니다", "The taskbar reads the usage file exported by Bloom. Turn this on to display usage"),
+                RowButton(Tr("켜기", "Turn On"), Export), G.Warning, Export, null, filter);
             indenting = false;
         }
         // shared with the home cards (SettingsView.Usage): each account's bar, 이름표, 아이콘 색
@@ -152,7 +152,7 @@ internal sealed partial class SettingsView
             indenting = true;
             UsageBarRows(filter);
             UsageTagRow(filter);
-            UsageLogoRow(v, Tr("홈 카드와 같은 설정입니다", "The same setting as the home cards"), filter);
+            UsageLogoRow(v, Tr("홈 카드와 같은 설정입니다", "Shares the same setting as the Home card"), filter);
             indenting = false;
         }
         Fold("tray", Section.TrayMore, schema, v, filter, null, 2, () =>
@@ -162,7 +162,7 @@ internal sealed partial class SettingsView
             if (schema["tray.bell"] is not null)
             {
                 var bell = Toggle(v.Text("tray.bell") == "whenNew", on => v.Set("tray.bell", on ? "whenNew" : "shown"), out var t);
-                Add(Tr("새 알림이 있을 때만 알림 벨", "Bell only with new notifications"), Tr("알림이 없으면 알림 벨을 숨깁니다", "Hides the bell while there are no notifications"), bell, G.Bell, t, null, filter);
+                Add(Tr("새 알림이 있을 때만 알림 벨", "Show notification bell only for new notifications"), Tr("알림이 없으면 알림 벨을 숨깁니다", "Hides the notification bell when there are no notifications"), bell, G.Bell, t, null, filter);
             }
         });
     }
@@ -243,13 +243,13 @@ internal sealed partial class SettingsView
     // ── 숨김 아일랜드 ────────────────────────────────────────────────────────────────────────────
     private void TaskbarIsland(AddonSchema schema, AddonValues v, string filter)
     {
-        Header(Tr("숨김 아일랜드", "Auto-hide island"));
+        Header(Tr("숨김 아일랜드", "Hidden Island"));
         bool on = v.Bool("island.enabled");
         if (schema["island.enabled"] is not null)
         {
             // the island lives in the auto-hide helper and needs Windows' own auto-hide: all three go on and off
             // together (the host turns Windows' back on if it is off when the add-on starts)
-            PictureSwitch(Tr("숨김 아일랜드 쓰기", "Use the auto-hide island"), Tr("작업표시줄이 숨고 화면 가장자리에 작은 섬이 남습니다", "The taskbar hides, and a small island stays at the screen's edge"),
+            PictureSwitch(Tr("숨김 아일랜드 쓰기", "Use Hidden Island"), Tr("작업표시줄이 숨고 화면 가장자리에 작은 섬이 남습니다", "Hides the taskbar and leaves a compact island at the screen edge"),
                 AddonPictures.Thumb(schema["island.enabled"]), on, x =>
                 {
                     v.Set("island.enabled", x);
@@ -263,11 +263,11 @@ internal sealed partial class SettingsView
         {
             indenting = true;
             Block(AddonPreviews.Island(v), filter, true);
-            SchemaRow(schema, v, "island.reveal", G.Up, filter, Tr("작업표시줄 부르기", "Bringing the taskbar out"), "", rebuild: true);
+            SchemaRow(schema, v, "island.reveal", G.Up, filter, Tr("작업표시줄 부르기", "Show taskbar on"), "", rebuild: true);
             IslandColour(schema, v, filter);
-            IconChips(schema, v, Section.Island, Tr("아일랜드에 보일 것", "Shown on the island"), null, filter);
-            SchemaRow(schema, v, "island.hoverTransparency", G.View, filter, Tr("포인터를 올리면 비침", "See-through under the pointer"),
-                Tr("0이면 그대로, 100이면 다 비칩니다", "0 not at all, 100 fully"));
+            IconChips(schema, v, Section.Island, Tr("아일랜드에 보일 것", "Show on island"), null, filter);
+            SchemaRow(schema, v, "island.hoverTransparency", G.View, filter, Tr("포인터를 올리면 비침", "Opacity on hover"),
+                Tr("0이면 그대로, 100이면 다 비칩니다", "0 keeps it solid; 100 makes it fully transparent"));
             indenting = false;
         }
         Fold("island", Section.IslandMore, schema, v, filter);
@@ -277,7 +277,7 @@ internal sealed partial class SettingsView
     private void IslandColour(AddonSchema schema, AddonValues v, string filter)
     {
         if (schema["island.color"] is not { } item) return;
-        string title = Tr("아일랜드 색", "Island colour");
+        string title = Tr("아일랜드 색", "Island color");
         if (Record(title, null, filter)) return;
         var dots = new Swatches(item.Options.Select(o => (o.Value, o.Name.Shown, o.Value == "white" ? Color.FromRgb(0xFA, 0xFA, 0xFA) : Color.FromRgb(0x11, 0x11, 0x11))), v.Text("island.color"));
         dots.Picked += x =>
@@ -305,7 +305,7 @@ internal sealed partial class SettingsView
                 TaskbarRebuild();
             }
             int n = items.Count + extras, changed = items.Count(e => v.Changed(e.Key));
-            Disclose(Tr($"자세히 · {n}개", $"More · {n}"), open ? openSub : changed > 0 ? Tr($"바꾼 값 {changed}개", $"{changed} changed") : null, open, Flip, filter);
+            Disclose(Tr($"자세히 · {n}개", $"Details · {n}"), open ? openSub : changed > 0 ? Tr($"바꾼 값 {changed}개", $"{changed} modified") : null, open, Flip, filter);
         }
         if (!open) return;
         extra?.Invoke();
@@ -318,9 +318,9 @@ internal sealed partial class SettingsView
     {
         if (value == "primary") return screens.FirstOrDefault(x => x.Primary) is { Name.Length: > 0 } main ? main.Name : null;
         if (!value.StartsWith("display", StringComparison.Ordinal) || !int.TryParse(value.AsSpan(7), NumberStyles.None, CultureInfo.InvariantCulture, out int n)) return null;
-        if (screens.FirstOrDefault(x => x.Number == n) is not { } s) return Tr("연결 안 됨", "Not connected");
-        string name = s.Name.Length > 0 ? s.Name : Tr("이름 없는 모니터", "Unnamed monitor");
-        return s.Primary ? Tr($"{name} · 주 모니터", $"{name} · main monitor") : name;
+        if (screens.FirstOrDefault(x => x.Number == n) is not { } s) return Tr("연결 안 됨", "Disconnected");
+        string name = s.Name.Length > 0 ? s.Name : Tr("이름 없는 모니터", "Unnamed Monitor");
+        return s.Primary ? Tr($"{name} · 주 모니터", $"{name} · Primary monitor") : name;
     }
 
     /// "Bloom 버튼 (누르면 Bloom을 열고 닫습니다)" → the name, and the bracketed detail (null without one).
@@ -486,32 +486,32 @@ internal sealed partial class SettingsView
     /// The status line under the switch.
     private static string TaskbarStatusText(AddonStatus st) => st.State switch
     {
-        AddonState.Dev => Tr("개발 복사본에서는 켜지 않습니다", "Not turned on in a development copy"),
+        AddonState.Dev => Tr("개발 복사본에서는 켜지 않습니다", "Disabled in development builds"),
         AddonState.NotShipped => Tr("아직 받지 않았습니다", "Not downloaded yet"),
-        AddonState.Broken => Tr("작업표시줄 애드온 파일이 올바르지 않거나 더 새 Bloom이 필요합니다", "The taskbar add-on's files are not valid, or it needs a newer Bloom"),
+        AddonState.Broken => Tr("작업표시줄 애드온 파일이 올바르지 않거나 더 새 Bloom이 필요합니다", "Taskbar add-on files are invalid or require a newer version of Bloom"),
         AddonState.Off => Tr("꺼짐", "Off"),
-        AddonState.Skipped => Tr("Shift를 누른 채 시작해 이번에는 켜지 않았습니다", "Bloom started with Shift held, so it is off this time"),
-        AddonState.Starting when st.Percent >= 0 => Tr($"켜는 중 · 기호 파일 받는 중 {st.Percent}%", $"Turning on · downloading symbol files {st.Percent}%"),
-        AddonState.Starting => Tr("켜는 중", "Turning on"),
+        AddonState.Skipped => Tr("Shift를 누른 채 시작해 이번에는 켜지 않았습니다", "Skipped for this session because Bloom started with Shift held down"),
+        AddonState.Starting when st.Percent >= 0 => Tr($"켜는 중 · 기호 파일 받는 중 {st.Percent}%", $"Starting · Downloading symbol files {st.Percent}%"),
+        AddonState.Starting => Tr("켜는 중", "Starting"),
         AddonState.Running when st.Note != RunningNote.None => RunningNoteText(st.Note),
         AddonState.Running => Tr("작동 중", "Running"),
         AddonState.PdbMissing => PdbMissingText(),
         AddonState.PortCrashed => PortCrashedText(true),
-        AddonState.SafeMode => Tr("멈춤 · 탐색기가 연달아 멈춰 작업표시줄 꾸미기를 껐습니다", "Paused · Explorer kept crashing, so taskbar customization was turned off"),
-        AddonState.NoSymbols => Tr("기호 없음 · 이 Windows 버전에는 필요한 작업표시줄 기호가 없습니다", "No symbols · this Windows version lacks the taskbar symbols it needs"),
+        AddonState.SafeMode => Tr("멈춤 · 탐색기가 연달아 멈춰 작업표시줄 꾸미기를 껐습니다", "Stopped · Taskbar styling was disabled because Explorer crashed repeatedly"),
+        AddonState.NoSymbols => Tr("기호 없음 · 이 Windows 버전에는 필요한 작업표시줄 기호가 없습니다", "Missing symbols · Required taskbar debug symbols are unavailable for this Windows version"),
         AddonState.Windhawk => Tr("Windhawk에서 켜져 있음 · Windhawk에서 PillTaskbar 모드를 끄세요. Windhawk를 쓰지 않으면 서비스를 수동 시작으로 바꾸고 Windhawk를 끄거나 지워도 됩니다",
-            "On in Windhawk · turn the PillTaskbar mod off in Windhawk. If you don't use Windhawk, set its service to manual start and close or uninstall Windhawk instead"),
-        AddonState.Blocked => Tr("보안 기능이 막음 · Windows 보안(스마트 앱 컨트롤)이 불러오기를 막았습니다", "Blocked by a security feature · Windows Security (Smart App Control) kept it from loading"),
+            "Active in Windhawk · Disable the PillTaskbar mod in Windhawk. If you don't use Windhawk, set its service to manual startup and stop or uninstall it"),
+        AddonState.Blocked => Tr("보안 기능이 막음 · Windows 보안(스마트 앱 컨트롤)이 불러오기를 막았습니다", "Blocked by security · Windows Security (Smart App Control) blocked loading"),
         AddonState.Download => DownloadStatusText(st.PortingHost),
-        AddonState.Restart => Tr("탐색기 재시작 필요 · 탐색기를 다시 시작한 뒤 다시 시도하세요", "Explorer needs a restart · restart Explorer, then try again"),
-        _ => Tr("멈춤 · 작업표시줄 꾸미기가 멈췄습니다", "Stopped · taskbar customization stopped"),
+        AddonState.Restart => Tr("탐색기 재시작 필요 · 탐색기를 다시 시작한 뒤 다시 시도하세요", "Explorer restart required · Restart Explorer and try again"),
+        _ => Tr("멈춤 · 작업표시줄 꾸미기가 멈췄습니다", "Stopped · Taskbar styling has stopped"),
     };
 
     /// The taskbar add-on's first switch-on: a separate GPL program that loads code into Explorer and downloads symbol
     /// files (SetAddon asks it once).
-    private bool ConfirmTaskbar(Addon addon) => ConfirmProgram(addon, Tr("작업표시줄 꾸미기 켜기", "Turn on taskbar customization"),
+    private bool ConfirmTaskbar(Addon addon) => ConfirmProgram(addon, Tr("작업표시줄 꾸미기 켜기", "Enable Taskbar Styling"),
         Tr("PillTaskbar는 Bloom과 별도인 프로그램으로, 탐색기에 코드를 넣어 작업표시줄의 모양을 바꿉니다. 라이선스는 GPL-3.0입니다. 처음 켤 때 Microsoft 기호 서버에서 작업표시줄 기호 파일(약 70 MB)을 받습니다.",
-            "PillTaskbar is a program separate from Bloom. It changes how the taskbar looks by loading code into Explorer, and is licensed under GPL-3.0. The first start downloads the taskbar's symbol files (about 70 MB) from the Microsoft symbol server."));
+            "PillTaskbar is a separate GPL-3.0 program that injects code into Explorer to restyle the taskbar. On first launch, it downloads taskbar symbol files (~70 MB) from Microsoft's symbol server."));
 
     /// The add-on's source repository: a web address only, never anything else the manifest might name.
     private static void OpenSource(AddonManifest m)

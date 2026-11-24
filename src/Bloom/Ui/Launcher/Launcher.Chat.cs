@@ -16,7 +16,7 @@ internal sealed partial class Launcher
         {
             if (!IsVisible) return;
             UpdateChrome();
-            if (actions.IsOpen && actions.Heading == Tr("모델 · 생각 수준", "Model · thinking level")) PickModel();
+            if (actions.IsOpen && actions.Heading == Tr("모델 · 생각 수준", "Model · Thinking Level")) PickModel();
         }, System.Windows.Threading.DispatcherPriority.Background);
     }
 
@@ -65,8 +65,8 @@ internal sealed partial class Launcher
             if (!IsVisible || !IsActive)
             {
                 bool ok = t.Messages.LastOrDefault()?.Error != true;
-                Notices.Result(ok, Tr("Bloom · 빠른 AI", "Bloom · Quick AI"), ok ? Tr("답변 완료", "Answer ready") : Tr("응답 없음 · 다시 보내세요", "No response. Send again."),
-                    ClipText(t.Title, 40), Tr("AI 채팅 열기", "Open AI chat"), () => host.OpenChat(t));
+                Notices.Result(ok, Tr("Bloom · 빠른 AI", "Bloom · Quick AI"), ok ? Tr("답변 완료", "Reply ready") : Tr("응답 없음 · 다시 보내세요", "No response. Send again."),
+                    ClipText(t.Title, 40), Tr("AI 채팅 열기", "Open AI Chat"), () => host.OpenChat(t));
             }
         }
         if (Mode != App.Mode.Chat && IsVisible) UpdateChrome(); // the home's chip
@@ -114,9 +114,9 @@ internal sealed partial class Launcher
         {
             string now = thread is null ? Ai.AiModels.DefaultEffort(cur) : Chats.EffortOf(thread);
             foreach (string level in Ai.AiModels.Efforts(cur))
-                list.Add(new ActionItem { Title = Tr($"생각 수준 · {Ai.AiModels.EffortName(level)}", $"Thinking · {Ai.AiModels.EffortName(level)}"), Glyph = level == now ? G.Check : G.Bulb, StayOpen = true, Run = () => SetEffort(level) });
+                list.Add(new ActionItem { Title = Tr($"생각 수준 · {Ai.AiModels.EffortName(level)}", $"Thinking Level · {Ai.AiModels.EffortName(level)}"), Glyph = level == now ? G.Check : G.Bulb, StayOpen = true, Run = () => SetEffort(level) });
         }
-        actions.Open(Tr("모델 · 생각 수준", "Model · thinking level"), list, ids.IndexOf(cur));
+        actions.Open(Tr("모델 · 생각 수준", "Model · Thinking Level"), list, ids.IndexOf(cur));
     }
 
     /// Ctrl+Shift+M: Claude → ChatGPT → omp (when it is on this PC), each side with the model last used there.
@@ -138,7 +138,7 @@ internal sealed partial class Launcher
         string model = CurrentModel;
         if (!Ai.AiModels.HasEffort(model))
         {
-            ShowToast(Tr("이 모델은 생각 수준을 지원하지 않습니다.", "This model has no thinking level setting."));
+            ShowToast(Tr("이 모델은 생각 수준을 지원하지 않습니다.", "This model does not support thinking levels."));
             return;
         }
         string now = thread is null ? Ai.AiModels.DefaultEffort(model) : Chats.EffortOf(thread);
@@ -149,7 +149,7 @@ internal sealed partial class Launcher
     {
         Chats.SetEffort(thread, level);
         if (thread is not null && Mode == App.Mode.Chat) host.Chats.PreStart(thread);
-        ShowToast(Tr($"생각 수준: {Ai.AiModels.EffortName(level)}", $"Thinking level: {Ai.AiModels.EffortName(level)}"));
+        ShowToast(Tr($"생각 수준: {Ai.AiModels.EffortName(level)}", $"Thinking effort: {Ai.AiModels.EffortName(level)}"));
         UpdateChrome();
     }
 }

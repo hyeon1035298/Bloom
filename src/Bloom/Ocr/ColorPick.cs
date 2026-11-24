@@ -134,7 +134,7 @@ internal static class ColorPick
             VerticalAlignment = VerticalAlignment.Top,
             Margin = new Thickness(0, 28, 0, 0),
             IsHitTestVisible = false,
-            Child = Theme.T(Tr("색을 찍을 곳을 누르세요 · 방향키로 한 칸씩 · Esc 취소", "Click where to pick · arrow keys move one pixel · Esc cancels"), 13, Brushes.White, Theme.Medium, false),
+            Child = Theme.T(Tr("색을 찍을 곳을 누르세요 · 방향키로 한 칸씩 · Esc 취소", "Click to pick a color · Arrow keys to nudge · Esc to cancel"), 13, Brushes.White, Theme.Medium, false),
         };
         root.Children.Add(tip);
         w.Content = root;

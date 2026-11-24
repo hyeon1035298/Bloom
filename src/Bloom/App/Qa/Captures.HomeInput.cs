@@ -97,7 +97,7 @@ internal static partial class Captures
         }
 
         // by its title: "최근 사용" to the left column's end (one column: the top)
-        if (await Spot(grid, "recent", e => Titled(e, Tr("최근 사용", "Recent"))) is { } title)
+        if (await Spot(grid, "recent", e => Titled(e, Tr("최근 사용", "Recent Items"))) is { } title)
         {
             await RealDrag(title, two ? End(false) : Top(false), () => Snap(w, dir, "real-02-title-midway"));
             log.AppendLine($"after the title drag: {Shown()}");
@@ -115,7 +115,7 @@ internal static partial class Captures
 
         // the list refreshed while a block is held (new data: here a timer added; the clipboard, AI usage … alike):
         // the drag goes on, the refresh comes after it
-        if (await Spot(grid, "timers", e => Titled(e, Tr("타이머 · 알림", "Timers · reminders"))) is { } held)
+        if (await Spot(grid, "timers", e => Titled(e, Tr("타이머 · 알림", "Timers · Reminders"))) is { } held)
         {
             var to = two ? End(true) : Top(false);
             await RealDrag(held, to, async () =>
@@ -133,7 +133,7 @@ internal static partial class Captures
         }
 
         // Esc while a block is held: it goes back, the button let go clicks nothing
-        if (await Spot(grid, "usage", e => Titled(e, Tr("AI 사용량", "AI usage"))) is { } usage)
+        if (await Spot(grid, "usage", e => Titled(e, Tr("AI 사용량", "AI Usage"))) is { } usage)
         {
             string before = Shown();
             await RealDrag(usage, End(true), async () =>
@@ -145,23 +145,23 @@ internal static partial class Captures
         }
 
         // a click on the title, no move: it folds; again: it opens
-        if (await Spot(grid, "recent", e => Titled(e, Tr("최근 사용", "Recent"))) is { } t1)
+        if (await Spot(grid, "recent", e => Titled(e, Tr("최근 사용", "Recent Items"))) is { } t1)
         {
             await RealClick(t1);
             Check(Home.Of("recent")!.Collapsed, "a click on the title folds 최근 사용");
-            if (await Spot(grid, "recent", e => Titled(e, Tr("최근 사용", "Recent"))) is { } t2) await RealClick(t2);
+            if (await Spot(grid, "recent", e => Titled(e, Tr("최근 사용", "Recent Items"))) is { } t2) await RealClick(t2);
             Check(!Home.Of("recent")!.Collapsed, "… and opens it again");
         }
 
         // the tools keep their clicks: ▲ on the left column's second block, + on 최근 사용's rows
         string second = Left().Split(' ')[1];
-        if (await Spot(grid, second, e => e.ToolTip as string == Tr("위로", "Up")) is { } up)
+        if (await Spot(grid, second, e => e.ToolTip as string == Tr("위로", "Move Up")) is { } up)
         {
             await RealClick(up);
             Check(StartsWith(second, false), $"▲ moved {second} up");
         }
         int rowsWere = Home.Count(Home.Of("recent")!);
-        if (await Spot(grid, "recent", e => e.ToolTip as string == Tr("개수 늘리기", "More rows")) is { } more)
+        if (await Spot(grid, "recent", e => e.ToolTip as string == Tr("개수 늘리기", "Show more")) is { } more)
         {
             await RealClick(more);
             Check(Home.Count(Home.Of("recent")!) == rowsWere + 1, "+ shows one more row");
@@ -211,7 +211,7 @@ internal static partial class Captures
         RealKey(0x0D);
         await Task.Delay(500);
         Check(Home.IsOn(last), $"Enter on the card adds {last}");
-        bool says = Descendants(grid).OfType<System.Windows.Controls.TextBlock>().Any(x => x.Text == Tr("숨긴 블록 없음 · 블록의 ✕로 숨기면 여기서 다시 추가할 수 있습니다", "No hidden blocks · hide one with its ✕ to add it back here"));
+        bool says = Descendants(grid).OfType<System.Windows.Controls.TextBlock>().Any(x => x.Text == Tr("숨긴 블록 없음 · 블록의 ✕로 숨기면 여기서 다시 추가할 수 있습니다", "No hidden blocks · Blocks hidden via ✕ can be re-added here"));
         Check(Home.Hidden().Count > 0 || (RowOf("home:tile:right") is null && says), "nothing hidden: the tile says so, no row to stop on");
         await Snap(w, dir, "real-07-after-keys");
 

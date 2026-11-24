@@ -42,7 +42,7 @@ internal static partial class Captures
         w.OpenActions();
         await Snap(w, dir, "dark-s2-history-actions");
         w.CloseActionsForQa();
-        var save = w.Selected?.MoreActions?.Invoke().FirstOrDefault(a => a.Title == Tr("상용구로 저장", "Save as a snippet"));
+        var save = w.Selected?.MoreActions?.Invoke().FirstOrDefault(a => a.Title == Tr("상용구로 저장", "Save as snippet"));
         log.AppendLine($"save action: {(save is null ? "missing" : "there")}");
         save?.Run();
         save?.Run(); // the same text again: not saved twice

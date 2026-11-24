@@ -132,8 +132,8 @@ internal static class ToolUi
     public static string Ago(DateTime at)
     {
         var d = DateTime.Now - at;
-        if (d.TotalMinutes < 1) return Tr("방금", "just now");
-        if (d.TotalHours < 1) return Tr($"{(int)d.TotalMinutes}분 전", $"{(int)d.TotalMinutes} min ago");
+        if (d.TotalMinutes < 1) return Tr("방금", "Just now");
+        if (d.TotalHours < 1) return Tr($"{(int)d.TotalMinutes}분 전", $"{(int)d.TotalMinutes}m ago");
         if (at.Date == DateTime.Today) return at.ToString(Tr("tt h:mm", "h:mm tt"), Culture);
         return at.ToString(Tr("M월 d일", "MMM d"), Culture);
     }

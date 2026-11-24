@@ -58,7 +58,7 @@ internal static class OneShot
         }
         var (code, output, error) = await RunCli(psi, text, ct, web ? WebTimeout : PlainTimeout);
         if (ct.IsCancellationRequested) return (null, null);
-        if (code != 0 || output.Trim().Length == 0) return (null, Tail(error, output, Tr("Claude 답변이 없습니다. 다시 시도하세요.", "No answer from Claude. Try again.")));
+        if (code != 0 || output.Trim().Length == 0) return (null, Tail(error, output, Tr("Claude의 응답이 없습니다. 다시 시도하세요.", "No response from Claude. Please try again.")));
         return (output.Trim(), null);
     }
 
@@ -144,7 +144,7 @@ internal static class OneShot
         }
         if (answer is { Length: > 0 }) return (answer.Trim(), null);
         if (failure is not null) return (null, AiErrors.Friendly(failure, true));
-        return (null, Tail(error, "", code == 0 ? Tr("ChatGPT 답변이 없습니다. 다시 시도하세요.", "No answer from ChatGPT. Try again.") : Tr("Codex 답변 실패 · 다시 시도하세요", "Codex answer failed. Try again."), true));
+        return (null, Tail(error, "", code == 0 ? Tr("ChatGPT의 응답이 없습니다. 다시 시도하세요.", "No response from ChatGPT. Please try again.") : Tr("Codex 응답 실패 · 다시 시도하세요", "Codex response failed · Please try again"), true));
     }
 
     /// The CLIs' working folder (Local\ai): no project files around, nothing to read by accident.

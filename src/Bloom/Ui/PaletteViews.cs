@@ -25,15 +25,15 @@ internal static class PaletteViews
         var top = new Grid { MinHeight = 26, Margin = new Thickness(0, 0, 0, 6) };
         top.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
         top.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
-        top.Children.Add(Theme.T(Tr("클릭하면 HEX 복사 · ← → 색 고르기", "Click copies the HEX · ← → picks a colour"), 11.5, Theme.P.TextFaint));
+        top.Children.Add(Theme.T(Tr("클릭하면 HEX 복사 · ← → 색 고르기", "Click to copy HEX · ← → Select color"), 11.5, Theme.P.TextFaint));
         if (setCount is not null)
         {
             var right = new StackPanel { Orientation = Orientation.Horizontal };
-            var label = Theme.T(Tr("색 개수", "Colour count"), 11.5, Theme.P.TextFaint, null, false);
+            var label = Theme.T(Tr("색 개수", "Color Count"), 11.5, Theme.P.TextFaint, null, false);
             label.Margin = new Thickness(10, 0, 8, 0);
             right.Children.Add(label);
             right.Children.Add(HomeViews.Stepper(count, PaletteExtract.MinCount, PaletteExtract.MaxCount, setCount,
-                (Tr($"색 개수 ({PaletteExtract.MinCount}–{PaletteExtract.MaxCount}) · − + 키", $"Colours ({PaletteExtract.MinCount}–{PaletteExtract.MaxCount}) · − + keys"), Tr("한 색 줄이기", "One colour fewer"), Tr("한 색 늘리기", "One colour more"))));
+                (Tr($"색 개수 ({PaletteExtract.MinCount}–{PaletteExtract.MaxCount}) · − + 키", $"Color Count ({PaletteExtract.MinCount}–{PaletteExtract.MaxCount}) · − + keys"), Tr("한 색 줄이기", "Fewer colors"), Tr("한 색 늘리기", "More colors"))));
             Grid.SetColumn(right, 1);
             top.Children.Add(right);
         }

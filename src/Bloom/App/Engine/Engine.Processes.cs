@@ -32,18 +32,18 @@ internal sealed partial class Engine
             Id = "proc:" + g.Key.ToLowerInvariant(),
             Kind = ItemKind.Process,
             Title = g.Name,
-            Subtitle = g.Self ? Tr("Bloom · 현재 앱", "Bloom — this app") : g.Protected ? Tr($"{g.Exe} · Windows에 필요해서 끌 수 없습니다", $"{g.Exe} · Windows needs it, it can't be ended") : Join(g.Exe, n > 1 ? Tr($"프로세스 {n}개", $"{n} processes") : null),
+            Subtitle = g.Self ? Tr("Bloom · 현재 앱", "Bloom · Current app") : g.Protected ? Tr($"{g.Exe} · Windows에 필요해서 끌 수 없습니다", $"{g.Exe} · Required by Windows and cannot be closed") : Join(g.Exe, n > 1 ? Tr($"프로세스 {n}개", $"{n} processes") : null),
             Accessory = (g.Cpu < 0 ? "CPU …" : $"CPU {g.Cpu:0.0}%") + " · " + Size(g.Memory),
             Icon = g.Path is { } path ? IconSpec.Shell(path) : IconSpec.Of(G.App),
             Data = g,
-            PrimaryLabel = locked ? "" : Tr("강제 종료", "Force quit"),
+            PrimaryLabel = locked ? "" : Tr("강제 종료", "Force Quit"),
             StayOpen = true,
         };
         if (locked) return item;
         string what = Tr($"‘{g.Name}’{(n > 1 ? $" 프로세스 {n}개" : "")}", $"‘{g.Name}’{(n > 1 ? $" ({n} processes)" : "")}");
-        item.Run = () => host.Window.Confirm(Tr($"{what}: 강제 종료 · 저장하지 않은 내용 삭제", $"{what}: force quit — unsaved work is lost"), new ActionItem
+        item.Run = () => host.Window.Confirm(Tr($"{what}: 강제 종료 · 저장하지 않은 내용 삭제", $"{what}: Force quit · Unsaved changes will be lost"), new ActionItem
         {
-            Title = Tr("강제 종료", "Force quit"),
+            Title = Tr("강제 종료", "Force Quit"),
             Keys = "Enter",
             Glyph = G.Close,
             Danger = true,
@@ -54,11 +54,11 @@ internal sealed partial class Engine
         {
             var list = new List<ActionItem>
             {
-                new() { Title = Tr("창 닫기로 끝내기 (저장할지 확인 창이 표시됩니다)", "Close its windows (it may ask to save)"), Keys = "Ctrl+Enter", Glyph = G.Close, StayOpen = true, Run = () => host.EndProcess(g, false) },
+                new() { Title = Tr("창 닫기로 끝내기 (저장할지 확인 창이 표시됩니다)", "Close window normally (prompts to save)"), Keys = "Ctrl+Enter", Glyph = G.Close, StayOpen = true, Run = () => host.EndProcess(g, false) },
             };
             if (g.Exe.Equals("explorer.exe", StringComparison.OrdinalIgnoreCase))
-                list.Insert(0, new ActionItem { Title = Tr("탐색기 다시 시작", "Restart Explorer"), Glyph = G.Restart, StayOpen = true, Run = () => host.RestartExplorer(g) });
-            if (g.Path is { } p) list.Add(new ActionItem { Title = Tr("파일 위치 열기", "Show in folder"), Glyph = G.Folder, Run = () => Launch.Reveal(p) });
+                list.Insert(0, new ActionItem { Title = Tr("탐색기 다시 시작", "Restart File Explorer"), Glyph = G.Restart, StayOpen = true, Run = () => host.RestartExplorer(g) });
+            if (g.Path is { } p) list.Add(new ActionItem { Title = Tr("파일 위치 열기", "Open file location"), Glyph = G.Folder, Run = () => Launch.Reveal(p) });
             list.Add(new ActionItem
             {
                 Title = ProcByMemory ? Tr("CPU 순으로 보기", "Sort by CPU") : Tr("메모리 순으로 보기", "Sort by memory"),

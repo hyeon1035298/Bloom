@@ -21,7 +21,7 @@ internal static class PlayerViews
         {
             string text = open is null
                 ? Tr("재생 중인 곡 없음", "Nothing playing")
-                : Tr("재생 중인 곡 없음 · 누르면 미니 플레이어", "Nothing playing · click for the mini player");
+                : Tr("재생 중인 곡 없음 · 누르면 미니 플레이어", "Nothing playing · Click to open Mini Player");
             var line = Theme.T(text, 12, Theme.P.TextFaint);
             line.Margin = new Thickness(0, 2, 0, 2);
             body.Children.Add(Clickable(line, open));
@@ -45,14 +45,14 @@ internal static class PlayerViews
         }
         Grid.SetColumn(words, 1);
         song.Children.Add(words);
-        if (open is not null) song.ToolTip = Tr("미니 플레이어 열기", "Open the mini player");
+        if (open is not null) song.ToolTip = Tr("미니 플레이어 열기", "Open Mini Player");
         body.Children.Add(Clickable(song, open));
 
         var buttons = new (char glyph, string tip, PlayerOp op, bool on)[]
         {
-            (PlayerGlyph.Previous, Tr("이전 곡", "Previous song"), PlayerOp.Previous, s.CanPrevious),
-            (s.Playing ? PlayerGlyph.Pause : PlayerGlyph.Play, Tr("재생 · 일시정지", "Play · pause"), PlayerOp.Toggle, s.CanToggle),
-            (PlayerGlyph.Next, Tr("다음 곡", "Next song"), PlayerOp.Next, s.CanNext),
+            (PlayerGlyph.Previous, Tr("이전 곡", "Previous Track"), PlayerOp.Previous, s.CanPrevious),
+            (s.Playing ? PlayerGlyph.Pause : PlayerGlyph.Play, Tr("재생 · 일시정지", "Play · Pause"), PlayerOp.Toggle, s.CanToggle),
+            (PlayerGlyph.Next, Tr("다음 곡", "Next Track"), PlayerOp.Next, s.CanNext),
         };
         for (int i = 0; i < buttons.Length; i++)
         {

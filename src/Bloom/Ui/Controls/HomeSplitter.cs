@@ -30,7 +30,7 @@ internal sealed class HomeSplitter : FrameworkElement
     public HomeSplitter()
     {
         Cursor = Cursors.SizeWE;
-        ToolTip = Tr("끌어서 두 열의 너비 조절 · 두 번 눌러 처음대로", "Drag to resize the columns · double-click to reset");
+        ToolTip = Tr("끌어서 두 열의 너비 조절 · 두 번 눌러 처음대로", "Drag to resize columns · Double-click to reset");
         ToolTipService.SetInitialShowDelay(this, 900);
     }
 

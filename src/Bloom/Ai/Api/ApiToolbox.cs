@@ -122,12 +122,12 @@ internal sealed class ApiToolbox
     /// The chat's status line while a call runs.
     public string Doing(ApiToolCall call) => call.Name switch
     {
-        ReadFile => Tr("파일 읽는 중…", "Reading a file…"),
-        ListFolder => Tr("폴더 보는 중…", "Looking in a folder…"),
-        WriteFile or EditFile => Tr("파일 쓰는 중…", "Writing a file…"),
-        RunCommand => Tr("명령 실행 중…", "Running a command…"),
-        _ when mcp?.Has(call.Name) == true => Tr("MCP 도구 사용 중…", "Using an MCP tool…"),
-        _ => Tr("PC에서 작업하는 중…", "Working on the PC…"),
+        ReadFile => Tr("파일 읽는 중…", "Reading file…"),
+        ListFolder => Tr("폴더 보는 중…", "Viewing folder…"),
+        WriteFile or EditFile => Tr("파일 쓰는 중…", "Writing file…"),
+        RunCommand => Tr("명령 실행 중…", "Running command…"),
+        _ when mcp?.Has(call.Name) == true => Tr("MCP 도구 사용 중…", "Using MCP tool…"),
+        _ => Tr("PC에서 작업하는 중…", "Working on PC…"),
     };
 
     /// One call: asked first when it must be, then run. → (its result for the model, failed). Cancelling `stop` ends a
@@ -167,7 +167,7 @@ internal sealed class ApiToolbox
             // every call asks (권한's 다른 MCP 도구; 이 대화에서 항상 허용 remembers the one tool of that server: its identity
             // and the tool's own name, not the function name, which can change); the card shows the arguments whole. No
             // "verb: " in the words: the card's always-button then names no action, as the key is the tool itself
-            string says = Tr($"MCP 도구 {tool.Server} · {tool.Tool}", $"MCP tool {tool.Server} · {tool.Tool}");
+            string says = Tr($"MCP 도구 {tool.Server} · {tool.Tool}", $"MCP Tool {tool.Server} · {tool.Tool}");
             var question = new ToolAsk(call.Id, call.Name, call.Arguments, ToolText.Line(says), tool.Key) { Detail = ToolText.Visible(a.ToString()) };
             if (!await Asked(question, stop).ConfigureAwait(false)) return (Declined, true);
             return await mcp.CallAsync(call.Name, a, stop).ConfigureAwait(false);
@@ -204,7 +204,7 @@ internal sealed class ApiToolbox
                             if (Rule(ToolPermissions.ReadOutside) == ToolPermissions.Off) return (SwitchedOff, true);
                             string line = ToolText.Line(full);
                             string? really = RealPath.Kind(full) == PathKind.Local && !trace.Any ? file?.Final ?? RealPath.Of(full) : null;
-                            var question = PathAsk(call, list ? Tr($"폴더 보기: {line}", $"List a folder: {line}") : Tr($"파일 읽기: {line}", $"Read a file: {line}"), full, really, ToolPermissions.ReadOutside, trace);
+                            var question = PathAsk(call, list ? Tr($"폴더 보기: {line}", $"View folder: {line}") : Tr($"파일 읽기: {line}", $"Read file: {line}"), full, really, ToolPermissions.ReadOutside, trace);
                             if (!await Asked(question, stop).ConfigureAwait(false)) return (Declined, true);
                             if (file is null)
                             {
@@ -234,7 +234,7 @@ internal sealed class ApiToolbox
                     var (held, really) = BeforeWriting(full, trace);
                     using (held)
                     {
-                        var question = PathAsk(call, Tr($"파일 쓰기: {line}", $"Write a file: {line}"), full, really, ToolPermissions.Write, trace, held, ToolText.Block(Tr("쓸 내용", "Content"), content));
+                        var question = PathAsk(call, Tr($"파일 쓰기: {line}", $"Write file: {line}"), full, really, ToolPermissions.Write, trace, held, ToolText.Block(Tr("쓸 내용", "Content to write"), content));
                         if (!await Asked(question, stop).ConfigureAwait(false)) return (Declined, true);
                         var (at, bound) = Followed(full, trace, really);
                         return at is null ? (Changed(full), true) : Write(held, at, bound, content);
@@ -253,7 +253,7 @@ internal sealed class ApiToolbox
                         // an edit needs a file that is there: refused before the card, so nothing is left to be swapped in meanwhile
                         if (held is null && RealPath.Kind(full) == PathKind.Local && !trace.Any) return ($"There is no file at {full} to edit; use {WriteFile} to make one.", true);
                         string change = ToolText.Block(Tr("바꾸기 전", "Before"), oldText) + "\n" + ToolText.Block(Tr("바꾼 후", "After"), newText);
-                        if (!await Asked(PathAsk(call, Tr($"파일 고치기: {line}", $"Edit a file: {line}"), full, really, ToolPermissions.Edit, trace, held, change), stop).ConfigureAwait(false)) return (Declined, true);
+                        if (!await Asked(PathAsk(call, Tr($"파일 수정: {line}", $"Edit file: {line}"), full, really, ToolPermissions.Edit, trace, held, change), stop).ConfigureAwait(false)) return (Declined, true);
                         var (at, bound) = Followed(full, trace, really);
                         return at is null ? (Changed(full), true) : Edit(held, at, bound, oldText, newText);
                     }
@@ -264,7 +264,7 @@ internal sealed class ApiToolbox
                     if (command.Length == 0) return ("command must not be empty.", true);
                     string line = ToolText.Line(command);
                     // the card shows the whole command (Detail); the ✓ line under the answer its first 80 characters
-                    var question = new ToolAsk(call.Id, call.Name, call.Arguments, Tr($"명령 실행: {line}", $"Run a command: {line}"), ToolPermissions.Command) { Detail = ToolText.Visible(command) };
+                    var question = new ToolAsk(call.Id, call.Name, call.Arguments, Tr($"명령 실행: {line}", $"Run command: {line}"), ToolPermissions.Command) { Detail = ToolText.Visible(command) };
                     if (!await Asked(question, stop).ConfigureAwait(false)) return (Declined, true);
                     Directory.CreateDirectory(folder);
                     return await ApiCommand.RunAsync(command, folder, stop).ConfigureAwait(false);
@@ -284,27 +284,27 @@ internal sealed class ApiToolbox
             // nothing was opened to tell this: each link's own data says where it leads, one after the other
             for (var hop = trace; hop is { Any: true }; hop = hop.Then)
             {
-                string link = ToolText.Visible(hop.Link!), target = hop.Target is null ? Tr("알 수 없는 위치", "somewhere unknown") : ToolText.Visible(hop.Target);
-                detail += "\n" + Tr($"링크를 거칩니다: {link} → {target}", $"Goes through a link: {link} → {target}");
-                if (hop.Remote) detail += "\n" + Tr("링크가 네트워크 경로나 장치로 이어집니다.", "The link leads to a network path or a device.");
+                string link = ToolText.Visible(hop.Link!), target = hop.Target is null ? Tr("알 수 없는 위치", "Unknown location") : ToolText.Visible(hop.Target);
+                detail += "\n" + Tr($"링크를 거칩니다: {link} → {target}", $"Follows link: {link} → {target}");
+                if (hop.Remote) detail += "\n" + Tr("링크가 네트워크 경로나 장치로 이어집니다.", "The link points to a network path or device.");
             }
             // the file it comes to: what is opened after the answer, and only if the links are still these
             if (trace.End().Expected is { } ends)
             {
                 string shown = ToolText.Visible(ends);
-                detail += "\n" + Tr($"실제 위치: {shown}", $"Really at: {shown}");
+                detail += "\n" + Tr($"실제 위치: {shown}", $"Actual path: {shown}");
             }
         }
         if (really is not null && !RealPath.Same(really, full))
         {
             string shown = ToolText.Visible(really);
-            detail += "\n" + Tr($"실제 위치: {shown}", $"Really at: {shown}");
+            detail += "\n" + Tr($"실제 위치: {shown}", $"Actual path: {shown}");
         }
-        if (RealPath.Kind(full) == PathKind.Network) detail += "\n" + Tr("네트워크 경로입니다.", "A network path.");
+        if (RealPath.Kind(full) == PathKind.Network) detail += "\n" + Tr("네트워크 경로입니다.", "This is a network path.");
         if (held is { IsDirectory: false })
         {
-            detail += "\n" + Tr("이미 있는 파일입니다.", "The file exists already.");
-            if (held.Links > 1) detail += " " + Tr($"다른 이름이 {held.Links - 1}개 더 있어 다른 위치에서도 바뀝니다.", $"It has {held.Links - 1} other names, so it changes there too.");
+            detail += "\n" + Tr("이미 존재하는 파일입니다.", "File already exists.");
+            if (held.Links > 1) detail += " " + Tr($"다른 이름이 {held.Links - 1}개 더 있어 다른 위치에서도 바뀝니다.", $"Has {held.Links - 1} other hard link(s), so it will also change in other locations.");
         }
         if (body.Length > 0) detail += "\n" + body;
         return new ToolAsk(call.Id, call.Name, call.Arguments, says, key) { Detail = detail };

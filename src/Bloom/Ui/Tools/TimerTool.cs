@@ -22,7 +22,7 @@ internal sealed class TimerTool : ITool
     private readonly DispatcherTimer tick = new() { Interval = TimeSpan.FromSeconds(1) };
 
     public string Key => "timers";
-    public string Name => Tr("타이머 · 알림", "Timers");
+    public string Name => Tr("타이머 · 알림", "Timers · Reminders");
     public char Glyph => G.Stopwatch;
     public FrameworkElement View => view;
     public FrameworkElement? Head => null;
@@ -36,16 +36,16 @@ internal sealed class TimerTool : ITool
         view.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
 
         var units = new Grid { Margin = new Thickness(12, 10, 12, 0) };
-        days = Unit(units, Tr("일", "d"), 99);
-        hours = Unit(units, Tr("시간", "h"), 23);
+        days = Unit(units, Tr("일", "days"), 99);
+        hours = Unit(units, Tr("시간", "hr"), 23);
         minutes = Unit(units, Tr("분", "min"), 59);
-        seconds = Unit(units, Tr("초", "s"), 59);
+        seconds = Unit(units, Tr("초", "sec"), 59);
         view.Children.Add(units);
 
         var line = new Grid { Margin = new Thickness(12, 8, 12, 2) };
         line.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
         line.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
-        var (field, box) = ToolUi.Field(Tr("내용 (또는 ‘오후 3시 회의’)", "What for (or ‘3pm meeting’)"));
+        var (field, box) = ToolUi.Field(Tr("내용 (또는 ‘오후 3시 회의’)", "Label (or 'Meeting at 3 PM')"));
         input = box;
         line.Children.Add(field);
         var start = StartButton();
@@ -102,12 +102,12 @@ internal sealed class TimerTool : ITool
             var end = DateTime.Now + length;
             Timers.Add("timer", text.Length > 0 ? text : Tr($"{Timers.DurationText(length)} 타이머", $"{Timers.DurationText(length)} timer"), end);
             input.Clear();
-            Say(Tr($"타이머 시작 · {Timers.WhenText(end)} 종료", $"Started · ends {Timers.WhenText(end)}"));
+            Say(Tr($"타이머 시작 · {Timers.WhenText(end)} 종료", $"Timer started · Ends at {Timers.WhenText(end)}"));
             return;
         }
         if (text.Length == 0)
         {
-            Say(Tr("시간을 맞추거나 ‘10분’, ‘오후 3시 회의’처럼 입력하세요", "Set a time, or write ‘10 min’ or ‘3pm meeting’"));
+            Say(Tr("시간을 맞추거나 ‘10분’, ‘오후 3시 회의’처럼 입력하세요", "Set a duration or type like '10m' or 'Meeting at 3 PM'"));
             return;
         }
         // "10" alone reads as minutes here: this line only ever starts timers
@@ -115,13 +115,13 @@ internal sealed class TimerTool : ITool
         // this line only starts timers and reminders, so a time needs no 타이머 / 알림 word ("10분 회의", "오후 3시 회의")
         if (TimeParse.Read(text, timerField: true) is not { } ask)
         {
-            Say(Tr("시간 인식 실패 · 위에서 시간을 맞추거나 ‘10분’, ‘오후 3시 회의’처럼 입력하세요", "Time not recognized. Set it above or enter ‘10 min’ or ‘3pm meeting’."));
+            Say(Tr("시간 인식 실패 · 위에서 시간을 맞추거나 ‘10분’, ‘오후 3시 회의’처럼 입력하세요", "Could not recognize time · Set a time above or type like '10m' or 'Meeting at 3 PM'"));
             return;
         }
         var due = ask.Length is { } l ? DateTime.Now + l : ask.Due;
         Timers.Add(ask.Kind, ask.Label, due);
         input.Clear();
-        Say(ask.Kind == "timer" ? Tr($"타이머 시작 · {Timers.WhenText(due)} 종료", $"Started · ends {Timers.WhenText(due)}") : Tr($"{Timers.WhenText(due)} 알림 설정됨", $"Reminder set for {Timers.WhenText(due)}"));
+        Say(ask.Kind == "timer" ? Tr($"타이머 시작 · {Timers.WhenText(due)} 종료", $"Timer started · Ends at {Timers.WhenText(due)}") : Tr($"{Timers.WhenText(due)} 알림 설정됨", $"Reminder set for {Timers.WhenText(due)}"));
     }
 
     /// One unit of the length in its own column: a number with its name after it ("10분") that ▲ ▼, the wheel and the
@@ -246,7 +246,7 @@ internal sealed class TimerTool : ITool
         var waiting = Timers.Waiting.ToList();
         if (waiting.Count == 0)
         {
-            list.Children.Add(ToolUi.Empty(Tr("진행 중인 타이머·알림 없음", "No timers or reminders running")));
+            list.Children.Add(ToolUi.Empty(Tr("진행 중인 타이머·알림 없음", "No active timers or reminders")));
             return;
         }
         foreach (var t in waiting)
@@ -264,7 +264,7 @@ internal sealed class TimerTool : ITool
             g.Children.Add(text);
             var buttons = new StackPanel { Orientation = Orientation.Horizontal, VerticalAlignment = VerticalAlignment.Center };
             string id = t.Id;
-            buttons.Children.Add(ToolUi.Button(G.Add, Tr("5분 더", "5 more min"), () => Timers.Extend(id, TimeSpan.FromMinutes(5))));
+            buttons.Children.Add(ToolUi.Button(G.Add, Tr("5분 더", "+5 min"), () => Timers.Extend(id, TimeSpan.FromMinutes(5))));
             buttons.Children.Add(ToolUi.Button(G.Close, Tr("취소", "Cancel"), () => Timers.Remove(id)));
             Grid.SetColumn(buttons, 1);
             g.Children.Add(buttons);

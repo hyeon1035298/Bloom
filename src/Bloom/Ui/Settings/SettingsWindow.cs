@@ -19,7 +19,7 @@ internal sealed class SettingsWindow : Window
 
     public SettingsWindow(Host host)
     {
-        Title = Tr("Bloom 설정", "Bloom settings");
+        Title = Tr("Bloom 설정", "Bloom Settings");
         Width = 1040;
         Height = 780;
         MinWidth = 700;
@@ -60,7 +60,7 @@ internal sealed class SettingsWindow : Window
             Padding = new Thickness(0),
             Template = Launcher.BareTextBox(),
         };
-        placeholder = Theme.T(Tr("설정 찾기", "Find a setting"), 13, Theme.P.TextFaint);
+        placeholder = Theme.T(Tr("설정 찾기", "Search settings"), 13, Theme.P.TextFaint);
         placeholder.IsHitTestVisible = false;
         placeholder.VerticalAlignment = VerticalAlignment.Center;
         var boxHost = new Grid();
@@ -103,7 +103,7 @@ internal sealed class SettingsWindow : Window
         Grid.SetRow(footLine, 1);
         main.Children.Add(footLine);
         // the left of the foot: a change needs no saving
-        var saved = Theme.T(Tr("바꾼 값은 바로 들어갑니다", "Changes take effect right away"), 12, Theme.P.TextFaint, Theme.Regular, false);
+        var saved = Theme.T(Tr("바꾼 값은 바로 들어갑니다", "Changes apply immediately"), 12, Theme.P.TextFaint, Theme.Regular, false);
         saved.Margin = new Thickness(16, 0, 0, 0);
         Grid.SetRow(saved, 2);
         main.Children.Add(saved);
@@ -116,9 +116,9 @@ internal sealed class SettingsWindow : Window
             foot.Children.Add(Keys.Caps(keys));
             if (divider) foot.Children.Add(new SmoothBorder { Width = 1, Height = 14, Background = Theme.P.Line, Margin = new Thickness(12, 0, 12, 0), VerticalAlignment = VerticalAlignment.Center });
         }
-        Hint(Tr("분류", "Section"), "Ctrl+Tab", true);
+        Hint(Tr("분류", "Category"), "Ctrl+Tab", true);
         Hint(Tr("바꾸기", "Change"), "Enter", true);
-        Hint(Tr("고르기", "Pick"), "←→", true);
+        Hint(Tr("고르기", "Select"), "←→", true);
         Hint(Tr("닫기", "Close"), "Esc", false);
         Grid.SetRow(foot, 2);
         main.Children.Add(foot);

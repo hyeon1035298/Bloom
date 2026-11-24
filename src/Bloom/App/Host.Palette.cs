@@ -95,7 +95,7 @@ internal sealed partial class Host
         {
             p.Points = null; // read again next time; while its Lens copy is gone − n + goes
             p.Count = p.Saved.Count;
-            Window.ShowToast(Tr("원본 그림이 지워져 다시 만들 수 없습니다", "The picture is gone, so it can't be made again"));
+            Window.ShowToast(Tr("원본 그림이 삭제되어 다시 만들 수 없습니다", "Cannot recreate because the source image was deleted"));
         }
         RefreshPalette(p);
     }

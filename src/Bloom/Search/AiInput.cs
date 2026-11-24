@@ -10,7 +10,7 @@ internal static class AiInput
     public static string Name(string input) => input switch
     {
         Clipboard => Tr("클립보드", "Clipboard"),
-        None => Tr("입력 없음", "No input"),
+        None => Tr("입력 없음", "No Input"),
         _ => Tr("선택한 글", "Selected text"),
     };
 

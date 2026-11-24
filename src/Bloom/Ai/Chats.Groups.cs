@@ -34,7 +34,7 @@ internal sealed partial class Chats
     public ChatGroup NewGroup()
     {
         string name = Tr("새 그룹", "New group");
-        for (int n = 2; Groups.Exists(g => g.Name == name); n++) name = Tr($"새 그룹 {n}", $"New group {n}");
+        for (int n = 2; Groups.Exists(g => g.Name == name); n++) name = Tr($"새 그룹 {n}", $"New Group {n}");
         var group = new ChatGroup { Id = Guid.NewGuid().ToString("N")[..8], Name = name };
         Groups.Add(group);
         SaveGroups();

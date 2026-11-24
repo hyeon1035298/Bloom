@@ -26,8 +26,8 @@ internal static partial class AiSchedule
         {
             char unit = char.ToLowerInvariant(m.Groups[2].Value[0]) switch { 'h' or '시' => 'h', 'd' or '일' => 'd', _ => 'm' };
             var span = unit switch { 'h' => TimeSpan.FromHours(n), 'd' => TimeSpan.FromDays(n), _ => TimeSpan.FromMinutes(n) };
-            if (span < Shortest) return (null, Tr("가장 짧은 주기는 30분입니다", "The shortest interval is 30 minutes"));
-            if (span > TimeSpan.FromDays(365)) return (null, Tr("주기는 365일까지 정할 수 있습니다", "The interval can be at most 365 days"));
+            if (span < Shortest) return (null, Tr("가장 짧은 주기는 30분입니다", "Minimum interval is 30 minutes"));
+            if (span > TimeSpan.FromDays(365)) return (null, Tr("주기는 365일까지 정할 수 있습니다", "Maximum interval is 365 days"));
             // whole minutes keep the kept form short: 1.5시간 → 90m
             return unit != 'm' && n == Math.Floor(n) ? ($"{n:0}{unit}", null) : ($"{(int)Math.Round(span.TotalMinutes)}m", null);
         }
@@ -44,9 +44,9 @@ internal static partial class AiSchedule
     {
         if (Daily(every) is not null) return Tr($"매일 {every[6..]}", $"Daily at {every[6..]}");
         if (Span(every) is not { } span) return every;
-        if (every.EndsWith('d')) return Tr($"{span.TotalDays:0}일마다", $"Every {span.TotalDays:0} d");
-        if (every.EndsWith('h')) return Tr($"{span.TotalHours:0}시간마다", $"Every {span.TotalHours:0} h");
-        return span.TotalMinutes % 60 == 0 ? Tr($"{span.TotalHours:0}시간마다", $"Every {span.TotalHours:0} h") : Tr($"{span.TotalMinutes:0}분마다", $"Every {span.TotalMinutes:0} min");
+        if (every.EndsWith('d')) return Tr($"{span.TotalDays:0}일마다", $"Every {span.TotalDays:0}d");
+        if (every.EndsWith('h')) return Tr($"{span.TotalHours:0}시간마다", $"Every {span.TotalHours:0}h");
+        return span.TotalMinutes % 60 == 0 ? Tr($"{span.TotalHours:0}시간마다", $"Every {span.TotalHours:0}h") : Tr($"{span.TotalMinutes:0}분마다", $"Every {span.TotalMinutes:0}m");
     }
 
     /// "daily 09:00" → 09:00; null for an interval.

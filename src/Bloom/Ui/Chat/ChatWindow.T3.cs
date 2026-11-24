@@ -63,8 +63,8 @@ internal sealed partial class ChatWindow
     /// (picking chats to delete) is gone.
     private void Hints()
     {
-        if (findHint is not null) findHint.Text = OnT3 ? Tr("스레드 찾기", "Find a thread") : Tr("대화 찾기", "Find a chat");
-        if (findFoot is not null) findFoot.Text = OnT3 ? Tr("스레드 찾기", "Find a thread") : Tr("대화 찾기", "Find a chat");
+        if (findHint is not null) findHint.Text = OnT3 ? Tr("스레드 찾기", "Search threads") : Tr("대화 찾기", "Search chats");
+        if (findFoot is not null) findFoot.Text = OnT3 ? Tr("스레드 찾기", "Search threads") : Tr("대화 찾기", "Search chats");
         if (pickKey is not null) pickKey.Visibility = OnT3 ? Visibility.Collapsed : Visibility.Visible;
     }
 
@@ -115,10 +115,10 @@ internal sealed partial class ChatWindow
             list.Children.Add(MoreLink(Tr("스레드 더 불러오기", "Load more threads"), () => _ = T3.Refresh(more: true)));
         string? note = T3.ListState switch
         {
-            "loading" => Tr("T3의 스레드를 읽는 중…", "Reading T3's threads…"),
-            "t3-off" => Tr("T3에 닿지 못했어요. T3 Code가 켜져 있는지 보세요.", "Couldn't reach T3. Check that T3 Code is running."),
-            "failed" => Tr("T3의 스레드를 읽지 못했어요.", "Couldn't read T3's threads."),
-            _ when groups.Count == 0 => filtering ? Tr("검색된 스레드 없음", "No thread matches") : Tr("T3에 스레드가 없어요. 새 대화로 하나 만드세요.", "T3 has no threads yet. Start one with 새 대화."),
+            "loading" => Tr("T3의 스레드를 읽는 중…", "Loading T3 threads…"),
+            "t3-off" => Tr("T3에 닿지 못했어요. T3 Code가 켜져 있는지 보세요.", "Could not connect to T3. Make sure T3 Code is running."),
+            "failed" => Tr("T3의 스레드를 읽지 못했어요.", "Could not load threads from T3."),
+            _ when groups.Count == 0 => filtering ? Tr("검색된 스레드 없음", "No matching threads") : Tr("T3에 스레드가 없어요. 새 대화로 하나 만드세요.", "No threads in T3. Start a new chat to create one."),
             _ => null,
         };
         if (note is not null)
@@ -174,7 +174,7 @@ internal sealed partial class ChatWindow
         words.Children.Add(head);
         string model = row.Instance.Length > 0 && row.Model.Length > 0 ? AiModels.Name(AiModels.T3(row.Instance, row.Model)) : "T3";
         bool asking = row.Pending > 0 || row.Status == "waiting";
-        string sub = asking ? Tr("답을 기다리는 중", "Waiting for you") : row.Active ? Tr("일하는 중…", "Working…") : model + "  ·  " + Engine.Ago(row.Updated.ToLocalTime());
+        string sub = asking ? Tr("답을 기다리는 중", "Waiting for reply") : row.Active ? Tr("일하는 중…", "Working…") : model + "  ·  " + Engine.Ago(row.Updated.ToLocalTime());
         var s = Theme.T(sub, 11.5, asking ? Theme.P.Warn : row.Active ? Theme.P.AccentText : Theme.P.TextFaint);
         s.Margin = new Thickness(15, 3, 0, 0);
         words.Children.Add(s);
@@ -188,7 +188,7 @@ internal sealed partial class ChatWindow
             Cursor = Cursors.Hand,
             Child = words,
             Opacity = row.Settled && !on ? 0.55 : 1,
-            ToolTip = row.Settled ? Tr("T3에서 끝난 스레드", "Settled in T3") : null,
+            ToolTip = row.Settled ? Tr("T3에서 끝난 스레드", "Settled thread in T3") : null,
         };
         item.MouseEnter += (_, _) =>
         {
@@ -271,7 +271,7 @@ internal sealed partial class ChatWindow
         {
             var open = TextButton(G.NewWindow, Tr("T3에서 열기", "Open in T3"), () =>
             {
-                if (!T3Chats.OpenInT3(thread)) ShowToast(Tr("T3를 열지 못했어요", "Couldn't open T3"));
+                if (!T3Chats.OpenInT3(thread)) ShowToast(Tr("T3를 열지 못했어요", "Could not open T3"));
             });
             open.Margin = new Thickness(8, 0, 0, 0);
             tools.Children.Add(open);
@@ -283,7 +283,7 @@ internal sealed partial class ChatWindow
     {
         var r = t.T3!;
         string project = r.ThreadId is null && r.Scratch ? Tr("폴더 없이", "No folder") : T3.Projects.FirstOrDefault(p => p.Id == r.ProjectId)?.Title ?? "";
-        return (project, r.ThreadId is null && t.Messages.Count == 0 ? Tr("새 T3 스레드", "New T3 thread") : t.Title);
+        return (project, r.ThreadId is null && t.Messages.Count == 0 ? Tr("새 T3 스레드", "New T3 Thread") : t.Title);
     }
 
     /// What the bar of a T3 chat shows, to tell when it is to be drawn again.
@@ -325,26 +325,26 @@ internal sealed partial class ChatWindow
     {
         if (t.T3 is not { ThreadId: null } r) return null;
         var sp = new StackPanel { HorizontalAlignment = HorizontalAlignment.Center, Margin = new Thickness(0, 48, 0, 0), Width = 460 };
-        var big = Theme.T(Tr("어느 폴더에서 일할까요?", "Which folder should T3 work in?"), 17, Theme.P.Text, Theme.Medium, false);
+        var big = Theme.T(Tr("어느 폴더에서 일할까요?", "Which folder would you like to work in?"), 17, Theme.P.Text, Theme.Medium, false);
         big.HorizontalAlignment = HorizontalAlignment.Center;
         sp.Children.Add(big);
-        var sub = Theme.T(Tr("T3에 등록된 프로젝트입니다 · 보내면 T3에 새 스레드가 생깁니다", "T3's projects · sending makes a new thread in T3"), 12.5, Theme.P.TextFaint, Theme.Regular, false);
+        var sub = Theme.T(Tr("T3에 등록된 프로젝트입니다 · 보내면 T3에 새 스레드가 생깁니다", "Projects registered in T3 · Sending a message creates a new thread in T3"), 12.5, Theme.P.TextFaint, Theme.Regular, false);
         sub.HorizontalAlignment = HorizontalAlignment.Center;
         sub.Margin = new Thickness(0, 6, 0, 16);
         sp.Children.Add(sub);
         if (T3.Projects.Count == 0 && T3.ListState is "loading" or "t3-off" or "failed")
         {
-            sp.Children.Add(ToolUi.Empty(T3.ListState == "loading" ? Tr("T3의 폴더를 읽는 중…", "Reading T3's folders…") : Tr("T3에 닿지 못했어요. T3 Code가 켜져 있는지 보세요.", "Couldn't reach T3. Check that T3 Code is running.")));
+            sp.Children.Add(ToolUi.Empty(T3.ListState == "loading" ? Tr("T3의 폴더를 읽는 중…", "Loading folders from T3…") : Tr("T3에 닿지 못했어요. T3 Code가 켜져 있는지 보세요.", "Could not connect to T3. Make sure T3 Code is running.")));
             return sp;
         }
         var cards = new UniformGrid { Columns = 2 };
         foreach (var p in T3.Projects)
         {
             int count = T3.Rows.Count(x => x.ProjectId == p.Id);
-            string about = (p.Root ?? "") + (count > 0 ? Tr($" · 스레드 {count}", $" · {count} thread{(count == 1 ? "" : "s")}") : "");
+            string about = (p.Root ?? "") + (count > 0 ? Tr($" · 스레드 {count}", $" · {count} threads") : "");
             cards.Children.Add(FolderCard(G.Folder, p.Title, about, !r.Scratch && r.ProjectId == p.Id, () => PickFolder(t, p.Id)));
         }
-        cards.Children.Add(FolderCard(G.Add, Tr("폴더 없이", "No folder"), Tr("빈 작업 공간(scratch)", "An empty scratch folder"), r.Scratch, () => PickFolder(t, null)));
+        cards.Children.Add(FolderCard(G.Add, Tr("폴더 없이", "No folder"), Tr("빈 작업 공간(scratch)", "Empty scratch workspace"), r.Scratch, () => PickFolder(t, null)));
         sp.Children.Add(cards);
         return sp;
     }
@@ -423,16 +423,16 @@ internal sealed partial class ChatWindow
         sendKey.ToolTip = stop ? Tr("정지 (Esc)", "Stop (Esc)") : Tr("보내기 (Enter)", "Send (Enter)");
         attachKey.Visibility = t3 ? Visibility.Collapsed : Visibility.Visible;
         if (attachFoot is not null) attachFoot.Visibility = attachKey.Visibility;
-        inputHint.Text = !t3 ? Tr("메시지 입력 — Enter로 보내고 Shift+Enter로 줄을 변경합니다", "Message — Enter sends, Shift+Enter adds a line")
-            : thread.Messages.LastOrDefault()?.Question is not null ? Tr("질문에 답하거나 이어서 보내기", "Answer the question, or send more")
+        inputHint.Text = !t3 ? Tr("메시지 입력 — Enter로 보내고 Shift+Enter로 줄을 변경합니다", "Type a message — Enter to send, Shift+Enter for new line")
+            : thread.Messages.LastOrDefault()?.Question is not null ? Tr("질문에 답하거나 이어서 보내기", "Answer the question or send a follow-up")
             : thread.T3!.ThreadId is null ? NewHint(thread.T3)
-            : thread.Busy ? Tr("이어서 보낼 말 · 지금 턴에 넣어요", "More for this turn · it goes in now")
-            : Tr("T3 스레드에 이어서 보내기", "Send more to the T3 thread");
+            : thread.Busy ? Tr("이어서 보낼 말 · 지금 턴에 넣어요", "Steer or add to the current turn")
+            : Tr("T3 스레드에 이어서 보내기", "Follow up in T3 thread");
     }
 
-    private string NewHint(T3Ref r) => r.Scratch ? Tr("새 작업 공간에서 할 일을 적으세요", "What should T3 do in a new scratch folder?")
-        : T3.Projects.FirstOrDefault(p => p.Id == r.ProjectId)?.Title is { } name ? Tr($"{name}에서 할 일을 적으세요", $"What should T3 do in {name}?")
-        : Tr("T3에 맡길 일을 적으세요", "What should T3 do?");
+    private string NewHint(T3Ref r) => r.Scratch ? Tr("새 작업 공간에서 할 일을 적으세요", "Describe what to do in the scratch workspace")
+        : T3.Projects.FirstOrDefault(p => p.Id == r.ProjectId)?.Title is { } name ? Tr($"{name}에서 할 일을 적으세요", $"Describe what to do in {name}")
+        : Tr("T3에 맡길 일을 적으세요", "Describe a task for T3");
 
     /// The window's place in front tells T3Chats how often to read the open T3 thread.
     private void WatchT3() => T3.Watch(thread.T3 is not null ? thread : null, IsVisible && WindowState != WindowState.Minimized, IsActive);

@@ -24,21 +24,21 @@ internal static class Home
 {
     public static readonly (string key, string name, string about, char glyph, bool on, int count, bool right)[] Kinds =
     {
-        ("usage", Tr("AI 사용량", "AI usage"), Tr("Claude Code · Codex에 물어본 5시간 · 주간 사용량", "5-hour and weekly usage, asked of Claude Code and Codex"), G.Model, true, 0, false),
-        ("tokens", Tr("토큰 사용량", "Token usage"), Tr("API 환산액 · 토큰 · 호출 · 캐시 적중률 · 처음 켜면 기록 전체를 백그라운드에서 한 번 읽음 · 압축된 Codex 기록 제외", "API-priced cost, tokens, calls, cache hits · the first time on, all logs are read once in the background · compressed Codex logs left out"), G.Speed, false, 0, false),
-        ("tokenchart", Tr("토큰 그래프", "Token chart"), Tr("시간 · 날짜별 토큰 막대그래프 · 처음 켜면 기록 전체를 백그라운드에서 한 번 읽음 · 압축된 Codex 기록 제외", "Tokens by hour or day as bars · the first time on, all logs are read once in the background · compressed Codex logs left out"), G.Clock, false, 0, false),
-        ("tokenmodels", Tr("모델별 사용량", "Usage by model"), Tr("토큰을 많이 쓴 모델과 그 비율 · effort 비율 · 처음 켜면 기록 전체를 백그라운드에서 한 번 읽음 · 압축된 Codex 기록 제외", "The models that used the most tokens, and their share · effort mix · the first time on, all logs are read once in the background · compressed Codex logs left out"), G.Sliders, false, 5, true),
-        ("tokensessions", Tr("세션별 사용량", "Usage by session"), Tr("토큰을 많이 쓴 세션 · 제목 · 폴더 · effort · 처음 켜면 기록 전체를 백그라운드에서 한 번 읽음 · 압축된 Codex 기록 제외", "The sessions that used the most tokens · title, folder, effort · the first time on, all logs are read once in the background · compressed Codex logs left out"), G.Tag, false, 5, true),
-        ("timers", Tr("타이머 · 알림", "Timers · reminders"), Tr("진행 중인 타이머와 알림 (있을 때만 표시)", "Running timers and reminders (only while there are some)"), G.Stopwatch, true, 3, false),
-        ("week", Tr("이번 주", "This week"), Tr("오늘부터 7일의 알림 — 날짜를 누르면 캘린더", "Reminders for the next 7 days — click a day for the calendar"), G.Calendar, true, 0, false),
-        ("favorites", Tr("즐겨찾기", "Favorites"), Tr("아이콘 줄 · Ctrl+1…9", "A row of icons · Ctrl+1…9"), G.Star, true, 0, true),
-        ("recent", Tr("최근 사용", "Recent"), Tr("최근에 연 앱 · 파일", "The apps and files you opened last"), G.History, true, 5, true),
-        ("recentfiles", Tr("최근 파일", "Recent files"), Tr("Windows가 기억하는 최근에 연 파일", "Files Windows remembers you opened"), G.Document, false, 3, true),
-        ("clipboard", Tr("최근 복사", "Recently copied"), Tr("클립보드 기록의 최근 항목", "The latest clipboard entries"), G.Paste, false, 3, true),
-        ("threads", Tr("최근 AI 채팅", "Recent AI chats"), Tr("이어 가기 좋은 대화", "Chats to pick up again"), G.Chat, false, 3, true),
-        ("notes", Tr("메모", "Notes"), Tr("최근 메모 · 누르면 메모 창에서 열림 · 새 메모", "Your latest notes · click one to open it in Notes · a new note"), G.Document, false, 3, true),
-        ("player", Tr("플레이어", "Player"), Tr("지금 재생 중인 곡과 이전 · 재생 · 다음 · Bloom이 재생하지 않으면 다른 앱의 곡", "The song playing now with previous, play and next · another app's song while Bloom plays none"), Music.PlayerGlyph.Music, false, 0, true),
-        ("commands", Tr("명령", "Commands"), Tr("Bloom의 기능 목록", "Bloom's features"), G.Settings, true, 0, true),
+        ("usage", Tr("AI 사용량", "AI Usage"), Tr("Claude Code · Codex에 물어본 5시간 · 주간 사용량", "5-hour and weekly usage for Claude Code · Codex"), G.Model, true, 0, false),
+        ("tokens", Tr("토큰 사용량", "Token Usage"), Tr("API 환산액 · 토큰 · 호출 · 캐시 적중률 · 처음 켜면 기록 전체를 백그라운드에서 한 번 읽음 · 압축된 Codex 기록 제외", "Est. API cost · Tokens · Calls · Cache hit rate · Scans full history once in background on first enable · Excludes compacted Codex logs"), G.Speed, false, 0, false),
+        ("tokenchart", Tr("토큰 그래프", "Token Chart"), Tr("시간 · 날짜별 토큰 막대그래프 · 처음 켜면 기록 전체를 백그라운드에서 한 번 읽음 · 압축된 Codex 기록 제외", "Hourly and daily token bar chart · Scans full history once in background on first enable · Excludes compacted Codex logs"), G.Clock, false, 0, false),
+        ("tokenmodels", Tr("모델별 사용량", "Usage by Model"), Tr("토큰을 많이 쓴 모델과 그 비율 · effort 비율 · 처음 켜면 기록 전체를 백그라운드에서 한 번 읽음 · 압축된 Codex 기록 제외", "Top models by token share · Effort breakdown · Scans full history once in background on first enable · Excludes compacted Codex logs"), G.Sliders, false, 5, true),
+        ("tokensessions", Tr("세션별 사용량", "Usage by Session"), Tr("토큰을 많이 쓴 세션 · 제목 · 폴더 · effort · 처음 켜면 기록 전체를 백그라운드에서 한 번 읽음 · 압축된 Codex 기록 제외", "Top sessions by token usage · Title · Folder · Effort · Scans full history once in background on first enable · Excludes compacted Codex logs"), G.Tag, false, 5, true),
+        ("timers", Tr("타이머 · 알림", "Timers · Reminders"), Tr("진행 중인 타이머와 알림 (있을 때만 표시)", "Active timers and reminders (shown only when running)"), G.Stopwatch, true, 3, false),
+        ("week", Tr("이번 주", "This week"), Tr("오늘부터 7일의 알림 — 날짜를 누르면 캘린더", "Reminders for the next 7 days — click a date to open Calendar"), G.Calendar, true, 0, false),
+        ("favorites", Tr("즐겨찾기", "Favorites"), Tr("아이콘 줄 · Ctrl+1…9", "Icon row · Ctrl+1…9"), G.Star, true, 0, true),
+        ("recent", Tr("최근 사용", "Recent Items"), Tr("최근에 연 앱 · 파일", "Recently opened apps and files"), G.History, true, 5, true),
+        ("recentfiles", Tr("최근 파일", "Recent Files"), Tr("Windows가 기억하는 최근에 연 파일", "Recently opened files from Windows history"), G.Document, false, 3, true),
+        ("clipboard", Tr("최근 복사", "Recently copied"), Tr("클립보드 기록의 최근 항목", "Recent items from clipboard history"), G.Paste, false, 3, true),
+        ("threads", Tr("최근 AI 채팅", "Recent AI chats"), Tr("이어 가기 좋은 대화", "Recent AI chats to continue"), G.Chat, false, 3, true),
+        ("notes", Tr("메모", "Notes"), Tr("최근 메모 · 누르면 메모 창에서 열림 · 새 메모", "Recent notes · Click to open in Notes window · New note"), G.Document, false, 3, true),
+        ("player", Tr("플레이어", "Player"), Tr("지금 재생 중인 곡과 이전 · 재생 · 다음 · Bloom이 재생하지 않으면 다른 앱의 곡", "Now playing track and playback controls · Shows media from other apps when Bloom is idle"), Music.PlayerGlyph.Music, false, 0, true),
+        ("commands", Tr("명령", "Command"), Tr("Bloom의 기능 목록", "List of Bloom features and commands"), G.Settings, true, 0, true),
     };
 
     /// The rows a list block can be set to show (홈 편집's − n +).

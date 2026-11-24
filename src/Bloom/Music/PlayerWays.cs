@@ -11,7 +11,7 @@ internal static class PlayerWays
 {
     public const string Direct = "direct", Jriver = "jriver", Foobar = "foobar", MusicBee = "musicbee";
 
-    public static readonly (string key, string name)[] All = { (Direct, Tr("직접 재생", "Direct")), (Jriver, "JRiver"), (Foobar, "foobar2000"), (MusicBee, "MusicBee") };
+    public static readonly (string key, string name)[] All = { (Direct, Tr("직접 재생", "Direct Playback")), (Jriver, "JRiver"), (Foobar, "foobar2000"), (MusicBee, "MusicBee") };
 
     /// The setting's value, or the direct way when it names none of these.
     public static string Of(string? value) => All.Any(w => w.key == value) ? value! : Direct;

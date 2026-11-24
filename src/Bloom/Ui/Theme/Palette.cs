@@ -203,12 +203,12 @@ internal static class Accents
         if (t.StartsWith('#')) t = t[1..];
         if (t.Length == 0)
         {
-            error = Tr("색 코드를 적어 주세요 (예: #3A7BD5)", "Type a colour code (like #3A7BD5)");
+            error = Tr("색 코드를 적어 주세요 (예: #3A7BD5)", "Enter a color code (e.g. #3A7BD5)");
             return false;
         }
         if (t.Length != 6 || !t.All(Uri.IsHexDigit))
         {
-            error = Tr("#과 16진수 6자리(0-9, A-F)로 적어 주세요 (예: #3A7BD5)", "Use # and 6 hex digits (0-9, A-F), like #3A7BD5");
+            error = Tr("#과 16진수 6자리(0-9, A-F)로 적어 주세요 (예: #3A7BD5)", "Enter # followed by 6 hex digits (0-9, A-F) (e.g. #3A7BD5)");
             return false;
         }
         uint v = Convert.ToUInt32(t, 16);

@@ -49,9 +49,9 @@ internal sealed partial class Host
             string model = "Fable"; // a hole, as ClaudeUsage writes it, so the tables' "{0} weekly" translates it
             return new("Claude", "Ultra", new()
             {
-                new(Tr("5시간", "5h"), hour, DateTime.Now.AddHours(3).AddMinutes(12 + (nth * 41)), UsageLimit.SessionMins),
+                new(Tr("5시간", "5-hour"), hour, DateTime.Now.AddHours(3).AddMinutes(12 + (nth * 41)), UsageLimit.SessionMins),
                 new(Tr("주간", "Weekly"), week, DateTime.Now.AddDays(4 - nth), UsageLimit.WeekMins),
-                new(Tr($"{model} 주간", $"{model} weekly"), fable, DateTime.Now.AddDays(4 - nth), UsageLimit.WeekMins, model),
+                new(Tr($"{model} 주간", $"{model} Weekly"), fable, DateTime.Now.AddDays(4 - nth), UsageLimit.WeekMins, model),
             }, DateTime.Now)
             { Id = a.Id };
         }

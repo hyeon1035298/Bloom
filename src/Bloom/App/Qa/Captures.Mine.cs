@@ -60,11 +60,11 @@ internal static partial class Captures
         host.Quick.Action = host.Quick.Result = host.Quick.Error = null;
         await Shot(w, dir, $"{l}-dark-m9-quick-mine", Mode.Quick, "", 700);
         long now = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
-        NoticeLog.Add(false, Tr("AI 명령 · 실패", "AI command · Failed"), daily.Name, Tr("Claude 답변이 없습니다. 다시 시도하세요.", "No answer from Claude. Try again."), null, now - 26 * 3600 * 1000L);
-        NoticeLog.Add(true, Tr("AI 명령 · 완료", "AI command · Done"), daily.Name, Tr("**놓치다(miss)** — 버스를 놓쳤어요.\n1. 기차를 놓칠 뻔했어요.\n2. 그 기회는 놓치지 마세요.", "**I'm swamped** — I have too much to do.\n1. I'm swamped this week.\n2. Sorry, I was swamped yesterday."), "qa-none", now - 3600 * 1000L);
-        NoticeLog.Add(true, Tr("Codex · 작업 완료", "Codex · Done"), Tr("로그인 화면 다듬기", "Polish the sign-in screen"), Tr("소요 시간 12분", "Elapsed: 12 min"), null, now - 20 * 60 * 1000L);
-        NoticeLog.Add(false, Tr("Claude · 한도 임박", "Claude · Limit near"), Tr("주간 한도 18% 남음", "18% of the weekly limit left"), Tr("2일 뒤 초기화", "Resets in 2 d"), null, now - 5 * 60 * 1000L);
-        NoticeLog.Wait("qa-wait", Tr("Claude Code · 승인 대기", "Claude Code · Needs approval"), Tr("다운로드 폴더 정리", "Tidy the downloads folder"), Tr("승인 대기", "Approval pending"), null);
+        NoticeLog.Add(false, Tr("AI 명령 · 실패", "AI Command · Failed"), daily.Name, Tr("Claude의 응답이 없습니다. 다시 시도하세요.", "No response from Claude. Please try again."), null, now - 26 * 3600 * 1000L);
+        NoticeLog.Add(true, Tr("AI 명령 · 완료", "AI Command · Completed"), daily.Name, Tr("**놓치다(miss)** — 버스를 놓쳤어요.\n1. 기차를 놓칠 뻔했어요.\n2. 그 기회는 놓치지 마세요.", "**I'm swamped** — I have too much to do.\n1. I'm swamped this week.\n2. Sorry, I was swamped yesterday."), "qa-none", now - 3600 * 1000L);
+        NoticeLog.Add(true, Tr("Codex · 작업 완료", "Codex · Task Completed"), Tr("로그인 화면 다듬기", "Polish the sign-in screen"), Tr("소요 시간 12분", "Elapsed: 12 min"), null, now - 20 * 60 * 1000L);
+        NoticeLog.Add(false, Tr("Claude · 한도 임박", "Claude · Limit Almost Reached"), Tr("주간 한도 18% 남음", "18% of weekly limit remaining"), Tr("2일 뒤 초기화", "Resets in 2 days"), null, now - 5 * 60 * 1000L);
+        NoticeLog.Wait("qa-wait", Tr("Claude Code · 승인 대기", "Claude Code · Waiting for Approval"), Tr("다운로드 폴더 정리", "Tidy the downloads folder"), Tr("승인 대기", "Awaiting approval"), null);
         foreach (string theme in new[] { "dark", "light" })
         {
             Theme.Apply(theme);
@@ -76,7 +76,7 @@ internal static partial class Captures
 
         var sw = new SettingsWindow(host) { WindowStartupLocation = System.Windows.WindowStartupLocation.Manual, Left = -32000, Top = -32000, ShowActivated = false };
         sw.Show();
-        sw.Filter(Tr("AI 채팅 창", "AI chat window"));
+        sw.Filter(Tr("AI 채팅 창", "AI Chat Window"));
         await Task.Delay(350);
         await sw.Dispatcher.InvokeAsync(() => sw.Capture(Path.Combine(dir, $"{l}-dark-m5-chat-shortcut.png")), System.Windows.Threading.DispatcherPriority.ApplicationIdle);
         sw.Close();
@@ -111,7 +111,7 @@ internal static partial class Captures
         string l = En ? "en" : "ko";
         var t = new ChatThread { Id = "qa-mcp", Title = Tr("다운로드 정리", "Tidy downloads"), Model = "sonnet" };
         t.Messages.Add(new ChatMessage { Role = "user", Text = Tr("어제 받은 견적서 PDF 찾아서 문서 폴더로 옮기고, 10분 타이머 맞춰줘", "Find yesterday's quote PDF, move it to Documents, and set a 10 min timer") });
-        var a = new ChatMessage { Role = "assistant", Text = Tr("`견적서_1007.pdf`를 찾았습니다. 문서 폴더로 옮깁니다.", "Found `quote_1007.pdf`. Moving it to Documents."), Streaming = true, Status = Tr("승인 대기", "Approval pending") };
+        var a = new ChatMessage { Role = "assistant", Text = Tr("`견적서_1007.pdf`를 찾았습니다. 문서 폴더로 옮깁니다.", "Found `quote_1007.pdf`. Moving it to Documents."), Streaming = true, Status = Tr("승인 대기", "Awaiting approval") };
         string timer = Tr("10분 타이머", "10 min timer");
         a.Done = new() { "✓ " + Tr($"Bloom에서 실행: {timer}", $"Run in Bloom: {timer}") };
         a.Asks.Add(new ToolAsk("qa", "mcp__bloom__pc", "{}", Tr(@"옮기기: 견적서_1007.pdf → C:\Users\me\Documents", @"Move: quote_1007.pdf → C:\Users\me\Documents")));

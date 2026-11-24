@@ -29,12 +29,12 @@ internal static class TokenViews
         if (v.Sum.Calls == 0) return Empty(stack, Nothing(counting));
         var tiles = new Grid { Margin = new Thickness(-3, 0, -3, 0) };
         var s = v.Sum;
-        var cost = Tile(Tr("환산액", "Cost"), Money(v.Cost, true),
-            Tr($"API 가격으로 환산 {Money(v.Cost, false)}", $"At API prices {Money(v.Cost, false)}") + (v.Unpriced > 0 ? "\n" + UnpricedWords(v) : ""));
+        var cost = Tile(Tr("환산액", "Est. Cost"), Money(v.Cost, true),
+            Tr($"API 가격으로 환산 {Money(v.Cost, false)}", $"Estimated at API rates: {Money(v.Cost, false)}") + (v.Unpriced > 0 ? "\n" + UnpricedWords(v) : ""));
         var tokens = Tile(Tr("토큰", "Tokens"), Count(s.Total), Tr($"토큰 {Whole(s.Total)}", $"{Whole(s.Total)} tokens"));
         var calls = Tile(Tr("호출", "Calls"), Count(s.Calls), (s.Calls == 1 ? Tr("호출 1", "1 call") : Tr($"호출 {Whole(s.Calls)}", $"{Whole(s.Calls)} calls")));
-        var hits = Tile(Tr("캐시 적중", "Cache hits"), Percent(s.HitRate),
-            Tr($"보낸 입력 {Whole(s.Prompt)} 중 캐시에서 읽음 {Whole(s.CacheRead)}", $"{Whole(s.CacheRead)} of {Whole(s.Prompt)} prompt tokens read from the cache"));
+        var hits = Tile(Tr("캐시 적중", "Cache Hit"), Percent(s.HitRate),
+            Tr($"보낸 입력 {Whole(s.Prompt)} 중 캐시에서 읽음 {Whole(s.CacheRead)}", $"{Whole(s.CacheRead)} read from cache out of {Whole(s.Prompt)} input tokens"));
         var all = new[] { cost, tokens, calls, hits };
         for (int i = 0; i < all.Length; i++)
         {
@@ -48,7 +48,7 @@ internal static class TokenViews
         {
             var line = Theme.T(UnpricedWords(v), 11, Theme.P.TextFaint);
             line.Margin = new Thickness(0, 6, 0, 0);
-            line.ToolTip = Tr("설정 > AI 계정 > 가격표 고치기에서 가격을 넣을 수 있습니다", "Add a price in Settings > AI accounts > Edit prices");
+            line.ToolTip = Tr("설정 > AI 계정 > 가격표 고치기에서 가격을 넣을 수 있습니다", "You can set model prices in Settings > AI Accounts > Edit Pricing");
             stack.Children.Add(line);
         }
         return stack;
@@ -154,14 +154,14 @@ internal static class TokenViews
                 var s = v.Sessions[i];
                 tip.Add($"{Named(i).Name}  {Count(s.Counts.Total)}  {(s.Cost is { } c ? Money(c, true) : "—")}");
             }
-            if (n - shown > RestTipMost) tip.Add(Tr($"… 외 {n - shown - RestTipMost}개", $"… {n - shown - RestTipMost} more"));
+            if (n - shown > RestTipMost) tip.Add(Tr($"… 외 {n - shown - RestTipMost}개", $"… and {n - shown - RestTipMost} more"));
             stack.Children.Add(RestLine(RestWords(rest.Count, rest.Sum(s => s.Counts.Total), rest.Sum(s => s.Cost ?? 0), rest.Count(s => s.Cost is null)), string.Join("\n", tip)));
         }
         if (v.NoSession.Calls > 0)
         {
-            var line = Theme.T(Tr($"세션 구분 없음 · 토큰 {Count(v.NoSession.Total)}", $"No session · {Count(v.NoSession.Total)} tokens"), 11, Theme.P.TextFaint);
+            var line = Theme.T(Tr($"세션 구분 없음 · 토큰 {Count(v.NoSession.Total)}", $"Unassigned session · {Count(v.NoSession.Total)} tokens"), 11, Theme.P.TextFaint);
             line.Margin = new Thickness(0, shown < n ? 2 : 7, 0, 0);
-            line.ToolTip = Tr("100일 지난 기록과 세션을 적지 않은 호출", "Logs older than 100 days, and calls that named no session");
+            line.ToolTip = Tr("100일 지난 기록과 세션을 적지 않은 호출", "Logs older than 100 days and calls without a session");
             stack.Children.Add(line);
         }
         return stack;
@@ -174,7 +174,7 @@ internal static class TokenViews
     /// as one deleted or one that went on in another session), else the title its CLI gave it, else its folder, else
     /// "세션" and the head of its id.
     public static string SessionName(TokenSession s, string? chat) =>
-        s.Bloom ? chat ?? Tr("Bloom AI 채팅 (찾을 수 없음)", "Bloom AI chat (not found)")
+        s.Bloom ? chat ?? Tr("Bloom AI 채팅 (찾을 수 없음)", "Bloom AI Chat (not found)")
         : s.Title ?? s.Folder ?? Tr($"세션 {IdHead(s.Id)}", $"Session {IdHead(s.Id)}");
 
     private static string IdHead(string id) => id.Length > 8 ? id[..8] : id;
@@ -184,10 +184,10 @@ internal static class TokenViews
     private static string RestWords(int n, long total, double priced, int unpriced)
     {
         string tokens = Count(total);
-        if (unpriced == n) return Tr($"그 밖 {n}개 · 토큰 {tokens} · 가격 없음", $"{n} more · {tokens} tokens · no price");
+        if (unpriced == n) return Tr($"그 밖 {n}개 · 토큰 {tokens} · 가격 없음", $"{n} others · {tokens} tokens · No pricing");
         string cost = Money(priced, true);
-        return unpriced == 0 ? Tr($"그 밖 {n}개 · 토큰 {tokens} · {cost}", $"{n} more · {tokens} tokens · {cost}")
-            : Tr($"그 밖 {n}개 · 토큰 {tokens} · {cost} · 가격 없음 {unpriced}개", $"{n} more · {tokens} tokens · {cost} · {unpriced} with no price");
+        return unpriced == 0 ? Tr($"그 밖 {n}개 · 토큰 {tokens} · {cost}", $"{n} others · {tokens} tokens · {cost}")
+            : Tr($"그 밖 {n}개 · 토큰 {tokens} · {cost} · 가격 없음 {unpriced}개", $"{n} others · {tokens} tokens · {cost} · {unpriced} unpriced");
     }
 
     private static TextBlock RestLine(string words, string tip)
@@ -244,9 +244,9 @@ internal static class TokenViews
         tip.Add(string.Join(" · ", s.Models.Take(3).Select(m => $"{Pretty(m.Model)} {Percent((double)m.Tokens / sum)}")));
         if (EffortMix(s.Efforts, false) is { } mix) tip.Add("effort " + mix);
         tip.AddRange(Numbers(s.Counts));
-        tip.Add(s.Cost is { } cost ? Tr($"환산액 {Money(cost, false)}", $"Cost {Money(cost, false)}") : Tr("가격 없음 · 환산액에 들어가지 않음", "No price · not in the cost"));
+        tip.Add(s.Cost is { } cost ? Tr($"환산액 {Money(cost, false)}", $"Est. {Money(cost, false)}") : Tr("가격 없음 · 환산액에 들어가지 않음", "No pricing · Excluded from estimate"));
         if (s.Cost is not null && s.UnpricedTokens > 0)
-            tip.Add(Tr($"가격 없는 토큰 {Whole(s.UnpricedTokens)} · 환산액에 없음", $"{Whole(s.UnpricedTokens)} tokens with no price · not in the cost"));
+            tip.Add(Tr($"가격 없는 토큰 {Whole(s.UnpricedTokens)} · 환산액에 없음", $"{Whole(s.UnpricedTokens)} unpriced tokens · Excluded from estimate"));
         return string.Join("\n", tip.Where(t => t.Length > 0));
     }
 
@@ -270,7 +270,7 @@ internal static class TokenViews
     }
 
     /// An effort as the logs write it ("xhigh", "max"); "모름" for Unknown.
-    public static string EffortName(TokenEffort e) => e == TokenEffort.Unknown ? Tr("모름", "unknown") : e.ToString().ToLowerInvariant();
+    public static string EffortName(TokenEffort e) => e == TokenEffort.Unknown ? Tr("모름", "Unknown") : e.ToString().ToLowerInvariant();
 
     /// The effort mix in the order given (the highest first, unknown last): "max 27% · xhigh 35% · high 38%". `full`:
     /// every effort with its tokens ("max 27% 1.2M"), else those that round to 0% left out. Null when no effort is known.
@@ -325,12 +325,12 @@ internal static class TokenViews
     /// A sum's lines in a tooltip: calls, input, output, cache read and write, cache hits.
     private static string[] Numbers(TokenCounts k) =>
     [
-        Tr($"호출 {Whole(k.Calls)}", $"Calls {Whole(k.Calls)}"),
+        Tr($"호출 {Whole(k.Calls)}", $"{Whole(k.Calls)} calls"),
         Tr($"입력 {Whole(k.Input)}", $"Input {Whole(k.Input)}"),
         Tr($"출력 {Whole(k.Output)}", $"Output {Whole(k.Output)}"),
         Tr($"캐시 읽기 {Whole(k.CacheRead)}", $"Cache read {Whole(k.CacheRead)}"),
         Tr($"캐시 쓰기 {Whole(k.CacheWrite + k.CacheWriteLong)}", $"Cache write {Whole(k.CacheWrite + k.CacheWriteLong)}"),
-        Tr($"캐시 적중 {Percent(k.HitRate)}", $"Cache hits {Percent(k.HitRate)}"),
+        Tr($"캐시 적중 {Percent(k.HitRate)}", $"Cache hit {Percent(k.HitRate)}"),
     ];
 
     /// A model's row: its name and where it was used, tokens, share, cost, the bar, and under it the effort mix in one
@@ -350,7 +350,7 @@ internal static class TokenViews
         var tip = new List<string> { $"{Pretty(m.Model)} · {Source(m.Provider)}" };
         if (EffortMix(m.Efforts, true) is { } all) tip.Add("effort " + all);
         tip.AddRange(Numbers(m.Counts));
-        tip.Add(m.Cost is { } cost ? Tr($"환산액 {Money(cost, false)}", $"Cost {Money(cost, false)}") : Tr("가격 없음 · 환산액에 들어가지 않음", "No price · not in the cost"));
+        tip.Add(m.Cost is { } cost ? Tr($"환산액 {Money(cost, false)}", $"Est. {Money(cost, false)}") : Tr("가격 없음 · 환산액에 들어가지 않음", "No pricing · Excluded from estimate"));
         // a row of three lines: more room between rows than between its own lines, whether it has the effort line or not
         return new Border { Child = stack, Background = Brushes.Transparent, Margin = new Thickness(0, first ? 0 : 10, 0, 0), ToolTip = string.Join("\n", tip) };
     }
@@ -429,9 +429,9 @@ internal static class TokenViews
         return stack;
     }
 
-    private static string NoLogsWords => Tr("Claude Code · Codex 기록 없음", "No Claude Code or Codex logs");
+    private static string NoLogsWords => Tr("Claude Code · Codex 기록 없음", "No Claude Code · Codex logs");
 
-    private static string Nothing(bool counting) => counting ? Tr("세는 중…", "Counting…") : Tr("이 기간의 기록 없음", "Nothing in this period");
+    private static string Nothing(bool counting) => counting ? Tr("세는 중…", "Counting…") : Tr("이 기간의 기록 없음", "No logs for this period");
 
     private static readonly TokenPeriod[] AllPeriods = [TokenPeriod.Day, TokenPeriod.Week, TokenPeriod.Month, TokenPeriod.Quarter, TokenPeriod.All];
 
@@ -489,16 +489,16 @@ internal static class TokenViews
         TokenPeriod.Week => Tr("7일", "7d"),
         TokenPeriod.Month => Tr("30일", "30d"),
         TokenPeriod.Quarter => Tr("90일", "90d"),
-        _ => Tr("전체", "All"),
+        _ => Tr("전체", "All Data"),
     };
 
     private static string Long(TokenPeriod p) => p switch
     {
-        TokenPeriod.Day => Tr("지난 24시간", "The last 24 hours"),
-        TokenPeriod.Week => Tr("오늘까지 7일", "The last 7 days"),
-        TokenPeriod.Month => Tr("오늘까지 30일", "The last 30 days"),
-        TokenPeriod.Quarter => Tr("오늘까지 90일", "The last 90 days"),
-        _ => Tr("Bloom이 센 기록 전체", "Everything Bloom has counted"),
+        TokenPeriod.Day => Tr("지난 24시간", "Last 24 hours"),
+        TokenPeriod.Week => Tr("오늘까지 7일", "Last 7 days"),
+        TokenPeriod.Month => Tr("오늘까지 30일", "Last 30 days"),
+        TokenPeriod.Quarter => Tr("오늘까지 90일", "Last 90 days"),
+        _ => Tr("Bloom이 센 기록 전체", "All logs counted by Bloom"),
     };
 
     /// The span a view covers, from its start: "11월 2일 14시 – 지금", "10월 27일 – 오늘", "10월 2일부터".
@@ -507,20 +507,20 @@ internal static class TokenViews
         string from = v.Period == TokenPeriod.Day ? Hour(v.From) : Day(v.From);
         return v.Period switch
         {
-            TokenPeriod.Day => Tr($"{from} – 지금", $"{from} – now"),
+            TokenPeriod.Day => Tr($"{from} – 지금", $"{from} – Now"),
             TokenPeriod.All => Tr($"{from}부터", $"Since {from}"),
-            _ => Tr($"{from} – 오늘", $"{from} – today"),
+            _ => Tr($"{from} – 오늘", $"{from} – Today"),
         };
     }
 
-    private static string Hour(DateTime t) => t.ToString(Tr("M월 d일 H시", "MMM d, h tt"), Lang.Culture);
+    private static string Hour(DateTime t) => t.ToString(Tr("M월 d일 H시", "MMM d, H:00"), Lang.Culture);
 
     private static string Day(DateTime t) => t.ToString(Tr("M월 d일", "MMM d"), Lang.Culture);
 
     /// A bar's start as the axis and its tooltip name it: the hour, the day, the week's Monday, the month.
     private static string When(DateTime t, TokenUnit unit) => unit switch
     {
-        TokenUnit.Hour => t.ToString(Tr("H시", "h tt"), Lang.Culture),
+        TokenUnit.Hour => t.ToString(Tr("H시", "H:00"), Lang.Culture),
         TokenUnit.Month => t.ToString(Tr("yyyy년 M월", "MMM yyyy"), Lang.Culture),
         _ => Day(t),
     };
@@ -533,19 +533,19 @@ internal static class TokenViews
             TokenUnit.Week => Tr($"{Day(b.Start)}부터 한 주", $"Week of {Day(b.Start)}"),
             _ => When(b.Start, unit),
         };
-        if (b.Counts.Calls == 0) return when + Tr(" · 기록 없음", " · nothing");
+        if (b.Counts.Calls == 0) return when + Tr(" · 기록 없음", " · No logs");
         return string.Join("\n", when,
             Tr($"토큰 {Whole(b.Counts.Total)}", $"{Whole(b.Counts.Total)} tokens"),
             (b.Counts.Calls == 1 ? Tr("호출 1", "1 call") : Tr($"호출 {Whole(b.Counts.Calls)}", $"{Whole(b.Counts.Calls)} calls")),
-            Tr($"환산액 {Money(b.Cost, false)}", $"Cost {Money(b.Cost, false)}"));
+            Tr($"환산액 {Money(b.Cost, false)}", $"Est. {Money(b.Cost, false)}"));
     }
 
     private static string UnpricedWords(TokenView v)
     {
         string tokens = Count(v.UnpricedTokens);
         // no particle after the number (12.3K은, 2.71B은 read wrong)
-        return v.Unpriced == 1 ? Tr($"가격 없는 모델 1개 · 환산액에 안 들어간 토큰 {tokens}", $"1 model with no price · {tokens} tokens not in the cost")
-            : Tr($"가격 없는 모델 {v.Unpriced}개 · 환산액에 안 들어간 토큰 {tokens}", $"{v.Unpriced} models with no price · {tokens} tokens not in the cost");
+        return v.Unpriced == 1 ? Tr($"가격 없는 모델 1개 · 환산액에 안 들어간 토큰 {tokens}", $"1 unpriced model · {tokens} tokens excluded from estimate")
+            : Tr($"가격 없는 모델 {v.Unpriced}개 · 환산액에 안 들어간 토큰 {tokens}", $"{v.Unpriced} unpriced models · {tokens} tokens excluded from estimate");
     }
 
     /// "Claude Code" or "Codex" for a model's provider.

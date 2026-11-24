@@ -76,13 +76,13 @@ internal sealed partial class Host
         }
     }
 
-    private static string Head(bool ok) => ok ? Tr("사용자 명령 · 완료", "Custom command · Done") : Tr("사용자 명령 · 실패", "Custom command · Failed");
+    private static string Head(bool ok) => ok ? Tr("사용자 명령 · 완료", "Custom Command · Completed") : Tr("사용자 명령 · 실패", "Custom Command · Failed");
 
     private void RunScript(UserCommand c, string input, bool show, bool admin)
     {
         if (!show && !admin && runningScripts.ContainsKey(c.Id))
         {
-            Window.ShowToast(Tr($"‘{c.Name}’ 실행 중", $"‘{c.Name}’ is still running"));
+            Window.ShowToast(Tr($"‘{c.Name}’ 실행 중", $"Running ‘{c.Name}’"));
             return;
         }
         // a failure notice's button: the command's actions in the launcher
@@ -105,7 +105,7 @@ internal sealed partial class Host
         catch (Exception e) when (e is System.ComponentModel.Win32Exception or InvalidOperationException or FileNotFoundException)
         {
             Log.Error("my command " + c.Name, e);
-            Notices.Result(false, Head(false), c.Name, Tr("명령을 실행하지 못했습니다. 파일 경로와 권한을 확인하고 다시 실행하세요.", "Could not run the command. Check the file path and permissions, then retry."), Tr("명령 동작 열기", "Open command actions"), OpenActions, keep: true);
+            Notices.Result(false, Head(false), c.Name, Tr("명령을 실행하지 못했습니다. 파일 경로와 권한을 확인하고 다시 실행하세요.", "Could not run the command. Check the file path and permissions, then try again."), Tr("명령 동작 열기", "Open Command Actions"), OpenActions, keep: true);
             return;
         }
         if (p is null || show || admin) return;
@@ -128,9 +128,9 @@ internal sealed partial class Host
                 // what the command printed last says how it went: a success shows it (or the time it took), a failure
                 // its exit code and that line, with the command's actions (마지막 출력 복사, 명령 편집) one click away
                 string? said = UserCommands.LastLine(ok ? output : error.Trim().Length > 0 ? error : output);
-                if (ok) Notices.Result(true, Head(true), c.Name, said ?? Tr($"소요 시간 {Notices.Span(clock.Elapsed)}", $"Elapsed: {Notices.Span(clock.Elapsed)}"), keep: true);
+                if (ok) Notices.Result(true, Head(true), c.Name, said ?? Tr($"소요 시간 {Notices.Span(clock.Elapsed)}", $"Duration: {Notices.Span(clock.Elapsed)}"), keep: true);
                 else Notices.Result(false, Head(false), c.Name, said is null ? Tr($"종료 코드 {code}", $"Exit code {code}") : Tr($"종료 코드 {code} · {said}", $"Exit code {code} · {said}"),
-                    Tr("명령 동작 열기", "Open command actions"), OpenActions, keep: true);
+                    Tr("명령 동작 열기", "Open Command Actions"), OpenActions, keep: true);
                 Later();
             });
         });
@@ -142,7 +142,7 @@ internal sealed partial class Host
     {
         if (depth > 2)
         {
-            Notices.Result(false, Head(false), c.Name, Tr("묶음은 3단계까지 포함할 수 있습니다. 단계를 줄이세요.", "Chains can be nested up to three levels. Remove a level."), keep: true);
+            Notices.Result(false, Head(false), c.Name, Tr("묶음 명령은 3단계까지 포함할 수 있습니다. 단계를 줄여 주세요.", "Command groups can be nested up to 3 levels deep. Reduce the number of levels."), keep: true);
             return;
         }
         await Task.Delay(150); // the launcher is out of the way first
@@ -170,7 +170,7 @@ internal sealed partial class Host
             }
             else skipped.Add(step);
         }
-        if (skipped.Count > 0) Notices.Result(false, Head(false), c.Name, Tr($"건너뛴 단계: {string.Join(", ", skipped)}", $"Skipped: {string.Join(", ", skipped)}"), keep: true);
+        if (skipped.Count > 0) Notices.Result(false, Head(false), c.Name, Tr($"건너뛴 단계: {string.Join(", ", skipped)}", $"Skipped steps: {string.Join(", ", skipped)}"), keep: true);
     }
 
     // ── file actions (Ctrl+K on a file or folder) ─────────────────────────────────────────────
@@ -180,14 +180,14 @@ internal sealed partial class Host
         Window.Dismiss();
         var pick = new Microsoft.Win32.OpenFolderDialog
         {
-            Title = move ? Tr("옮길 폴더 선택", "Choose destination folder") : Tr("복사할 폴더 선택", "Choose copy destination"),
+            Title = move ? Tr("이동할 폴더 선택", "Select Destination Folder to Move") : Tr("복사할 폴더 선택", "Select Destination Folder to Copy"),
             InitialDirectory = Path.GetDirectoryName(path.TrimEnd('\\')) ?? "",
         };
         if (pick.ShowDialog() != true) return;
         string name = Path.GetFileName(path.TrimEnd('\\'));
         bool ok = move ? ShellFiles.MoveTo(path, pick.FolderName, IntPtr.Zero) : ShellFiles.CopyTo(path, pick.FolderName, IntPtr.Zero);
-        if (ok) Notices.Result(true, move ? Tr("파일 · 옮김", "File · Moved") : Tr("파일 · 복사함", "File · Copied"), name, pick.FolderName);
-        else if (File.Exists(path) || Directory.Exists(path)) Notices.Result(false, Tr("파일 · 그대로", "File · Unchanged"), name, move ? Tr("파일 이동 실패 또는 취소 · 대상 폴더와 권한을 확인하고 다시 시도하세요", "Move failed or cancelled. Check the destination and permissions, then retry.") : Tr("파일 복사 실패 또는 취소 · 대상 폴더와 권한을 확인하고 다시 시도하세요", "Copy failed or cancelled. Check the destination and permissions, then retry."));
+        if (ok) Notices.Result(true, move ? Tr("파일 · 이동됨", "File · Moved") : Tr("파일 · 복사됨", "File · Copied"), name, pick.FolderName);
+        else if (File.Exists(path) || Directory.Exists(path)) Notices.Result(false, Tr("파일 · 변경 없음", "File · Unchanged"), name, move ? Tr("파일 이동 실패 또는 취소됨 · 대상 폴더와 권한을 확인하고 다시 시도하세요", "File move failed or canceled · Check the destination folder and permissions, then try again") : Tr("파일 복사 실패 또는 취소됨 · 대상 폴더와 권한을 확인하고 다시 시도하세요", "File copy failed or canceled · Check the destination folder and permissions, then try again"));
     }
 
     /// 휴지통으로 보내기 (asked first in the launcher).

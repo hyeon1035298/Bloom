@@ -47,7 +47,7 @@ internal sealed class PlayerTool : ITool
     private bool coverSet;
 
     public string Key => "player";
-    public string Name => Tr("미니 플레이어", "Mini player");
+    public string Name => Tr("미니 플레이어", "Mini Player");
     public char Glyph => PlayerGlyph.Music;
     public FrameworkElement View => view;
     public FrameworkElement? Head => clearButton;
@@ -109,9 +109,9 @@ internal sealed class PlayerTool : ITool
         shuffleButton = ToolUi.Button(PlayerGlyph.Shuffle, "", ToggleShuffle);
         shuffleGlyph = (TextBlock)shuffleButton.Child;
         buttons.Children.Add(shuffleButton);
-        previousButton = ToolUi.Button(PlayerGlyph.Previous, Tr("이전 곡 (3초 넘게 들었으면 처음부터)", "Previous (from the start after 3 s)"), Previous);
+        previousButton = ToolUi.Button(PlayerGlyph.Previous, Tr("이전 곡 (3초 넘게 들었으면 처음부터)", "Previous Track (restarts track if past 3s)"), Previous);
         buttons.Children.Add(previousButton);
-        playButton = ToolUi.Button(PlayerGlyph.Play, Tr("재생 · 일시정지 (Space)", "Play · pause (Space)"), TogglePlay);
+        playButton = ToolUi.Button(PlayerGlyph.Play, Tr("재생 · 일시정지 (Space)", "Play · Pause (Space)"), TogglePlay);
         playButton.Width = playButton.Height = 34;
         playButton.CornerRadius = new CornerRadius(17);
         playButton.Margin = new Thickness(4, 0, 4, 0);
@@ -122,7 +122,7 @@ internal sealed class PlayerTool : ITool
         playButton.MouseEnter += (_, _) => playButton.Background = Theme.P.Accent;
         playButton.MouseLeave += (_, _) => playButton.Background = Theme.P.AccentSoft;
         buttons.Children.Add(playButton);
-        nextButton = ToolUi.Button(PlayerGlyph.Next, Tr("다음 곡", "Next song"), Next);
+        nextButton = ToolUi.Button(PlayerGlyph.Next, Tr("다음 곡", "Next Track"), Next);
         buttons.Children.Add(nextButton);
         repeatButton = ToolUi.Button(PlayerGlyph.RepeatAll, "", CycleRepeat);
         repeatGlyph = (TextBlock)repeatButton.Child;
@@ -154,7 +154,7 @@ internal sealed class PlayerTool : ITool
         heading.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
         heading.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
         queueTitle = Theme.T("", 11.5, Theme.P.TextFaint, Theme.Medium);
-        tabs = new Segmented(new[] { ("queue", Tr("대기열", "Queue")), ("lists", Tr("재생목록", "Playlists")), ("apps", Tr("다른 앱", "Other apps")) }, "queue") { HorizontalAlignment = HorizontalAlignment.Left };
+        tabs = new Segmented(new[] { ("queue", Tr("대기열", "Queue")), ("lists", Tr("재생목록", "Playlists")), ("apps", Tr("다른 앱", "Other Apps")) }, "queue") { HorizontalAlignment = HorizontalAlignment.Left };
         tabs.Picked += _ => ShowTab();
         count = Theme.T("", 11.5, Theme.P.TextFaint, null, false);
         count.VerticalAlignment = VerticalAlignment.Center;
@@ -168,7 +168,7 @@ internal sealed class PlayerTool : ITool
         Grid.SetRow(scroll, 4);
         view.Children.Add(scroll);
 
-        (saveField, saveBox) = ToolUi.Field(Tr("대기열을 저장할 이름", "Save the queue as…"), 13, SaveList);
+        (saveField, saveBox) = ToolUi.Field(Tr("대기열을 저장할 이름", "Name to save queue as playlist"), 13, SaveList);
         saveField.Margin = new Thickness(10, 4, 10, 4);
         saveBox.KeyDown += (_, e) =>
         {
@@ -185,7 +185,7 @@ internal sealed class PlayerTool : ITool
         shelf.Children.Add(shelfNote);
         shelf.Children.Add(shelfRows);
 
-        clearButton = ToolUi.Button(G.Delete, Tr("대기열 비우기 (지금 곡은 남겨요)", "Clear the queue (the song on stays)"), MusicPlayer.ClearRest);
+        clearButton = ToolUi.Button(G.Delete, Tr("대기열 비우기 (지금 곡은 남겨요)", "Clear Queue (keeps current track)"), MusicPlayer.ClearRest);
 
         view.PreviewKeyDown += (_, e) =>
         {
@@ -223,7 +223,7 @@ internal sealed class PlayerTool : ITool
         clearButton.Visibility = direct && tabs.Value == "queue" ? Visibility.Visible : Visibility.Collapsed;
         saveField.Visibility = MusicPlayer.Queue.Items.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
         scroll.Content = OnShelf ? shelf : OnApps ? others : list;
-        count.Text = !direct || OnApps ? "" : OnShelf ? Tr($"{shelfCount}개", $"{shelfCount} playlists") : Tr($"{MusicPlayer.Queue.Items.Count}곡", $"{MusicPlayer.Queue.Items.Count} songs");
+        count.Text = !direct || OnApps ? "" : OnShelf ? Tr($"{shelfCount}개", $"{shelfCount}") : Tr($"{MusicPlayer.Queue.Items.Count}곡", $"{MusicPlayer.Queue.Items.Count} tracks");
         FillQueue();
         FillOthers();
     }
@@ -233,9 +233,9 @@ internal sealed class PlayerTool : ITool
     {
         bool has = MusicPlayer.HasSong;
         source.Visibility = Visibility.Collapsed;
-        title.Text = has ? MusicPlayer.Title : Tr("재생 중인 곡이 없어요", "Nothing is playing");
+        title.Text = has ? MusicPlayer.Title : Tr("재생 중인 곡이 없습니다", "Nothing is playing");
         title.Foreground = has ? Theme.P.Text : Theme.P.TextDim;
-        artist.Text = has ? Join(MusicPlayer.Artist, MusicPlayer.Album) : MusicPlayer.External ? Tr($"{PlayerWays.NameOf(MusicPlayer.Way)}에서 곡을 틀거나, 파일 검색 결과에서 Ctrl+K", $"Play a song in {PlayerWays.NameOf(MusicPlayer.Way)}, or Ctrl+K on a file you searched") : Tr("파일 검색 결과의 오디오 파일에서 Ctrl+K › 미니 플레이어로 재생", "Ctrl+K on an audio file in the search results › Play in mini player");
+        artist.Text = has ? Join(MusicPlayer.Artist, MusicPlayer.Album) : MusicPlayer.External ? Tr($"{PlayerWays.NameOf(MusicPlayer.Way)}에서 곡을 틀거나, 파일 검색 결과에서 Ctrl+K", $"Play music in {PlayerWays.NameOf(MusicPlayer.Way)}, or press Ctrl+K on a file search result") : Tr("파일 검색 결과의 오디오 파일에서 Ctrl+K › 미니 플레이어로 재생", "On an audio file in search results, press Ctrl+K › Play in Mini Player");
         artist.Visibility = artist.Text.Length > 0 ? Visibility.Visible : Visibility.Collapsed;
         note.Text = MusicPlayer.Note ?? "";
         note.Visibility = note.Text.Length > 0 ? Visibility.Visible : Visibility.Collapsed;
@@ -294,15 +294,15 @@ internal sealed class PlayerTool : ITool
         repeatButton.Visibility = show && repeat is not null ? Visibility.Visible : Visibility.Collapsed;
         bool on = shuffle == true;
         shuffleGlyph.Foreground = on ? Theme.P.Accent : Theme.P.TextDim;
-        shuffleButton.ToolTip = on ? Tr("무작위 재생 켜짐 · 누르면 끔", "Shuffle on · click to turn off") : Tr("무작위 재생 꺼짐 · 누르면 켬", "Shuffle off · click to turn on");
+        shuffleButton.ToolTip = on ? Tr("무작위 재생 켜짐 · 누르면 끔", "Shuffle On · Click to turn off") : Tr("무작위 재생 꺼짐 · 누르면 켬", "Shuffle Off · Click to turn on");
         var r = repeat ?? Repeat.Off;
         repeatGlyph.Text = (r == Repeat.One ? PlayerGlyph.RepeatOne : PlayerGlyph.RepeatAll).ToString();
         repeatGlyph.Foreground = r == Repeat.Off ? Theme.P.TextDim : Theme.P.Accent;
         repeatButton.ToolTip = r switch
         {
-            Repeat.All => Tr("전체 반복 · 누르면 한 곡 반복", "Repeat all · click for repeat one"),
-            Repeat.One => Tr("한 곡 반복 · 누르면 반복 끔", "Repeat one · click to turn off"),
-            _ => Tr("반복 꺼짐 · 누르면 전체 반복", "Repeat off · click for repeat all"),
+            Repeat.All => Tr("전체 반복 · 누르면 한 곡 반복", "Repeat All · Click to repeat one"),
+            Repeat.One => Tr("한 곡 반복 · 누르면 반복 끔", "Repeat One · Click to turn off repeat"),
+            _ => Tr("반복 꺼짐 · 누르면 전체 반복", "Repeat Off · Click to repeat all"),
         };
     }
 
@@ -359,7 +359,7 @@ internal sealed class PlayerTool : ITool
         others.Children.Clear();
         if (all.Count == 0)
         {
-            others.Children.Add(ToolUi.Empty(Tr("재생 중인 다른 앱 없음 · Spotify나 브라우저에서 재생하면 여기에 나옵니다", "No other app is playing · play something in Spotify or a browser and it shows here")));
+            others.Children.Add(ToolUi.Empty(Tr("재생 중인 다른 앱 없음 · Spotify나 브라우저에서 재생하면 여기에 나옵니다", "No other apps playing · Play audio in Spotify or a browser to see it here")));
             return;
         }
         foreach (var s in all)
@@ -388,9 +388,9 @@ internal sealed class PlayerTool : ITool
             row.Children.Add(text);
             var buttons = new (char glyph, string tip, PlayerOp op, bool on)[]
             {
-                (PlayerGlyph.Previous, Tr("이전 곡", "Previous song"), PlayerOp.Previous, s.CanPrevious),
-                (s.Status == MediaStatus.Playing ? PlayerGlyph.Pause : PlayerGlyph.Play, Tr("재생 · 일시정지", "Play · pause"), PlayerOp.Toggle, s.CanToggle),
-                (PlayerGlyph.Next, Tr("다음 곡", "Next song"), PlayerOp.Next, s.CanNext),
+                (PlayerGlyph.Previous, Tr("이전 곡", "Previous Track"), PlayerOp.Previous, s.CanPrevious),
+                (s.Status == MediaStatus.Playing ? PlayerGlyph.Pause : PlayerGlyph.Play, Tr("재생 · 일시정지", "Play · Pause"), PlayerOp.Toggle, s.CanToggle),
+                (PlayerGlyph.Next, Tr("다음 곡", "Next Track"), PlayerOp.Next, s.CanNext),
             };
             for (int i = 0; i < buttons.Length; i++)
             {
@@ -431,12 +431,12 @@ internal sealed class PlayerTool : ITool
         {
             queueTitle.Text = Tr("대기열", "Queue");
             string name = PlayerWays.NameOf(MusicPlayer.Way);
-            list.Children.Add(ToolUi.Empty(Tr($"{name}에서 재생해요 — 대기열은 {name}에서 보세요", $"Playing in {name} — see the queue there")));
+            list.Children.Add(ToolUi.Empty(Tr($"{name}에서 재생해요 — 대기열은 {name}에서 보세요", $"Playing in {name} — View queue in {name}")));
             return;
         }
         if (q.Items.Count == 0)
         {
-            list.Children.Add(ToolUi.Empty(Tr("비어 있어요 — 오디오 파일에서 Ctrl+K › 대기열에 추가", "Empty — Ctrl+K on an audio file › Add to the queue")));
+            list.Children.Add(ToolUi.Empty(Tr("비어 있어요 — 오디오 파일에서 Ctrl+K › 대기열에 추가", "Queue is empty — On an audio file, press Ctrl+K › Add to Queue")));
             return;
         }
         for (int i = 0; i < q.Items.Count; i++)
@@ -457,7 +457,7 @@ internal sealed class PlayerTool : ITool
             row.Children.Add(text);
             if (!on)
             {
-                var remove = ToolUi.Button(G.Close, Tr("대기열에서 빼기", "Take out of the queue"), () => MusicPlayer.Remove(at));
+                var remove = ToolUi.Button(G.Close, Tr("대기열에서 빼기", "Remove from Queue"), () => MusicPlayer.Remove(at));
                 remove.Width = remove.Height = 22;
                 Grid.SetColumn(remove, 2);
                 row.Children.Add(remove);
@@ -476,7 +476,7 @@ internal sealed class PlayerTool : ITool
         shelfCount = all.Count;
         if (all.Count == 0)
         {
-            shelfRows.Children.Add(ToolUi.Empty(Tr("저장한 재생목록 없음 · 대기열에 곡을 넣고 이름을 붙여 저장", "No saved playlists · fill the queue and save it under a name")));
+            shelfRows.Children.Add(ToolUi.Empty(Tr("저장한 재생목록 없음 · 대기열에 곡을 넣고 이름을 붙여 저장", "No saved playlists · Add tracks to the queue and save with a name")));
             return;
         }
         foreach (var saved in all)
@@ -491,11 +491,11 @@ internal sealed class PlayerTool : ITool
             row.Children.Add(glyph);
             var text = new StackPanel();
             text.Children.Add(Theme.T(saved.Name, 13, Theme.P.Text));
-            text.Children.Add(Theme.T(Tr($"{saved.Count}곡", $"{saved.Count} songs"), 11, Theme.P.TextFaint));
+            text.Children.Add(Theme.T(Tr($"{saved.Count}곡", $"{saved.Count} tracks"), 11, Theme.P.TextFaint));
             Grid.SetColumn(text, 1);
             row.Children.Add(text);
-            var add = ToolUi.Button(G.Add, Tr("대기열에 추가", "Add to the queue"), () => AddList(saved));
-            var delete = ToolUi.Button(G.Delete, Tr("삭제 (휴지통으로)", "Delete (to the Recycle Bin)"), () => DeleteList(saved));
+            var add = ToolUi.Button(G.Add, Tr("대기열에 추가", "Add to Queue"), () => AddList(saved));
+            var delete = ToolUi.Button(G.Delete, Tr("삭제 (휴지통으로)", "Delete (Move to Recycle Bin)"), () => DeleteList(saved));
             add.Width = add.Height = delete.Width = delete.Height = 22;
             Grid.SetColumn(add, 2);
             Grid.SetColumn(delete, 3);
@@ -517,18 +517,18 @@ internal sealed class PlayerTool : ITool
         string name = saveBox.Text.Trim();
         if (Playlists.FileName(name) is not { } file)
         {
-            Tell(Tr("이름 필요", "A name is needed"));
+            Tell(Tr("이름 필요", "Name required"));
             return;
         }
         bool replaced = File.Exists(Path.Combine(Playlists.Folder, file + ".m3u8"));
         int songs = MusicPlayer.Queue.Items.Count;
         if (Playlists.Save(name, MusicPlayer.Queue.Items) is null)
         {
-            Tell(Tr("저장 실패 · 재생목록 폴더에 쓸 수 없음", "Not saved · the playlists folder can't be written"));
+            Tell(Tr("저장 실패 · 재생목록 폴더에 쓸 수 없음", "Save failed · Cannot write to playlists folder"));
             return;
         }
         saveBox.Clear();
-        Tell(replaced ? Tr($"‘{file}’ 바꿔 저장 · {songs}곡", $"Replaced ‘{file}’ · {songs} songs") : Tr($"‘{file}’ 저장 · {songs}곡", $"Saved ‘{file}’ · {songs} songs"));
+        Tell(replaced ? Tr($"‘{file}’ 바꿔 저장 · {songs}곡", $"Overwrote ‘{file}’ · {songs} tracks") : Tr($"‘{file}’ 저장 · {songs}곡", $"Saved ‘{file}’ · {songs} tracks"));
         FillShelf();
         Refresh();
     }
@@ -544,12 +544,12 @@ internal sealed class PlayerTool : ITool
     private void AddList(Playlists.Saved saved)
     {
         int before = MusicPlayer.Queue.Items.Count;
-        if (MusicPlayer.OpenPlaylist(saved.Path, true)) Tell(Tr($"‘{saved.Name}’ {MusicPlayer.Queue.Items.Count - before}곡 대기열에 추가", $"Added ‘{saved.Name}’ · {MusicPlayer.Queue.Items.Count - before} songs to the queue"));
+        if (MusicPlayer.OpenPlaylist(saved.Path, true)) Tell(Tr($"‘{saved.Name}’ {MusicPlayer.Queue.Items.Count - before}곡 대기열에 추가", $"Added {MusicPlayer.Queue.Items.Count - before} tracks from ‘{saved.Name}’ to queue"));
     }
 
     private void DeleteList(Playlists.Saved saved)
     {
-        Tell(Playlists.Delete(saved) ? Tr($"‘{saved.Name}’ 휴지통으로 이동", $"‘{saved.Name}’ moved to the Recycle Bin") : Tr("삭제 실패", "Not deleted"));
+        Tell(Playlists.Delete(saved) ? Tr($"‘{saved.Name}’ 휴지통으로 이동", $"Moved ‘{saved.Name}’ to Recycle Bin") : Tr("삭제 실패", "Delete failed"));
         FillShelf();
         Refresh();
     }

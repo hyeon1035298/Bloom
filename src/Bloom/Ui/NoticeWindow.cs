@@ -415,7 +415,7 @@ internal sealed class NoticeWindow : Window
             Child = row,
             Tag = n,
             // questions show whole on the card, and a tooltip would cover their choices (and a reply row its field)
-            ToolTip = n.Questions is not null || n.Reply is not null ? null : (n.Detail is { Length: > 0 } ? $"{n.Title}\n{n.Detail}" : n.Title) + (n.Body is { Length: > 0 } ? "\n" + n.Body : "") + (n.Click is null ? "" : "\n" + (n.Kind == "windows" ? Tr("클릭하면 Windows 알림 센터를 엽니다", "Click to open Windows' notification center") : Tr("클릭하면 세션 창으로 이동합니다", "Click to go to the session window"))),
+            ToolTip = n.Questions is not null || n.Reply is not null ? null : (n.Detail is { Length: > 0 } ? $"{n.Title}\n{n.Detail}" : n.Title) + (n.Body is { Length: > 0 } ? "\n" + n.Body : "") + (n.Click is null ? "" : "\n" + (n.Kind == "windows" ? Tr("클릭하면 Windows 알림 센터를 엽니다", "Click to open Windows Notification Center") : Tr("클릭하면 세션 창으로 이동합니다", "Click to go to session window"))),
         };
         replyView?.Follow(card);
         card.Lift(16, 2, 0.3);

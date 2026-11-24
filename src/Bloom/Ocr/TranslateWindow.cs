@@ -48,7 +48,7 @@ internal sealed class TranslateWindow : Window
         this.host = host;
         this.area = area;
         this.live = live;
-        Title = live ? Tr("Bloom 실시간 번역", "Bloom live translation") : Tr("Bloom 번역", "Bloom translation");
+        Title = live ? Tr("Bloom 실시간 번역", "Bloom Live Translation") : Tr("Bloom 번역", "Bloom Translation");
         Width = 440;
         Height = 260;
         MinWidth = 300;
@@ -80,7 +80,7 @@ internal sealed class TranslateWindow : Window
         var mark = Launcher.MarkImage(14);
         mark.Margin = new Thickness(0, 0, 8, 0);
         name.Children.Add(mark);
-        name.Children.Add(Theme.T(live ? Tr("실시간 번역", "Live translation") : Tr("번역", "Translation"), 13, Theme.P.Text, Theme.Semi, false));
+        name.Children.Add(Theme.T(live ? Tr("실시간 번역", "Live Translation") : Tr("번역", "Translation"), 13, Theme.P.Text, Theme.Semi, false));
         head.Children.Add(name);
         Grid.SetColumn(chips, 2);
         head.Children.Add(chips);
@@ -161,7 +161,7 @@ internal sealed class TranslateWindow : Window
         if (text is not null) _ = Translate(text);
         if (live)
         {
-            status.Text = Tr("화면을 읽는 중…", "Reading the screen…");
+            status.Text = Tr("화면을 읽는 중…", "Reading screen…");
             Loaded += async (_, _) =>
             {
                 await Read();
@@ -210,7 +210,7 @@ internal sealed class TranslateWindow : Window
     {
         chips.Children.Clear();
         string provider = Translator.Provider();
-        chips.Children.Add(Chip(Translator.Label(provider), Tr("번역 엔진 바꾸기 (설정에도 저장됩니다)", "Switch the translation engine (saved in Settings too)"), () =>
+        chips.Children.Add(Chip(Translator.Label(provider), Tr("번역 엔진 바꾸기 (설정에도 저장됩니다)", "Change translation engine (also saved to Settings)"), () =>
         {
             Settings.Current.TranslateProvider = AiModels.Next(Translator.Providers(), provider);
             Settings.Save();
@@ -218,7 +218,7 @@ internal sealed class TranslateWindow : Window
             Again();
         }));
         string to = Settings.Current.TranslateTo;
-        var targetChip = Chip(to == "auto" ? Tr("→ 자동", "→ Auto") : "→ " + Translator.TargetName(to), Tr("번역할 언어 (자동: 한국어 글은 영어로, 나머지는 한국어로)", "Translate into (Auto: English text into Korean, everything else into English)"), () =>
+        var targetChip = Chip(to == "auto" ? Tr("→ 자동", "→ Auto") : "→ " + Translator.TargetName(to), Tr("번역할 언어 (자동: 한국어는 영어로, 다른 언어는 한국어로)", "Target language (Auto: Korean to English, other languages to Korean)"), () =>
         {
             var list = Translator.Targets.Select(t => t.value).ToList();
             Settings.Current.TranslateTo = list[(list.IndexOf(Settings.Current.TranslateTo) + 1) % list.Count];
@@ -230,7 +230,7 @@ internal sealed class TranslateWindow : Window
         var levels = Translator.Levels(provider);
         if (levels.Length > 0 && Translator.Effort(provider) is { } effort)
         {
-            var levelChip = Chip(Tr($"생각 {AiModels.EffortName(effort)}", $"Thinking {AiModels.EffortName(effort)}"), Tr("생각 수준 (높을수록 느리고 사용량이 많습니다 · 설정에도 저장됩니다)", "Thinking level (higher is slower and uses more · saved in Settings too)"), () =>
+            var levelChip = Chip(Tr($"생각 {AiModels.EffortName(effort)}", $"Thinking: {AiModels.EffortName(effort)}"), Tr("생각 수준 (높을수록 느리고 사용량이 많습니다 · 설정에도 저장됩니다)", "Thinking level (higher levels are slower and use more quota · also saved to Settings)"), () =>
             {
                 Translator.SetEffort(provider, AiModels.Next(levels, effort));
                 Chrome();
@@ -243,8 +243,8 @@ internal sealed class TranslateWindow : Window
 
         actionsBar.Children.Clear();
         actionsBar.Children.Add(Button(Tr("복사", "Copy"), "Ctrl+C", Copy));
-        if (live) actionsBar.Children.Add(Button(paused ? Tr("다시 읽기", "Resume") : Tr("멈춤", "Pause"), "Space", TogglePause));
-        else actionsBar.Children.Add(Button(Tr("다시 번역", "Translate again"), "Ctrl+R", Again));
+        if (live) actionsBar.Children.Add(Button(paused ? Tr("다시 읽기", "Reload") : Tr("멈춤", "Stop"), "Space", TogglePause));
+        else actionsBar.Children.Add(Button(Tr("다시 번역", "Retranslate"), "Ctrl+R", Again));
         Status();
     }
 
@@ -282,7 +282,7 @@ internal sealed class TranslateWindow : Window
     private void Status(string? note = null)
     {
         string who = Translator.Who(Translator.Provider());
-        status.Text = note ?? (calls == 1 ? Tr($"{who} · 호출 1회", $"{who} · 1 call") : Tr($"{who} · 호출 {calls}회", $"{who} · {calls} calls")) + (live ? paused ? Tr(" · 멈춤", " · paused") : Tr($" · {tick.Interval.TotalSeconds:0.#}초마다 읽기", $" · reading every {tick.Interval.TotalSeconds:0.#} s") : "");
+        status.Text = note ?? (calls == 1 ? Tr($"{who} · 호출 1회", $"{who} · 1 call") : Tr($"{who} · 호출 {calls}회", $"{who} · {calls} calls")) + (live ? paused ? Tr(" · 멈춤", " · Paused") : Tr($" · {tick.Interval.TotalSeconds:0.#}초마다 읽기", $" · Reading every {tick.Interval.TotalSeconds:0.#}s") : "");
     }
 
     // ── work ────────────────────────────────────────────────────────────────────────────────────

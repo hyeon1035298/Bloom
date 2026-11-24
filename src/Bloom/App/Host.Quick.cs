@@ -156,7 +156,7 @@ internal sealed partial class Host
         Quick.Progress = null;
         Quick.Busy = false;
         Quick.Result = text;
-        Quick.Error = text is null ? error ?? Tr("응답 없음 · 다시 시도하세요", "No response. Try again.") : null;
+        Quick.Error = text is null ? error ?? Tr("응답 없음 · 다시 시도하세요", "No response · Please try again") : null;
         Log.Write($"quick: {action} → {(text is null ? "error" : text.Length + " chars")}");
         // the answer comes back in front even if the launcher was closed while it worked
         if (!Window.IsVisible || Window.Mode != Mode.Quick) OpenView(Mode.Quick);
@@ -191,9 +191,9 @@ internal sealed partial class Host
     public void QuickToChat()
     {
         string intro = Quick.Result is { } r && Quick.Source.Length == 0
-            ? Tr($"‘{Quick.ActionTitle}’를 실행한 결과는 이랬어요. 이어서 이야기해요.\n\n[결과]\n{r}", $"I ran ‘{Quick.ActionTitle}’; this was the result. Let's continue.\n\n[Result]\n{r}")
+            ? Tr($"‘{Quick.ActionTitle}’ 실행 결과입니다. 이어서 이야기해 볼까요?\n\n[결과]\n{r}", $"Here is the result of ‘{Quick.ActionTitle}’. Let's continue from here.\n\n[Result]\n{r}")
             : Quick.Result is { } r2
-            ? Tr($"아래 글에 ‘{Quick.ActionTitle}’를 했고, 결과는 이랬어요. 이어서 이야기해요.\n\n[원문]\n{Quick.Source}\n\n[결과]\n{r2}", $"I ran ‘{Quick.ActionTitle}’ on the text below; this was the result. Let's continue.\n\n[Text]\n{Quick.Source}\n\n[Result]\n{r2}")
+            ? Tr($"아래 글에 ‘{Quick.ActionTitle}’ 작업을 실행한 결과입니다. 이어서 이야기해 볼까요?\n\n[원문]\n{Quick.Source}\n\n[결과]\n{r2}", $"Ran ‘{Quick.ActionTitle}’ on the text below and got this result. Let's continue from here.\n\n[Original]\n{Quick.Source}\n\n[Result]\n{r2}")
             : Quick.Source;
         Window.ShowChat(Chats.New(), intro);
     }

@@ -97,8 +97,8 @@ internal static class AiAccounts
     /// What a signed-out account needs, in words: an added one signs in again from 설정 > AI 계정, a default one in its
     /// own CLI (Bloom never signs those in). `here`: said on the 설정 page itself.
     public static string NeedsSignIn(AiAccount a, bool here) => a.IsDefault
-        ? a.Kind == "chatgpt" ? Tr("로그인 필요 · Codex에서 로그인하세요", "Sign-in needed · sign in from Codex") : Tr("로그인 필요 · Claude Code에서 로그인하세요", "Sign-in needed · sign in from Claude Code")
-        : here ? Tr("로그인 필요 · 클릭하여 다시 로그인", "Sign-in needed · click to sign in again") : Tr("로그인 필요 · 설정 > AI 계정", "Sign-in needed · Settings > AI accounts");
+        ? a.Kind == "chatgpt" ? Tr("로그인 필요 · Codex에서 로그인하세요", "Sign-in required · Sign in to Codex") : Tr("로그인 필요 · Claude Code에서 로그인하세요", "Sign-in required · Sign in to Claude Code")
+        : here ? Tr("로그인 필요 · 클릭하여 다시 로그인", "Sign-in required · Click to sign in again") : Tr("로그인 필요 · 설정 > AI 계정", "Sign-in required · Settings > AI Accounts");
 
     /// The account's name in 설정 and its dialogs: the user's own words, the e-mail, or the kind until the first look.
     public static string Label(AiAccount a) => a.Alias is { Length: > 0 } n ? n : a.Email is { Length: > 0 } e ? e : a.Kind == "chatgpt" ? "ChatGPT" : "Claude";

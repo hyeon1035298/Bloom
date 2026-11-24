@@ -43,12 +43,12 @@ internal sealed partial class Engine
             if (item.Side is { } admin) list.Add(admin);
             if (a.Source != "uwp")
             {
-                list.Add(new ActionItem { Title = Tr("파일 위치 열기", "Show in folder"), Keys = "Ctrl+Enter", Glyph = G.Folder, Run = () => Launch.Reveal(a.Target is { } t && File.Exists(t) ? t : a.Path) });
+                list.Add(new ActionItem { Title = Tr("파일 위치 열기", "Open file location"), Keys = "Ctrl+Enter", Glyph = G.Folder, Run = () => Launch.Reveal(a.Target is { } t && File.Exists(t) ? t : a.Path) });
                 list.Add(new ActionItem { Title = Tr("경로 복사", "Copy path"), Keys = "Ctrl+Shift+C", Glyph = G.Copy, Run = () => Launch.Copy(a.Target ?? a.Path) });
             }
             list.Add(new ActionItem { Title = Tr("이름 바꾸기 (Bloom에서만)", "Rename (in Bloom only)"), Glyph = G.Tag, StayOpen = true, Run = () => host.Window.StartForm(AppNameForm(a)) });
             if (a.Name != a.Original && a.Original.Length > 0)
-                list.Add(new ActionItem { Title = Tr($"원래 이름으로 ({a.Original})", $"Back to the original name ({a.Original})"), Glyph = G.Refresh, Run = () => { AppNames.Set(a.Id, null); host.AppsChanged(); } });
+                list.Add(new ActionItem { Title = Tr($"원래 이름으로 ({a.Original})", $"Restore original name ({a.Original})"), Glyph = G.Refresh, Run = () => { AppNames.Set(a.Id, null); host.AppsChanged(); } });
             if (UninstallAction(a) is { } remove) list.Add(remove);
             return list;
         };
@@ -86,11 +86,11 @@ internal sealed partial class Engine
     public FormSpec AppNameForm(AppEntry a)
     {
         string original = a.Original.Length > 0 ? a.Original : a.Name;
-        var f = new FormSpec { Title = Tr("이름 바꾸기 · Bloom에서만", "Rename · in Bloom only") };
+        var f = new FormSpec { Title = Tr("이름 바꾸기 · Bloom에서만", "Rename · In Bloom only") };
         f.Fields.Add(new FormField
         {
             Label = Tr("이름", "Name"),
-            Hint = Tr($"Bloom에서 보일 이름 — 비우면 원래 이름 ({original})", $"The name Bloom shows — empty: the original ({original})"),
+            Hint = Tr($"Bloom에서 보일 이름 — 비우면 원래 이름 ({original})", $"Display name in Bloom — leave blank for original ({original})"),
             Value = a.Name,
             Optional = true,
             Check = v => (v.Trim(), null),
@@ -101,7 +101,7 @@ internal sealed partial class Engine
             AppNames.Set(a.Id, name.Length == 0 || name == original ? null : name);
             host.AppsChanged();
             host.Window.Go(Mode.Root);
-            host.Window.ShowToast(name.Length == 0 || name == original ? Tr($"‘{original}’ 원래 이름 복원 완료", $"‘{original}’ has its original name again") : Tr($"‘{original}’ → ‘{name}’ (Bloom에서만)", $"‘{original}’ → ‘{name}’ (in Bloom only)"));
+            host.Window.ShowToast(name.Length == 0 || name == original ? Tr($"‘{original}’ 원래 이름 복원 완료", $"Restored original name ‘{original}’") : Tr($"‘{original}’ → ‘{name}’ (Bloom에서만)", $"‘{original}’ → ‘{name}’ (in Bloom only)"));
         };
         return f;
     }
@@ -114,7 +114,7 @@ internal sealed partial class Engine
             Kind = e.Kind == "cmd" ? ItemKind.Command : e.Kind == "folder" ? ItemKind.Folder : ItemKind.Setting,
             Title = e.Title,
             Subtitle = e.Subtitle,
-            Accessory = e.Kind switch { "cmd" => Tr("명령", "Command"), "setting" => Tr("설정", "Setting"), "tool" => Tr("도구", "Tool"), _ => Tr("폴더", "Folder") },
+            Accessory = e.Kind switch { "cmd" => Tr("명령", "Command"), "setting" => Tr("설정", "Settings"), "tool" => Tr("도구", "Tool"), _ => Tr("폴더", "Folder") },
             Data = e,
             AsFavorite = new Favorites.Entry { Id = e.Id, Kind = e.Kind, Title = e.Title, Subtitle = e.Subtitle, Target = e.Target },
         };
@@ -192,7 +192,7 @@ internal sealed partial class Engine
                 new() { Title = Tr("폴더에서 보기", "Show in folder"), Keys = "Ctrl+Enter", Glyph = G.Folder, Run = () => Launch.Reveal(path) },
                 new() { Title = Tr("경로 복사", "Copy path"), Keys = "Ctrl+Shift+C", Glyph = G.Copy, Run = () => Launch.Copy(path) },
             };
-            if (folder) list.Add(new ActionItem { Title = Tr("이 폴더 크기 보기 (Space Cleaner)", "See this folder's size (Space Cleaner)"), Glyph = G.Folder, Run = () => host.OpenSpace(path) });
+            if (folder) list.Add(new ActionItem { Title = Tr("이 폴더 크기 보기 (Space Cleaner)", "View folder size (Space Cleaner)"), Glyph = G.Folder, Run = () => host.OpenSpace(path) });
             if (item.Side is { } admin) list.Insert(1, admin);
             if (!folder && DocFile.IsMarkdown(path) && Features.On("docs"))
                 list.Insert(0, new ActionItem { Title = Tr("Bloom으로 보기", "View in Bloom"), Glyph = G.Page, Run = () => { Usage.Touch(id); host.OpenDoc(path); } });
@@ -200,21 +200,21 @@ internal sealed partial class Engine
             {
                 list.Insert(0, new ActionItem
                 {
-                    Title = Tr("대기열에 추가", "Add to the queue"),
+                    Title = Tr("대기열에 추가", "Add to Queue"),
                     Glyph = G.Add,
                     StayOpen = true,
                     Run = () =>
                     {
                         MusicPlayer.Enqueue(path);
-                        host.Window.ShowToast(Tr($"‘{name}’ 대기열에 추가 요청 · {PlayerWays.NameOf(MusicPlayer.Way)}", $"Asked to add ‘{name}’ to the queue · {PlayerWays.NameOf(MusicPlayer.Way)}"));
+                        host.Window.ShowToast(Tr($"‘{name}’ 대기열에 추가 요청 · {PlayerWays.NameOf(MusicPlayer.Way)}", $"Queued ‘{name}’ · {PlayerWays.NameOf(MusicPlayer.Way)}"));
                     },
                 });
-                list.Insert(0, new ActionItem { Title = Tr("미니 플레이어로 재생", "Play in mini player"), Glyph = PlayerGlyph.Play, Run = () => { Usage.Touch(id); host.Tools.Open("player"); MusicPlayer.Play(path); } });
+                list.Insert(0, new ActionItem { Title = Tr("미니 플레이어로 재생", "Play in Mini Player"), Glyph = PlayerGlyph.Play, Run = () => { Usage.Touch(id); host.Tools.Open("player"); MusicPlayer.Play(path); } });
             }
             if (!folder && Playlists.IsPlaylist(path) && Features.On("player") && !MusicPlayer.External)
             {
-                list.Insert(0, new ActionItem { Title = Tr("대기열에 추가", "Add to the queue"), Glyph = G.Add, Run = () => { host.Tools.Open("player"); MusicPlayer.OpenPlaylist(path, true); } });
-                list.Insert(0, new ActionItem { Title = Tr("미니 플레이어로 재생", "Play in mini player"), Glyph = PlayerGlyph.Play, Run = () => { Usage.Touch(id); host.Tools.Open("player"); MusicPlayer.OpenPlaylist(path); } });
+                list.Insert(0, new ActionItem { Title = Tr("대기열에 추가", "Add to Queue"), Glyph = G.Add, Run = () => { host.Tools.Open("player"); MusicPlayer.OpenPlaylist(path, true); } });
+                list.Insert(0, new ActionItem { Title = Tr("미니 플레이어로 재생", "Play in Mini Player"), Glyph = PlayerGlyph.Play, Run = () => { Usage.Touch(id); host.Tools.Open("player"); MusicPlayer.OpenPlaylist(path); } });
             }
             list.AddRange(FileActions(path, name, folder));
             if (ext is ".ps1" or ".bat" or ".cmd" or ".exe")
@@ -243,10 +243,10 @@ internal sealed partial class Engine
     {
         var d = DateTime.Now - t;
         if (d.TotalMinutes < 1) return Tr("방금", "Just now");
-        if (d.TotalMinutes < 60) return Tr($"{(int)d.TotalMinutes}분 전", $"{(int)d.TotalMinutes} min ago");
-        if (d.TotalHours < 24 && t.Date == DateTime.Today) return Tr($"{(int)d.TotalHours}시간 전", $"{(int)d.TotalHours} h ago");
+        if (d.TotalMinutes < 60) return Tr($"{(int)d.TotalMinutes}분 전", $"{(int)d.TotalMinutes}m ago");
+        if (d.TotalHours < 24 && t.Date == DateTime.Today) return Tr($"{(int)d.TotalHours}시간 전", $"{(int)d.TotalHours}h ago");
         if (t.Date == DateTime.Today.AddDays(-1)) return Tr("어제", "Yesterday");
-        if (d.TotalDays < 7) return Tr($"{(int)Math.Ceiling(d.TotalDays)}일 전", $"{(int)Math.Ceiling(d.TotalDays)} days ago");
+        if (d.TotalDays < 7) return Tr($"{(int)Math.Ceiling(d.TotalDays)}일 전", $"{(int)Math.Ceiling(d.TotalDays)}d ago");
         return t.Year == DateTime.Now.Year ? t.ToString(Tr("M월 d일", "MMM d"), Lang.Culture) : $"{t.Year}. {t.Month}. {t.Day}.";
     }
 
@@ -270,7 +270,7 @@ internal sealed partial class Engine
             Accessory = accessory,
             Icon = IconSpec.Of(G.Globe),
             Data = url,
-            PrimaryLabel = Tr("브라우저에서 열기", "Open in the browser"),
+            PrimaryLabel = Tr("브라우저에서 열기", "Open in browser"),
             AsFavorite = new Favorites.Entry { Id = id, Kind = "url", Title = title, Subtitle = h, Target = url },
         };
         item.Run = () =>
@@ -280,9 +280,9 @@ internal sealed partial class Engine
         };
         item.MoreActions = () => new List<ActionItem>
         {
-            new() { Title = Tr("기본 브라우저로 열기", "Open in the default browser"), Keys = "Ctrl+Enter", Glyph = G.NewWindow, Run = () => Web.Open(url, defaultBrowser: true) },
+            new() { Title = Tr("기본 브라우저로 열기", "Open in default browser"), Keys = "Ctrl+Enter", Glyph = G.NewWindow, Run = () => Web.Open(url, defaultBrowser: true) },
             new() { Title = Tr("링크 복사", "Copy link"), Keys = "Ctrl+Shift+C", Glyph = G.Link, Run = () => Launch.Copy(url) },
-            new() { Title = Tr("브라우저 바로 가기로 저장", "Save as a browser shortcut"), Glyph = G.Add, StayOpen = true, Run = () => host.Window.StartForm(QuicklinkForm(null, url, title)) },
+            new() { Title = Tr("브라우저 바로 가기로 저장", "Save as web shortcut"), Glyph = G.Add, StayOpen = true, Run = () => host.Window.StartForm(QuicklinkForm(null, url, title)) },
         };
         return item;
     }
@@ -308,7 +308,7 @@ internal sealed partial class Engine
         Id = "ai:ask",
         Kind = ItemKind.Ai,
         Title = Tr($"“{q}” AI에게 묻기", $"Ask AI “{q}”"),
-        Subtitle = continued is null ? AiModels.Who(AiModels.DefaultModel()) : Tr($"이어서: {continued.Title}", $"Continues: {continued.Title}"),
+        Subtitle = continued is null ? AiModels.Who(AiModels.DefaultModel()) : Tr($"이어서: {continued.Title}", $"Continue: {continued.Title}"),
         Accessory = "Tab",
         Icon = IconSpec.Of(G.Sparkle, true),
         PrimaryLabel = Tr("묻기", "Ask"),
@@ -321,7 +321,7 @@ internal sealed partial class Engine
     {
         Id = "ai:ask-new",
         Kind = ItemKind.Ai,
-        Title = Tr($"“{q}” 새 대화로 묻기", $"Ask “{q}” in a new chat"),
+        Title = Tr($"“{q}” 새 대화로 묻기", $"Ask “{q}” in new chat"),
         Subtitle = AiModels.Who(AiModels.DefaultModel()),
         Accessory = "Shift+Tab",
         Icon = IconSpec.Of(G.Add, true),
@@ -336,11 +336,11 @@ internal sealed partial class Engine
     {
         Id = "web:search",
         Kind = ItemKind.WebSearch,
-        Title = Tr($"“{q}” 웹 검색", $"Search the web for “{q}”"),
+        Title = Tr($"“{q}” 웹 검색", $"Search web for “{q}”"),
         Subtitle = $"{Web.EngineName} · {Web.BrowserName}",
         Accessory = Tr("웹", "Web"),
         Icon = IconSpec.Of(G.Globe),
-        PrimaryLabel = Tr("브라우저에서 검색", "Search in the browser"),
+        PrimaryLabel = Tr("브라우저에서 검색", "Search in browser"),
         Run = () => Web.Search(q),
     };
 
@@ -348,11 +348,11 @@ internal sealed partial class Engine
     {
         Id = "files:find",
         Kind = ItemKind.Command,
-        Title = Tr($"“{q}” 파일 찾기", $"Find files “{q}”"),
+        Title = Tr($"“{q}” 파일 찾기", $"Find files matching “{q}”"),
         Subtitle = "Everything",
         Accessory = Tr("파일", "File"),
         Icon = IconSpec.Of(G.Search),
-        PrimaryLabel = Tr("찾기", "Find"),
+        PrimaryLabel = Tr("찾기", "Search"),
         StayOpen = true,
         Run = () => host.OpenView(Mode.Files, q),
     };

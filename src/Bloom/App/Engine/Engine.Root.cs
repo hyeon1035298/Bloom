@@ -41,7 +41,7 @@ internal sealed partial class Engine
         if (Features.On("winget") && RootWinget(text) is { } install) sections.Add(install);
         if (Features.On("timers") && TimeParse.Read(text) is { } ask)
         {
-            var ts = new Section(Tr("타이머 · 알림", "Timers · reminders"));
+            var ts = new Section(Tr("타이머 · 알림", "Timers · Reminders"));
             ts.Items.Add(StartTimerItem(ask, false));
             sections.Add(ts);
         }
@@ -52,10 +52,10 @@ internal sealed partial class Engine
         if (Features.On("calc") && Calculator.Evaluate(text) is { } calc)
             sections.Add(new Section(Tr("계산기", "Calculator")) { Items = { CalcItem("calc", calc) } });
         else if (Features.On("dates") && (DateCalc.Evaluate(text) ?? WorldClock.Evaluate(text)) is { } date)
-            sections.Add(new Section(Tr("날짜 · 시간", "Dates · time")) { Items = { CalcItem("date", date) } });
+            sections.Add(new Section(Tr("날짜 · 시간", "Date · Time")) { Items = { CalcItem("date", date) } });
 
         var results = new Section(Tr("결과", "Results"));
-        if (Web.AsUrl(text) is { } url) results.Items.Add(FromUrl(url, text.Trim(), Tr("브라우저에서 열기", "Open in the browser"), ItemKind.Url, Tr("링크", "Link")));
+        if (Web.AsUrl(text) is { } url) results.Items.Add(FromUrl(url, text.Trim(), Tr("브라우저에서 열기", "Open in browser"), ItemKind.Url, Tr("링크", "Link")));
         var scored = new List<RootCandidate>();
         var learned = QueryMemory.Boosts(text); // what was picked for this line before
         int Learned(string id) => learned.TryGetValue(id, out int b) ? b : 0;
@@ -112,7 +112,7 @@ internal sealed partial class Engine
         HiddenResults.Strip(sections, below); // the results passed over theirs already (RootRanking)
         bool strong = sections.Count > 0; // anything answered the line: the fallbacks go last
 
-        var fall = new Section(strong ? Tr("다른 곳에서 찾기", "Search elsewhere") : Tr("결과 없음 · 다른 곳에서 찾기", "No results · search elsewhere")) { Fallback = true };
+        var fall = new Section(strong ? Tr("다른 곳에서 찾기", "Search elsewhere") : Tr("결과 없음 · 다른 곳에서 찾기", "No results · Search elsewhere")) { Fallback = true };
         if (Features.On("chat"))
         {
             var continued = host.TabThread;
@@ -150,8 +150,8 @@ internal sealed partial class Engine
         Run = calc.Copy.Length > 0 ? () => Launch.Copy(calc.Copy) : null,
         MoreActions = calc.Copy.Length > 0 ? () => new List<ActionItem>
         {
-            new() { Title = Tr("서식 포함 복사", "Copy as shown"), Glyph = G.Copy, Run = () => Launch.Copy(calc.Value) },
-            new() { Title = Tr("식과 함께 복사", "Copy with the expression"), Glyph = G.Copy, Run = () => Launch.Copy($"{calc.Expr} = {calc.Value}") },
+            new() { Title = Tr("서식 포함 복사", "Copy with formatting"), Glyph = G.Copy, Run = () => Launch.Copy(calc.Value) },
+            new() { Title = Tr("식과 함께 복사", "Copy with expression"), Glyph = G.Copy, Run = () => Launch.Copy($"{calc.Expr} = {calc.Value}") },
         } : null,
     };
 

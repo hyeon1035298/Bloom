@@ -57,16 +57,16 @@ internal sealed partial class Engine
     /// The work tools have their own (유니티 · 블렌더 · 어도비), so .unitypackage is not 압축 and .psd not 사진.
     public static readonly (string key, string name, char glyph, string filter)[] FileKinds =
     {
-        ("all", Tr("전체", "All"), G.Search, ""),
+        ("all", Tr("전체", "All Data"), G.Search, ""),
         ("folder", Tr("폴더", "Folder"), G.Folder, "folder:"),
-        ("doc", Tr("문서", "Documents"), G.Document, "file: ext:pdf;doc;docx;hwp;hwpx;txt;md;rtf;odt;xls;xlsx;csv;ppt;pptx"),
+        ("doc", Tr("문서", "Document"), G.Document, "file: ext:pdf;doc;docx;hwp;hwpx;txt;md;rtf;odt;xls;xlsx;csv;ppt;pptx"),
         ("pic", Tr("사진", "Photo"), '\uEB9F', "file: ext:jpg;jpeg;png;gif;webp;bmp;tif;tiff;heic;avif;svg;ico"),
         ("video", Tr("영상", "Video"), '\uE714', "file: ext:mp4;mkv;mov;avi;webm;wmv;m4v;flv;ts"),
         ("audio", Tr("음악", "Music"), '\uE8D6', "file: ext:mp3;wav;flac;m4a;aac;ogg;opus;wma"),
         ("unity", Tr("유니티", "Unity"), '\uE7FC', "file: ext:unitypackage;unity"),
         ("blender", Tr("블렌더", "Blender"), '\uE70F', "file: ext:blend;blend1"),
         ("adobe", Tr("어도비", "Adobe"), '\uE790', "file: ext:psd;psb;ai;aep;aet;prproj;mogrt;indd;xd"),
-        ("exe", Tr("실행 파일", "Programs"), G.App, "file: ext:exe;msi;bat;cmd;ps1"),
+        ("exe", Tr("실행 파일", "Executables"), G.App, "file: ext:exe;msi;bat;cmd;ps1"),
         ("zip", Tr("압축", "Archives"), '\uF012', "file: ext:zip;7z;rar;tar;gz"),
     };
 
@@ -85,7 +85,7 @@ internal sealed partial class Engine
                 Id = "ev:start",
                 Kind = ItemKind.Info,
                 Title = Tr("Everything 실행 안 됨", "Everything is not running"),
-                Subtitle = Tr("Enter로 Everything 실행", "Enter starts Everything"),
+                Subtitle = Tr("Enter로 Everything 실행", "Press Enter to launch Everything"),
                 Icon = IconSpec.Of(G.Info),
                 PrimaryLabel = Tr("실행", "Run"),
                 StayOpen = true,
@@ -102,11 +102,11 @@ internal sealed partial class Engine
             : (fk.filter.Length > 0 ? fk.filter + " " : "") + text.Trim();
         var list = await host.Everything.Query(search, 200, EverythingClient.SortDateModifiedDesc);
         string what = fk.key == "all" ? "" : " · " + fk.name;
-        var sec = new Section((text.Trim().Length == 0 ? Tr("최근 수정한 항목", "Recently changed") : Tr("결과", "Results")) + what, list is null ? null : Tr($"{list.Count}{(list.Count >= 200 ? "+" : "")}개", $"{list.Count}{(list.Count >= 200 ? "+" : "")}"));
+        var sec = new Section((text.Trim().Length == 0 ? Tr("최근 수정한 항목", "Recently Modified") : Tr("결과", "Results")) + what, list is null ? null : Tr($"{list.Count}{(list.Count >= 200 ? "+" : "")}개", $"{list.Count}{(list.Count >= 200 ? "+" : "")}"));
         if (list is not null)
             foreach (var f in list) sec.Items.Add(FromFile(f, true));
         if (sec.Items.Count == 0)
-            sec.Items.Add(new ResultItem { Id = "ev:none", Kind = ItemKind.Info, Title = Tr("검색 결과 없음", "Nothing found"), Subtitle = Tr("Everything 문법도 됩니다: ext:pdf, size:>10mb, dm:today", "Everything's syntax works too: ext:pdf, size:>10mb, dm:today"), Icon = IconSpec.Of(G.Info) });
+            sec.Items.Add(new ResultItem { Id = "ev:none", Kind = ItemKind.Info, Title = Tr("검색 결과 없음", "No results found"), Subtitle = Tr("Everything 문법도 됩니다: ext:pdf, size:>10mb, dm:today", "Supports Everything syntax: ext:pdf, size:>10mb, dm:today"), Icon = IconSpec.Of(G.Info) });
         sections.Add(sec);
         return sections;
     }
@@ -115,13 +115,13 @@ internal sealed partial class Engine
     {
         var sections = new List<Section>();
         var q = new Query(text);
-        var s = new Section(Tr("AI 채팅", "AI chats"), Tr($"{host.Chats.Threads.Count}개", $"{host.Chats.Threads.Count}"));
+        var s = new Section(Tr("AI 채팅", "AI Chat"), Tr($"{host.Chats.Threads.Count}개", $"{host.Chats.Threads.Count}"));
         var top = new Section(null);
         top.Items.Add(new ResultItem
         {
             Id = "thread:new",
             Kind = ItemKind.Ai,
-            Title = q.IsEmpty ? Tr("새 대화", "New chat") : Tr($"“{text.Trim()}” 새 대화로 묻기", $"Ask “{text.Trim()}” in a new chat"),
+            Title = q.IsEmpty ? Tr("새 대화", "New chat") : Tr($"“{text.Trim()}” 새 대화로 묻기", $"Ask “{text.Trim()}” in new chat"),
             Subtitle = AiModels.Who(AiModels.DefaultModel()),
             Icon = IconSpec.Of(G.Sparkle, true),
             PrimaryLabel = Tr("시작", "Start"),

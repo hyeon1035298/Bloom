@@ -16,11 +16,11 @@ internal sealed partial class Engine
     {
         var q = new Query(text);
         var target = LayoutTarget();
-        var s = new Section(Tr("창 배치", "Window layout"), target != IntPtr.Zero ? Clip(WindowTitle(target), 40) : Demo.On ? null : Tr("배치할 창 없음", "No window to place"));
+        var s = new Section(Tr("창 배치", "Window Layout"), target != IntPtr.Zero ? Clip(WindowTitle(target), 40) : Demo.On ? null : Tr("배치할 창 없음", "No window to arrange"));
         foreach (var l in WindowLayout.All)
             if (q.IsEmpty || Matcher.Score(q, l.Match) >= 560) s.Items.Add(LayoutItem(l, target));
         if (s.Items.Count == 0)
-            s.Items.Add(new ResultItem { Id = "layout:none", Kind = ItemKind.Info, Title = Tr("검색된 배치 없음", "No layout matches"), Icon = IconSpec.Of(G.Info) });
+            s.Items.Add(new ResultItem { Id = "layout:none", Kind = ItemKind.Info, Title = Tr("검색된 배치 없음", "No matching layout"), Icon = IconSpec.Of(G.Info) });
         return new List<Section> { s };
     }
 
@@ -45,10 +45,10 @@ internal sealed partial class Engine
         Id = l.Id,
         Kind = ItemKind.Command,
         Title = Tr(l.Ko, l.En),
-        Subtitle = target == IntPtr.Zero ? Tr("앞의 창 이동", "Moves the window in front") : Clip(WindowTitle(target), 48),
-        Accessory = Tr("창 배치", "Layout"),
+        Subtitle = target == IntPtr.Zero ? Tr("앞의 창 이동", "Move active window") : Clip(WindowTitle(target), 48),
+        Accessory = Tr("창 배치", "Window Layout"),
         Icon = l.Glyph != '\0' ? IconSpec.Of(l.Glyph) : IconSpec.Share(l.X, l.Y, l.W, l.H),
-        PrimaryLabel = Tr("배치", "Place"),
+        PrimaryLabel = Tr("배치", "Arrange"),
         AsFavorite = new Favorites.Entry { Id = l.Id, Kind = "layout", Title = Tr(l.Ko, l.En) },
         Run = () => PlaceWindow(l),
     };
@@ -59,7 +59,7 @@ internal sealed partial class Engine
         Usage.Touch(l.Id);
         IntPtr h = LayoutTarget();
         if (h == IntPtr.Zero || !WindowLayout.Apply(l, h))
-            host.Window.ShowToast(l.Kind == "next" && h != IntPtr.Zero ? Tr("연결된 화면 1개", "There is only one screen") : Tr("배치할 창 없음", "No window to place"));
+            host.Window.ShowToast(l.Kind == "next" && h != IntPtr.Zero ? Tr("연결된 화면 1개", "1 display connected") : Tr("배치할 창 없음", "No window to arrange"));
         OpenWindows.Invalidate();
     }
 

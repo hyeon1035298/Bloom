@@ -44,7 +44,7 @@ internal sealed class CalcTool : ITool
         var scroll = ToolUi.Scroll(history);
         Grid.SetRow(scroll, 2);
         view.Children.Add(scroll);
-        clearButton = ToolUi.Button(G.Delete, Tr("기록 지우기", "Clear the history"), () =>
+        clearButton = ToolUi.Button(G.Delete, Tr("기록 지우기", "Clear history"), () =>
         {
             lines.Clear();
             detail.Text = Tr("기록 삭제 완료", "History cleared");
@@ -64,7 +64,7 @@ internal sealed class CalcTool : ITool
     {
         var a = Calculator.Evaluate(input.Text);
         answer.Text = a?.Value ?? "";
-        detail.Text = a?.Detail ?? (input.Text.Trim().Length > 0 && a is null ? Tr("식을 계속 입력하세요", "Keep typing the sum") : "");
+        detail.Text = a?.Detail ?? (input.Text.Trim().Length > 0 && a is null ? Tr("식을 계속 입력하세요", "Continue typing expression") : "");
     }
 
     private void Keep()
@@ -85,7 +85,7 @@ internal sealed class CalcTool : ITool
         clearButton.Visibility = lines.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
         if (lines.Count == 0)
         {
-            history.Children.Add(ToolUi.Empty(Tr("Enter로 결과 복사 및 기록 저장", "Enter copies the result and saves it in history")));
+            history.Children.Add(ToolUi.Empty(Tr("Enter로 결과 복사 및 기록 저장", "Press Enter to copy result and save to history")));
             return;
         }
         foreach (var (expr, value, copy) in lines)

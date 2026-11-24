@@ -64,14 +64,14 @@ internal static class AiCommandRun
         string provider = AiModels.Provider(model);
         string? effort = AiModels.HasEffort(model) ? AiModels.DefaultEffort(model) : null;
         var steps = Steps(c, all);
-        if (steps.Count == 0) return (null, Tr("프롬프트가 비어 있습니다. 명령을 고치세요.", "The prompt is empty. Edit the command."), model);
+        if (steps.Count == 0) return (null, Tr("프롬프트가 비어 있습니다. 명령을 수정하세요.", "The prompt is empty. Edit the command."), model);
         string text = input;
         for (int i = 0; i < steps.Count; i++)
         {
             step?.Invoke(i + 1, steps.Count);
             var (answer, error) = await OneShot.Ask(System, Message(steps[i], text, null), provider, model, effort, "mine-" + c.Id, ct, web: true);
             if (ct.IsCancellationRequested) return (null, null, model);
-            if (answer is null) return (null, steps.Count > 1 ? Tr($"{i + 1}단계 실패 · {error}", $"Step {i + 1} failed · {error}") : error ?? Tr("응답 없음 · 다시 시도하세요", "No response. Try again."), model);
+            if (answer is null) return (null, steps.Count > 1 ? Tr($"{i + 1}단계 실패 · {error}", $"Step {i + 1} failed · {error}") : error ?? Tr("응답 없음 · 다시 시도하세요", "No response · Please try again"), model);
             text = answer;
         }
         return (text, null, model);

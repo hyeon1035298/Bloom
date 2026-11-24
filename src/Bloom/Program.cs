@@ -219,12 +219,12 @@ internal static class Program
                         DocHandoff.Tell(doc, DocHandoff.Refused);
                         return 5;
                     case LinePipe.Answer.Silent:
-                        DocHandoff.Tell(doc, Tr("실행 중인 Bloom이 응답하지 않았습니다", "The running Bloom didn't answer"));
+                        DocHandoff.Tell(doc, Tr("실행 중인 Bloom이 응답하지 않았습니다", "The running instance of Bloom did not respond"));
                         return 7;
                 }
                 if (clock.ElapsedMilliseconds > 30000)
                 {
-                    DocHandoff.Tell(doc, Tr("Bloom이 30초 안에 준비되지 않았습니다", "Bloom wasn't ready within 30 seconds"));
+                    DocHandoff.Tell(doc, Tr("Bloom이 30초 안에 준비되지 않았습니다", "Bloom was not ready within 30 seconds"));
                     return 6;
                 }
                 Thread.Sleep(150);

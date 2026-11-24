@@ -140,7 +140,7 @@ internal sealed class Row : SmoothBorder
         g.VerticalAlignment = VerticalAlignment.Center;
         g.Margin = new Thickness(0, 1, 5, 0);
         sp.Children.Add(g);
-        sp.Children.Add(Theme.T(Tr("관리자로 실행", "Run as admin"), 12, Theme.P.TextDim, Theme.Medium, false));
+        sp.Children.Add(Theme.T(Tr("관리자로 실행", "Run as administrator"), 12, Theme.P.TextDim, Theme.Medium, false));
         var b = new SmoothBorder
         {
             Child = sp,
@@ -290,7 +290,7 @@ internal sealed class Row : SmoothBorder
         var val = Theme.T(item.CalcValue ?? "", item.CalcValue is { Length: > 18 } ? 21 : 28, Theme.P.Text, Theme.Medium);
         Typography.SetNumeralAlignment(val, FontNumeralAlignment.Tabular);
         right.Children.Add(val);
-        var cap2 = Theme.T(item.CalcDetail ?? Tr("결과 · Enter로 복사", "Result · Enter copies"), 11.5, Theme.P.TextFaint);
+        var cap2 = Theme.T(item.CalcDetail ?? Tr("결과 · Enter로 복사", "Result · Enter to copy"), 11.5, Theme.P.TextFaint);
         cap2.Margin = new Thickness(0, 4, 0, 0);
         right.Children.Add(cap2);
         Grid.SetColumn(right, 2);

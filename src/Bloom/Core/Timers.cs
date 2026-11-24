@@ -107,16 +107,16 @@ internal sealed class Timers
     public static string DurationText(TimeSpan t)
     {
         var parts = new List<string>();
-        if (t.Hours + t.Days * 24 > 0) parts.Add(Tr($"{t.Hours + t.Days * 24}시간", $"{t.Hours + t.Days * 24} h"));
+        if (t.Hours + t.Days * 24 > 0) parts.Add(Tr($"{t.Hours + t.Days * 24}시간", $"{t.Hours + t.Days * 24}h"));
         if (t.Minutes > 0) parts.Add(Tr($"{t.Minutes}분", $"{t.Minutes} min"));
-        if (t.Seconds > 0 && t.TotalMinutes < 10) parts.Add(Tr($"{t.Seconds}초", $"{t.Seconds} s"));
-        return parts.Count == 0 ? Tr("0초", "0 s") : string.Join(" ", parts);
+        if (t.Seconds > 0 && t.TotalMinutes < 10) parts.Add(Tr($"{t.Seconds}초", $"{t.Seconds}s"));
+        return parts.Count == 0 ? Tr("0초", "0s") : string.Join(" ", parts);
     }
 
     /// "오늘 15:30" / "내일 09:00" / "10월 9일 18:00"
     public static string WhenText(DateTime d)
     {
-        string day = d.Date == DateTime.Today ? Tr("오늘", "today") : d.Date == DateTime.Today.AddDays(1) ? Tr("내일", "tomorrow") : d.ToString(Tr("M월 d일", "MMM d"), Lang.Culture);
+        string day = d.Date == DateTime.Today ? Tr("오늘", "Today") : d.Date == DateTime.Today.AddDays(1) ? Tr("내일", "Tomorrow") : d.ToString(Tr("M월 d일", "MMM d"), Lang.Culture);
         return $"{day} {d:HH:mm}";
     }
 }

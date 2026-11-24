@@ -131,12 +131,12 @@ internal static class Providers
     public static ProviderReply ParseReply(string? output)
     {
         var items = new List<ProviderItem>();
-        if (string.IsNullOrWhiteSpace(output)) return new(items, Tr("출력 없음", "The output is empty"));
+        if (string.IsNullOrWhiteSpace(output)) return new(items, Tr("출력 없음", "No output"));
         try
         {
             using var doc = JsonDocument.Parse(output!.Trim(), new JsonDocumentOptions { AllowTrailingCommas = true });
             var root = doc.RootElement;
-            if (root.ValueKind != JsonValueKind.Object) return new(items, Tr("출력이 JSON 객체가 아님", "The output is not a JSON object"));
+            if (root.ValueKind != JsonValueKind.Object) return new(items, Tr("출력이 JSON 객체가 아님", "Output is not a JSON object"));
             string? error = Str(root, "error") is { Length: > 0 } er ? er : null;
             if (root.TryGetProperty("items", out var arr))
             {
@@ -148,12 +148,12 @@ internal static class Providers
                     items.Add(new ProviderItem(title, Str(e, "subtitle"), ReadAction(e)));
                 }
             }
-            else if (error is null) return new(items, Tr("items 없음", "The output has no items"));
+            else if (error is null) return new(items, Tr("items 없음", "Missing items"));
             return new(items, error);
         }
         catch (JsonException)
         {
-            return new(items, Tr("출력이 올바른 JSON이 아님", "The output is not valid JSON"));
+            return new(items, Tr("출력이 올바른 JSON이 아님", "Output is not valid JSON"));
         }
     }
 
@@ -193,7 +193,7 @@ internal static class Providers
         }
         catch (McpException)
         {
-            return new(new(), Tr("검색어의 일부 글자는 이 명령에 넘길 수 없습니다", "The words hold a character this command cannot take"));
+            return new(new(), Tr("검색어의 일부 글자는 이 명령에 넘길 수 없습니다", "Some characters in the query cannot be passed to this command"));
         }
         var env = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
         foreach (System.Collections.DictionaryEntry e in Environment.GetEnvironmentVariables())
@@ -201,7 +201,7 @@ internal static class Providers
         env["PYTHONIOENCODING"] = "utf-8";
         env["BLOOM_PROVIDER"] = "1";
         using var job = CommandJob.Create();
-        if (job is null) return new(new(), Tr("작업 개체 만들기 실패", "Could not create a job for the command"));
+        if (job is null) return new(new(), Tr("작업 개체 만들기 실패", "Failed to create job object"));
         ChildProcess proc;
         try
         {
@@ -209,7 +209,7 @@ internal static class Providers
         }
         catch (Exception e) when (e is System.ComponentModel.Win32Exception or InvalidOperationException)
         {
-            return new(new(), Tr($"실행 실패: {e.Message}", $"Could not start the command: {e.Message}"));
+            return new(new(), Tr($"실행 실패: {e.Message}", $"Failed to run: {e.Message}"));
         }
         using (proc)
         {
@@ -271,7 +271,7 @@ internal static class Providers
         }
         catch (McpException e)
         {
-            throw new InvalidOperationException(Tr("이 동작의 값에 배치 파일로 넘길 수 없는 문자가 있습니다.", "This action holds a character that can't be passed to a batch file."), e);
+            throw new InvalidOperationException(Tr("이 동작의 값에 배치 파일로 넘길 수 없는 문자가 있습니다.", "The value for this action contains characters that cannot be passed to a batch file."), e);
         }
         var psi = new ProcessStartInfo { FileName = launch.file, Arguments = launch.arguments, UseShellExecute = false, CreateNoWindow = true };
         if (cwd is not null && Directory.Exists(cwd)) psi.WorkingDirectory = cwd;

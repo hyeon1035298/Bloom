@@ -32,7 +32,7 @@ internal static class RunCardPictures
     public static Screen? Chosen(string value, IReadOnlyList<Screen> screens) =>
         value == "primary" ? screens.FirstOrDefault(s => s.Primary) : screens.FirstOrDefault(s => s.Number == Number(value) && s.Number > 0);
 
-    public static string NameOf(Screen s) => s.Name.Length > 0 ? s.Name : Tr("이름 없는 모니터", "Unnamed monitor");
+    public static string NameOf(Screen s) => s.Name.Length > 0 ? s.Name : Tr("이름 없는 모니터", "Unnamed Monitor");
 
     // ── 자리 ───────────────────────────────────────────────────────────────────────────────────
     // The add-on's measures (rc_draw.h, run-card.wh.cpp) in its units (a DIP at 100 %): a card's width, a pill's height,

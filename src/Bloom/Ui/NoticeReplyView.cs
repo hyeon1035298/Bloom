@@ -30,7 +30,7 @@ internal sealed class NoticeReplyView : Border
         Background = Brushes.Transparent;
         Cursor = Cursors.Arrow;
         box = new TextBox { FontFamily = Theme.Sans, FontSize = 12.5, Foreground = Theme.P.Text, CaretBrush = Theme.P.Accent, SelectionBrush = Theme.P.Selection, SelectionOpacity = 1, Background = Brushes.Transparent, BorderThickness = new Thickness(0), Padding = new Thickness(0, 1, 0, 2), Template = Launcher.BareTextBox(), VerticalAlignment = VerticalAlignment.Center, MaxLength = RunCardProtocol.MaxSay };
-        hint = Theme.T(Tr("이어서 보낼 말", "Words for this turn"), 12.5, Theme.P.TextFaint, Theme.Regular);
+        hint = Theme.T(Tr("이어서 보낼 말", "Type a follow-up message"), 12.5, Theme.P.TextFaint, Theme.Regular);
         hint.IsHitTestVisible = false;
         var field = new Grid { VerticalAlignment = VerticalAlignment.Center };
         field.Children.Add(hint);
@@ -145,7 +145,7 @@ internal sealed class NoticeReplyView : Border
         catch (Exception e)
         {
             Core.Log.Error("notice reply", e);
-            went = (false, Tr("보내지 못했어요", "Couldn't send"));
+            went = (false, Tr("보내지 못했어요", "Failed to send"));
         }
         sending = false;
         box.IsReadOnly = false;

@@ -143,18 +143,18 @@ internal static class TaskbarMap
 
     /// The words for `value` when it is the key's "not set" number, else null.
     public static string? Special(string key, int value) => Unset.TryGetValue(key, out int u) && u == value
-        ? key == "island.width" ? Tr("내용에 맞춤", "Fits the content") : Tr("Windows 기본", "Windows default")
+        ? key == "island.width" ? Tr("내용에 맞춤", "Fit to content") : Tr("Windows 기본", "Windows default")
         : null;
 
     /// The page's own name for an option whose schema name is a description (else null: the schema's name).
     public static string? OptionLabel(string key, string value) => (key, value) switch
     {
-        ("pill.style", "bloom") => Tr("옅은 윤곽선", "Faint outline"),
-        ("pill.style", "glass") => Tr("빛 받는 유리", "Lit glass"),
-        ("pill.style", "windowGlass") => Tr("테두리 없음", "No outline"),
-        ("pill.edge", "windows") => Tr("Windows대로", "As Windows"),
-        ("island.reveal", "hover") => Tr("포인터를 대면", "Point at it"),
-        ("island.reveal", "click") => Tr("클릭하면", "Click it"),
+        ("pill.style", "bloom") => Tr("옅은 윤곽선", "Subtle Glass"),
+        ("pill.style", "glass") => Tr("빛 받는 유리", "Smart Light"),
+        ("pill.style", "windowGlass") => Tr("테두리 없음", "No border"),
+        ("pill.edge", "windows") => Tr("Windows대로", "Follow Windows"),
+        ("island.reveal", "hover") => Tr("포인터를 대면", "On hover"),
+        ("island.reveal", "click") => Tr("클릭하면", "On click"),
         ("tray.clockFormat", "h24") => "21:41",
         ("tray.clockFormat", "h12") => Tr("오후 9:41", "9:41 PM"),
         _ => null,

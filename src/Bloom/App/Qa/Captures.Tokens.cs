@@ -98,7 +98,7 @@ internal static partial class Captures
         // 설정's token rows: AI 토큰's two, then 홈 화면's three blocks (their about in two lines)
         var sw = new SettingsWindow(host) { WindowStartupLocation = WindowStartupLocation.Manual, Left = -32000, Top = -32000, ShowActivated = false };
         sw.Show();
-        foreach (var (filter, name) in new[] { (Tr("AI 토큰", "AI tokens"), "t09-settings"), (Tr("사용량", "usage"), "t11-settings-home") })
+        foreach (var (filter, name) in new[] { (Tr("AI 토큰", "AI Tokens"), "t09-settings"), (Tr("사용량", "usage"), "t11-settings-home") })
         {
             sw.Filter(filter);
             await Task.Delay(350);

@@ -26,7 +26,7 @@ internal sealed class DrawLayer
         Bright = Frozen(Color.FromRgb(0xEC, 0xED, 0xEE)), Dim = Frozen(Color.FromRgb(0xA1, 0xA1, 0xAA)), Hover = Frozen(Color.FromArgb(0x14, 0xFF, 0xFF, 0xFF)),
         On = Frozen(Color.FromArgb(0x1A, 0xFF, 0xFF, 0xFF));
 
-    public static string Hint => Tr("펜 P · 형광펜 H · 지우개 E · Enter 복사 · Esc 취소", "Pen P · highlighter H · eraser E · Enter copies · Esc cancels");
+    public static string Hint => Tr("펜 P · 형광펜 H · 지우개 E · Enter 복사 · Esc 취소", "Pen P · Highlighter H · Eraser E · Enter Copy · Esc Cancel");
 
     private readonly InkCanvas ink;
     private readonly Size area; // the picked area in DIPs
@@ -237,7 +237,7 @@ internal sealed class DrawLayer
         var row = new StackPanel { Orientation = Orientation.Horizontal };
         tools["pen"] = Button(row, G.Pen, Tr("펜", "Pen"), Tr("펜 (P)", "Pen (P)"), () => Use("pen"));
         tools["mark"] = Button(row, G.Highlight, Tr("형광펜", "Highlighter"), Tr("형광펜 (H)", "Highlighter (H)"), () => Use("mark"));
-        tools["erase"] = Button(row, G.Erase, null, Tr("지우개 (E) · 그은 선을 통째로 지웁니다", "Eraser (E) · removes whole strokes"), () => Use("erase"));
+        tools["erase"] = Button(row, G.Erase, null, Tr("지우개 (E) · 그은 선을 통째로 지웁니다", "Eraser (E) · Erases entire strokes"), () => Use("erase"));
         Separator(row);
         for (int i = 0; i < Inks.Length; i++)
         {
@@ -260,17 +260,17 @@ internal sealed class DrawLayer
         {
             int z = i;
             var line = new SmoothBorder { Width = 16, Height = PenSizes[z], CornerRadius = new CornerRadius(3.5), Background = Dim };
-            sizes.Add(Hit(row, line, null, new[] { Tr("가는 선", "Thin line"), Tr("보통 선", "Medium line"), Tr("굵은 선", "Thick line") }[z], () => Pick(null, z)));
+            sizes.Add(Hit(row, line, null, new[] { Tr("가는 선", "Thin"), Tr("보통 선", "Medium line"), Tr("굵은 선", "Thick") }[z], () => Pick(null, z)));
         }
         Separator(row);
         Button(row, G.Undo, null, Tr("되돌리기 (Ctrl+Z)", "Undo (Ctrl+Z)"), () => Step(undo, redo, true));
         Button(row, G.Redo, null, Tr("다시 하기 (Ctrl+Y)", "Redo (Ctrl+Y)"), () => Step(redo, undo, false));
         Separator(row);
-        Button(row, G.Pin, null, Tr("화면에 고정", "Pin to the screen"), () => done("pin"));
+        Button(row, G.Pin, null, Tr("화면에 고정", "Pin to Screen"), () => done("pin"));
         Hit(row, Theme.Sparkle(15, Dim), null, Tr("AI에게 묻기", "Ask AI"), () => done("ask")); // Bloom Lens' own words
-        Button(row, G.Palette, null, Tr("컬러 팔레트 만들기 · 그린 것까지", "Make a color palette · the drawing included"), () => done("palette"));
-        Button(row, G.Save, null, Tr("그림 저장…", "Save the picture…") + " (Ctrl+S)", () => done("save"));
-        Button(row, G.Video, null, Tr("화면 녹화 · 이 영역을 영상으로 녹화합니다", "Screen recording · records this area as a video"), () => done("record"));
+        Button(row, G.Palette, null, Tr("컬러 팔레트 만들기 · 그린 내용 포함", "Create Color Palette · Including drawings"), () => done("palette"));
+        Button(row, G.Save, null, Tr("그림 저장…", "Save Image…") + " (Ctrl+S)", () => done("save"));
+        Button(row, G.Video, null, Tr("화면 녹화 · 이 영역을 영상으로 녹화합니다", "Record Screen · Record this area as a video"), () => done("record"));
         var copy = new SmoothBorder
         {
             Background = accent,

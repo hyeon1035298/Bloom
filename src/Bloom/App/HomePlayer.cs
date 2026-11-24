@@ -98,7 +98,7 @@ internal static class HomePlayer
         !has && !external && (!asked || (mine && since < Settling));
 
     /// The recording mode's song: made up, its buttons steer nothing.
-    private static NowPlaying.Song Demo => new(null, "", Tr("한낮의 정원", "Garden at Noon"), "Bloom Ensemble", true, true, true, true, true, null);
+    private static NowPlaying.Song Demo => new(null, "", Tr("한낮의 정원", "Midday Garden"), "Bloom Ensemble", true, true, true, true, true, null);
 
     /// Whether the buttons do anything (not in the recording mode, not on a QA picture's made-up song).
     public static bool Live => qa is null && !demo;

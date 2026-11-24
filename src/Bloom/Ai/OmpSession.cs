@@ -481,7 +481,7 @@ internal sealed class OmpSession : IChatSession, IAsksInChat, IContextGauge
         }
         Busy = false;
         LastUsed = DateTime.UtcNow;
-        TextDelta?.Invoke(said.Length > 0 ? "```\n" + said + "\n```" : Tr("명령을 실행했습니다.", "The command ran."));
+        TextDelta?.Invoke(said.Length > 0 ? "```\n" + said + "\n```" : Tr("명령을 실행했습니다.", "Command executed."));
         TurnEnded?.Invoke(true, null);
         RefreshUsage(); // /new and /clear change what the model holds
     }

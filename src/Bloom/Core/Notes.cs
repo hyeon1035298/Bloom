@@ -16,7 +16,7 @@ internal sealed class Note
     public long Updated { get; set; } // unix ms
 
     /// The first line, without a Markdown heading's leading #s ("# 장보기" → "장보기").
-    [JsonIgnore] public string Title => Heading(Text.Split('\n', 2)[0].Trim()) is { Length: > 0 } t ? t : Tr("빈 메모", "Empty note");
+    [JsonIgnore] public string Title => Heading(Text.Split('\n', 2)[0].Trim()) is { Length: > 0 } t ? t : Tr("빈 메모", "Empty Note");
 
     private static string Heading(string line)
     {

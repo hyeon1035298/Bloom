@@ -25,7 +25,7 @@ internal sealed partial class Engine
     public List<Section> WingetView(string text)
     {
         string q = text.Trim();
-        var s = new Section(Tr("앱 설치", "Install apps"), "winget");
+        var s = new Section(Tr("앱 설치", "Install Apps"), "winget");
         if (Winget.Exe is null)
         {
             s.Items.Add(new ResultItem
@@ -33,7 +33,7 @@ internal sealed partial class Engine
                 Id = "winget:missing",
                 Kind = ItemKind.Info,
                 Title = Tr("winget이 없습니다", "winget is not installed"),
-                Subtitle = Tr("Microsoft Store의 ‘앱 설치 관리자’에 들어 있습니다 · Enter로 열기", "It comes with ‘App Installer’ from the Microsoft Store · Enter opens it"),
+                Subtitle = Tr("Microsoft Store의 ‘앱 설치 관리자’에 들어 있습니다 · Enter로 열기", "Included with “App Installer” in Microsoft Store · Press Enter to open"),
                 Icon = IconSpec.Of(G.Info),
                 Run = () => Launch.Open("ms-windows-store://pdp/?ProductId=9NBLGGH4NNS1"),
             });
@@ -41,13 +41,13 @@ internal sealed partial class Engine
         }
         if (q.Length < 2)
         {
-            s.Items.Add(WingetInfo("winget:hint", Tr("설치할 앱 이름을 입력하세요", "Type the name of an app to install"), Tr("winget과 Microsoft Store 목록에서 검색합니다 · Enter로 설치", "Searched in winget and the Microsoft Store · Enter installs")));
+            s.Items.Add(WingetInfo("winget:hint", Tr("설치할 앱 이름을 입력하세요", "Enter an app name to install"), Tr("winget과 Microsoft Store 목록에서 검색합니다 · Enter로 설치", "Search winget and Microsoft Store · Press Enter to install")));
             return new List<Section> { s };
         }
         if (q != wingetAsked) AskWinget(q);
-        if (wingetFound is null) s.Items.Add(WingetInfo("winget:busy", Tr($"‘{q}’ 찾는 중…", $"Looking for ‘{q}’…"), Tr("앱 목록 조회 중 · 몇 초 소요", "winget is reading its catalogue · a few seconds")));
-        else if (wingetFailed) s.Items.Add(WingetInfo("winget:failed", Tr("winget 응답 없음 · 잠시 후 다시 검색하세요", "No response from winget. Search again shortly."), Tr("잠시 뒤 다시 적어 보세요", "Try again in a moment")));
-        else if (wingetFound.Count == 0) s.Items.Add(WingetInfo("winget:none", Tr("검색된 앱 없음", "No app found"), Tr("영어 이름이나 회사 이름으로도 찾아 보세요", "Try its English name or the maker's name")));
+        if (wingetFound is null) s.Items.Add(WingetInfo("winget:busy", Tr($"‘{q}’ 찾는 중…", $"Searching for ‘{q}’…"), Tr("앱 목록 조회 중 · 몇 초 소요", "Searching app catalog · Takes a few seconds")));
+        else if (wingetFailed) s.Items.Add(WingetInfo("winget:failed", Tr("winget 응답 없음 · 잠시 후 다시 검색하세요", "winget is not responding · Try again in a moment"), Tr("잠시 후 다시 입력해 보세요", "Try typing again in a moment")));
+        else if (wingetFound.Count == 0) s.Items.Add(WingetInfo("winget:none", Tr("검색된 앱 없음", "No matching apps"), Tr("영어 이름이나 회사 이름으로도 찾아 보세요", "Try searching by English name or publisher")));
         else
         {
             s.Note = Tr($"{wingetFound.Count}개 · winget", $"{wingetFound.Count} · winget");
@@ -98,7 +98,7 @@ internal sealed partial class Engine
         Icon = IconSpec.Of(G.Download),
         PrimaryLabel = Tr("설치", "Install"),
         StayOpen = true,
-        Run = () => host.Window.Confirm(Tr($"‘{Clip(p.Name, 28)}’ 설치 시 패키지 사용 조건에 동의합니다.", $"Installing ‘{Clip(p.Name, 28)}’ accepts the package's terms."), new ActionItem
+        Run = () => host.Window.Confirm(Tr($"‘{Clip(p.Name, 28)}’ 설치 시 패키지 사용 조건에 동의합니다.", $"By installing ‘{Clip(p.Name, 28)}’, you agree to the package license terms."), new ActionItem
         {
             Title = Tr("설치", "Install"),
             Keys = "Enter",
@@ -109,12 +109,12 @@ internal sealed partial class Engine
         {
             var list = new List<ActionItem>
             {
-                new() { Title = Tr("터미널에서 설치 (진행 보기)", "Install in a terminal (watch it)"), Glyph = G.Code, Run = () => Bloom.Ai.ChildProcess.Spawn(UserCommands.StartInfo(Winget.CommandLine(p), true))?.Dispose() },
-                new() { Title = Tr("ID 복사", "Copy the ID"), Keys = "Ctrl+Shift+C", Glyph = G.Copy, Run = () => Launch.Copy(p.Id) },
-                new() { Title = Tr("설치 명령 복사", "Copy the install command"), Glyph = G.Copy, Run = () => Launch.Copy(Winget.CommandLine(p)) },
+                new() { Title = Tr("터미널에서 설치 (진행 보기)", "Install in terminal (show progress)"), Glyph = G.Code, Run = () => Bloom.Ai.ChildProcess.Spawn(UserCommands.StartInfo(Winget.CommandLine(p), true))?.Dispose() },
+                new() { Title = Tr("ID 복사", "Copy ID"), Keys = "Ctrl+Shift+C", Glyph = G.Copy, Run = () => Launch.Copy(p.Id) },
+                new() { Title = Tr("설치 명령 복사", "Copy install command"), Glyph = G.Copy, Run = () => Launch.Copy(Winget.CommandLine(p)) },
             };
             if (p.Source == "msstore")
-                list.Add(new ActionItem { Title = Tr("Microsoft Store에서 보기", "See it in the Microsoft Store"), Glyph = G.NewWindow, Run = () => Launch.Open("ms-windows-store://pdp/?ProductId=" + p.Id) });
+                list.Add(new ActionItem { Title = Tr("Microsoft Store에서 보기", "View in Microsoft Store"), Glyph = G.NewWindow, Run = () => Launch.Open("ms-windows-store://pdp/?ProductId=" + p.Id) });
             return list;
         },
     };
@@ -123,17 +123,17 @@ internal sealed partial class Engine
     {
         if (!installing.Add(p.Id))
         {
-            host.Window.ShowToast(Tr($"‘{Clip(p.Name, 20)}’ 설치 중", $"‘{Clip(p.Name, 20)}’ is already being installed"));
+            host.Window.ShowToast(Tr($"‘{Clip(p.Name, 20)}’ 설치 중", $"Installing ‘{Clip(p.Name, 20)}’"));
             return;
         }
-        host.Window.ShowToast(Tr($"‘{Clip(p.Name, 20)}’ 설치 시작 · 완료 시 알림", $"Installing ‘{Clip(p.Name, 20)}’ · notification on completion"));
+        host.Window.ShowToast(Tr($"‘{Clip(p.Name, 20)}’ 설치 시작 · 완료 시 알림", $"Started installing ‘{Clip(p.Name, 20)}’ · You’ll be notified when done"));
         _ = Task.Run(async () =>
         {
             var (ok, said) = await Winget.Install(p);
             _ = host.Window.Dispatcher.BeginInvoke(() =>
             {
                 installing.Remove(p.Id);
-                Notices.Result(ok, ok ? Tr("앱 설치 · 완료", "Install · Done") : Tr("앱 설치 · 실패", "Install · Failed"), p.Name, said);
+                Notices.Result(ok, ok ? Tr("앱 설치 · 완료", "App Install · Done") : Tr("앱 설치 · 실패", "App Install · Failed"), p.Name, said);
                 if (ok) host.Apps.Rescan(); // Store apps aren't watched: the new one shows in the search now
             });
         });
@@ -145,7 +145,7 @@ internal sealed partial class Engine
         var m = WingetLine().Match(text);
         if (!m.Success) return null;
         string q = m.Groups["q"].Value.Trim();
-        return new Section(Tr("앱 설치", "Install apps"))
+        return new Section(Tr("앱 설치", "Install Apps"))
         {
             Items =
             {
@@ -153,11 +153,11 @@ internal sealed partial class Engine
                 {
                     Id = "winget:find",
                     Kind = ItemKind.Command,
-                    Title = Tr($"winget에서 ‘{q}’ 찾아 설치", $"Find ‘{q}’ in winget to install"),
-                    Subtitle = Tr("winget · Microsoft Store 앱 목록", "winget · Microsoft Store catalogue"),
+                    Title = Tr($"winget에서 ‘{q}’ 찾아 설치", $"Search and install ‘{q}’ via winget"),
+                    Subtitle = Tr("winget · Microsoft Store 앱 목록", "winget · Microsoft Store catalog"),
                     Accessory = "winget",
                     Icon = IconSpec.Of(G.Download),
-                    PrimaryLabel = Tr("찾기", "Find"),
+                    PrimaryLabel = Tr("찾기", "Search"),
                     StayOpen = true,
                     Run = () => host.OpenView(Mode.Winget, q),
                 },

@@ -51,8 +51,8 @@ internal sealed class Detail
         d.ShellIcon = folder;
         string name = Path.GetFileName(path.TrimEnd('\\'));
         d.Add(Tr("이름", "Name"), name.Length > 0 ? name : path);
-        d.Add(Tr("위치", "Location"), Path.GetDirectoryName(path.TrimEnd('\\')) is { } dir ? Bloom.App.Engine.Short(dir) : null);
-        d.Add(Tr("종류", "Kind"), folder ? Tr("폴더", "Folder") : ext.Length > 1 ? Tr($"{ext[1..].ToUpperInvariant()} 파일", $"{ext[1..].ToUpperInvariant()} file") : Tr("파일", "File"));
+        d.Add(Tr("위치", "Position"), Path.GetDirectoryName(path.TrimEnd('\\')) is { } dir ? Bloom.App.Engine.Short(dir) : null);
+        d.Add(Tr("종류", "Type"), folder ? Tr("폴더", "Folder") : ext.Length > 1 ? Tr($"{ext[1..].ToUpperInvariant()} 파일", $"{ext[1..].ToUpperInvariant()} file") : Tr("파일", "File"));
         try
         {
             if (folder)
@@ -75,7 +75,7 @@ internal sealed class Detail
             /* no access: what Everything said stays */
         }
         if (!folder && size >= 0) d.Add(Tr("크기", "Size"), Bloom.App.Engine.Size(size));
-        if (modified is { } m) d.Add(Tr("수정한 날짜", "Modified"), m.ToString("yyyy. M. d. HH:mm"));
+        if (modified is { } m) d.Add(Tr("수정한 날짜", "Date modified"), m.ToString("yyyy. M. d. HH:mm"));
         return d;
     }
 

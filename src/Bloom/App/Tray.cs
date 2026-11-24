@@ -34,7 +34,7 @@ internal sealed class Tray : IDisposable
             uFlags = Win32.NIF_MESSAGE | Win32.NIF_ICON | Win32.NIF_TIP | Win32.NIF_SHOWTIP,
             uCallbackMessage = CallbackMsg,
             hIcon = icon,
-            szTip = Tr("Bloom — Win 키로 열기", "Bloom — press Win to open"),
+            szTip = Tr("Bloom — Win 키로 열기", "Bloom — Press Win to open"),
             szInfo = "",
             szInfoTitle = "",
         };

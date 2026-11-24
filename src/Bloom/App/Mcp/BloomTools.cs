@@ -169,20 +169,20 @@ internal sealed class BloomTools : IPcTools
                 string target = q.Trim().Trim('"');
                 // lexically only: whether the path exists (a file or folder, or else an app by that name) is not looked at
                 // before the user has said yes, as a network path would be reached by it
-                string where = Web.AsUrl(target) ?? Tr($"{Resolved(target)} (그 위치에 없으면 앱 ‘{target}’)", $"{Resolved(target)} (or, if nothing is there, the app ‘{target}’)");
-                sb.Append('\n').Append(Tr("열 대상", "Opens")).Append(": ").Append(ToolText.Visible(where));
-                if (Runs(target)) sb.Append('\n').Append(Tr("이 파일은 열면 실행됩니다(프로그램·스크립트·바로 가기).", "This file runs when opened (a program, a script or a shortcut)."));
+                string where = Web.AsUrl(target) ?? Tr($"{Resolved(target)} (그 위치에 없으면 앱 ‘{target}’)", $"{Resolved(target)} (or app ‘{target}’ if not found there)");
+                sb.Append('\n').Append(Tr("열 대상", "Target to open")).Append(": ").Append(ToolText.Visible(where));
+                if (Runs(target)) sb.Append('\n').Append(Tr("이 파일은 열면 실행됩니다(프로그램·스크립트·바로 가기).", "Opening this file will execute it (program · script · shortcut)."));
                 break;
             case "run_line":
                 // what the line will actually run: the launcher's first answer to it (a saved command shows its name)
                 string? title = host is null ? null : host.Engine.StepTitle(q); // no host: the card tests' tools
-                string runs = title ?? Tr("(Bloom에 맞는 항목 없음)", "(nothing in Bloom answers it)");
-                sb.Append('\n').Append(Tr("실행할 항목", "Runs")).Append(": ").Append(ToolText.Visible(runs));
+                string runs = title ?? Tr("(Bloom에 맞는 항목 없음)", "(No matching item in Bloom)");
+                sb.Append('\n').Append(Tr("실행할 항목", "Item to run")).Append(": ").Append(ToolText.Visible(runs));
                 break;
         }
         // a path that is not on a local drive is said so (RealPath.Kind classes it from its text alone)
         foreach (string path in action is "rename" or "move" or "copy" or "recycle" ? new[] { Resolved(q), Resolved(to) } : action == "open" && Web.AsUrl(q.Trim().Trim('"')) is null ? new[] { Resolved(q) } : [])
-            if (path.Length > 0 && RealPath.Kind(path) != PathKind.Local) { sb.Append('\n').Append(Tr("로컬 드라이브가 아닌 경로가 있습니다.", "A path is not on a local drive.")); break; }
+            if (path.Length > 0 && RealPath.Kind(path) != PathKind.Local) { sb.Append('\n').Append(Tr("로컬 드라이브가 아닌 경로가 있습니다.", "Contains a path that is not on a local drive.")); break; }
         return sb.ToString();
     }
 
@@ -191,7 +191,7 @@ internal sealed class BloomTools : IPcTools
         string path = S(a, "file_path");
         return tool switch
         {
-            "Write" => ToolText.Visible(path) + "\n" + ToolText.Block(Tr("쓸 내용", "Content"), S(a, "content")),
+            "Write" => ToolText.Visible(path) + "\n" + ToolText.Block(Tr("쓸 내용", "Content to write"), S(a, "content")),
             "Edit" => ToolText.Visible(path) + "\n" + ToolText.Block(Tr("바꾸기 전", "Before"), S(a, "old_string")) + "\n" + ToolText.Block(Tr("바꾼 후", "After"), S(a, "new_string")),
             "Read" => ToolText.Visible(path),
             "Bash" => ToolText.Visible(S(a, "command")),
@@ -217,7 +217,7 @@ internal sealed class BloomTools : IPcTools
     }
 
     /// The chat's status line while a Bloom call runs; null for other tools.
-    public static string? Doing(string tool) => IsPc(tool) ? Tr("PC에서 작업하는 중…", "Working on the PC…") : null;
+    public static string? Doing(string tool) => IsPc(tool) ? Tr("PC에서 작업하는 중…", "Working on PC…") : null;
 
     /// How a tool call reads in the chat: Bloom's by their own wording, Claude's file and web tools by path or address,
     /// anything else by name.
@@ -226,9 +226,9 @@ internal sealed class BloomTools : IPcTools
         : tool switch
         {
             // the ✓ line is short; the card's Detail has the whole path
-            "Read" => Tr($"파일 읽기: {ToolText.Line(S(a, "file_path"))}", $"Read a file: {ToolText.Line(S(a, "file_path"))}"),
-            "Write" or "Edit" => Tr($"파일 쓰기: {ToolText.Line(S(a, "file_path"))}", $"Write a file: {ToolText.Line(S(a, "file_path"))}"),
-            "WebFetch" => Tr($"페이지 열기: {Clip(S(a, "url"))}", $"Open a page: {Clip(S(a, "url"))}"),
+            "Read" => Tr($"파일 읽기: {ToolText.Line(S(a, "file_path"))}", $"Read file: {ToolText.Line(S(a, "file_path"))}"),
+            "Write" or "Edit" => Tr($"파일 쓰기: {ToolText.Line(S(a, "file_path"))}", $"Write file: {ToolText.Line(S(a, "file_path"))}"),
+            "WebFetch" => Tr($"페이지 열기: {Clip(S(a, "url"))}", $"Open page: {Clip(S(a, "url"))}"),
             // another MCP server's tool: "github · create_issue: {…}"
             _ when tool.StartsWith("mcp__", StringComparison.Ordinal) && tool.Split("__") is { Length: >= 3 } p =>
                 $"{p[1]} · {string.Join("__", p[2..])}" + (a.ValueKind == JsonValueKind.Object && a.EnumerateObject().Any() ? ": " + Clip(a.GetRawText(), 70) : ""),
@@ -282,31 +282,31 @@ internal sealed class BloomTools : IPcTools
 
     private List<PcAction> Build() => new()
     {
-        new("find_apps", "look", (q, _) => Look("apps", q), (q, _) => Tr($"앱 찾기: {q}", $"Find apps: {q}")),
-        new("find_files", "look", (q, _) => Look("files", q), (q, _) => EverythingQuery.IsPlainName(q) ? Tr($"파일 찾기: {Clip(q, 80)}", $"Find files: {Clip(q, 80)}") : Tr($"파일 내용 검색: {Clip(q, 80)}", $"Search file contents: {Clip(q, 80)}")),
-        new("find_recent", "look", (q, _) => Look("recent", q), (_, _) => Tr("최근 파일 보기", "Recent files")),
-        new("find_windows", "look", (q, _) => Look("windows", q), (_, _) => Tr("열린 창 보기", "Open windows")),
-        new("find_timers", "look", (q, _) => Look("timers", q), (_, _) => Tr("타이머 보기", "Timers")),
-        new("find_commands", "look", (q, _) => Look("commands", q), (_, _) => Tr("사용자 명령 보기", "Custom commands")),
+        new("find_apps", "look", (q, _) => Look("apps", q), (q, _) => Tr($"앱 찾기: {q}", $"Find app: {q}")),
+        new("find_files", "look", (q, _) => Look("files", q), (q, _) => EverythingQuery.IsPlainName(q) ? Tr($"파일 찾기: {Clip(q, 80)}", $"Find file: {Clip(q, 80)}") : Tr($"파일 내용 검색: {Clip(q, 80)}", $"Search file contents: {Clip(q, 80)}")),
+        new("find_recent", "look", (q, _) => Look("recent", q), (_, _) => Tr("최근 파일 보기", "View recent files")),
+        new("find_windows", "look", (q, _) => Look("windows", q), (_, _) => Tr("열린 창 보기", "View open windows")),
+        new("find_timers", "look", (q, _) => Look("timers", q), (_, _) => Tr("타이머 보기", "View timers")),
+        new("find_commands", "look", (q, _) => Look("commands", q), (_, _) => Tr("사용자 명령 보기", "View custom commands")),
         new("find_notes", "look", (q, _) => OnUi(() => FindNotes(q)), (q, _) => Tr($"메모 찾기: {q}", $"Find notes: {q}").TrimEnd(' ', ':')),
-        new("open", "open", (q, _) => OnUi(() => Open(q)).Unwrap(), (q, _) => Runs(q) ? Tr($"파일 실행: {Clip(q)}", $"Run a file: {Clip(q)}") : Tr($"열기: {Clip(q)}", $"Open: {Clip(q)}")),
+        new("open", "open", (q, _) => OnUi(() => Open(q)).Unwrap(), (q, _) => Runs(q) ? Tr($"파일 실행: {Clip(q)}", $"Run file: {Clip(q)}") : Tr($"열기: {Clip(q)}", $"Open: {Clip(q)}")),
         new("run_line", "open", (q, _) => OnUi(() => RunLine(q)), (q, _) => Tr($"Bloom에서 실행: {Clip(q)}", $"Run in Bloom: {Clip(q)}")),
         new("run_command", "open", (q, to) => OnUi(() => RunCommand(q, to)), (q, to) => Tr($"사용자 명령 실행: {q} {Clip(to, 40)}", $"Run custom command: {q} {Clip(to, 40)}").Trim()),
         new("note", "bloom", (q, to) => OnUi(() => WriteNote(q, to)), (q, to) => to.Trim().Length > 0
-            ? Tr($"메모에 적기: ‘{Clip(to.Trim(), 30)}’에 {Clip(Line(q), 40)}", $"Add to the note ‘{Clip(to.Trim(), 30)}’: {Clip(Line(q), 40)}")
+            ? Tr($"메모에 적기: ‘{Clip(to.Trim(), 30)}’에 {Clip(Line(q), 40)}", $"Append to note ‘{Clip(to.Trim(), 30)}’: {Clip(Line(q), 40)}")
             : Tr($"새 메모: {Clip(Line(q), 50)}", $"New note: {Clip(Line(q), 50)}")),
         new("timer", "bloom", (q, to) => OnUi(() => StartTimer(q, to)), (q, to) => Tr($"타이머: {q} {Clip(to, 30)}", $"Timer: {q} {Clip(to, 30)}").Trim()),
         new("event", "bloom", (q, to) => OnUi(() => AddEvent(q, to)), (q, to) => Tr($"일정: {to} {Clip(q, 40)}", $"Event: {to} {Clip(q, 40)}")),
         new("rename", "files", (q, to) => OnUi(() => FileAct("rename", q, to)), (q, to) => Tr($"이름 바꾸기: {FileName(q)} → {Clip(to)}", $"Rename: {FileName(q)} → {Clip(to)}")),
         new("move", "files", (q, to) => OnUi(() => FileAct("move", q, to)), (q, to) => Tr($"옮기기: {FileName(q)} → {Clip(to)}", $"Move: {FileName(q)} → {Clip(to)}")),
         new("copy", "files", (q, to) => OnUi(() => FileAct("copy", q, to)), (q, to) => Tr($"복사: {FileName(q)} → {Clip(to)}", $"Copy: {FileName(q)} → {Clip(to)}")),
-        new("recycle", "files", (q, _) => OnUi(() => FileAct("recycle", q, "")), (q, _) => Tr($"휴지통으로: {FileName(q)}{InFolder(q)}", $"To the Recycle Bin: {FileName(q)}{InFolder(q)}")),
-        new("clip_read", "clip", (_, _) => OnUi(() => host.ClipText() is { Length: > 0 } t ? t : "No text on the clipboard."), (_, _) => Tr("클립보드 읽기", "Read the clipboard")),
+        new("recycle", "files", (q, _) => OnUi(() => FileAct("recycle", q, "")), (q, _) => Tr($"휴지통으로: {FileName(q)}{InFolder(q)}", $"Move to Recycle Bin: {FileName(q)}{InFolder(q)}")),
+        new("clip_read", "clip", (_, _) => OnUi(() => host.ClipText() is { Length: > 0 } t ? t : "No text on the clipboard."), (_, _) => Tr("클립보드 읽기", "Read clipboard")),
         new("clip_write", "clip", (q, _) => OnUi(() =>
         {
             Launch.Copy(q);
             return "Copied.";
-        }), (q, _) => Tr($"클립보드에 넣기: {Clip(q.Replace('\n', ' '), 50)}", $"Copy to the clipboard: {Clip(q.Replace('\n', ' '), 50)}")),
+        }), (q, _) => Tr($"클립보드에 넣기: {Clip(q.Replace('\n', ' '), 50)}", $"Copy to clipboard: {Clip(q.Replace('\n', ' '), 50)}")),
     };
 
     /// A look-up: one item a line, at most 20 (files newest first); "Nothing found." rather than an empty answer.

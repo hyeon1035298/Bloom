@@ -75,7 +75,7 @@ internal sealed class ActionPanel : SmoothBorder
             VerticalAlignment = VerticalAlignment.Center,
             Margin = new Thickness(14, 0, 14, 0),
         };
-        filterHint = Theme.T(Tr("할 일 찾기…", "Find an action…"), 13.5, Theme.P.TextFaint);
+        filterHint = Theme.T(Tr("할 일 찾기…", "Search actions…"), 13.5, Theme.P.TextFaint);
         filterHint.Margin = new Thickness(16, 0, 14, 0);
         filterHint.IsHitTestVisible = false;
         var fg = new Grid();

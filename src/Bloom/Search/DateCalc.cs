@@ -13,7 +13,7 @@ namespace Bloom.Search;
 /// A bare "12/25" stays maths (12 ÷ 25); slashes need a word around them.
 internal static partial class DateCalc
 {
-    private static string Caption => Tr("날짜 계산", "Date");
+    private static string Caption => Tr("날짜 계산", "Date Calculation");
 
     // a date: 2026-12-25 · 2026.12.25 · 2026/12/25 · 12/25 · 2026년 12월 25일 · 12월 25일 · Dec 25 (2026) · 25 Dec
     private const string DatePattern =
@@ -63,7 +63,7 @@ internal static partial class DateCalc
         if ((m = Between().Match(t)).Success && ReadDate(m, "a", today, false) is { } a && ReadDate(m, "b", today, false) is { } b)
         {
             int days = (int)(b - a).TotalDays;
-            return new CalcAnswer { Caption = Caption, Expr = $"{Long(a)} → {Long(b)}", Value = Tr($"{Math.Abs(days):#,0}일", $"{Math.Abs(days):#,0} days"), Copy = Math.Abs(days).ToString(CultureInfo.InvariantCulture), Detail = Tr($"첫날 포함 {Math.Abs(days) + 1:#,0}일 · {Weeks(Math.Abs(days))}", $"{Math.Abs(days) + 1:#,0} counting the first day · {Weeks(Math.Abs(days))}") };
+            return new CalcAnswer { Caption = Caption, Expr = $"{Long(a)} → {Long(b)}", Value = Tr($"{Math.Abs(days):#,0}일", $"{Math.Abs(days):#,0} days"), Copy = Math.Abs(days).ToString(CultureInfo.InvariantCulture), Detail = Tr($"첫날 포함 {Math.Abs(days) + 1:#,0}일 · {Weeks(Math.Abs(days))}", $"{Math.Abs(days) + 1:#,0} days inclusive · {Weeks(Math.Abs(days))}") };
         }
         // a date alone: only when it can't be anything else (a slash date or a bare number is maths)
         if ((m = Weekday().Match(t)).Success && (t.Contains('요') || t.Contains("day", StringComparison.OrdinalIgnoreCase) || !t.Contains('/')) && !IsOnlyWord(m))
@@ -101,7 +101,7 @@ internal static partial class DateCalc
             Expr = expr,
             Value = Long(d),
             Copy = d.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture),
-            Detail = back ? Tr($"오늘부터 {-days:#,0}일 전", $"{-days:#,0} days before today") : Tr($"오늘부터 {days:#,0}일 뒤 · D-{days}", $"{days:#,0} days from today · D-{days}"),
+            Detail = back ? Tr($"오늘부터 {-days:#,0}일 전", $"{-days:#,0} days ago from today") : Tr($"오늘부터 {days:#,0}일 뒤 · D-{days}", $"{days:#,0} days from today · D-{days}"),
         };
     }
 
@@ -115,7 +115,7 @@ internal static partial class DateCalc
             Expr = expr,
             Value = value,
             Copy = Math.Abs(days).ToString(CultureInfo.InvariantCulture),
-            Detail = Long(d) + " · " + (days == 0 ? Tr("오늘", "Today") : days > 0 ? Tr($"{days:#,0}일 남음 · {Weeks(days)}", $"{days:#,0} days to go · {Weeks(days)}") : Tr($"{-days:#,0}일 경과", $"{-days:#,0} days ago")),
+            Detail = Long(d) + " · " + (days == 0 ? Tr("오늘", "Today") : days > 0 ? Tr($"{days:#,0}일 남음 · {Weeks(days)}", $"{days:#,0} days left · {Weeks(days)}") : Tr($"{-days:#,0}일 경과", $"{-days:#,0} days elapsed")),
         };
     }
 
@@ -127,9 +127,9 @@ internal static partial class DateCalc
         {
             Caption = Caption,
             Expr = expr,
-            Value = Tr($"{days:#,0}일 경과", $"{days:#,0} days"),
+            Value = Tr($"{days:#,0}일 경과", $"{days:#,0} days elapsed"),
             Copy = days.ToString(CultureInfo.InvariantCulture),
-            Detail = Tr($"오늘이 {days + 1:#,0}일째 · {Long(d)}부터", $"Today is day {days + 1:#,0} · since {Long(d)}"),
+            Detail = Tr($"오늘이 {days + 1:#,0}일째 · {Long(d)}부터", $"Day {days + 1:#,0} today · Since {Long(d)}"),
         };
     }
 
@@ -222,9 +222,9 @@ internal static partial class DateCalc
         return i >= 0 && CultureInfo.InvariantCulture.DateTimeFormat.GetMonthName(i + 1).StartsWith(n, StringComparison.OrdinalIgnoreCase) ? i + 1 : n == "sept" ? 9 : 0;
     }
 
-    private static string Long(DateTime d) => d.ToString(Tr("yyyy년 M월 d일 (ddd)", "ddd, MMM d, yyyy"), Lang.Culture);
+    private static string Long(DateTime d) => d.ToString(Tr("yyyy년 M월 d일 (ddd)", "MMM d, yyyy (ddd)"), Lang.Culture);
 
     private static string Weeks(int days) => days < 14
         ? Tr($"{days}일", $"{days} days")
-        : days % 7 == 0 ? Tr($"{days / 7}주", $"{days / 7} weeks") : Tr($"{days / 7}주 {days % 7}일", $"{days / 7} weeks {days % 7} days");
+        : days % 7 == 0 ? Tr($"{days / 7}주", $"{days / 7}w") : Tr($"{days / 7}주 {days % 7}일", $"{days / 7}w {days % 7}d");
 }

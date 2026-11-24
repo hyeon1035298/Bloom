@@ -41,7 +41,7 @@ internal sealed partial class Chats
         // the card shows a call whole or the call is not asked about: one too big for it is declined
         if (ask.Detail.Length > ToolText.MaxPayload * 2)
         {
-            (m.Done ??= new()).Add("✕ " + Tr("승인 카드에 다 보여 줄 수 없을 만큼 커서 거절했습니다", "Declined: too big to show in full on the approval card"));
+            (m.Done ??= new()).Add("✕ " + Tr("내용이 너무 커서 승인 카드에 모두 표시할 수 없어 거절했습니다", "Declined because the content is too large to display in the approval card"));
             s.Answer(ask, false);
             Updated?.Invoke(t);
             return;
@@ -60,7 +60,7 @@ internal sealed partial class Chats
             return;
         }
         m.Asks.Add(ask);
-        m.Status = Tr("승인 대기", "Approval pending");
+        m.Status = Tr("승인 대기", "Awaiting approval");
         Updated?.Invoke(t);
         AskWaiting?.Invoke(t, ask);
     }

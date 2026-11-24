@@ -88,18 +88,18 @@ internal sealed partial class UserCommands
     private static void Refuse(string key, string text, Reach reach, bool raw)
     {
         if (reach == Reach.PowerShell || text.Length == 0) return;
-        string source = key.Equals("{clipboard}", StringComparison.OrdinalIgnoreCase) ? Tr("클립보드 내용", "the clipboard text") : Tr("입력값", "the input");
+        string source = key.Equals("{clipboard}", StringComparison.OrdinalIgnoreCase) ? Tr("클립보드 내용", "clipboard content") : Tr("입력값", "input value");
         foreach (char c in text)
         {
             string? what = c == '"' ? "‘\"’"
                 : reach < Reach.Cmd ? null
-                : IsLineBreak(c) ? Tr("줄바꿈", "a line break")
-                : char.IsControl(c) ? Tr("제어", "a control character")
+                : IsLineBreak(c) ? Tr("줄바꿈", "line break")
+                : char.IsControl(c) ? Tr("제어", "control")
                 : c is '&' or '|' or '<' or '>' or '^' or '%' ? $"‘{c}’" : null;
             if (what is not null)
-                throw new CommandValueException(Tr($"이 명령은 {source}을 다른 프로그램에 넘기므로 {what} 문자를 받을 수 없습니다. 이 문자를 빼고 다시 실행하세요.", $"This command passes {source} to another program, which can't take {what}. Remove it and run again."));
+                throw new CommandValueException(Tr($"이 명령은 {source}을 다른 프로그램에 전달하므로 {what} 문자를 사용할 수 없습니다. 해당 문자를 빼고 다시 실행하세요.", $"This command passes the {source} to another program and cannot contain {what} characters. Remove them and try again."));
         }
         if (text.EndsWith('\\') && (raw || text.Any(char.IsWhiteSpace)))
-            throw new CommandValueException(Tr($"이 명령은 {source}을 다른 프로그램에 넘기므로 끝에 \\를 둘 수 없습니다. 끝의 \\를 빼고 다시 실행하세요.", $"This command passes {source} to another program, so it can't end in \\. Remove the final \\ and run again."));
+            throw new CommandValueException(Tr($"이 명령은 {source}을 다른 프로그램에 전달하므로 끝에 \\를 둘 수 없습니다. 끝의 \\를 빼고 다시 실행하세요.", $"This command passes the {source} to another program and cannot end with \\. Remove the trailing \\ and try again."));
     }
 }
