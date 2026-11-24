@@ -17,6 +17,27 @@ internal static class ActionButton
 {
     public static SmoothBorder Make(string label, bool primary, Action click) => Make(label, primary ? ButtonTone.Accent : ButtonTone.Plain, click);
 
+    /// The accent button drawn from a fixed palette instead of the theme's (the tutorial's dark first page).
+    public static SmoothBorder Make(string label, Action click, Palette look)
+    {
+        var b = new SmoothBorder
+        {
+            Child = Theme.Label(label, 13, look.AccentInk, Theme.Medium, inBorder: true),
+            CornerRadius = new CornerRadius(8),
+            Height = 32,
+            Padding = new Thickness(16, 0, 16, 0),
+            Margin = new Thickness(8, 0, 0, 0),
+            Cursor = Cursors.Hand,
+            Background = look.Accent,
+        };
+        b.MouseLeftButtonUp += (_, e) =>
+        {
+            click();
+            e.Handled = true;
+        };
+        return b;
+    }
+
     public static SmoothBorder Make(string label, ButtonTone tone, Action click)
     {
         var ink = tone switch { ButtonTone.Accent => Theme.P.AccentInk, ButtonTone.Danger => Theme.P.DangerInk, _ => Theme.P.Text };

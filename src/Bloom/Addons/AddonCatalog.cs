@@ -15,9 +15,11 @@ internal static class AddonCatalog
 {
     /// One add-on. `Repo`: owner/name on GitHub. `MinVersion`: a release before it is never taken (an older release served
     /// as the latest can't take the add-on back below it). `Names`, `Abouts`: its name and a line about it by language,
-    /// which the page shows before and after its addon.json is here (in Bloom's languages).
+    /// which the page shows before and after its addon.json is here (in Bloom's languages). `License`: its SPDX id;
+    /// `Symbols`: it downloads symbol files from Microsoft the first time, about `SymbolsMb` MB (0: size not stated).
     internal sealed record Entry(string Id, string Repo, string MinVersion,
-        IReadOnlyDictionary<string, string>? Names = null, IReadOnlyDictionary<string, string>? Abouts = null)
+        IReadOnlyDictionary<string, string>? Names = null, IReadOnlyDictionary<string, string>? Abouts = null,
+        string License = "", bool Symbols = false, int SymbolsMb = 0)
     {
         /// Its name in a language: that language's, else the English one; null when the catalog names it in neither.
         public string? Title(string lang) => AddonManifest.Pick(Names, lang);

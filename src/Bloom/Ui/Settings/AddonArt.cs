@@ -53,6 +53,16 @@ internal sealed class AddonArt : FrameworkElement
         _ => null,
     };
 
+    /// The add-on's picture for a 178x84 tile: the same drawing at 1:1, shown through a window on its middle. It plays
+    /// only while its tile is pointed at; `frozen` (QA pictures) = never, it keeps its still moment.
+    public static FrameworkElement? Tile(string id, double width = 178, double height = 84, bool frozen = false)
+    {
+        if (For(id) is not { } art) return null;
+        var view = new System.Windows.Controls.Canvas { Width = width, Height = height, ClipToBounds = true };
+        view.Children.Add(art);
+        return view;
+    }
+
     /// A moment of the loop to show (0–1) in place of the clock: the tests' pictures.
     internal double? Hold { get; set; }
 

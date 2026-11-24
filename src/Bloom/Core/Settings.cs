@@ -11,6 +11,10 @@ internal sealed class Settings
     public string Theme { get; set; } = "system"; // system | light | dark
     public string Language { get; set; } = "auto"; // auto (Windows' display language) | ko | en | ja | zh — read once per run (Core\Lang.cs)
     public bool? Onboarded { get; set; } // the first-run screens were seen (null: a settings file from before they existed)
+
+    /// The tutorial pages this user has been through (TutorialSteps ids). Null in settings written before the ids existed.
+    public List<string>? TutorialSeen { get; set; }
+
     public string IconStyle { get; set; } = "tile"; // favorites' picture icons: soft (rose tint) | tile (Bloom's neutral tile) | card (raised card) | black
     public string Accent { get; set; } = "rose"; // Ui.Accents key: rose | lavender | sky | mint | tangerine | lemon | gray | custom
     public string? AccentCustom { get; set; } // "#RRGGBB" for Accent = "custom"
@@ -161,7 +165,7 @@ internal sealed class Settings
         saver?.Dispose();
         bool existed = File.Exists(Paths.In("settings.json"));
         Current = Json.Load<Settings>(Paths.In("settings.json"));
-        Current.Onboarded ??= existed; // someone who already used Bloom doesn't get the first-run screens
+        Current.MoveOnboarded(existed); // someone who already used Bloom doesn't get the first-run screens
         // the clipboard history was kept by days before it was kept by minutes
         if (Current.ClipKeepDays is { } days)
         {
@@ -192,6 +196,20 @@ internal sealed class Settings
         ApiFileTools = null;
     }
 
+    /// Settings from before TutorialSeen: an onboarded user has seen the pages that existed then.
+    internal void MoveOnboarded(bool existed)
+    {
+        Onboarded ??= existed;
+        if (Onboarded == true && TutorialSeen is null) TutorialSeen = [.. TutorialSteps.Before];
+    }
+
+    /// The tutorial closed (finished, skipped or closed): every page counts as seen, also one this PC did not show.
+    internal void MarkTutorialSeen()
+    {
+        Onboarded = true;
+        TutorialSeen = TutorialSteps.AllSeen(TutorialSeen);
+    }
+
     private static int version;
 
     /// How many times the settings were saved this run: a cache built from them (Ui\Settings\SettingsCatalog.cs) is
@@ -218,6 +236,7 @@ internal sealed class Settings
         OmpModels = OmpModels,
         WinKeyAdmin = WinKeyAdmin,
         Onboarded = Onboarded,
+        TutorialSeen = TutorialSeen,
         SeenVersion = SeenVersion,
     };
 

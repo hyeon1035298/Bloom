@@ -43,7 +43,8 @@ internal sealed partial class Host
     }
 
     /// Asks for a file, puts its settings in place (what they replace goes to backups\) and applies them at once.
-    public bool ImportSettings(Window? owner)
+    /// `restartThen` = the argument for the new Bloom when the imported language makes the user restart.
+    public bool ImportSettings(Window? owner, string? restartThen = null)
     {
         var dlg = new Microsoft.Win32.OpenFileDialog
         {
@@ -62,7 +63,7 @@ internal sealed partial class Host
             if (Lang.Pending(Settings.Current.Language)
                 && ConfirmWindow.Ask(owner, Tr("Bloom 다시 시작", "Restart Bloom"), Tr("불러온 언어를 적용하려면 Bloom을 다시 시작해야 합니다.", "Restart Bloom to apply the imported language setting."),
                     (Tr("다시 시작", "Restart"), MessageBoxResult.Yes), (Tr("나중에", "Later"), MessageBoxResult.No)) == MessageBoxResult.Yes)
-                Restart();
+                Restart(restartThen);
             return true;
         }
         catch (Exception e) when (e is InvalidDataException or IOException or UnauthorizedAccessException or System.Text.Json.JsonException)
@@ -201,8 +202,12 @@ internal sealed partial class Host
         SaveAll();
         if (!StartSuccessor("--restart-from", then is null ? Array.Empty<string>() : new[] { then })) return;
         Log.Write("restart");
+        Restarting = true;
         Quit();
     }
+
+    /// A restart is under way: the windows closing now are not being closed by the user.
+    public bool Restarting { get; private set; }
 
     public void ReloadForQa() => Reload();
 

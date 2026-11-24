@@ -6,7 +6,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Shapes;
-using Bloom.Ai;
+using Bloom.Addons;
 using Bloom.App;
 using Bloom.Core;
 using Bloom.Search;
@@ -15,11 +15,12 @@ namespace Bloom.Ui;
 
 /// The first run: a few screens that set how Bloom opens, which browser it hands searches to, how it looks and which
 /// of its tools sit on the home, say which helper programs were found, and show the handful of keys worth knowing.
-/// Shown once (Settings.Onboarded); "Bloom 둘러보기" opens it again. Enter / → next, ← back, Esc skips; every choice
-/// is saved the moment it is made, the home tools when the window closes.
-internal sealed class OnboardingWindow : Window
+/// Shown once (Settings.Onboarded, TutorialSeen); "Bloom 둘러보기" opens it again. Enter / → next, ← back, Esc skips;
+/// every choice is saved the moment it is made, the home tools when the window closes.
+internal sealed partial class OnboardingWindow : Window
 {
     private readonly Host host;
+    private readonly TutorialEnv env;
     private readonly Grid root = new() { Background = Theme.P.Solid };
     private readonly StackPanel petals = new() { Orientation = Orientation.Horizontal, VerticalAlignment = VerticalAlignment.Center };
     private readonly ContentControl page = new() { Focusable = false };
@@ -27,6 +28,7 @@ internal sealed class OnboardingWindow : Window
     private readonly TextBlock skip;
     private int step;
     private readonly List<Func<FrameworkElement>> steps;
+    private readonly List<string> ids; // the pages' TutorialSteps ids, beside steps
 
     /// The tools offered for the home's favorites: command id, what it is for, on by default.
     private static readonly (string id, string about, bool on)[] Tools =
@@ -48,9 +50,11 @@ internal sealed class OnboardingWindow : Window
     private HashSet<string> already = new(); // on the home when the screens opened (switched off = taken out)
     private bool toolsDone;
 
-    public OnboardingWindow(Host host)
+    /// `only` = the pages of this run (TutorialSteps ids); null = the full tour for this PC.
+    public OnboardingWindow(Host host, IReadOnlyList<string>? only = null, TutorialEnv? env = null)
     {
         this.host = host;
+        this.env = env ?? TutorialEnv.Now;
         Title = Tr("Bloom 시작", "Welcome to Bloom");
         Width = 640;
         Height = 580;
@@ -60,12 +64,25 @@ internal sealed class OnboardingWindow : Window
         TextOptions.SetTextFormattingMode(this, TextFormattingMode.Display);
         Background = Theme.P.Solid;
         Shots.TrackIcon(this);
-        steps = new() { Welcome, Opening, BrowserPick, Looks, HomeTools, Helpers };
-        if (FoundAis().Count > 0) steps.Add(PickAi); // which AI does what, when there is one to pick
-        if (FoundAis().Contains("chatgpt")) steps.Add(PickUsage); // how ChatGPT's usage is asked, when Codex is there
-        steps.Add(KeysToKnow);
-        steps.Add(Done);
+        // "x-" pages have no TutorialSteps id: they are never recorded as seen
+        var pages = new List<(string id, Func<FrameworkElement> page)>
+        {
+            (TutorialSteps.Start, Welcome), (TutorialSteps.Open, Opening), (TutorialSteps.Browser, BrowserPick), (TutorialSteps.Looks, Looks),
+            (TutorialSteps.Home, HomeTools), ("x-helpers", Helpers),
+        };
+        if (FoundAis().Count > 0) pages.Add((TutorialSteps.Ai, PickAi)); // which AI does what, when there is one to pick
+        if (FoundAis().Contains("chatgpt")) pages.Add(("x-usage", PickUsage)); // how ChatGPT's usage is asked, when Codex is there
+        pages.Add((TutorialSteps.Keys, KeysToKnow));
+        pages.Add((TutorialSteps.Done, Done));
+        if (only is not null)
+        {
+            var kept = pages.Where(p => only.Contains(p.id)).ToList();
+            pages = kept.Count > 0 ? kept : pages.Where(p => p.id == TutorialSteps.Done).ToList(); // a window always has a page
+        }
+        ids = pages.Select(p => p.id).ToList();
+        steps = pages.Select(p => p.page).ToList();
         ResetTools();
+        Choices = MakeChoices();
 
         root.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
         root.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1) });
@@ -116,7 +133,12 @@ internal sealed class OnboardingWindow : Window
         Closed += (_, _) =>
         {
             Theme.Changed -= OnTheme;
-            MarkDone(); // closing the window counts as seen
+            // closing the window counts as seen, unless a restart closes it (it opens again in the new Bloom)
+            if (!host.Restarting)
+            {
+                Settings.Current.MarkTutorialSeen();
+                Settings.Save();
+            }
             AddTools();
         };
         Go(0);
@@ -142,29 +164,51 @@ internal sealed class OnboardingWindow : Window
         skip.Visibility = last || step == 0 ? Visibility.Hidden : Visibility.Visible;
     }
 
+    public bool Go(string id)
+    {
+        int i = ids.IndexOf(id);
+        if (i < 0) return false;
+        Go(i);
+        return true;
+    }
+
     private void Next()
     {
         if (step < steps.Count - 1) Go(step + 1);
-        else Finish(true);
+        else TutorialFinish.Run(host, this, Choices, env, Close, summon: true);
     }
 
     private void Finish(bool open)
     {
-        MarkDone();
         Close();
         if (open) host.Summon();
     }
 
-    private static void MarkDone()
-    {
-        if (Settings.Current.Onboarded == true) return;
-        Settings.Current.Onboarded = true;
-        Settings.Save();
-    }
-
     public void Capture(string file) => Shots.Save(root, file);
 
+    public IReadOnlyList<string> StepIds => ids;
     public int StepCount => steps.Count;
+    public string StepId => ids[step];
+    public bool UpdateOnly => !ids.Contains(TutorialSteps.Start);
+
+    internal TutorialChoices Choices { get; private set; }
+
+    /// The addons and notify pages' starting state, from the settings now (made again after an import).
+    private TutorialChoices MakeChoices()
+    {
+        var catalog = AddonHub.All.Where(a => !a.User).Select(a => a.Id).ToList();
+        return TutorialChoices.From(Settings.Current, catalog, id => AddonHub.All.Any(a => a.Id == id && a.On), ids, env);
+    }
+
+    /// QA: builds the page again from Choices and the settings.
+    public void Rebuild() => Go(step);
+
+    /// QA: true when the page shown did not fit and had to scroll.
+    public bool ScrolledForQa => false;
+
+    /// QA: the finish button's action without the consent window or the add-on downloads.
+    internal TutorialFinish.Plan PlanForQa() => TutorialFinish.Decide(Choices, env,
+        AddonHub.All.Where(a => a.On).Select(a => a.Id).ToList(), Settings.Current.AddonsConfirmed, TaskbarChatSetup.Ready(AddonHub.Taskbar));
 
     public void ToggleToolForQa(string id)
     {
@@ -186,6 +230,7 @@ internal sealed class OnboardingWindow : Window
         {
             if (!host.ImportSettings(this)) return;
             ResetTools(); // the imported favorites are the home
+            Choices = MakeChoices(); // Settings.Current is a new object now
             Go(steps.Count - 1);
         });
         link.Margin = new Thickness(10, 0, 0, 0);
@@ -348,23 +393,15 @@ internal sealed class OnboardingWindow : Window
     private FrameworkElement Helpers()
     {
         var sp = Column(Tr("함께 쓰는 프로그램", "Companion Tools"), Tr("연동할 프로그램을 공식 페이지에서 설치하세요. 설치하지 않아도 Bloom의 다른 기능은 사용할 수 있습니다.", "Install companion tools from their official websites. All other Bloom features work even without them."));
-        sp.Children.Add(Found("Everything", Tr("파일 이름으로 PC 전체를 바로 찾기", "Instantly search your entire PC by file name"), EverythingClient.ExePath() is not null, "https://www.voidtools.com/"));
-        sp.Children.Add(Found("Claude Code CLI", Tr("AI 채팅 · Bloom Lens · 번역 (본인 계정으로 로그인)", "AI Chat · Bloom Lens · Translation (sign in with your account)"), ClaudeSession.FindCli(Settings.Current.ClaudePath) is not null, "https://docs.anthropic.com/en/docs/claude-code"));
-        sp.Children.Add(Found("Codex CLI", Tr("ChatGPT로 대화 · 번역 (본인 계정으로 로그인)", "Chat & translate with ChatGPT (sign in with your account)"), CodexSession.FindCli(Settings.Current.CodexPath) is not null, "https://github.com/openai/codex"));
-        sp.Children.Add(Found("omp", Tr("AI 채팅 · Bloom Lens · 번역 — 로그인해 둔 여러 모델 중에서 선택 (omp login)", "AI Chat · Bloom Lens · Translation — Choose from multiple signed-in models (omp login)"), OmpCli.FindCli(Settings.Current.OmpPath) is not null, "https://github.com/can1357/oh-my-pi"));
+        sp.Children.Add(Found("Everything", Tr("파일 이름으로 PC 전체를 바로 찾기", "Instantly search your entire PC by file name"), env.Everything, "https://www.voidtools.com/"));
+        sp.Children.Add(Found("Claude Code CLI", Tr("AI 채팅 · Bloom Lens · 번역 (본인 계정으로 로그인)", "AI Chat · Bloom Lens · Translation (sign in with your account)"), env.Claude, "https://docs.anthropic.com/en/docs/claude-code"));
+        sp.Children.Add(Found("Codex CLI", Tr("ChatGPT로 대화 · 번역 (본인 계정으로 로그인)", "Chat & translate with ChatGPT (sign in with your account)"), env.Codex, "https://github.com/openai/codex"));
+        sp.Children.Add(Found("omp", Tr("AI 채팅 · Bloom Lens · 번역 — 로그인해 둔 여러 모델 중에서 선택 (omp login)", "AI Chat · Bloom Lens · Translation — Choose from multiple signed-in models (omp login)"), env.Omp, "https://github.com/can1357/oh-my-pi"));
         return sp;
     }
 
     /// The AIs found on this PC (Claude Code, Codex, omp), in the order offered.
-    private static List<string> FoundAis()
-    {
-        var s = Settings.Current;
-        var ais = new List<string>();
-        if (ClaudeSession.FindCli(s.ClaudePath) is not null) ais.Add("claude");
-        if (CodexSession.FindCli(s.CodexPath) is not null) ais.Add("chatgpt");
-        if (OmpCli.FindCli(s.OmpPath) is not null) ais.Add("omp");
-        return ais;
-    }
+    private List<string> FoundAis() => env.Providers.ToList();
 
     /// Which AI answers in the chat and which reads the screen for Bloom Lens and translation — only the ones found,
     /// each said in one line. A step of its own, shown when at least one is found.

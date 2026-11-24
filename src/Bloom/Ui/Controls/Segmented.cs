@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -15,7 +16,13 @@ internal sealed class Segmented : SmoothBorder
     public string Value { get; private set; }
     public event Action<string>? Picked;
 
-    public Segmented(IEnumerable<(string value, string label)> options, string value)
+    public Segmented(IEnumerable<(string value, string label)> options, string value, Palette? look = null)
+        : this(options.Select(o => (o.value, o.label, (FrameworkElement?)null)), value, look)
+    {
+    }
+
+    /// `icon` sits before an option's label; `look` = a fixed palette to draw with in place of Theme.P.
+    public Segmented(IEnumerable<(string value, string label, FrameworkElement? icon)> options, string value, Palette? look = null)
     {
         Value = value;
         CornerRadius = new CornerRadius(8);
@@ -23,7 +30,7 @@ internal sealed class Segmented : SmoothBorder
         Padding = new Thickness(2);
         VerticalAlignment = VerticalAlignment.Center;
         var sp = new StackPanel { Orientation = Orientation.Horizontal };
-        foreach (var (v, label) in options)
+        foreach (var (v, label, _) in options)
         {
             var t = Theme.Label(label, 12, Theme.P.TextFaint, Theme.Medium, inBorder: true);
             if (t is InkText ink) ink.TieDown = true;

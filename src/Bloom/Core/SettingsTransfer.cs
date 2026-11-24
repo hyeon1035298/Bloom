@@ -25,7 +25,7 @@ internal static class SettingsTransfer
     // an add-on runs a separate program that loads code into explorer, and only a switch flipped on this PC starts it.
     // The mini player's programs (foobarPath, musicBeePath) are run when a song plays, and JRiver's address and user get
     // the password stored on this PC: a file from elsewhere must not point either somewhere else
-    internal static readonly string[] Local = { "claudePath", "codexPath", "ompPath", "onboarded", "aiAccounts", "claudeChatAccount", "gptChatAccount", "permissions", "apiFileTools", "mcpOn", "mcpFiles", "addonsOn", "addonsConfirmed", "foobarPath", "musicBeePath", "jriverAddress", "jriverUser" };
+    internal static readonly string[] Local = { "claudePath", "codexPath", "ompPath", "onboarded", "tutorialSeen", "aiAccounts", "claudeChatAccount", "gptChatAccount", "permissions", "apiFileTools", "mcpOn", "mcpFiles", "addonsOn", "addonsConfirmed", "foobarPath", "musicBeePath", "jriverAddress", "jriverUser" };
 
     private const string Manifest = "bloom-settings.json";
 

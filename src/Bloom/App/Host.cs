@@ -559,9 +559,12 @@ internal sealed partial class Host
 
     /// Settings live in their own window; a second call brings it back to the front.
     /// The first-run screens (also "Bloom 둘러보기").
-    public void ShowOnboarding()
+    /// `only` = the pages of this run, null = the full tour. `closed` runs once, when the tutorial window this call
+    /// opened (or the one already open) has closed. `env` = what was detected already, so the window does not detect again.
+    public void ShowOnboarding(IReadOnlyList<string>? only = null, Action? closed = null, TutorialEnv? env = null)
     {
-        var w = new OnboardingWindow(this);
+        var w = new OnboardingWindow(this, only, env);
+        if (closed is not null) w.Closed += (_, _) => closed();
         w.Show();
         w.Activate();
         Win32.ForceForeground(new System.Windows.Interop.WindowInteropHelper(w).Handle);
