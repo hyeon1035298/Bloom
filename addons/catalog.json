@@ -58,10 +58,12 @@
       "id": "run-card",
       "repo": "hyeon1035298/RunCard_BloomAddon",
       "minVersion": "0.1.0",
-      "name": { "ko": "작업 카드", "en": "Run Card" },
+      "name": { "ko": "작업 카드", "en": "Task Cards", "ja": "タスクカード", "zh": "任务卡片" },
       "about": {
-        "ko": "Claude Code 세션마다 지금 하는 일과 단계를 카드로 띄우고, 승인과 질문은 카드에서 답합니다",
-        "en": "A live card for each Claude Code session: what it does now and its steps, with approvals and questions answered on the card"
+        "ko": "Claude Code 세션마다 지금 하는 일과 단계를 카드로 띄우고, 승인과 질문에 카드에서 바로 답합니다",
+        "en": "Shows current tasks and steps as cards for each Claude Code session, and lets you answer approvals and questions right from the card",
+        "ja": "Claude Codeのセッションごとに現在の作業とステップをカードで表示し、承認や質問にカードから直接応答できます",
+        "zh": "为每个 Claude Code 会话以卡片显示当前任务与步骤，并可直接在卡片中回复审批和提问"
       }
     }
   ]

@@ -409,7 +409,7 @@ internal sealed partial class SettingsView
             s.T3Link = v;
             App.T3Lines.Changed(); // the cards' 보내기 and 정지 come and go at once
         }, out var t3T);
-        Add(Tr("T3 Code 연결", "T3 Code link"), Tr("작업 카드·작업표시줄 애드온에서 T3 Code 스레드에 보내고, 질문에 답하고, 정지합니다", "The Run Card and taskbar add-ons send to, answer and stop T3 Code threads"), t3Sw, G.Link, t3T, null, filter);
+        Add(Tr("T3 Code 연결", "T3 Code link"), Tr("작업 카드·작업표시줄 애드온에서 T3 Code 스레드에 보내고, 질문에 답하고, 정지합니다", "The Task Cards and taskbar add-ons send to, answer and stop T3 Code threads"), t3Sw, G.Link, t3T, null, filter);
 
         TranslationGroup(s, filter);
 

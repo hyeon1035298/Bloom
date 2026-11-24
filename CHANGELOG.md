@@ -4,23 +4,23 @@ Each release on GitHub shows its section from this file (the workflow looks for 
 
 ## 1.5.0
 
-[![The Run card opens for an approval, and Allow answers Claude Code without going to the terminal](https://raw.githubusercontent.com/hyeon1035298/Bloom/main/docs/media/whatsnew/1.5.0/runcard-en.webp)](bloom://settings/addons)
+[![A task card expands for an approval request, and clicking Allow replies to Claude Code without switching to the terminal](https://raw.githubusercontent.com/hyeon1035298/Bloom/main/docs/media/whatsnew/1.5.0/runcard-en.webp)](bloom://settings/addons)
 
-- New add-on, Run Card: a live card for each Claude Code session shows what it is doing, and its approvals and questions are answered on the card. It also works while another monitor is full screen.
-- Settings › Add-ons › Run Card picks its monitor by name and its place on a picture of that monitor.
-- T3 Code link: Bloom finds the T3 Code thread a session runs in and opens T3 there from a notice or a card. Cards can type into its turn, answer its question and stop it. Antigravity threads are view-only.
-- AI chat has a T3 side that lists T3 Code's threads and carries on in them.
-- Add-ons: one Check for updates button checks every add-on and updates them all at once.
+- New 'Task Cards' add-on: Shows what each Claude Code session is working on as a card, and lets you answer approvals and questions right from the card. Works even when another monitor is in fullscreen.
+- In Settings › Add-ons › Task Cards, pick a monitor by name and choose the card position on its preview.
+- T3 Code integration: Finds the running T3 Code thread and opens it directly from notifications or cards. Send messages to the active turn, answer questions, or stop it from the card. Antigravity threads are view-only.
+- Added T3 to AI Chat so you can view and continue T3 Code threads.
+- Add-ons: Check and update all add-ons at once with a single Check for Updates button.
 
 ### 한국어
 
-[![작업 카드가 승인 요청으로 펼쳐지고, 허용을 누르면 터미널로 가지 않고 Claude Code에 답합니다](https://raw.githubusercontent.com/hyeon1035298/Bloom/main/docs/media/whatsnew/1.5.0/runcard-ko.webp)](bloom://settings/addons)
+[![작업 카드가 승인 요청으로 펼쳐지고, 허용을 누르면 터미널로 가지 않고 Claude Code에 바로 답합니다](https://raw.githubusercontent.com/hyeon1035298/Bloom/main/docs/media/whatsnew/1.5.0/runcard-ko.webp)](bloom://settings/addons)
 
-- 새 애드온 '작업 카드': Claude Code 세션마다 지금 하는 일을 카드로 보여 주고, 승인과 질문은 카드에서 답합니다. 다른 모니터가 전체 화면이어도 동작합니다.
-- 설정 › 애드온 › 작업 카드에서 모니터를 이름으로 고르고, 그 모니터 그림 위에서 자리를 고릅니다.
-- T3 Code 연결: 세션이 돌고 있는 T3 Code 스레드를 찾아 알림이나 카드에서 T3를 그 자리로 엽니다. 카드에서 그 턴에 글을 보내고, 질문에 답하고, 멈출 수 있습니다. Antigravity 스레드는 보기만 합니다.
-- AI 채팅에 T3 쪽이 생겨 T3 Code의 스레드를 보고 이어서 대화합니다.
-- 애드온: 업데이트 확인 단추 하나로 모든 애드온을 확인하고 한 번에 업데이트합니다.
+- 새 애드온 '작업 카드': Claude Code 세션마다 지금 하는 일을 카드로 보여 주고, 승인과 질문에 카드에서 바로 답합니다. 다른 모니터가 전체 화면이어도 동작합니다.
+- 설정 › 애드온 › 작업 카드에서 모니터를 이름으로 고르고, 그 모니터 그림 위에서 자리를 정합니다.
+- T3 Code 연결: 세션이 돌고 있는 T3 Code 스레드를 찾아 알림이나 카드에서 바로 엽니다. 카드에서 그 턴에 글을 보내고, 질문에 답하고, 멈출 수 있습니다. Antigravity 스레드는 보기만 됩니다.
+- AI 채팅에 T3 쪽이 생겨 T3 Code 스레드를 보며 이어서 대화합니다.
+- 애드온: 업데이트 확인 단추 하나로 모든 애드온을 한 번에 확인하고 업데이트합니다.
 
 ## 1.4.3
 

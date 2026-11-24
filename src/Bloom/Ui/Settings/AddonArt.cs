@@ -360,7 +360,7 @@ internal sealed class AddonArt : FrameworkElement
         if (more > 0) dc.DrawRoundedRectangle(B(Fade(ink.Track, more)), null, new Rect(lx, ly + 8, 46, 3), 1.5, 1.5);
 
         // the pill as wide as its words (working, then done), opening into the card
-        var work = Lang.Tr("명령 실행 중", "Running");
+        var work = Lang.Tr("명령 실행 중", "Running command");
         var fin = Text(Lang.Tr("31초 만에 완료", "Done in 31s"), 7, FontWeights.SemiBold, ink.Text);
         var workText = Text(work, 7, FontWeights.SemiBold, ink.Text);
         var time = Text(done > 0 ? "0:31" : $"0:{8 + (int)(p * 30):00}", 6.5, FontWeights.Normal, ink.Faint);
@@ -406,7 +406,7 @@ internal sealed class AddonArt : FrameworkElement
             dc.PushClip(new RectangleGeometry(r, radius, radius));
             dc.PushOpacity(co);
             // the head: the mark, what it asks and its time when there is room for it
-            var title = Text(Lang.Tr("승인 요청 · Bash", "Needs your approval · Bash"), 7, FontWeights.SemiBold, ink.Text);
+            var title = Text(Lang.Tr("승인 요청 · Bash", "Approval request · Bash"), 7, FontWeights.SemiBold, ink.Text);
             Mark(dc, card.Left + 9, card.Top + 10);
             dc.DrawText(title, new Point(card.Left + 19, card.Top + 10 - title.Height / 2));
             var clock = Text("0:14", 6.5, FontWeights.Normal, ink.Faint);
