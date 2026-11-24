@@ -32,8 +32,9 @@ jobs:
       # the add-ons in addons/catalog.json ({"addons": [{id, repo, minVersion, ...}]}), which Bloom embeds and Settings >
       # Add-ons downloads from each repository's latest release: a gate only, nothing of them goes into the release. Each
       # latest release's bloom-addon.json is read as Bloom reads it, the zip it names downloaded from the same release and
-      # checked against its sha256 and size and unpacked, and its addon.json must give that id, version and minBloom; no
-      # release while an add-on's latest release has no bloom-addon.json, is before its minVersion or fails a check
+      # checked against its sha256 and size and unpacked, and its addon.json must give that id, version and minBloom, and
+      # the license the catalog names (what Bloom says before the add-on is turned on); no release while an add-on's
+      # latest release has no bloom-addon.json, is before its minVersion or fails a check
       - name: Add-ons
         shell: pwsh
         run: |
@@ -64,6 +65,7 @@ jobs:
               if ($m.id -ne $r.id -or $m.version -ne $r.version -or $m.minBloom -ne $r.minBloom) {
                   throw "$($a.repo): the zip holds $($m.id) $($m.version) (Bloom $($m.minBloom)), not what its bloom-addon.json gives"
               }
+              if ($m.license -ne $a.license) { throw "$($a.repo): its addon.json says license '$($m.license)', the catalog '$($a.license)'" }
               "$($a.id) $($r.version): ok"
           }
 

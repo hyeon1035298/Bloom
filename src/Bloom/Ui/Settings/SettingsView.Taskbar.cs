@@ -484,7 +484,7 @@ internal sealed partial class SettingsView
     }
 
     /// The status line under the switch.
-    private static string TaskbarStatusText(AddonStatus st) => st.State switch
+    internal static string TaskbarStatusText(AddonStatus st) => st.State switch
     {
         AddonState.Dev => Tr("개발 복사본에서는 켜지 않습니다", "Disabled in development builds"),
         AddonState.NotShipped => Tr("아직 받지 않았습니다", "Not downloaded yet"),
@@ -506,16 +506,4 @@ internal sealed partial class SettingsView
         AddonState.Restart => Tr("탐색기 재시작 필요 · 탐색기를 다시 시작한 뒤 다시 시도하세요", "Explorer restart required · Restart Explorer and try again"),
         _ => Tr("멈춤 · 작업표시줄 꾸미기가 멈췄습니다", "Stopped · Taskbar styling has stopped"),
     };
-
-    /// The taskbar add-on's first switch-on: a separate GPL program that loads code into Explorer and downloads symbol
-    /// files (SetAddon asks it once).
-    private bool ConfirmTaskbar(Addon addon) => ConfirmProgram(addon, Tr("작업표시줄 꾸미기 켜기", "Enable Taskbar Styling"),
-        Tr("PillTaskbar는 Bloom과 별도인 프로그램으로, 탐색기에 코드를 넣어 작업표시줄의 모양을 바꿉니다. 라이선스는 GPL-3.0입니다. 처음 켤 때 Microsoft 기호 서버에서 작업표시줄 기호 파일(약 70 MB)을 받습니다.",
-            "PillTaskbar is a separate GPL-3.0 program that injects code into Explorer to restyle the taskbar. On first launch, it downloads taskbar symbol files (~70 MB) from Microsoft's symbol server."));
-
-    /// The add-on's source repository: a web address only, never anything else the manifest might name.
-    private static void OpenSource(AddonManifest m)
-    {
-        if (Uri.TryCreate(m.Source, UriKind.Absolute, out var u) && u.Scheme is "https" or "http") Launch.Open(u.AbsoluteUri);
-    }
 }

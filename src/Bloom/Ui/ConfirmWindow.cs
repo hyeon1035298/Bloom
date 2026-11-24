@@ -11,15 +11,22 @@ namespace Bloom.Ui;
 /// the window's ✕ picks the last (취소 / 나중에). One choice makes it a plain notice (확인).
 /// The toned form gives each button its own look (a step that can't be undone in red) and names a default choice: it
 /// carries a ring without keyboard focus and Enter picks it.
+/// The form with content puts an element of the caller's (a list, links) between the text and the buttons.
 internal sealed class ConfirmWindow : Window
 {
     private MessageBoxResult result;
 
-    private ConfirmWindow(Window? owner, string title, string text, (string label, MessageBoxResult value, ButtonTone tone)[] choices, int byDefault)
+    private ConfirmWindow(Window? owner, string title, string text, (string label, MessageBoxResult value, ButtonTone tone)[] choices, int byDefault,
+        FrameworkElement? below = null, double width = 0)
     {
         Title = title;
-        Width = 460;
-        SizeToContent = SizeToContent.Height;
+        // the form with content is `width` wide inside the frame, as its surface was drawn; the others keep their 460 outside
+        if (width > 0) SizeToContent = SizeToContent.WidthAndHeight;
+        else
+        {
+            Width = 460;
+            SizeToContent = SizeToContent.Height;
+        }
         ResizeMode = ResizeMode.NoResize;
         ShowInTaskbar = owner is null;
         if (owner is { IsVisible: true }) Owner = owner;
@@ -36,7 +43,9 @@ internal sealed class ConfirmWindow : Window
         body.TextWrapping = TextWrapping.Wrap;
         body.Margin = new Thickness(0, 8, 0, 0);
         stack.Children.Add(body);
-        var buttons = new WrapPanel { HorizontalAlignment = HorizontalAlignment.Right, Margin = new Thickness(0, 20, 0, 0) };
+        if (below is not null) stack.Children.Add(below);
+        // under content the buttons come a little closer: its cards already part them from the text
+        var buttons = new WrapPanel { HorizontalAlignment = HorizontalAlignment.Right, Margin = new Thickness(0, below is null ? 20 : 12, 0, 0) };
         for (int i = 0; i < choices.Length; i++)
         {
             var value = choices[i].value;
@@ -55,7 +64,7 @@ internal sealed class ConfirmWindow : Window
             buttons.Children.Add(button);
         }
         stack.Children.Add(buttons);
-        Content = new Border { Background = Theme.P.Solid, Child = stack }; // one surface with the title bar (SolidCaption)
+        Content = new Border { Background = Theme.P.Solid, Child = stack, Width = width > 0 ? width : double.NaN }; // one surface with the title bar (SolidCaption)
 
         PreviewKeyDown += (_, e) =>
         {
@@ -88,6 +97,11 @@ internal sealed class ConfirmWindow : Window
     public static MessageBoxResult Ask(Window? owner, string title, string text, MessageBoxResult byDefault, params (string label, MessageBoxResult value, ButtonTone tone)[] choices) =>
         new ConfirmWindow(owner, title, text, choices, System.Array.FindIndex(choices, c => c.value == byDefault)).Wait();
 
+    /// As Ask, with `below` between the text and the buttons, on a surface `width` wide (the frame around it not counted).
+    public static MessageBoxResult Ask(Window? owner, string title, string text, FrameworkElement below, double width,
+        params (string label, MessageBoxResult value)[] choices) =>
+        new ConfirmWindow(owner, title, text, Plain(choices), -1, below, width).Wait();
+
     private MessageBoxResult Wait()
     {
         if (QaAnswer is { } qa) return qa(this);
@@ -97,6 +111,10 @@ internal sealed class ConfirmWindow : Window
 
     /// The window unshown, for a QA capture (`--qa-set lang`).
     public static Window ForQa(string title, string text, params (string label, MessageBoxResult value)[] choices) => new ConfirmWindow(null, title, text, Plain(choices), -1);
+
+    /// The form with content, unshown, for a QA capture.
+    internal static Window ForQa(string title, string text, FrameworkElement below, double width, params (string label, MessageBoxResult value)[] choices) =>
+        new ConfirmWindow(null, title, text, Plain(choices), -1, below, width);
 
     /// A result to read and close (확인).
     public static void Tell(Window? owner, string title, string text) => Ask(owner, title, text, (Tr("확인", "OK"), MessageBoxResult.OK));

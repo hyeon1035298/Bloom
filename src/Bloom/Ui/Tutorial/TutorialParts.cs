@@ -55,8 +55,8 @@ internal static partial class TutorialParts
         return sp;
     }
 
-    /// A faint line with a ringed "i".
-    public static FrameworkElement Note(string text)
+    /// A faint line with a ringed "i", wrapping to at most `lines` lines.
+    public static FrameworkElement Note(string text, int lines = 2)
     {
         const double line = 17;
         var g = new Grid();
@@ -64,7 +64,7 @@ internal static partial class TutorialParts
         g.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
         // the ring keeps to the first line when the text takes two
         g.Children.Add(new InfoMark { Width = InfoMark.Size, Height = line, Margin = new Thickness(0, 0, 7, 0), VerticalAlignment = VerticalAlignment.Top });
-        var t = new EvenLines(Theme.T(Hangul.KeepAll(text), 12, Theme.P.TextFaint), line, 2) { VerticalAlignment = VerticalAlignment.Top };
+        var t = new EvenLines(Theme.T(Hangul.KeepAll(text), 12, Theme.P.TextFaint), line, lines) { VerticalAlignment = VerticalAlignment.Top };
         Grid.SetColumn(t, 1);
         g.Children.Add(t);
         return g;

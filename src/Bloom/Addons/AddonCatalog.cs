@@ -68,8 +68,9 @@ internal static class AddonCatalog
             && name.Length > 0 && name.Trim('.').Length > 0 && name.All(c => char.IsAsciiLetterOrDigit(c) || c is '-' or '.' or '_');
     }
 
-    /// {"addons": [{id, repo, minVersion, name?, about?}]}, name and about as {"ko": …, "en": …}. An entry with a wrong field
-    /// is left out (logged). InvalidDataException when the file itself isn't such a list.
+    /// {"addons": [{id, repo, minVersion, name?, about?, license?, symbols?, symbolsMb?}]}, name and about as {"ko": …, "en": …}.
+    /// An entry with a wrong id, repo or minVersion is left out (logged); a missing or wrongly typed license, symbols or
+    /// symbolsMb reads as "", false and 0. InvalidDataException when the file itself isn't such a list.
     public static IReadOnlyList<Entry> Parse(string json)
     {
         JsonArray list;
@@ -92,12 +93,17 @@ internal static class AddonCatalog
                 Log.Write($"add-on catalog: entry «{id}» left out");
                 continue;
             }
-            entries.Add(new Entry(id, repo, min, AddonManifest.LangTexts(o["name"], AddonManifest.MaxName), AddonManifest.LangTexts(o["about"], MaxAbout)));
+            entries.Add(new Entry(id, repo, min, AddonManifest.LangTexts(o["name"], AddonManifest.MaxName), AddonManifest.LangTexts(o["about"], MaxAbout),
+                Text(o, "license"), Flag(o, "symbols"), Count(o, "symbolsMb")));
         }
         return entries;
     }
 
     private static string Text(JsonObject o, string name) => o[name] is JsonValue v && v.TryGetValue(out string? s) ? s : "";
+
+    private static bool Flag(JsonObject o, string name) => o[name] is JsonValue v && v.TryGetValue(out bool b) && b;
+
+    private static int Count(JsonObject o, string name) => o[name] is JsonValue v && v.TryGetValue(out int n) && n > 0 ? n : 0;
 
     /// `a` is a later version than `b`: by the numbers before any -suffix or +suffix, then a release before its
     /// pre-release ("1.0.0" after "1.0.0-beta"), then by text. Versions that aren't numbers compare by text.

@@ -64,7 +64,8 @@ internal sealed partial class SettingsView
         return $"{catalog.Page}/issues/new?title={Uri.EscapeDataString(title)}&body={Uri.EscapeDataString(body)}";
     }
 
-    private static string FailureText(AddonFailure why) => why switch
+    /// The download row's line for a failure (AddonConsent.StatusText says it too).
+    internal static string FailureText(AddonFailure why) => why switch
     {
         AddonFailure.Network => Tr("인터넷 연결을 확인하고 다시 받으세요", "Check your internet connection and try downloading again"),
         AddonFailure.Missing => Tr("아직 받을 수 있는 릴리스가 없습니다", "No release is available for download yet"),

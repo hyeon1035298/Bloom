@@ -44,7 +44,7 @@ internal sealed partial class SettingsView
             AddonHub.Offered ? (AddonCheckLabel(addonCheck == "", addonUpdating, listed.Prepend(taskbar).Count(IsNewer)), () => CheckAddons(views.Where(v => !v.Addon.User).ToList())) : null);
 
         string taskbarName = Tr("작업표시줄", "Taskbar"), taskbarAbout = Tr("작업표시줄을 가운데 알약 모양으로 바꿉니다", "Turns the taskbar into a centered pill shape");
-        Action<bool, Switch> setTaskbar = (v, sw) => SetAddon(taskbar, v, sw, () => ConfirmTaskbar(taskbar));
+        Action<bool, Switch> setTaskbar = (v, sw) => SetAddon(taskbar, v, sw);
         var status = AddonLine(s, taskbar, taskbarName, taskbarAbout, G.Screen, TaskbarStatusText, Tr("작업표시줄 꾸미기를 다시 시작합니다", "Restart taskbar styling"),
             setTaskbar, filter);
         AddonDownload(taskbar, "PillTaskbar", status, filter);
@@ -59,7 +59,7 @@ internal sealed partial class SettingsView
             var entry = AddonCatalog.Find(addon.Id);
             string name = entry?.Title(Lang.Code) ?? addon.Manifest?.Title(Lang.Code) ?? addon.Id;
             string about = entry?.About(Lang.Code) ?? "";
-            Action<bool, Switch> set = (v, sw) => SetAddon(addon, v, sw, () => ConfirmListed(addon, name));
+            Action<bool, Switch> set = (v, sw) => SetAddon(addon, v, sw);
             var st = AddonLine(s, addon, name, about, G.Plug, AddonStatusText, Tr("이 애드온을 다시 시작합니다", "Restart this add-on"), set, filter);
             AddonDownload(addon, name, st, filter);
             views.Add(new(addon, name, about, G.Plug, st, AddonStatusText, set, SchemaBody(addon, filter)));
@@ -68,7 +68,7 @@ internal sealed partial class SettingsView
         {
             string name = addon.Manifest?.Title(Lang.Code) ?? addon.Id;
             string about = Tr("직접 넣은 애드온", "Custom add-on");
-            Action<bool, Switch> set = (v, sw) => SetAddon(addon, v, sw, () => ConfirmUser(name));
+            Action<bool, Switch> set = (v, sw) => SetAddon(addon, v, sw);
             var st = AddonLine(s, addon, name, about, G.Plug, AddonStatusText, Tr("이 애드온을 다시 시작합니다", "Restart this add-on"), set, filter);
             views.Add(new(addon, name, about, G.Plug, st, AddonStatusText, set, SchemaBody(addon, filter)));
         }
@@ -193,7 +193,7 @@ internal sealed partial class SettingsView
 
         if (v.Addon.Manifest is { } man && man.Source.Length > 0)
         {
-            var source = RowButton(Tr("소스 보기", "View Source"), () => OpenSource(man));
+            var source = RowButton(Tr("소스 보기", "View Source"), () => AddonConsent.OpenSource(v.Addon));
             source.Margin = new Thickness(0, 0, 12, 0);
             Grid.SetColumn(source, 2);
             g.Children.Add(source);
@@ -370,7 +370,7 @@ internal sealed partial class SettingsView
     }
 
     /// The status line of an add-on other than the taskbar one.
-    private static string AddonStatusText(AddonStatus st) => st.State switch
+    internal static string AddonStatusText(AddonStatus st) => st.State switch
     {
         AddonState.Dev => Tr("개발 복사본에서는 켜지 않습니다", "Disabled in development builds"),
         AddonState.NotShipped => Tr("아직 받지 않았습니다", "Not downloaded yet"),
@@ -428,51 +428,16 @@ internal sealed partial class SettingsView
         : Tr("빌린 기호로 작동 중 · Microsoft가 이번 Windows 업데이트의 기호 파일을 올릴 때까지 이전 빌드의 기호를 씁니다",
             "Running with fallback symbols · Using symbols from an earlier build until Microsoft publishes symbol files for this Windows update");
 
-    /// The switch: the first time on, `confirm` says what the add-on is and must be accepted (once per add-on); then the
+    /// The switch: the first time on, AddonConsent asks (once per add-on) what Settings has always asked; then the
     /// setting is saved and the host started or stopped.
-    private void SetAddon(Addon addon, bool on, Switch sw, Func<bool> confirm)
+    private void SetAddon(Addon addon, bool on, Switch sw)
     {
-        var s = Settings.Current;
-        if (on && !s.AddonsConfirmed.Contains(addon.Id))
+        if (on && !AddonConsent.Confirmed(addon) && !AddonConsent.Ask(Window.GetWindow(this), addon))
         {
-            if (!confirm())
-            {
-                sw.On = false;
-                return;
-            }
-            s.AddonsConfirmed.Add(addon.Id);
+            sw.On = false;
+            return;
         }
         _ = AddonHub.Set(addon, on);
         Build(lastFilter);
-    }
-
-    /// One of the catalog's: a program apart from Bloom with its own source, which loads code into Explorer and downloads
-    /// symbol files, under the license its addon.json gives (the switch only works once that file is here).
-    private bool ConfirmListed(Addon addon, string name)
-    {
-        string license = addon.Manifest?.License ?? "";
-        return ConfirmProgram(addon, Tr($"{name} 켜기", $"Turn On {name}"),
-            Tr($"이 애드온은 Bloom과 별도인 프로그램으로, 탐색기에 코드를 넣어 동작합니다. 라이선스는 {license}입니다. 처음 켤 때 Microsoft 기호 서버에서 필요한 기호 파일을 받습니다.",
-                $"This add-on is a separate program from Bloom and works by injecting code into Explorer. Its license is {license}. When turned on for the first time, it downloads required symbol files from the Microsoft symbol server."));
-    }
-
-    /// One the user put in: a program Bloom doesn't ship and never checked, which may load code into Explorer.
-    private bool ConfirmUser(string name) =>
-        ConfirmWindow.Ask(Window.GetWindow(this), Tr($"{name} 켜기", $"Turn On {name}"),
-            Tr("직접 넣은 애드온은 Bloom이 만들거나 확인한 것이 아닌 별도 프로그램입니다. 켜면 Bloom이 그 프로그램을 실행하고, 그 프로그램은 탐색기에 코드를 넣을 수 있습니다. 믿을 수 있는 애드온만 켜세요.",
-                "Custom add-ons are separate programs neither created nor verified by Bloom. Turning one on lets Bloom run that program, which may inject code into Explorer. Only turn on add-ons you trust."),
-            (Tr("켜기", "Turn On"), MessageBoxResult.Yes), (Tr("취소", "Cancel"), MessageBoxResult.Cancel)) == MessageBoxResult.Yes;
-
-    /// Before a program with its own source first runs: 켜기, 취소, or 소스 보기, which opens the source and asks again.
-    private bool ConfirmProgram(Addon addon, string title, string body)
-    {
-        var owner = Window.GetWindow(this);
-        while (true)
-        {
-            var r = ConfirmWindow.Ask(owner, title, body,
-                (Tr("켜기", "Turn On"), MessageBoxResult.Yes), (Tr("소스 보기", "View Source"), MessageBoxResult.No), (Tr("취소", "Cancel"), MessageBoxResult.Cancel));
-            if (r != MessageBoxResult.No) return r == MessageBoxResult.Yes;
-            if (addon.Manifest is { } m) OpenSource(m); // and the question stays
-        }
     }
 }
