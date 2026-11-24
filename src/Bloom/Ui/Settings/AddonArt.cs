@@ -1,6 +1,7 @@
 using System;
 using System.Diagnostics;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Threading;
 using Bloom.Addons;
@@ -27,15 +28,21 @@ internal sealed class AddonArt : FrameworkElement
     private readonly ArtKit.Words words;
     private DispatcherTimer? timer;
 
-    private AddonArt(Kind kind, double still)
+    /// In a tutorial tile (Tile): it plays only while pointed at, and draws in the tile's palette.
+    private readonly bool inTile;
+
+    private AddonArt(Kind kind, double still, bool inTile = false)
     {
         this.kind = kind;
         this.still = still;
+        this.inTile = inTile;
         words = new(this);
         Width = W;
         Height = H;
         IsHitTestVisible = false;
-        var clip = new RectangleGeometry(new Rect(0, 0, W, H), 8, 8);
+        // a line's picture has its own round corners; a tile's is cut by the tile, which shows a part of it
+        double corner = inTile ? 0 : 8;
+        var clip = new RectangleGeometry(new Rect(0, 0, W, H), corner, corner);
         clip.Freeze();
         Clip = clip;
         Loaded += (_, _) => Run();
@@ -43,14 +50,16 @@ internal sealed class AddonArt : FrameworkElement
         IsVisibleChanged += (_, _) => Run();
     }
 
-    public static AddonArt? For(string id) => id switch
+    public static AddonArt? For(string id) => Make(id, false);
+
+    private static AddonArt? Make(string id, bool inTile) => id switch
     {
-        AddonProtocol.Id => new(Kind.Taskbar, 0.45),
-        "alt-tab-per-monitor" => new(Kind.AltTab, 0.25),
-        "brightness" => new(Kind.Brightness, 0.6),
-        "memory-clean" => new(Kind.Memory, 0.6),
-        "keep-awake" => new(Kind.Coffee, 0.62),
-        "run-card" => new(Kind.RunCard, 0.40),
+        AddonProtocol.Id => new(Kind.Taskbar, 0.45, inTile),
+        "alt-tab-per-monitor" => new(Kind.AltTab, 0.25, inTile),
+        "brightness" => new(Kind.Brightness, 0.6, inTile),
+        "memory-clean" => new(Kind.Memory, 0.6, inTile),
+        "keep-awake" => new(Kind.Coffee, 0.62, inTile),
+        "run-card" => new(Kind.RunCard, 0.40, inTile),
         _ => null,
     };
 
@@ -58,11 +67,57 @@ internal sealed class AddonArt : FrameworkElement
     /// only while its tile is pointed at; `frozen` (QA pictures) = never, it keeps its still moment.
     public static FrameworkElement? Tile(string id, double width = 178, double height = 84, bool frozen = false)
     {
-        if (For(id) is not { } art) return null;
-        var view = new System.Windows.Controls.Canvas { Width = width, Height = height, ClipToBounds = true };
+        if (Make(id, true) is not { } art) return null;
+        // transparent, not empty: on its own (no tile around it) the view is what the pointer is over
+        var view = new Canvas { Width = width, Height = height, ClipToBounds = true, Background = Brushes.Transparent };
+        switch (art.kind)
+        {
+            case Kind.AltTab:
+                // both monitors are the picture: all of it, made as narrow as the tile and set in its middle
+                double scale = width / W;
+                art.RenderTransform = new ScaleTransform(scale, scale);
+                Canvas.SetTop(art, Math.Round((height - H * scale) / 2));
+                break;
+            case Kind.Taskbar:
+                Canvas.SetLeft(art, (width - W) / 2); // the pill is in the middle
+                break;
+            default:
+                Canvas.SetLeft(art, width - W); // the widget and its window are at the right end
+                break;
+        }
         view.Children.Add(art);
+        if (frozen) return view;
+
+        UIElement? over = null;
+        void Enter(object s, System.Windows.Input.MouseEventArgs e) => art.Pointed = true;
+        void Leave(object s, System.Windows.Input.MouseEventArgs e) => art.Pointed = false;
+        view.Loaded += (_, _) =>
+        {
+            if (over is not null) return;
+            over = view;
+            for (DependencyObject? d = view; d is not null; d = VisualTreeHelper.GetParent(d))
+                if (d is PictureTile tile)
+                {
+                    over = tile;
+                    break;
+                }
+            over.MouseEnter += Enter;
+            over.MouseLeave += Leave;
+            art.Pointed = over.IsMouseOver;
+        };
+        view.Unloaded += (_, _) =>
+        {
+            if (over is null) return;
+            over.MouseEnter -= Enter;
+            over.MouseLeave -= Leave;
+            over = null;
+            art.Pointed = false;
+        };
         return view;
     }
+
+    /// The loop is running (the tests read it).
+    internal bool Playing => timer is not null;
 
     /// A moment of the loop to show (0–1) in place of the clock: the tests' pictures.
     internal double? Hold { get; set; }
@@ -82,9 +137,10 @@ internal sealed class AddonArt : FrameworkElement
     }
 
     /// Starts the loop while the picture is on screen and things may move (or it is pointed at), and stops it otherwise.
+    /// In a tile only the pointer starts it: a page of tiles would run a loop each for as long as it shows.
     private void Run()
     {
-        bool moves = Motion.Moves, go = IsLoaded && IsVisible && (moves || pointed);
+        bool moves = Motion.Moves && !inTile, go = IsLoaded && IsVisible && (moves || pointed);
         if (go && timer is null)
         {
             int fps = Settings.Current.AnimationFps > 0 ? Math.Min(Settings.Current.AnimationFps, 60) : 30;
@@ -106,7 +162,7 @@ internal sealed class AddonArt : FrameworkElement
     protected override void OnRender(DrawingContext dc)
     {
         double p = Hold ?? (timer is null ? still : clock.Elapsed.TotalSeconds % Loop / Loop);
-        ink = new Ink(Theme.P.Dark);
+        ink = new Ink(Theme.P.Dark, inTile);
         switch (kind)
         {
             case Kind.Taskbar: Taskbar(dc, p); break;
@@ -296,7 +352,7 @@ internal sealed class AddonArt : FrameworkElement
             double on = K(p, (.30, 0), (.35, 1));
             var track = new Rect(201, top + 1, 16, 9);
             dc.DrawRoundedRectangle(B(Mix(ink.Track, Accent, on)), null, track, 4.5, 4.5);
-            dc.DrawEllipse(B(0xFFFFFFFF), null, new Point(track.Left + 4.5 + 7 * on, track.Top + 4.5), 3.5, 3.5);
+            dc.DrawEllipse(B(ink.Paper), null, new Point(track.Left + 4.5 + 7 * on, track.Top + 4.5), 3.5, 3.5);
 
             double left = Math.Max(0, 3600 - Math.Floor((p - .58) * Loop));
             string big = p < .32 ? Lang.Tr("잠들 수 있음", "Can sleep")
@@ -577,18 +633,22 @@ internal sealed class AddonArt : FrameworkElement
 
     private void Shadow(DrawingContext dc, Rect r, double radius) => ArtKit.Shadow(dc, r, radius, ink.Shade);
 
-    private void Pointer(DrawingContext dc, double x, double y) => ArtKit.Pointer(dc, x, y, 0xFFFFFFFF, 0xFF111111, .8);
+    private void Pointer(DrawingContext dc, double x, double y) => ArtKit.Pointer(dc, x, y, ink.Paper, 0xFF111111, .8);
 
     // ---- colours per theme; the bars and Bloom's tile in the theme's accent
 
-    private Ink ink = new(false);
+    private Ink ink = new(false, false);
 
-    private readonly record struct Ink(bool Dark)
+    /// `Tile`: the tutorial's tiles, where nothing is pure white or black (the white things off-white, the shades a
+    /// dark neutral); the lines of 설정 > 애드온 keep the values they have.
+    private readonly record struct Ink(bool Dark, bool Tile)
     {
         public uint Pill => Dark ? 0xFF2E2E33u : 0xFFFAFAFAu;
         public uint PillEdge => Dark ? 0x14FFFFFFu : 0x1A111111u;
-        public uint Shade => Dark ? 0x26000000u : 0x0F000000u;
-        public uint Icon => Dark ? 0xFF3F3F46u : 0xFFFFFFFFu;
+        public uint Shade => Tile ? (Dark ? 0x26101013u : 0x0F101013u) : Dark ? 0x26000000u : 0x0F000000u;
+        public uint Icon => Dark ? 0xFF3F3F46u : Tile ? 0xFFF4F4F5u : 0xFFFFFFFFu;
+        /// The pointer and a switch's knob.
+        public uint Paper => !Tile ? 0xFFFFFFFFu : Dark ? 0xFFECEDEEu : 0xFFF4F4F5u;
         public uint Glyph => Dark ? 0xFFE4E4E7u : 0xFF3F3F46u;
         public uint Text => Dark ? 0xFFECEDEEu : 0xFF11181Cu;
         public uint Faint => Dark ? 0xFF97989Au : 0xFF71717Au;
@@ -601,7 +661,7 @@ internal sealed class AddonArt : FrameworkElement
         public uint Hover => Dark ? 0x1AFFFFFFu : 0x14111111u;
         public uint Shine => Dark ? 0xFFA1A1AAu : 0xFF5E5E67u;
         public uint Steps => Dark ? 0xBFFFFFFFu : 0xB3111111u;
-        public uint Code => Dark ? 0x47000000u : 0x0F111111u;
+        public uint Code => Dark ? Tile ? 0x47101013u : 0x47000000u : 0x0F111111u;
     }
 
     // ---- words, kept while the same words, size, colour and font come again
