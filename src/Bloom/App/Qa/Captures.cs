@@ -42,6 +42,7 @@ internal static partial class Captures
         ["player"] = PlayerScreens,
         ["chat"] = ChatScreens,
         ["chatwin"] = ChatWindowScreens,
+        ["t3chat"] = T3ChatScreens,
         ["mine"] = MineScreens,
         ["snippets"] = SnippetScreens,
         ["mcp"] = McpScreens,

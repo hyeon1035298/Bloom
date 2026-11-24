@@ -40,6 +40,10 @@ internal sealed class ChatView : Grid, IComposerHost
 
     public void FocusComposer() => owner.FocusComposer();
 
+    /// What an empty conversation shows in place of 무엇이든 물어보세요, when the window has its own (a new T3 chat's
+    /// folder cards); null = the usual.
+    public Func<ChatThread, FrameworkElement?>? EmptyFor { get; set; }
+
     public void ShowToast(string text) => owner.ShowToast(text);
 
     /// The AI chat window's conversation keeps a readable line length however wide the window gets (centered).
@@ -244,7 +248,7 @@ internal sealed class ChatView : Grid, IComposerHost
         if (t.Messages.Count == 0)
         {
             builtCount = 0;
-            stack.Children.Add(Empty());
+            stack.Children.Add(EmptyFor?.Invoke(t) ?? Empty());
             return;
         }
         for (int i = 0; i < t.Messages.Count; i++)
@@ -291,7 +295,7 @@ internal sealed class ChatView : Grid, IComposerHost
         el.BeginAnimation(OpacityProperty, Motion.Paced(new System.Windows.Media.Animation.DoubleAnimation(0, 1, TimeSpan.FromMilliseconds(170)) { EasingFunction = ease, BeginTime = begin }));
     }
 
-    private static string Key(ChatMessage m) => $"{m.Text.Length}|{m.Status}|{m.Streaming}|{m.Error}|{m.Files?.Count}|{m.Asks.Count}|{m.Done?.Count}|{m.Tokens}";
+    private static string Key(ChatMessage m) => $"{m.Text.Length}|{m.Status}|{m.Streaming}|{m.Error}|{m.Files?.Count}|{m.Asks.Count}|{m.Done?.Count}|{m.Tokens}|{m.Question?.RequestId}|{m.ApprovalWait}";
 
     /// An API answer's tokens, quietly under it; the whole chat's so far in its tooltip.
     private static FrameworkElement TokensLine(ApiTokens used, ChatThread t)
@@ -490,6 +494,8 @@ internal sealed class ChatView : Grid, IComposerHost
         if (m.Done is { Count: > 0 } done)
             foreach (string d in done) answer.Children.Add(DoneLine(d));
         foreach (var ask in m.Asks) answer.Children.Add(AskCard(t, ask));
+        if (m.Question is { } question) answer.Children.Add(QuestionBox(t, question));
+        else if (m.ApprovalWait) answer.Children.Add(ApprovalWait(t));
         if (!m.Streaming && !m.Error && m.Text.Length > 0) answer.Children.Add(CopyButton(m.Text));
         if (!m.Streaming && m.Tokens is { } used) answer.Children.Add(TokensLine(used, t));
         if (m.Streaming)
@@ -554,6 +560,65 @@ internal sealed class ChatView : Grid, IComposerHost
             Padding = new Thickness(14, 11, 14, 12),
             Margin = new Thickness(0, 10, 0, 2),
             Child = col,
+        };
+    }
+
+    /// A T3 chat's question (AskUserQuestion in its thread) in the orange box: its choices and 기타 as the notice cards
+    /// ask them (NoticeQuestionsView), 답하기 sending the answers to T3, and T3에서 열기.
+    private SmoothBorder QuestionBox(ChatThread t, T3Question question)
+    {
+        var col = new StackPanel();
+        col.Children.Add(WaitHead('\uE897', Tr("질문 · 답을 기다리는 중", "Question · waiting for your answer")));
+        col.Children.Add(NoticeQuestionsView.Build(new CardQuestions(question.Items, given => host.Chats.Answer(t, given)),
+            [(Tr("T3에서 열기", "Open in T3"), () => T3Chats.OpenInT3(t))]));
+        return WaitBox(col);
+    }
+
+    /// A T3 chat whose thread waits on an approval (T3 lists none of those to its agents, so only T3 can give it), or an
+    /// Antigravity thread that waits on anything (view-only: answered in T3).
+    private static SmoothBorder ApprovalWait(ChatThread t)
+    {
+        var col = new StackPanel();
+        bool viewOnly = t.T3 is { ViewOnly: true };
+        col.Children.Add(WaitHead(G.Shield, viewOnly ? Tr("T3에서 답을 기다려요", "Waiting for an answer in T3") : Tr("T3에서 승인을 기다려요", "Waiting for approval in T3")));
+        var about = Theme.T(Hangul.KeepAll(viewOnly ? T3Threads.ViewOnlyNote : Tr("권한 승인은 T3 앱에서만 할 수 있어요.", "Only the T3 app can give this approval.")), 12.5, Theme.P.TextDim, Theme.Regular, false);
+        about.TextWrapping = TextWrapping.Wrap;
+        about.Margin = new Thickness(0, 6, 0, 10);
+        col.Children.Add(about);
+        col.Children.Add(ToolUi.TextButton(Tr("T3에서 열기", "Open in T3"), () => T3Chats.OpenInT3(t)));
+        return WaitBox(col);
+    }
+
+    private static FrameworkElement WaitHead(char glyph, string text)
+    {
+        var top = new StackPanel { Orientation = Orientation.Horizontal };
+        var g = Theme.Glyph(glyph, 12, Theme.P.Warn);
+        g.VerticalAlignment = VerticalAlignment.Center;
+        g.Margin = new Thickness(0, 1, 7, 0);
+        top.Children.Add(g);
+        top.Children.Add(Theme.T(text, 12, Theme.P.Warn, Theme.Semi, false));
+        return top;
+    }
+
+    /// The orange box (Theme.P.Warn, its line strong and its fill faint).
+    private static SmoothBorder WaitBox(UIElement content)
+    {
+        var warn = Theme.P.Warn.Color;
+        var line = new SolidColorBrush(Color.FromArgb(140, warn.R, warn.G, warn.B));
+        var fill = new SolidColorBrush(Color.FromArgb(16, warn.R, warn.G, warn.B));
+        line.Freeze();
+        fill.Freeze();
+        return new SmoothBorder
+        {
+            Background = fill,
+            BorderBrush = line,
+            BorderThickness = new Thickness(1),
+            CornerRadius = new CornerRadius(12),
+            Padding = new Thickness(14, 11, 14, 12),
+            Margin = new Thickness(0, 10, 0, 2),
+            MaxWidth = 520,
+            HorizontalAlignment = HorizontalAlignment.Left,
+            Child = content,
         };
     }
 

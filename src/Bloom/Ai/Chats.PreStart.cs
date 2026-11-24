@@ -50,7 +50,7 @@ internal sealed partial class Chats
     /// to call on every key.
     public void PreStart(ChatThread t)
     {
-        if (shutdown || !PreStartOn || Covered(t)) return;
+        if (shutdown || !PreStartOn || t.T3 is not null || Covered(t)) return; // T3 runs a T3 chat's
         pendingWarm = t;
         warmDeferred = false;
         if (PreStartDelay <= TimeSpan.Zero)

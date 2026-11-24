@@ -22,7 +22,7 @@ internal sealed partial class ChatWindow
 
     private void StartSelect(ChatThread? t = null, ChatGroup? g = null)
     {
-        if (renaming is not null) return;
+        if (renaming is not null || OnT3) return; // T3's side lists threads Bloom doesn't delete
         selecting = true;
         deleteArmed = false;
         if (t is not null && host.Chats.Threads.Contains(t)) picked.Add(t.Id);

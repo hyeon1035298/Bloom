@@ -9,7 +9,6 @@ using System.Windows.Media;
 using System.Windows.Media.Animation;
 using Bloom.Ai;
 using Bloom.App;
-using Bloom.Core;
 using Bloom.Search;
 
 namespace Bloom.Ui;
@@ -25,6 +24,10 @@ internal sealed partial class ChatWindow : Window, IChatHost
     private readonly ChatView chat;
     private readonly TextBox input;
     private readonly TextBlock inputHint;
+    private readonly SmoothBorder sendKey, attachKey;
+    private FrameworkElement? attachFoot;
+    private TextBlock? findFoot;
+    private readonly TextBlock sendIcon;
     private readonly TextBlock title = Theme.T("", 15, Theme.P.Text, Theme.Semi);
     private readonly StackPanel tools = new() { Orientation = Orientation.Horizontal, HorizontalAlignment = HorizontalAlignment.Right, VerticalAlignment = VerticalAlignment.Center };
     private readonly TextBlock toast = Theme.T("", 12.5, Theme.P.Text, Theme.Medium, false);
@@ -109,13 +112,19 @@ internal sealed partial class ChatWindow : Window, IChatHost
         composer.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
         composer.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
         composer.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
-        var attach = IconButton('', Tr("파일 · 사진 첨부 (Ctrl+O)", "Attach files or pictures (Ctrl+O)"), PickFiles, false);
+        var attach = attachKey = IconButton('', Tr("파일 · 사진 첨부 (Ctrl+O)", "Attach files or pictures (Ctrl+O)"), PickFiles, false);
         attach.VerticalAlignment = VerticalAlignment.Bottom;
         composer.Children.Add(attach);
         field.Margin = new Thickness(6, 0, 10, 0);
         Grid.SetColumn(field, 1);
         composer.Children.Add(field);
-        var send = IconButton(G.Send, Tr("보내기 (Enter)", "Send (Enter)"), SendChat, true);
+        // a T3 thread T3 works on, nothing typed: ■, which stops its turn (PaintComposer)
+        var send = sendKey = IconButton(G.Send, Tr("보내기 (Enter)", "Send (Enter)"), () =>
+        {
+            if (T3Stops) host.Chats.Stop(thread);
+            else SendChat();
+        }, true);
+        sendIcon = (TextBlock)send.Child;
         send.VerticalAlignment = VerticalAlignment.Bottom;
         Grid.SetColumn(send, 2);
         composer.Children.Add(send);
@@ -136,6 +145,9 @@ internal sealed partial class ChatWindow : Window, IChatHost
         main.Children.Add(composerCard);
         main.Children.Add(Rule(4));
         var foot = Hints((Tr("첨부", "Attach"), "Ctrl+O"), (Tr("새 대화", "New chat"), "Ctrl+N"), (Tr("대화 찾기", "Find a chat"), "Ctrl+F"), (Tr("중지", "Stop"), "Esc"));
+        attachFoot = (FrameworkElement)foot.Children[0]; // goes with the 📎 button (PaintComposer)
+        findFoot = (TextBlock)((Panel)foot.Children[2]).Children[0]; // the list's side names it (Hints)
+        Hints();
         Grid.SetRow(foot, 5);
         main.Children.Add(foot);
 
@@ -164,6 +176,7 @@ internal sealed partial class ChatWindow : Window, IChatHost
         {
             inputHint.Visibility = input.Text.Length == 0 ? Visibility.Visible : Visibility.Collapsed;
             if (input.Text.Length > 0) host.Chats.PreStart(thread); // typing: the process starts before Enter
+            if (thread.T3 is not null) PaintComposer(); // ■ while empty, the send key once something is typed
         };
         input.PreviewKeyDown += OnInputKey;
         PreviewKeyDown += OnKey;
@@ -184,6 +197,18 @@ internal sealed partial class ChatWindow : Window, IChatHost
         host.Chats.SessionsChanged += OnSessions;
         host.Chats.GroupsChanged += OnSessions;
         host.Chats.UsageChanged += OnUsage;
+        host.Chats.T3.ListChanged += OnT3List;
+        host.Chats.T3.Noted += OnT3Note;
+        Notices.TurnsChanged += OnTurns;
+        chat.EmptyFor = T3Empty;
+        Activated += (_, _) =>
+        {
+            WatchT3();
+            if (OnT3) T3.Forward();
+        };
+        Deactivated += (_, _) => WatchT3();
+        StateChanged += (_, _) => WatchT3();
+        IsVisibleChanged += (_, _) => WatchT3();
         GptCatalog.Updated += OnCatalog;
         ApiCatalog.Updated += OnCatalog;
         OmpCatalog.Updated += OnCatalog;
@@ -195,6 +220,10 @@ internal sealed partial class ChatWindow : Window, IChatHost
             host.Chats.SessionsChanged -= OnSessions;
             host.Chats.GroupsChanged -= OnSessions;
             host.Chats.UsageChanged -= OnUsage;
+            host.Chats.T3.ListChanged -= OnT3List;
+            host.Chats.T3.Noted -= OnT3Note;
+            host.Chats.T3.Watch(null, false, false);
+            Notices.TurnsChanged -= OnTurns;
             GptCatalog.Updated -= OnCatalog;
             ApiCatalog.Updated -= OnCatalog;
             OmpCatalog.Updated -= OnCatalog;
@@ -202,6 +231,7 @@ internal sealed partial class ChatWindow : Window, IChatHost
         };
         SourceInitialized += (_, _) => Shots.SolidCaption(this);
         Loaded += (_, _) => input.Focus();
+        if (OnT3) _ = T3.Refresh(projects: true);
         Open(first);
     }
 
@@ -212,6 +242,12 @@ internal sealed partial class ChatWindow : Window, IChatHost
         thread = t;
         host.Chats.PreStart(t); // likely to send: its process starts now, unsent
         host.Chats.RefreshUsage(t); // a chat whose omp is running shows its numbers now, not after its next answer
+        if (t.T3 is not null && files.Count > 0)
+        {
+            files.Clear(); // T3 takes no files from here
+            chat.ShowPending(files, Unattach);
+        }
+        WatchT3();
         chat.Show(t);
         Header();
         BuildList();
@@ -253,7 +289,14 @@ internal sealed partial class ChatWindow : Window, IChatHost
 
     public void SendChat()
     {
-        if (thread.Busy) return;
+        // a T3 thread takes words while it works (they steer its turn); a new one being made doesn't
+        if (thread.Busy && thread.T3 is not { ThreadId: not null }) return;
+        if (thread.T3 is not null && input.Text.Trim().Length == 0) return;
+        if (thread.T3 is { ViewOnly: true })
+        {
+            ShowToast(T3Threads.ViewOnlyNote); // an Antigravity thread: what was typed stays
+            return;
+        }
         string text = input.Text.Trim();
         if (text.Length == 0) text = ChatAttach.DefaultText(false, files.Count > 0);
         if (text.Length == 0) return;
@@ -269,6 +312,11 @@ internal sealed partial class ChatWindow : Window, IChatHost
 
     public void PickFiles()
     {
+        if (thread.T3 is not null)
+        {
+            ShowToast(T3NoFiles);
+            return;
+        }
         if (ChatAttach.Pick(this) is { } picked) Attach(picked);
         input.Focus();
     }
@@ -282,6 +330,7 @@ internal sealed partial class ChatWindow : Window, IChatHost
     /// Ctrl+Shift+M: Claude → ChatGPT → omp (when it is on this PC), each side with the model last used there.
     public void SwitchProvider()
     {
+        if (thread.T3 is not null) return; // T3 runs the thread on its own model
         Chats.SetModel(thread, AiModels.NextSide(AiModels.Normalize(thread.Model)));
         ShowToast(AiModels.Who(thread.Model));
         host.Chats.PreStart(thread);
@@ -291,6 +340,7 @@ internal sealed partial class ChatWindow : Window, IChatHost
     /// Ctrl+E: the model's levels in turn.
     public void CycleEffort()
     {
+        if (thread.T3 is not null) return;
         string model = AiModels.Normalize(thread.Model);
         if (!AiModels.HasEffort(model)) return;
         Chats.SetEffort(thread, AiModels.Next(AiModels.Efforts(model), Chats.EffortOf(thread)));
@@ -322,6 +372,13 @@ internal sealed partial class ChatWindow : Window, IChatHost
     // ── the conversation's bar: its name, the model and level, 세션 종료 ──────────────────────
     private void Header()
     {
+        if (thread.T3 is not null)
+        {
+            T3Header();
+            PaintComposer();
+            return;
+        }
+        PaintComposer();
         // the group in front, faint: 업무 / 3분기 매출 정리
         shownTitle = (host.Chats.GroupOf(thread)?.Name ?? "") + "\n" + NameOf(thread);
         title.Inlines.Clear();
@@ -407,10 +464,11 @@ internal sealed partial class ChatWindow : Window, IChatHost
         }
         Action? run = key switch
         {
-            Key.Escape when thread.Busy => () => host.Chats.Stop(thread),
             Key.Escape when find.IsKeyboardFocused && find.Text.Length > 0 => () => find.Clear(),
             Key.Escape when find.IsKeyboardFocused => () => input.Focus(),
-            Key.N when ctrl => () => Open(host.Chats.New()),
+            // a T3 thread's turn is stopped only when the send key would stop it: not while it asks, nor with words typed
+            Key.Escape when (thread.T3 is not null ? T3Stops : thread.Busy) => () => host.Chats.Stop(thread),
+            Key.N when ctrl => () => Open(NewChat()),
             Key.O when ctrl => PickFiles,
             Key.F when ctrl => ShowThreads,
             Key.L when ctrl => ShowThreads,
@@ -428,6 +486,11 @@ internal sealed partial class ChatWindow : Window, IChatHost
     // ── attachments ─────────────────────────────────────────────────────────────────────────────
     private void Attach(IEnumerable<string> paths)
     {
+        if (thread.T3 is not null)
+        {
+            ShowToast(T3NoFiles);
+            return;
+        }
         int skipped = ChatAttach.Add(files, paths);
         if (skipped > 0) ShowToast(ChatAttach.Skipped(skipped));
         chat.ShowPending(files, Unattach);
@@ -440,15 +503,26 @@ internal sealed partial class ChatWindow : Window, IChatHost
         chat.ShowPending(files, Unattach);
     }
 
+    private static string T3NoFiles => Tr("T3 스레드에는 여기서 파일을 붙일 수 없어요", "Files can't be attached to a T3 thread here");
+
     // ── what the conversations do ───────────────────────────────────────────────────────────────
     private void OnUpdated(ChatThread t)
     {
+        if (t.T3 is not null)
+        {
+            if (!ReferenceEquals(t, thread)) return;
+            chat.Update(t);
+            PaintComposer();
+            if (shownTitle != T3TitleKey(t)) Header();
+            return;
+        }
         if (ReferenceEquals(t, thread))
         {
             chat.Update(t);
             Gauge(); // 정리 is off while it answers
+            PaintComposer();
         }
-        if (ListChanged()) BuildList();
+        if (ListChanged() && !OnT3) BuildList();
         if (ReferenceEquals(t, thread) && shownTitle != (host.Chats.GroupOf(t)?.Name ?? "") + "\n" + NameOf(t)) Header();
     }
 
@@ -488,17 +562,20 @@ internal sealed partial class ChatWindow : Window, IChatHost
         return line;
     }
 
-    /// The keys under the conversation, as in the settings window.
-    private static FrameworkElement Hints(params (string label, string keys)[] hints)
+    /// The keys under the conversation, as in the settings window: one group a hint (its words, its keys, and a rule
+    /// after all but the last), so one can be hidden whole.
+    private static StackPanel Hints(params (string label, string keys)[] hints)
     {
         var foot = new StackPanel { Orientation = Orientation.Horizontal, HorizontalAlignment = HorizontalAlignment.Right, VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(0, 0, 16, 0) };
         for (int i = 0; i < hints.Length; i++)
         {
+            var group = new StackPanel { Orientation = Orientation.Horizontal };
             var t = Theme.T(hints[i].label, 12, Theme.P.TextDim, Theme.Medium, false);
             t.Margin = new Thickness(0, 0, 3, 0);
-            foot.Children.Add(t);
-            foot.Children.Add(Keys.Caps(hints[i].keys));
-            if (i < hints.Length - 1) foot.Children.Add(new SmoothBorder { Width = 1, Height = 14, Background = Theme.P.Line, Margin = new Thickness(12, 0, 12, 0), VerticalAlignment = VerticalAlignment.Center });
+            group.Children.Add(t);
+            group.Children.Add(Keys.Caps(hints[i].keys));
+            if (i < hints.Length - 1) group.Children.Add(new SmoothBorder { Width = 1, Height = 14, Background = Theme.P.Line, Margin = new Thickness(12, 0, 12, 0), VerticalAlignment = VerticalAlignment.Center });
+            foot.Children.Add(group);
         }
         return foot;
     }

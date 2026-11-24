@@ -30,6 +30,7 @@ internal sealed partial class ChatWindow
         var side = new Grid();
         side.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
         side.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+        side.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
         side.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
         side.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
 
@@ -61,10 +62,15 @@ internal sealed partial class ChatWindow
         };
         fresh.MouseLeftButtonUp += (_, e) =>
         {
-            Open(host.Chats.New());
+            Open(NewChat());
             e.Handled = true;
         };
         side.Children.Add(fresh);
+
+        // Bloom | T3 (ChatWindow.T3)
+        var switcher = SideSwitch();
+        Grid.SetRow(switcher, 1);
+        side.Children.Add(switcher);
 
         // 대화 찾기, built like the settings window's filter
         var bar = new Grid { Margin = new Thickness(10, 0, 0, 0) };
@@ -89,7 +95,7 @@ internal sealed partial class ChatWindow
             Padding = new Thickness(0),
             Template = Launcher.BareTextBox(),
         };
-        var placeholder = Theme.T(Tr("대화 찾기", "Find a chat"), 13.5, Theme.P.TextFaint);
+        var placeholder = findHint = Theme.T(Tr("대화 찾기", "Find a chat"), 13.5, Theme.P.TextFaint);
         placeholder.IsHitTestVisible = false;
         placeholder.VerticalAlignment = VerticalAlignment.Center;
         var boxHost = new Grid();
@@ -97,7 +103,7 @@ internal sealed partial class ChatWindow
         boxHost.Children.Add(find);
         Grid.SetColumn(boxHost, 1);
         bar.Children.Add(boxHost);
-        var pick = SmallButton(G.Check, Tr("여러 개 골라서 지우기 (Ctrl+클릭)", "Pick several to delete (Ctrl+click)"), _ =>
+        var pick = pickKey = SmallButton(G.Check, Tr("여러 개 골라서 지우기 (Ctrl+클릭)", "Pick several to delete (Ctrl+click)"), _ =>
         {
             if (selecting) EndSelect();
             else StartSelect();
@@ -105,6 +111,7 @@ internal sealed partial class ChatWindow
         pick.Margin = new Thickness(4, 0, 4, 0);
         Grid.SetColumn(pick, 2);
         bar.Children.Add(pick);
+        Hints();
         var findCard = new SmoothBorder
         {
             Height = 36,
@@ -117,26 +124,31 @@ internal sealed partial class ChatWindow
             Cursor = Cursors.IBeam,
         };
         findCard.MouseLeftButtonDown += (_, _) => find.Focus();
-        Grid.SetRow(findCard, 1);
+        Grid.SetRow(findCard, 2);
         side.Children.Add(findCard);
         find.TextChanged += (_, _) =>
         {
             placeholder.Visibility = find.Text.Length == 0 ? Visibility.Visible : Visibility.Collapsed;
+            if (OnT3) FindOnT3();
             BuildList();
         };
         find.PreviewKeyDown += (_, e) =>
         {
             if (e.Key != Key.Enter) return;
-            if (Matches().FirstOrDefault() is { } first) Open(first);
+            if (OnT3)
+            {
+                if (T3Matches().FirstOrDefault() is { } row) Open(T3.Chat(row));
+            }
+            else if (Matches().FirstOrDefault() is { } first) Open(first);
             e.Handled = true;
         };
 
         listScroll.Content = list;
         listScroll.Template = Launcher.ThinScroll();
         list.Margin = new Thickness(0, 0, 0, 10);
-        Grid.SetRow(listScroll, 2);
+        Grid.SetRow(listScroll, 3);
         side.Children.Add(listScroll);
-        Grid.SetRow(running, 3);
+        Grid.SetRow(running, 4);
         side.Children.Add(running);
         return side;
     }
@@ -174,6 +186,11 @@ internal sealed partial class ChatWindow
         ListChanged(); // the key of what is drawn now
         list.Children.Clear();
         headers.Clear();
+        if (OnT3)
+        {
+            BuildT3List();
+            return;
+        }
         var q = new Query(find.Text);
         bool filtering = !q.IsEmpty;
         bool Hit(ChatThread t) => !filtering || Matcher.Score(q, new MatchTarget(t.Title)) > 0;

@@ -27,6 +27,8 @@ internal sealed class ChatMessage
     [System.Text.Json.Serialization.JsonIgnore] public bool Streaming;
     [System.Text.Json.Serialization.JsonIgnore] public string? Status;
     [System.Text.Json.Serialization.JsonIgnore] public readonly List<ToolAsk> Asks = new(); // waiting for the user
+    [System.Text.Json.Serialization.JsonIgnore] public T3Question? Question; // a T3 chat's: the question its thread waits on (the orange box)
+    [System.Text.Json.Serialization.JsonIgnore] public bool ApprovalWait; // a T3 chat's: its thread waits on an approval, given in T3
 }
 
 internal sealed class ChatThread
@@ -46,6 +48,7 @@ internal sealed class ChatThread
 
     [System.Text.Json.Serialization.JsonIgnore] public bool Busy => Messages.Count > 0 && Messages[^1].Streaming;
     [System.Text.Json.Serialization.JsonIgnore] public readonly HashSet<string> AlwaysAllowed = new(); // 이 대화에서 항상 허용
+    [System.Text.Json.Serialization.JsonIgnore] public T3Ref? T3 { get; set; } // a chat of the window's T3 side (T3Chats): never saved, never in Chats.Threads
 }
 
 /// A folder of conversations in the AI chat window (chat-groups.json, in the order they were made).
@@ -95,6 +98,9 @@ internal sealed partial class Chats
 
     public readonly List<ChatThread> Threads = new();
 
+    /// The chat window's T3 side: T3 Code's threads, followed and sent to (T3Chats).
+    public readonly T3Chats T3;
+
     /// UI thread; the thread whose messages changed (streaming text, status, end of turn).
     public event Action<ChatThread>? Updated;
 
@@ -143,6 +149,7 @@ internal sealed partial class Chats
         Func<ChatOutputRequest, CancellationToken, Task<ChatOutputResult>>? collectOutput = null)
     {
         this.ui = ui;
+        T3 = new T3Chats(ui, t => Updated?.Invoke(t));
         store = new ChatStore(ui);
         this.collectOutput = collectOutput ?? ((request, token) => Task.FromResult(ChatOutput.Process(request, token)));
         this.sessionFactory = sessionFactory;
@@ -179,6 +186,8 @@ internal sealed partial class Chats
     /// other side (Claude ↔ ChatGPT ↔ omp ↔ API) keeps its own level; the same side keeps the thread's, fitted to the model.
     public static void SetModel(ChatThread? t, string model)
     {
+        // a T3 chat's model is T3's: a new one picks it there (T3Chats.SetModel), an open one keeps its thread's
+        if (t?.T3 is not null || AiModels.IsT3(model)) return;
         bool sideChanged = AiModels.Provider(AiModels.Normalize(t?.Model ?? AiModels.DefaultModel())) != AiModels.Provider(model);
         var s = Settings.Current;
         s.AiProvider = AiModels.Provider(model);
@@ -199,6 +208,7 @@ internal sealed partial class Chats
     /// A thinking level for the conversation, also the default on its side.
     public static void SetEffort(ChatThread? t, string level)
     {
+        if (t?.T3 is not null) return;
         if (t is not null) t.Effort = level;
         string model = AiModels.Normalize(t?.Model ?? AiModels.DefaultModel());
         if (AiModels.IsOmp(model)) Settings.Current.OmpChatEffort = level;
@@ -210,6 +220,12 @@ internal sealed partial class Chats
 
     public void Send(ChatThread t, string text, string? page = null, string? pageTitle = null, string? image = null, IReadOnlyList<string>? files = null)
     {
+        // a T3 chat goes to its thread, running or not (words for a running turn steer it)
+        if (t.T3 is not null)
+        {
+            if (!shutdown) T3.Send(t, text);
+            return;
+        }
         if (shutdown || t.Busy) return;
         Task deletion = Task.WhenAll(WhenDeleted(t), WhenFinished(t));
         if (!Threads.Contains(t)) Threads.Insert(0, t);
@@ -841,6 +857,11 @@ internal sealed partial class Chats
 
     public void Stop(ChatThread t)
     {
+        if (t.T3 is not null)
+        {
+            _ = T3.Stop(t);
+            return;
+        }
         if (preparing.ContainsKey(t.Id) || finishing.ContainsKey(t.Id))
         {
             EndSession(t);
@@ -972,6 +993,7 @@ internal sealed partial class Chats
     {
         if (shutdown) return;
         shutdown = true;
+        T3.Shutdown();
         idle.Stop();
         StopPreStart();
         foreach (var pending in preparing.Values) _ = pending.Cancellation.CancelAsync();

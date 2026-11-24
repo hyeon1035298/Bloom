@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Bloom.Core;
@@ -68,6 +69,12 @@ internal sealed partial class Chats
     /// card as Claude's asks; false when that conversation has no Codex run going.
     public Task<bool> AskInConversation(string id, string tool, string input) =>
         sessions.TryGetValue(id, out var s) && s is IAsksInChat codex && s.Busy ? codex.Ask(tool, input) : Task.FromResult(false);
+
+    /// A T3 chat's orange box answered (by each question's text): to the question its thread waits on.
+    public void Answer(ChatThread t, IReadOnlyDictionary<string, string> given)
+    {
+        if (t.T3 is not null && !shutdown) _ = T3.Answer(t, given);
+    }
 
     /// The user's yes or no to a tool call; `always`: this conversation doesn't ask about that action again.
     public void Answer(ChatThread t, ToolAsk ask, bool allow, bool always = false)

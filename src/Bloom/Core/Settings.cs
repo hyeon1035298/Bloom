@@ -48,6 +48,9 @@ internal sealed class Settings
     public int AiIdleMinutes { get; set; } = 10; // a chat's CLI closes after this long unused (its memory back); 0 = stays open
     public bool AiTitles { get; set; } = true; // the AI names each task "[◆ Opus • Code ] …" (ChatTitles)
     public bool T3Link { get; set; } = true; // T3 Code 연결: the add-ons (Run Card, PillTaskbar) send to, answer and stop T3 Code's threads through Bloom (Ai\T3Agent.cs); off = no call to T3 at all
+    public string ChatSide { get; set; } = "bloom"; // the AI chat window's list: bloom (Bloom's chats) | t3 (T3 Code's threads, Ai\T3Chats.cs)
+    public string? T3Pick { get; set; } // the model last picked for a new T3 thread: an AiModels.T3 id ("t3:<instance>/<model>"); null = none yet
+    public string? T3Project { get; set; } // the T3 project a new T3 thread is made in: its id, or "scratch" (no folder); null = T3's first
     public bool AiTools { get; set; } = true; // Claude chats get Bloom's MCP tools (actions asked in the chat first)
     public bool AiToolsGpt { get; set; } = true; // ChatGPT (Codex) chats get them too (Bloom asks in the chat itself)
     public bool AiToolsApi { get; set; } = true; // API chats get them too, as a function (Bloom asks in the chat itself)
