@@ -42,6 +42,8 @@
     <EmbeddedResource Include="..\..\addons\catalog.json" LogicalName="Bloom.addons.catalog.json" />
     <!-- the OpenAI and Anthropic marks for AI usage accounts (Ai\OfficialLogos.cs); trademarks of their owners, not MIT -->
     <EmbeddedResource Include="Assets\Logos\*.svg" LogicalName="Bloom.Assets.Logos.%(Filename).svg" />
+    <!-- the tutorial's first page shows these at once; the clip they are the first frame of is fetched (Ui\Tutorial\TutorialClip.cs) -->
+    <EmbeddedResource Include="Assets\Tutorial\*.jpg" LogicalName="Bloom.Assets.Tutorial.%(Filename).jpg" />
     <!-- tests\Bloom.Tests checks the internal parsers and rankers directly -->
     <InternalsVisibleTo Include="Bloom.Tests" />
     <!-- what Bloom and its elevated Win-key helper (src\WinKeyHelper, issue #3) share: names, tag, task, the tap rule -->

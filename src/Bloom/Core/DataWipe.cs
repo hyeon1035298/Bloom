@@ -229,8 +229,8 @@ internal static class DataParts
     }
 
     /// What can be made again: Bloom's Codex folder for the default account (its sessions junction is unlinked, not
-    /// followed), the API model lists, exchange rates, the update marker, the top-level work files of Local\ai and the
-    /// usage file written for other programs.
+    /// followed), the API model lists, exchange rates, the update marker, the tutorial's clips, the top-level work files
+    /// of Local\ai and the usage file written for other programs.
     public static IEnumerable<string> Cache()
     {
         yield return L("codex-app-server");
@@ -238,6 +238,7 @@ internal static class DataParts
         yield return Paths.In("api-unusable.json");
         yield return L("rates.json");
         yield return L("update-tried.txt");
+        yield return L("tutorial");
         yield return L(@"export\ai-usage.json");
         string ai = L("ai");
         string[] top;
