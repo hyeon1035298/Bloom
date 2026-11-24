@@ -447,15 +447,14 @@ internal static partial class Captures
         // first run: the welcome screen with the language row
         var ob = new OnboardingWindow(host) { WindowStartupLocation = WindowStartupLocation.Manual, Left = -32000, Top = -32000, ShowActivated = false };
         ob.Show();
-        ob.Go(0);
+        ob.Go("start");
         await Task.Delay(300);
         await ob.Dispatcher.InvokeAsync(() => ob.Capture(Path.Combine(dir, $"{l}-x17-welcome.png")), System.Windows.Threading.DispatcherPriority.ApplicationIdle);
-        ob.Go(3); // the look: theme, colour, GPU or CPU drawing
+        ob.Go("looks"); // the look: theme and colour
         await Task.Delay(300);
         await ob.Dispatcher.InvokeAsync(() => ob.Capture(Path.Combine(dir, $"{l}-x19-looks.png")), System.Windows.Threading.DispatcherPriority.ApplicationIdle);
-        if (ob.StepCount > 8) // the AI step is there (Claude Code or Codex found): which AI, and when an idle chat's CLI closes
+        if (ob.Go("ai")) // the AI step is there
         {
-            ob.Go(6);
             await Task.Delay(300);
             await ob.Dispatcher.InvokeAsync(() => ob.Capture(Path.Combine(dir, $"{l}-x18-ai.png")), System.Windows.Threading.DispatcherPriority.ApplicationIdle);
         }

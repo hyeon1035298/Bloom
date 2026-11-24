@@ -83,11 +83,14 @@ internal static partial class Captures
         ["datadefaults"] = DataDefaultsScreens,
         ["datareset"] = DataResetScreens,
         ["hidden"] = HiddenScreens,
+        ["tutorial"] = TutorialScreens,
     };
 
     public static async Task Run(Host host, string dir)
     {
         Directory.CreateDirectory(dir);
+        // no picture plays or fetches the tutorial's clip
+        TutorialEnv.Forced ??= TutorialEnv.Detect() with { Still = true };
         var w = host.Window;
         // shell icons at the pictures' resolution: a 48 px one drawn into a 2× capture is stretched without smoothing
         if (host.Opt.QaScale is { } iconScale) Icons.Pixels = (int)Math.Ceiling(Icons.Pixels * iconScale);

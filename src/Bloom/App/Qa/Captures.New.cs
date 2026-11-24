@@ -89,13 +89,13 @@ internal static partial class Captures
             Theme.Apply(theme);
             var ob = new OnboardingWindow(host) { WindowStartupLocation = WindowStartupLocation.Manual, Left = -32000, Top = -32000, ShowActivated = false };
             ob.Show();
-            ob.Go(2);
+            ob.Go("browser");
             await Cap(ob, theme + "-n1-browser");
-            ob.Go(4);
+            ob.Go("home");
             await Cap(ob, theme + "-n2-tools");
             if (theme == "dark")
             {
-                ob.ToggleToolForQa("cmd:color");
+                ob.ToggleToolForQa("cmd:record"); // off by default: switched on
                 ob.ToggleToolForQa("cmd:space");
                 await Cap(ob, theme + "-n3-tools-switched");
             }
@@ -133,6 +133,7 @@ internal static partial class Captures
         s.Theme = "light";
         s.Accent = "mint";
         s.ClaudePath = @"X:\exported\claude.exe";
+        s.TutorialSeen = ["start", "qa-exported"];
         Settings.Save();
         Quicklinks.Upsert(new Quicklink { Id = "qa-ql", Name = "QA 검색", Keyword = "qa", Url = "https://example.com/?q={query}" });
         host.SaveAll();
@@ -144,6 +145,7 @@ internal static partial class Captures
         s.Theme = "dark";
         s.Accent = "rose";
         s.ClaudePath = @"Y:\this-pc\claude.exe";
+        s.TutorialSeen = ["start", "qa-this-pc"];
         Settings.Save();
         Quicklinks.Remove(Quicklinks.Current.Items.Find(q => q.Id == "qa-ql")!);
         host.SaveAll();
@@ -155,6 +157,7 @@ internal static partial class Captures
         Check($"this PC's CLI path kept: {Settings.Current.ClaudePath}", Settings.Current.ClaudePath == @"Y:\this-pc\claude.exe");
         Check("quick search back", Quicklinks.Current.Items.Exists(q => q.Id == "qa-ql"));
         Check("onboarded stays true", Settings.Current.Onboarded == true);
+        Check($"this PC's seen pages kept: {string.Join(",", Settings.Current.TutorialSeen ?? [])}", Settings.Current.TutorialSeen?.Contains("qa-this-pc") == true);
         Check("backup made", Directory.Exists(Paths.In("backups")) && Directory.GetDirectories(Paths.In("backups")).Length > 0);
 
         // a zip that is not Bloom's
