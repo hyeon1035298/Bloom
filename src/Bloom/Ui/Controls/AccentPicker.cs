@@ -44,6 +44,25 @@ internal sealed class AccentPicker : Grid
     /// 화면에서 찍기: a colour from the screen, or null when the pick was called off.
     public Func<Task<Color?>>? Eyedrop;
 
+    /// 화면에서 찍기 for a picker in `w`: the window out of the way while a colour is picked from the screen, and the
+    /// pick kept among the recent ones.
+    internal static async Task<Color?> FromScreen(Window? w)
+    {
+        w?.Hide();
+        try
+        {
+            await Task.Delay(150); // the window off the screen before it is frozen
+            var c = await Ocr.ColorPick.Pick();
+            if (c is { } got) Core.ColorBook.Add(got);
+            return c;
+        }
+        finally
+        {
+            w?.Show();
+            w?.Activate();
+        }
+    }
+
     /// Esc in the picker: the keyboard goes back where it came from.
     public Action? Done
     {

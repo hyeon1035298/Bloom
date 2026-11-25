@@ -1,5 +1,4 @@
 using System.Linq;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -116,23 +115,7 @@ internal sealed partial class SettingsView
             Settings.Save();
             Dispatcher.BeginInvoke(() => Theme.Apply(s.Theme)); // after the pointer's or key's own handlers are done
         };
-        picker.Eyedrop = async () =>
-        {
-            var w = Window.GetWindow(this);
-            w?.Hide();
-            try
-            {
-                await Task.Delay(150); // the window off the screen before it is frozen
-                var c = await Ocr.ColorPick.Pick();
-                if (c is { } got) ColorBook.Add(got);
-                return c;
-            }
-            finally
-            {
-                w?.Show();
-                w?.Activate();
-            }
-        };
+        picker.Eyedrop = () => AccentPicker.FromScreen(Window.GetWindow(this));
         if (accentFocus is { } part)
         {
             accentFocus = null;
