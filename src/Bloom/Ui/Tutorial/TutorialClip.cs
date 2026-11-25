@@ -56,7 +56,9 @@ internal static class TutorialClip
         Task<string?> download;
         lock (downloads)
         {
-            if (!downloads.TryGetValue(variant, out download!))
+            // one under way or one that failed is this run's answer; one that ended with the file holds only while the
+            // file is there (emptying the cache in Settings takes it)
+            if (!downloads.TryGetValue(variant, out download!) || download is { IsCompletedSuccessfully: true, Result: { } done } && !File.Exists(done))
                 downloads[variant] = download = Task.Run(() => Download(variant, file));
         }
         try

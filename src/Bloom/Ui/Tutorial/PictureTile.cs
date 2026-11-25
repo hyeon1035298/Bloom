@@ -310,7 +310,7 @@ internal sealed class PictureTile : Grid
     private void FitSmallName(double width)
     {
         name.Text = nameText;
-        nameWraps = Natural(name, 11.5) > width + 0.5 && Natural(name, 11) > width + 0.5;
+        nameWraps = Natural(name, 11.5) > width - 0.5 && Natural(name, 11) > width - 0.5;
         if (nameWraps) name.Text = Hangul.KeepAll(nameText);
         nameSlot.Set(nameWraps ? 14 : 15, nameWraps ? 2 : 1);
     }
@@ -321,7 +321,7 @@ internal sealed class PictureTile : Grid
     private void FitAbout(double width)
     {
         double size = small ? 10.5 : 11.5;
-        bool fits = Natural(about, size) <= width + 0.5 || Natural(about, size - 0.5) <= width + 0.5;
+        bool fits = Natural(about, size) <= width - 0.5 || Natural(about, size - 0.5) <= width - 0.5;
         if (!fits) about.FontSize = size;
         aboutSlot.Set(small ? 13 : AboutLine, small || fits ? 1 : 2);
     }

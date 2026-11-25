@@ -53,6 +53,8 @@ internal static partial class TutorialParts
             if (!e.IsKeyboardFocused) return; // a key that came up from a part inside is that part's
             var key = Hotkeys.Pressed(k); // with the Korean IME on, Space arrives as ImeProcessed
             if (key != Key.Space && !(enter && key is Key.Enter)) return;
+            // held with Alt, Ctrl or Shift it is another key: the window menu, or the Korean IME's language switch
+            if (Keyboard.Modifiers != ModifierKeys.None) return;
             if (!k.IsRepeat) act();
             k.Handled = true;
         };
@@ -129,6 +131,15 @@ internal static partial class TutorialParts
                 if (AdornerLayer.GetAdornerLayer(e) is not { } layer) return;
                 ring = new Ring(e, radius, grow);
                 layer.Add(ring);
+                // a page that scrolls brings the whole ring in, not only the element: it reaches past the element's box.
+                // Once the focus has settled, as the element's own request, made as it takes the focus, would take this
+                // one's place in the scroll viewer's queue.
+                e.Dispatcher.BeginInvoke(() =>
+                {
+                    if (ring is null) return;
+                    double o = Ring.Outside;
+                    e.BringIntoView(new Rect(-grow.Left - o, -grow.Top - o, e.RenderSize.Width + grow.Left + grow.Right + 2 * o, e.RenderSize.Height + grow.Top + grow.Bottom + 2 * o));
+                });
             }
             else
             {
@@ -143,6 +154,10 @@ internal static partial class TutorialParts
     private sealed class Ring : Adorner
     {
         private const double Gap = 2, Thick = 2;
+
+        /// How far the ring's outer edge sits past the element's box (and its grow).
+        public const double Outside = Gap + Thick;
+
         private readonly CornerRadius radius;
         private readonly Thickness grow;
 
