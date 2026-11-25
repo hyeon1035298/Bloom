@@ -171,8 +171,8 @@ internal sealed partial class OnboardingWindow : Window
         string? was = step < 0 ? null : ids[step];
         int stop = again ? FocusedStop() : -1;
         string? role = back is { IsKeyboardFocused: true } ? "back" : next is { IsKeyboardFocused: true } ? "next" : null;
-        // (not while the colour picker is open: the keyboard is in it, and it outlives the page)
-        bool held = accentPopup is null && (scroll.IsKeyboardFocusWithin || role is not null);
+        // (not while the keyboard is in the colour picker: it outlives the page)
+        bool held = accentPopup?.Child.IsKeyboardFocusWithin != true && (scroll.IsKeyboardFocusWithin || role is not null);
         double at = scroll.VerticalOffset;
         step = to;
         string id = ids[step];
@@ -302,11 +302,16 @@ internal sealed partial class OnboardingWindow : Window
         var key = Hotkeys.Pressed(e); // with the Korean IME on, Space arrives as ImeProcessed
         if (accentPopup is not null)
         {
-            // the colour picker is up: its parts read their own keys, and Esc closes it before it closes the window
-            if (key != Key.Escape) return;
-            CloseAccent();
-            e.Handled = true;
-            return;
+            // The colour picker is up. A key pressed in it never comes here (the popup is not in the window's tree,
+            // its card reads its own), so these are the window's: Esc closes the picker before it closes the window,
+            // and a key that moves on or picks closes it and then does what it does.
+            if (key == Key.Escape)
+            {
+                CloseAccent();
+                e.Handled = true;
+                return;
+            }
+            if (Keyboard.Modifiers == ModifierKeys.None && key is Key.Enter or Key.Left or Key.Right or Key.Space) CloseAccent();
         }
         if (key == Key.Escape)
         {
@@ -384,12 +389,18 @@ internal sealed partial class OnboardingWindow : Window
     private UIElement? StopAt(int index) => Stops() is { Count: > 0 } stops ? stops[Math.Min(index, stops.Count - 1)] : null;
 
     // ── the first page's two actions ────────────────────────────────────────────────────────────
-    // the new Bloom opens the whole tour again in the language picked; a restart that is called off changes nothing
+    // the new Bloom opens the whole tour again in the language picked; a restart that is called off (a document's
+    // unwritten edits, a new Bloom that would not start) puts the language back, saved and shown
     private void PickLanguage(string value)
     {
+        string was = Settings.Current.Language;
         Settings.Current.Language = value;
         Settings.Flush();
         host.Restart("--tour");
+        if (host.Restarting) return;
+        Settings.Current.Language = was;
+        Settings.Flush();
+        hero?.ShowLanguage();
     }
 
     private void Import()

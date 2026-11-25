@@ -17,6 +17,7 @@ internal sealed partial class OnboardingWindow
     private Swatches? accentDots; // the dots of the page shown
     private FrameworkElement? accentRow; // their row: the picker opens under it
     private Popup? accentPopup;
+    private AccentPicker? accentPicker; // the picker in it
     private bool accentDark; // the theme the open picker was made for
     private bool accentReopen; // a colour is being picked from the screen: the picker comes back with it
 
@@ -112,9 +113,15 @@ internal sealed partial class OnboardingWindow
             return c;
         };
 
+        // The menus' colour without their see-through: this card is large and lies over the page's switch and the
+        // footer's buttons, which would show through it. The colour is the theme's as it opens; a switch to the other
+        // theme closes the picker (OnTheme), and the next one opens in that theme's.
+        var fill = Theme.P.Popup.Color;
+        var ground = new SolidColorBrush(Color.FromRgb(fill.R, fill.G, fill.B));
+        ground.Freeze();
         var card = new SmoothBorder
         {
-            Background = Theme.P.Popup,
+            Background = ground,
             BorderBrush = Theme.P.PopupLine,
             BorderThickness = new Thickness(1),
             CornerRadius = new CornerRadius(12),
@@ -154,6 +161,7 @@ internal sealed partial class OnboardingWindow
             VerticalOffset = under.Y + 2,
         };
         accentPopup = popup;
+        accentPicker = picker;
         popup.IsOpen = true;
     }
 
@@ -174,7 +182,12 @@ internal sealed partial class OnboardingWindow
     private void CloseAccent()
     {
         if (accentPopup is not { } popup) return;
+        var picker = accentPicker;
         accentPopup = null;
+        accentPicker = null;
+        // a colour nudged with the keys is kept before the picker goes, so a dot picked right after it is not
+        // overwritten by that colour when its pause would have passed
+        picker?.Settle();
         popup.IsOpen = false;
         if (IsVisible && IsActive && !IsKeyboardFocusWithin) Focus(); // Enter and the arrows are the window's again
     }

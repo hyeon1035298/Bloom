@@ -32,6 +32,7 @@ internal sealed class TutorialHero : Grid
     private readonly TutorialEnv env;
     private readonly string variant = TutorialClip.Variant;
     private readonly Image still;
+    private readonly Segmented lang;
     private Image? picture; // the clip decoded here, over the still, when Bloom draws in software
     private WriteableBitmap? frames; // its pixels while it plays, at the pixel size it is shown at
     private ClipReader? reader;
@@ -79,7 +80,7 @@ internal sealed class TutorialHero : Grid
             Margin = new Thickness(0, 84, 0, 0),
         });
 
-        var lang = new Segmented(Lang.Choices.Where(c => c.value != "auto").ToArray(), Lang.Code, Look)
+        lang = new Segmented(Lang.Choices.Where(c => c.value != "auto").ToArray(), Lang.Code, Look)
         {
             HorizontalAlignment = HorizontalAlignment.Center,
             VerticalAlignment = VerticalAlignment.Top,
@@ -92,6 +93,9 @@ internal sealed class TutorialHero : Grid
         lang.KeyDown += (_, k) =>
         {
             if (!lang.IsKeyboardFocused || k.IsRepeat) return;
+            // held with Alt, Ctrl or Shift it is another key (the IME's language switch is Shift+Space), as on the
+            // window's own choices
+            if (Keyboard.Modifiers != ModifierKeys.None) return;
             switch (Hotkeys.Pressed(k))
             {
                 case Key.Left: Pick(lang.Step(-1)); break;
@@ -159,6 +163,9 @@ internal sealed class TutorialHero : Grid
         // motion or Windows' effects went off while it played: the still from now on, as on a fresh page
         if (state != State.Idle && !TutorialClip.Allowed(env)) Leave();
     }
+
+    /// The language control back on the language of this run, without picking it (a restart that was called off).
+    public void ShowLanguage() => lang.Set(Lang.Code);
 
     internal bool Playing => state == State.Playing;
 

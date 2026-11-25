@@ -228,6 +228,15 @@ internal sealed class AccentPicker : Grid
         Paint();
     }
 
+    /// A colour nudged with the keys and not yet kept (its pause has not passed) is kept now. For a host that closes the
+    /// picker while another pick may follow at once: the nudge is saved first, so it cannot land after that pick.
+    internal void Settle()
+    {
+        if (!settle.IsEnabled) return;
+        settle.Stop();
+        Picked?.Invoke(Light);
+    }
+
     /// Which part has the keyboard ("square", "strip", "hex"), to give it back after the settings are drawn again.
     public string? FocusedPart => square.IsKeyboardFocused ? "square" : strip.IsKeyboardFocused ? "strip" : hex.Typing ? "hex" : null;
 
