@@ -118,7 +118,7 @@ internal static class TutorialFinish
         WindowsToasts.Apply(ui); // it only polls while both are on, so the add-on may come later
         if (plan.T3Link != start.T3Link) s.T3Link = plan.T3Link;
         T3Lines.Changed();
-        if (env.Claude && plan.Approve != start.Approve && s.NoticeApprove != plan.Approve)
+        if (WritesApprove(plan.Approve, start.Approve, s.NoticeApprove, env.Claude, s.Notices))
         {
             bool v = plan.Approve;
             s.NoticeApprove = v; // first: Bloom's start-up ClaudeHooks.Follow reads it in its turn on the file
@@ -134,19 +134,25 @@ internal static class TutorialFinish
         if (click != start.Click) s.NoticeClick = click;
     }
 
+    /// Whether the finish writes the approval switch, and with it Bloom's hook in Claude Code's settings: a change the
+    /// page made, never a hook added while the notices are off, where it would answer nothing (taking one out still is).
+    internal static bool WritesApprove(bool approve, bool startApprove, bool savedApprove, bool claude, bool noticesOn) =>
+        claude && approve != startApprove && savedApprove != approve && (noticesOn || !approve);
+
     /// After the window has closed, on the UI thread (no ConfigureAwait(false): AddonHub.Set must be called there):
     /// the add-ons switched, the taskbar AI panel set up, and one card for what became of them.
     private static async Task SwitchAddons(Host host, Plan plan, bool chatReady)
     {
         try
         {
+            // a taskbar add-on that is on already gets its panel at once, not after the others' downloads
+            if (plan.TaskbarChat && !chatReady && !plan.TurnOn.Contains(AddonProtocol.Id)) SetUpChat(AddonHub.Taskbar);
             await AddonBatch.TurnOff(Of(plan.TurnOff));
             var outcomes = await AddonBatch.TurnOn(Of(plan.TurnOn), o =>
             {
                 if (o.Ok && plan.TaskbarChat && o.Addon.Id == AddonProtocol.Id) SetUpChat(o.Addon);
                 return Task.CompletedTask;
             });
-            if (plan.TaskbarChat && !chatReady && !plan.TurnOn.Contains(AddonProtocol.Id)) SetUpChat(AddonHub.Taskbar);
             if (outcomes.Count == 0) return;
             var settled = await AddonBatch.Settled([.. outcomes.Where(o => o.Ok).Select(o => o.Addon)], TimeSpan.FromSeconds(120));
             ShowCard(host, Card(outcomes, settled));
@@ -190,19 +196,31 @@ internal static class TutorialFinish
         string open = Tr("애드온 설정 열기", "Open add-on settings");
         void Open() => host.OpenSettings("addons");
         string names = string.Join(", ", card.Named.Select(a => AddonConsent.Describe(a).Name));
+        string line = CardLine(card.Kind, card.Named.Count);
         switch (card.Kind)
         {
             case CardKind.On:
-                Notices.Result(true, head, Tr("애드온을 켰습니다", "Add-ons are on"), names);
+                Notices.Result(true, head, line, names);
                 break;
             case CardKind.Starting:
-                // not the success wording while nothing works yet (a slow symbol download)
-                Notices.Result(true, head, Tr("애드온을 켜는 중입니다", "Add-ons are starting"), names, open, Open);
+                Notices.Result(true, head, line, names, open, Open);
                 break;
             default:
                 string detail = string.Join("\n", card.Named.Select(a => AddonConsent.Describe(a).Name + " " + AddonConsent.StatusText(a)));
-                Notices.Result(false, head, Tr("켜지 못한 애드온이 있습니다", "Some add-ons could not be turned on"), detail, open, Open, keep: true);
+                Notices.Result(false, head, line, detail, open, Open, keep: true);
                 break;
         }
     }
+
+    /// The result card's line, one add-on said in the singular. Starting is not the success wording while nothing
+    /// works yet (a slow symbol download).
+    private static string CardLine(CardKind kind, int count) => (kind, count == 1) switch
+    {
+        (CardKind.On, true) => Tr("애드온을 켰습니다", "The add-on is on"),
+        (CardKind.On, false) => Tr("애드온을 켰습니다", "Add-ons are on"),
+        (CardKind.Starting, true) => Tr("애드온을 켜는 중입니다", "The add-on is starting"),
+        (CardKind.Starting, false) => Tr("애드온을 켜는 중입니다", "Add-ons are starting"),
+        (_, true) => Tr("켜지 못한 애드온이 있습니다", "An add-on could not be turned on"),
+        _ => Tr("켜지 못한 애드온이 있습니다", "Some add-ons could not be turned on"),
+    };
 }

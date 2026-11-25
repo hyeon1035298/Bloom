@@ -279,10 +279,12 @@ internal sealed partial class Host
                 break;
             case StartQueue.Item.WhatsNew when last == StartQueue.Item.Tutorial:
                 // the user has just closed the tutorial: the notes follow it at once, in front
+                ReleaseNotes.Seen();
                 _ = WhatsNew(own: true, focus: true, Next);
                 break;
             case StartQueue.Item.WhatsNew:
                 // the first start on a new version: 바뀐 점 a moment later, without taking the focus
+                ReleaseNotes.Seen();
                 var soon = new DispatcherTimer(DispatcherPriority.Background, ui) { Interval = TimeSpan.FromSeconds(3) };
                 soon.Tick += (_, _) =>
                 {
@@ -778,6 +780,7 @@ internal sealed partial class Host
     {
         if (!DocWindow.SettleAll()) return;
         stalls?.Dispose(); // the saving and shutting down below may hold the UI thread on purpose
+        CloseTutorial();
         Tools.Save();
         SaveAll();
         UsageExport.Closed();
@@ -785,6 +788,22 @@ internal sealed partial class Host
         // the add-on hosts run from their run copy under Paths.Local, not from the install folder Velopack swaps: they
         // are let go like at any quit (Quit), and the restarted Bloom takes them over
         Updates.ApplyAndRestart();
+    }
+
+    /// Windows is signing out or shutting down: what a quit writes is written now, the tutorial closed first.
+    public void EndingSession()
+    {
+        CloseTutorial();
+        SaveAll();
+    }
+
+    // Bloom is ending and writing what it keeps: the tutorial closes before that, so what its close keeps (the pages
+    // seen, the home picked) is written with the rest; a restart's close keeps nothing (the tour opens again). What the
+    // start had left to open waits for the next start.
+    private void CloseTutorial()
+    {
+        startQueue = null;
+        tour?.Close();
     }
 
     /// Bloom is ending (a quit, a restart, the reset): work still under way stops instead of opening or changing anything.
@@ -798,6 +817,7 @@ internal sealed partial class Host
         stalls?.Dispose(); // the saving and shutting down below may hold the UI thread on purpose
         if (save)
         {
+            CloseTutorial();
             Tools.Save(); // where the tool windows are, before the settings are written
             SaveAll();
             UsageExport.Closed();

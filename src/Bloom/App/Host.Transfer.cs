@@ -227,6 +227,15 @@ internal sealed partial class Host
         if (!Paths.IsDev) Autostart.Set(Settings.Current.Autostart);
         LogonTask.SyncLater();
         FileAssoc.Repair(); // the 마크다운 문서 switch brought in
+        if (!Opt.Demo && Opt.CaptureDir is null)
+        {
+            // the notices brought in run as they say, as the notices page of Settings would make them (a recording or a
+            // capture never started them)
+            Notices.Apply();
+            WindowsToasts.Apply(ui);
+            T3Lines.Changed();
+        }
+        tour?.SettingsReplaced(); // an open tutorial reads its pages' state and the home again, before it is drawn again
         Theme.Apply(Settings.Current.Theme);
         ApplyHotkeys();
         AppsChanged();

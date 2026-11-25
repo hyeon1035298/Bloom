@@ -243,12 +243,6 @@ internal sealed class PictureTile : Grid
         }
     }
 
-    /// The name's size as it is drawn, whether it wraps, and whether the line under it shows (tests).
-    internal (double Size, bool Wraps, bool AboutShown) NameFit => (name.FontSize, nameWraps, aboutLine.Visibility == Visibility.Visible);
-
-    /// The size the line under the name is drawn at, and the lines it takes (tests).
-    internal (double Size, int Lines) AboutFit => (about.FontSize, aboutSlot.Shown);
-
     private void Hover(bool over)
     {
         hover = over;

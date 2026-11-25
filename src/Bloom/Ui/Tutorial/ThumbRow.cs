@@ -110,9 +110,6 @@ internal sealed class ThumbRow : SmoothBorder
         }
     }
 
-    /// The control lies under the text: beside it, the text would have had too little room (tests).
-    internal bool Stacked => layout.Stacked;
-
     private static CornerRadius Grown(CornerRadius r) => new(r.TopLeft + 2, r.TopRight + 2, r.BottomRight + 2, r.BottomLeft + 2);
 
     private void Hover(bool over)

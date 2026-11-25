@@ -47,7 +47,7 @@ internal sealed class Settings
     public string? GptModel { get; set; } // ChatGPT: a Codex model slug; null = Codex's own default
     public string GptEffort { get; set; } = "low"; // ChatGPT: the model's reasoning levels (low … ultra)
     public bool TabContinuesLastThread { get; set; } = true;
-    public string? SeenVersion { get; set; } // the version Bloom last started as: a newer one shows 바뀐 점 once (ReleaseNotes)
+    public string? SeenVersion { get; set; } // the version whose 바뀐 점 has opened (a first run: the one it started as): a newer one shows them once (ReleaseNotes)
     public bool GpuDrawing { get; set; } // WPF draws with the GPU; off = software drawing, ~30 MB less, read at start. Off by default: GPU drawing froze the whole screen for seconds on one PC, software drawing kept the same fps there
     public int AiIdleMinutes { get; set; } = 10; // a chat's CLI closes after this long unused (its memory back); 0 = stays open
     public bool AiTitles { get; set; } = true; // the AI names each task "[◆ Opus • Code ] …" (ChatTitles)
@@ -174,7 +174,7 @@ internal sealed class Settings
         }
         Current.MoveApiFileTools();
         // 0.9.2 saved its default of 5 idle minutes: a restarted Claude CLI rewrites its whole prompt cache, so 0.9.3 is
-        // back at 10 (the first start after 0.9.2 only; SeenVersion moves on at that start)
+        // back at 10 (the starts after 0.9.2 until 바뀐 점 opens, when SeenVersion moves on)
         if (Current.SeenVersion == "0.9.2" && Current.AiIdleMinutes == 5) Current.AiIdleMinutes = 10;
         Lang.Init(Current.Language);
         // before Claude and ChatGPT had a model each, "chatgpt" was one of the models

@@ -130,6 +130,14 @@ internal sealed partial class OnboardingWindow : Window
     /// What the addons and notify pages hold; made again after an import.
     internal TutorialChoices Choices { get; private set; }
 
+    /// An import (here or in Settings) put new settings and a new home in place: the pages' state and the home tiles
+    /// are read from them again, so closing writes what was brought in, not what was there before.
+    internal void SettingsReplaced()
+    {
+        Choices = MakeChoices();
+        ResetTools();
+    }
+
     /// The addons and notify pages' starting state, from the settings as they are now.
     private TutorialChoices MakeChoices()
     {
@@ -405,11 +413,8 @@ internal sealed partial class OnboardingWindow : Window
 
     private void Import()
     {
-        if (!host.ImportSettings(this, restartThen: "--tour")) return;
+        if (!host.ImportSettings(this, restartThen: "--tour")) return; // the pages' state came with it (SettingsReplaced)
         if (host.Restarting) return; // the imported language needs a new Bloom, which opens the tour again
-        // the import put a new settings object in place: the pages' state is read from it again
-        Choices = MakeChoices();
-        ResetTools(); // the imported favourites are the home
         // what an import does not bring is what is left to choose: the add-ons and notices are this PC's
         string to = new[] { TutorialSteps.Addons, TutorialSteps.Notify, TutorialSteps.Keys }.FirstOrDefault(ids.Contains) ?? ids[^1];
         Go(to);
@@ -483,7 +488,4 @@ internal sealed partial class OnboardingWindow : Window
         if (!picked.Remove(id)) picked.Add(id);
         Go(step);
     }
-
-    /// Tests: the footer's skip link is on the page shown.
-    internal bool SkipShown => skip.Visibility == Visibility.Visible;
 }

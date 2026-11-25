@@ -69,9 +69,9 @@ internal sealed partial class OnboardingWindow
             adminRow = ThumbRow.Switched(TutorialArt.For(TutorialScene.ThumbAdmin, 64, 38), Tr("관리자 권한 창에서도 Win 키로 열기", "Win key over admin windows too"),
                 Tr("켜면 Windows가 허락을 한 번 묻습니다", "Windows asks for permission once"), s.WinKeyAdmin, async v =>
                 {
-                    var row = adminRow!;
                     bool now = await host.SetWinKeyAdmin(v, this);
-                    if (row.Switch is { } sw) sw.On = now;
+                    // the row shown now: a page drawn again while Windows asked has a new one
+                    if (adminRow?.Switch is { } sw) sw.On = now;
                 });
             adminRow.Off = !s.WinKey;
             page.Children.Add(Under(adminRow, 12));

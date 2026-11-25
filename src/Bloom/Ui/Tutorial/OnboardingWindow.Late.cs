@@ -194,14 +194,17 @@ internal sealed partial class OnboardingWindow
         var home = ids.Contains(TutorialSteps.Home) ? HomeRow() : [];
         int n = home.Count;
         if (n > 0) Tile(HomeScene(home), n == 1 ? Tr("홈 기능 1개", "1 feature on Home") : Tr($"홈 기능 {n}개", $"{n} features on Home"));
-        var turnOn = PlanForQa().TurnOn;
-        if (turnOn.Count > 0)
+        var plan = PlanForQa();
+        if (plan.TurnOn.Count > 0)
         {
-            var addons = turnOn.Select(id => AddonHub.All.FirstOrDefault(a => a.Id == id)).OfType<Addon>().ToList();
+            var addons = plan.TurnOn.Select(id => AddonHub.All.FirstOrDefault(a => a.Id == id)).OfType<Addon>().ToList();
             var data = new TutorialArtData(Names: [.. addons.Select(AddonName)], Glyphs: [.. addons.Select(AddonGlyph)]);
-            int k = turnOn.Count;
-            Tile(TutorialArt.For(TutorialScene.DoneAddons, 271, 64, data),
-                k == 1 ? Tr("애드온 1개는 확인하고 받습니다", "1 add-on downloads after you confirm") : Tr($"애드온 {k}개는 확인하고 받습니다", $"{k} add-ons download after you confirm"));
+            int k = plan.TurnOn.Count;
+            // the finish asks only about an add-on not confirmed before (or the AI panel): ones confirmed earlier just go on
+            string line = plan.Consent
+                ? k == 1 ? Tr("애드온 1개는 확인하고 받습니다", "1 add-on downloads after you confirm") : Tr($"애드온 {k}개는 확인하고 받습니다", $"{k} add-ons download after you confirm")
+                : k == 1 ? Tr("애드온 1개를 켭니다", "Turns on 1 add-on") : Tr($"애드온 {k}개를 켭니다", $"Turns on {k} add-ons");
+            Tile(TutorialArt.For(TutorialScene.DoneAddons, 271, 64, data), line);
         }
         if (c.NotifyShown)
             Tile(TutorialArt.For(TutorialScene.DoneNotify, 271, 64, new TutorialArtData(On: c.Notices)),

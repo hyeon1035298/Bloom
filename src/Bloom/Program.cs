@@ -298,7 +298,7 @@ internal static class Program
         AppDomain.CurrentDomain.UnhandledException += (_, e) => Log.Write("fatal " + e.ExceptionObject);
         app.SessionEnding += (_, _) =>
         {
-            host.SaveAll();
+            host.EndingSession();
             Ai.UsageExport.Closed();
             Ui.DocWindow.RescueAll(); // no one to ask: what a document couldn't write goes to a copy beside it
         };

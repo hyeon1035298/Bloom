@@ -67,10 +67,6 @@ internal static partial class TutorialParts
     /// The ring is on the element now.
     internal static bool RingShown(FrameworkElement e) => e.GetValue(StopProperty) is TabStopState { Shown: true };
 
-    /// Pictures and tests: the ring put on or taken off with no key pressed. The element sits under an
-    /// AdornerDecorator, as in a window.
-    internal static void ShowRing(FrameworkElement e, bool on) => (e.GetValue(StopProperty) as TabStopState)?.Show(on);
-
     /// One Tab stop: it wears the ring from the moment the keyboard brings the focus to it, or a key is pressed on
     /// it, until the focus leaves. A press of the pointer anywhere in its window hands the focus back to the window,
     /// so no part keeps the keyboard without showing it, and Enter and the arrows are the window's again.

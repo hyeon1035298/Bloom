@@ -70,16 +70,22 @@ internal static class ReleaseNotes
         }
     }
 
-    /// True once per new version: an onboarded Bloom starting on a version it hasn't started on before. The version is
-    /// remembered either way (a fresh install gets the first-run screens instead).
+    /// True on the starts of a new version until its notes have opened (Seen): an onboarded Bloom on a version it hasn't
+    /// started on before. A fresh install remembers the version at once (it gets the first-run screens instead).
     public static bool JustUpdated()
     {
         var s = Settings.Current;
-        string now = Current;
-        if (s.SeenVersion == now) return false;
-        bool updated = s.Onboarded == true; // the settings came from an earlier version (before SeenVersion: 0.9.1 and older)
-        s.SeenVersion = now;
+        if (s.SeenVersion == Current) return false;
+        if (s.Onboarded == true) return true; // the settings came from an earlier version (before SeenVersion: 0.9.1 and older)
+        Seen();
+        return false;
+    }
+
+    /// 바뀐 점 for this version is opening: it does not open again at a later start. Left until then, a start that ends
+    /// before it opens (a quit while the tutorial is up) shows it the next time.
+    public static void Seen()
+    {
+        Settings.Current.SeenVersion = Current;
         Settings.Save();
-        return updated;
     }
 }
