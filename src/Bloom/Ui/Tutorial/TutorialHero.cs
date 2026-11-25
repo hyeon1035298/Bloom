@@ -11,6 +11,7 @@ using System.Windows.Shapes;
 using System.Windows.Threading;
 using Bloom.App;
 using Bloom.Core;
+using Bloom.Native;
 
 namespace Bloom.Ui;
 
@@ -21,17 +22,25 @@ internal sealed class TutorialHero : Grid
     public static readonly Color Ground = Color.FromRgb(0x12, 0x13, 0x17);
 
     // the clip is made for this box (1280x1032 at 2x), the page above the footer's hairline
-    private const double PageWidth = 640, PageHeight = 580, Stage = 516;
+    private const double PageWidth = 640, PageHeight = 580, Stage = 516, ClipScale = 2;
     private static readonly TimeSpan OpenLimit = TimeSpan.FromSeconds(4);
+    // a frame this late (the window's thread was held) is shown and the clip goes on from it, rather than racing on
+    private static readonly long Late = TimeSpan.FromMilliseconds(100).Ticks;
 
     private enum State { Idle, Loading, Playing }
 
     private readonly TutorialEnv env;
     private readonly string variant = TutorialClip.Variant;
     private readonly Image still;
-    private MediaElement? clip;
+    private Image? picture; // the clip decoded here, over the still, when Bloom draws in software
+    private WriteableBitmap? frames; // its pixels while it plays, at the pixel size it is shown at
+    private ClipReader? reader;
+    private long? anchor; // the drawing clock (100-ns ticks) less the clip time of the frame shown first
+    private TimeSpan drawn; // the last drawing time a frame was looked for, so one drawing looks once
+    private long at; // where the frame on screen is in the file (100-ns)
+    private MediaElement? clip; // Windows' player over the still, when Bloom draws with the GPU
     private State state;
-    private bool failed; // the media would not open in this window: the still stays, no second try
+    private bool failed; // the clip would not play in this window: the still stays, no second try
     private CancellationTokenSource? wait;
     private DispatcherTimer? limit;
 
@@ -126,13 +135,11 @@ internal sealed class TutorialHero : Grid
             state = State.Idle; // offline or refused: the still is the page
             return;
         }
-        var p = Player();
-        p.Opacity = 0;
         limit = new DispatcherTimer { Interval = OpenLimit };
         limit.Tick += (_, _) => Fail("did not open in " + OpenLimit.TotalSeconds + " s");
         limit.Start();
-        p.Source = new Uri(file);
-        p.Play();
+        if (Decodes) Decode(file);
+        else Play(file);
     }
 
     /// Another page, or the window is hidden or closing: playback stops and the decoder is released. A download under
@@ -155,55 +162,121 @@ internal sealed class TutorialHero : Grid
 
     internal bool Playing => state == State.Playing;
 
+    /// Where the frame on screen is in the clip (tests).
+    internal TimeSpan Position => clip is not null && reader is null ? clip.Position : TimeSpan.FromTicks(at);
+
+    // Bloom draws in software unless GPU drawing is on. Then the clip is decoded here, and all it holds goes when it
+    // stops: Windows' player kept 60 to 120 MB in the process after it closed, and drew the clip lighter than it was
+    // made. With GPU drawing on, Windows' player decodes on the GPU at a fraction of the CPU the software decoder takes,
+    // which is what that setting is for; a GPU decoder of our own would keep its driver's memory just the same.
+    private static bool Decodes =>
+        RenderOptions.ProcessRenderMode == System.Windows.Interop.RenderMode.SoftwareOnly || RenderCapability.Tier >> 16 == 0;
+
     private void Pick(string v)
     {
         if (v != Lang.Code) LanguagePicked?.Invoke(v);
     }
 
-    // the one player of this page, made when it first plays and opened again on every return
-    private MediaElement Player()
+    // decoded on a thread of its own at the size it is shown at (the clip is made at twice the page), so nothing scales
+    // it while it plays; the picture is made when it first plays and filled again on every return
+    private void Decode(string file)
     {
-        if (clip is not null) return clip;
-        var p = Layer(new MediaElement
+        var dpi = VisualTreeHelper.GetDpi(this);
+        int w = (int)Math.Round(PageWidth * Math.Min(dpi.DpiScaleX, ClipScale)), h = (int)Math.Round(Stage * Math.Min(dpi.DpiScaleY, ClipScale));
+        frames = new WriteableBitmap(w, h, 96 * w / PageWidth, 96 * h / Stage, PixelFormats.Bgr32, null);
+        picture ??= Over(new Image { Stretch = Stretch.UniformToFill });
+        picture.Opacity = 0;
+        picture.Source = frames;
+        ClipReader? own = null;
+        reader = own = ClipReader.Start(file, w, h, why => Dispatcher.BeginInvoke(() =>
         {
-            LoadedBehavior = MediaState.Manual,
-            UnloadedBehavior = MediaState.Close,
-            IsMuted = true,
-            ScrubbingEnabled = false,
-            Stretch = Stretch.UniformToFill,
-            Opacity = 0,
-        }, Stage);
-        p.MediaOpened += (_, _) =>
+            if (reader is not null && reader == own) Fail(why);
+        }));
+        anchor = null;
+        drawn = TimeSpan.Zero;
+        CompositionTarget.Rendering += Present;
+    }
+
+    // every frame WPF draws: the clip's frame due by then, if a new one is (the reader decodes ahead on its own thread,
+    // and the drawing clock keeps the frames to their times, across the loop too)
+    private void Present(object? sender, EventArgs e)
+    {
+        if (reader is null || frames is null || e is not RenderingEventArgs r || r.RenderingTime == drawn) return;
+        drawn = r.RenderingTime;
+        long now = r.RenderingTime.Ticks;
+        if (anchor is null)
         {
-            if (state != State.Loading) return;
-            StopLimit();
-            state = State.Playing;
-            // a frame or two after it opened, so the first one is drawn before it shows; the still is underneath
-            if (!Motion.Fades)
+            if (reader.Next is not { } next) return;
+            anchor = now - next;
+        }
+        var f = reader.Due(now - anchor.Value);
+        if (f is null) return;
+        long late = now - anchor.Value - f.Time;
+        if (late > Late) anchor += late;
+        frames.WritePixels(new Int32Rect(0, 0, reader.Width, reader.Height), f.Pixels, reader.Stride, 0);
+        at = f.At;
+        reader.Return(f);
+        if (state == State.Loading) Shown(picture!);
+    }
+
+    // Windows' player, made when it first plays and opened again on every return
+    private void Play(string file)
+    {
+        if (clip is null)
+        {
+            var p = clip = Over(new MediaElement
             {
-                p.Opacity = 1;
-                return;
-            }
-            p.BeginAnimation(OpacityProperty, Motion.Paced(new DoubleAnimation(0, 1, TimeSpan.FromMilliseconds(240))
+                LoadedBehavior = MediaState.Manual,
+                UnloadedBehavior = MediaState.Close,
+                IsMuted = true,
+                ScrubbingEnabled = false,
+                Stretch = Stretch.UniformToFill,
+            });
+            p.MediaOpened += (_, _) =>
             {
-                BeginTime = TimeSpan.FromMilliseconds(80),
-                FillBehavior = FillBehavior.HoldEnd,
-            }));
-        };
-        // the clip ends where it begins: back to the start without a gap
-        p.MediaEnded += (_, _) =>
+                if (state == State.Loading) Shown(p);
+            };
+            // the clip ends where it begins: back to the start without a gap
+            p.MediaEnded += (_, _) =>
+            {
+                if (state != State.Playing) return;
+                p.Position = TimeSpan.Zero;
+                p.Play();
+            };
+            p.MediaFailed += (_, e) =>
+            {
+                if (state != State.Idle) Fail(e.ErrorException?.Message ?? "failed");
+            };
+        }
+        clip.Opacity = 0;
+        clip.Source = new Uri(file);
+        clip.Play();
+    }
+
+    // the clip's layer, just over the still
+    private T Over<T>(T e) where T : FrameworkElement
+    {
+        Children.Insert(Children.IndexOf(still) + 1, Layer(e, Stage));
+        e.Opacity = 0;
+        return e;
+    }
+
+    // the first frame is in the picture
+    private void Shown(UIElement e)
+    {
+        StopLimit();
+        state = State.Playing;
+        // a frame or two after it, so the first one is drawn before it shows; the still is underneath
+        if (!Motion.Fades)
         {
-            if (state != State.Playing) return;
-            p.Position = TimeSpan.Zero;
-            p.Play();
-        };
-        p.MediaFailed += (_, e) =>
+            e.Opacity = 1;
+            return;
+        }
+        e.BeginAnimation(OpacityProperty, Motion.Paced(new DoubleAnimation(0, 1, TimeSpan.FromMilliseconds(240))
         {
-            if (state != State.Idle) Fail(e.ErrorException?.Message ?? "failed");
-        };
-        clip = p;
-        Children.Insert(Children.IndexOf(still) + 1, p);
-        return p;
+            BeginTime = TimeSpan.FromMilliseconds(80),
+            FillBehavior = FillBehavior.HoldEnd,
+        }));
     }
 
     private void Fail(string why)
@@ -213,14 +286,24 @@ internal sealed class TutorialHero : Grid
         Leave();
     }
 
-    // stops and closes the player (the decoder and its frames go with Close) and hides it over the still
+    // stops the reader (its thread lets go of the decoder) and drops its picture, or stops and closes the player (the
+    // decoder and its frames go with Close); either is hidden over the still
     private void Release()
     {
         StopLimit();
         state = State.Idle;
+        CompositionTarget.Rendering -= Present;
+        reader?.Dispose();
+        reader = null;
+        frames = null;
+        at = 0;
+        if (picture is not null)
+        {
+            Hide(picture);
+            picture.Source = null;
+        }
         if (clip is null) return;
-        clip.BeginAnimation(OpacityProperty, null);
-        clip.Opacity = 0;
+        Hide(clip);
         try
         {
             clip.Stop();
@@ -231,6 +314,12 @@ internal sealed class TutorialHero : Grid
             /* already gone */
         }
         clip.Source = null;
+
+        static void Hide(UIElement e)
+        {
+            e.BeginAnimation(OpacityProperty, null);
+            e.Opacity = 0;
+        }
     }
 
     private void StopLimit()
