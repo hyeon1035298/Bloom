@@ -97,8 +97,11 @@ internal sealed class Settings
     public string LiveHotkey { get; set; } = "off"; // Bloom Lens straight to live translation
     public string CaptureHotkey { get; set; } = "off"; // Bloom Lens straight to "캡처" (the picture to the clipboard)
     public string RecordHotkey { get; set; } = "off"; // 화면 녹화: pick an area to record; pressed again while recording, it stops
-    public bool RecordSystemAudio { get; set; } // 화면 녹화 takes in what the PC plays (picked on its bar, kept)
-    public bool RecordMic { get; set; } // and the microphone
+    // 화면 녹화 takes in what the PC plays (picked on its bar, kept); on at first. Stored under a new name: the old
+    // "recordSystemAudio" was written as false into every settings file whether or not it was picked, so each one
+    // starts once with the sound on and the old key is left unread
+    [JsonPropertyName("recordSystemSound")] public bool RecordSystemAudio { get; set; } = true;
+    public bool RecordMic { get; set; } // and the microphone (off at first)
     public string OcrHotkey { get; set; } = "ctrl+alt+o"; // Bloom Lens straight to "글자 복사"
     public string TranslateHotkey { get; set; } = "ctrl+alt+t"; // Bloom Lens straight to "번역"
     public string OcrLanguage { get; set; } = "auto"; // auto (the user's languages) | an installed recognizer tag
