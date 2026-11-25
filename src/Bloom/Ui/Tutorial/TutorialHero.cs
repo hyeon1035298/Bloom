@@ -182,8 +182,7 @@ internal sealed class TutorialHero : Grid
     // made; this costs a few percent of one core more, only while the first page plays.
     private void Decode(string file)
     {
-        var dpi = VisualTreeHelper.GetDpi(this);
-        int w = (int)Math.Round(PageWidth * Math.Min(dpi.DpiScaleX, ClipScale)), h = (int)Math.Round(Stage * Math.Min(dpi.DpiScaleY, ClipScale));
+        var (w, h) = Pixels(VisualTreeHelper.GetDpi(this));
         frames = new WriteableBitmap(w, h, 96 * w / PageWidth, 96 * h / Stage, PixelFormats.Bgr32, null);
         picture ??= Over(new Image { Stretch = Stretch.UniformToFill });
         picture.Opacity = 0;
@@ -196,6 +195,20 @@ internal sealed class TutorialHero : Grid
         anchor = null;
         drawn = TimeSpan.Zero;
         CompositionTarget.Rendering += Present;
+    }
+
+    // the clip's pixel size on a screen of this scale: the page's, up to the clip's own (made at twice the page)
+    private static (int w, int h) Pixels(DpiScale dpi) =>
+        ((int)Math.Round(PageWidth * Math.Min(dpi.DpiScaleX, ClipScale)), (int)Math.Round(Stage * Math.Min(dpi.DpiScaleY, ClipScale)));
+
+    // the window went to a screen of another scale, or Windows' scaling changed, while it plays: the clip starts again
+    // at the new pixel size, as sharp as the words over it
+    protected override void OnDpiChanged(DpiScale oldDpi, DpiScale newDpi)
+    {
+        base.OnDpiChanged(oldDpi, newDpi);
+        if (reader is null || Pixels(newDpi) == (reader.Width, reader.Height)) return;
+        Leave();
+        Enter();
     }
 
     // every frame WPF draws: the clip's frame due by then, if a new one is (the reader decodes ahead on its own thread,

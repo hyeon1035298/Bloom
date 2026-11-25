@@ -398,6 +398,7 @@ internal sealed partial class TutorialArt
                 if (sum <= space || (n == 1 && at == 9.5)) (shown, size, more, most) = (n, at, rest, space);
             }
         }
+        LastPills = (shown, names.Count);
 
         double x = 12;
         for (int i = 0; i < shown; i++)

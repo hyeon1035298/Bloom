@@ -83,7 +83,7 @@ internal static class TutorialFinish
         // Bloom ended while a question was open: nothing is applied, closed or opened over the quit
         if (host.Quitting) return;
 
-        if (plan.ApplyNotify) ApplyNotify(plan, c.Start, env, owner.Dispatcher, readyNow: chatReady && taskbarOnNow);
+        if (plan.ApplyNotify) ApplyNotify(plan, c, env, owner.Dispatcher, readyNow: chatReady && taskbarOnNow);
         var s = Settings.Current;
         if (plan.TurnOff.Contains(AddonProtocol.Id) && s.NoticeClick == "taskbar") s.NoticeClick = "app"; // no panel without the add-on
         Settings.Save();
@@ -103,25 +103,21 @@ internal static class TutorialFinish
     private static List<Addon> Of(IEnumerable<string> ids) => [.. ids.Select(id => AddonHub.All.FirstOrDefault(a => a.Id == id)).OfType<Addon>()];
 
     /// The notification choices, with the same calls as the notices page of Settings. Only a value the pages changed
-    /// from what was saved when they started is written: one set in Settings meanwhile stays.
-    private static void ApplyNotify(Plan plan, TutorialChoices.Saved start, TutorialEnv env, Dispatcher ui, bool readyNow)
+    /// from what was saved when they started is written: one set in Settings meanwhile stays. The running parts follow
+    /// what is saved either way, as a value set in Settings or brought in by an import on the first page may not be
+    /// running yet (each call does nothing when it already matches).
+    private static void ApplyNotify(Plan plan, TutorialChoices c, TutorialEnv env, Dispatcher ui, bool readyNow)
     {
         var s = Settings.Current;
-        if (plan.Notices != start.Notices)
-        {
-            s.Notices = plan.Notices;
-            Notices.Apply();
-        }
-        if (plan.Windows != start.Windows)
-        {
-            s.NoticeWindows = plan.Windows;
-            WindowsToasts.Apply(ui); // it only polls while both are on, so the add-on may come later
-        }
-        if (plan.T3Link != start.T3Link)
-        {
-            s.T3Link = plan.T3Link;
-            T3Lines.Changed();
-        }
+        var start = c.Start;
+        if (plan.Notices != start.Notices) s.Notices = plan.Notices;
+        Notices.Apply();
+        // they come through the taskbar add-on: written when the page switched them or the pages turn the add-on off,
+        // not when it was turned off in Settings, which leaves them for when it is back
+        if (c.Windows != start.Windows || plan.TurnOff.Contains(AddonProtocol.Id)) s.NoticeWindows = plan.Windows;
+        WindowsToasts.Apply(ui); // it only polls while both are on, so the add-on may come later
+        if (plan.T3Link != start.T3Link) s.T3Link = plan.T3Link;
+        T3Lines.Changed();
         if (env.Claude && plan.Approve != start.Approve && s.NoticeApprove != plan.Approve)
         {
             bool v = plan.Approve;

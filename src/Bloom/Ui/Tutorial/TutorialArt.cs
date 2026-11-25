@@ -80,6 +80,9 @@ internal sealed partial class TutorialArt : FrameworkElement
     internal static bool TrackTrims;
     internal static List<string> Trims { get; } = [];
 
+    /// QA: how many add-on pills the last done-page picture drew whole, of how many names it was given.
+    internal static (int Shown, int Of) LastPills { get; private set; }
+
     // ---- one drawing: the context, the palette and the size, kept for the scene's own methods
 
     private DrawingContext dc = null!;
