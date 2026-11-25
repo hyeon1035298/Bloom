@@ -264,7 +264,7 @@ internal sealed partial class Host
     /// settings go on at once (settings are last whenever a tutorial is in the plan).
     private void Next()
     {
-        if (startQueue is not { Count: > 0 } q) return;
+        if (Quitting || startQueue is not { Count: > 0 } q) return; // a window closed by the quit opens nothing after it
         var item = q.Dequeue();
         var last = startLast;
         startLast = item;
@@ -787,8 +787,12 @@ internal sealed partial class Host
         Updates.ApplyAndRestart();
     }
 
+    /// Bloom is ending (a quit, a restart, the reset): work still under way stops instead of opening or changing anything.
+    public bool Quitting { get; private set; }
+
     public void Quit(bool save = true)
     {
+        Quitting = true;
         Log.Write("quit");
         StopSchedule();
         stalls?.Dispose(); // the saving and shutting down below may hold the UI thread on purpose

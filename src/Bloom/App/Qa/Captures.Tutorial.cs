@@ -246,7 +246,8 @@ internal static partial class Captures
         while (stack.Count > 0)
         {
             var d = stack.Pop();
-            if (d is TextBlock { Text: { Length: > 0 } text }) found.Add(text);
+            // as written, not as shown: a two-line Korean name carries KeepAll's joiners
+            if (d is TextBlock { Text: { Length: > 0 } text }) found.Add(Hangul.Unjoin(text));
             int n = d is Visual or System.Windows.Media.Media3D.Visual3D ? VisualTreeHelper.GetChildrenCount(d) : 0;
             for (int i = 0; i < n; i++) stack.Push(VisualTreeHelper.GetChild(d, i));
         }

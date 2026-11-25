@@ -78,6 +78,8 @@ internal static class TutorialFinish
                 plan = Declined(plan, taskbarOnNow, chatReady);
         }
         else if (plan.ChatConsent && !AddonConsent.AskTaskbarChat(owner)) plan = plan with { TaskbarChat = false };
+        // Bloom ended while a question was open: nothing is applied, closed or opened over the quit
+        if (host.Quitting) return;
 
         if (plan.ApplyNotify) ApplyNotify(plan, env, owner.Dispatcher, readyNow: chatReady && taskbarOnNow);
         var s = Settings.Current;
