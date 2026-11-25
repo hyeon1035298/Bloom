@@ -46,6 +46,9 @@ internal sealed partial class OnboardingWindow
     private static string AddonName(Addon a) =>
         a.Id == AddonProtocol.Id ? Tr("작업표시줄", "Taskbar") : a.Catalog?.Title(Code) ?? AddonConsent.Describe(a).Name;
 
+    /// An add-on's icon as Settings' add-on list shows it: the taskbar's screen, the plug for every other.
+    internal static char AddonGlyph(Addon a) => a.Id == AddonProtocol.Id ? G.Screen : G.Plug;
+
     /// The line under an add-on's name, and whether it is said in the accent: that it is on already while it stays
     /// picked, else what it does (the tutorial's short wording for the add-ons it knows, the catalog's for the rest).
     internal static (string Text, bool Accent) AddonAbout(string id, bool onNow, bool picked, string? catalog)
@@ -189,13 +192,16 @@ internal sealed partial class OnboardingWindow
                 s.WinKey && s.AltSpace ? Tr("Win 키, Alt + Space로 열기", "Opens with the Win key or Alt + Space")
                 : s.WinKey ? Tr("Win 키로 열기", "Opens with the Win key") : Tr("Alt + Space로 열기", "Opens with Alt + Space"));
         var home = ids.Contains(TutorialSteps.Home) ? HomeRow() : [];
-        if (home.Count > 0) Tile(HomeScene(home), Tr($"홈 기능 {home.Count}개", $"{home.Count} features on Home"));
+        int n = home.Count;
+        if (n > 0) Tile(HomeScene(home), n == 1 ? Tr("홈 기능 1개", "1 feature on Home") : Tr($"홈 기능 {n}개", $"{n} features on Home"));
         var turnOn = PlanForQa().TurnOn;
         if (turnOn.Count > 0)
         {
-            var names = turnOn.Select(id => AddonHub.All.FirstOrDefault(a => a.Id == id)).OfType<Addon>().Select(AddonName).ToList();
-            Tile(TutorialArt.For(TutorialScene.DoneAddons, 271, 64, new TutorialArtData(Names: names)),
-                Tr($"애드온 {turnOn.Count}개는 확인하고 받습니다", $"{turnOn.Count} add-ons download after you confirm"));
+            var addons = turnOn.Select(id => AddonHub.All.FirstOrDefault(a => a.Id == id)).OfType<Addon>().ToList();
+            var data = new TutorialArtData(Names: [.. addons.Select(AddonName)], Glyphs: [.. addons.Select(AddonGlyph)]);
+            int k = turnOn.Count;
+            Tile(TutorialArt.For(TutorialScene.DoneAddons, 271, 64, data),
+                k == 1 ? Tr("애드온 1개는 확인하고 받습니다", "1 add-on downloads after you confirm") : Tr($"애드온 {k}개는 확인하고 받습니다", $"{k} add-ons download after you confirm"));
         }
         if (c.NotifyShown)
             Tile(TutorialArt.For(TutorialScene.DoneNotify, 271, 64, new TutorialArtData(On: c.Notices)),

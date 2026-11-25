@@ -23,8 +23,9 @@ internal enum TutorialScene
     DoneOpen, DoneAddons, DoneNotify,
 }
 
-/// What a scene shows that depends on the user's choices.
-internal sealed record TutorialArtData(bool WinKey = true, bool AltSpace = true, IReadOnlyList<string>? Names = null, bool On = true);
+/// What a scene shows that depends on the user's choices. `Glyphs`, beside `Names`: each named thing's icon.
+internal sealed record TutorialArtData(bool WinKey = true, bool AltSpace = true, IReadOnlyList<string>? Names = null, bool On = true,
+    IReadOnlyList<char>? Glyphs = null);
 
 /// The tutorial's pictures, drawn in code in the theme and the accent. They do not move. A picture has no ground of
 /// its own (it lies on its tile's card), except the theme samples and the screen with its notice cards. Its words are

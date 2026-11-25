@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Windows;
 using System.Windows.Media;
 using Bloom.Search;
@@ -281,8 +282,13 @@ internal sealed partial class TutorialArt
             }
         });
         string[] lines = [Tr("즐겨찾기에 추가", "Add to Favorites"), Tr("단축키 지정…", "Assign shortcut…"), Tr("검색에서 숨기기", "Hide from search")];
-        var menu = new Rect(w - 10 - 100, 40, 100, 61);
-        Inside(menu, 8, () => Lines(menu, 2, 19, 10, lines));
+        // as wide as its longest line needs (a language's words may be longer than the Korean), over more of the
+        // launcher behind it when they are, never past the tile's left margin
+        const double indent = 10, end = 7;
+        double need = lines.Max(s => Math.Ceiling(words.Text(s, 9.5, FontWeights.Normal, tone.Text).Width)) + indent + end;
+        double width = Math.Clamp(need, 100, w - 20);
+        var menu = new Rect(w - 10 - width, 40, width, 61);
+        Inside(menu, 8, () => Lines(menu, 2, 19, indent, lines));
     }
 
     /// A list's lines, the first one chosen.
@@ -365,11 +371,14 @@ internal sealed partial class TutorialArt
         if (none) dc.Pop();
     }
 
-    /// The add-ons picked, by name, and that they are yet to be fetched: as many names as fit whole, three at most, at
-    /// the largest size they fit at, and the rest counted. Only a name too long to stand alone is cut.
+    /// The add-ons picked, each by its icon and name, and that they are yet to be fetched: as many as fit whole, three
+    /// at most, their names at the largest size they fit at, and the rest counted. Only a name too long to stand alone
+    /// is cut.
     private void DoneAddons()
     {
-        const double pad = 10, gap = 6, disc = 20;
+        // a pill: its add-on's icon on a small tile, then the name
+        const double gap = 6, disc = 20, high = 30, padLeft = 5, padRight = 10, icon = 20, iconGap = 7;
+        const double chrome = padLeft + icon + iconGap + padRight;
         double cy = Math.Round(h / 2), right = w - 12;
         dc.DrawEllipse(B(tone.Accent), null, new Point(right - disc / 2, cy), disc / 2, disc / 2);
         Icon(G.Download, 10.5, tone.AccentInk, right - disc / 2, cy);
@@ -381,7 +390,7 @@ internal sealed partial class TutorialArt
         for (int n = Math.Min(3, names.Count); n >= 1 && shown == 0; n--)
         {
             var rest = names.Count > n ? words.Text($"+{names.Count - n}", 10.5, FontWeights.Medium, tone.Faint) : null;
-            double space = room - (rest is null ? 0 : Math.Ceiling(rest.Width) + 8) - n * 2 * pad - (n - 1) * gap;
+            double space = room - (rest is null ? 0 : Math.Ceiling(rest.Width) + 8) - n * chrome - (n - 1) * gap;
             for (double at = 11; at >= 9.5 && shown == 0; at -= .5)
             {
                 double sum = 0;
@@ -394,9 +403,12 @@ internal sealed partial class TutorialArt
         for (int i = 0; i < shown; i++)
         {
             var name = Say(names[i], size, FontWeights.Medium, tone.Text, most, shrink: false);
-            var pill = new Rect(x, cy - 13, Math.Ceiling(name.Width) + 2 * pad, 26);
+            var pill = new Rect(x, cy - high / 2, Math.Ceiling(name.Width) + chrome, high);
             Box(pill, 9, tone.Block, tone.Line);
-            Put(name, pill.X + pad, cy);
+            var tile = new Rect(pill.X + padLeft, cy - icon / 2, icon, icon);
+            Tile(tile, 6, tone.Wash);
+            Icon(Data.Glyphs is { } glyphs && i < glyphs.Count ? glyphs[i] : G.Plug, 11, tone.Soft, tile.X + icon / 2, cy);
+            Put(name, tile.Right + iconGap, cy);
             x = pill.Right + gap;
         }
         if (more is not null) Put(more, x + 2, cy);
