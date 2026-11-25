@@ -38,5 +38,10 @@ case "$1" in
   for lang in ko en; do
     node "$here/capture.mjs" runcard "$out/runcard-$lang.webp" --lang $lang
   done ;;
+1.6.0)
+  # the first-run guide's own pages: take them first (pages.py says how), one folder per language under $TUTORIAL_SHOTS
+  for lang in ko en; do
+    python "$here/pages.py" "$TUTORIAL_SHOTS/$lang" "$out/tutorial-$lang.webp" --lang $lang
+  done ;;
 *) echo "no pictures listed for $1"; exit 2 ;;
 esac

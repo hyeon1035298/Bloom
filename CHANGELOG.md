@@ -2,6 +2,20 @@
 
 Each release on GitHub shows its section from this file (the workflow looks for `## <version>`).
 
+## 1.6.0
+
+[![The new first-run guide shows how to open Bloom, the features on Home, add-ons, task notifications and handy keys, one page at a time](https://raw.githubusercontent.com/hyeon1035298/Bloom/main/docs/media/whatsnew/1.6.0/tutorial-en.webp)](bloom://settings/about)
+
+- New first-run guide: Ten short pages with pictures let you choose how to open Bloom, its appearance, your browser, the features on Home, AI apps, add-ons and task notifications, and show the handy keys to know.
+- If you already use Bloom, only the newly added pages (add-ons, task notifications and keys) appear once after the update. Type 'Tour' in Bloom to view the whole guide again.
+
+### 한국어
+
+[![새 처음 실행 안내가 Bloom 여는 법, 홈에 둘 기능, 애드온, 작업 알림, 알아 두면 편한 키를 한 쪽씩 보여 줍니다](https://raw.githubusercontent.com/hyeon1035298/Bloom/main/docs/media/whatsnew/1.6.0/tutorial-ko.webp)](bloom://settings/about)
+
+- 새 처음 실행 안내: 그림이 있는 짧은 열 쪽에서 Bloom 여는 법, 화면 모양, 브라우저, 홈에 둘 기능, AI 프로그램, 애드온, 작업 알림을 고르고 알아 두면 편한 키를 봅니다.
+- 이미 쓰고 있었다면 업데이트 뒤에 새로 생긴 쪽(애드온, 작업 알림, 키)만 한 번 보입니다. Bloom에서 '둘러보기'를 적으면 전체를 다시 볼 수 있습니다.
+
 ## 1.5.1
 
 [![A task card expands for an approval request, and clicking Allow replies to Claude Code without switching to the terminal](https://raw.githubusercontent.com/hyeon1035298/Bloom/main/docs/media/whatsnew/1.5.1/runcard-en.webp)](bloom://settings/addons)
