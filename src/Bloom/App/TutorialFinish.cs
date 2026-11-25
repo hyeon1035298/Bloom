@@ -17,8 +17,8 @@ internal static class TutorialFinish
 {
     /// What the choices come to, before anything is asked or changed.
     internal sealed record Plan(
-        IReadOnlyList<string> TurnOn,        // picked and off now, taskbar first
-        IReadOnlyList<string> TurnOff,       // listed, on now and no longer picked
+        IReadOnlyList<string> TurnOn,        // picked on the page, off when it started and off now, taskbar first
+        IReadOnlyList<string> TurnOff,       // unpicked on the page, on when it started and on now
         bool Consent,                        // the add-on window is needed
         bool TaskbarChat,                    // the click goes to the taskbar AI panel
         bool ChatConsent,                    // only the AI panel is new: its own question
@@ -28,11 +28,13 @@ internal static class TutorialFinish
         IReadOnlyCollection<string> confirmed, bool chatReady)
     {
         const string taskbar = AddonProtocol.Id;
-        List<string> turnOn = c.AddonsShown ? [.. c.AddonsListed.Where(id => c.Addons.Contains(id) && !onNow.Contains(id))] : [];
+        // only what the page changed from where it started: an add-on switched in Settings while the pages were open
+        // stays as it was set there
+        List<string> turnOn = c.AddonsShown ? [.. c.AddonsListed.Where(id => c.Addons.Contains(id) && !c.StartOn.Contains(id) && !onNow.Contains(id))] : [];
         // the taskbar add-on goes first: the others' pictures and the AI panel sit on it
         turnOn = [.. turnOn.OrderBy(id => id == taskbar ? 0 : 1)];
-        List<string> turnOff = c.AddonsShown ? [.. c.AddonsListed.Where(id => !c.Addons.Contains(id) && onNow.Contains(id))] : [];
-        bool taskbarAfter = c.AddonsShown ? c.Taskbar : onNow.Contains(taskbar);
+        List<string> turnOff = c.AddonsShown ? [.. c.AddonsListed.Where(id => !c.Addons.Contains(id) && c.StartOn.Contains(id) && onNow.Contains(id))] : [];
+        bool taskbarAfter = onNow.Contains(taskbar) ? !turnOff.Contains(taskbar) : turnOn.Contains(taskbar);
         bool applyNotify = c.NotifyShown;
         bool taskbarChat = applyNotify && c.Notices && c.Click == "taskbar" && taskbarAfter && (env.Claude || env.Codex);
         bool consent = turnOn.Count > 0 && (turnOn.Any(id => !confirmed.Contains(id)) || (taskbarChat && !chatReady));
@@ -81,7 +83,7 @@ internal static class TutorialFinish
         // Bloom ended while a question was open: nothing is applied, closed or opened over the quit
         if (host.Quitting) return;
 
-        if (plan.ApplyNotify) ApplyNotify(plan, env, owner.Dispatcher, readyNow: chatReady && taskbarOnNow);
+        if (plan.ApplyNotify) ApplyNotify(plan, c.Start, env, owner.Dispatcher, readyNow: chatReady && taskbarOnNow);
         var s = Settings.Current;
         if (plan.TurnOff.Contains(AddonProtocol.Id) && s.NoticeClick == "taskbar") s.NoticeClick = "app"; // no panel without the add-on
         Settings.Save();
@@ -100,17 +102,27 @@ internal static class TutorialFinish
 
     private static List<Addon> Of(IEnumerable<string> ids) => [.. ids.Select(id => AddonHub.All.FirstOrDefault(a => a.Id == id)).OfType<Addon>()];
 
-    /// The notification choices, with the same calls as the notices page of Settings.
-    private static void ApplyNotify(Plan plan, TutorialEnv env, Dispatcher ui, bool readyNow)
+    /// The notification choices, with the same calls as the notices page of Settings. Only a value the pages changed
+    /// from what was saved when they started is written: one set in Settings meanwhile stays.
+    private static void ApplyNotify(Plan plan, TutorialChoices.Saved start, TutorialEnv env, Dispatcher ui, bool readyNow)
     {
         var s = Settings.Current;
-        s.Notices = plan.Notices;
-        Notices.Apply();
-        s.NoticeWindows = plan.Windows;
-        WindowsToasts.Apply(ui); // it only polls while both are on, so the add-on may come later
-        s.T3Link = plan.T3Link;
-        T3Lines.Changed();
-        if (env.Claude && s.NoticeApprove != plan.Approve)
+        if (plan.Notices != start.Notices)
+        {
+            s.Notices = plan.Notices;
+            Notices.Apply();
+        }
+        if (plan.Windows != start.Windows)
+        {
+            s.NoticeWindows = plan.Windows;
+            WindowsToasts.Apply(ui); // it only polls while both are on, so the add-on may come later
+        }
+        if (plan.T3Link != start.T3Link)
+        {
+            s.T3Link = plan.T3Link;
+            T3Lines.Changed();
+        }
+        if (env.Claude && plan.Approve != start.Approve && s.NoticeApprove != plan.Approve)
         {
             bool v = plan.Approve;
             s.NoticeApprove = v; // first: Bloom's start-up ClaudeHooks.Follow reads it in its turn on the file
@@ -122,7 +134,8 @@ internal static class TutorialFinish
             else ClaudeApprovals.Apply();
         }
         // a panel that still has to be set up gets the click once that has worked (SwitchAddons)
-        s.NoticeClick = Click(plan, s.NoticeClick, readyNow);
+        string click = Click(plan, s.NoticeClick, readyNow);
+        if (click != start.Click) s.NoticeClick = click;
     }
 
     /// After the window has closed, on the UI thread (no ConfigureAwait(false): AddonHub.Set must be called there):

@@ -24,6 +24,16 @@ internal sealed class TutorialChoices
 
     public bool Taskbar => Addons.Contains(Bloom.Addons.AddonProtocol.Id);
 
+    /// The listed add-ons that were on when the pages started. The finish switches only what the page changed from
+    /// this, so one switched in Settings meanwhile (the last page links there) is left as it was set.
+    public HashSet<string> StartOn { get; } = [];
+
+    /// The notification settings as they were saved when the pages started: the finish writes only the ones the pages
+    /// changed, over what Settings may have set since.
+    public sealed record Saved(bool Notices, bool Approve, bool Windows, bool T3Link, string Click);
+
+    public Saved Start { get; private init; } = new(true, false, false, true, "app");
+
     private bool startingApprove;
     private bool approveMoved;
 
@@ -39,6 +49,7 @@ internal sealed class TutorialChoices
             Windows = s.NoticeWindows,
             T3Link = s.T3Link,
             Click = s.NoticeClick == "taskbar" && on(Bloom.Addons.AddonProtocol.Id) ? "taskbar" : "app",
+            Start = new(s.Notices, s.NoticeApprove, s.NoticeWindows, s.T3Link, s.NoticeClick),
         };
         c.startingApprove = c.Approve;
         // known ids in page order, then the rest as the catalog gives them (OrderBy is stable)
@@ -46,6 +57,7 @@ internal sealed class TutorialChoices
         c.AddonsListed.AddRange(catalogIds.Where(id => env.Claude || id != RunCard).OrderBy(Rank));
         foreach (string id in c.AddonsListed)
             if (on(id)) c.Addons.Add(id);
+        c.StartOn.UnionWith(c.Addons);
         return c;
     }
 
