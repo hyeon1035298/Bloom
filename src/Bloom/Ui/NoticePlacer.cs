@@ -246,7 +246,7 @@ internal sealed class NoticePlacer : Window
             Height = box.Height,
             RadiusX = box.Height / 2,
             RadiusY = box.Height / 2,
-            Stroke = Brushes.White,
+            Stroke = Palette.OffWhiteBrush,
             StrokeThickness = 1.5,
             StrokeDashArray = new DoubleCollection { 4, 3 },
             Fill = new SolidColorBrush(Color.FromArgb(0x26, 0xFF, 0xFF, 0xFF)),

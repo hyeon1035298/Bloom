@@ -409,7 +409,7 @@ internal sealed class SpaceWindow : Window
         var no = TextButton(Tr("취소", "Cancel"), () => Done(false));
         var go = TextButton(yes, () => Done(true));
         go.Background = Theme.P.Danger;
-        ((TextBlock)go.Child).Foreground = Brushes.White;
+        ((TextBlock)go.Child).Foreground = Theme.P.DangerInk;
         go.Margin = new Thickness(8, 0, 0, 0);
         buttons.Children.Add(no);
         buttons.Children.Add(go);

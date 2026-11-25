@@ -7,14 +7,14 @@ to look at.
 
 Every icon is a glyph on the v4 tile: a superellipse (n = 5.9) on a 256 canvas, 204 wide at 32 px and up,
 213.3 at 24 px and 224 at 16 px, with a diagonal gradient. Two tiles: silver with a near-black glyph and
-graphite with a white one. A glyph is layers of one tone each (1 the ink, 2-4 lighter), filled or stroked
+graphite with an off-white one. A glyph is layers of one tone each (1 the ink, 2-4 lighter), filled or stroked
 (round caps and joins), less what its cuts cover.
 """
 import json, math, sys
 
 TILE = {256: 26.0, 24: 64 / 3, 16: 16.0}  # inset from the canvas edge
 SILVER = {"top": "#F7F7F9", "bottom": "#BABAC0", "tones": ["#1C1C1F", "#3A3A3F", "#6A6A70", "#A9A9AF"]}
-GRAPHITE = {"top": "#5E5E64", "bottom": "#3C3C42", "tones": ["#FFFFFF", "#C9C9CF", "#8E8E95", "#6E6E75"]}
+GRAPHITE = {"top": "#5E5E64", "bottom": "#3C3C42", "tones": ["#FAFAFA", "#C9C9CF", "#8E8E95", "#6E6E75"]}
 
 
 def f(d, tone=1, cut=None, rule=None):

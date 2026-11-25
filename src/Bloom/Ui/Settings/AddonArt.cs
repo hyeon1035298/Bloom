@@ -646,16 +646,16 @@ internal sealed class AddonArt : FrameworkElement
 
     private Ink ink = new(false, false);
 
-    /// `Tile`: the tutorial's tiles, where nothing is pure white or black (the white things off-white, the shades a
-    /// dark neutral); the lines of 설정 > 애드온 keep the values they have.
+    /// Nothing is pure white. `Tile`: the tutorial's tiles, which sit on a darker ground: their white things a step
+    /// darker, their shades a dark neutral.
     private readonly record struct Ink(bool Dark, bool Tile)
     {
         public uint Pill => Dark ? 0xFF2E2E33u : 0xFFFAFAFAu;
         public uint PillEdge => Dark ? 0x14FFFFFFu : 0x1A111111u;
         public uint Shade => Tile ? (Dark ? 0x26101013u : 0x0F101013u) : Dark ? 0x26000000u : 0x0F000000u;
-        public uint Icon => Dark ? 0xFF3F3F46u : Tile ? 0xFFF4F4F5u : 0xFFFFFFFFu;
+        public uint Icon => Dark ? 0xFF3F3F46u : Tile ? 0xFFF4F4F5u : 0xFFFAFAFAu;
         /// The pointer and a switch's knob.
-        public uint Paper => !Tile ? 0xFFFFFFFFu : Dark ? 0xFFECEDEEu : 0xFFF4F4F5u;
+        public uint Paper => !Tile ? 0xFFFAFAFAu : Dark ? 0xFFECEDEEu : 0xFFF4F4F5u;
         public uint Glyph => Dark ? 0xFFE4E4E7u : 0xFF3F3F46u;
         public uint Text => Dark ? 0xFFECEDEEu : 0xFF11181Cu;
         public uint Faint => Dark ? 0xFF97989Au : 0xFF71717Au;

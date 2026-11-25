@@ -103,10 +103,10 @@ internal static class ColorPick
         var zoom = (ImageBrush)zoomed.Fill;
         var lens = new Grid { Width = Span * Zoom, Height = Span * Zoom, ClipToBounds = true };
         lens.Children.Add(zoomed);
-        lens.Children.Add(new Rectangle { Width = Zoom + 2, Height = Zoom + 2, Stroke = Brushes.White, StrokeThickness = 1.5, HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center });
+        lens.Children.Add(new Rectangle { Width = Zoom + 2, Height = Zoom + 2, Stroke = Palette.OffWhiteBrush, StrokeThickness = 1.5, HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center });
         lens.Children.Add(new Rectangle { Width = Zoom + 4, Height = Zoom + 4, Stroke = Brushes.Black, StrokeThickness = 1, HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center, Opacity = 0.6 });
         var swatch = new SmoothBorder { Width = 16, Height = 16, CornerRadius = new CornerRadius(4), BorderBrush = new SolidColorBrush(Color.FromArgb(0x60, 0xFF, 0xFF, 0xFF)), BorderThickness = new Thickness(1), Margin = new Thickness(0, 0, 7, 0) };
-        var hex = Theme.T("", 12.5, Brushes.White, Theme.Semi, false);
+        var hex = Theme.T("", 12.5, Palette.OffWhiteBrush, Theme.Semi, false);
         var line = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(8, 6, 8, 7) };
         line.Children.Add(swatch);
         line.Children.Add(hex);
@@ -134,7 +134,7 @@ internal static class ColorPick
             VerticalAlignment = VerticalAlignment.Top,
             Margin = new Thickness(0, 28, 0, 0),
             IsHitTestVisible = false,
-            Child = Theme.T(Tr("색을 찍을 곳을 누르세요 · 방향키로 한 칸씩 · Esc 취소", "Click to pick a color · Arrow keys to nudge · Esc to cancel"), 13, Brushes.White, Theme.Medium, false),
+            Child = Theme.T(Tr("색을 찍을 곳을 누르세요 · 방향키로 한 칸씩 · Esc 취소", "Click to pick a color · Arrow keys to nudge · Esc to cancel"), 13, Palette.OffWhiteBrush, Theme.Medium, false),
         };
         root.Children.Add(tip);
         w.Content = root;

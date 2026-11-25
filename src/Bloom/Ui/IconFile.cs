@@ -39,7 +39,7 @@ internal static class IconFile
     {
         var frames = new List<byte[]>();
         var ground = new SolidColorBrush(dark ? Color.FromRgb(0x27, 0x27, 0x2A) : Color.FromRgb(0xF4, 0xF4, 0xF5));
-        var ink = new SolidColorBrush(dark ? Colors.White : Color.FromRgb(0x27, 0x27, 0x2A));
+        var ink = new SolidColorBrush(dark ? Palette.OffWhite : Color.FromRgb(0x27, 0x27, 0x2A));
         foreach (int px in Sizes)
         {
             var v = new DrawingVisual();

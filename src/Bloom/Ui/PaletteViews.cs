@@ -66,7 +66,7 @@ internal static class PaletteViews
         var c = p.Color;
         string hex = ColorBook.Hex(c);
         bool light = ColorBook.Contrast(c, Colors.Black) >= ColorBook.Contrast(c, Colors.White);
-        var share = Theme.T(Percent(p.Share), 10.5, light ? Ink : Brushes.White, Theme.Medium, false);
+        var share = Theme.T(Percent(p.Share), 10.5, light ? Ink : Palette.OffWhiteBrush, Theme.Medium, false);
         share.Opacity = 0.8;
         share.HorizontalAlignment = HorizontalAlignment.Left;
         share.VerticalAlignment = VerticalAlignment.Bottom;
@@ -99,7 +99,7 @@ internal static class PaletteViews
         var dv = new DrawingVisual();
         using (var dc = dv.RenderOpen())
         {
-            dc.DrawRectangle(Brushes.White, null, new Rect(0, 0, width, height));
+            dc.DrawRectangle(Palette.OffWhiteBrush, null, new Rect(0, 0, width, height));
             for (int i = 0; i < colors.Count; i++)
             {
                 dc.DrawRectangle(Frozen(colors[i]), null, new Rect(i * Side, 0, Side, Side));

@@ -142,7 +142,7 @@ internal static class ScreenGrab
             Background = new SolidColorBrush(Color.FromArgb(0xE6, 0x1E, 0x19, 0x1C)),
             CornerRadius = new CornerRadius(6),
             Padding = new Thickness(7, 2, 7, 3),
-            Child = Theme.T("", 11.5, Brushes.White, Theme.Medium, false),
+            Child = Theme.T("", 11.5, Palette.OffWhiteBrush, Theme.Medium, false),
             Visibility = Visibility.Collapsed,
         };
         canvas.Children.Add(dim);
@@ -160,7 +160,7 @@ internal static class ScreenGrab
             VerticalAlignment = VerticalAlignment.Top,
             Margin = new Thickness(0, 28, 0, 0),
             IsHitTestVisible = false,
-            Child = Theme.T(Tr($"{hint}  ·  Esc 취소", $"{hint}  ·  Esc to cancel"), 13, Brushes.White, Theme.Medium, false),
+            Child = Theme.T(Tr($"{hint}  ·  Esc 취소", $"{hint}  ·  Esc to cancel"), 13, Palette.OffWhiteBrush, Theme.Medium, false),
         };
         root.Children.Add(tip);
         w.Content = root;

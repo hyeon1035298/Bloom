@@ -381,7 +381,7 @@ internal sealed class AccentPicker : Grid
     {
         var g = new Grid { Width = 18, Height = 18 };
         g.Children.Add(new Ellipse { Stroke = new SolidColorBrush(Color.FromArgb(0x59, 0, 0, 0)), StrokeThickness = 1 });
-        g.Children.Add(new Ellipse { Margin = new Thickness(1), Stroke = Brushes.White, StrokeThickness = 2, Fill = fill });
+        g.Children.Add(new Ellipse { Margin = new Thickness(1), Stroke = Palette.OffWhiteBrush, StrokeThickness = 2, Fill = fill });
         return g;
     }
 

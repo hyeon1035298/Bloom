@@ -25,8 +25,13 @@ internal sealed class Palette
     /// States: working, a warning, and the fill of a button that cannot be undone.
     public readonly SolidColorBrush Ok = new(), Warn = new(), DangerFill = new();
 
-    /// The words on DangerFill: white in both themes.
-    public readonly SolidColorBrush DangerInk = new(Colors.White);
+    /// The lightest colour Bloom draws, in both themes: the words on DangerFill, and the marks and words it lays over
+    /// the screen or over a colour. Not pure white, which glares.
+    public static readonly Color OffWhite = Color.FromRgb(0xFA, 0xFA, 0xFA);
+    public static readonly SolidColorBrush OffWhiteBrush = Frozen(OffWhite);
+
+    /// The words on DangerFill: off-white in both themes.
+    public readonly SolidColorBrush DangerInk = new(OffWhite);
 
     public bool Dark { get; private set; }
 
@@ -119,7 +124,7 @@ internal sealed class Palette
         }
         else
         {
-            // window #F4F4F5, buttons white with an edge, text #11181C / #3F3F46; the rest #111 over the window by alpha
+            // window #F4F4F5, buttons #FAFAFA with an edge, text #11181C / #3F3F46; the rest #111 over the window by alpha
             Set(Solid, 0xFFF4F4F5);
             Set(Text, 0xFF11181C);
             Set(TextDim, 0xFF3F3F46);
@@ -146,9 +151,9 @@ internal sealed class Palette
             Set(Thumb, 0x26111111);
             Set(Selection, 0x4DE04E78);
             Set(Well, 0x14111111);
-            Set(Raised, 0xFFFFFFFF);
-            Set(Btn, 0xFFFFFFFF);
-            Set(BtnHover, 0xFFF4F4F5);
+            Set(Raised, 0xFFFAFAFA);
+            Set(Btn, 0xFFFAFAFA);
+            Set(BtnHover, 0xFFF0F0F2);
             Set(BtnTop, 0x00FFFFFF);
             Set(BtnEdge, 0x1A111111);
             Set(BtnBottom, 0x26111111);
@@ -164,6 +169,13 @@ internal sealed class Palette
     }
 
     private static void Set(SolidColorBrush b, uint argb) => b.Color = C(argb);
+
+    private static SolidColorBrush Frozen(Color c)
+    {
+        var b = new SolidColorBrush(c);
+        b.Freeze();
+        return b;
+    }
 }
 
 /// A UI colour the user can pick (설정 > 일반 > 색): the accent for dark and light.

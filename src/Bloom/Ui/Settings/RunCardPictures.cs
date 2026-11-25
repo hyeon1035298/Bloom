@@ -102,7 +102,7 @@ internal static class RunCardPictures
                 tag.Visibility = Visibility.Visible;
                 if (slot is null) return;
                 slot.StrokeDashArray = null;
-                slot.Stroke = Brushes.White;
+                slot.Stroke = Palette.OffWhiteBrush;
                 slot.Fill = new SolidColorBrush(Color.FromArgb(0x66, 0xFF, 0xFF, 0xFF));
             };
             hit.MouseLeave += (_, _) =>
@@ -236,7 +236,7 @@ internal static class RunCardPictures
         Background = new SolidColorBrush(Color.FromArgb(0x8C, 0x11, 0x11, 0x11)),
         CornerRadius = new CornerRadius(6),
         Padding = new Thickness(7, 2, 7, 3),
-        Child = Theme.T(text, 11, Brushes.White),
+        Child = Theme.T(text, 11, Palette.OffWhiteBrush),
         Visibility = Visibility.Collapsed,
         IsHitTestVisible = false,
     };

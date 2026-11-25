@@ -130,7 +130,7 @@ internal sealed class TreemapView : FrameworkElement
             else
             {
                 Block(dc, r, Kind(n.Name), null);
-                if (r.Width > 54 && r.Height > 16) Label(dc, n.Name, new Rect(r.X + 4, r.Y + 2, r.Width - 6, Math.Min(r.Height - 2, 16)), Brushes.White, 10.5);
+                if (r.Width > 54 && r.Height > 16) Label(dc, n.Name, new Rect(r.X + 4, r.Y + 2, r.Width - 6, Math.Min(r.Height - 2, 16)), Palette.OffWhiteBrush, 10.5);
                 if (r.Width > 54 && r.Height > 32) Label(dc, Size(Volatile.Read(ref n.Size)), new Rect(r.X + 4, r.Y + 17, r.Width - 6, 14), SizeInk, 10);
             }
         }
