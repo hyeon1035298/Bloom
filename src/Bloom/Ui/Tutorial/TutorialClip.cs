@@ -32,10 +32,10 @@ internal static class TutorialClip
     /// Whether this run may play video at all (motion, system effects, Media Foundation, QA).
     public static bool Allowed(TutorialEnv env) => !env.Still && Motion.Moves && !Native.SystemEffects.Off && MediaAvailable;
 
-    /// Windows N without the Media Feature Pack has neither, and a MediaElement there fails only after a while.
-    /// Settable so the poster-only case can be tried on a PC that has them.
+    /// Media Foundation, which the page's reader (Native.ClipReader) decodes the clip with: Windows N without the Media
+    /// Feature Pack has none. Settable so the poster-only case can be tried on a PC that has it.
     internal static bool MediaAvailable { get; set; } =
-        File.Exists(Path.Combine(Environment.SystemDirectory, "mfplat.dll")) && File.Exists(Path.Combine(Environment.SystemDirectory, "wmp.dll"));
+        File.Exists(Path.Combine(Environment.SystemDirectory, "mfplat.dll")) && File.Exists(Path.Combine(Environment.SystemDirectory, "mfreadwrite.dll"));
 
     /// The cached file, downloaded first when missing (one download per variant and run, shared by every caller).
     /// Null when it cannot be had; never throws. `stop` ends this caller's wait, never the download.

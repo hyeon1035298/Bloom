@@ -33,13 +33,12 @@ internal sealed class TutorialHero : Grid
     private readonly string variant = TutorialClip.Variant;
     private readonly Image still;
     private readonly Segmented lang;
-    private Image? picture; // the clip decoded here, over the still, when Bloom draws in software
+    private Image? picture; // the clip decoded here, over the still
     private WriteableBitmap? frames; // its pixels while it plays, at the pixel size it is shown at
     private ClipReader? reader;
     private long? anchor; // the drawing clock (100-ns ticks) less the clip time of the frame shown first
     private TimeSpan drawn; // the last drawing time a frame was looked for, so one drawing looks once
     private long at; // where the frame on screen is in the file (100-ns)
-    private MediaElement? clip; // Windows' player over the still, when Bloom draws with the GPU
     private State state;
     private bool failed; // the clip would not play in this window: the still stays, no second try
     private CancellationTokenSource? wait;
@@ -142,8 +141,7 @@ internal sealed class TutorialHero : Grid
         limit = new DispatcherTimer { Interval = OpenLimit };
         limit.Tick += (_, _) => Fail("did not open in " + OpenLimit.TotalSeconds + " s");
         limit.Start();
-        if (Decodes) Decode(file);
-        else Play(file);
+        Decode(file);
     }
 
     /// Another page, or the window is hidden or closing: playback stops and the decoder is released. A download under
@@ -170,22 +168,18 @@ internal sealed class TutorialHero : Grid
     internal bool Playing => state == State.Playing;
 
     /// Where the frame on screen is in the clip (tests).
-    internal TimeSpan Position => clip is not null && reader is null ? clip.Position : TimeSpan.FromTicks(at);
-
-    // Bloom draws in software unless GPU drawing is on. Then the clip is decoded here, and all it holds goes when it
-    // stops: Windows' player kept 60 to 120 MB in the process after it closed, and drew the clip lighter than it was
-    // made. With GPU drawing on, Windows' player decodes on the GPU at a fraction of the CPU the software decoder takes,
-    // which is what that setting is for; a GPU decoder of our own would keep its driver's memory just the same.
-    private static bool Decodes =>
-        RenderOptions.ProcessRenderMode == System.Windows.Interop.RenderMode.SoftwareOnly || RenderCapability.Tier >> 16 == 0;
+    internal TimeSpan Position => TimeSpan.FromTicks(at);
 
     private void Pick(string v)
     {
         if (v != Lang.Code) LanguagePicked?.Invoke(v);
     }
 
-    // decoded on a thread of its own at the size it is shown at (the clip is made at twice the page), so nothing scales
-    // it while it plays; the picture is made when it first plays and filled again on every return
+    // Decoded here, however Bloom draws, on a thread of its own at the size it is shown at (the clip is made at twice
+    // the page), so nothing scales it while it plays; the picture is made when it first plays and filled again on every
+    // return. All it holds goes when it stops. Windows' player kept 60 to 250 MB in the process after the window
+    // closed (the most with GPU drawing, whose decoder keeps its driver's memory) and drew the clip lighter than it was
+    // made; this costs a few percent of one core more, only while the first page plays.
     private void Decode(string file)
     {
         var dpi = VisualTreeHelper.GetDpi(this);
@@ -226,40 +220,6 @@ internal sealed class TutorialHero : Grid
         if (state == State.Loading) Shown(picture!);
     }
 
-    // Windows' player, made when it first plays and opened again on every return
-    private void Play(string file)
-    {
-        if (clip is null)
-        {
-            var p = clip = Over(new MediaElement
-            {
-                LoadedBehavior = MediaState.Manual,
-                UnloadedBehavior = MediaState.Close,
-                IsMuted = true,
-                ScrubbingEnabled = false,
-                Stretch = Stretch.UniformToFill,
-            });
-            p.MediaOpened += (_, _) =>
-            {
-                if (state == State.Loading) Shown(p);
-            };
-            // the clip ends where it begins: back to the start without a gap
-            p.MediaEnded += (_, _) =>
-            {
-                if (state != State.Playing) return;
-                p.Position = TimeSpan.Zero;
-                p.Play();
-            };
-            p.MediaFailed += (_, e) =>
-            {
-                if (state != State.Idle) Fail(e.ErrorException?.Message ?? "failed");
-            };
-        }
-        clip.Opacity = 0;
-        clip.Source = new Uri(file);
-        clip.Play();
-    }
-
     // the clip's layer, just over the still
     private T Over<T>(T e) where T : FrameworkElement
     {
@@ -293,8 +253,7 @@ internal sealed class TutorialHero : Grid
         Leave();
     }
 
-    // stops the reader (its thread lets go of the decoder) and drops its picture, or stops and closes the player (the
-    // decoder and its frames go with Close); either is hidden over the still
+    // stops the reader (its thread lets go of the decoder) and drops its picture, hidden over the still
     private void Release()
     {
         StopLimit();
@@ -304,29 +263,10 @@ internal sealed class TutorialHero : Grid
         reader = null;
         frames = null;
         at = 0;
-        if (picture is not null)
-        {
-            Hide(picture);
-            picture.Source = null;
-        }
-        if (clip is null) return;
-        Hide(clip);
-        try
-        {
-            clip.Stop();
-            clip.Close();
-        }
-        catch (Exception e) when (e is InvalidOperationException or System.Runtime.InteropServices.COMException)
-        {
-            /* already gone */
-        }
-        clip.Source = null;
-
-        static void Hide(UIElement e)
-        {
-            e.BeginAnimation(OpacityProperty, null);
-            e.Opacity = 0;
-        }
+        if (picture is null) return;
+        picture.BeginAnimation(OpacityProperty, null);
+        picture.Opacity = 0;
+        picture.Source = null;
     }
 
     private void StopLimit()
