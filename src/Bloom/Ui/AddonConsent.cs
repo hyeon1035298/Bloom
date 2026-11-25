@@ -37,9 +37,9 @@ internal static class AddonConsent
         var lines = new List<string>();
         if (LicenseShown(f.License) is { Length: > 0 } shown) lines.Add(Tr("오픈 소스 {0}", "Open source {0}").Replace("{0}", shown, StringComparison.Ordinal));
         if (f.Symbols && f.SymbolsMb > 0)
-            lines.Add(Tr("처음 켤 때 Microsoft에서 기호 파일 약 {0} MB를 받습니다", "Downloads about {0} MB of symbol files from Microsoft the first time").Replace("{0}", f.SymbolsMb.ToString(CultureInfo.InvariantCulture), StringComparison.Ordinal));
+            lines.Add(Tr("처음 켤 때 Microsoft에서 기호 파일 약 {0} MB를 받습니다", "Downloads about {0} MB of symbol files from Microsoft on first turn-on").Replace("{0}", f.SymbolsMb.ToString(CultureInfo.InvariantCulture), StringComparison.Ordinal));
         else if (f.Symbols)
-            lines.Add(Tr("처음 켤 때 Microsoft에서 기호 파일을 받습니다", "Downloads symbol files from Microsoft the first time"));
+            lines.Add(Tr("처음 켤 때 Microsoft에서 기호 파일을 받습니다", "Downloads symbol files from Microsoft on first turn-on"));
         return lines;
     }
 
@@ -120,12 +120,12 @@ internal static class AddonConsent
     private const double ManyWidth = 500;
 
     private static (string Title, string Body) ManyText(int count) =>
-        (count == 1 ? Tr("애드온 1개 켜기", "Turn on 1 add-on") // English says one in the singular
-            : Tr("애드온 {0}개 켜기", "Turn on {0} add-ons").Replace("{0}", count.ToString(CultureInfo.InvariantCulture), StringComparison.Ordinal),
-            Tr("애드온은 Bloom과 따로 실행되고, Windows 탐색기 안에서 동작합니다.", "Add-ons run apart from Bloom and work inside Windows Explorer."));
+        (count == 1 ? Tr("애드온 1개 켜기", "Turn On 1 Add-on") // English says one in the singular
+            : Tr("애드온 {0}개 켜기", "Turn On {0} Add-ons").Replace("{0}", count.ToString(CultureInfo.InvariantCulture), StringComparison.Ordinal),
+            Tr("애드온은 Bloom과 따로 실행되고, Windows 탐색기 안에서 동작합니다.", "Add-ons run separately from Bloom and operate inside Windows Explorer."));
 
     private static (string, MessageBoxResult)[] ManyChoices() =>
-        [(Tr("켜기", "Turn On"), MessageBoxResult.Yes), (Tr("켜지 않기", "Don't turn on"), MessageBoxResult.No)];
+        [(Tr("켜기", "Turn On"), MessageBoxResult.Yes), (Tr("켜지 않기", "Don't Turn On"), MessageBoxResult.No)];
 
     /// Under the text: a card per add-on, then what the taskbar AI panel does when it is turned on too.
     private static StackPanel ManyContent(IReadOnlyList<Addon> picked, bool taskbarChat)
@@ -185,12 +185,12 @@ internal static class AddonConsent
 
     /// Only the taskbar AI panel is new (the add-on is on already). True = 켜기.
     public static bool AskTaskbarChat(Window? owner) =>
-        ConfirmWindow.Ask(owner, Tr("작업표시줄 AI 패널 켜기", "Turn on the taskbar AI panel"), ChatNote,
-            (Tr("켜기", "Turn On"), MessageBoxResult.Yes), (Tr("켜지 않기", "Don't turn on"), MessageBoxResult.No)) == MessageBoxResult.Yes;
+        ConfirmWindow.Ask(owner, Tr("작업표시줄 AI 패널 켜기", "Turn On Taskbar AI panel"), ChatNote,
+            (Tr("켜기", "Turn On"), MessageBoxResult.Yes), (Tr("켜지 않기", "Don't Turn On"), MessageBoxResult.No)) == MessageBoxResult.Yes;
 
     /// The panel drives other programs, so turning it on is said before it happens.
     private static string ChatNote => Tr("작업표시줄 AI 패널은 실험 기능입니다. Claude 데스크톱 앱과 Codex 앱을 대신 조작해 대화를 주고받고, 작업표시줄에 AI 사용량도 표시합니다.",
-        "The taskbar AI panel is experimental. It operates the Claude desktop app and the Codex app for you, and also shows AI usage on the taskbar.");
+        "The Taskbar AI panel is an experimental feature. It controls the Claude desktop app and Codex app on your behalf to send and receive chats, and also shows AI usage on the taskbar.");
 
     /// The add-on's source repository, as a web page only.
     public static void OpenSource(Addon a)

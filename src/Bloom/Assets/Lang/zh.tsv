@@ -375,6 +375,16 @@ Bloom — Press Win to open	Bloom — 按 Win 键打开
 Open\tWin	打开\tWin
 Settings	设置
 Quit Bloom	退出 Bloom
+Bloom · Notification	Bloom · 通知
+Could not update Claude Code settings	无法修改 Claude Code 设置
+Bloom · Add-ons	Bloom · 插件
+Open Add-ons Settings	打开插件设置
+Add-on turned on	已开启插件
+Add-ons turned on	已开启插件
+Turning on add-on	正在开启插件
+Turning on add-ons	正在开启插件
+Couldn't turn on add-on	有未能开启的插件
+Some add-ons couldn't be turned on	有未能开启的插件
 New snippet	新建文本片段
 New batch command	新建组合命令
 New AI command	新建 AI 命令
@@ -1091,6 +1101,7 @@ Friday meeting\nresend the quote · fix the date	周五会议\n重新发送报�
 Trip ideas\nJeju 3 nights · rent a car	旅行想法\n济州岛 3 晚 · 租车
 note buy milk	note buy milk
 quote	quote
+Task Notifications on	任务通知已开启
 Sum up this launcher's shortcuts	总结一下这个启动器的快捷键
 The ones you'll use most:\n\n- `Tab` asks **the AI** about what you typed\n- `Ctrl` + `K` the selected item's actions	最常用的几个：\n\n- `Tab` 把输入的内容问 **AI**\n- `Ctrl` + `K` 选中项目的操作
 Plan next week	安排一下下周的计划
@@ -1585,6 +1596,22 @@ Moved to Recycle Bin: {0}	已移至回收站：{0}
 {0:#,0} small files	{0} 个小文件
 Scanning…	正在读取…
 Search actions…	搜索操作…
+Open source {0}	开源 {0}
+Downloads about {0} MB of symbol files from Microsoft on first turn-on	首次开启时将从 Microsoft 下载约 {0} MB 的符号文件
+Downloads symbol files from Microsoft on first turn-on	首次开启时将从 Microsoft 下载符号文件
+Enable Taskbar Styling	开启任务栏美化
+PillTaskbar is a separate GPL-3.0 program that injects code into Explorer to restyle the taskbar. On first launch, it downloads taskbar symbol files (~70 MB) from Microsoft's symbol server.	PillTaskbar 是独立于 Bloom 的程序，通过向资源管理器注入代码来改变任务栏外观，采用 GPL-3.0 许可证。首次开启时会从 Microsoft 符号服务器下载任务栏符号文件（约 70 MB）。
+Turn On {0}	开启 {0}
+Custom add-ons are separate programs neither created nor verified by Bloom. Turning one on lets Bloom run that program, which may inject code into Explorer. Only turn on add-ons you trust.	自定义添加的插件并非由 Bloom 开发或校验的独立程序。开启后 Bloom 将运行该程序，且该程序可能会向资源管理器注入代码。请仅开启您信任的插件。
+This add-on is a separate program from Bloom and works by injecting code into Explorer. Its license is {0}. When turned on for the first time, it downloads required symbol files from the Microsoft symbol server.	此插件是独立于 Bloom 的程序，通过向资源管理器注入代码运行。其许可证为 {0}。首次开启时将从 Microsoft 符号服务器下载所需的符号文件。
+This add-on is a separate program from Bloom and works by injecting code into Explorer. Its license is {0}.	此插件是独立于 Bloom 的程序，通过向资源管理器注入代码运行。其许可证为 {0}。
+View Source	查看源码
+Turn On 1 Add-on	开启 1 个插件
+Turn On {0} Add-ons	开启 {0} 个插件
+Add-ons run separately from Bloom and operate inside Windows Explorer.	插件独立于 Bloom 运行，并在 Windows 资源管理器中工作。
+Don't Turn On	不开启
+Turn On Taskbar AI panel	开启任务栏 AI 面板
+The Taskbar AI panel is an experimental feature. It controls the Claude desktop app and Codex app on your behalf to send and receive chats, and also shows AI usage on the taskbar.	任务栏 AI 面板是一项实验性功能。它会代为操控 Claude 桌面应用和 Codex 应用来收发对话，并在任务栏显示 AI 使用量。
 Bloom Reminder	Bloom 提醒
 Timer Finished	计时结束
 Snooze 5 min	5 分钟后再提醒
@@ -1706,82 +1733,11 @@ Type a follow-up message	输入回复内容
 Send (Enter)	发送 (Enter)
 Click to open Windows Notification Center	点击打开 Windows 通知中心
 Click to go to session window	点击前往会话窗口
-Instant search in your browser · Site shortcuts (e.g. yt cats)	使用所选浏览器快速搜索 · 网站快捷搜索 (如: yt 猫咪)
-Instantly find files across your PC by name (Everything)	按文件名快速搜索电脑中的文件 (Everything)
-Paste previously copied text, images, and files	重新粘贴复制过的文本、图片和文件
-Start by typing naturally, like "10m timer" or "3pm meeting reminder"	直接输入“10分钟计时器”或“3点会议提醒”即可启动
-View your reminders on a calendar	在日历中查看提醒
-Select a screen region to ask AI, translate, or copy text	框选屏幕区域以询问 AI、翻译或复制文字
-Visualize disk usage and clean up large files	可视化查看磁盘空间，查找并清理大文件
-Pick screen colors · Copy HEX · Get gradient suggestions	屏幕取色 · 复制 HEX · 渐变配色推荐
-Ask Claude or ChatGPT right away	直接向 Claude · ChatGPT 提问
-Check CPU and memory usage and quit unresponsive apps	查看 CPU 与内存占用，结束卡死的程序
-Run scripts, text snippets, and multi-step macros with keywords	通过快捷词运行脚本、常用语与组合命令
 Welcome to Bloom	欢迎使用 Bloom
 Skip	跳过
 Previous	上一步
-Open Bloom	打开 Bloom
 Get Started	开始使用
-Search & Launch	搜索与启动
-Press the Win key and start typing to launch apps, calculate, search files, chat with AI, and set timers.\nChoose how to open Bloom and which features to use.	按下 Win 键并输入，即可快速启动应用、计算、搜索文件、与 AI 聊天或设置计时器。\n请选择启动方式和要使用的功能。
-Import settings from another PC	从其他电脑导入设置
-How to Open Bloom	如何打开 Bloom
-You can enable both shortcuts at the same time.	可以同时启用这两个快捷键。
-Open with Win Key	按 Win 键打开
-Tap the Win key alone to open Bloom. Shortcuts like Win+E still work.	单独按下并松开 Win 键即可打开 Bloom，Win+E 等组合快捷键不受影响。
-Open with Alt+Space	使用 Alt+Space 打开
-Press Alt+Space to open Bloom.	按下 Alt+Space 打开 Bloom。
-Launch at Windows startup	开机时自动启动
-Runs automatically in the system tray when you sign in to Windows.	登录 Windows 后自动在系统托盘中运行。
-Browser for Search & Links	用于搜索和打开链接的浏览器
-Web searches, browser shortcuts, and links will open in this browser.	网页搜索、浏览器快捷方式和链接都将使用此浏览器打开。
-Windows default browser	Windows 默认浏览器
-Search Engine	搜索引擎
-Features on Home	主页常用功能
-Selected features will be added to Favorites. You can move or remove them anytime with Ctrl+K.	所选功能将添加到收藏栏，随时可按 Ctrl+K 移除或调整位置。
-Add only the features you need to Favorites · {0} selected	仅将常用功能添加到收藏 · 当前已选 {0} 项
-Appearance	外观
-Applied immediately	选择后立即生效
-Light	浅色
-Dark	深色
-Theme	主题
-CPU (Default)	CPU (默认)
-GPU (Experimental)	GPU (实验性)
-CPU rendering is used by default. GPU rendering is experimental and may cause stutter or brief freezes on some PCs. Takes effect on next restart.	默认使用 CPU 渲染。GPU 渲染为实验性功能，在部分电脑上可能会出现卡顿或短暂冻结。重启后生效。
-Companion Tools	协作工具
-Install companion tools from their official websites. All other Bloom features work even without them.	请从官方网站安装要联动的工具。即使不安装，也可正常使用 Bloom 的其他功能。
-Instantly search your entire PC by file name	按文件名快速搜索整台电脑
-AI Chat · Bloom Lens · Translation (sign in with your account)	AI 聊天 · Bloom Lens · 翻译 (使用个人账号登录)
-Chat & translate with ChatGPT (sign in with your account)	使用 ChatGPT 对话与翻译 (使用个人账号登录)
-AI Chat · Bloom Lens · Translation — Choose from multiple signed-in models (omp login)	AI 聊天 · Bloom Lens · 翻译 — 从已登录的多个模型中选择 (omp login)
-Choose AI by Feature	按功能选择 AI
-Only AI tools detected on this PC can be selected.	仅可选择在此电脑上检测到的 AI 工具。
-Chat Memory Unload Timeout	对话内存释放时间
-Free memory for inactive chats · 0 to keep loaded	释放闲置对话占用的内存 · 设为 0 则始终保留
-Replies using Codex and runs approved PC tasks.	使用 Codex 回答，并执行经批准的电脑操作。
-Replies using omp. Choose from your signed-in models and run approved PC tasks.	使用 omp 回答。可从已登录的多个模型中选择，并执行经批准的电脑操作。
-Replies using Claude Code and runs approved PC tasks.	使用 Claude Code 回答，并执行经批准的电脑操作。
-Bloom Lens · Translation	Bloom Lens · 翻译
-Reads and translates screen text using ChatGPT.	使用 ChatGPT 识别并翻译屏幕文字。
-Reads and translates screen text using omp's fast model. You can change the model in Settings.	使用 omp 的快速模型识别并翻译屏幕文字。可在设置中更改模型。
-Reads and translates screen text using Claude Haiku.	使用 Claude Haiku 识别并翻译屏幕文字。
-ChatGPT Usage Method	ChatGPT 用量查询方式
-How AI usage on Home is fetched. Add accounts or switch active AI Chat accounts in Settings > AI Accounts.	获取主页 AI 用量数据的方式。添加账号或切换 AI 聊天账号请前往“设置 > AI 账号”。
-Official CLI	官方 CLI
-Briefly runs Codex per account · ~110 MB · ~1 sec per check	每个账号短暂运行 Codex 查询 · 每次约 110 MB · 耗时约 1 秒
-Lightweight	轻量方式
-Single HTTPS request with Codex login · Unofficial endpoint, subject to change	使用 Codex 登录凭证发送 1 次 HTTPS 请求 · 非官方接口，后续可能变动
-Essential Shortcuts	基础快捷键
-Open and type — Apps, settings, math (12*3), files, web search	打开即输 — 应用、设置、计算 (12*3)、文件、网页搜索
-Ask AI what you just typed	将输入的内容直接提问给 AI
-More Actions — Everything you can do with the selected item	更多操作 — 对所选项可执行的所有操作
-Bloom Lens — Select a region to ask AI, translate, or copy text	Bloom Lens — 框选屏幕区域以询问 AI、翻译或复制文字
-Natural phrases work too:  "10m timer"  "3:30 meeting reminder"  "#ff5a8a"	也支持自然语句输入:  "10分钟计时器"  "3点半会议提醒"  "#ff5a8a"
-Setup Complete	设置完成
-Open Bloom anytime with your shortcut. You can reopen Settings and the guide from the launcher.	随时使用所选快捷键打开 Bloom。您可以从启动器中再次打开设置和使用指南。
-Open Bloom Settings	打开 Bloom 设置
-Installed	已安装
-Installation Guide  ↗	安装指南  ↗
+Open Bloom	打开 Bloom
 Click to copy HEX · ← → Select color	点击复制 HEX · ← → 选择颜色
 Color Count	颜色数量
 Color Count ({0}–{1}) · − + keys	颜色数量 ({0}–{1}) · − + 键
@@ -1940,6 +1896,8 @@ Saturation and brightness	饱和度与亮度
 Hue	色相
 Pick from screen	从屏幕取色
 Recent colors	最近选取的颜色
+Dark	深色
+Light	浅色
 Active switches blend into the background	开启状态的开关容易与背景混淆
 Adjust for visibility	自动调整对比度
 Contrast {0}	对比度 {0}
@@ -2185,6 +2143,8 @@ Use the selected icon file in original color or monochrome · Shared by Home car
 ChatGPT Fetch Method	ChatGPT 查询方式
 Lightweight: 1 HTTPS request via Codex sign-in · No CLI process · Unofficial API, subject to change	轻量方式：使用 Codex 登录发送 1 次 HTTPS 请求 · 不启动 CLI · 非官方 API，可能会发生变化
 Official CLI: Runs Codex per account · ~110 MB for 1s	官方 CLI：每个账户启动 Codex · 约 110 MB 1 秒
+Official CLI	官方 CLI
+Lightweight	轻量方式
 Export Usage File	导出用量文件
 Writes only percentages and reset times to %LOCALAPPDATA%\\Bloom\\export\\ai-usage.json for other apps (no email) · Fetches even when the Home block is off, using ~470 MB for 4s per interval for Claude	仅将百分比和重置时间写入 %LOCALAPPDATA%\\Bloom\\export\\ai-usage.json 供其他程序读取（不含邮箱） · 即使关闭主页模块也会定期查询，Claude 每次间隔约占用 470 MB 4 秒
 Edit Price Table	修改价格表
@@ -2262,7 +2222,6 @@ Failed to check: {0}	检查失败：{0}
 Update available: {0}	有可用更新：{0}
 All add-ons are up to date	全部已是最新版本
 This add-on has no configurable settings in Bloom	此插件没有可在 Bloom 中更改的设置
-View Source	查看源码
 Turn On Again	重新开启
 Retry	重试
 Clears the Explorer crash record and turns the add-on back on	清除资源管理器崩溃记录并重新开启
@@ -2285,9 +2244,6 @@ Stopped · Taskbar styling was turned off because Explorer crashed while using f
 Stopped · Turned off because Explorer crashed while using fallback symbols. It will turn back on once Microsoft publishes the symbol files	已停止 · 使用旧版符号运行时资源管理器崩溃，已关闭此插件。待 Microsoft 发布符号文件后将自动重新开启
 Partially running · Could not find symbols required for the remaining features on this Windows version	部分功能运行中 · 当前 Windows 版本未找到其余功能所需的符号
 Running with fallback symbols · Using symbols from an earlier build until Microsoft publishes symbol files for this Windows update	正在使用旧版符号运行 · 在 Microsoft 发布此次 Windows 更新的符号文件前，暂时使用旧版本的符号
-Turn On {0}	开启 {0}
-This add-on is a separate program from Bloom and works by injecting code into Explorer. Its license is {0}. When turned on for the first time, it downloads required symbol files from the Microsoft symbol server.	此插件是独立于 Bloom 的程序，通过向资源管理器注入代码运行。其许可证为 {0}。首次开启时将从 Microsoft 符号服务器下载所需的符号文件。
-Custom add-ons are separate programs neither created nor verified by Bloom. Turning one on lets Bloom run that program, which may inject code into Explorer. Only turn on add-ons you trust.	自定义添加的插件并非由 Bloom 开发或校验的独立程序。开启后 Bloom 将运行该程序，且该程序可能会向资源管理器注入代码。请仅开启您信任的插件。
 API Keys	API 密钥
 Loading model list…	正在加载模型列表…
 Key saved · {0} models · Encrypted on this PC only	密钥已保存 · {0} 个模型 · 仅在此电脑上加密保存
@@ -2420,6 +2376,7 @@ omp Chat Thinking Level	omp 聊天思考程度
 Available levels vary by model · Ctrl+E during chat	不同模型支持的档位不同 · 对话中按 Ctrl+E 切换
 Web Search in omp Chat	在 omp 聊天中使用网页搜索
 Blocks omp file read/write and command execution. Configure Bloom PC Actions and active MCP servers in PC Actions · MCP.	阻止 omp 读写文件和执行命令。Bloom 的电脑操作与已开启的 MCP 服务器请在“电脑操作 · MCP”中设置。
+Installed	已安装
  · Replies using the signed-in model	 · 使用已登录的模型回复
 omp Installation Guide	omp 安装指南
  After installation, sign in with omp login.	 安装后请运行 omp login 登录。
@@ -2464,6 +2421,7 @@ How Bloom opens and looks	Bloom 的打开方式与外观
 Changing language restarts Bloom · Auto uses the Windows display language	更改语言后将重启 Bloom · 自动将使用 Windows 显示语言
 Bloom needs to restart to apply the language change.	需要重启 Bloom 以应用语言更改。
 Opens when you press and release the Win key alone (shortcuts like Win+E work normally)	单独按下并松开 Win 键时打开（Win+E 等组合键不受影响）
+Open with Win Key	按 Win 键打开
 In use by another app	正被其他应用占用
 Open with Alt + Space	按 Alt + Space 打开
 Launch at Windows Startup	开机时自动启动
@@ -2472,6 +2430,8 @@ Runs in the system tray at sign-in	登录时在托盘中运行
 Not registered	未注册
 Use Win Key Over Admin Apps	在管理员应用上方也使用 Win 键
 Opens with the Win key even when an administrator app is in front · Requires administrator approval when turning on	即使前台是管理员权限应用也可按 Win 键打开 · 开启时需管理员授权
+Appearance	外观
+Theme	主题
 System follows your Windows theme setting	“跟随系统”将使用 Windows 的深浅色设置
 Scales Launcher · Tool windows · AI Chat · Settings together · Ctrl+= / Ctrl+- / Ctrl+0 in Launcher	同时缩放启动器 · 工具窗口 · AI 聊天 · 设置窗口 · 在启动器中按 Ctrl+= / Ctrl+- / Ctrl+0
 Animations	动画
@@ -2514,6 +2474,7 @@ Up to 3 matching windows below results · Press Enter to switch to window	在结
 Prioritize Previously Selected Results	优先显示曾选中的结果
 Moves your last pick to the top when you type the same query again (“c” → Chrome) · Stored on this PC only	再次输入相同内容时将上次选择的结果置顶（“c” → Chrome） · 仅保存在此电脑
 Web Search	网页搜索
+Search Engine	搜索引擎
 Browser for Opening Links	打开链接的浏览器
 Choose from browsers installed on this PC · Opens web searches and links directly in this browser	从此电脑已安装的浏览器中选择 · 直接使用该浏览器打开网页搜索和链接
 Keyword + Space + query (e.g. yt cat) · {0} shortcuts · Press Enter to manage in Launcher	缩写词 + 空格 + 搜索词（如 yt 猫） · {0} 个 · 按 Enter 在启动器中管理
@@ -2578,6 +2539,7 @@ Generates a title from the conversation content. Updates only when starting a ne
 T3 Code Connection	连接 T3 Code
 Send to T3 Code threads, answer questions, and stop runs from work cards and the taskbar add-on	从工作卡片和任务栏插件向 T3 Code 线程发送消息、回答问题及停止运行
 Other AIs & Advanced	其他 AI 与高级设置
+Chat Memory Unload Timeout	对话内存释放时间
  · Uses ChatGPT sign-in	 · 使用 ChatGPT 登录
 ChatGPT Model	ChatGPT 模型
 Codex default model	Codex 默认模型
@@ -2713,8 +2675,6 @@ Shows elapsed time when finished (for tasks over 10s)	完成时显示耗时（�
 Shown when approval or reply is needed · Stays until task resumes	需要批准或回复时显示 · 保持显示至任务继续
 Approve from notification card	在通知卡片中批准
 Allow or deny Claude Code requests on the card · Adds a Bloom hook to Claude Code's settings.json when enabled, and removes it when disabled	在卡片上允许或拒绝 Claude Code 的批准请求 · 开启时向 Claude Code 设置 (settings.json) 添加 Bloom 钩子，关闭时移除
-Bloom · Notification	Bloom · 通知
-Could not update Claude Code settings	无法修改 Claude Code 设置
 When 5-hour or weekly quota reaches 20% remaining or is exhausted	5 小时或每周额度剩余 20% 及用尽时
 When a low or depleted quota resets	不足的额度重置并恢复时
 Windows notifications	Windows 通知
@@ -2816,8 +2776,6 @@ Stopped · Taskbar styling was disabled because Explorer crashed repeatedly	已�
 Missing symbols · Required taskbar debug symbols are unavailable for this Windows version	缺少符号 · 当前 Windows 版本缺少所需的任务栏符号文件
 Active in Windhawk · Disable the PillTaskbar mod in Windhawk. If you don't use Windhawk, set its service to manual startup and stop or uninstall it	已在 Windhawk 中启用 · 请在 Windhawk 中关闭 PillTaskbar 模组。如不使用 Windhawk，可将其服务设为手动启动并退出或卸载
 Stopped · Taskbar styling has stopped	已停止 · 任务栏美化已停止运行
-Enable Taskbar Styling	开启任务栏美化
-PillTaskbar is a separate GPL-3.0 program that injects code into Explorer to restyle the taskbar. On first launch, it downloads taskbar symbol files (~70 MB) from Microsoft's symbol server.	PillTaskbar 是独立于 Bloom 的程序，通过向资源管理器注入代码来改变任务栏外观，采用 GPL-3.0 许可证。首次开启时会从 Microsoft 符号服务器下载任务栏符号文件（约 70 MB）。
 Icon color	图标颜色
 Original color	原色
 Single colour	单色
@@ -2940,3 +2898,92 @@ No active timers or reminders	暂无进行中的计时器或提醒
 Detach from launcher	从启动器分离
 Always on top	始终置顶
 Attach to launcher	吸附到启动器
+Add features to Windows. Selected add-ons are downloaded when you finish.	为 Windows 增添功能。开启的插件将在完成时下载。
+You can turn them off anytime in Settings.	随时可在设置中关闭。
+Turned on	已开启
+Centered pill style	居中胶囊样式
+Claude Code progress	Claude Code 进度
+Clean right by the clock	在时钟旁清理内存
+Per-monitor brightness	按显示器调节亮度
+Keep PC awake	防止电脑休眠
+Only screen with cursor	仅鼠标所在屏幕
+Notifies you with a card when Claude Code or Codex finishes work or waits for approval.	当 Claude Code 和 Codex 完成工作或等待批准时，通过卡片通知。
+Approve and reply from cards	在卡片中批准并回复
+Adds Bloom to the Claude Code config file when turned on, and removes it when turned off	开启时将 Bloom 添加到 Claude Code 配置文件，关闭时移除
+Show Windows notifications as cards	将 Windows 通知也显示为卡片
+Receive notifications from other apps as the same cards	使用相同的卡片接收其他应用的通知
+Reply to and stop T3 Code tasks from cards and AI Chat	在卡片和 AI 聊天中回复或停止 T3 Code 任务
+To your working window or T3 Code	前往工作窗口或 T3 Code
+To your working window	前往工作窗口
+Opens the chat from the taskbar	从任务栏打开对话
+Click a card to go to your working window or T3 Code.	点击卡片可前往工作窗口或 T3 Code。
+Click a card to go to your working window.	点击卡片可前往工作窗口。
+Handy Keys to Know	实用的快捷键
+These few keys cover almost everything.	掌握这几个键就差不多够用了。
+Open and type	打开即输入
+Ask AI what you typed	将输入内容问 AI
+Clipboard & Snippets	剪贴板与常用语
+What you can type	可输入的内容
+You're All Set	准备就绪
+Press the Win key to try it right now.	按下 Win 键立即体验吧。
+Press Alt + Space to try it right now.	按下 Alt + Space 立即体验吧。
+You can open it by clicking the tray icon.	点击托盘图标即可打开。
+Open with Win key or Alt + Space	用 Win 键、Alt + Space 打开
+Open with Win key	用 Win 键打开
+1 Home feature	1 个主页功能
+{0} Home features	{0} 个主页功能
+1 add-on to confirm and download	1 个插件将在确认后下载
+{0} add-ons to confirm and download	{0} 个插件将在确认后下载
+Turn on 1 add-on	开启 1 个插件
+Turn on {0} add-ons	开启 {0} 个插件
+Task Notifications off	任务通知已关闭
+Open Bloom Settings	打开 Bloom 设置
+You can view this guide again by typing ‘Tour’ in Bloom.	在 Bloom 中输入 ‘了解 Bloom’ 即可再次查看此向导。
+Newly added	新增向导
+How to Open Bloom	如何打开 Bloom
+You can keep both the Win key and Alt + Space turned on.	可以同时开启 Win 键和 Alt + Space。
+Win key	Win 键
+Press and release to open	按下松开即打开
+Opens from anywhere	随时随地打开
+With Windows	随 Windows 启动
+Ready right after sign-in	登录后立即就绪
+Open with Win key over administrator windows	在管理员权限窗口中也用 Win 键打开
+Windows will ask for permission once when turned on	开启时 Windows 会请求一次权限
+Other shortcuts like Win+E still work as usual.	Win+E 等其他快捷键仍可正常使用。
+Changes apply right away.	选择后立即生效。
+Follows Windows	跟随 Windows
+Accent color	强调色
+Slightly shows what's behind the window	微微透出窗口后面的内容
+Used only for web searches and links opened from Bloom.	仅用于从 Bloom 打开的网页搜索和链接。
+Quick site links	网站快捷方式
+Find by name	按名称查找
+Reuse copied items	重用复制内容
+Reminders on calendar	日历查看提醒
+Select screen & ask	框选屏幕提问
+Disk cleanup	清理磁盘空间
+AI task history	AI 任务记录
+Record area to MP4	区域录制为 MP4
+Snippets & commands	常用语与命令
+Arrange windows	并排摆放窗口
+Features on Home	主页常用功能
+Turned-on features appear right when you open Bloom.	开启的功能会在打开 Bloom 时直接显示。
+Home row	主页显示
+Later in the launcher, press Ctrl+K to remove items or drag to reorder.	之后可在启动器中按 Ctrl+K 移除，或拖动调整顺序。
+AI Apps	AI 程序
+Chat and translate using the AI apps found on this PC.	使用检测到的 AI 进行聊天和翻译。
+Not installed	未安装
+Install guide ↗	安装指南 ↗
+Translation & quick AI actions	翻译与 AI 快捷操作
+Sign in with your own account in each app.	请在各程序中使用自己的账号登录。
+Search or ask	搜索或提问
+9:00 AM	上午 9:00
+Test payment module	测试支付模块
+What does this error mean?	这个错误是什么意思
+It means the path is missing.	意思是找不到该路径
+or	或
+cats	猫咪
+report	报告
+What's this error?	这报错啥意思
+Path not found.	提示找不到路径
+Everything with just the Win key.	一个 Win 键，搞定一切。
+Have settings from another PC?	如果有其他电脑上的设置

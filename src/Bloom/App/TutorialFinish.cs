@@ -193,7 +193,7 @@ internal static class TutorialFinish
     private static void ShowCard(Host host, (CardKind Kind, IReadOnlyList<Addon> Named) card)
     {
         string head = Tr("Bloom · 애드온", "Bloom · Add-ons");
-        string open = Tr("애드온 설정 열기", "Open add-on settings");
+        string open = Tr("애드온 설정 열기", "Open Add-ons Settings");
         void Open() => host.OpenSettings("addons");
         string names = string.Join(", ", card.Named.Select(a => AddonConsent.Describe(a).Name));
         string line = CardLine(card.Kind, card.Named.Count);
@@ -216,11 +216,11 @@ internal static class TutorialFinish
     /// works yet (a slow symbol download).
     private static string CardLine(CardKind kind, int count) => (kind, count == 1) switch
     {
-        (CardKind.On, true) => Tr("애드온을 켰습니다", "The add-on is on"),
-        (CardKind.On, false) => Tr("애드온을 켰습니다", "Add-ons are on"),
-        (CardKind.Starting, true) => Tr("애드온을 켜는 중입니다", "The add-on is starting"),
-        (CardKind.Starting, false) => Tr("애드온을 켜는 중입니다", "Add-ons are starting"),
-        (_, true) => Tr("켜지 못한 애드온이 있습니다", "An add-on could not be turned on"),
-        _ => Tr("켜지 못한 애드온이 있습니다", "Some add-ons could not be turned on"),
+        (CardKind.On, true) => Tr("애드온을 켰습니다", "Add-on turned on"),
+        (CardKind.On, false) => Tr("애드온을 켰습니다", "Add-ons turned on"),
+        (CardKind.Starting, true) => Tr("애드온을 켜는 중입니다", "Turning on add-on"),
+        (CardKind.Starting, false) => Tr("애드온을 켜는 중입니다", "Turning on add-ons"),
+        (_, true) => Tr("켜지 못한 애드온이 있습니다", "Couldn't turn on add-on"),
+        _ => Tr("켜지 못한 애드온이 있습니다", "Some add-ons couldn't be turned on"),
     };
 }

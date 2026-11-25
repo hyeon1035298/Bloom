@@ -29,7 +29,7 @@ internal sealed partial class OnboardingWindow
     private void Opening(StackPanel page)
     {
         var s = Settings.Current;
-        page.Children.Add(TutorialParts.Header(Tr("Bloom 여는 법", "How to open Bloom"), Tr("Win 키와 Alt + Space를 함께 켜 두어도 됩니다.", "You can keep both the Win key and Alt + Space on.")));
+        page.Children.Add(TutorialParts.Header(Tr("Bloom 여는 법", "How to Open Bloom"), Tr("Win 키와 Alt + Space를 함께 켜 두어도 됩니다.", "You can keep both the Win key and Alt + Space turned on.")));
         bool admin = env.AdminOffered;
         double scene = admin ? 132 : 156; // without the row under them the pictures take its room
         ThumbRow? adminRow = null;
@@ -45,18 +45,18 @@ internal sealed partial class OnboardingWindow
             grid.Add(t);
             return t;
         }
-        Tile(TutorialScene.OpenWin, Tr("Win 키", "Win key"), Tr("눌렀다 떼면 열림", "Press and release"), s.WinKey, v =>
+        Tile(TutorialScene.OpenWin, Tr("Win 키", "Win key"), Tr("눌렀다 떼면 열림", "Press and release to open"), s.WinKey, v =>
         {
             s.WinKey = v;
             host.ApplyHotkeys();
             if (adminRow is not null) adminRow.Off = !v; // nothing to open over an admin window with
         });
-        Tile(TutorialScene.OpenAltSpace, "Alt + Space", Tr("어디서나 열림", "Opens anywhere"), s.AltSpace, v =>
+        Tile(TutorialScene.OpenAltSpace, "Alt + Space", Tr("어디서나 열림", "Opens from anywhere"), s.AltSpace, v =>
         {
             s.AltSpace = v;
             host.ApplyHotkeys();
         });
-        Tile(TutorialScene.OpenAutostart, Tr("Windows와 함께", "With Windows"), Tr("로그인하면 바로 대기", "Ready at sign-in"), s.Autostart, v =>
+        Tile(TutorialScene.OpenAutostart, Tr("Windows와 함께", "With Windows"), Tr("로그인하면 바로 대기", "Ready right after sign-in"), s.Autostart, v =>
         {
             s.Autostart = v;
             if (!Paths.IsDev) Autostart.Set(v);
@@ -66,8 +66,8 @@ internal sealed partial class OnboardingWindow
         if (admin)
         {
             // the switch follows the outcome: a declined UAC prompt leaves it off
-            adminRow = ThumbRow.Switched(TutorialArt.For(TutorialScene.ThumbAdmin, 64, 38), Tr("관리자 권한 창에서도 Win 키로 열기", "Win key over admin windows too"),
-                Tr("켜면 Windows가 허락을 한 번 묻습니다", "Windows asks for permission once"), s.WinKeyAdmin, async v =>
+            adminRow = ThumbRow.Switched(TutorialArt.For(TutorialScene.ThumbAdmin, 64, 38), Tr("관리자 권한 창에서도 Win 키로 열기", "Open with Win key over administrator windows"),
+                Tr("켜면 Windows가 허락을 한 번 묻습니다", "Windows will ask for permission once when turned on"), s.WinKeyAdmin, async v =>
                 {
                     bool now = await host.SetWinKeyAdmin(v, this);
                     // the row shown now: a page drawn again while Windows asked has a new one
@@ -76,14 +76,14 @@ internal sealed partial class OnboardingWindow
             adminRow.Off = !s.WinKey;
             page.Children.Add(Under(adminRow, 12));
         }
-        page.Children.Add(Under(TutorialParts.Note(Tr("Win+E 같은 다른 단축키도 그대로 됩니다.", "Other shortcuts such as Win+E still work.")), 14));
+        page.Children.Add(Under(TutorialParts.Note(Tr("Win+E 같은 다른 단축키도 그대로 됩니다.", "Other shortcuts like Win+E still work as usual.")), 14));
     }
 
     // ── how Bloom looks ─────────────────────────────────────────────────────────────────────────
     private void Looks(StackPanel page)
     {
         var s = Settings.Current;
-        page.Children.Add(TutorialParts.Header(Tr("화면 모양", "Appearance"), Tr("고르면 바로 바뀝니다.", "Changes as soon as you pick.")));
+        page.Children.Add(TutorialParts.Header(Tr("화면 모양", "Appearance"), Tr("고르면 바로 바뀝니다.", "Changes apply right away.")));
         var themes = new (string value, TutorialScene picture, string name, string? about)[]
         {
             ("system", TutorialScene.LookSystem, Tr("시스템", "System"), Tr("Windows를 따라감", "Follows Windows")),
@@ -106,7 +106,7 @@ internal sealed partial class OnboardingWindow
         accentRow = new ThumbRow(TutorialArt.For(TutorialScene.ThumbAccent, 64, 38), Tr("강조색", "Accent color"), null, accentDots);
         page.Children.Add(Under(accentRow, 12));
         page.Children.Add(Under(ThumbRow.Switched(TutorialArt.For(TutorialScene.ThumbGlass, 64, 38), Tr("유리 효과", "Glass Effect"),
-            Tr("창 뒤가 살짝 비칩니다", "What is behind shows through a little"), s.Transparency != "off", v =>
+            Tr("창 뒤가 살짝 비칩니다", "Slightly shows what's behind the window"), s.Transparency != "off", v =>
             {
                 s.Transparency = v ? "system" : "off";
                 Settings.Save();
@@ -176,18 +176,18 @@ internal sealed partial class OnboardingWindow
     // file search and the AI chat start on only where what they need was found
     private Tool[] ToolTable() =>
     [
-        new("cmd:quicklinks", Tr("사이트 바로 가기", "Jump to sites"), true),
+        new("cmd:quicklinks", Tr("사이트 바로 가기", "Quick site links"), true),
         new("cmd:files", Tr("이름으로 찾기", "Find by name"), env.Everything),
-        new("cmd:clipboard", Tr("복사한 것 다시", "Copied items again"), true),
+        new("cmd:clipboard", Tr("복사한 것 다시 쓰기", "Reuse copied items"), true),
         new("cmd:timer", Tr("10분 타이머", "10 min timer"), true),
-        new("cmd:calendar", Tr("알림을 달력으로", "Reminders on a calendar"), true),
-        new("cmd:lens", Tr("화면 골라 묻기", "Ask about the screen"), true),
-        new("cmd:space", Tr("디스크 정리", "Free up disk"), true),
+        new("cmd:calendar", Tr("알림을 달력으로", "Reminders on calendar"), true),
+        new("cmd:lens", Tr("화면 골라 묻기", "Select screen & ask"), true),
+        new("cmd:space", Tr("디스크 정리", "Disk cleanup"), true),
         new("cmd:ai", Tr("AI에게 묻기", "Ask AI"), env.AnyProvider),
-        new("cmd:inbox", Tr("AI 작업 기록", "AI task log"), false),
-        new("cmd:record", Tr("영역을 MP4로", "Region to MP4"), false),
-        new("cmd:commands", Tr("상용구와 명령", "Snippets and commands"), false),
-        new("cmd:layout", Tr("창 나란히 놓기", "Windows side by side"), false),
+        new("cmd:inbox", Tr("AI 작업 기록", "AI task history"), false),
+        new("cmd:record", Tr("영역을 MP4로", "Record area to MP4"), false),
+        new("cmd:commands", Tr("상용구와 명령", "Snippets & commands"), false),
+        new("cmd:layout", Tr("창 나란히 놓기", "Arrange windows"), false),
     ];
 
     /// The features this Bloom has, in tile order, each with its launcher entry.
@@ -222,7 +222,7 @@ internal sealed partial class OnboardingWindow
 
     private void HomeTools(StackPanel page)
     {
-        page.Children.Add(TutorialParts.Header(Tr("홈에 둘 기능", "Features on Home"), Tr("켠 기능은 Bloom을 열면 바로 보입니다.", "What you turn on shows as soon as Bloom opens.")));
+        page.Children.Add(TutorialParts.Header(Tr("홈에 둘 기능", "Features on Home"), Tr("켠 기능은 Bloom을 열면 바로 보입니다.", "Turned-on features appear right when you open Bloom.")));
         var grid = Under(new TileGrid(4, 8, 7), 14);
         var row = new StackPanel { Orientation = Orientation.Horizontal, VerticalAlignment = VerticalAlignment.Center };
         void Strip()
@@ -245,7 +245,7 @@ internal sealed partial class OnboardingWindow
         }
         page.Children.Add(grid);
 
-        var label = new TutorialParts.EvenLines(Theme.T(Hangul.KeepAll(Tr("홈에 보일 줄", "Row on Home")), 11.5, Theme.P.TextFaint), 14, 2)
+        var label = new TutorialParts.EvenLines(Theme.T(Hangul.KeepAll(Tr("홈에 보일 줄", "Home row")), 11.5, Theme.P.TextFaint), 14, 2)
         {
             Width = 52,
             Margin = new Thickness(0, 0, 12, 0),
@@ -266,7 +266,7 @@ internal sealed partial class OnboardingWindow
             MinHeight = 44,
             Child = strip,
         }, 8));
-        page.Children.Add(Under(TutorialParts.Note(Tr("나중에 런처에서 Ctrl+K로 빼고, 끌어서 순서를 바꿉니다.", "Later, remove one with Ctrl+K in the launcher and drag to reorder.")), 8));
+        page.Children.Add(Under(TutorialParts.Note(Tr("나중에 런처에서 Ctrl+K로 빼거나 끌어서 순서를 바꿀 수 있습니다.", "Later in the launcher, press Ctrl+K to remove items or drag to reorder.")), 8));
     }
 
     /// A feature's icon as the home's row shows it; the first wears the row's selection line under it.
@@ -303,7 +303,7 @@ internal sealed partial class OnboardingWindow
             if (!providers.Contains(s.TranslateProvider)) s.TranslateProvider = providers[0];
             Settings.Save();
         }
-        page.Children.Add(TutorialParts.Header(Tr("AI 프로그램", "AI programs"), Tr("찾은 AI로 채팅하고 번역합니다.", "Bloom chats and translates with the AI it finds.")));
+        page.Children.Add(TutorialParts.Header(Tr("AI 프로그램", "AI Apps"), Tr("찾은 AI로 채팅하고 번역합니다.", "Chat and translate using the AI apps found on this PC.")));
         double scene = many ? 104 : 150; // with nothing to choose under them the pictures take the room
         var grid = Under(new TileGrid(4, 8, 8), 18);
         foreach (var (picture, name, here, guide) in new (TutorialScene, string, bool, string?)[]
@@ -324,7 +324,7 @@ internal sealed partial class OnboardingWindow
             {
                 tile.Dim = true;
                 if (guide is null) tile.About = Tr("설치되지 않음", "Not installed");
-                else tile.Link = (Tr("설치 안내 ↗", "Setup guide ↗"), () => Launch.Open(guide));
+                else tile.Link = (Tr("설치 안내 ↗", "Install guide ↗"), () => Launch.Open(guide));
             }
             grid.Add(tile);
         }
@@ -337,10 +337,10 @@ internal sealed partial class OnboardingWindow
                 Settings.Save();
             });
             page.Children.Add(Under(new ThumbRow(TutorialArt.For(TutorialScene.ThumbChat, 64, 38), Tr("AI 채팅", "AI Chat"), null, Pick(s.AiProvider, v => s.AiProvider = v)), 12));
-            page.Children.Add(Under(new ThumbRow(TutorialArt.For(TutorialScene.ThumbTranslate, 64, 38), Tr("번역과 AI 빠른 동작", "Translation and quick AI"), null,
+            page.Children.Add(Under(new ThumbRow(TutorialArt.For(TutorialScene.ThumbTranslate, 64, 38), Tr("번역과 AI 빠른 동작", "Translation & quick AI actions"), null,
                 Pick(s.TranslateProvider, v => s.TranslateProvider = v)), 6));
         }
-        page.Children.Add(Under(TutorialParts.Note(Tr("로그인은 각 프로그램에서 본인 계정으로 합니다.", "You sign in inside each program with your own account.")), many ? 14 : 16));
+        page.Children.Add(Under(TutorialParts.Note(Tr("로그인은 각 프로그램에서 본인 계정으로 합니다.", "Sign in with your own account in each app.")), many ? 14 : 16));
     }
 
     /// A chat provider by the name of its program.

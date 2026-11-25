@@ -375,6 +375,16 @@ Bloom — Press Win to open	Bloom — Win キーで開く
 Open\tWin	開く\tWin
 Settings	設定
 Quit Bloom	Bloom を終了
+Bloom · Notification	Bloom · 通知
+Could not update Claude Code settings	Claude Code の設定を変更できませんでした
+Bloom · Add-ons	Bloom · アドオン
+Open Add-ons Settings	アドオン設定を開く
+Add-on turned on	アドオンをオンにしました
+Add-ons turned on	アドオンをオンにしました
+Turning on add-on	アドオンをオンにしています
+Turning on add-ons	アドオンをオンにしています
+Couldn't turn on add-on	オンにできなかったアドオンがあります
+Some add-ons couldn't be turned on	オンにできなかったアドオンがあります
 New snippet	新規スニペット
 New batch command	新規一括コマンド
 New AI command	新規 AI コマンド
@@ -1091,6 +1101,7 @@ Friday meeting\nresend the quote · fix the date	金曜の会議\n見積書を�
 Trip ideas\nJeju 3 nights · rent a car	旅行のアイデア\n済州 3 泊 · レンタカー
 note buy milk	note buy milk
 quote	quote
+Task Notifications on	タスク通知 オン
 Sum up this launcher's shortcuts	このランチャーのショートカットをまとめて
 The ones you'll use most:\n\n- `Tab` asks **the AI** about what you typed\n- `Ctrl` + `K` the selected item's actions	よく使うものだけです。\n\n- `Tab` 入力した内容を **AI に**聞く\n- `Ctrl` + `K` 選んだ項目の操作
 Plan next week	来週の予定を立てて
@@ -1585,6 +1596,22 @@ Moved to Recycle Bin: {0}	ごみ箱へ移動しました: {0}
 {0:#,0} small files	小さいファイル {0} 個
 Scanning…	読み込み中…
 Search actions…	アクションを検索…
+Open source {0}	オープンソース {0}
+Downloads about {0} MB of symbol files from Microsoft on first turn-on	初回オン時に Microsoft から約 {0} MB のシンボルファイルをダウンロードします
+Downloads symbol files from Microsoft on first turn-on	初回オン時に Microsoft からシンボルファイルをダウンロードします
+Enable Taskbar Styling	タスクバーのカスタマイズをオンにする
+PillTaskbar is a separate GPL-3.0 program that injects code into Explorer to restyle the taskbar. On first launch, it downloads taskbar symbol files (~70 MB) from Microsoft's symbol server.	PillTaskbar は Bloom とは別のプログラムで、エクスプローラーにコードを注入してタスクバーの外観を変更します。ライセンスは GPL-3.0 です。初回有効化時に Microsoft シンボルサーバーからタスクバーのシンボルファイル (約 70 MB) をダウンロードします。
+Turn On {0}	{0} をオンにする
+Custom add-ons are separate programs neither created nor verified by Bloom. Turning one on lets Bloom run that program, which may inject code into Explorer. Only turn on add-ons you trust.	手動で追加したアドオンは Bloom が作成・検証したものではない別プログラムです。オンにすると Bloom がそのプログラムを実行し、エクスプローラーにコードを注入する場合があります。信頼できるアドオンのみオンにしてください。
+This add-on is a separate program from Bloom and works by injecting code into Explorer. Its license is {0}. When turned on for the first time, it downloads required symbol files from the Microsoft symbol server.	このアドオンは Bloom とは別のプログラムで、エクスプローラーにコードを注入して動作します。ライセンスは {0} です。初回オン時に Microsoft シンボルサーバーから必要なシンボルファイルをダウンロードします。
+This add-on is a separate program from Bloom and works by injecting code into Explorer. Its license is {0}.	このアドオンは Bloom とは別のプログラムで、エクスプローラーにコードを注入して動作します。ライセンスは {0} です。
+View Source	ソースを見る
+Turn On 1 Add-on	アドオン 1 個をオンにする
+Turn On {0} Add-ons	アドオン {0} 個をオンにする
+Add-ons run separately from Bloom and operate inside Windows Explorer.	アドオンは Bloom とは別に実行され、Windows エクスプローラー内で動作します。
+Don't Turn On	オンにしない
+Turn On Taskbar AI panel	タスクバー AI パネルをオンにする
+The Taskbar AI panel is an experimental feature. It controls the Claude desktop app and Codex app on your behalf to send and receive chats, and also shows AI usage on the taskbar.	タスクバー AI パネルは実験的な機能です。Claude デスクトップアプリと Codex アプリを代わりに操作して会話をやり取りし、タスクバーに AI 使用量も表示します。
 Bloom Reminder	Bloom リマインダー
 Timer Finished	タイマー終了
 Snooze 5 min	5 分後に再通知
@@ -1706,82 +1733,11 @@ Type a follow-up message	返信メッセージを入力
 Send (Enter)	送信 (Enter)
 Click to open Windows Notification Center	クリックして Windows 通知センターを開く
 Click to go to session window	クリックしてセッションウィンドウに移動
-Instant search in your browser · Site shortcuts (e.g. yt cats)	選択したブラウザーですぐ検索 · サイトショートカット (例: yt 猫)
-Instantly find files across your PC by name (Everything)	PC 内のファイルを名前で瞬時に検索 (Everything)
-Paste previously copied text, images, and files	コピーしたテキスト · 画像 · ファイルを再利用して貼り付け
-Start by typing naturally, like "10m timer" or "3pm meeting reminder"	"10分タイマー"、"3時に会議リマインダー" のように入力して開始
-View your reminders on a calendar	リマインダーをカレンダーで表示
-Select a screen region to ask AI, translate, or copy text	画面領域を選択して AI に質問 · 翻訳 · テキストをコピー
-Visualize disk usage and clean up large files	ディスク使用量をマップで視覚化し、大容量ファイルを整理
-Pick screen colors · Copy HEX · Get gradient suggestions	画面の色を抽出 · HEX コピー · グラデーション提案
-Ask Claude or ChatGPT right away	Claude · ChatGPT にすぐ質問
-Check CPU and memory usage and quit unresponsive apps	CPU · メモリ使用量を確認してフリーズしたアプリを終了
-Run scripts, text snippets, and multi-step macros with keywords	スクリプト · 定型文 · 複数アクションの一括実行をキーワードで起動
 Welcome to Bloom	Bloom のセットアップ
 Skip	スキップ
 Previous	前へ
-Open Bloom	Bloom を開く
 Get Started	はじめる
-Search & Launch	検索と起動
-Press the Win key and start typing to launch apps, calculate, search files, chat with AI, and set timers.\nChoose how to open Bloom and which features to use.	Win キーを押して入力するだけで、アプリの起動、計算、ファイル検索、AI チャット、タイマーが使えます。\n起動方法と使用する機能を選択してください。
-Import settings from another PC	他の PC から設定をインポート
-How to Open Bloom	Bloom の起動方法
-You can enable both shortcuts at the same time.	両方のショートカットを同時に使用できます。
-Open with Win Key	Win キーで開く
-Tap the Win key alone to open Bloom. Shortcuts like Win+E still work.	Win キー単体を押して離すと Bloom が開きます。Win+E などの組み合わせはそのまま使えます。
-Open with Alt+Space	Alt+Space で開く
-Press Alt+Space to open Bloom.	Alt+Space を押して Bloom を開きます。
-Launch at Windows startup	Windows 起動時に自動で開く
-Runs automatically in the system tray when you sign in to Windows.	Windows にサインインするとシステムトレイで起動します。
-Browser for Search & Links	検索とリンクを開くブラウザー
-Web searches, browser shortcuts, and links will open in this browser.	ウェブ検索、ショートカット、リンクをこのブラウザーで開きます。
-Windows default browser	Windows の既定のブラウザー
-Search Engine	検索エンジン
-Features on Home	ホームに置く機能
-Selected features will be added to Favorites. You can move or remove them anytime with Ctrl+K.	選択した機能がお気に入りに追加されます。後から Ctrl+K で削除や移動ができます。
-Add only the features you need to Favorites · {0} selected	使う機能だけをお気に入りに追加 · 現在 {0} 件
-Appearance	外観
-Applied immediately	選択するとすぐに適用されます
-Light	ライト
-Dark	ダーク
-Theme	テーマ
-CPU (Default)	CPU (標準)
-GPU (Experimental)	GPU (実験的)
-CPU rendering is used by default. GPU rendering is experimental and may cause stutter or brief freezes on some PCs. Takes effect on next restart.	標準では CPU で描画します。GPU 描画は実験的な機能であり、一部の PC では画面がカクついたり数秒間停止したりすることがあります。次回起動時から適用されます。
-Companion Tools	連携プログラム
-Install companion tools from their official websites. All other Bloom features work even without them.	連携するプログラムを公式サイトからインストールしてください。インストールしなくても Bloom の他の機能は利用できます。
-Instantly search your entire PC by file name	ファイル名で PC 全体を瞬時に検索
-AI Chat · Bloom Lens · Translation (sign in with your account)	AI チャット · Bloom Lens · 翻訳 (ご自身のアカウントでログイン)
-Chat & translate with ChatGPT (sign in with your account)	ChatGPT でチャット · 翻訳 (ご自身のアカウントでログイン)
-AI Chat · Bloom Lens · Translation — Choose from multiple signed-in models (omp login)	AI チャット · Bloom Lens · 翻訳 — ログイン済みの複数モデルから選択 (omp login)
-Choose AI by Feature	機能別の AI 選択
-Only AI tools detected on this PC can be selected.	この PC で検出された AI のみ選択できます。
-Chat Memory Unload Timeout	会話メモリの解放時間
-Free memory for inactive chats · 0 to keep loaded	未使用の会話のメモリを解放 · 0 で保持
-Replies using Codex and runs approved PC tasks.	Codex で回答し、承認された PC 操作を実行します。
-Replies using omp. Choose from your signed-in models and run approved PC tasks.	omp で回答します。ログイン済みの複数モデルから選択し、承認された PC 操作を実行します。
-Replies using Claude Code and runs approved PC tasks.	Claude Code で回答し、承認された PC 操作を実行します。
-Bloom Lens · Translation	Bloom Lens · 翻訳
-Reads and translates screen text using ChatGPT.	ChatGPT で画面の文字を読み取り、翻訳します。
-Reads and translates screen text using omp's fast model. You can change the model in Settings.	omp の高速モデルで画面の文字を読み取り、翻訳します。モデルは設定で選択できます。
-Reads and translates screen text using Claude Haiku.	Claude Haiku で画面の文字を読み取り、翻訳します。
-ChatGPT Usage Method	ChatGPT 使用量の取得方法
-How AI usage on Home is fetched. Add accounts or switch active AI Chat accounts in Settings > AI Accounts.	ホーム画面の AI 使用量を取得する方式です。アカウントの追加や AI チャット用アカウントの選択は [設定] > [AI アカウント] で行えます。
-Official CLI	公式 CLI
-Briefly runs Codex per account · ~110 MB · ~1 sec per check	アカウントごとに Codex を一時起動 · 1 回あたり約 110 MB · 1 秒
-Lightweight	軽量方式
-Single HTTPS request with Codex login · Unofficial endpoint, subject to change	Codex ログインで HTTPS リクエストを 1 回送信 · 非公式経路のため変更される場合があります
-Essential Shortcuts	基本ショートカット
-Open and type — Apps, settings, math (12*3), files, web search	開いて入力 — アプリ、設定、計算 (12*3)、ファイル、ウェブ検索
-Ask AI what you just typed	入力した内容をそのまま AI に質問
-More Actions — Everything you can do with the selected item	その他 — 選択した項目で行えるすべての操作
-Bloom Lens — Select a region to ask AI, translate, or copy text	Bloom Lens — 画面領域を AI に質問 · 翻訳 · テキストをコピー
-Natural phrases work too:  "10m timer"  "3:30 meeting reminder"  "#ff5a8a"	自然な文でも入力できます:  "10分タイマー"  "3時半に会議リマインダー"  "#ff5a8a"
-Setup Complete	セットアップ完了
-Open Bloom anytime with your shortcut. You can reopen Settings and the guide from the launcher.	選択したショートカットで Bloom を開けます。設定や使い方はランチャーからいつでも確認できます。
-Open Bloom Settings	Bloom の設定を開く
-Installed	インストール済み
-Installation Guide  ↗	インストール案内  ↗
+Open Bloom	Bloom を開く
 Click to copy HEX · ← → Select color	クリックで HEX をコピー · ← → 色を選択
 Color Count	色数
 Color Count ({0}–{1}) · − + keys	色数 ({0}–{1}) · − + キー
@@ -1940,6 +1896,8 @@ Saturation and brightness	彩度と明度
 Hue	色相
 Pick from screen	画面から抽出
 Recent colors	最近抽出した色
+Dark	ダーク
+Light	ライト
 Active switches blend into the background	オンのスイッチが背景に埋もれます
 Adjust for visibility	見やすく調整
 Contrast {0}	コントラスト {0}
@@ -2185,6 +2143,8 @@ Use the selected icon file in original color or monochrome · Shared by Home car
 ChatGPT Fetch Method	ChatGPT 取得方式
 Lightweight: 1 HTTPS request via Codex sign-in · No CLI process · Unofficial API, subject to change	軽量方式: Codex ログインで HTTPS リクエスト1回 · CLI 起動なし · 非公式 API のため変更される場合があります
 Official CLI: Runs Codex per account · ~110 MB for 1s	公式 CLI: アカウントごとに Codex を実行 · 約 110 MB・1秒
+Official CLI	公式 CLI
+Lightweight	軽量方式
 Export Usage File	使用量ファイルを書き出す
 Writes only percentages and reset times to %LOCALAPPDATA%\\Bloom\\export\\ai-usage.json for other apps (no email) · Fetches even when the Home block is off, using ~470 MB for 4s per interval for Claude	他のプログラムが読み取れるようパーセントとリセット時刻のみを %LOCALAPPDATA%\\Bloom\\export\\ai-usage.json に書き出します (メールアドレスなし) · ホームブロックがオフでも取得が動き、間隔ごとに Claude で約 470 MB・4秒かかります
 Edit Price Table	価格表を編集
@@ -2262,7 +2222,6 @@ Failed to check: {0}	確認失敗: {0}
 Update available: {0}	新バージョンあり: {0}
 All add-ons are up to date	すべて最新バージョンです
 This add-on has no configurable settings in Bloom	このアドオンには Bloom で変更できる設定がありません
-View Source	ソースを見る
 Turn On Again	もう一度オンにする
 Retry	再試行
 Clears the Explorer crash record and turns the add-on back on	エクスプローラーの停止記録を消去してもう一度オンにします
@@ -2285,9 +2244,6 @@ Stopped · Taskbar styling was turned off because Explorer crashed while using f
 Stopped · Turned off because Explorer crashed while using fallback symbols. It will turn back on once Microsoft publishes the symbol files	停止 · 以前のビルドのシンボルで動作中にエクスプローラーが停止したため、このアドオンをオフにしました。Microsoft がシンボルファイルを公開すると再びオンになります
 Partially running · Could not find symbols required for the remaining features on this Windows version	一部機能のみ動作中 · この Windows バージョンでは残りの機能に必要なシンボルが見つかりませんでした
 Running with fallback symbols · Using symbols from an earlier build until Microsoft publishes symbol files for this Windows update	以前のビルドのシンボルで動作中 · Microsoft がこの Windows アップデート用のシンボルファイルを公開するまで以前のビルドのシンボルを使用します
-Turn On {0}	{0} をオンにする
-This add-on is a separate program from Bloom and works by injecting code into Explorer. Its license is {0}. When turned on for the first time, it downloads required symbol files from the Microsoft symbol server.	このアドオンは Bloom とは別のプログラムで、エクスプローラーにコードを注入して動作します。ライセンスは {0} です。初回オン時に Microsoft シンボルサーバーから必要なシンボルファイルをダウンロードします。
-Custom add-ons are separate programs neither created nor verified by Bloom. Turning one on lets Bloom run that program, which may inject code into Explorer. Only turn on add-ons you trust.	手動で追加したアドオンは Bloom が作成・検証したものではない別プログラムです。オンにすると Bloom がそのプログラムを実行し、エクスプローラーにコードを注入する場合があります。信頼できるアドオンのみオンにしてください。
 API Keys	API キー
 Loading model list…	モデル一覧を読み込み中…
 Key saved · {0} models · Encrypted on this PC only	キー保存済み · モデル {0}個 · この PC にのみ暗号化保存
@@ -2420,6 +2376,7 @@ omp Chat Thinking Level	omp チャット思考レベル
 Available levels vary by model · Ctrl+E during chat	モデルによって段階が異なります · 会話中は Ctrl+E
 Web Search in omp Chat	omp チャットでウェブ検索
 Blocks omp file read/write and command execution. Configure Bloom PC Actions and active MCP servers in PC Actions · MCP.	omp のファイル読み書きとコマンド実行はブロックされます。Bloom の PC 操作と有効な MCP サーバーは「PC 操作 · MCP」で設定します。
+Installed	インストール済み
  · Replies using the signed-in model	 · ログイン済みのモデルで応答します
 omp Installation Guide	omp インストール案内
  After installation, sign in with omp login.	 インストール後、omp login でログインしてください。
@@ -2464,6 +2421,7 @@ How Bloom opens and looks	Bloom の開き方と外観
 Changing language restarts Bloom · Auto uses the Windows display language	言語変更時に Bloom を再起動 · 自動は Windows の表示言語を使用
 Bloom needs to restart to apply the language change.	言語を適用するには Bloom を再起動する必要があります。
 Opens when you press and release the Win key alone (shortcuts like Win+E work normally)	Win キー単体を押して離すと開きます (Win+E などの組み合わせはそのまま)
+Open with Win Key	Win キーで開く
 In use by another app	他のアプリで使用中
 Open with Alt + Space	Alt + Space で開く
 Launch at Windows Startup	Windows 起動時に実行
@@ -2472,6 +2430,8 @@ Runs in the system tray at sign-in	サインイン時にトレイで起動
 Not registered	未登録
 Use Win Key Over Admin Apps	管理者アプリ上でも Win キーを使用
 Opens with the Win key even when an administrator app is in front · Requires administrator approval when turning on	管理者権限のアプリが前面にあっても Win キーで開きます · オンにするときに管理者の承認が必要
+Appearance	外観
+Theme	テーマ
 System follows your Windows theme setting	システムは Windows のモード設定に従います
 Scales Launcher · Tool windows · AI Chat · Settings together · Ctrl+= / Ctrl+- / Ctrl+0 in Launcher	ランチャー · ツールウィンドウ · AI チャット · 設定ウィンドウをまとめて調整 · ランチャーで Ctrl+= / Ctrl+- / Ctrl+0
 Animations	アニメーション
@@ -2514,6 +2474,7 @@ Up to 3 matching windows below results · Press Enter to switch to window	タイ
 Prioritize Previously Selected Results	選択した結果を優先表示
 Moves your last pick to the top when you type the same query again (“c” → Chrome) · Stored on this PC only	同じ語をもう一度入力したとき、前回選んだ項目を最上位に表示 (“c” → Chrome) · この PC にのみ保存
 Web Search	ウェブ検索
+Search Engine	検索エンジン
 Browser for Opening Links	リンクを開くブラウザー
 Choose from browsers installed on this PC · Opens web searches and links directly in this browser	この PC にインストールされているブラウザーから選択 · ウェブ検索とリンクをこのブラウザーで直接開きます
 Keyword + Space + query (e.g. yt cat) · {0} shortcuts · Press Enter to manage in Launcher	キーワード + スペース + 検索語 (例: yt 猫) · {0}件 · Enter でランチャーから管理
@@ -2578,6 +2539,7 @@ Generates a title from the conversation content. Updates only when starting a ne
 T3 Code Connection	T3 Code 連携
 Send to T3 Code threads, answer questions, and stop runs from work cards and the taskbar add-on	作業カードやタスクバーアドオンから T3 Code のスレッドへの送信、質問への回答、停止を行います
 Other AIs & Advanced	他の AI と詳細設定
+Chat Memory Unload Timeout	会話メモリの解放時間
  · Uses ChatGPT sign-in	 · ChatGPT ログインで使用
 ChatGPT Model	ChatGPT モデル
 Codex default model	Codex のデフォルトモデル
@@ -2713,8 +2675,6 @@ Shows elapsed time when finished (for tasks over 10s)	完了時に所要時間�
 Shown when approval or reply is needed · Stays until task resumes	承認または回答が必要なときに表示 · 作業再開まで維持
 Approve from notification card	通知カードから承認
 Allow or deny Claude Code requests on the card · Adds a Bloom hook to Claude Code's settings.json when enabled, and removes it when disabled	Claude Code の承認リクエストをカード上で許可 · 拒否 · オンにすると Claude Code の設定 (settings.json) に Bloom フックを追加し、オフにすると削除します
-Bloom · Notification	Bloom · 通知
-Could not update Claude Code settings	Claude Code の設定を変更できませんでした
 When 5-hour or weekly quota reaches 20% remaining or is exhausted	5 時間 · 週間の上限が残り 20% になったときと使い切ったとき
 When a low or depleted quota resets	不足していた上限がリセットされて回復したとき
 Windows notifications	Windows 通知
@@ -2816,8 +2776,6 @@ Stopped · Taskbar styling was disabled because Explorer crashed repeatedly	停�
 Missing symbols · Required taskbar debug symbols are unavailable for this Windows version	シンボルなし · この Windows バージョンに必要なタスクバーのシンボルがありません
 Active in Windhawk · Disable the PillTaskbar mod in Windhawk. If you don't use Windhawk, set its service to manual startup and stop or uninstall it	Windhawk で有効 · Windhawk で PillTaskbar モッドをオフにしてください。Windhawk を使わない場合は、サービスを手動起動に変更して Windhawk を終了またはアンインストールできます
 Stopped · Taskbar styling has stopped	停止 · タスクバーのカスタマイズが停止しました
-Enable Taskbar Styling	タスクバーのカスタマイズをオンにする
-PillTaskbar is a separate GPL-3.0 program that injects code into Explorer to restyle the taskbar. On first launch, it downloads taskbar symbol files (~70 MB) from Microsoft's symbol server.	PillTaskbar は Bloom とは別のプログラムで、エクスプローラーにコードを注入してタスクバーの外観を変更します。ライセンスは GPL-3.0 です。初回有効化時に Microsoft シンボルサーバーからタスクバーのシンボルファイル (約 70 MB) をダウンロードします。
 Icon color	アイコンの色
 Original color	元の色
 Single colour	単色
@@ -2940,3 +2898,92 @@ No active timers or reminders	進行中のタイマー・リマインダーは�
 Detach from launcher	ランチャーから切り離す
 Always on top	常に手前に表示
 Attach to launcher	ランチャーに結合
+Add features to Windows. Selected add-ons are downloaded when you finish.	Windows に機能を追加します。オンにしたものは完了時にダウンロードされます。
+You can turn them off anytime in Settings.	設定からいつでもオフにできます。
+Turned on	オンになっています
+Centered pill style	中央ピル型デザイン
+Claude Code progress	Claude Code の進行状況
+Clean right by the clock	時計の横からメモリ解放
+Per-monitor brightness	モニターごとの明るさ
+Keep PC awake	PC のスリープを防ぐ
+Only screen with cursor	マウスがある画面のみ
+Notifies you with a card when Claude Code or Codex finishes work or waits for approval.	Claude Code や Codex の作業完了や承認待ちをカードで知らせます。
+Approve and reply from cards	カードから承認・返信
+Adds Bloom to the Claude Code config file when turned on, and removes it when turned off	オンにすると Claude Code の設定ファイルに Bloom を追加し、オフにすると外します
+Show Windows notifications as cards	Windows の通知もカードで表示
+Receive notifications from other apps as the same cards	他のアプリの通知も同じカードで受け取ります
+Reply to and stop T3 Code tasks from cards and AI Chat	カードや AI チャットから T3 Code の作業に返信したり停止したりします
+To your working window or T3 Code	作業中のウィンドウまたは T3 Code へ
+To your working window	作業中のウィンドウへ
+Opens the chat from the taskbar	タスクバーから会話を開きます
+Click a card to go to your working window or T3 Code.	カードを押すと作業中のウィンドウまたは T3 Code へ移動します。
+Click a card to go to your working window.	カードを押すと作業中のウィンドウへ移動します。
+Handy Keys to Know	覚えておくと便利なキー
+These few keys cover almost everything.	これだけ覚えればほとんど使えます。
+Open and type	開いて入力
+Ask AI what you typed	入力した内容を AI に質問
+Clipboard & Snippets	クリップボードと定型文
+What you can type	入力できる内容
+You're All Set	準備ができました
+Press the Win key to try it right now.	Win キーを押してさっそく使ってみましょう。
+Press Alt + Space to try it right now.	Alt + Space を押してさっそく使ってみましょう。
+You can open it by clicking the tray icon.	トレイアイコンを押して開けます。
+Open with Win key or Alt + Space	Win キー、Alt + Space で開く
+Open with Win key	Win キーで開く
+1 Home feature	ホーム機能 1 個
+{0} Home features	ホーム機能 {0} 個
+1 add-on to confirm and download	アドオン 1 個を確認してダウンロード
+{0} add-ons to confirm and download	アドオン {0} 個を確認してダウンロード
+Turn on 1 add-on	アドオン 1 個をオンにします
+Turn on {0} add-ons	アドオン {0} 個をオンにします
+Task Notifications off	タスク通知 オフ
+Open Bloom Settings	Bloom の設定を開く
+You can view this guide again by typing ‘Tour’ in Bloom.	この案内は Bloom で ‘ツアー’ と入力するとまた見られます。
+Newly added	新しく追加された案内
+How to Open Bloom	Bloom の開き方
+You can keep both the Win key and Alt + Space turned on.	Win キーと Alt + Space は両方オンにしておけます。
+Win key	Win キー
+Press and release to open	押して離すと開く
+Opens from anywhere	どこからでも開く
+With Windows	Windows と一緒に
+Ready right after sign-in	サインイン後すぐ待機
+Open with Win key over administrator windows	管理者権限のウィンドウ上でも Win キーで開く
+Windows will ask for permission once when turned on	オンにすると Windows の許可確認が 1 回表示されます
+Other shortcuts like Win+E still work as usual.	Win+E などの他のショートカットもそのまま使えます。
+Changes apply right away.	選ぶとすぐに変わります。
+Follows Windows	Windows に合わせる
+Accent color	アクセントカラー
+Slightly shows what's behind the window	ウィンドウの後ろがほんのり透けて見えます
+Used only for web searches and links opened from Bloom.	Bloom から開くウェブ検索とリンクにのみ使います。
+Quick site links	サイトへすぐ移動
+Find by name	名前で探す
+Reuse copied items	コピー履歴を使う
+Reminders on calendar	通知をカレンダーで
+Select screen & ask	画面を選んで質問
+Disk cleanup	ディスク整理
+AI task history	AI 作業履歴
+Record area to MP4	範囲を MP4 で録画
+Snippets & commands	定型文とコマンド
+Arrange windows	ウィンドウを並べる
+Features on Home	ホームに置く機能
+Turned-on features appear right when you open Bloom.	オンにした機能は Bloom を開くとすぐに表示されます。
+Home row	ホーム表示
+Later in the launcher, press Ctrl+K to remove items or drag to reorder.	あとでランチャーで Ctrl+K から外したり、ドラッグして順番を変えられます。
+AI Apps	AI アプリ
+Chat and translate using the AI apps found on this PC.	検出された AI でチャットや翻訳ができます。
+Not installed	未インストール
+Install guide ↗	導入ガイド ↗
+Translation & quick AI actions	翻訳と AI クイック操作
+Sign in with your own account in each app.	ログインは各アプリで自分のアカウントで行います。
+Search or ask	検索または質問
+9:00 AM	午前 9:00
+Test payment module	決済モジュールのテスト
+What does this error mean?	このエラーはどういう意味？
+It means the path is missing.	パスがないという意味です
+or	または
+cats	猫
+report	報告書
+What's this error?	このエラー何？
+Path not found.	パスがありません
+Everything with just the Win key.	Win キーひとつですべてを。
+Have settings from another PC?	別の PC で使っていた設定があれば

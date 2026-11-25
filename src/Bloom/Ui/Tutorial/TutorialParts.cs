@@ -1,4 +1,5 @@
 using System;
+using System.Globalization;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -192,7 +193,8 @@ internal static partial class TutorialParts
             if (lines > most) text.Measure(new Size(full, cap)); // too long: the last line that fits ends in the ellipsis
             else if (lines > 1 && !double.IsInfinity(full))
             {
-                double low = text.DesiredSize.Width / lines, high = full;
+                // never narrower than its longest word: a word cut in two can still leave as many lines ("Hom / e row")
+                double low = Math.Min(full, Math.Max(text.DesiredSize.Width / lines, LongestWord())), high = full;
                 while (high - low > 2)
                 {
                     double mid = (low + high) / 2;
@@ -206,6 +208,11 @@ internal static partial class TutorialParts
             }
             return text.DesiredSize;
         }
+
+        /// The width of the longest run the text does not break inside (a word; one letter or so in Japanese and Chinese).
+        private double LongestWord() =>
+            new FormattedText(text.Text, CultureInfo.CurrentUICulture, text.FlowDirection, new Typeface(text.FontFamily, text.FontStyle, text.FontWeight, text.FontStretch),
+                text.FontSize, Brushes.Transparent, VisualTreeHelper.GetDpi(text).PixelsPerDip).MinWidth;
 
         protected override Size ArrangeOverride(Size final)
         {

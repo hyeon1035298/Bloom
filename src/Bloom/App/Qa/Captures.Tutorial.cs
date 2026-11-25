@@ -158,7 +158,7 @@ internal static partial class Captures
                 }
                 await Page("10-done", full, TutorialSteps.Done, PickTwo, ob =>
                 {
-                    string on = Tr("작업 알림 켬", "Task notifications on");
+                    string on = Tr("작업 알림 켬", "Task Notifications on");
                     if (!Texts(ob).Contains(on)) Fail($"10-done: no \"{on}\" tile");
                 });
                 await Page("10-done-min", none, TutorialSteps.Done);

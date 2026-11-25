@@ -69,7 +69,7 @@ internal sealed class TutorialHero : Grid
         logo.Margin = new Thickness((PageWidth - 44) / 2, 30, 0, 0);
         Children.Add(logo);
 
-        var title = Theme.T(Hangul.KeepAll(Tr("Win 키 하나로 모든 것을.", "Everything with one Win key.")), 30, Look.Text, FontWeights.Bold);
+        var title = Theme.T(Hangul.KeepAll(Tr("Win 키 하나로 모든 것을.", "Everything with just the Win key.")), 30, Look.Text, FontWeights.Bold);
         title.TextAlignment = TextAlignment.Center;
         Children.Add(new TutorialParts.EvenLines(title, 38, 2)
         {
@@ -113,7 +113,7 @@ internal sealed class TutorialHero : Grid
             VerticalAlignment = VerticalAlignment.Top,
             Margin = new Thickness(0, 474, 0, 0),
         };
-        import.Children.Add(Theme.T(Tr("다른 PC에서 쓰던 설정이 있다면", "Settings from another PC?") + " ", 12, Look.TextFaint, Theme.Regular, false));
+        import.Children.Add(Theme.T(Tr("다른 PC에서 쓰던 설정이 있다면", "Have settings from another PC?") + " ", 12, Look.TextFaint, Theme.Regular, false));
         import.Children.Add(TutorialParts.Link(Tr("불러오기", "Import"), () => ImportAsked?.Invoke(), 12, Look.AccentText));
         Children.Add(import);
     }

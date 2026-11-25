@@ -29,7 +29,7 @@ internal sealed partial class TutorialArt
         var field = new Rect(9, 5, 96, 16);
         Box(field, 6, tone.Deep, tone.Line);
         Glass(field.X + 6, field.Y + 8, 7);
-        Put(Say(Tr("보고서", "Report"), 9.5, FontWeights.Normal, tone.Text, field.Width - 18 - 6), field.X + 18, field.Y + 8);
+        Put(Say(Tr("보고서", "report"), 9.5, FontWeights.Normal, tone.Text, field.Width - 18 - 6), field.X + 18, field.Y + 8);
         Icon(G.Document, 12, tone.Blue, 18, 32.5);
         Bar(29, 27, 48, 4, tone.Bar);
         Bar(29, 34, 30, 3, Fade(tone.Faint, .4));
@@ -111,8 +111,8 @@ internal sealed partial class TutorialArt
 
     private void HomeAi()
     {
-        Bubble(Tr("이 오류 뭐야", "What is this error"), true, 101, 5, 92, 9.5, end: true);
-        Bubble(Tr("경로가 없대요", "The path is missing"), false, 9, 25, 114, 9.5);
+        Bubble(Tr("이 오류 뭐야", "What's this error?"), true, 101, 5, 92, 9.5, end: true);
+        Bubble(Tr("경로가 없대요", "Path not found."), false, 9, 25, 114, 9.5);
     }
 
     /// Notices kept: one waiting on top, the edge of another under it.

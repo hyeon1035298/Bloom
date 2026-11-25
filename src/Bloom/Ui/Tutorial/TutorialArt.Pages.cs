@@ -170,7 +170,7 @@ internal sealed partial class TutorialArt
 
     // ---- notices
 
-    private static Notice DoneNotice => new("Claude Code · " + Tr("작업 완료", "Completed"), Tr("결제 모듈 테스트", "Payment module tests"));
+    private static Notice DoneNotice => new("Claude Code · " + Tr("작업 완료", "Completed"), Tr("결제 모듈 테스트", "Test payment module"));
 
     /// A notice card, an arrow, and where a click on the card leads: the window the work runs in, or the taskbar's
     /// pill with its chat panel open under it. The card is as wide as its words; what it leads to takes the rest, up
@@ -262,8 +262,8 @@ internal sealed partial class TutorialArt
     {
         Caps(10, 9, w - 20, false, new Key("Tab"));
         var r = KeyBox(26);
-        Inside(r, 9, () => Query(r, Tr("이 오류 뜻이 뭐야", "What does this error mean"), rule: false));
-        Bubble(Tr("경로가 없다는 뜻이에요", "It means the path is missing"), false, r.X, 76, r.Width);
+        Inside(r, 9, () => Query(r, Tr("이 오류 뜻이 뭐야", "What does this error mean?"), rule: false));
+        Bubble(Tr("경로가 없다는 뜻이에요", "It means the path is missing."), false, r.X, 76, r.Width);
     }
 
     private void KeyMore()

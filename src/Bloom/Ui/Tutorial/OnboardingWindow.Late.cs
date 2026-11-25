@@ -18,7 +18,7 @@ internal sealed partial class OnboardingWindow
     private void AddonsPick(StackPanel page)
     {
         var c = Choices;
-        page.Children.Add(TutorialParts.Header(Tr("애드온", "Add-ons"), Tr("Windows에 기능을 더합니다. 켠 것은 마칠 때 받습니다.", "They add features to Windows. What you turn on downloads when you finish."), NewTag));
+        page.Children.Add(TutorialParts.Header(Tr("애드온", "Add-ons"), Tr("Windows에 기능을 더합니다. 켠 것은 마칠 때 받습니다.", "Add features to Windows. Selected add-ons are downloaded when you finish."), NewTag));
         var grid = Under(new TileGrid(3, 9, 9), 18);
         foreach (string id in c.AddonsListed)
         {
@@ -40,7 +40,7 @@ internal sealed partial class OnboardingWindow
             grid.Add(tile);
         }
         page.Children.Add(grid);
-        if (!UpdateOnly) page.Children.Add(Under(TutorialParts.Note(Tr("설정에서 언제든 끌 수 있습니다.", "You can turn them off in Settings at any time.")), 14));
+        if (!UpdateOnly) page.Children.Add(Under(TutorialParts.Note(Tr("설정에서 언제든 끌 수 있습니다.", "You can turn them off anytime in Settings.")), 14));
     }
 
     private static string AddonName(Addon a) =>
@@ -53,15 +53,15 @@ internal sealed partial class OnboardingWindow
     /// picked, else what it does (the tutorial's short wording for the add-ons it knows, the catalog's for the rest).
     internal static (string Text, bool Accent) AddonAbout(string id, bool onNow, bool picked, string? catalog)
     {
-        if (onNow && picked) return (Tr("켜져 있음", "On now"), true);
+        if (onNow && picked) return (Tr("켜져 있음", "Turned on"), true);
         return (id switch
         {
-            AddonProtocol.Id => Tr("가운데 알약 모양", "A pill in the middle"),
+            AddonProtocol.Id => Tr("가운데 알약 모양", "Centered pill style"),
             TutorialChoices.RunCard => Tr("Claude Code 진행", "Claude Code progress"),
-            "memory-clean" => Tr("시계 옆에서 비우기", "Free memory by the clock"),
-            "brightness" => Tr("모니터마다 밝기", "Brightness per monitor"),
-            "keep-awake" => Tr("PC가 잠들지 않게", "Keeps the PC awake"),
-            "alt-tab-per-monitor" => Tr("마우스 있는 화면만", "Only the screen with the mouse"),
+            "memory-clean" => Tr("시계 옆에서 비우기", "Clean right by the clock"),
+            "brightness" => Tr("모니터마다 밝기", "Per-monitor brightness"),
+            "keep-awake" => Tr("PC가 잠들지 않게", "Keep PC awake"),
+            "alt-tab-per-monitor" => Tr("마우스 있는 화면만", "Only screen with cursor"),
             _ => catalog ?? "",
         }, false);
     }
@@ -98,7 +98,7 @@ internal sealed partial class OnboardingWindow
             Dim();
         }, new CornerRadius(13));
         page.Children.Add(TutorialParts.Header(Tr("작업 알림", "Task Notifications"),
-            Tr("Claude Code와 Codex가 일을 마치거나 승인을 기다리면 카드로 알립니다.", "A card tells you when Claude Code or Codex finishes or waits for approval."), NewTag, master));
+            Tr("Claude Code와 Codex가 일을 마치거나 승인을 기다리면 카드로 알립니다.", "Notifies you with a card when Claude Code or Codex finishes work or waits for approval."), NewTag, master));
         page.Children.Add(body);
         Dim();
 
@@ -108,12 +108,12 @@ internal sealed partial class OnboardingWindow
             body.Children.Add(Under(ThumbRow.Switched(TutorialArt.For(picture, 64, 38), title, sub, on, set), rowGap));
             rowGap = 6;
         }
-        void Approve() => Row(TutorialScene.ThumbApprove, Tr("카드에서 승인하고 답하기", "Approve and answer on the card"),
-            Tr("켜면 Claude Code 설정 파일에 Bloom을 넣습니다. 끄면 뺍니다", "Adds Bloom to Claude Code's settings file. Off removes it"), c.Approve, c.SetApprove);
-        void Windows() => Row(TutorialScene.ThumbWindows, Tr("Windows 알림도 카드로", "Windows notifications as cards"),
-            Tr("다른 앱 알림도 같은 카드로 받습니다", "Other apps' notifications use the same card"), c.Windows, v => c.Windows = v);
+        void Approve() => Row(TutorialScene.ThumbApprove, Tr("카드에서 승인하고 답하기", "Approve and reply from cards"),
+            Tr("켜면 Claude Code 설정 파일에 Bloom을 넣습니다. 끄면 뺍니다", "Adds Bloom to the Claude Code config file when turned on, and removes it when turned off"), c.Approve, c.SetApprove);
+        void Windows() => Row(TutorialScene.ThumbWindows, Tr("Windows 알림도 카드로", "Show Windows notifications as cards"),
+            Tr("다른 앱 알림도 같은 카드로 받습니다", "Receive notifications from other apps as the same cards"), c.Windows, v => c.Windows = v);
         void T3() => Row(TutorialScene.ThumbT3, Tr("T3 Code 연결", "T3 Code Connection"),
-            Tr("카드와 AI 채팅에서 T3 Code 작업에 답하고 멈춥니다", "Answer and stop T3 Code tasks from cards and AI chat"), c.T3Link, v => c.T3Link = v);
+            Tr("카드와 AI 채팅에서 T3 Code 작업에 답하고 멈춥니다", "Reply to and stop T3 Code tasks from cards and AI Chat"), c.T3Link, v => c.T3Link = v);
 
         if (showClick)
         {
@@ -122,9 +122,9 @@ internal sealed partial class OnboardingWindow
             double scene = UpdateOnly ? 64 : 80; // the tag over the title takes the room
             var grid = new TileGrid(2, 10, 0);
             grid.Add(new PictureTile(TutorialArt.For(TutorialScene.NotifyToApp, 271, scene), scene, Tr("앱으로 이동", "Go to app"),
-                env.T3 ? Tr("작업하던 창이나 T3 Code로", "To your window or T3 Code") : Tr("작업하던 창으로", "To the window you were in"), TileMark.Pick, c.Click != "taskbar"));
+                env.T3 ? Tr("작업하던 창이나 T3 Code로", "To your working window or T3 Code") : Tr("작업하던 창으로", "To your working window"), TileMark.Pick, c.Click != "taskbar"));
             grid.Add(new PictureTile(TutorialArt.For(TutorialScene.NotifyToTaskbar, 271, scene), scene, Tr("작업표시줄 AI 패널", "Taskbar AI panel"),
-                Tr("작업표시줄에서 대화를 엽니다", "Opens the chat on the taskbar"), TileMark.Pick, c.Click == "taskbar"));
+                Tr("작업표시줄에서 대화를 엽니다", "Opens the chat from the taskbar"), TileMark.Pick, c.Click == "taskbar"));
             grid.PickOne(i => c.Click = i == 1 ? "taskbar" : "app");
             body.Children.Add(grid);
             rowGap = 10;
@@ -144,15 +144,15 @@ internal sealed partial class OnboardingWindow
         if (c.Taskbar) Windows(); // Windows' notices are read through the taskbar add-on
         if (env.T3) T3();
         body.Children.Add(Under(TutorialParts.Note(env.T3
-            ? Tr("카드를 누르면 작업하던 창이나 T3 Code로 갑니다.", "Clicking a card takes you to your window or T3 Code.")
-            : Tr("카드를 누르면 작업하던 창으로 갑니다.", "Clicking a card takes you to the window you were in.")), 14));
+            ? Tr("카드를 누르면 작업하던 창이나 T3 Code로 갑니다.", "Click a card to go to your working window or T3 Code.")
+            : Tr("카드를 누르면 작업하던 창으로 갑니다.", "Click a card to go to your working window.")), 14));
     }
 
     // ── the keys ────────────────────────────────────────────────────────────────────────────────
     private void KeysToKnow(StackPanel page)
     {
         var s = Settings.Current;
-        page.Children.Add(TutorialParts.Header(Tr("알아 두면 편한 키", "Keys worth knowing"), Tr("이것만 알면 거의 다 됩니다.", "These cover almost everything."), NewTag));
+        page.Children.Add(TutorialParts.Header(Tr("알아 두면 편한 키", "Handy Keys to Know"), Tr("이것만 알면 거의 다 됩니다.", "These few keys cover almost everything."), NewTag));
         var grid = Under(new TileGrid(3, 9, 9), 18);
         void Tile(TutorialScene picture, string name, TutorialArtData? data = null) =>
             grid.Add(new PictureTile(TutorialArt.For(picture, 178, 112, data), 112, name, nameLines: 2));
@@ -165,7 +165,7 @@ internal sealed partial class OnboardingWindow
         if (env.AnyProvider) Tile(TutorialScene.KeyTab, Tr("적은 말을 AI에게 묻기", "Ask AI what you typed"));
         Tile(TutorialScene.KeyMore, Tr("더보기", "More"));
         Combo(TutorialScene.KeyLens, "Bloom Lens", s.LensHotkey);
-        Combo(TutorialScene.KeyClipboard, Tr("클립보드와 상용구", "Clipboard and snippets"), s.ClipHotkey);
+        Combo(TutorialScene.KeyClipboard, Tr("클립보드와 상용구", "Clipboard & Snippets"), s.ClipHotkey);
         Tile(TutorialScene.KeyHelp, Tr("적을 수 있는 말", "What you can type"));
         page.Children.Add(grid);
     }
@@ -178,10 +178,10 @@ internal sealed partial class OnboardingWindow
         var mark = Launcher.MarkImage(52);
         mark.HorizontalAlignment = HorizontalAlignment.Left;
         page.Children.Add(mark);
-        page.Children.Add(Under(TutorialParts.Lines(Theme.T(Tr("준비됐습니다", "You are all set"), 24, Theme.P.Text, Theme.Semi), 30), 16));
-        string sub = s.WinKey ? Tr("Win 키를 눌러 바로 써 보세요.", "Press the Win key and try it.")
-            : s.AltSpace ? Tr("Alt + Space를 눌러 바로 써 보세요.", "Press Alt + Space and try it.")
-            : Tr("트레이 아이콘을 눌러 열 수 있습니다.", "Open it from the tray icon.");
+        page.Children.Add(Under(TutorialParts.Lines(Theme.T(Tr("준비됐습니다", "You're All Set"), 24, Theme.P.Text, Theme.Semi), 30), 16));
+        string sub = s.WinKey ? Tr("Win 키를 눌러 바로 써 보세요.", "Press the Win key to try it right now.")
+            : s.AltSpace ? Tr("Alt + Space를 눌러 바로 써 보세요.", "Press Alt + Space to try it right now.")
+            : Tr("트레이 아이콘을 눌러 열 수 있습니다.", "You can open it by clicking the tray icon.");
         page.Children.Add(Under(new TutorialParts.EvenLines(Theme.T(Hangul.KeepAll(sub), 13.5, Theme.P.TextDim), 20, 2), 6));
 
         // what was chosen, one picture each
@@ -189,11 +189,11 @@ internal sealed partial class OnboardingWindow
         void Tile(FrameworkElement scene, string name) => grid.Add(new PictureTile(scene, 64, name, nameLines: 2));
         if (s.WinKey || s.AltSpace)
             Tile(TutorialArt.For(TutorialScene.DoneOpen, 271, 64, new TutorialArtData(WinKey: s.WinKey, AltSpace: s.AltSpace)),
-                s.WinKey && s.AltSpace ? Tr("Win 키, Alt + Space로 열기", "Opens with the Win key or Alt + Space")
-                : s.WinKey ? Tr("Win 키로 열기", "Opens with the Win key") : Tr("Alt + Space로 열기", "Opens with Alt + Space"));
+                s.WinKey && s.AltSpace ? Tr("Win 키, Alt + Space로 열기", "Open with Win key or Alt + Space")
+                : s.WinKey ? Tr("Win 키로 열기", "Open with Win key") : Tr("Alt + Space로 열기", "Open with Alt + Space"));
         var home = ids.Contains(TutorialSteps.Home) ? HomeRow() : [];
         int n = home.Count;
-        if (n > 0) Tile(HomeScene(home), n == 1 ? Tr("홈 기능 1개", "1 feature on Home") : Tr($"홈 기능 {n}개", $"{n} features on Home"));
+        if (n > 0) Tile(HomeScene(home), n == 1 ? Tr("홈 기능 1개", "1 Home feature") : Tr($"홈 기능 {n}개", $"{n} Home features"));
         var plan = PlanForQa();
         if (plan.TurnOn.Count > 0)
         {
@@ -202,17 +202,17 @@ internal sealed partial class OnboardingWindow
             int k = plan.TurnOn.Count;
             // the finish asks only about an add-on not confirmed before (or the AI panel): ones confirmed earlier just go on
             string line = plan.Consent
-                ? k == 1 ? Tr("애드온 1개는 확인하고 받습니다", "1 add-on downloads after you confirm") : Tr($"애드온 {k}개는 확인하고 받습니다", $"{k} add-ons download after you confirm")
-                : k == 1 ? Tr("애드온 1개를 켭니다", "Turns on 1 add-on") : Tr($"애드온 {k}개를 켭니다", $"Turns on {k} add-ons");
+                ? k == 1 ? Tr("애드온 1개는 확인하고 받습니다", "1 add-on to confirm and download") : Tr($"애드온 {k}개는 확인하고 받습니다", $"{k} add-ons to confirm and download")
+                : k == 1 ? Tr("애드온 1개를 켭니다", "Turn on 1 add-on") : Tr($"애드온 {k}개를 켭니다", $"Turn on {k} add-ons");
             Tile(TutorialArt.For(TutorialScene.DoneAddons, 271, 64, data), line);
         }
         if (c.NotifyShown)
             Tile(TutorialArt.For(TutorialScene.DoneNotify, 271, 64, new TutorialArtData(On: c.Notices)),
-                c.Notices ? Tr("작업 알림 켬", "Task notifications on") : Tr("작업 알림 끔", "Task notifications off"));
+                c.Notices ? Tr("작업 알림 켬", "Task Notifications on") : Tr("작업 알림 끔", "Task Notifications off"));
         page.Children.Add(grid);
 
         var link = TutorialParts.Link(Tr("Bloom 설정 열기", "Open Bloom Settings"), () => host.OpenSettings("general"));
-        var note = TutorialParts.Note(Tr("이 안내는 Bloom에서 ‘둘러보기’를 적으면 다시 볼 수 있습니다.", "Type \"tour\" in Bloom to see this guide again."));
+        var note = TutorialParts.Note(Tr("이 안내는 Bloom에서 ‘둘러보기’를 적으면 다시 볼 수 있습니다.", "You can view this guide again by typing ‘Tour’ in Bloom."));
         page.Children.Add(Under(new Beside(link, note), 16));
     }
 
