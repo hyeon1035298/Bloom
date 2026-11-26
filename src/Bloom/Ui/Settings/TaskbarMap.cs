@@ -99,7 +99,6 @@ internal static class TaskbarMap
         new("folders.showLabels", Section.FoldersMore, Control.Switch),
         new("folders.iconSize", Section.FoldersMore, Control.Number),
         new("folders.appSpacing", Section.FoldersMore, Control.Number),
-        new("folders.popupSide", Section.FoldersMore, Control.Choice),
         new("folders.popupGap", Section.FoldersMore, Control.Number),
         new("folders.cornerRadius", Section.FoldersMore, Control.Number),
         new("folders.cornerSmoothing", Section.FoldersMore, Control.Number),
