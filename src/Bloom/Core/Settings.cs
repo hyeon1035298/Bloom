@@ -106,7 +106,7 @@ internal sealed class Settings
     public string TranslateHotkey { get; set; } = "ctrl+alt+t"; // Bloom Lens straight to "번역"
     public string OcrLanguage { get; set; } = "auto"; // auto (the user's languages) | an installed recognizer tag
     public bool OcrCopy { get; set; } = true; // recognized text goes to the clipboard at once
-    public string DrawTool { get; set; } = "pen"; // 화면 캡처's drawing: pen | mark (the highlighter) in hand last
+    public string DrawTool { get; set; } = "pen"; // 화면 캡처's drawing: pen | mark (the highlighter) | line | rect in hand last
     public int DrawPenColor { get; set; } // 0 red · 1 yellow · 2 blue · 3 green
     public int DrawMarkColor { get; set; } = 1;
     public int DrawPenSize { get; set; } = 1; // 0 thin · 1 medium · 2 thick

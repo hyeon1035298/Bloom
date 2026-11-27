@@ -15,7 +15,7 @@ namespace Bloom.Ocr;
 using Change = (System.Windows.Ink.StrokeCollection added, System.Windows.Ink.StrokeCollection removed); // one undo step
 
 /// 화면 캡처's pen and highlighter: ink over the picked area on the frozen screen, with a bar of tools beside it
-/// (펜 P · 형광펜 H · 지우개 E · colours 1–4 · three sizes · Ctrl+Z / Ctrl+Y) and where the picture goes next
+/// (펜 P · 형광펜 H · 직선 L · 사각형 R · 지우개 E · colours 1–4 · three sizes · Ctrl+Z / Ctrl+Y) and where the picture goes next
 /// (고정 · AI · 팔레트 · 저장 · 녹화 · 복사 Enter). The tool, colour and size last used are kept in the settings.
 internal sealed class DrawLayer
 {
@@ -38,6 +38,8 @@ internal sealed class DrawLayer
     private readonly Dictionary<string, SmoothBorder> tools = new();
     private readonly List<SmoothBorder> swatches = new(), sizes = new();
     private bool replaying;
+    private Point? shapeFrom; // 직선 · 사각형: where the drag started (DIPs in the area)
+    private Stroke? shaping; // the shape being dragged, once it has moved
 
     /// Ink over `sel` (DIPs on `canvas`), the bar below it (above, or inside, when the screen ends), off the boxes in
     /// `keepOff` (the hint, the island) where one of those places is clear of them. `done` gets what to do with the
@@ -61,6 +63,9 @@ internal sealed class DrawLayer
             undo.Add((e.Added, e.Removed));
             redo.Clear();
         };
+        ink.MouseLeftButtonDown += (_, e) => ShapeStart(e);
+        ink.MouseMove += (_, e) => ShapeMove(e);
+        ink.MouseLeftButtonUp += (_, e) => ShapeEnd(e);
         Canvas.SetLeft(ink, sel.X);
         Canvas.SetTop(ink, sel.Y);
         canvas.Children.Add(ink);
@@ -71,7 +76,7 @@ internal sealed class DrawLayer
         var (x, y) = BarAt(sel, room, bar.DesiredSize, keepOff ?? []);
         Canvas.SetLeft(bar, x);
         Canvas.SetTop(bar, y);
-        Use(Marking ? "mark" : "pen");
+        Use(InHand);
     }
 
     /// The bar's place: below the area, above it, or inside its bottom, the first that fits the room and is clear of
@@ -122,6 +127,12 @@ internal sealed class DrawLayer
             case Key.H when !ctrl:
                 Use("mark");
                 return true;
+            case Key.L when !ctrl:
+                Use("line");
+                return true;
+            case Key.R when !ctrl:
+                Use("rect");
+                return true;
             case Key.E when !ctrl:
                 Use("erase");
                 return true;
@@ -162,8 +173,21 @@ internal sealed class DrawLayer
         ink.Strokes.Add(new Stroke(new StylusPointCollection(points), ink.DefaultDrawingAttributes.Clone()));
     }
 
-    /// The pen or the highlighter: the one in hand, or the last one before the eraser.
+    /// QA: a 직선 or 사각형 from `a` to `b` (DIPs inside the area), as if dragged.
+    public void AddShapeForQa(string tool, int color, Point a, Point b)
+    {
+        Use(tool);
+        Pick(color, null);
+        ink.Strokes.Add(new Stroke(new StylusPointCollection(ShapePoints(tool, a, b, false)), ink.DefaultDrawingAttributes.Clone()));
+    }
+
+    /// The tool in hand: the pen, the highlighter, 직선 or 사각형, or the last of those before the eraser.
+    private string InHand => preferences.Tool is "mark" or "line" or "rect" ? preferences.Tool : "pen";
+
+    /// The highlighter is in hand (its own colour and size); every other tool takes the pen's.
     private bool Marking => preferences.Tool == "mark";
+
+    private static bool IsShape(string tool) => tool is "line" or "rect";
 
     private void Use(string tool)
     {
@@ -171,7 +195,7 @@ internal sealed class DrawLayer
         if (tool == "erase") ink.EditingMode = InkCanvasEditingMode.EraseByStroke;
         else
         {
-            bool mark = tool == "mark";
+            bool mark = tool == "mark", shape = IsShape(tool);
             if (s.Tool != tool)
             {
                 preferences = s = s with { Tool = tool };
@@ -187,17 +211,21 @@ internal sealed class DrawLayer
                 StylusTip = mark ? StylusTip.Rectangle : StylusTip.Ellipse,
                 Width = mark ? w * 0.4 : w,
                 Height = w,
-                FitToCurve = !mark,
+                FitToCurve = !mark && !shape, // a shape's corners stay corners
                 IgnorePressure = mark,
             };
-            ink.EditingMode = InkCanvasEditingMode.Ink;
+            // the shapes are dragged out by ShapeStart · ShapeMove · ShapeEnd, so the canvas leaves the mouse alone
+            ink.EditingMode = shape ? InkCanvasEditingMode.None : InkCanvasEditingMode.Ink;
+            ink.UseCustomCursor = shape;
+            ink.Cursor = shape ? Cursors.Cross : null;
             for (int i = 0; i < swatches.Count; i++) swatches[i].BorderBrush = i == c ? Bright : Brushes.Transparent;
             for (int i = 0; i < sizes.Count; i++) Mark(sizes[i], i == z);
         }
         foreach (var (key, button) in tools) Mark(button, key == tool, true);
     }
 
-    /// A colour (0–3) and/or a size (0–2) for the pen or highlighter in hand; from the eraser it goes back to that one.
+    /// A colour (0–3) and/or a size (0–2) for the tool in hand (the highlighter's own, else the pen's); from the eraser
+    /// it goes back to that tool.
     private void Pick(int? color, int? size)
     {
         var s = preferences;
@@ -210,7 +238,68 @@ internal sealed class DrawLayer
             preferences = s with { PenColor = color ?? s.PenColor, PenSize = size ?? s.PenSize };
         }
         persist(preferences);
-        Use(Marking ? "mark" : "pen");
+        Use(InHand);
+    }
+
+    // ── 직선 · 사각형 ──────────────────────────────────────────────────────────────────────────────
+    // Pressed, the shape starts at the pointer; once dragged past a few DIPs it is one stroke (one undo step) whose
+    // points follow the pointer; let go, it stays. A click without a drag draws nothing.
+
+    private void ShapeStart(MouseButtonEventArgs e)
+    {
+        if (ink.EditingMode != InkCanvasEditingMode.None) return;
+        shapeFrom = e.GetPosition(ink);
+        ink.CaptureMouse();
+        e.Handled = true;
+    }
+
+    private void ShapeMove(MouseEventArgs e)
+    {
+        if (shapeFrom is not { } a) return;
+        var at = e.GetPosition(ink);
+        var b = new Point(Math.Clamp(at.X, 0, area.Width), Math.Clamp(at.Y, 0, area.Height));
+        var points = new StylusPointCollection(ShapePoints(preferences.Tool, a, b, (Keyboard.Modifiers & ModifierKeys.Shift) != 0));
+        if (shaping is null)
+        {
+            if ((b - a).Length < 3) return;
+            shaping = new Stroke(points, ink.DefaultDrawingAttributes.Clone());
+            ink.Strokes.Add(shaping);
+        }
+        else shaping.StylusPoints = points;
+        e.Handled = true;
+    }
+
+    private void ShapeEnd(MouseButtonEventArgs e)
+    {
+        if (shapeFrom is null) return;
+        ShapeMove(e);
+        shapeFrom = null;
+        shaping = null;
+        ink.ReleaseMouseCapture();
+        e.Handled = true;
+    }
+
+    /// A shape's points (DIPs) from `a` to `b`: a straight line's two, or a rectangle's corners, closed. `even` (Shift):
+    /// the line turned to the nearest multiple of 45°, the rectangle a square.
+    internal static Point[] ShapePoints(string tool, Point a, Point b, bool even)
+    {
+        var d = b - a;
+        if (tool == "line")
+        {
+            if (even)
+            {
+                double step = Math.PI / 4, angle = Math.Round(Math.Atan2(d.Y, d.X) / step) * step;
+                var along = new Vector(Math.Round(Math.Cos(angle), 12), Math.Round(Math.Sin(angle), 12));
+                b = a + along * (d * along); // the pointer projected onto that direction
+            }
+            return new[] { a, b };
+        }
+        if (even)
+        {
+            double side = Math.Max(Math.Abs(d.X), Math.Abs(d.Y));
+            b = new Point(a.X + Math.CopySign(side, d.X), a.Y + Math.CopySign(side, d.Y));
+        }
+        return new[] { a, new Point(b.X, a.Y), b, new Point(a.X, b.Y), a };
     }
 
     private void Step(List<Change> from, List<Change> to, bool back)
@@ -237,6 +326,11 @@ internal sealed class DrawLayer
         var row = new StackPanel { Orientation = Orientation.Horizontal };
         tools["pen"] = Button(row, G.Pen, Tr("펜", "Pen"), Tr("펜 (P)", "Pen (P)"), () => Use("pen"));
         tools["mark"] = Button(row, G.Highlight, Tr("형광펜", "Highlighter"), Tr("형광펜 (H)", "Highlighter (H)"), () => Use("mark"));
+        // no Segoe Fluent glyph draws these two, so they are drawn here, in the glyphs' size and weight
+        var lineIcon = new System.Windows.Shapes.Line { X1 = 2, Y1 = 13, X2 = 13, Y2 = 2, StrokeThickness = 1.4, StrokeStartLineCap = PenLineCap.Round, StrokeEndLineCap = PenLineCap.Round, Width = 15, Height = 15 };
+        tools["line"] = Hit(row, lineIcon, null, Tr("직선 (L) · Shift로 45° 단위", "Line (L) · Shift for 45° steps"), () => Use("line"));
+        var rectIcon = new System.Windows.Shapes.Rectangle { Width = 14, Height = 11, StrokeThickness = 1.4, RadiusX = 2, RadiusY = 2 };
+        tools["rect"] = Hit(row, rectIcon, null, Tr("사각형 (R) · Shift로 정사각형", "Rectangle (R) · Shift for a square"), () => Use("rect"));
         tools["erase"] = Button(row, G.Erase, null, Tr("지우개 (E) · 그은 선을 통째로 지웁니다", "Eraser (E) · Erases entire strokes"), () => Use("erase"));
         Separator(row);
         for (int i = 0; i < Inks.Length; i++)
@@ -374,6 +468,9 @@ internal sealed class DrawLayer
                 break;
             case Border { Child: null } line: // a size button's line
                 line.Background = fg;
+                break;
+            case System.Windows.Shapes.Shape shape: // 직선 · 사각형's icons
+                shape.Stroke = fg;
                 break;
         }
     }

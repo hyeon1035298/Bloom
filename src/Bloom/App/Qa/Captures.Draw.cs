@@ -8,7 +8,7 @@ using Bloom.Ui;
 
 namespace Bloom.App;
 
-/// draw: 화면 캡처's pen and highlighter — the frozen area with ink and the bar under it (d01), the bar near the
+/// draw: 화면 캡처's pen and highlighter (and 직선 · 사각형) — the frozen area with ink and the bar under it (d01), the bar near the
 /// screen's bottom edge going above the area (d02), the merged picture that is copied (d03) and the settings rows for
 /// the saved captures (d04).
 internal static partial class Captures
@@ -34,6 +34,8 @@ internal static partial class Captures
             var layer = new Ocr.DrawLayer(canvas, sel, new Size(900, 480), _ => { });
             layer.AddForQa("mark", 1, new Point(200, 38), new Point(330, 38));
             layer.AddForQa("pen", 0, new Point(16, 80), new Point(60, 66), new Point(200, 64), new Point(300, 76), new Point(230, 98), new Point(60, 96), new Point(20, 82));
+            layer.AddShapeForQa("rect", 2, new Point(12, 12), new Point(160, 56));
+            layer.AddShapeForQa("line", 3, new Point(250, 106), new Point(340, 64));
             last = layer;
             canvas.Measure(new Size(900, 480));
             canvas.Arrange(new Rect(0, 0, 900, 480));
