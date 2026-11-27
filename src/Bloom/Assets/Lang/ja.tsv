@@ -1329,6 +1329,8 @@ Pen	ペン
 Pen (P)	ペン (P)
 Highlighter	蛍光ペン
 Highlighter (H)	蛍光ペン (H)
+Line (L) · Shift for 45° steps	直線 (L) · Shift で 45° 刻み
+Rectangle (R) · Shift for a square	四角形 (R) · Shift で正方形
 Eraser (E) · Erases entire strokes	消しゴム (E) · 引いた線を丸ごと消去します
 Thin	細線
 Medium line	標準

@@ -1329,6 +1329,8 @@ Pen	画笔
 Pen (P)	画笔 (P)
 Highlighter	荧光笔
 Highlighter (H)	荧光笔 (H)
+Line (L) · Shift for 45° steps	直线 (L) · 按 Shift 以 45° 为单位
+Rectangle (R) · Shift for a square	矩形 (R) · 按 Shift 画正方形
 Eraser (E) · Erases entire strokes	橡皮擦 (E) · 整条擦除所画线条
 Thin	细线
 Medium line	中线
