@@ -7,10 +7,10 @@ using Bloom.Native;
 
 namespace Bloom.Ui;
 
-/// What the notices keep under at the top of the primary monitor, in DIPs: the island window (a pill a taskbar add-on
-/// keeps at the top middle of the taskbar's monitor, drawn in explorer; its window also spans the taskbar pill it turns
-/// into, so what shows is the window's region, read here as the region's box moved to the window) and the taskbar
-/// while it shows at the top.
+/// What the notices keep clear of at the primary monitor's edge, in DIPs: the island window (a pill a taskbar add-on
+/// keeps at the middle of the taskbar's edge, top or bottom, drawn in explorer; its window also spans the taskbar pill
+/// it turns into, so what shows is the window's region, read here as the region's box moved to the window) and the
+/// taskbar while it shows.
 internal static class NoticeIsland
 {
     private const string ClassPrefix = "PillTaskbarIsland_";

@@ -16,7 +16,7 @@ using Bloom.Search;
 namespace Bloom.Ui;
 
 /// The notices (App\Notices) as cards at the place picked in 설정 > 알림 (a corner, an edge or anywhere: NoticePlacement),
-/// under the island window and a taskbar showing at the top when they would cover them (NoticeIsland; they glide
+/// clear of the island window and a showing taskbar, at the top or the bottom, when they would cover them (NoticeIsland; they glide
 /// along as the taskbar slides in and out), newest nearest the edge, at the size picked
 /// there. Drawn like the timer card (AlarmWindow). Never takes the focus; a click closes a card (after the card's own
 /// Click, if it has one: a turn's card goes to its session window), the mouse over one holds it, and a card with a key
@@ -205,7 +205,7 @@ internal sealed class NoticeWindow : Window
         if (!glide.IsEnabled) Top = at.Y; // while following, the glide takes it there
     }
 
-    /// Where the cards go with this above them: the picked place, kept under the island and a taskbar showing at the top.
+    /// Where the cards go with this above them: the picked place, kept clear of the island and a showing taskbar.
     private Point Target(Above above)
     {
         var wa = SystemParameters.WorkArea;

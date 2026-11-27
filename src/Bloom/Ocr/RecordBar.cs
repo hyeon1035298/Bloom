@@ -46,7 +46,7 @@ internal sealed class RecordBar : Window
     private readonly ScreenRect area;
     private readonly Palette ink;
     private readonly bool capsule; // the island's and the pill's bar is round at the ends; the plain bar is a 12-DIP card
-    private readonly bool bottom; // the pill over a taskbar at the bottom: it keeps its bottom edge as it changes size
+    private readonly bool bottom; // over a taskbar at the bottom: it keeps its bottom edge as it changes size
     private readonly double scale;
     private readonly SmoothBorder shape;
     private readonly Grid menu, rec;
@@ -69,7 +69,7 @@ internal sealed class RecordBar : Window
         SystemAudio = systemAudio;
         Mic = mic;
         capsule = surface.Kind != RecordSurfaceKind.Plain;
-        bottom = surface.Kind == RecordSurfaceKind.Pill;
+        bottom = surface.Bottom;
         scale = ScaleAt(Anchor(surface, area));
 
         WindowStyle = WindowStyle.None;

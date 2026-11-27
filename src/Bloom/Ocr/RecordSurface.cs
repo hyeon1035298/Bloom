@@ -9,11 +9,11 @@ namespace Bloom.Ocr;
 
 internal enum RecordSurfaceKind { Plain, Pill, Island }
 
-/// Where 화면 녹화's bar goes: by the auto-hide island at the top (Island), by Pill taskbar's pill at the bottom (Pill),
-/// else a bar of its own under the area (Plain). `Box` is the island or pill in physical pixels. `Edge` (physical y)
-/// is the taskbar's edge once it is all the way out: the bar floats under it at the top, over it at the bottom, so the
-/// taskbar coming out never covers it.
-internal readonly record struct RecordSurface(RecordSurfaceKind Kind, Rect Box, double Edge = 0)
+/// Where 화면 녹화's bar goes: by the auto-hide island (Island) or Pill taskbar's pill (Pill), at whichever edge Pill
+/// taskbar is set to, else a bar of its own under the area (Plain). `Box` is the island or pill in physical pixels.
+/// `Bottom`: it is at the monitor's bottom. `Edge` (physical y) is the taskbar's edge once it is all the way out: the bar
+/// floats under it at the top, over it at the bottom, so the taskbar coming out never covers it.
+internal readonly record struct RecordSurface(RecordSurfaceKind Kind, Rect Box, double Edge = 0, bool Bottom = false)
 {
     /// The shape on the monitor that holds `area` (physical).
     public static RecordSurface Find(ScreenRect area)
@@ -24,22 +24,37 @@ internal readonly record struct RecordSurface(RecordSurfaceKind Kind, Rect Box, 
         IntPtr taskbar = TaskbarOn(mon);
         if (NoticeIsland.FindPixels(mon) is { } island)
         {
-            // the island's window spans the pill it opens into; the taskbar reaches as far once it is out
-            double under = island.Bottom;
             IntPtr w = NoticeIsland.WindowOn(mon);
-            if (w != IntPtr.Zero && Win32.GetWindowRect(w, out var iw)) under = Math.Max(under, iw.Bottom);
-            if (OutEdge(taskbar, info.rcMonitor) is { top: true } t) under = Math.Max(under, t.edge);
-            return new(RecordSurfaceKind.Island, island, under);
+            Win32.RECT? window = w != IntPtr.Zero && Win32.GetWindowRect(w, out var iw) ? iw : null;
+            var (bottom, edge) = Clear(island, info.rcMonitor, window, OutEdge(taskbar, info.rcMonitor));
+            return new(RecordSurfaceKind.Island, island, edge, bottom);
         }
         // the pill is the primary taskbar's: on another monitor the plain bar stays by the area
         IntPtr primary = Win32.MonitorFromPoint(new Win32.POINT { X = 0, Y = 0 }, Win32.MONITOR_DEFAULTTOPRIMARY);
         if (mon == primary && PillBox() is { } pill)
         {
-            double over = pill.Top;
-            if (OutEdge(taskbar, info.rcMonitor) is { top: false } b) over = Math.Min(over, b.edge);
-            return new(RecordSurfaceKind.Pill, pill, over);
+            var (bottom, edge) = Clear(pill, info.rcMonitor, null, OutEdge(taskbar, info.rcMonitor));
+            return new(RecordSurfaceKind.Pill, pill, edge, bottom);
         }
         return new(RecordSurfaceKind.Plain, Rect.Empty);
+    }
+
+    /// The monitor's edge `box` (the island or the pill, physical) is at, and the line the bar keeps clear of there: the
+    /// box's own, its `window`'s (the island's spans the taskbar pill it opens into) and the taskbar's once it is out,
+    /// whichever reaches furthest into the screen. `taskbar` is OutEdge's answer, used only when it is at the same edge.
+    internal static (bool bottom, double edge) Clear(Rect box, Win32.RECT monitor, Win32.RECT? window, (bool top, double edge)? taskbar)
+    {
+        if (box.Top + box.Bottom > monitor.Top + monitor.Bottom)
+        {
+            double over = box.Top;
+            if (window is { } w) over = Math.Min(over, w.Top);
+            if (taskbar is { top: false } b) over = Math.Min(over, b.edge);
+            return (true, over);
+        }
+        double under = box.Bottom;
+        if (window is { } v) under = Math.Max(under, v.Bottom);
+        if (taskbar is { top: true } t) under = Math.Max(under, t.edge);
+        return (false, under);
     }
 
     /// The primary taskbar's pill (physical), null when the taskbar is Windows' own or hidden.

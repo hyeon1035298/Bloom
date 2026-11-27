@@ -23,7 +23,7 @@ internal static class NoticePlacement
     public const double IslandGap = 4;
 
     /// The island is never taller than this (60 at most, plus room); a taller region is the island turning into or
-    /// out of the taskbar, and only its top band is the island.
+    /// out of the taskbar, and only its band at the screen's edge is the island.
     public const double IslandTallest = 64;
 
     /// A taskbar showing no more than this (DIP) at the edge is one hidden there (auto-hide leaves a sliver).
@@ -72,8 +72,8 @@ internal static class NoticePlacement
     public enum Line { None, Start, Center, End }
 
     /// A dragged corner kept inside the work area and stuck to the nearest centre line or edge within Reach on each
-    /// axis (`free`: no sticking). Against the island the top edge is under it: a window held just under the island
-    /// sticks to the top, and shows under the island again (Avoid).
+    /// axis (`free`: no sticking). Against the island the edge it is at moves past it: a window held just under an island
+    /// at the top sticks to the top, just over one at the bottom to the bottom, and shows clear of it again (Avoid).
     public static (Point At, Line X, Line Y) Snap(Rect work, Size window, Point at, Rect? island, bool free)
     {
         at = Clamp(work, window, at);
@@ -82,33 +82,54 @@ internal static class NoticePlacement
         double top = work.Top + Edge, bottom = top + Room(work.Height, window.Height), centreY = work.Top + ((work.Height - window.Height) / 2);
         var (x, lineX) = Nearest(at.X, (left, Line.Start), (centreX, Line.Center), (right, Line.End));
         var (y, lineY) = Nearest(at.Y, (top, Line.Start), (centreY, Line.Center), (bottom, Line.End));
-        if (lineY == Line.None && island is { } i && Across(x, window.Width, i) && Math.Abs(at.Y - (i.Bottom + IslandGap)) <= Reach)
-            (y, lineY) = (top, Line.Start);
+        if (lineY == Line.None && island is { } i && Across(x, window.Width, i))
+        {
+            if (Low(work, i))
+            {
+                if (Math.Abs(at.Y + window.Height - (i.Top - IslandGap)) <= Reach) (y, lineY) = (bottom, Line.End);
+            }
+            else if (Math.Abs(at.Y - (i.Bottom + IslandGap)) <= Reach) (y, lineY) = (top, Line.Start);
+        }
         return (new Point(x, y), lineX, lineY);
     }
 
-    /// The corner moved down under the island when the window would cover it (or come nearer than IslandGap), kept
-    /// on the work area; elsewhere the corner as it is.
+    /// The corner moved clear of the island when the window would cover it (or come nearer than IslandGap): down under
+    /// it at the top, up over it at the bottom (Pill taskbar set to the bottom), kept on the work area; elsewhere the
+    /// corner as it is.
     public static Point Avoid(Rect work, Size window, Point at, Rect? island)
     {
-        if (island is not { } i || !Across(at.X, window.Width, i) || at.Y >= i.Bottom + IslandGap || at.Y + window.Height <= i.Top) return at;
+        if (island is not { } i || !Across(at.X, window.Width, i)) return at;
+        if (Low(work, i))
+        {
+            if (at.Y + window.Height <= i.Top - IslandGap || at.Y >= i.Bottom) return at;
+            double over = i.Top - IslandGap - window.Height;
+            double highest = work.Top + Edge;
+            return new Point(at.X, Math.Min(at.Y, Math.Max(over, highest)));
+        }
+        if (at.Y >= i.Bottom + IslandGap || at.Y + window.Height <= i.Top) return at;
         double under = i.Bottom + IslandGap;
         double lowest = work.Bottom - Edge - window.Height;
         return new Point(at.X, Math.Max(at.Y, Math.Min(under, lowest)));
     }
 
-    /// The corner kept under every box above it (the island, the taskbar showing at the top), each as Avoid; the lowest
-    /// last, so the corner ends under all of those it would cover.
+    /// The corner kept clear of every box at the screen's edges (the island, the taskbar while it shows), each as Avoid:
+    /// the lowest of those at the top last and the highest of those at the bottom last, so the corner ends clear of all
+    /// of those it would cover.
     public static Point AvoidAll(Rect work, Size window, Point at, IEnumerable<Rect> above)
     {
-        foreach (var box in above.OrderBy(b => b.Bottom)) at = Avoid(work, window, at, box);
+        var boxes = above.ToList();
+        foreach (var box in boxes.Where(b => !Low(work, b)).OrderBy(b => b.Bottom)) at = Avoid(work, window, at, box);
+        foreach (var box in boxes.Where(b => Low(work, b)).OrderByDescending(b => b.Top)) at = Avoid(work, window, at, box);
         return at;
     }
 
-    /// The taskbar's box in DIPs while it shows at the top of the monitor (rectangle px, at its scale): the part of its
-    /// window its region leaves (`regionKind` as GetWindowRgnBox answers) on the monitor. Null when it is hidden (an
-    /// empty region, or a sliver at the edge), on another monitor, or not against the top (a taskbar at the bottom).
-    /// While it slides in or out the box is the part on the screen, so a window kept under it follows it.
+    /// A box in the lower half of the work area is at the bottom edge: the cards keep over it, not under it.
+    private static bool Low(Rect work, Rect box) => box.Top + box.Bottom > work.Top + work.Bottom;
+
+    /// The taskbar's box in DIPs while it shows at the top or the bottom of the monitor (rectangle px, at its scale): the
+    /// part of its window its region leaves (`regionKind` as GetWindowRgnBox answers) on the monitor. Null when it is
+    /// hidden (an empty region, or a sliver at the edge), on another monitor, or against neither edge.
+    /// While it slides in or out the box is the part on the screen, so a window kept clear of it follows it.
     public static Rect? Taskbar(Win32.RECT window, int regionKind, Win32.RECT regionBox, Win32.RECT monitor, double scale)
     {
         if (regionKind == 1 || scale <= 0) return null;
@@ -124,7 +145,7 @@ internal static class NoticePlacement
         top = Math.Max(top, monitor.Top);
         right = Math.Min(right, monitor.Right);
         bottom = Math.Min(bottom, monitor.Bottom);
-        if (right <= left || bottom <= top || top > monitor.Top || (bottom - top) / scale <= TaskbarSliver) return null;
+        if (right <= left || bottom <= top || (top > monitor.Top && bottom < monitor.Bottom) || (bottom - top) / scale <= TaskbarSliver) return null;
         return new Rect(left / scale, top / scale, (right - left) / scale, (bottom - top) / scale);
     }
 
@@ -142,7 +163,9 @@ internal static class NoticePlacement
             right = window.Left + regionBox.Right;
             bottom = window.Top + regionBox.Bottom;
         }
-        bottom = Math.Min(bottom, top + (int)Math.Ceiling(IslandTallest * scale));
+        int tallest = (int)Math.Ceiling(IslandTallest * scale);
+        if (top + bottom > monitor.Top + monitor.Bottom) top = Math.Max(top, bottom - tallest); // at the bottom: its bottom band
+        else bottom = Math.Min(bottom, top + tallest);
         if (right <= left || bottom <= top) return null;
         if (right <= monitor.Left || left >= monitor.Right || bottom <= monitor.Top || top >= monitor.Bottom) return null;
         return new Rect(left / scale, top / scale, (right - left) / scale, (bottom - top) / scale);
