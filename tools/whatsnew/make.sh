@@ -43,5 +43,11 @@ case "$1" in
   for lang in ko en; do
     python "$here/pages.py" "$TUTORIAL_SHOTS/$lang" "$out/tutorial-$lang.webp" --lang $lang
   done ;;
+1.6.1)
+  # the capture drawing bar's own frames: take them first, one capture folder for both languages in $DRAW_FRAMES:
+  #   Bloom.exe --data <empty folder> --no-hook --no-tray --demo --lang <lang> --capture $DRAW_FRAMES --qa-set drawclip
+  for lang in ko en; do
+    python "$here/pack.py" "$DRAW_FRAMES/drawclip-$lang" "$out/draw-$lang.webp"
+  done ;;
 *) echo "no pictures listed for $1"; exit 2 ;;
 esac

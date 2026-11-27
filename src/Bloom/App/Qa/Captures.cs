@@ -59,6 +59,7 @@ internal static partial class Captures
         ["readme-home"] = ReadmeHomeSetScreens,
         ["new"] = NewScreens,
         ["draw"] = DrawScreens,
+        ["drawclip"] = DrawClipScreens,
         ["guide"] = GuideScreens,
         ["home"] = HomeScreens,
         ["homecmd"] = HomeCommandScreens,

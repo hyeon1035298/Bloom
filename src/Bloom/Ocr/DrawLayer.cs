@@ -181,6 +181,9 @@ internal sealed class DrawLayer
         ink.Strokes.Add(new Stroke(new StylusPointCollection(ShapePoints(tool, a, b, false)), ink.DefaultDrawingAttributes.Clone()));
     }
 
+    /// QA: `tool` in hand, as its key or button picks it.
+    public void UseForQa(string tool) => Use(tool);
+
     /// The tool in hand: the pen, the highlighter, 직선 or 사각형, or the last of those before the eraser.
     private string InHand => preferences.Tool is "mark" or "line" or "rect" ? preferences.Tool : "pen";
 
